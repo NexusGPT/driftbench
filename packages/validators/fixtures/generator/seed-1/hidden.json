@@ -246,7 +246,7 @@
     {
       "id": "new-request",
       "title": "A user opens a new request and submits it",
-      "behaviours": ["B-001", "B-004", "B-005"],
+      "behaviours": ["B-001", "B-002", "B-004", "B-005"],
       "deviations": [
         "D1_off_topic",
         "D3_contradiction",
@@ -1840,9 +1840,7 @@
       "tools": [
         {
           "tool": "lookup_record",
-          "count": {
-            "max": 2
-          }
+          "count": 2
         }
       ],
       "quote": "A failed read-only tool gets one retry; a side-effecting tool none; report the failure honestly and stay on the step."

@@ -11,7 +11,7 @@ import {
   pairwiseRequest,
   pairwiseTally,
 } from '../src/pairwise';
-import { buildPrompt, PROMPT_FINGERPRINT } from '../src/prompt';
+import { buildPrompt, CRITERION_PROMPT_V1_FINGERPRINT } from '../src/prompt';
 
 const criterion = { name: 'correct', rubric: 'Give the correct answer.' };
 const transcript = [{ role: 'user' as const, text: 'What is six times seven?' }];
@@ -338,7 +338,7 @@ describe('default compatibility and canonical tally', () => {
     expect(requestKey(pairwiseRequest({ name: 'c', rubric: 'Correct.' }, [], 'one', 'two'))).toBe(
       '2516c80c92c8',
     );
-    expect(PROMPT_FINGERPRINT).toBe('398673b792c1');
+    expect(CRITERION_PROMPT_V1_FINGERPRINT).toBe('398673b792c1');
   });
 
   it('keeps implicit and explicit both-orders requests, keys, and measured diagnostics unchanged', async () => {

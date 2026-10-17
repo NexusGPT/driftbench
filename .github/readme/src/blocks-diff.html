@@ -2,61 +2,84 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>driftbench: a failure you can diagnose</title>
+<title>driftbench: test each step and find the fix</title>
 <link rel="stylesheet" href="brand.css">
 <style>
-  /* Left: a score for the whole conversation, the unit other tools score (docs/comparison.md, row 1).
-     Right: the same conversation step by step. The example is a recorded run: a sales agent with a bug that
-     skips the order recap; the failing step's checks report "reached order_placed, expected recap" and
-     "order.create called 1 time (call-1); the block expects it 0 times", said here in plain words. */
-  #frame { width: 640px; height: 278px; }
-  .p { top: 40px; height: 214px; padding: 12px; }
-  .p .nx-kind { position: static; display: block; }
-  .p .t { margin-top: 7px; font: 600 13.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
-  .run { left: 16px; width: 200px; }
-  .blk { left: 232px; width: 374px; }
-  .bar { position: absolute; left: 12px; right: 12px; top: 84px; height: 46px; border-radius: 10px; background: var(--miss-bg);
-    display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font: 500 11.5px/1.2 var(--nx-sans); color: var(--miss-ink); }
-  .bad { display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: 999px; background: var(--nx-ink); color: var(--nx-card); font: 600 11px/1 var(--nx-sans); }
-  .p .foot { position: absolute; left: 12px; right: 12px; bottom: 12px; font: 400 11.5px/1.4 var(--nx-sans); color: var(--detail); }
-  .row { position: absolute; left: 12px; right: 12px; top: 70px; display: flex; gap: 6px; }
-  .b { flex: 1; height: 60px; border-radius: 10px; border: 1px solid var(--nx-ill-panel-border); background: var(--nx-card);
-    display: grid; align-content: center; justify-items: center; row-gap: 6px; font: 500 10.5px/1 var(--nx-sans); color: var(--kind); }
-  .b.fail { box-shadow: 0 0 0 2px var(--nx-blue); color: var(--nx-ink); font-weight: 600; }
-  .b .nx-done { height: 18px; }
-  .x { display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 999px; background: var(--nx-ink); color: var(--nx-card); font: 600 10px/1 var(--nx-sans); }
-  .why { position: absolute; left: 12px; right: 12px; top: 146px; display: grid; gap: 4px; font: 400 11.5px/1.35 var(--nx-sans); color: var(--nx-ink); }
-  .why span { color: var(--kind); font: 500 10px/1 var(--nx-mono); letter-spacing: .6px; text-transform: uppercase; margin-right: 6px; }
+  /* The recap example illustrates the block contract and its optional links.
+     Availability is stated in the README note. Tokens and card scale match moj.html. */
+  #frame { width: 640px; height: 450px; }
+  .row { position: absolute; left: 16px; right: 16px; top: 42px; display: flex; gap: 8px; }
+  .step { flex: 1; height: 52px; border-radius: 10px; border: 1px solid var(--nx-ill-panel-border); background: var(--nx-card);
+    display: grid; align-content: center; justify-items: center; row-gap: 6px; font: 500 10.5px/1 var(--nx-sans); color: var(--detail); }
+  .step .nx-done { height: 18px; }
+  .fail { display: inline-flex; align-items: center; height: 18px; padding: 0 8px; border-radius: 999px;
+    background: var(--nx-ink); color: var(--nx-card); font: 600 10.5px/1 var(--nx-sans); }
+  .block { left: 16px; top: 130px; width: 324px; height: 224px; padding: 12px; }
+  .block .nx-kind { position: static; display: block; }
+  .part { margin-top: 13px; display: grid; grid-template-columns: 46px 1fr; column-gap: 8px; }
+  .part .label { padding-top: 2px; font: 500 10px/1.3 var(--nx-mono); letter-spacing: .6px; text-transform: uppercase; color: var(--kind); }
+  .part .value { font: 400 12px/1.35 var(--nx-sans); color: var(--nx-ink); }
+  .part.got { padding-top: 12px; border-top: 1px solid var(--nx-line); }
+  .link { left: 378px; width: 226px; padding: 10px 12px; }
+  .link .nx-kind { position: static; display: block; font-size: 10px; }
+  .link .title { margin-top: 6px; font: 600 12.5px/1.25 var(--nx-sans); }
+  .link .detail { margin-top: 4px; font: 400 11px/1.35 var(--nx-sans); color: var(--detail); }
+  .rule { left: 16px; top: 374px; width: 588px; height: 40px; display: flex; align-items: center; gap: 12px; padding: 0 12px; }
+  .rule .nx-kind { position: static; font-size: 10px; }
+  .rule .text { font: 500 11.5px/1.3 var(--nx-sans); }
+  .rule .file { margin-left: auto; font: 400 11px/1.3 var(--nx-sans); color: var(--detail); }
 </style>
 </head>
 <body>
 <div id="frame" class="nx-ill scene">
   <div class="nx-ill__glass">
-    <span class="nx-kind" style="left:16px;top:16px">A sales conversation with a bug</span>
-    <div class="nx-ill-panel p run">
-      <span class="nx-kind">Other tools</span>
-      <div class="t">One score for the whole conversation</div>
-      <div class="bar">Seven steps <span class="bad">Fail</span></div>
-      <div class="foot">Which step broke, and why? You read the transcript to find out.</div>
+    <svg class="nx-edges" viewBox="0 0 620 430">
+      <path class="nx-edge--new" d="M310 94 C310 112, 178 110, 178 130"/>
+      <path class="nx-edge" d="M378 155 C357 155, 361 166, 340 166"/>
+      <path class="nx-edge" d="M378 227 C357 227, 361 209, 340 209"/>
+      <path class="nx-edge" d="M378 309 C355 309, 365 255, 340 255"/>
+      <path class="nx-edge" d="M178 354 L178 374"/>
+    </svg>
+    <span class="nx-kind" style="left:16px;top:16px">A verdict for every step</span>
+    <div class="row">
+      <div class="step">number<span class="nx-done">pass</span></div>
+      <div class="step">offer<span class="nx-done">pass</span></div>
+      <div class="step">details<span class="nx-done">pass</span></div>
+      <div class="step nx-ring">recap<span class="fail">fail</span></div>
+      <div class="step">order<span class="fail">fail</span></div>
+      <div class="step">close<span class="nx-done">pass</span></div>
+      <div class="step">close<span class="nx-done">pass</span></div>
     </div>
-    <div class="nx-ill-panel p blk">
-      <span class="nx-kind nx-kind--ink">driftbench</span>
-      <div class="t">A verdict for every step</div>
-      <div class="row">
-        <div class="b">number<span class="nx-done">pass</span></div>
-        <div class="b">offer<span class="nx-done">pass</span></div>
-        <div class="b">details<span class="nx-done">pass</span></div>
-        <div class="b fail">recap<span class="x">fail</span></div>
-        <div class="b fail">order<span class="x">fail</span></div>
-        <div class="b">close<span class="nx-done">pass</span></div>
-        <div class="b">close<span class="nx-done">pass</span></div>
-      </div>
-      <div class="why"><div><span>Expected</span>read the order back to the customer</div><div><span>Got</span>placed the order without a recap</div></div>
+    <div class="nx-ill-panel block">
+      <span class="nx-kind nx-kind--ink">The recap block</span>
+      <div class="part"><span class="label">Given</span><span class="value">The customer has chosen a plan.</span></div>
+      <div class="part"><span class="label">When</span><span class="value">“That plan, please.”</span></div>
+      <div class="part"><span class="label">Then</span><span class="value">Read the order back.<br>Wait for confirmation.</span></div>
+      <div class="part got"><span class="label">Got</span><span class="value">The agent placed the order.</span></div>
+    </div>
+    <div class="nx-ill-panel link" style="top:130px;height:62px">
+      <span class="nx-kind">Parent · where it starts</span>
+      <div class="title">The details block's end state</div>
+    </div>
+    <div class="nx-ill-panel link" style="top:204px;height:62px">
+      <span class="nx-kind">Persona · who plays it</span>
+      <div class="title">An impatient customer</div>
+      <div class="detail">Gives short replies.</div>
+    </div>
+    <div class="nx-ill-panel link" style="top:278px;height:76px">
+      <span class="nx-kind">Sources · what it tests</span>
+      <div class="detail">Prompt · recap section<br>Spec · confirmation clause<br>Past conversation · source turn</div>
+    </div>
+    <div class="nx-ill-panel rule">
+      <span class="fail">fail</span>
+      <span class="nx-kind">Rule</span>
+      <span class="text">No order call at this step.</span>
+      <span class="file">In a file you can change.</span>
     </div>
   </div>
 </div>
 <script>
-  window.__fonts = ['400 11px Geist', '600 13px Geist', '500 10px "Geist Mono"'];
+  window.__fonts = ['400 12px Geist', '600 13px Geist', '500 10.5px "Geist Mono"'];
   Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
 </script>
 </body>

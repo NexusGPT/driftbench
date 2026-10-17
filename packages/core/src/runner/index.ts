@@ -34,6 +34,7 @@ export {
   runCampaign,
   runsByCell,
 } from './campaign';
+export { capabilityGap, type GivenLayers } from './capability';
 export { type CellKey, cellId } from './cell';
 export {
   type CompoundingBlock,
@@ -93,3 +94,15 @@ export {
   type TranscriptComparison,
   transcriptOf,
 } from './transcript';
+export {
+  blockStatus,
+  blocksOutcome,
+  countBlocks,
+  countRuns,
+  isScored,
+  type RunOutcome,
+  runOutcome,
+  skipReason,
+  unscoredText,
+  type VerdictCounts,
+} from './verdicts';

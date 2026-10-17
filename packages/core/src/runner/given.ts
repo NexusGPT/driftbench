@@ -10,13 +10,16 @@ import { deepEqual } from './assertion';
  * `given` merges into it from that block onwards, and so does the world of an injected perturbation. A
  * block's `ledger_add` joins the ledger after the block. For each tool, store key, fixture, variable and
  * fact the later value wins; a later workspace replaces the earlier one. `origin` is the one the latest
- * prefix states: a block that writes a prefix sets it, or clears it when it states none.
+ * prefix states: a block that writes a prefix sets it, or clears it when it states none. `originLength` is
+ * how many messages that prefix holds: the origin covers those first messages of the history, never the
+ * messages a run or a teacher-forced replay adds after them.
  */
 export type RunningGiven = {
   ledger: Record<string, unknown>;
   world: WorldState;
   vars: Record<string, unknown>;
   origin?: GivenOrigin;
+  originLength?: number;
 };
 
 export function initialGiven(spec: Spec): RunningGiven {
@@ -33,12 +36,14 @@ export function enterBlock(
   given: GivenOverride | undefined,
   world?: WorldState,
 ): RunningGiven {
-  const origin = given?.prefix === undefined ? state.origin : given.origin;
+  const written = given?.prefix !== undefined;
+  const origin = written ? given.origin : state.origin;
+  const originLength = written ? given.prefix?.length : state.originLength;
   return {
     ledger: { ...state.ledger, ...given?.ledger },
     world: mergeWorld(mergeWorld(state.world, given?.world), world),
     vars: { ...state.vars, ...given?.vars },
-    ...(origin === undefined ? {} : { origin }),
+    ...(origin === undefined ? {} : { origin, originLength: originLength ?? 0 }),
   };
 }
 
@@ -46,7 +51,9 @@ export function enterBlock(
  * The resolved Given of one block: what it starts from, and the content hash of all of it. The prefix is a
  * new list of the same message objects: the run owns them and never changes one after it joined the
  * history, so the cost of a block does not grow with the messages before it. The origin of the prefix joins
- * the hash only when the spec states one, so a Given without it hashes as it always did.
+ * the hash only when the spec states one, so a Given without it hashes as it always did. `originLength`
+ * follows from the spec the hash already covers, so it stays out of the Given hash. The block cache key reads
+ * the whole resolved Given, so it does change that key: what an adapter receives decides a cache entry.
  */
 export function resolveGiven(
   state: RunningGiven,
@@ -61,7 +68,11 @@ export function resolveGiven(
     vars: structuredClone(state.vars),
     target: structuredClone(target),
   };
-  return { ...body, hash: contentHashWithList(body, 'prefix') };
+  return {
+    ...body,
+    ...(state.origin === undefined ? {} : { originLength: state.originLength ?? 0 }),
+    hash: contentHashWithList(body, 'prefix'),
+  };
 }
 
 /** Merges a later world into an earlier one: tools, store keys and fixtures by name, the workspace whole. */
@@ -113,7 +124,10 @@ export function addFacts(
  * for that tool at that block. A tool the world does not force has no recorded result: an agent that
  * replays its past turns reads it again.
  */
-export function canonicalGiven(spec: Spec, blockIndex: number): { state: RunningGiven; prefix: Message[] } {
+export function canonicalGiven(
+  spec: Spec,
+  blockIndex: number,
+): { state: RunningGiven; prefix: Message[]; history: readonly Message[] } {
   // A run asks for block 0, 1, 2 in turn. The situation before block k's own given, kept from the last ask,
   // lets the next ask build one block more, not the whole prefix again; its messages are the same objects,
   // which the prefix cache and the hashes read once.
@@ -137,7 +151,9 @@ export function canonicalGiven(spec: Spec, blockIndex: number): { state: Running
     ]);
     state = { ...state, ledger: { ...state.ledger, ...block.expect?.ledger_add } };
   }
-  return { state, prefix: copyHistory(prefix) };
+  // `history` is the internal array itself, already validated and frozen: a caller that only reads the history
+  // takes it as it is, and the next copy of it is a pass over pointers, not a validation of every message.
+  return { state, prefix: copyHistory(prefix), history: prefix };
 }
 
 const canonicalKept = new WeakMap<

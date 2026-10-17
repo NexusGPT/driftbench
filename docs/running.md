@@ -625,9 +625,13 @@ Each cell ends in one state:
 |---|---|---|
 | `pass` | `✓` | the run completed, it has blocks, every block passed, and the end state matched |
 | `fail` | `✗` | the run completed, and a block failed or the end state differs |
+| `not_run` | `-` | the run completed with no failure, but a block was not run: its Given carries a layer the target cannot apply |
+| `blocked` | `-` | the run completed with no failure, but a block was blocked: an ancestor it depends on failed |
 | `failed` | `!` | the run ended with an error |
 | `stopped` | `!` | the run stopped: the driver did not stop in time, or the budget stopped the cell before it started |
 | `pending` | `·` | the cell has no run yet, in `status` |
+
+A block is `pass`, `fail`, `not_run` or `blocked`. The last two are not measurements: the block was not sent, it has no verdicts, its `pass` field is false, and every pass rate (the scorecard, `stats`, `compare`, `ci`, the JUnit file, where a run is `skipped`) leaves it out and prints its count beside the rate. Before it sends a block, the runner checks that the target can apply every layer of the block's Given: a `prefix` needs `seedPrefix`, a forced tool result in `world.tools` needs `toolStubs`. A Given error the verifier finds (`spec lint` warns `GIVEN_UNMET` on it) makes the block `not_run` with kind `given_unmet`, and a seeded workspace file that does not read back as written after setup makes it `not_run` with kind `setup_failed` (check `world_digest`). A layer the target cannot apply makes the block `not_run` with kind `unsupported` (the `capability` check) and its `notRun` record names the layer, the check, what was expected and what the target declares. In modes F and P every later block is then `not_run` too and the end state is not compared; in mode T each block is checked alone. In mode T a block after the first starts from the canonical history the runner builds from the blocks before, which also needs `seedPrefix`: on `nexus` and the live Claude Code adapter those blocks are `not_run`. A carried result or a re-judge never turns such a block into a pass: a run with one is not carried, and a re-judge leaves the block as it was. Every command that prints a pass or a fail per spec (`replay`, `estate live`, `simulate`, `perturb`, `family verify`, the vitest plugin) prints such a spec or block apart with its reason, and every rate says how many runs it left out. A block record whose `pass` and `status` disagree (a `status` of `pass` with `pass` false, or any other status with `pass` true) is refused when it is written and when it is read back; a block with no `status` is a pass or a fail as `pass` says.
 
 A cell's line notes `reused` when a completed run of the cell was already in the store, and `replayed from the cache` when its run came from the cache. The summary line counts each state, the cells the budget stopped, the reused cells, and the money spent by the runs of this command.
 
@@ -724,7 +728,7 @@ effective units per arm = specs * repeats / design effect
 ```ts
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
-import { loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
+import { blockStatus, loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { createAcmeAgent, createStore } from './examples/acme/src/index';
 
@@ -748,19 +752,19 @@ const run = await runSpec(loaded.spec, {
   mode: 'F',
   repeat: 0,
 });
-console.log(run.runId, run.status, run.blocks.map((block) => block.pass), run.endState?.match);
+console.log(run.runId, run.status, run.blocks.map(blockStatus), run.endState?.match);
 ```
 
 Run from the repository root, it prints:
 
 ```
-a66a7aba9986a136 completed [ true, true, true, true, true ] true
+a66a7aba9986a136 completed [ 'pass', 'pass', 'pass', 'pass', 'pass' ] true
 ```
 
 With `mode: 'T'`, it prints:
 
 ```
-6a402b958212918e completed [ true, true, true, true, true ] true
+6a402b958212918e completed [ 'pass', 'pass', 'pass', 'pass', 'pass' ] true
 ```
 
 | Option | Meaning |
@@ -802,7 +806,7 @@ A block passes when every gating verdict passes, the flow and ledger verdicts in
 
 The run starts from the spec's `given`: its ledger, world and vars. A block's own `given` merges into them from that block on: tools, store keys, fixtures, variables and facts by name, the later value winning, and a later workspace replacing the earlier one whole. The world of an injected perturbation merges the same way.
 
-A block's `given.prefix` ends the open session: the next send opens a new one, whose history is that prefix. The block's `given.origin`, when it writes one, holds from that block until a block writes another prefix.
+A block's `given.prefix` ends the open session: the next send opens a new one, whose history is that prefix. The block's `given.origin`, when it writes one, holds from that block until a block writes another prefix. It covers the messages that prefix holds, not the turns a run or a mode T replay adds after them: the resolved Given carries their count as `originLength`. It stays out of the Given hash, since the spec the hash covers already decides it, but the block cache key reads the whole resolved Given, so it is part of that key: an adapter can act on it (crewai does), and a cache entry stands for what the adapter received.
 
 In mode T every block opens its own session from its canonical Given: the ledger, world and vars the spec writes up to that block, and a prefix of the earlier blocks as the spec writes them. On an adapter with a sandbox, a block that writes no `given.world.workspace` of its own keeps the session of the block before, with the canonical prefix as its history, so a task step finds the files the step before made. See [run modes](concepts/run-modes.md#teacher-forced).
 
@@ -879,7 +883,7 @@ Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_
 The runner returns the run as the store keeps it: written as JSON, read back and validated against the `RunResult` schema in `packages/core/src/schema/run.ts`.
 
 * The run: `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId`, `status`, `error`, `blocks`, `succession`, `recovery`, `endState`, `endStateValue`, `cost`, `latencyMs`, `startedAt`, `finishedAt` and `cacheHit`, and `carried` on a run a radius campaign copied from an earlier campaign (see [blast radius](concepts/blast-radius.md#fresh-and-carried)). `cost` sums the blocks' costs: each block's total, or else the sum of its segments' costs.
-* Each block: `index`, its position in the run, injected blocks included; `blockId`; `injected`; `realized`, present only when the driver sent other text than the spec block wrote (a simulated user, a red-team attacker): `hash`, the SHA-256 of the user messages the agent received joined by newlines, and `text`, those messages, only when the run asked for it (`campaign run --record-realized-text`, `recordRealizedText` in code), since what a driver writes may be private. Only the text is compared: the same text sent in another form, such as an injection, records no `realized` (`injected` says so). The provenance digest covers `realized`; `givenHash`; `observed`; `verdicts`; `stageObserved`, the stage the block reached (the runtime's report in this block, else in F and P the last one an earlier block reported, else the stage classifier's); `ledgerCheck`; `drift`; `pass`.
+* Each block: `index`, its position in the run, injected blocks included; `blockId`; `injected`; `realized`, present only when the driver sent other text than the spec block wrote (a simulated user, a red-team attacker): `hash`, the SHA-256 of the user messages the agent received joined by newlines, and `text`, those messages, only when the run asked for it (`campaign run --record-realized-text`, `recordRealizedText` in code), since what a driver writes may be private. Only the text is compared: the same text sent in another form, such as an injection, records no `realized` (`injected` says so). Copies into another campaign follow the destination’s opt-in: whole-run carries, block reruns and re-judging strip `realized.text` unless the new campaign requests it. Store writes and imports enforce the campaign’s setting too; exports strip legacy hash-only records. Stripping records `realizedTextStripped` (source `fromRun` and, when known, `fromCampaign`) on the copied run or block and recomputes its provenance digest. Missing text is never reconstructed. The provenance digest covers `realized` and stripping provenance; `givenHash`; `observed`; `verdicts`; `stageObserved`, the stage the block reached (the runtime's report in this block, else in F and P the last one an earlier block reported, else the stage classifier's); `ledgerCheck`; `drift`; `pass`.
 * Each verdict carries `by`: the object that scored it as `kind:id@hash8` (the block's check set, `check-set:default` unless `uses.check_set` names another), the `item` (the check name, or `flow` and `ledger` for the runner's own verdicts), the `impl` and the `layer` that last set the item. A check the caller passes that no check-set item names is stamped from `check-set:(caller)` at layer `cli`. Each block also carries `resolved`: the objects it was scored with (`key`, `kind`, `id`, content `hash`, `setAt`, the layer whose reference chose it) and one `hash` over them, and `diagnoses` once a diagnostic writes one. Records written before these fields parse unchanged.
 * `succession`: `firstDriftBlock`, `driftCount`, `driftRate`, `longestClean` and `minOverBlocks`, over the blocks of the run. A failing block is a drift block. See [drift](concepts/drift.md).
 * `recovery`, on a P run whose perturbation writes `recovery`: `injectedAt`, `turnsToRecover`, `label`, `collateral`, `safeAction` and `clarified`. See [recovery](concepts/recovery.md#recovery-metrics).

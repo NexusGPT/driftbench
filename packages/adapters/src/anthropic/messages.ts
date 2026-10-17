@@ -1,4 +1,5 @@
-import type { Message } from '@agent-nexus/driftbench-core';
+import type { HistoryNormalization, Message } from '@agent-nexus/driftbench-core';
+import { emptyTurnNormalizations, HistoryCompiler } from '../shared';
 import { outputText, type WireNames } from './common';
 
 /**
@@ -76,14 +77,15 @@ const ID_CHARS = /[^a-zA-Z0-9_-]/g;
  *   text, when there is one.
  * - Messages of the same role in a row merge into one, so roles alternate as the API expects; a user
  *   message keeps its `tool_result` blocks first.
+ * - Empty text-only turns are omitted and recorded in `normalizations`; no placeholder reaches the model.
  */
 export function toAnthropicMessages(
   history: readonly Message[],
   names: WireNames,
-): { messages: AnthropicMessageParam[]; system: string[] } {
+): { messages: AnthropicMessageParam[]; system: string[]; normalizations: HistoryNormalization[] } {
   const system: string[] = [];
   const messages: { role: 'user' | 'assistant'; content: AnthropicBlockParam[] }[] = [];
-  let unnamed = 0;
+  const compiler = new HistoryCompiler({ fallback: (n) => `toolu_h${n}`, count: 'every', clean: toolUseId });
   const push = (role: 'user' | 'assistant', blocks: AnthropicBlockParam[]) => {
     if (blocks.length === 0) return;
     const last = messages.at(-1);
@@ -101,40 +103,42 @@ export function toAnthropicMessages(
       push('user', text(message.content));
       continue;
     }
-    const recorded = message.tool_calls ?? [];
-    if (recorded.length > 0) {
-      const ids = recorded.map((call) => toolUseId(call.id, ++unnamed));
+    const calls = compiler.calls(message);
+    if (calls.length > 0) {
       push(
         'assistant',
-        recorded.map((call, index) => ({
+        calls.map((call) => ({
           type: 'tool_use',
-          id: ids[index] as string,
+          id: call.id as string,
           name: names.wire(call.label),
           input: call.input ?? {},
         })),
       );
       push(
         'user',
-        recorded.map(
-          (call, index): AnthropicToolResultBlock =>
-            call.error !== undefined
+        calls.map(
+          (call): AnthropicToolResultBlock =>
+            call.result.kind === 'error'
               ? {
                   type: 'tool_result',
-                  tool_use_id: ids[index] as string,
-                  content: call.error,
+                  tool_use_id: call.id as string,
+                  content: call.result.message,
                   is_error: true,
                 }
-              : { type: 'tool_result', tool_use_id: ids[index] as string, content: outputText(call.output) },
+              : {
+                  type: 'tool_result',
+                  tool_use_id: call.id as string,
+                  content: outputText(call.result.value),
+                },
         ),
       );
     }
     push('assistant', text(message.content));
   }
-  return { messages, system };
+  return { messages, system, normalizations: emptyTurnNormalizations(history, 'anthropic') };
 }
 
-/** A recorded call id as a tool use id the API accepts; a call recorded with none gets one. */
-function toolUseId(id: string | undefined, n: number): string {
-  const cleaned = id?.replace(ID_CHARS, '_');
-  return cleaned === undefined || cleaned === '' ? `toolu_h${n}` : cleaned;
+/** A recorded call id as a tool use id the API accepts. */
+function toolUseId(id: string): string {
+  return id.replace(ID_CHARS, '_');
 }

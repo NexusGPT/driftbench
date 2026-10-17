@@ -1,8 +1,8 @@
 import type { AdapterCapabilities, AgentAdapter, Session, Turn } from '../contracts/adapter';
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
-import type { CheckSet } from '../contracts/check';
+import { type CheckSet, machineVerdict } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
-import { copyHistory, freezeMessage } from '../contracts/history';
+import { copyHistory, freezeHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
 import { bindObjectContext, objectContextOfSpec } from '../objects/context';
@@ -14,14 +14,19 @@ import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
 import {
   type BlockResult,
+  type NotRun,
   Observed,
+  type ResolvedGiven,
   type RetryEvent,
   type RunEvent,
   type RunMode,
   RunResult,
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
-import { cloneJson, contentHash } from '../spec/hash';
+import { cloneJson } from '../spec/hash';
+import { specHash as specHashOf } from '../spec/identity';
+import { parentOrder } from '../spec/parents';
+import { type GivenFinding, verifyGiven } from '../spec/verify-given';
 import { compareEndState, type EndStateMatch } from './assertion';
 import {
   blockCacheKey,
@@ -31,6 +36,7 @@ import {
   unwrapEndState,
   wrapEndState,
 } from './cache';
+import { capabilityGap } from './capability';
 import {
   type BlockScoring,
   blockNeedsArtifactReplay,
@@ -38,6 +44,7 @@ import {
   scoreBlockObservation,
 } from './carried-scoring';
 import { cellId } from './cell';
+import { driftOf } from './drift';
 import { composeStates, type EndStateSnapshot, endStateSnapshot, snapshotValues } from './end-state-snapshot';
 import {
   addFacts,
@@ -45,15 +52,18 @@ import {
   canonicalGiven,
   enterBlock,
   initialGiven,
+  type RunningGiven,
   resolveGiven,
   stimulusMessages,
 } from './given';
+import { replacesBlock } from './inject';
 import { preflightTargetPrices, priceObserved, TokenPriceError, TokenPrices } from './pricing';
 import { captureArtifacts, provenanceDigest, provenanceHash, runProvenance } from './provenance';
 import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, stageSignatures } from './stages';
 import { succession } from './succession';
+import { blockStatus, isScored } from './verdicts';
 
 /**
  * What the runner reports as it runs, in order: a block starting, each tool call the adapter recorded, each retry a block took,
@@ -160,8 +170,11 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const objectErrors = checkSpecObjects(spec, objects);
   if (objectErrors.length)
     throw new RunnerError(objectErrors.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
+  const parents = parentOrder(spec);
+  if (parents.issues.length) throw new RunnerError(parents.issues.map((issue) => issue.message).join('; '));
+  const linked = spec.blocks.some((block) => block.parent !== undefined);
   const now = options.now ?? (() => new Date());
-  const specHash = contentHash(spec);
+  const specHash = specHashOf(spec);
   // The cache key leaves out the spec's version label and its scoring-only `uses` (cacheSpecHash).
   const cacheSpecHash = cacheSpecHashOf(spec);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
@@ -200,6 +213,20 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   )
     throw new RunnerError('block subsets require the scripted driver and valid block indices');
   let selectedBlocks = options.blocks;
+  /** Ancestors a block subset replays for their end state only: they run, but are not measured. */
+  let replayOnly: Set<number> | undefined;
+  if (linked && selectedBlocks) {
+    const needed = new Set(selectedBlocks);
+    const ids = new Map(spec.blocks.map((block, index) => [block.id, index]));
+    for (const index of needed) {
+      const parent = spec.blocks[index]?.parent;
+      const at = parent === undefined ? undefined : ids.get(parent);
+      if (at !== undefined) needed.add(at);
+    }
+    const requested = selectedBlocks;
+    replayOnly = new Set([...needed].filter((index) => !requested.has(index)));
+    selectedBlocks = needed;
+  }
   let blockRerunReason: string | undefined;
   let carriedBlocks: Map<number, BlockResult> | undefined;
   if (options.blockReuse) {
@@ -221,11 +248,23 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
       }
     }
   }
-  if (options.blocks && endState !== undefined && !carriedBlocks && options.blocks.size < spec.blocks.length)
+  if (replayOnly?.size && blockRerunReason === undefined) {
+    const names = [...replayOnly].sort((x, y) => x - y).map((index) => spec.blocks[index]?.id ?? `${index}`);
+    blockRerunReason = `parent blocks replayed for their end state, not measured: ${names.join(', ')}`;
+  }
+  if (
+    options.blocks &&
+    endState !== undefined &&
+    !carriedBlocks &&
+    (selectedBlocks?.size ?? 0) < spec.blocks.length
+  )
     throw new RunnerError('end state cannot be recomposed: full cell rerun');
   // A run in a sandbox is neither replayed nor cached: a replay opens no workspace, so the artifact
   // checks could not read the files its blocks made. It goes live every time.
-  const cache = capabilities.sandbox || selectedBlocks ? undefined : options.cache;
+  const cache =
+    capabilities.sandbox || selectedBlocks || (linked && options.adapter.snapshotGiven)
+      ? undefined
+      : options.cache;
   // The events go to the observer as they happen, and to the record when asked for.
   const recorded: RunEvent[] | undefined = options.recordEvents ? [] : undefined;
   const reportEvent =
@@ -243,6 +282,9 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
         ? runProvenance({ ...options, target })
         : undefined,
     selectedBlocks,
+    requestedBlocks: options.blocks,
+    replayOnly,
+    parentOrder: linked ? parents.order : undefined,
     blockRerunReason,
     carriedBlocks,
     recordEndStateSnapshots: options.recordEndStateSnapshots === true,
@@ -284,6 +326,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     endState,
     sources: endStateSources(endState),
     signatures: stageSignatures(spec),
+    givenGaps: givenGaps(spec),
     recovery: {
       ...(options.reference ? { reference: options.reference } : {}),
       ...(options.consequential ? { consequential: options.consequential } : {}),
@@ -308,6 +351,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
 }
 
 type RunContext = {
+  parentOrder: number[] | undefined;
+  /** The block subset as asked for, before a parent-linked subset adds the ancestors it replays. */
+  requestedBlocks: ReadonlySet<number> | undefined;
+  replayOnly: ReadonlySet<number> | undefined;
   selectedBlocks: ReadonlySet<number> | undefined;
   blockRerunReason: string | undefined;
   carriedBlocks: Map<number, BlockResult> | undefined;
@@ -348,6 +395,8 @@ type RunContext = {
   sources: string[];
   /** The tools each stage of the spec's catalogue expects, for the step classifier. */
   signatures: Map<string, Set<string>>;
+  /** The Given error each spec block starts from, by the static verifier; absent for a block with none. */
+  givenGaps: Map<number, NotRun>;
   recovery: RecoveryOptions;
 };
 
@@ -397,6 +446,7 @@ type Channel = {
   observe(turn: Turn, user: Message[], key: string): Promise<Observed | undefined>;
   endState(sources: string[], key: string): Promise<EndStateRead>;
   readArtifact(): ((path: string) => Promise<Uint8Array>) | undefined;
+  snapshotGiven?(): Promise<{ world: WorldState; vars: Record<string, unknown> } | undefined>;
   /** Closes what is open; returns a note when something could not be closed or cached. */
   close(): Promise<string | undefined>;
 };
@@ -405,18 +455,93 @@ class RunnerError extends Error {
   override name = 'RunnerError';
 }
 
+/** The setup of a new session does not hold the Given: the block is not run, kind setup_failed. */
+class SetupCheckFailed extends Error {
+  override name = 'SetupCheckFailed';
+  constructor(readonly notRun: NotRun) {
+    super(`${notRun.check}: expected ${notRun.expected}; got ${notRun.got}`);
+  }
+}
+
+/**
+ * The Given error each spec block starts from, by the static verifier. A finding on a block's prefix or shared
+ * facts holds for that block and the later ones that keep its history (no prefix of their own); a finding
+ * on the world holds from its block on, as the world merges forward; one on the spec's own Given holds for
+ * every block.
+ */
+function givenGaps(spec: Spec): Map<number, NotRun> {
+  const findings = verifyGiven(spec).filter((finding) => finding.level === 'not_run');
+  const gaps = new Map<number, NotRun>();
+  const strip = ({ kind, layer, check, expected, got }: GivenFinding): NotRun => ({
+    kind,
+    layer,
+    check,
+    expected,
+    got,
+  });
+  const whole = findings.find((finding) => finding.block === undefined);
+  let history: NotRun | undefined;
+  let world: NotRun | undefined;
+  spec.blocks.forEach((block, index) => {
+    if (block.given?.prefix !== undefined) history = undefined;
+    for (const finding of findings.filter((found) => found.block === index)) {
+      if (finding.layer === '5 world') world ??= strip(finding);
+      else history ??= strip(finding);
+    }
+    const gap = (whole ? strip(whole) : undefined) ?? history ?? world;
+    if (gap) gaps.set(index, gap);
+  });
+  return gaps;
+}
+
+/**
+ * The dynamic check after setup (`world_digest`): on a new session of an adapter that owns a sandbox, every
+ * file the Given writes inline reads back with the content written. Throws SetupCheckFailed otherwise.
+ */
+async function checkSetup(adapter: AgentAdapter, session: Session, given: ResolvedGiven): Promise<void> {
+  const files = given.world.workspace?.files;
+  const read = adapter.readArtifact;
+  if (!files || !read) return;
+  const differ: string[] = [];
+  for (const [path, content] of Object.entries(files)) {
+    try {
+      const back = Buffer.from(await read.call(adapter, session, path.replace(/^\.\//, ''))).toString('utf8');
+      if (back !== content) differ.push(`${path} differs`);
+    } catch (cause) {
+      differ.push(`${path} cannot be read: ${describeError(cause)}`);
+    }
+  }
+  if (differ.length === 0) return;
+  throw new SetupCheckFailed({
+    kind: 'setup_failed',
+    layer: '5 world',
+    check: 'world_digest',
+    expected: `the ${Object.keys(files).length} files of world.workspace read back as written`,
+    got: differ.slice(0, 5).join('; '),
+  });
+}
+
 /** Runs the loop over one channel. Returns undefined when a replay misses, so the run goes live instead. */
 async function execute(run: RunContext, channel: Channel): Promise<RunResult | undefined> {
   const { spec } = run;
   const blocks: BlockResult[] = [];
   const { sources } = run;
   let state = initialGiven(spec);
-  let history: Message[] = [];
+  // The running history is private to the loop: frozen, so each copy of it for the next block or the Given is a
+  // pass over pointers, not a validation of every message again.
+  let history: readonly Message[] = [];
   /** The user messages of the history, one list that grows with it, so the ledger reads each one once. */
   let users: Message[] = [];
   /** The spec block whose user messages `users` ends with; NaN after an injected step. */
   let usersBlock = -1;
-  let nextBlock = 0;
+  let nextBlock = run.parentOrder?.[0] ?? 0;
+  let nextParent = 0;
+  /** A parent's recorded end state; `unexported` says why the adapter could not export its world. */
+  const recordings = new Map<
+    string,
+    { state: RunningGiven; history: Message[]; result: BlockResult; unexported?: string }
+  >();
+  const pending = new Map<number, { state: RunningGiven; history: Message[]; unexported?: string }>();
   let lastKey: string | undefined;
   let endRead: { states: unknown[]; afterBlock: number } | undefined;
   /** The end-state values so far: in mode T composed over the blocks, else the last read. */
@@ -426,6 +551,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let status: RunResult['status'] = 'completed';
   let endVerdict: RunResult['endVerdict'];
   let error: string | undefined;
+  /** F and P: a prefix the spec wrote at a block run so far; the session holds it from there on. */
+  let prefixWritten = false;
 
   try {
     for (let position = 0; ; position++) {
@@ -444,7 +571,29 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         break;
       }
       const planned = planStep(spec, step);
-      if (step.kind === 'block') nextBlock = step.blockIndex + 1;
+      const perturbation =
+        step.kind === 'injected'
+          ? spec.perturbations?.find((entry) => entry.id === step.perturbationId)
+          : undefined;
+      const replacement = run.parentOrder && perturbation && replacesBlock(perturbation);
+      const specIndex = step.kind === 'block' ? step.blockIndex : replacement ? step.beforeBlock : undefined;
+      const targetBlock =
+        step.kind === 'injected' && run.parentOrder ? spec.blocks[step.beforeBlock] : undefined;
+      if (targetBlock) {
+        planned.block = {
+          ...planned.block,
+          ...(targetBlock.parent === undefined ? {} : { parent: targetBlock.parent }),
+        };
+        if (replacement) planned.given = targetBlock.given;
+      }
+      const recordingId = replacement ? targetBlock?.id : planned.blockId;
+      if (run.parentOrder && specIndex !== undefined)
+        planned.lastSpecBlock = nextParent === run.parentOrder.length - 1;
+      if (step.kind === 'block' || replacement) {
+        nextBlock = run.parentOrder
+          ? (run.parentOrder[++nextParent] ?? spec.blocks.length)
+          : (specIndex as number) + 1;
+      }
 
       if (run.selectedBlocks && step.kind === 'block' && !run.selectedBlocks.has(step.blockIndex)) {
         const kept = run.carriedBlocks?.get(step.blockIndex);
@@ -469,7 +618,62 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         }
         continue;
       }
-      if (run.mode === 'T') {
+      const parent = planned.block.parent === undefined ? undefined : recordings.get(planned.block.parent);
+      /** Why the end state this block starts from could not be exported, when it could not. */
+      let startUnexported: string | undefined;
+      if (run.parentOrder) {
+        if (planned.block.parent !== undefined && (!parent || blockStatus(parent.result) !== 'pass')) {
+          const root = parent?.result.blocked?.root ?? parent?.result.blockId ?? planned.block.parent;
+          const blocked: BlockResult = {
+            index: position,
+            ...(specIndex === undefined ? {} : { specIndex }),
+            ...(planned.blockId === undefined ? {} : { blockId: planned.blockId }),
+            parent: parent?.result.blockId ?? planned.block.parent,
+            givenHash: resolveGiven(initialGiven(spec), [], run.target).hash,
+            observed: { ...NOT_SENT, segments: [], toolCalls: [], cost: {} },
+            verdicts: [],
+            ledgerCheck: { ok: true, contradictions: [] },
+            drift: [],
+            pass: false,
+            status: 'blocked',
+            blocked: {
+              by: planned.block.parent,
+              root,
+              reason: `parent ${planned.block.parent} did not pass`,
+            },
+          };
+          blocks.push(blocked);
+          if (recordingId !== undefined)
+            recordings.set(recordingId, { state: initialGiven(spec), history: [], result: blocked });
+          run.onEvent?.({ type: 'block_start', index: position, at: run.now().toISOString() });
+          run.onEvent?.({
+            type: 'block_end',
+            index: position,
+            pass: false,
+            status: 'blocked',
+            at: run.now().toISOString(),
+          });
+          continue;
+        }
+        // Each tree root starts at the spec defaults; siblings branch from immutable recordings.
+        const injected = specIndex === undefined ? undefined : pending.get(specIndex);
+        startUnexported = injected ? injected.unexported : parent?.unexported;
+        if (specIndex !== undefined) pending.delete(specIndex);
+        state = enterBlock(
+          injected
+            ? structuredClone(injected.state)
+            : parent
+              ? structuredClone(parent.state)
+              : initialGiven(spec),
+          planned.given,
+          planned.world,
+        );
+        history = copyHistory(planned.given?.prefix ?? injected?.history ?? parent?.history ?? []);
+        users = userMessagesOf(history);
+        prefixWritten = history.length > 0;
+        await channel.restart();
+        sessionBase = undefined;
+      } else if (run.mode === 'T') {
         if (step.kind !== 'block') {
           throw new RunnerError(
             `teacher-forced mode runs the spec's own blocks; the driver ${run.driver.id} injected ${step.perturbationId}`,
@@ -486,7 +690,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           await channel.restart();
           sessionBase = composed;
         }
-        history = canonical.prefix;
+        history = canonical.history;
         // The canonical prefix of a block is the one of the block before, then that block's user messages
         // and a reply (canonicalGiven), unless the block writes a prefix of its own. So after the block
         // before, the user messages kept are those of this prefix already.
@@ -497,12 +701,121 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         state = enterBlock(state, planned.given, planned.world);
         if (planned.given?.prefix) {
           await channel.restart();
-          history = copyHistory(planned.given.prefix);
+          history = freezeHistory(planned.given.prefix);
           users = userMessagesOf(history);
+          prefixWritten = planned.given.prefix.length > 0;
         }
       }
-      const user = stimulusMessages(planned.stimulus).map(freezeMessage);
       const given = resolveGiven(state, history, run.target);
+      // The capability check: a layer the adapter cannot apply makes the block not_run, never a silent drop.
+      const missingSnapshot: NotRun | undefined =
+        planned.block.parent !== undefined && run.capabilities.sandbox && !run.adapter.snapshotGiven
+          ? {
+              kind: 'unsupported',
+              layer: '5 world',
+              check: 'capability',
+              expected: 'the sandbox exports its parent workspace with snapshotGiven',
+              got: `${run.adapter.id} cannot snapshot the parent end state`,
+            }
+          : startUnexported !== undefined
+            ? {
+                kind: 'setup_failed',
+                layer: '5 world',
+                check: 'parent snapshot',
+                expected: `the end state of parent ${planned.block.parent}, workspace included`,
+                got: startUnexported,
+              }
+            : undefined;
+      // A block whose Given cannot be applied is not_run, never a silent drop and never a verdict on the agent.
+      // In mode T the block alone; in a parent-linked run the block is recorded like any block, so its
+      // children are blocked and the other trees run on; in F and P without parents the free conversation cannot
+      // go past it, so every later spec block is not run either and the driver is not asked for more steps.
+      // Returns true to end the loop.
+      const stopAt = (notRun: NotRun, started: boolean): boolean => {
+        const specIndex = step.kind === 'block' ? step.blockIndex : step.beforeBlock;
+        const ledger = addFacts(state.ledger, planned.expect.ledger_add).ledger;
+        blocks.push(
+          notRunBlock(run, position, planned, { givenHash: given.hash, specIndex, ledger }, notRun, started),
+        );
+        if (run.parentOrder) {
+          const result = blocks.at(-1) as BlockResult;
+          if (step.kind === 'block' || replacement) result.specIndex = specIndex;
+          if (planned.block.parent !== undefined) result.parent = planned.block.parent;
+          if (recordingId !== undefined)
+            recordings.set(recordingId, {
+              state: structuredClone(state),
+              history: copyHistory(history),
+              result,
+            });
+          return false;
+        }
+        if (run.mode === 'T') return false;
+        // Each later block is stamped as a run reconstructs it (a re-judge checks the stamps): the blocks before
+        // it with their user messages and an empty reply, and the facts their ledger_add establishes.
+        const from = step.kind === 'block' ? step.blockIndex + 1 : nextBlock;
+        let laterState: RunningGiven = { ...state, ledger };
+        let laterHistory = freezeHistory(history, [
+          ...stimulusMessages(planned.stimulus),
+          assistantMessage(NOT_SENT),
+        ]);
+        for (let index = from; index < spec.blocks.length; index++) {
+          const later = planStep(spec, {
+            kind: 'block',
+            blockIndex: index,
+            stimulus: (spec.blocks[index] as BlockSpec).when,
+          });
+          laterState = enterBlock(laterState, later.given);
+          if (later.given?.prefix) laterHistory = freezeHistory(later.given.prefix);
+          const laterHash = resolveGiven(laterState, laterHistory, run.target).hash;
+          const laterLedger = addFacts(laterState.ledger, later.expect.ledger_add).ledger;
+          laterState = { ...laterState, ledger: laterLedger };
+          laterHistory = freezeHistory(laterHistory, [
+            ...stimulusMessages(later.stimulus),
+            assistantMessage(NOT_SENT),
+          ]);
+          blocks.push(
+            notRunBlock(
+              run,
+              blocks.length,
+              later,
+              { givenHash: laterHash, specIndex: index, ledger: laterLedger },
+              {
+                ...notRun,
+                got: `block ${position} was not run, so the conversation cannot reach this block: ${notRun.got}`,
+              },
+            ),
+          );
+        }
+        return true;
+      };
+      // The static Given verifier first (a Given error of the spec), then the capability check (a layer the
+      // adapter cannot apply).
+      const unmet =
+        (specIndex !== undefined ? run.givenGaps.get(specIndex) : undefined) ??
+        missingSnapshot ??
+        capabilityGap(run.adapter.id, run.capabilities, {
+          // In mode T the block starts from the canonical history: the latest written prefix, then the blocks
+          // after it; in F and P from the prefix the spec wrote, the session holding the agent's own turns.
+          ...(run.mode === 'T'
+            ? history.length === 0
+              ? {}
+              : {
+                  prefix:
+                    run.parentOrder ||
+                    latestPrefixWritten(spec, step.kind === 'block' ? step.blockIndex : position)
+                      ? ('authored' as const)
+                      : ('canonical' as const),
+                }
+            : prefixWritten
+              ? { prefix: 'authored' as const }
+              : {}),
+          world: state.world,
+        });
+      if (unmet) {
+        if (stopAt(unmet, false)) break;
+        continue;
+      }
+      const user = stimulusMessages(planned.stimulus).map(freezeMessage);
       const turn: Turn = {
         index: position,
         stimulus: planned.stimulus,
@@ -526,7 +839,45 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ...(run.agentVersion === undefined ? {} : { agentVersion: run.agentVersion }),
       });
       run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
-      const raw = await channel.observe(turn, user, key);
+      let raw: Observed | undefined;
+      try {
+        raw = await channel.observe(turn, user, key);
+      } catch (cause) {
+        // The dynamic check after setup: the session's workspace does not read back as the Given wrote it.
+        if (cause instanceof SetupCheckFailed) {
+          await channel.restart();
+          if (stopAt(cause.notRun, true)) break;
+          continue;
+        }
+        if (!run.parentOrder || channel.replay) throw cause;
+        status = 'failed';
+        error = cause instanceof CallFailure ? cause.message : describeError(cause);
+        const verdict = machineVerdict('runner', 'agent_failure', 'fail', error);
+        const failed: BlockResult = {
+          index: position,
+          ...(specIndex === undefined ? {} : { specIndex }),
+          ...(planned.blockId === undefined ? {} : { blockId: planned.blockId }),
+          ...(planned.block.parent === undefined
+            ? {}
+            : { parent: parent?.result.blockId ?? planned.block.parent }),
+          givenHash: given.hash,
+          observed: { ...NOT_SENT, segments: [], toolCalls: [], cost: {} },
+          verdicts: [verdict],
+          ledgerCheck: { ok: true, contradictions: [] },
+          drift: driftOf([verdict]),
+          pass: false,
+        };
+        blocks.push(failed);
+        if (recordingId !== undefined)
+          recordings.set(recordingId, {
+            state: structuredClone(state),
+            history: copyHistory(history),
+            result: failed,
+          });
+        await channel.restart();
+        run.onEvent?.({ type: 'block_end', index: position, pass: false, at: run.now().toISOString() });
+        continue;
+      }
       if (!raw) return undefined;
       const observed = priceObserved(raw, run.target, run.prices, run.requireTokenPrices);
       // A model call the adapter reported on a segment: its tokens, cost and latency. The time is when the reply came back;
@@ -559,7 +910,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       for (let r = 0; r < (observed.retries?.length ?? 0); r += 1) {
         run.onEvent?.({ type: 'retry', index: position, at: new Date().toISOString() });
       }
-      history = copyHistory(history, [...user, cloneJson(assistantMessage(observed))]);
+      history = freezeHistory(history, [...user, cloneJson(assistantMessage(observed))]);
       lastKey = key;
 
       const facts = addFacts(state.ledger, planned.expect.ledger_add);
@@ -584,8 +935,11 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ? captureArtifacts({ observed, readArtifact: channel.readArtifact() })
         : undefined;
       const scored = run.scoringOf(step.kind === 'block' ? step.blockIndex : -1);
-      const previous =
-        run.mode === 'T' && step.kind === 'block'
+      // The stage reached before the block: in T the stage the spec expects of the blocks before it, in F and P
+      // the stage the run's previous block reached, in a parent-linked run the stage its parent reached.
+      const previous = run.parentOrder
+        ? parent?.result.stageObserved
+        : run.mode === 'T' && step.kind === 'block'
           ? canonicalPreviousStage(spec, step.blockIndex)
           : blocks.at(-1)?.stageObserved;
       users.push(...userMessagesOf(user));
@@ -601,7 +955,11 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           given,
           observed,
           // A teacher-forced block is an independent sample: no earlier block of the run is its history.
-          history: run.mode === 'T' ? [] : [...blocks],
+          history: run.parentOrder
+            ? ancestorResults(planned.block.parent, recordings)
+            : run.mode === 'T'
+              ? []
+              : [...blocks],
           ledger: facts.ledger,
           endState,
           artifacts: run.artifacts,
@@ -617,6 +975,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       );
       const block = {
         index: position,
+        ...(run.parentOrder && specIndex !== undefined ? { specIndex } : {}),
+        ...(planned.block.parent === undefined
+          ? {}
+          : { parent: parent?.result.blockId ?? planned.block.parent }),
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
         ...realizedOf(planned, run.recordRealizedText),
@@ -637,7 +999,36 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ...scoringResult,
       };
       blocks.push(block);
-      run.onEvent?.({ type: 'block_end', index: position, pass: block.pass, at: new Date().toISOString() });
+      if (run.parentOrder) {
+        // A child of a block that did not pass is blocked, so only a passing block or an injected step exports.
+        // An export that fails is kept as the reason its children are not run, never as a silent reset.
+        let exported: { world: WorldState; vars: Record<string, unknown> } | undefined;
+        let unexported = startUnexported;
+        if (
+          unexported === undefined &&
+          (blockStatus(block) === 'pass' || (step.kind === 'injected' && !replacement))
+        ) {
+          try {
+            exported = await channel.snapshotGiven?.();
+          } catch (cause) {
+            unexported = `${run.adapter.id} could not export the end state: ${describeError(cause)}`;
+          }
+        }
+        const endState = exported ? { ...state, world: exported.world, vars: exported.vars } : state;
+        const recorded = {
+          state: structuredClone(endState),
+          history: copyHistory(history),
+          ...(unexported === undefined ? {} : { unexported }),
+        };
+        if (recordingId !== undefined) recordings.set(recordingId, { ...recorded, result: block });
+        if (step.kind === 'injected' && !replacement) pending.set(step.beforeBlock, recorded);
+      }
+      run.onEvent?.({
+        type: 'block_end',
+        index: position,
+        pass: blockStatus(block) === 'pass',
+        at: new Date().toISOString(),
+      });
     }
   } catch (cause) {
     if (cause instanceof TokenPriceError) {
@@ -656,7 +1047,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let endState: EndStateMatch | undefined;
   // The value read, kept in the run so a later reader compares end states without reading them again.
   let value: unknown;
-  if (run.endState !== undefined) {
+  // A run with a block that was not run never reached its end: its end state is not compared, so a setup
+  // gap never reads as a failure of the agent.
+  if (run.endState !== undefined && blocks.every(isScored)) {
     let states = endRead?.afterBlock === blocks.length - 1 ? endRead.states : undefined;
     let unreadable = 'no block ran, so no session was open to read from';
     if (!states && lastKey !== undefined) {
@@ -686,22 +1079,30 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
 
   const note = await channel.close();
   if (channel.replay && blocks.length === 0) return undefined;
+  // A replayed ancestor gave its end state to the blocks asked for; it is no measurement of this run, so
+  // it adds no verdict or count. What it cost stays in the run's cost.
+  const executed = blocks;
+  const measured = run.replayOnly?.size
+    ? executed.filter((block) => block.specIndex === undefined || !run.replayOnly?.has(block.specIndex))
+    : executed;
   const recovery =
     run.mode === 'P'
-      ? recoveryOf(spec, { blocks, perturbationId: run.perturbationId }, run.recovery)
+      ? recoveryOf(spec, { blocks: measured, perturbationId: run.perturbationId }, run.recovery)
       : undefined;
   const message = [error, note].filter((part) => part !== undefined).join('; ');
   return {
     ...(run.provenance
       ? {
           provenance: run.provenance,
-          provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks }),
+          provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks: measured }),
         }
       : {}),
     ...(run.selectedBlocks || run.blockRerunReason
       ? {
           blockRerun: {
-            selected: [...(run.selectedBlocks ?? blocks.map((b) => b.index))].sort((a, b) => a - b),
+            selected: [...(run.requestedBlocks ?? run.selectedBlocks ?? measured.map((b) => b.index))].sort(
+              (a, b) => a - b,
+            ),
             downstreamNotRerun: [...(run.carriedBlocks?.keys() ?? [])].filter(
               (i) => i > Math.min(...(run.selectedBlocks ?? [])),
             ),
@@ -721,16 +1122,91 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     status,
     ...(endVerdict ? { endVerdict } : {}),
     ...(message ? { error: message } : {}),
-    blocks,
-    succession: succession(blocks),
+    blocks: measured,
+    succession: succession(measured),
     ...(recovery ? { recovery } : {}),
     ...(endState ? { endState } : {}),
     ...(value !== undefined ? { endStateValue: value } : {}),
-    cost: blocks.reduce((sum, block) => sum + (block.carried ? 0 : blockCost(block.observed)), 0),
-    latencyMs: blocks.reduce((sum, block) => sum + (block.carried ? 0 : block.observed.latencyMs), 0),
+    cost: executed.reduce((sum, block) => sum + (block.carried ? 0 : blockCost(block.observed)), 0),
+    latencyMs: executed.reduce((sum, block) => sum + (block.carried ? 0 : block.observed.latencyMs), 0),
     startedAt: run.startedAt,
     finishedAt: run.now().toISOString(),
     cacheHit: channel.replay,
+  };
+}
+
+function ancestorResults(
+  parent: string | undefined,
+  recordings: Map<string, { result: BlockResult }>,
+): BlockResult[] {
+  const results: BlockResult[] = [];
+  while (parent !== undefined) {
+    const result = recordings.get(parent)?.result;
+    if (!result) break;
+    results.unshift(result);
+    parent = result.parent;
+  }
+  return results;
+}
+
+/**
+ * Mode T: whether the history block `index` starts from holds a prefix the spec wrote. The latest block up to
+ * this one that writes `given.prefix` sets the history; an empty prefix clears it.
+ */
+function latestPrefixWritten(spec: Spec, index: number): boolean {
+  for (let at = index; at >= 0; at--) {
+    const prefix = spec.blocks[at]?.given?.prefix;
+    if (prefix !== undefined) return prefix.length > 0;
+  }
+  return false;
+}
+
+/** The Observed of a block that was never sent: nothing happened, at no cost. */
+const NOT_SENT: Observed = { segments: [], text: '', toolCalls: [], cost: {}, latencyMs: 0 };
+
+/**
+ * A block that was never sent: nothing observed, no verdict, never a pass. Reports its start and end. With
+ * provenance, it carries the same block stamp as a block that ran (spec index, stimulus and ledger hashes, no
+ * artifact), so a run that holds it can still be re-judged on its other blocks.
+ */
+function notRunBlock(
+  run: RunContext,
+  position: number,
+  planned: PlannedStep,
+  stamp: { givenHash: string; specIndex: number; ledger: Record<string, unknown> },
+  notRun: NotRun,
+  started = false,
+): BlockResult {
+  if (!started) run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
+  run.onEvent?.({
+    type: 'block_end',
+    index: position,
+    pass: false,
+    status: 'not_run',
+    at: new Date().toISOString(),
+  });
+  return {
+    index: position,
+    ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
+    ...(planned.injected ? { injected: true } : {}),
+    ...(run.provenance
+      ? {
+          provenance: {
+            specIndex: stamp.specIndex,
+            stimulusHash: provenanceHash(planned.stimulus),
+            ledgerHash: provenanceHash(stamp.ledger),
+            artifacts: [],
+          },
+        }
+      : {}),
+    givenHash: stamp.givenHash,
+    observed: { ...NOT_SENT, segments: [], toolCalls: [], cost: {} },
+    verdicts: [],
+    ledgerCheck: { ok: true, contradictions: [] },
+    drift: [],
+    pass: false,
+    status: 'not_run',
+    notRun,
   };
 }
 
@@ -842,6 +1318,8 @@ function liveChannel(run: RunContext): Channel {
 
   return {
     replay: false,
+    snapshotGiven: async () =>
+      session && adapter.snapshotGiven ? adapter.snapshotGiven(session) : undefined,
     restart: closeSession,
     reseat(prefix) {
       if (!session) return false;
@@ -851,7 +1329,11 @@ function liveChannel(run: RunContext): Channel {
     async observe(turn, user, key) {
       // Every retry of the block, the adapter's own model calls and the runner's, lands in its Observed.
       const { value: answer, retries } = await collectRetries(async () => {
-        if (!session) session = await call(`open on block ${turn.index}`, () => adapter.open(turn.given));
+        if (!session) {
+          const opened = await call(`open on block ${turn.index}`, () => adapter.open(turn.given));
+          session = opened;
+          if (run.capabilities.sandbox) await checkSetup(adapter, opened, turn.given);
+        }
         const current = session;
         current.history.push(...user);
         let sent: unknown = await call(`send on block ${turn.index}`, () => adapter.send(current, turn));

@@ -8,10 +8,10 @@ import type {
   ToolExpect,
   WorldState,
 } from '@agent-nexus/driftbench-core';
-import type { PathRelation, ProposalPhrase, Slots } from '../extract/proposal';
+import type { PathRelation, ProposalPhrase, Slots, UsesToolRelation } from '../extract/proposal';
 import type { BlockDraft, Pick, Stimulus } from './assemble';
 import { OPENING_CLASSES, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
-import { dimensionId, type PreparedMap, phraseKey, valueId } from './map';
+import { behaviourSubject, dimensionId, type PreparedMap, phraseKey, valueId } from './map';
 import { pick, type Rng } from './random';
 import {
   type Context,
@@ -70,6 +70,8 @@ export type ScenarioRequest = {
     stimulus: Stimulus;
     carries: Pick[];
     tools: ToolExpect[];
+    /** Behaviour calls, resolved against this turn's actual stage, cell and bound slots. */
+    usesTools?: readonly UsesToolRelation[];
     /**
      * A request that makes a call: the turn is said right after the walk's move that calls the tool, and the
      * call carries that move's arguments with `field` set to `value`, so every argument and the count hold.
@@ -198,6 +200,64 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         `the constraints allow no value of ${dimensionKey} it needs with this cell`,
       );
     cell.push([dimension, chosen]);
+  }
+  // A behaviour phrase must exercise a declared call in a cell where it applies. Resolve every
+  // condition dimension before building the walk: contextAxes later fills only the remaining axes.
+  // This also lets conditional input bindings and flow assertions see the same values as the phrase.
+  if (request.turn?.usesTools?.length) {
+    const stage = path.stages[request.turn.at ?? 1];
+    const calls = request.turn.usesTools.filter(
+      (call) => call.stage === stage && (call.to === undefined || call.to === stage),
+    );
+    const keys = [...new Set(calls.flatMap((call) => Object.keys(call.when ?? {})))];
+    const stageKey = prepared.stage === undefined ? 'stage' : dimensionId(prepared, prepared.stage);
+    const fits = (picks: Pick[]) => {
+      if (!prepared.feasibility.allowed(picks)) return false;
+      return path.stages.slice(1).every((name) => {
+        const value = dimensions[prepared.stage ?? -1]?.index.get(name);
+        return (
+          prepared.stage === undefined ||
+          value === undefined ||
+          prepared.feasibility.allowed([
+            ...picks.filter(([at]) => at !== prepared.stage),
+            [prepared.stage, value],
+          ])
+        );
+      });
+    };
+    // Try each relation's condition, preserving map order. Backtrack across its allowed values;
+    // a condition can name any dimension, including detail dimensions that contextAxes does not draw.
+    const resolve = (call: UsesToolRelation, offset: number, picks: Pick[]): Pick[] | undefined => {
+      const key = keys[offset];
+      if (key === undefined) return picks;
+      const wanted = call.when?.[key];
+      if (key === stageKey)
+        return !wanted || (stage !== undefined && wanted.includes(stage))
+          ? resolve(call, offset + 1, picks)
+          : undefined;
+      const dimension = indexOf(key);
+      const own = held(picks, dimension);
+      if (own)
+        return !wanted || wanted.includes(valueId(prepared, dimension, own[1]))
+          ? resolve(call, offset + 1, picks)
+          : undefined;
+      const values = dimensions[dimension]?.values ?? [];
+      for (let value = 0; value < values.length; value += 1) {
+        if (wanted && !wanted.includes(valueId(prepared, dimension, value))) continue;
+        const next: Pick[] = [...picks, [dimension, value]];
+        if (!fits(next)) continue;
+        const resolved = resolve(call, offset + 1, next);
+        if (resolved) return resolved;
+      }
+      return undefined;
+    };
+    let resolved: Pick[] | undefined;
+    for (const call of calls) {
+      resolved = resolve(call, 0, cell);
+      if (resolved) break;
+    }
+    if (!resolved) return failedScenario(path, `no behaviour tool relation applies at ${stage}`);
+    cell.push(...resolved.slice(cell.length));
   }
   if (!prepared.feasibility.allowed(cell))
     return failedScenario(path, 'the constraints forbid its values with this cell');
@@ -416,21 +476,47 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       cutAt = at;
     }
   }
+  const moveBlocks = new Map<number, number>();
   for (let index = 0; index < path.stages.length; index += 1) {
     if (index === cutAt) break;
     if (request.turn && !request.turn.call && index === (request.turn.at ?? 1)) {
       freeBlock = request.turn.free ? blocks.length : undefined;
-      const reports = request.turn.report
-        ? reportOf(request.turn.report, path.stages[index] as string, true)
-        : { ok: true as const, patterns: [] };
-      if (!reports.ok) return failedScenario(path, reports.reason);
+      const stage = path.stages[index] as string;
+      const active = (request.turn.usesTools ?? []).filter(
+        (call) =>
+          call.stage === stage &&
+          (call.to === undefined || call.to === stage) &&
+          matches(call.when, contextOf(stage)),
+      );
+      if (request.turn.usesTools?.length && active.length === 0)
+        return failedScenario(path, `no behaviour tool relation applies at ${stage} in this cell`);
+      const tools = [...request.turn.tools];
+      const reports = new Set(request.turn.report ? [request.turn.report] : []);
+      const carries = [...request.turn.carries];
+      for (const call of active) {
+        const expected = toolExpect(call.tool, call.count ?? 1, call.input, slots);
+        if (!expected.ok)
+          return failedScenario(
+            path,
+            `${call.tool} at ${stage} reads unbound slots ${expected.missing.join(', ')}`,
+          );
+        tools.push(expected.value);
+        reports.add(call.tool);
+        carries.push(...sourcesOf(boundBy, call.input ?? {}));
+      }
+      const patterns: string[] = [];
+      for (const tool of reports) {
+        const report = reportOf(tool, stage, true);
+        if (!report.ok) return failedScenario(path, report.reason);
+        for (const pattern of report.patterns) if (!patterns.includes(pattern)) patterns.push(pattern);
+      }
       blocks.push({
-        ...(reports.patterns.length > 0 ? { must: reports.patterns } : {}),
+        ...(patterns.length > 0 ? { must: patterns } : {}),
         id: `b${blocks.length + 1}-value`,
         stimulus: request.turn.stimulus,
-        stage: path.stages[index] as string,
-        carries: request.turn.carries,
-        tools: request.turn.tools,
+        stage,
+        carries: unique(carries),
+        tools,
         ...(lang === undefined ? {} : { lang }),
       });
       turnPlaced = true;
@@ -515,6 +601,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     const tools: ToolExpect[] = [];
     const ruled: Pick[] = [];
     for (const call of relations.usesTools) {
+      // A behaviour's call is made in that behaviour's own phrase turn, never on a move.
+      if (behaviourSubject(prepared, call.subject)) continue;
       const subject =
         call.subject.dimension === 'flow'
           ? call.subject.value === path.flow
@@ -605,6 +693,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         id: `b${blocks.length + 1}-restated`,
         stimulus: first.stimulus,
         stage: from,
+        saidAt: from,
         carries: first.carries,
         tools: [{ ...run, input: { ...run.input, [first.call.field]: first.call.value } }],
         ...(reported.length > 0 ? { must: reported } : {}),
@@ -612,6 +701,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       });
       beforePlaced = true;
     }
+    moveBlocks.set(index, blocks.length);
     const block: BlockDraft = {
       id: `b${blocks.length + 1}-${transitionId}`,
       stimulus: stimulusOf(slots, phrase, transitionKey, transitionId),
@@ -657,7 +747,10 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     return failedScenario(path, `the path has no stage ${request.turn.at ?? 1} moves after its start`);
 
   let placed: Built['probe'];
-  let truncated = turnPlaced || cutAt !== undefined;
+  // A turn said after the walk's last move cuts nothing: the walk still reaches its end and checks its end state.
+  const afterLastMove =
+    request.turn !== undefined && !request.turn.call && (request.turn.at ?? 1) === path.stages.length - 1;
+  let truncated = (turnPlaced && !afterLastMove) || cutAt !== undefined;
   // The answer a tool gives once it works again: the bound values the replies state, else its defaults.
   if (probe && probe.classId === TOOL_FAILURE) {
     const failed = toolFailure(prepared, rng, path, blocks, cell, probe, (tool) =>
@@ -710,11 +803,11 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     !probe &&
     !request.turn &&
     !request.aside &&
-    !request.before &&
     deviationKey !== undefined &&
     prepared.deviation !== undefined
   ) {
-    const options: Array<{ classId: string; index: number; expect: Expect; user: string }> = [];
+    const options: Array<{ classId: string; index: number; stage: string; expect: Expect; user: string }> =
+      [];
     for (const value of dimensions[prepared.deviation]?.values ?? []) {
       const classId = value.id;
       if (classId === TOOL_FAILURE) continue;
@@ -745,16 +838,20 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         if (!text.ok) continue;
         const expect = recoveryExpect(own, stage, { ...said, ...(phrase.binds ?? {}) }, inPlay, lang);
         if (!expect) continue;
-        options.push({ classId, index, expect, user: text.value });
+        options.push({
+          classId,
+          index: moveBlocks.get(index) ?? blocks.length,
+          stage,
+          expect,
+          user: text.value,
+        });
       }
     }
     // One class is drawn, as before; a walk that declares every class adds the others at the first stage
     // each can take, with no further draw, so the rest of the walk is the same either way.
     const wanted = request.perturb;
     const drawn = wanted
-      ? options.find(
-          (option) => option.classId === wanted.classId && path.stages[option.index] === wanted.stage,
-        )
+      ? options.find((option) => option.classId === wanted.classId && option.stage === wanted.stage)
       : pick(rng, options);
     if (wanted && !drawn)
       return failedScenario(
@@ -896,7 +993,7 @@ function toolFailurePerturbation(
   lang: string | undefined,
 ): { index: number; tool: string; user: string; expect: Expect } | undefined {
   for (const [index, block] of blocks.entries()) {
-    const stage = path.stages[index];
+    const stage = block.saidAt ?? (index === 0 ? path.stages[0] : blocks[index - 1]?.stage);
     const first = (block.tools ?? []).find(calls);
     if (stage === undefined || !first || block.stimulus.kind !== 'phrase') continue;
     const recovery = recoveryFor(relations, TOOL_FAILURE, path.flow, first.label);

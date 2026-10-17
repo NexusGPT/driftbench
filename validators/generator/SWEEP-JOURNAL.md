@@ -77,3 +77,99 @@ The next entry records completed seed results or the final bank result. No unmea
 - The recorded benchmark parent and child are absent after the plugin crash. Only the 1x and 10x after measurements complete; the 100x comparison, cap-limit probe and cap assays produce no completed result. No sweep was started. No interrupted result counts as evidence.
 - Replay recheck on `a7fb2452`: 22 tests pass across the current-block stage and replay cache regression files. The repair is already committed in `9abeb25c` and `42fb7c3b`; no duplicate fix is applied.
 - The owner directs PR 174 to merge only after green CI, then requests the full 21-seed sweep with two workers and load logging. The owner assigns protected changes to an independent maintainer on `fix/generator-validator-contracts`; import from main only after that PR merges. No protection exception or branch rename is used.
+
+
+## 2026-10-15: maintainer D8 retry-contract ruling
+
+- Base: `9f14f170b452dc8bd718749f833225ab977dcee3`, fetched from origin/main. The changes since the reported `14034c6ca` affect the system HTTP validator, not this generator contract.
+- Ruling: render D8 read-tool recovery as `count: 2`, the initial failed call plus the one retry already required by the prompt. A maximum alone permits skipping the retry. Changing the advancing mutant to over-retry would replace the existing fault with one already covered by `D8.retry-many` and let a weak generated Then pass.
+- Red first: the new regression on base records 23 failed, 2 passed. On seeds 1 and 3, a Then copied from the old rendered recovery passes recovery and fails adequacy; a Then requiring exactly two calls passes adequacy and fails recovery. The observed self-loop text, stage and call inputs match; call multiplicity differs.
+- Green: 54 tests pass across the D8 regression, hidden-map pins, rendered contract, follower and fault-fidelity files. The regression spans visible seeds 1–20 and base-commit hidden seed 669949872. It also rejects weakening the Then back to `max: 2`, catches excess retries and exercises an ordinary transition.
+- Actual generated-suite measurements: seed 1 adequacy changes from 8 missed first changes out of 23 to 0/23; seed 3 changes from 6/18 to 0/18. The recovery item passes before and after on both seeds. Both original items and their thresholds remain unchanged.
+- Updated the canonical seed-1 approved YAML and hidden JSON; the byte-for-byte rendered-map test passes. Product source, follower, mutants, floors and hidden-seed derivation are untouched.
+- Partial measurement only: no new ladder level or bank score is inferred. The executor journal and its level table retain their historical measurements. Evidence: [d8-retry-contract.json](evidence/d8-retry-contract.json).
+- Product obligation: every generated D8 read-tool failure block must require exactly two calls, the pending stage and the failure report, including self-loop failures.
+
+- Validation: focused Biome and diff whitespace checks pass. Typecheck passes with only the test importing sparse-excluded `comparisons/langfuse` omitted; the ordinary full typecheck reports that missing import and its two dependent implicit-any errors.
+
+## 2026-10-15: maintainer semantic invariance pairing (PR 510)
+
+- Base: `779d61573f6e92d995241be6aad515bdc28f3b9e`, the existing PR head. The auditor shows that renaming a block hides a wrong expectation while a separate clean pair still satisfies pair existence.
+- Ruling: Given and ordered When define the comparison; Then is the value tested. Approved phrase intents, stage transitions and slot bindings supply meaning. Persona introductions normalize; unknown wording stays literal. Neither block ids nor expected stages can separate a pair. Actual initial/per-turn facts and language remain fixed.
+- Red first: 39 cases fail on the base, including the auditor's same-turn/wrong-Then reproducer on all three paths and both axes. Green: 111 tests pass across five files. All 24 hand-built planted true pairs across fresh seeds 1009, 2027, 4093 and 8191 pass the real reference and reject the wrong Then despite opaque ids and a separate clean pair. Another 24 planted mutations of real generated walks on those seeds also fail, while the original walks pass the reference.
+- Generation-only measurement: all six invariance items pass on visible seeds 1–20 and base-derived hidden seed 7802775. Arbitrarily renaming every block leaves every verdict unchanged. The six formerly failing items are three different-request pairs, each scored on both axes: seed 3 input-value vs behaviour; seeds 5/18 input-value vs returned-value. The actual requests and complete final-block Thens are in the evidence and PR body.
+- The seed-18 gen-cover-096/gen-phrase-012 false pair remains excluded. Controls preserve transition order, bound values, burst boundaries, world/prefix facts and literal unknown requests; a changed expected stage never creates a new pair.
+- Scope: no product changes, items removed, thresholds lowered, fault agents changed or fixture pins changed. No ladder level is inferred and the historical executor journal/level table stays unchanged. Evidence: [invariance-semantic-turns.json](evidence/invariance-semantic-turns.json).
+- Product obligation: for the same facts and ordered requests, generate identical machine expectations across persona/channel variants, regardless of block labels.
+
+## 2026-10-15: maintainer D6 world-carrier phrase contract
+
+- Base: `5354503afed4cccfafdc43bd3988316aaa555c3d`, origin/main; separate from the D8 branch. Contract sources are the D6 definition in `docs/reference/spec.md`, the users package carrier registry, the WorldState schema and the existing hidden prompt.
+- Ruling: a world-carried phrase is proven by the injected workspace-file/tool-result content. Both `diff.phrases.filled` and `phrases.D6_instruction_in_data` use the same carrier-aware reader. Its class and wording come from the registry and map, never seed IDs or fixture filenames.
+- Red first: 25 failed, 11 passed. The existing world-instruction regression now includes differential and phrase coverage; those reject the valid world-only instruction while both fault items and the carrier item pass.
+- Green: 44 focused tests pass across four files, including visible seeds 1–20 and base-derived hidden seed 399034490. Negative controls reject missing/empty worlds, invented text, wrong-class phrases, filenames/JSON keys, metadata, background Given and store/fixture/error fields. Removing behavioural assertions still leaves both fault items failing.
+- Supplied product report: seed 2 falls to level 1 because differential rejects 24 empty user fields. A local reproduction relocates the main-generated suite's D6 text into world content in memory: all five affected provenance/coverage/carrier/fault items pass, with no reference block failures. Product files are unchanged; the parked product implementation and its passing real-run log were read only.
+- Focused lint, whitespace, handover and sparse typecheck pass; the sparse typecheck omits only the unrelated test importing excluded comparisons/langfuse. No full ladder or bank score is claimed; the historical executor journal and level table remain unchanged.
+- Evidence: [d6-world-carrier-contract.json](evidence/d6-world-carrier-contract.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
+- Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults.
+
+
+## 2026-10-16: required behaviour ownership and distinct phrase capacity
+
+- Ruling: every inventory behaviour phrase stays mandatory. Repair fixture ownership and feasibility; reports cannot waive orphan or capacity failures.
+- Preserve all drawn ownership; augment existing matchings into distinct post-read (flow, stage) slots before adding a needed owner. No RNG calls are added. Insufficient total path capacity throws.
+- Red first: final tests against unchanged constructor fail 13 and pass 19. Green: 40 tests in two generator files pass.
+- Fresh seeds 1009, 2027, 4093 and 8191 pass the unchanged behaviour coverage item. Removing an owned phrase fails; adding a forged capacity report still fails.
+- A comparison with base 119802811739d45a85c3dda5d3402a5cd31bce2c confirms all original ownership edges and every other hidden field are preserved on 24 public maps and the commit-derived hidden map. The latter is tested in memory and never serialized.
+- Review the seed-independent construction, hand-written parcel routes and public seed-1 fixture diff; rerun the test at the reviewed commit for its new hidden map. The seed formula, bank, faults, thresholds and floors remain unchanged.
+- Evidence: [behaviour-ownership-capacity.json](evidence/behaviour-ownership-capacity.json) and [red output](evidence/behaviour-ownership-capacity-red.txt). No full-bank or ladder score is claimed; the executor journal and level table retain their historical measurements.
+
+
+## 2026-10-16: ownership repair review correction
+
+- The first repair is not globally minimal on the reviewer's hand-written orphan-first example. It consumes a narrow owned slot before reserving all drawn ownership.
+- Compute the maximum matching across all original ownership first. Add one edge per unmatched behaviour to a free eligible slot. This achieves the lower bound of behaviour count minus maximum original matching cardinality.
+- Red first against b1ffc7ca1611550ee32a33c87f117c20df4b1616: the reviewer case and exhaustive graph control both fail. Corrected: 42 tests pass in two files; the graph control covers all 512 three-by-three ownership graphs.
+- The independent probe confirms minimum additions and preservation on visible 1–20, fresh 1009, 2027, 4093, 8191, 12289, 24593, 49157, 98317, and the hidden map in memory. No hidden map or hidden seed is serialized.
+- Existing omission and forged-capacity-report controls remain strict. No source outside the generator validator, no thresholds, no waivers and no RNG changes.
+- Evidence correction: [JSON](evidence/behaviour-ownership-capacity.json); [review red output](evidence/behaviour-ownership-capacity-review-red.txt). Prior measurements remain historical.
+
+## 2026-10-16: maintainer integer-contrast request scope
+
+- Base: `119802811739d45a85c3dda5d3402a5cd31bce2c`, origin/main. The reported counterexample is seed 1 at `3b12d6f13c15e0fe09f8dac1be72029768936e02`: preparatory minimum calls occur in both read/list partitions, while both write requests correctly defer.
+- Ruling: measure every block whose approved data-value stimulus requests the partition. Require exactly one read-only call with that exact integer. Require explicit zero calls for a direct side-effect request, which supplies no CONFIRM. Shared setup and zero-call guards are not contrast values. Cell metadata and block ids never identify the measured request.
+- Red first: 12 tests fail and 3 pass on the unchanged base. These include the false rejection of correct shared preparation and false acceptance of missing/wrong/permissive assertions when unrelated calls differ. A further red-first case proves exact JSON and singleton numeric assertions must retain their declared equality semantics.
+- Green: 26 tests pass across integer contrast and the adjacent invariance-context file. All six integer items pass on fresh seeds 1009, 2027, 4093 and 8191. Every block of every generated scenario carrying those integer requests passes the real reference.
+- The product mutation is injected at the generator seam, before files are loaded: it copies schema-minimum inputs instead of honoring explicit valid integer requests. All four read/list contrast items fail on each fresh seed. No product source file is modified. Negative controls also reject an unconfirmed write call, a missing prohibition and a clean duplicate hiding a wrong assertion.
+- Focused typecheck passes. Evidence: [integer-contrast-contract.json](evidence/integer-contrast-contract.json), [red-first output](evidence/integer-contrast-red-first.txt). No item, threshold, floor, fault family, fixture pin or hidden-seed rule changes; no full ladder or bank score is claimed. Historical journal rows and the level table stay unchanged.
+- Product obligation: preserve shared preparation, assert the exact requested valid read-only integer on its request, and forbid an unconfirmed side effect for both values.
+
+
+## 2026-10-15: maintainer ruling on sequence stages and impossible pairs
+
+- Base: `0137e2d25f4a98918d4498de555c729e41c2b1de`, origin/main. Contract sources: `possible.ts` (impossiblePairs), `render.ts` (hiddenSpaceMap carries written constraints and impossible pairs), the coverage items that read that map.
+- Ruling: `sequence.stages.<class>` owes probes only at the middle stages the hidden space map allows for the class. A probe at a stage the map rules out fails the item. The same map serves the coverage items.
+- Red first: 3 failed, 2 passed in `packages/validators/test/generator/sequence-stages.test.ts`. The base item fails a suite that probes every reachable stage (36 D8 cases over visible, hidden and fresh seeds) and passes a probe at a ruled-out stage.
+- Green: 23 tests pass across four files. Covered seeds: visible 1 to 20, the base hidden seed 21439762 and fresh seeds 1001 to 1020. Planted guards: dropping one reachable stage fails and names it; a probe at a ruled-out stage, or only there, fails; a class with no reachable stage never passes.
+- Product measurement, main's real generation: the old logic fails D8 on seeds 1 to 12, 14 to 16, 18, 20 and the hidden seed. The new item fails no `sequence.stages.*` item on these seeds or on 1001 and 1002. The product places no probe at a ruled-out stage.
+- Sweep: `diff.feasible.<seeder>` also reads written constraints only, in the permissive direction. On seed 2, 39 blocks sit in an impossible-only cell, all from seeder `cover`, which no `diff.feasible` item reads. That item stays unchanged and needs its own ruling. The baseline suite's goal detour also reads written constraints only; it is not an item.
+- Evidence: [sequence-impossible-pairs.json](evidence/sequence-impossible-pairs.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
+
+
+## Ownership fixture integration: explicit imbalance in disk parity test (2026-10-16)
+
+The generator's disk parity test imports the validator's mutable seed-5 hidden constructor. Main d37cc4c76 passes its balance-file prerequisite; ownership head 4b411d426 fails it before comparing any disk output. The minimum ownership edge B-002 to new-request changes scenario contexts: main needs three balance top-ups to bring D8 to 12 against maximum 35; the repaired fixture already gives D8 13 against maximum 35 and correctly needs none. This is not a disk/eager mismatch.
+
+The test now constructs its intended imbalance by adding approved off-topic phrases before generation, on public seeds 1 and 5 and fresh seed 1009. It keeps the assertion requiring balance files, summary/file-count equality and every non-report file's byte equality. No generator product source changes. The separate merge commit preserves both sides of the records. See [integration evidence](evidence/ownership-stream-fixture.json). Historical ladder measurements stay unchanged.
+
+Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabling the balancing iterator through a temporary test spy makes all three explicit-imbalance cases fail. The spy is removed; product source is unchanged.
+
+## 2026-10-15: maintainer ruling on feasibility and impossible pairs
+
+- Base: `d1567480b`, origin/main. Contract sources: `possible.ts` and `render.ts#hiddenSpaceMap` in the validator, and the generator's own `packages/generate/src/seed/possible.ts`, which uses the same event rule.
+- Ruling: `diff.feasible.<seeder>` reads the hidden space map (written constraints plus impossible pairs). Every seeder is checked: `cover`, `task`, and `unlisted` for any seeder no item names. Written-constraint reasons still win when both forbid a cell.
+- Red first: 3 failed, 11 passed across the new and existing feasibility test files. On base, seed 2's cover block passes, and a graph block in an impossible-only cell passes.
+- Green: 28 tests pass across four files. Covered seeds: visible 1 to 20, base hidden seed 513104064 and fresh 1001 to 1020. Every named seeder and an unknown one are planted per seed; allowed cells pass; each item reads only its own seeder.
+- Product measurement, main's real generation: `diff.feasible.cover` fails on all 31 measured seeds, and `diff.feasible.twise` fails on seeds 10 and 15. Cause 1: a cover spec's behaviour is not in its flow, 6787 blocks in total. Cause 2: the first move is recorded at the start stage, 25 blocks. No block sits in a written-constraint cell. These items are level 2, so the product stops there until the generator is fixed.
+- The baseline goal detour feeds only the replay cheater, which reads `expect.tools`. The detour lists no tool, so it feeds no verdict and stays unchanged.
+- Evidence: [feasible-impossible-pairs.json](evidence/feasible-impossible-pairs.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.

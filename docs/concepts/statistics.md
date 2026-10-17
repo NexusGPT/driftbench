@@ -73,10 +73,64 @@ A criterion can name a repeat reducer (`mode`, `median` or `at_least:<k>`). It r
 | `clopperPearson(k, n, alpha)` | the exact interval at level `1 - alpha`, from the beta quantile; `alpha` defaults to 0.05 |
 | `zeroFailureBound(p, alpha)` | the number of independent failure-free runs needed to claim a failure rate below `p` at confidence `1 - alpha`: 59 for 5 percent at 95 percent |
 | `bootstrapCI(values, { clusters, iterations, method, alpha, seed, statistic })` | a bootstrap interval that resamples whole clusters |
+| `wilsonEffective(clusters, { alpha, quantile })` | the pooled pass rate over clusters of `{ n, k }`, with the design effect, the effective blocks `n_eff` and the Wilson interval on `n_eff` |
+| `hierarchicalBetaBinomial(trees, { alpha })` | the hierarchical Beta-Bernoulli interval for the mean pass rate of a suite of trees of `{ n, k }` |
+| `simulateCoverage(cell, { reps, seed })` | the coverage and width of four intervals on simulated suites of one setting: the check that an interval keeps its promise |
+| `simulateFamilyCoverage(cell, { reps, seed })` | the coverage and width of three intervals on simulated suites with parents (families of children, each child run several times): Wilson on all runs, the hierarchical interval with every child as a tree, and with every family as a tree |
 
 `bootstrapCI` takes one cluster key per value: every value of one conversation carries the conversation's key, so the blocks of a run are never treated as independent samples. Without keys every value is its own cluster. `iterations` defaults to 2000, `method` is `percentile` (the default) or `basic`, `alpha` defaults to 0.05, and `seed` defaults to 1: the same seed gives the same interval. `statistic` replaces the pooled mean with any function of the resampled values.
 
-The scorecard's pass rate over specs, with several repeats of each, does not use the percentile bootstrap: with five or six specs it holds the true rate in about 82 percent of draws. It prints the Wilson interval on the effective runs instead: the runs divided by the design effect that the spread of the spec rates implies, with the Student t quantile on the specs less one in place of z. On 6 specs of 5 repeats at `rho` 0.3 it holds the true rate in about 97 percent of draws, on 20 specs of 3 repeats in about 95 percent (planted designs, 4000 draws). Its method name in the report is `wilson, design effect`.
+The scorecard's pass rate over specs, with several repeats of each, does not use the percentile bootstrap: with five or six specs it holds the true rate in about 82 percent of draws. It prints the Wilson interval on the effective runs instead: the runs divided by the design effect that the spread of the spec rates implies, with the Student t quantile on the specs less one in place of z. On 6 specs of 5 repeats at `rho` 0.3 it holds the true rate in about 97 percent of draws, on 20 specs of 3 repeats in about 95 percent (planted designs, 4000 draws). Its method name in the report is `wilson, design effect`. The campaign-level criteria (`--aggregate pass-rate:>=0.8`, see [aggregates](../aggregates.md)) print the same interval over the goldens of the campaign, because their runs are clustered the same way. The scorecard's end state match tile reads the same way. `wilsonEffective` is that interval as a function: it takes the blocks passed and tried per cluster, prints the design effect and `n_eff` next to it, and takes `quantile: 'z'` for the normal form. When every block passes or every block fails the spread of the cluster rates is zero and tells nothing, so each cluster counts once (`degenerate` is true).
+
+### A rate over goldens
+
+The end state match tile of the scorecard is a rate over runs grouped in goldens. A golden is one spec on one target in one mode, with one perturbation in mode P. The goldens, not the runs, are the independent units. With `c` goldens, golden `i` holding `n_i` runs of which `k_i` succeed, let `N` be the sum of the `n_i`, `K` the sum of the `k_i` and `p = K / N`:
+
+* The counts are exact: `K` of `N`. The estimate is `p`, the share of all runs.
+* The variance of `p` is the ratio estimator with the small-cluster factor: `V = c / (c - 1) * sum((k_i - p * n_i)^2) / N^2`.
+* The effective runs are `n_eff = p * (1 - p) / V`, kept between 1 and `N`; `V = 0` gives `N`. The design effect is `N / n_eff`.
+* The interval is the Wilson score interval on `n_eff` with the Student t quantile `q` on `c - 1` degrees of freedom (95 percent, two-sided): centre `(p + q^2 / (2 n_eff)) / (1 + q^2 / n_eff)`, half-width `q * sqrt(p (1 - p) / n_eff + q^2 / (4 n_eff^2)) / (1 + q^2 / n_eff)`, both bounds kept within 0 and 1.
+* When every run agrees (`p` is 0 or 1) the spread between goldens is zero and tells nothing: each golden counts once, and the interval is the Wilson interval of `c` goldens, all succeeding or all failing, with the normal quantile.
+* With one golden the spread between goldens cannot be measured: the interval is the plain Wilson interval of `K` of `N`.
+* When every golden holds one run, the goldens are the runs: the interval is the plain Wilson interval of `K` of `N`, the same as for independent runs.
+
+### The suite headline
+
+A suite is clustered three ways: the repeats of one golden, the realisations of one class, and the children of one parent. For the headline of a whole suite the scorecard prints the **mean over trees** with the **hierarchical Beta-Bernoulli interval** (`hierarchicalBetaBinomial`). Each tree has its own pass rate, drawn from a Beta distribution around the suite's mean. The spread of those tree rates sets how far the blocks of one tree move together, so the interval widens when trees disagree and narrows when they agree. Every tree weighs the same, so a golden with ten repeats does not outvote one with two. The posterior is computed on a fixed grid: there is no sampling and no seed, and the same trees always give the same interval. The method name in the report is `hierarchical`.
+
+Beside the headline the scorecard prints `n_eff` (the runs the clustering is worth), the design effect, the smallest drop two suites like it detect at 80 percent power, and the share of runs that gave no verdict (did not complete, and `blocked` or `not_run` when a run carries those states). One golden has no spread to measure, so it prints no interval. The command line prints the same line per mode. For six goldens where 5 of 5, 5 of 5, 4 of 5, 0 of 5, 2 of 5 and 2 of 2 runs pass:
+
+```text
+Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.3 runs (design effect 3.69), detectable drop 65.3 points at 80% power.
+```
+
+Which interval to use:
+
+| Interval | For | Coverage on simulated suites |
+|---|---|---|
+| naive Wilson | independent units only; never a headline for clustered results | 73.9 percent |
+| Wilson on `n_eff`, normal quantile | interactive output | 91.3 percent |
+| Wilson on `n_eff`, Student t quantile | a rate of one block or one conversation in the report | 93.1 percent |
+| hierarchical | the suite headline and any published result | 95.3 percent |
+
+The coverage column is the share of simulated suites whose interval held the true mean (95 percent is the target), averaged over 24 cells of Bowyer, Aitchison and Ivanova's clustered model: 12 or 50 trees, tree sizes of 3 or the real sizes of the Acme parent forest, a true mean of 0.6 or 0.9, and a concentration of 0.5, 2 or 8 (strong to mild agreement inside a tree), with 400 simulated suites per cell. `simulateCoverage` runs one cell; the test `packages/stats/test/clustered.test.ts` runs the 24 in about three seconds and requires the naive interval under 80 percent, Wilson on `n_eff` at 90 percent or more and the hierarchical interval at 93 percent or more. On the research grid of 160 cells with 5,000 suites each, naive Wilson covered 73.5 percent and Wilson on `n_eff` (normal quantile) 91.0 percent; the hierarchical interval was run on 24 cells and covered 95.7 percent, 91.0 percent in its worst cell. A headline over few trees (under a dozen) is the least certain.
+
+### Suites with parents
+
+The children of one parent inherit its end state, so they move together. A tree for the headline is then the whole family (the root and all its descendants), not each child. `simulateFamilyCoverage` measures the difference. Each family has a pass rate around the suite's mean, each child a rate around its family's, and each child is run several times. The hierarchical interval is read with every child as a tree (the grouping of the headline today) and with every family as a tree.
+
+Measured on 48 cells (12 or 40 families, 3 or 8 children each, 3 runs per child, a true mean of 0.6 or 0.9, a family concentration of 0.5, 2 or 8, a child concentration of 2 or 20, 400 simulated suites per cell, the cells numbered 1 to 48 in the order of that list with the first factor changing slowest, and cell `i` run with seed 100 + `i`). The means and worst cells below are from that seed; six base seeds (100, 200, 300, 400, 500, 600) gave the ranges in the last column:
+
+| Reading | Mean coverage (seed 100) | Worst cell (seed 100) | Worst cell, six seeds |
+|---|---|---|---|
+| naive Wilson on all runs | 59.8 percent | 31.3 percent | 31.3 to 35.0 percent |
+| hierarchical, every child a tree | 74.2 percent | 48.5 percent | 48.5 to 50.7 percent |
+| hierarchical, every family a tree | 95.5 percent | 90.0 percent | 88.3 to 90.8 percent |
+
+* With strong agreement inside a family, grouping by child leaves the interval too narrow: it holds the true mean in about three suites of four. Grouping by family restores it to the target.
+* Without a family effect (the control in the test) both groupings cover, so grouping by family costs nothing there.
+* The worst cell is seed-dependent, because each cell rests on 400 suites (a single cell near 90 percent moves by about 2 points between seeds). In all six seeds the weakest family-grouping cell had 8 children per family, a true mean of 0.9 and mild agreement between families (a family concentration of 8); the six seeds put it between 88.3 and 90.8 percent. The mean over the 48 cells moved between 95.4 and 95.6 percent.
+* The suite headline groups by golden today. The parent link is not in the spec schema yet, so the report cannot group by root. When it lands, `suiteHeadline` takes the root of the chain as its tree key: its `treeOf` argument already accepts any grouping. The test `packages/stats/test/family-coverage.test.ts` runs a 24-cell subset in about four seconds and requires naive Wilson under 70 percent, the child grouping under 85 percent, the family grouping at 93 percent or more, and the family grouping ahead in at least 20 of the 24 cells.
 
 ## Where results vary
 
@@ -136,7 +190,7 @@ The function judges one criterion. `compareCampaigns` in `@agent-nexus/driftbenc
 | drop seen | `mde({ n, baselineRate, power: 0.8 })` | the smallest true drop from the baseline rate the goldens detect at 80% power |
 | for 10 | `goldensNeeded(0.1, discordance)` | the goldens a 10 point margin needs at 80% power: the larger of the first `n` whose floor is below 10 points and the paired sample size `(z(1 - alpha / 2) + z(0.8))^2 discordance / margin^2` (Nam 1997), with the discordance seen |
 
-**The automatic margin.** `--margin auto`, the default of `compare` and `ci`, is the smallest half point at which the baseline compared with itself is non-inferior (`autoMargin(baseline)`): the largest upper bound of the all-pass flag and of the gating criteria that are not underpowered, rounded up. It prints what sets it. Above 15 points it warns that the suite is too small for a tight gate, with the goldens a 15 point margin needs.
+**The automatic margin.** `--margin auto`, the default of `compare` and `ci`, is the smallest half point at which the baseline compared with itself is non-inferior (`autoMargin(baseline)`): the largest upper bound of the all-pass flag and of the gating criteria that are not underpowered, rounded up. It prints what sets it. A campaign with no run that passed or failed (every run is not run or blocked) has nothing to compare with itself: `report` and `ci` keep the 2 point default and say so, and `compare` exits 2 saying the two campaigns share no golden. Above 15 points it warns that the suite is too small for a tight gate, with the goldens a 15 point margin needs.
 
 Measured on the Acme example (2026-10-12):
 
@@ -193,3 +247,7 @@ A set of specs, or of real conversations, is a sample of the situations an agent
 ## Helpers
 
 The package also exports the pieces the functions above are built on: `mean`, `quantile`, `quantileSorted` (type 7 quantiles), `sampleVariance`, `mulberry32` (the seeded generator), `zFor`, `Z95`, `normalCdf`, `normalSf`, `normalQuantile`, `chiSquareSf`, `binomialCdf`, `betaQuantile`, `incompleteBeta`, `logGamma`, `erfc` and `kolmogorovSf`.
+
+### Parent-linked suites
+
+For a spec with `parent` links, the headline reads the recorded forest: each root and its descendants contribute one outcome per repeat. A tree fails when one of its measured blocks fails; blocked descendants add no repeated failures. A tree containing an unrun block and no failure is left out. Repeats of a root are grouped together for the Phase 4 hierarchical Beta-Bernoulli interval, and every root tree weighs the same. Independent roots in the same spec form separate trees. JSON marks this headline with `unit: tree-run`; its `n` counts those tree outcomes, and its `runs` the scored runs. A run not run or blocked (no failure) stays out of every count and rate, even when one of its trees was measured; its share is printed. A run that fails as a whole with no failing block (incomplete, a failed end verdict or end state) fails every tree it measured. Specs without parent links keep the existing golden-level grouping. Run-level pass rates and CI gates retain their existing unit.

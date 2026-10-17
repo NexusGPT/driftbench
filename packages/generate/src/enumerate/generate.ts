@@ -27,7 +27,7 @@ import {
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
-import { phraseDrafts } from '../seed/phrase-seeder';
+import { phraseDrafts, type UnsaidPhrase } from '../seed/phrase-seeder';
 import { restatedDrafts } from '../seed/restated-seeder';
 import { indexDimensions, indexPathValues } from '../seed/scenario';
 import {
@@ -150,12 +150,21 @@ export type GenerateReport = {
    */
   cover: CoverSummary;
   constraints: { applied: number; list: Array<{ forbid: Record<string, string>; reason: string }> };
-  no_phrase: Array<{ dimension: string; value: string; blocks: number; specs: string[] }>;
+  /**
+   * Values with no approved phrase, their placeholder blocks and specs; and a value whose approved phrase no
+   * walk could say, with the phrase and why (`unsaid`, `blocks` 0).
+   */
+  no_phrase: NoPhrase[];
   /** Specs with a block the map supports no machine Then for, and why when a path could not be walked. */
   no_then: Array<{ spec: string; blocks: string[]; reasons: string[] }>;
   coverage: {
     /** Actual axis-map coverage of the written complete specs, independent of the candidate array. */
     actual: Array<MeasuredCoverage & { uncovered: Record<string, string>[] }>;
+    /** Inventory ownership exclusions, with pair/triple target counts before and after applying them. */
+    reachability?: {
+      counts: Array<{ t: number; before: number; after: number }>;
+      excluded: Array<{ cell: Record<string, string>; reasons: string[] }>;
+    };
     t: number;
     allowed: number;
     complete: MeasuredCoverage;
@@ -169,6 +178,28 @@ export type GenerateReport = {
   /** Lint warnings on complete specs: a generator defect when not empty. */
   lint: Array<{ id: string; warnings: Issue[] }>;
 };
+
+export type NoPhrase = {
+  dimension: string;
+  value: string;
+  blocks: number;
+  specs: string[];
+  unsaid?: Array<{ text: string; reasons: string[] }>;
+};
+
+/** Adds each approved phrase the phrase seeder could not say to the value's `no_phrase` entry. */
+export function addUnsaid<T extends Omit<NoPhrase, 'specs'>>(
+  gaps: Map<string, T>,
+  unsaid: readonly UnsaidPhrase[],
+  fresh: (gap: { dimension: string; value: string }) => T,
+): void {
+  for (const entry of unsaid) {
+    const key = `${entry.dimension}=${entry.value}`;
+    const gap = gaps.get(key) ?? fresh({ dimension: entry.dimension, value: entry.value });
+    gap.unsaid = [...(gap.unsaid ?? []), { text: entry.text, reasons: entry.reasons }];
+    gaps.set(key, gap);
+  }
+}
 
 export type CoverSummary = {
   /** Cells left uncovered by the other seeders. */
@@ -250,7 +281,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const all: Spec[] = [];
   const invalid: GenerateReport['invalid'] = [];
   const lint: GenerateReport['lint'] = [];
-  const gaps = new Map<string, { dimension: string; value: string; blocks: number; specs: string[] }>();
+  const gaps = new Map<string, NoPhrase>();
   const noThen: GenerateReport['no_then'] = [];
   const seeders = {} as Record<Seeder, SeederTotals>;
   const completeBy: Partial<Record<Seeder, Spec[]>> = {};
@@ -402,7 +433,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       ),
     ),
   );
-  renderSeeder('cover', phraseDrafts(prepared, context, said, 0));
+  const unsaid: UnsaidPhrase[] = [];
+  renderSeeder('cover', phraseDrafts(prepared, context, said, 0, unsaid));
+  addUnsaid(gaps, unsaid, (gap) => ({ ...gap, blocks: 0, specs: [] }));
   // Deviation balance: after coverage, classes probed less than a third as often as the most probed class get
   // more approved probes, so one class is not tested many times while another barely is.
   const balance = new DeviationBalance(prepared);
@@ -545,6 +578,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
           uncovered,
         };
       }),
+      ...(prepared.reachability ? { reachability: reachabilityReport(prepared) } : {}),
       t,
       allowed: completeCoverage.allowed,
       complete: completeCoverage,
@@ -644,6 +678,35 @@ function cellKey(values: Readonly<Record<string, string>>): string {
 
 function measured(prepared: PreparedMap, specs: Spec[], t: number): MeasuredCoverage {
   return measuredCoverage(prepared, specs, t);
+}
+
+/** Each removed pair/triple stays visible, including cells excluded through a missing completion. */
+export function reachabilityReport(
+  prepared: PreparedMap,
+): NonNullable<GenerateReport['coverage']['reachability']> {
+  const reachability = prepared.reachability;
+  if (!reachability) return { counts: [], excluded: [] };
+  const before = { ...prepared, axisMap: reachability.before };
+  const counts: Array<{ t: number; before: number; after: number }> = [];
+  const excluded: Array<{ cell: Record<string, string>; reasons: string[] }> = [];
+  for (const strength of new Set([2, 3].map((t) => Math.min(t, prepared.axisMap.dimensions.length)))) {
+    const original = cellsOf(before, [], strength);
+    const current = cellsOf(prepared, [], strength);
+    const retained = new Set(current.map(({ values }) => cellKey(values)));
+    counts.push({ t: strength, before: original.length, after: current.length });
+    for (const { values } of original) {
+      if (retained.has(cellKey(values))) continue;
+      const reasons = reachability.excluded
+        .filter(({ forbid }) => Object.entries(forbid).every(([key, value]) => values[key] === value))
+        .map(({ reason }) => reason);
+      excluded.push({
+        cell: values,
+        reasons:
+          reasons.length > 0 ? reasons : ['no completion respects flow ownership; see constraints.list'],
+      });
+    }
+  }
+  return { counts, excluded };
 }
 
 /** t-wise coverage of the specs, read from the cached grid: the counts `coverage` states for the same specs. */
@@ -806,16 +869,25 @@ export function renderSummary(report: GenerateReport): string {
     lines.push(
       `Values no allowed pair holds, so no spec can cover them until the map gives them a path: ${report.cover.unreachable.map((entry) => `${entry.dimension}=${entry.value}`).join(', ')}.`,
     );
-  if (report.no_phrase.length > 0) {
+  const placeholders = report.no_phrase.filter((gap) => gap.blocks > 0);
+  if (placeholders.length > 0) {
     lines.push(
       '',
-      `Values with no approved phrase (${report.no_phrase.length}): their blocks are placeholders in ${INCOMPLETE_DIR}/.`,
+      `Values with no approved phrase (${placeholders.length}): their blocks are placeholders in ${INCOMPLETE_DIR}/.`,
     );
-    for (const gap of report.no_phrase.slice(0, 15)) {
+    for (const gap of placeholders.slice(0, 15)) {
       lines.push(`  ${gap.dimension}=${gap.value}  ${gap.blocks} block(s)`);
     }
-    if (report.no_phrase.length > 15)
-      lines.push(`  ... ${report.no_phrase.length - 15} more in ${REPORT_FILE}`);
+    if (placeholders.length > 15) lines.push(`  ... ${placeholders.length - 15} more in ${REPORT_FILE}`);
+  }
+  const unsaid = report.no_phrase.flatMap((gap) =>
+    (gap.unsaid ?? []).map((entry) => ({ ...entry, value: `${gap.dimension}=${gap.value}` })),
+  );
+  if (unsaid.length > 0) {
+    lines.push('', `Approved phrases no walk could say (${unsaid.length}), listed under no_phrase:`);
+    for (const entry of unsaid.slice(0, 15))
+      lines.push(`  ${entry.value}  "${entry.text}": ${entry.reasons[0] ?? 'no reason given'}`);
+    if (unsaid.length > 15) lines.push(`  ... ${unsaid.length - 15} more in ${REPORT_FILE}`);
   }
   if (report.no_then.length > 0) {
     const named = report.no_then.slice(0, 10).map((entry) => entry.spec);

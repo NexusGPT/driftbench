@@ -22,11 +22,14 @@ import {
   stimulusMessages,
 } from '../runner/given';
 import { provenanceHash } from '../runner/provenance';
+import { applyRealizedTextPolicy } from '../runner/realized-text';
 import { succession } from '../runner/succession';
+import { isScored } from '../runner/verdicts';
 import type { Message } from '../schema/common';
 import { type BlockResult, type Campaign, type RunResult, Verdict } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import { canonicalJson, contentHash } from '../spec/hash';
+import { specHash, specIdentity } from '../spec/identity';
 import { parseCriterionRef } from '../spec/semantics';
 import { type CarryLimits, carryOrigin } from './carry';
 import { completeBaselineProvenance } from './provenance';
@@ -39,7 +42,7 @@ import { agentVersionOf } from './version';
  * inside a criterion, until deliberately classified as judge-only. Never project onto today's schema.
  */
 export function observationCompatibilityHash(spec: Spec, execution: { executionHash: string }): string {
-  const copy = structuredClone(spec);
+  const copy = structuredClone(specIdentity(spec));
   // `uses` names scoring-only objects (policies, check sets, diagnostics): judge-only by construction, as the
   // block cache key leaves it out (cacheSpecHash). So is `compare`, below.
   delete copy.uses;
@@ -131,7 +134,7 @@ function prepareStored(
   if (!provenance || !completeBaselineProvenance({ provenance: options.baselineProvenance, runs: [run] }))
     return refuse('Legacy observation has missing, incomplete or inconsistent execution provenance');
   if (run.status !== 'completed') return refuse('The observation did not complete');
-  if (run.specHash !== contentHash(old)) return refuse('The pinned old spec hash does not match');
+  if (run.specHash !== specHash(old)) return refuse('The pinned old spec hash does not match');
   if (
     !options.agentVersion ||
     agentVersionOf(run) !== options.agentVersion ||
@@ -235,7 +238,7 @@ function prepareStored(
       fromCampaign: options.fromCampaign,
       fromRun: run.runId,
       oldSpecHash: run.specHash,
-      newSpecHash: contentHash(spec),
+      newSpecHash: specHash(spec),
       compatibilityHash,
       criteria: [...names],
       judgedAt: options.now.toISOString(),
@@ -252,6 +255,7 @@ export async function rejudgeRun(
   prepared: PreparedRejudge,
   judge: Check,
   spent: () => number,
+  recordRealizedText = false,
   objects: ObjectContext = shippedObjectContext(),
 ): Promise<RunResult> {
   const { source, spec, contexts, stamp, carried } = prepared;
@@ -261,7 +265,8 @@ export async function rejudgeRun(
     const original = source.blocks[ctx.blockIndex];
     if (!original) return refuse('The observation disappeared');
     const selected = (ctx.expect.criteria ?? []).map((ref) => parseCriterionRef(ref)?.name ?? ref);
-    if (!selected.length) {
+    // A block not run or blocked holds no observation to judge: it stays as it was, never a pass.
+    if (!selected.length || !isScored(original)) {
       const { rejudged: _previousJudge, ...unchanged } = original;
       blocks.push({ ...unchanged, carried });
       continue;
@@ -290,7 +295,7 @@ export async function rejudgeRun(
   const { carried: _carried, events: _events, ...rest } = source;
   const updated = {
     ...rest,
-    specHash: contentHash(spec),
+    specHash: specHash(spec),
     blocks,
     carried,
     rejudged: stamp,
@@ -298,7 +303,10 @@ export async function rejudgeRun(
     cost: spent() - before,
     cacheHit: false,
   };
-  return { ...updated, runId: cellId(updated) };
+  return applyRealizedTextPolicy({ ...updated, runId: cellId(updated) }, recordRealizedText, {
+    fromRun: source.runId,
+    fromCampaign: stamp.fromCampaign,
+  });
 }
 
 function blockPlan(
@@ -317,12 +325,6 @@ const RUNNER_FAMILIES = new Set(['flow', 'ledger']);
 // A retained judge participates in check-set selection but never makes a new judge call.
 const STORED_JUDGE: Check = { name: 'judge', applies: () => false, evaluate: () => [] };
 
-// Later record versions can carry unexecuted blocks. Preserve them even before their schema lands here.
-function unexecuted(block: BlockResult): boolean {
-  const status = (block as BlockResult & { status?: string }).status;
-  return status === 'not_run' || status === 'blocked';
-}
-
 /**
  * Re-scores a prepared stored run under `objects` with no agent call: every block's machine checks run again on
  * its stored observation through the block's check set, and every verdict is stamped anew. Judge verdicts are
@@ -334,6 +336,7 @@ export async function rescoreRun(
   prepared: PreparedRejudge,
   checks: CheckSet,
   objects: ObjectContext,
+  recordRealizedText = false,
 ): Promise<RunResult> {
   const { source, contexts, stamp, carried } = prepared;
   const spec = bindObjectContext({ ...prepared.spec }, objects);
@@ -347,7 +350,8 @@ export async function rescoreRun(
     const ctx = { ...originalContext, spec };
     const original = source.blocks[ctx.blockIndex];
     if (!original) return refuse('The observation disappeared');
-    if (unexecuted(original)) {
+    // A block not run or blocked holds no observation to score: it stays as it was.
+    if (!isScored(original)) {
       blocks.push(original);
       continue;
     }
@@ -396,7 +400,7 @@ export async function rescoreRun(
   } = source as RunResult & { diagnoses?: unknown; skippedForBudget?: unknown };
   const updated = {
     ...rest,
-    specHash: contentHash(spec),
+    specHash: specHash(spec),
     blocks,
     carried,
     rejudged: { ...stamp, criteria: [] },
@@ -404,5 +408,8 @@ export async function rescoreRun(
     cost: 0,
     cacheHit: false,
   };
-  return { ...updated, runId: cellId(updated) };
+  return applyRealizedTextPolicy({ ...updated, runId: cellId(updated) }, recordRealizedText, {
+    fromRun: source.runId,
+    fromCampaign: stamp.fromCampaign,
+  });
 }

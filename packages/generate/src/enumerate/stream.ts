@@ -14,7 +14,7 @@ import {
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
-import { phraseDrafts } from '../seed/phrase-seeder';
+import { phraseDrafts, type UnsaidPhrase } from '../seed/phrase-seeder';
 import { restatedDrafts } from '../seed/restated-seeder';
 import { indexDimensions, indexPathValues } from '../seed/scenario';
 import {
@@ -29,6 +29,7 @@ import {
 import { streamTaskSpecs } from '../seed/tasks';
 import { TerminalPerturbations } from '../seed/terminal-perturbation';
 import {
+  addUnsaid,
   COMPLETE_DIR,
   DEFAULT_SEED,
   DEFAULT_T,
@@ -37,6 +38,7 @@ import {
   INCOMPLETE_DIR,
   measuredCoverage,
   REPORT_FILE,
+  reachabilityReport,
   type SeederTotals,
 } from './generate';
 import { StreamCoverage } from './stream-coverage';
@@ -101,7 +103,13 @@ function writeSuite(
   const noThen = new DiskArray<GenerateReport['no_then'][number]>(scratch, 'no-then.jsonl');
   const gaps = new Map<
     string,
-    { dimension: string; value: string; blocks: number; specs: DiskArray<string> }
+    {
+      dimension: string;
+      value: string;
+      blocks: number;
+      specs: DiskArray<string>;
+      unsaid?: Array<{ text: string; reasons: string[] }>;
+    }
   >();
   const seeders = Object.fromEntries(
     SEEDERS.map((seeder) => [
@@ -129,7 +137,8 @@ function writeSuite(
       mkdirSync(parent, { recursive: true });
       lastDirectory = parent;
     }
-    writeFileSync(target, text, { flag: 'wx' });
+    // Explicit UTF-8 keeps strings on Node's native write path; byte fixtures stay unchanged.
+    writeFileSync(target, text, { flag: 'wx', encoding: 'utf8' });
     fileCount += 1;
   };
   const balance = new DeviationBalance(prepared);
@@ -269,7 +278,13 @@ function writeSuite(
   const covered = uncovered.filter((cell) => coverage.isCovered(cell)).length;
   // Restated slots, then phrases no complete spec says yet, in the order the eager API runs them.
   for (const draft of restatedDrafts(prepared, context, 0)) render(draft);
-  for (const draft of phraseDrafts(prepared, context, saidPhrases, 0)) render(draft);
+  const unsaid: UnsaidPhrase[] = [];
+  for (const draft of phraseDrafts(prepared, context, saidPhrases, 0, unsaid)) render(draft);
+  addUnsaid(gaps, unsaid, (gap) => ({
+    ...gap,
+    blocks: 0,
+    specs: new DiskArray<string>(scratch, `gap-${gaps.size}.jsonl`),
+  }));
   // Deviation balance, as the eager API runs it: after coverage, on what the suite probes so far.
   const written = Object.values(seeders).reduce((sum, entry) => sum + entry.specs, 0);
   for (const draft of balance.topUps(context, written)) render(draft);
@@ -336,6 +351,7 @@ function writeSuite(
           .filter((cell) => cell.count === 0)
           .map((cell) => cell.values),
       })),
+      ...(prepared.reachability ? { reachability: reachabilityReport(prepared) } : {}),
       t,
       allowed: completeCoverage.allowed,
       complete: completeCoverage,

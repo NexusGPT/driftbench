@@ -24,6 +24,7 @@ import {
   runCombinations,
   STABILITY_OFFSETS,
 } from './measure';
+import { matchesPhrase, phraseStimulus } from './phrase-stimulus';
 import {
   hiddenInventory,
   hiddenProposal,
@@ -387,8 +388,12 @@ function combinationsOf<T>(items: readonly T[], size: number): T[][] {
 
 const TWISE_AXES = ['behaviour', 'deviation', 'channel', 'user_type'];
 
+/**
+ * Why the hidden space map forbids a cell: a written constraint, or a pair no path of the map can reach
+ * (possible.ts). The written constraints come first, so their reason wins when both forbid the cell.
+ */
 function forbidden(spec: HiddenSpec, cell: Cell): string | undefined {
-  const hit = spec.constraints.find((constraint) =>
+  const hit = hiddenSpaceMap(spec).constraints.find((constraint) =>
     Object.entries(constraint.forbid).every(([dimension, value]) => cell[dimension] === value),
   );
   return hit ? hit.reason : undefined;
@@ -529,17 +534,30 @@ function differentialItems(): BankItem[] {
       },
     },
   );
-  for (const seeder of SEEDERS) {
+  // Every seeder the generator writes is checked, and a block from a seeder no item names lands in
+  // `unlisted`, so no generated block escapes the check.
+  const feasible: Array<[string, string, (seeder: string) => boolean]> = [
+    ...SEEDERS.map((seeder): [string, string, (own: string) => boolean] => [
+      seeder,
+      C.feasible,
+      (own) => own === seeder,
+    ]),
+    ['cover', 'packages/generate/src/seed/seed-drafts.ts#coverDraft', (own) => own === 'cover'],
+    ['task', 'packages/generate/src/seed/tasks.ts', (own) => own === 'task'],
+  ];
+  const listed = feasible.map(([seeder]) => seeder);
+  feasible.push(['unlisted', 'packages/generate/src/enumerate/generate.ts', (own) => !listed.includes(own)]);
+  for (const [seeder, component, owns] of feasible) {
     items.push({
       id: `diff.feasible.${seeder}`,
       family: 'differential',
       tier: 2,
       level: 'differential',
-      component: C.feasible,
+      component,
       async check(data) {
         const generated = await data.generated();
         const bad = generatedCells(generated)
-          .filter((block) => block.seeder === seeder)
+          .filter((block) => owns(block.seeder))
           .flatMap((block) => {
             const why = forbidden(generated.hidden, block.cell);
             return why ? [`${block.key} (${why})`] : [];
@@ -720,27 +738,21 @@ function differentialItems(): BankItem[] {
       component: C.scenario,
       async check(data) {
         const generated = await data.generated();
-        const patterns = generated.hidden.phrases.map((phrase) => phrasePattern(phrase.text));
         const bad: string[] = [];
         for (const { spec } of generated.complete) {
           for (const block of spec.blocks) {
-            const text = block.when
-              ? 'user' in block.when
-                ? block.when.user
-                : 'injection' in block.when
-                  ? block.when.injection.user
-                  : block.when.burst.join('\n')
-              : '';
+            const stimulus = phraseStimulus(block);
             // A task spec holds the family's approved phrases, not the map's (docs/generating.md, task families).
-            const approved = isCodeTaskSpec(spec)
-              ? familyPhrase(generated.hidden, text)
-              : patterns.some((pattern) => pattern.test(text));
-            if (!approved) bad.push(`${spec.id}#${block.id}: "${text}"`);
+            const approved =
+              isCodeTaskSpec(spec) && stimulus.carrier === 'user'
+                ? familyPhrase(generated.hidden, stimulus.text)
+                : generated.hidden.phrases.some((phrase) => matchesPhrase(stimulus, phrase));
+            if (!approved) bad.push(`${spec.id}#${block.id}: ${JSON.stringify(stimulus)}`);
           }
         }
         return verdict(
           bad.length === 0,
-          `${bad.length} user turns match no approved phrase: ${bad.slice(0, 3).join('; ')}`,
+          `${bad.length} stimuli match no approved phrase in their carrier: ${bad.slice(0, 3).join('; ')}`,
         );
       },
     },

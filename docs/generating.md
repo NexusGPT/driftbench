@@ -71,7 +71,7 @@ The relations are what lets code derive a machine Then. Each one quotes its sour
 | Kind | What it says | Acme |
 |---|---|---|
 | `path` | a flow's stage order on one branch, the cell values the branch needs (`when`), the behaviours it exercises, and the end state the store holds when it ends (by slots) | 12 |
-| `uses_tool` | a tool a flow or behaviour calls, the stage it is called at (and, with `to`, the stage the turn reaches), the call count, and its inputs by slot | 14 |
+| `uses_tool` | a tool a flow or behaviour calls, the stage it is called at (and, with `to`, the stage the turn reaches), the call count, and its inputs by slot. A flow's call is made on the move that leaves the stage; a behaviour's call is made in the turn that asks for the behaviour, said at that stage, and never on a move | 14 |
 | `states` | what the reply of one turn must state, such as each plan with the monthly price the tool returned; it becomes `expect.must` on that turn | 7 |
 | `binds` | the concrete values a data or persona value stands for, such as the email of a found account | 12 |
 | `recovery` | how a flow recovers from one deviation class: the stages it is probed at (`at`), the stage after (`pending` is the stage the conversation had reached), reply patterns, guards and calls; for `D8_tool_failure`, the tool that fails | 24: 7 by code, 17 by the model |
@@ -290,9 +290,26 @@ That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/
 | `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage. After the `cover` seeder, a class probed by fewer than a third as many blocks as the most probed class gets more probes (`gen-deviation-balance-NNN`), until it reaches that third or no approved path can carry it. Then a class whose recovery moves the conversation elsewhere (a goal shift goes back to the stage that owns the goal), which no clean walk can declare for perturbed mode, gets one walk of its flow cut at the latest stage before the last that can take it (`gen-deviation-cut-NNN`) when no complete spec declares it that way: the perturbation is said after the walk's last turn, its recovery is the Then, and the walk has no end state |
 | `metamorphic` | families of specs that differ only in the phrasing of one value, with the same Then by construction |
 | `task` | the instances of every family a `task_family` relation names (`--tasks <n>` per relation, default 8), each with its corner and planted variants; see [task families](#task-families) |
-| `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons. Then each approved phrase of a behaviour, a flow or a tool value that no complete spec says gets one spec (`gen-phrase-NNN`): a walk's moves reach a stage and the user says the phrase there; the Then is that stage, plus no run of a side-effecting tool, or for another tool's returned value one run whose reply reports the returned fields as the flow's `states` relations do, said after a move that already ran the tool. The phrases of one dimension go to distinct stages while the walks have stages left. A phrase that states slot values (`binds` or a `{slot}`) is left out, since a stage-only Then cannot judge them |
+| `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons. Then each approved phrase of a behaviour, a flow or a tool value that no complete spec says gets one spec (`gen-phrase-NNN`): a walk's moves reach a stage and the user says the phrase there; the Then is that stage, plus no run of a side-effecting tool, or for another tool's returned value one run whose reply reports the returned fields as the flow's `states` relations do, said after a move that already ran the tool. The phrases of one dimension go to distinct stages while the walks have stages left; a phrase whose only fitting stage another phrase holds takes it when that phrase can move to a free one, so every phrase some free stage fits is said. A behaviour phrase uses only a path of a flow that lists the behaviour in the inventory, at a stage that path reaches. Without an inventory, an explicit `path.behaviours` entry supplies that ownership. A missing owner or an owning flow with no usable path is reported, including when the map has no approved paths. An approved phrase no walk can say is listed under `no_phrase` with the reasons (`unsaid`), including a behaviour whose call conditions cannot hold on any approved walk. When `--max` stops this seeder, every eligible phrase still waiting is reported with `cut by --max`, including phrases not visited yet. A phrase that states slot values (`binds` or a `{slot}`) is left out, since a stage-only Then cannot judge them |
+
+A class the users package carries in the world, not in a user message (an instruction inside data, `D6_instruction_in_data`), arrives as supplied data, in a probe block and in a declared perturbation alike: its approved phrase is the content of a workspace file with a plain name no workspace of the spec uses (`NOTES.txt`, then `NOTES-2.txt`), the injected turn says nothing (`injection.user: ""`), and the files the world already holds are kept. A probe block's file is part of the world for its own turn only: the next block returns to the workspace before it; a perturbation's world holds from its turn on, as any perturbation's does. Its Then is the recovery's, as for a class said by the user.
 
 Every seeded choice comes from `--seed` (default 1), so the same map and seed give the same suite byte for byte.
+
+The `cover` seeder uses only paths whose flow lists every behaviour the requested cell holds. Path
+annotations rank those eligible paths; they never grant membership in another flow. An unplaceable cell
+is reported under `cover.unbuilt` with its values and reasons, without falling back to an unrelated flow.
+
+The coverage target also respects the loaded inventory when the flow dimension is a detail. A behaviour
+can occur only on a flow that lists it. Pairs and triples must fit one such flow together with its stages
+and deviation recoveries. When inventory ownership excludes cells that the relation-only target admits,
+`coverage.reachability` lists every excluded pair and triple with its reason, plus allowed counts before
+and after for each strength. A reachable cell that cannot be built stays in `coverage.actual[].uncovered`
+and in `cover.unbuilt`; missing phrases or an output budget never remove it from the target.
+
+In `metadata.generated.blocks`, a move records the stage it reaches. A deviation records the stage where
+it is injected, even when its recovery moves elsewhere. These event stages match the map's reachability
+model; `expect.stage` continues to name the stage the reply must reach.
 
 ### The machine Then in every block
 
@@ -302,6 +319,7 @@ A complete generated block reads observed state, not only words. Code derives ea
 |---|---|
 | `expect.stage` and `expect.stage_reported` | the path's next stage, reported by the runtime in this block |
 | `expect.tools` (label, count, input) | the `uses_tool` relations of the flow at that stage, inputs filled from the slots the cell's data values and the phrases bind; every other tool the scenario calls is expected 0 times in that turn |
+| `expect.tools` and `expect.must` on a behaviour's phrase turn | the `uses_tool` relations of that behaviour at the stage the phrase is said, for a tool without side effects: one call, and the `states` patterns that state the tool's returned fields |
 | `rules.forbidden_tools` | every tool the scenario never calls |
 | `end_state` on the last block | the path's end state, slots filled |
 | a probe block's stage, `must`, `must_not`, guards and calls | the recovery of that class in that flow; `pending` is the stage the conversation had reached. A recovery that stays there also keeps the `must_not` patterns with no slot of the `states` relation that reached the stage, such as narrated internal steps |
@@ -431,6 +449,9 @@ Values with no approved phrase (72): their blocks are placeholders in incomplete
   coverage.check.in.address=coverage.check.in.address.below-min-length  1 block(s)
   ... 57 more in generate-report.json
 
+Approved phrases no walk could say (1), listed under no_phrase:
+  flow=price-sheet  "Build the price sheet from catalog.csv, one sheet per category.": no approved path walks the flow price-sheet
+
 Specs with a block the map supports no machine Then for (18), in incomplete/: gen-twise-108, gen-twise-109, gen-twise-114, gen-boundary-008, gen-boundary-017, gen-boundary-031, gen-boundary-046, gen-boundary-060, gen-boundary-067, gen-boundary-068, ....
   Most frequent reasons:
      3  it needs user_type in existing-customer; the cell holds new-customer
@@ -447,7 +468,7 @@ exit 1
 
 The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 335 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
-`generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
+`generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase and the approved phrases no walk could say (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
 ## Streaming generation to disk
 
@@ -543,7 +564,7 @@ See the [measured budget comparison](../comparisons/budget/README.md) for select
 * pass^k on the reference, from the k repeats, is recorded for every block in the report.
 * The holdout: whole specs, drawn with `--seed` at the share `--holdout` (default 0.2), go to `holdout/` with `seal.json`, which lists each spec with its hash. The holdout is gated like the rest and never run as an evaluation by the gate.
 * Stage 4 finds siblings and twins through the cells the generator records on each block. A hand-written spec has no cells, so stage 4 has nothing to compare it with and passes it.
-* Equal sibling expectations are accepted when every reference repeat passes and produces the same observed behavior. When a Then asserts structured state, refusal wording may quote different invalid values; message boundaries, tool arguments, runtime traces and artifacts must still agree. Wording-only expectations compare the reply text too. Equal pass/fail verdicts alone do not establish equivalence. A Then on the end state compares the `endStateValue` each reference run recorded: equal values count as the same behaviour, different values do not, and a run that recorded no value (an unreadable store, or a run stored before the field existed) keeps the conservative contrast check. Artifact, workspace and custom assertions retain the conservative contrast check because their complete evidence can live outside the captured reply.
+* Equal sibling expectations are accepted when every reference repeat passes and produces the same observed behavior. When a Then asserts structured state, refusal wording may quote different invalid values; message boundaries, tool arguments, runtime traces, artifacts and workspace changes must still agree. A workspace diff that lists no file counts as no workspace change, so a run whose world supplies files and a run with no workspace agree when neither changes a file. Wording-only expectations compare the reply text too. Equal pass/fail verdicts alone do not establish equivalence. A Then on the end state compares the `endStateValue` each reference run recorded: equal values count as the same behaviour, different values do not, and a run that recorded no value (an unreadable store, or a run stored before the field existed) keeps the conservative contrast check. Artifact, workspace and custom assertions retain the conservative contrast check because their complete evidence can live outside the captured reply.
 * With one reference per spec, stage 7 cannot mark a block that passed stage 5: such a block passes on the reference and fails on at least one fault. The mark becomes informative with several reference agents.
 
 ### The leakage rule
@@ -742,6 +763,8 @@ exit 0
 
 `family review --write` writes a pending review with the current hashes, unless a current signed one exists.
 
+A column asked as a formula is checked by its formula on every row: the formula the oracle names, with any spaces around its operators. A formula of one multiplication or one addition of two operands, each a cell reference or a number, also passes with its operands swapped, so `=12*C2` passes where the oracle names `=C2*12`; `=12*C3` and `=13*C2` still fail. Any other formula, such as one with a comparison, a power or a function, keeps the order the oracle names.
+
 Limits today:
 
 * A column asked as a value is checked by its value only: the reader vocabulary has no check that a cell holds no formula, so a formula with the right cached result passes.
@@ -772,7 +795,7 @@ A map hands a flow to a family with a `task_family` relation. A family that writ
   quote: "title: Add a summary sheet to the existing workbook and leave every other file untouched"
 ```
 
-`generate` builds `--tasks <n>` instances per relation from the seed (default 8) and writes every variant to `specs/task/`. Relations on one family share its draws: instances are drawn in order, and each goes to the relations whose `instances` its knobs meet. The family's oracle wrote each Then; the task seeder only places the spec: the values of `holds` become its tags, and a planted variant also declares its planted file as a perturbation of the relation's class at the first block, with that block's Then. A variant whose workspace holds a file that is not text, such as the existing workbook, is written to a folder beside its spec, `specs/task/.seed-<spec id>/`, which its `workspace_seed.from` names from the folder `generate` runs in. A relation whose family's phrases are not approved, whose review is missing, invalid or stale, whose `instances` names a knob the family lacks, or that gets no instance is refused with its reason, and the refusal counts as a defect (exit 1). The gate runs task specs on the code agent with `--route flow:price-sheet=process:acme-ops`; `campaign` and `ci` take the same `--route`.
+`generate` builds `--tasks <n>` instances per relation from the seed (default 8) and writes every variant to `specs/task/`. Relations on one family share its draws: instances are drawn in order, and each goes to the relations whose `instances` its knobs meet. The family's oracle wrote each Then; the task seeder only places the spec: the values of `holds` become its tags, the spec holds the map's reply rule (`rules.one_message_per_turn` unless the map's `reply_count` is `any`) as every generated spec does, and a planted variant also declares its planted file as a perturbation of the relation's class at the first block, with that block's Then. A variant whose workspace holds a file that is not text, such as the existing workbook, is written to a folder beside its spec, `specs/task/.seed-<spec id>/`, which its `workspace_seed.from` names from the folder `generate` runs in. A relation whose family's phrases are not approved, whose review is missing, invalid or stale, whose `instances` names a knob the family lacks, or that gets no instance is refused with its reason, and the refusal counts as a defect (exit 1). The gate runs task specs on the code agent with `--route flow:price-sheet=process:acme-ops`; `campaign` and `ci` take the same `--route`.
 
 ## The variance pilot
 
