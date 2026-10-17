@@ -66,6 +66,7 @@ export {
   walkGraph,
 } from './enumerate';
 export {
+  ASK_FRAME_WORDS,
   type AskSource,
   actOf,
   anchorPair,

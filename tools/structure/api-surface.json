@@ -1033,6 +1033,7 @@
       "writeRetirements": "value"
     },
     "generate": {
+      "ASK_FRAME_WORDS": "value",
       "AUDIT_FILE": "value",
       "Accepted": "type",
       "AnonymisedTurns": "type",

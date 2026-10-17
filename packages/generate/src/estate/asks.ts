@@ -1137,6 +1137,24 @@ const TOOL_ACTS: Readonly<Record<string, string>> = {
 };
 
 /**
+ * Grammar and fixed ask words that do not have to come from an atom. Validators use this source too:
+ * tool acts and trigger variants contribute their actual words, so a new phrasing needs no second list.
+ */
+export const ASK_FRAME_WORDS: ReadonlySet<string> = new Set(
+  [
+    `a an the this that these those it its my our your me us i we you he she they there here is are was were be been am do does did has have had
+    will would shall should must may might can could please kindly just now then and or but so if when while as of for to in on at by from with
+    without about into over under against up out off not no nor also again still even only more most some any each every all one two
+    take go use tool tools file files rule once nothing anything sentence kinds things help mean means explain tell short briefly urgent
+    skip usual checks check before after where what which who how why yes`,
+    ...Object.values(TOOL_ACTS),
+    ...TRIGGER_VARIANTS.map((variant) => variant('', '')),
+    OUTSIDE_ASK,
+    RESUME_ASK,
+  ].flatMap((text) => text.toLowerCase().match(/[a-z0-9]+/g) ?? []),
+);
+
+/**
  * The ask that sets off a guard enforcing a rule that asks for an act: the act of the tool the guard matches,
  * with the rule's situation as context; for a guard on the end of a turn, a request for a full answer. Null
  * when the guard watches no tool (a guard on the user's prompt): no request of the owner reaches it.

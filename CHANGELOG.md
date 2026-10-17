@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Estate ask validation uses the generator's fixed words, including its documented tool acts, so a Bash ask does not fail for words absent from its guard. `@agent-nexus/driftbench-generate` exports `ASK_FRAME_WORDS`; the validator also reads the neutral asks from that package and the documented `ruleText` of a cited guard.
+
 * New exports of `@agent-nexus/driftbench-estate`, frozen in `tools/structure/api-surface.json`: `proseCandidates`, `proseCacheKey`, `ProseCache`, `FileProseCache` and `ProseEstimate`, `proseEstimateLine` (the code-found prose candidates and their cache, and the cost line of a model pass); `USER_LAYER` and `isUserLayerPath` (the user-level skill layer); `citationsByFile` and `filesReached` (the estate graph).
 * Estate user-level skill layer: a container named `Trash` or `trash` is not read, a relative `--user-skills` folder is relative to the folder the command is typed in, an empty `--user-skills` value or `userSkills` reader option is refused, and the hidden-folder, dependency-folder, trash, `~` and relative-path rules each have a test that fails when the rule is removed.
 
