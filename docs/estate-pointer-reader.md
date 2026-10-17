@@ -1,6 +1,6 @@
-# Estate pointer reader (design, not built)
+# Estate pointer reader
 
-Status: proposal, revision 2. Nothing on this page exists in code yet. It follows the research report "Pointing to exact text spans" and replaces the word-list rule finder (`candidates.ts`, `clause-rule.ts`) and the quoting model pass (`prose.ts`).
+Status: revision 3. Layers A and B are built behind `driftbench estate scan --pointer` (section 14); links (layer C), the gold-set study and the removal of the word-list finder are not. It follows the research report "Pointing to exact text spans" and replaces the word-list rule finder (`candidates.ts`, `clause-rule.ts`) and the quoting model pass (`prose.ts`).
 
 ## The shape: three layers with three owners
 
@@ -186,7 +186,7 @@ Why dense: each unit is considered, a missing unit shows as a gap (`unlabeled`),
 | Labeler | How it answers | Notes |
 |---|---|---|
 | Haiku (`claude-haiku-5-5`) | One request per window and set; JSON with an enum of the set's names; response blocks read by type (thinking blocks may precede the text). Temperature cannot be pinned, so determinism lives in the cassette. | Key read by path from `~/.nexus-secrets`, never printed. |
-| Jev (system 1, `packages/judges/src/clients/system1.ts`) | A yes/no probability model: one binary question per (unit, label), 5 questions per unit for a 5-label set. One call carries a batched window of 30 to 50 numbered units (150 to 250 questions). The port takes the label with the highest probability above a threshold chosen per window shape, else `none`, and handles ranges by labelling units singly. | The probabilities are kept in the cassette so the threshold can change without a re-record. Call shape, cap, window size, id form and threshold are measured on one planted estate (section 10a); the settings below follow from those numbers. |
+| Jev (system 1, `packages/judges/src/clients/system1.ts`) | A yes/no probability model: one binary question per (unit, label), 5 questions per unit for a 5-label set. One call carries a batched window of 30 to 50 numbered units (150 to 250 questions). The port takes the label with the highest probability above a threshold chosen per window shape, else `none`, and handles ranges by labelling units singly. Two states exist: `jev` (the state is the numbered window with its heading path; one request per window and set, split only when units times labels pass the cap) and `jev-unit` (the state is one unit with all its labels as questions; one request per unit). Questions are keyed `u<n>__<label>`. | The probabilities are kept in the cassette so the threshold can change without a re-record. Call shape, cap, window size, id form and threshold are measured on one planted estate (section 10a); the settings below follow from those numbers. |
 | Replay | Reads a cassette; no network. | Used by CI and validators. |
 | Planted | Built by a validator from the labels it planted. | Tests the cutter, ledger and parser with no model. |
 
@@ -339,7 +339,7 @@ All use one gold set: 40 prompt and agent files from several estates, with span-
 | 10 | The normaliser flags under 2% of cosmetic commits and never merges a semantic flip. | Offline over history; 200 minimal mutations. | A semantic miss, or cosmetic suspects over 2%. | Offline |
 | 11 | Verified span links give blast-radius precision and recall of 0.8 against a full rerun. | 30 spans, 3 mutants each. | Recall under 0.8 and advisory links do not help. | ~90 suite runs |
 | 12 | Cassette replay is byte-identical, and a one-field change misses and names the field. | Offline: replay twice, perturb each key field. | Any difference or silent hit. | Offline |
-| 13 | **Jev against Haiku** on the same labelled set: accuracy, cost, speed and run-to-run agreement. **Status: the Jev side ran on the planted estate (section 10a). The Haiku side has not run yet, so no comparison exists.** | Same units and sets, both labelers, 3 runs each; Jev with its probability threshold swept. Metrics: per-unit accuracy and F1 against gold, cost per file, wall time per file, pairwise agreement across runs. | Reported, not falsified: it decides which labeler is the default and whether Jev needs a calibration step. | ~600 calls each |
+| 13 | **Jev against Haiku** on the same labelled set: accuracy, cost, speed and run-to-run agreement. **Status: the Jev side ran on the planted estate (section 10a). On the fictional fixture all three arms ran once against a coarse reference (section 14); the gold-set comparison has not run.** | Same units and sets, three arms, 3 runs each: Haiku (one dense request per window), Jev with window state (one request per window and set) and Jev with unit state (one request per unit, all labels as questions), so the window state is measured against the unit state; Jev with its probability threshold swept. Metrics: per-unit accuracy and F1 against gold, cost per file, wall time per file, pairwise agreement across runs. | Reported, not falsified: it decides which labeler is the default and whether Jev needs a calibration step. | ~600 calls each |
 | 14 | Editing one label re-labels only under its set. | Offline with a fake labeler: edit one label of one of two sets. | Any call under the unedited set, or any unit id change. | Offline |
 | 15 | The labeler prompt generated from a set is generic: the same prompt text builds for an agent set and a bakery style set. | Offline: build prompts for both sets and check no estate word is in the template. | A fixed word in the template. | Offline |
 
@@ -434,7 +434,7 @@ Cost on the fixture (13 files that go to the model today): 8,384 characters of p
 - How the reviewer sees `description`-like labels without an atom mapping.
 - Whether the advisory (section-level) set is worth its noise (experiment 11).
 
-## 13. Build order (after approval)
+## 13. Build order
 
 1. Unit cutter, fingerprints, cut digest; experiments 3 to 6.
 2. Ledger with the ladder and `scan --check`/`--update`; experiments 9, 10.
@@ -443,3 +443,51 @@ Cost on the fixture (13 files that go to the model today): 8,384 characters of p
 5. Links and blast radius.
 6. Jev port; experiments 1, 2, 7, 8, 13.
 7. Remove the word-list finder and its tests; move the corpora into labeler tests.
+
+## 14. What is built
+
+Behind an opt-in flag, `driftbench estate scan <root> --pointer --cassette <file> [--record] [--labeler haiku|jev|jev-unit] [--labels <file>] [--ledger <file> [--ledger-check]] [--labeler-threshold <p>]`. Code is in `packages/estate/src/pointer/` (cutter, ledger, cassette, label sets, labelers, scan, atoms) and `packages/cli/src/commands/estate-pointer.ts`. Without the flag the scan is as before.
+
+| Part | State |
+|---|---|
+| Cutter, fingerprint, cut digest | Built. No word list: sentence breaks come from `Intl.Segmenter` over masked text, merged by shape only. |
+| Ledger with the ladder (unchanged, moved, ambiguous, changed, split, merged, deleted) and `--ledger-check` | Built, with the text-similarity floor of section 4. |
+| Cassette keyed by the whole request, readable fields, a miss that names the differing field | Built. One cassette file per labeler arm. |
+| Label sets as data, the shipped `agent-rules` set loaded by the same parser | Built. |
+| Haiku port (`claude-haiku-5-5`, one dense request per window and set, hidden reasoning off) | Built. |
+| Jev port, window state and unit state | Built. Questions keyed `u<n>__<label>`; the probabilities are recorded, so the threshold is a replay setting. |
+| Atoms from labels (quote and lines are `source.slice` of the file, one reviewed `prose_pointer` check) | Built. A gate takes the quote from its first to its second unit. |
+| Window halving on a refused Jev call | Built. |
+| Links and blast radius (layer C), `scan --update` | Not built. |
+| Removal of `candidates.ts`, `clause-rule.ts`, `prose.ts` | Not done: the flag is opt-in. |
+
+### Fixture recording (fictional Northwind estate, one run per arm)
+
+Haiku `claude-haiku-5-5`, 154 units in 14 files, 18 windows (Jev window state: 19, because its cap is 250 questions), hidden reasoning off. Before hidden reasoning was turned off, one window stopped at the 2,048-token limit while it was thinking; the recorded run has none.
+
+| Arm | Requests | Tokens in / out | Cost (USD) |
+|---|---|---|---|
+| Haiku, dense window | 18 | 9,597 / 1,867 | about 0.0019 |
+| Jev, window state | 19 | not reported by the endpoint | not on file |
+| Jev, unit state | 154 | not reported by the endpoint | not on file |
+
+The Haiku price is derived from the recorded receipts of the repository (USD 0.10 per million input tokens and 0.50 per million output tokens fit three receipts to four digits). Three earlier runs while fixing the request (hidden reasoning, an echoed window id that the model did not return) cost about 0.0067 more. No Jev price is on file.
+
+Reference for the next table: the 57 prose atoms of the fixture map that its author approved. It is coarse: a pointed atom counts as right when its lines overlap an approved atom, and an approved atom counts as found when a pointed atom overlaps it. It is not the gold set of section 10.
+
+| Arm (threshold) | Atoms built | Overlap an approved atom (precision) | Approved atoms found (recall) |
+|---|---|---|---|
+| Haiku | 58 | 55 (94.8%) | 53 of 57 (93.0%) |
+| Jev window state (0.4, the default) | 79 | 60 (75.9%) | 55 of 57 (96.5%) |
+| Jev window state (0.7) | 68 | 56 (82.4%) | 54 of 57 (94.7%) |
+| Jev window state (0.9) | 32 | 31 (96.9%) | 35 of 57 (61.4%) |
+| Jev unit state (0.7, the default) | 79 | 54 (68.4%) | 52 of 57 (91.2%) |
+| Jev unit state (0.9) | 23 | 23 (100%) | 25 of 57 (43.9%) |
+
+Agreement on the 154 units: Haiku and Jev window state 35.7% on the exact label and 88.3% on rule-or-not; Haiku and Jev unit state 46.8% and 85.7%; the two Jev states 47.4% and 89.6%. The same question gives a different probability in the two states (the label `example` for one unit: 0.36 alone, 0.64 in its window), so the state is a real setting.
+
+Reading: on this one small fictional estate Haiku is the more precise at the same recall, and the window state beats the unit state on precision at every threshold. One estate, one run per arm and a reference built by overlap prove no ranking. They make experiment 13 on the gold set worth its cost. The private estate has not been sent to any model.
+
+### Jev request size on the fixture
+
+The window of 48 units with 6 labels (288 questions) was answered. Repeating its units to larger windows: 504 and 1,002 questions were answered, 1,500 and above were refused with HTTP 400 `max_tokens_exceeded`. The cap is a token budget, not a count, which matches the 1,300 and 1,350 of section 10a. The port defaults to 250 questions per request and halves a window that the endpoint refuses.
