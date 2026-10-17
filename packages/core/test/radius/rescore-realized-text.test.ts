@@ -80,3 +80,21 @@ it('records the spec hash of the identity, as a re-judge does, so a link or a pr
   expect(specIdentity(withLinks as never)).not.toHaveProperty('metadata');
   expect(result.specHash).toBe(specHash(input.spec));
 });
+
+it('refuses to prepare the re-score of a parent-linked run, so the cell runs fresh', async () => {
+  const input = await prepared(false);
+  const linked = {
+    ...spec,
+    blocks: spec.blocks.map((block, index) =>
+      index === 1 ? { ...block, id: 'child', parent: 'root' } : { ...block, id: 'root' },
+    ),
+  };
+  expect(() =>
+    prepareRescore(linked as never, linked as never, input.source, {
+      fromCampaign: 'base',
+      agentVersion: 'v1',
+      now: new Date('2026-10-15T01:00:00Z'),
+      baselineProvenance: { version: 2, adapters: [] },
+    }),
+  ).toThrow(/A parent-linked run takes each child's history from its ancestors/);
+});

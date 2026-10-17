@@ -107,6 +107,13 @@ export function prepareRescore(
   run: RunResult,
   options: RescoreOptions,
 ): PreparedRejudge {
+  // A child of a parent-linked run was measured with the history, the previous stage and the Given of its
+  // ancestors; a re-score builds its contexts from the block order, which would hand it unrelated trees.
+  if (spec.blocks.some((block) => block.parent !== undefined)) {
+    return refuse(
+      "A parent-linked run takes each child's history from its ancestors, which a re-score does not rebuild",
+    );
+  }
   return prepareStored(old, spec, run, options, [], true);
 }
 
