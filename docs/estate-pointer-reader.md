@@ -186,11 +186,24 @@ Why dense: each unit is considered, a missing unit shows as a gap (`unlabeled`),
 | Labeler | How it answers | Notes |
 |---|---|---|
 | Haiku (`claude-haiku-5-5`) | One request per window and set; JSON with an enum of the set's names; response blocks read by type (thinking blocks may precede the text). Temperature cannot be pinned, so determinism lives in the cassette. | Key read by path from `~/.nexus-secrets`, never printed. |
-| Jev (system 1, `packages/judges/src/clients/system1.ts`) | A yes/no probability model: one binary question per (unit, label), `state` = the unit with its heading path, answer = probability of yes. The port takes the label with the highest probability above a set threshold, else `none`, and handles ranges by labelling units singly. | Needs many small calls; the probabilities are kept in the cassette so the threshold can change without a re-record. Shape UNVERIFIED until a live call. |
+| Jev (system 1, `packages/judges/src/clients/system1.ts`) | A yes/no probability model: one binary question per (unit, label), 5 questions per unit for a 5-label set. One call carries a batched window of 30 to 50 numbered units (150 to 250 questions). The port takes the label with the highest probability above a threshold chosen per window shape, else `none`, and handles ranges by labelling units singly. | The probabilities are kept in the cassette so the threshold can change without a re-record. Call shape, cap, window size, id form and threshold are measured on one planted estate (section 10a); the settings below follow from those numbers. |
 | Replay | Reads a cassette; no network. | Used by CI and validators. |
 | Planted | Built by a validator from the labels it planted. | Tests the cutter, ledger and parser with no model. |
 
 Haiku and Jev see the same numbered units and return the same shape. Both are recorded in the same cassette format (section 5).
+
+### Jev settings (measured, section 10a)
+
+Measured on one fictional estate with gold written by the helper (395 units, 5 labels, `jev-1.13.0`). The numbers show a direction, not a calibrated default. Section 10a holds the tables.
+
+- **Batched windows of 150 to 250 questions.** A call with 30 to 50 numbered units and all 5 label questions each scored 86.8 and 86.3 accuracy. A window of 20 units scored 84.9, one unit per call 77.8. The estate took 8 to 14 calls, against 395 for one unit per call. The Jev window is sized by question count, not by the 100,000 token bound above.
+- **Cap of 1,300 questions per call with normal question text.** 1,300 answered and 1,350 was refused with HTTP 400 `max_tokens_exceeded`. A refused call returns no answer at all, and the refusal does not follow request bytes. Accuracy does not rise above 250 questions, so the port stays at 150 to 250 and halves the window on a 400.
+- **Flat labels, not a tree.** A two-level tree took 41 calls against 20 for the flat form, scored 84.1 against 84.9, and agreed less between runs (kappa 0.927 against 0.959).
+- **The label wording is the largest lever.** Two wordings of the same five definitions moved accuracy by 13 points (71.7 and 84.9). The exclusive wording, where each definition rules out the others, is the better one. Label descriptions are therefore the quality surface of a label set (section 1), and experiment 15 keeps the builder text generic around them.
+- **Any short numeric tag works as the display handle.** `[12]` scored 84.9, `<s12>` 85.0, the ledger id 84.5. The bare number scored 80.8 and quoting the unit text in the question 81.9. No id was invalid or missing in any arm. Code maps the window number back to the ledger id.
+- **The threshold is set per window shape.** For windows the best value is 0.4 (88.2 at 150 questions). For one unit per call it is 0.7. The port stores the probabilities and the threshold is a setting of the shape.
+- **Label from the highest probability.** The rule "first label above the threshold in a fixed order" scored 81.9 against 84.9.
+- **Linking is a separate pass.** Filter units by label (rule, prohibition or gate), then send one call per block asking for each kept unit, and accept a link at probability 0.8 (F1 85.8). Its links are proposals only: section 7 counts a link towards a claim once a mutation has verified it.
 
 ### Validation of an answer
 
@@ -313,6 +326,7 @@ All use one gold set: 40 prompt and agent files from several estates, with span-
 | # | Hypothesis | Experiment | Falsified if | Cost |
 |---|---|---|---|---|
 | 1 | Plain integer ids give fewer invalid ids than prefixed forms; dense beats sparse. | Gold set, 3 runs, arms `12`, `L12`, `[12]`, `<s12>`, dense. | Arms differ by under 2 F1 and invalid ids under 1%. | ~600 calls |
+| 1 (Jev side) | Done for Jev on the planted estate (section 10a): `[12]`, `<s12>` and the ledger id are within 0.5 points, the bare number is 4 points lower. No invalid id in any arm. The Haiku side and the gold set are still open. | Planted estate, 3 runs per arm. | Not applicable (measured). | Spent |
 | 2 | Id-only labelling is within 3 F1 of quote-then-locate and of Citations, at lower cost. | Three pipelines on the gold set. | Either alternative wins by over 3 F1 at under 3x the cost. | ~400 calls |
 | 3 | 95% of gold boundaries coincide with unit boundaries; under 15% of rules span several units. | Offline: cut the gold files. | Alignment under 95%. | Offline |
 | 4 | Under 5% of gold rules sit in regions kept opaque. | Offline: count by region. | Any region over 5%. | Offline |
@@ -320,11 +334,12 @@ All use one gold set: 40 prompt and agent files from several estates, with span-
 | 6 | The cut digest is identical across Node and ICU builds. | Offline: Node 20, 22, 24, small-icu, 200 files. | Zero files differ (then a version stamp is enough). | Offline |
 | 7 | One recorded pass is stable (Jaccard 0.9 across runs); window carry-forward keeps unrelated flips under 1%. | 10 live runs per file; 100 edits; file-keyed against window-keyed. | Agreement under 0.9 (then majority of 3). | ~1,500 calls |
 | 8 | Large windows fail more; integer enums cut invalid ids. | Sweep window size and selection ratio. | Range check alone leaves under 0.5% invalid. | ~300 calls |
+| 8 (Jev side) | Done for Jev on the planted estate (section 10a): accuracy peaks at 150 to 250 questions per call, a hard cap sits at 1,300, and no answer below the cap was invalid. The Haiku side is open. | Planted estate, 9 window sizes from 25 to 1,250 questions. | Not applicable (measured). | Spent |
 | 9 | The ladder gets 90% of units in the right class, zero wrong anchors on unambiguous cases, 15 points over diff alone. | 50 synthetic edits per class plus the labelled history; threshold sweep 0.3 to 0.7. | Any wrong anchor on an unambiguous case. | Offline |
 | 10 | The normaliser flags under 2% of cosmetic commits and never merges a semantic flip. | Offline over history; 200 minimal mutations. | A semantic miss, or cosmetic suspects over 2%. | Offline |
 | 11 | Verified span links give blast-radius precision and recall of 0.8 against a full rerun. | 30 spans, 3 mutants each. | Recall under 0.8 and advisory links do not help. | ~90 suite runs |
 | 12 | Cassette replay is byte-identical, and a one-field change misses and names the field. | Offline: replay twice, perturb each key field. | Any difference or silent hit. | Offline |
-| 13 | **Jev against Haiku** on the same labelled set: accuracy, cost, speed and run-to-run agreement. | Same units and sets, both labelers, 3 runs each; Jev with its probability threshold swept. Metrics: per-unit accuracy and F1 against gold, cost per file, wall time per file, pairwise agreement across runs. | Reported, not falsified: it decides which labeler is the default and whether Jev needs a calibration step. | ~600 calls each |
+| 13 | **Jev against Haiku** on the same labelled set: accuracy, cost, speed and run-to-run agreement. **Status: the Jev side ran on the planted estate (section 10a). The Haiku side has not run yet, so no comparison exists.** | Same units and sets, both labelers, 3 runs each; Jev with its probability threshold swept. Metrics: per-unit accuracy and F1 against gold, cost per file, wall time per file, pairwise agreement across runs. | Reported, not falsified: it decides which labeler is the default and whether Jev needs a calibration step. | ~600 calls each |
 | 14 | Editing one label re-labels only under its set. | Offline with a fake labeler: edit one label of one of two sets. | Any call under the unedited set, or any unit id change. | Offline |
 | 15 | The labeler prompt generated from a set is generic: the same prompt text builds for an agent set and a bakery style set. | Offline: build prompts for both sets and check no estate word is in the template. | A fixed word in the template. | Offline |
 
@@ -332,7 +347,7 @@ Order: offline first (3, 4, 5, 6, 9, 10, 12, 14, 15), then the pointing experime
 
 ## 10a. Offline results so far (prototype in `research/pointer-reader/`)
 
-Run on a throwaway prototype, no model call. Nothing here is the gold-set study: experiments 3 and 4 wait for the two-annotator gold set, and the gold in 5 and 9 is built by construction from hand-written sentences and synthetic edits, so the numbers show what the machinery can do on cases the author thought of.
+The table below ran on a throwaway prototype, with no model call. The Jev measurements after it are live recorded calls (subsection "Jev measurements"). Nothing here is the gold-set study: experiments 3 and 4 wait for the two-annotator gold set, and the gold in 5 and 9 is built by construction from hand-written sentences and synthetic edits, so the numbers show what the machinery can do on cases the author thought of.
 
 | # | Result |
 |---|---|
@@ -349,6 +364,59 @@ Findings that change the design:
 - The ladder needs the text-similarity floor above (section 4).
 - The cutter must stop recursing into HTML blocks: an `<role>` line that is not a tag-only line re-parses as the same HTML block. The prototype cuts nested HTML at depth 2 as opaque.
 - The fingerprint's container-marker stripping erases a real "- " or "1. " that a hard wrap puts at a line start. It is rare (0.2%) and errs towards a suspect link, not a missed change.
+
+### Jev measurements (research/jev-id-experiments, 5f985e100)
+
+Full tables, run files and the recorded answers are in `research/pointer-reader/jev-experiments/RESULTS.md` on that branch. All numbers below come from that file.
+
+**Caveats that bind every number here.**
+
+- One fictional estate (a bakery, 13 files, 395 planted units, 20 test blocks with 37 true links), written by one person.
+- The gold labels were written by the helper, then changed once after it saw Jev's errors (25 units relabelled, the question text unchanged). Against the first gold the three main arms score 2 points apart and no ranking changes.
+- The label definitions were rewritten once after the first run. The 13-point wording effect below compares the first wording with the rewrite, so part of it is the author learning where Jev failed.
+- The units are short imperative sentences. Real prose, several estates, units longer than a sentence and other label sets are not covered.
+- Haiku was not run. There is no Jev against Haiku comparison (experiment 13).
+- No USD cost is known, because no Jev price is on file. Measured use was 9,206,100 tokens in and 3,345,114 out over 2,405 answered requests.
+
+**Window size (5 labels per unit, threshold 0.5, accuracy %, Macro F1 in brackets).**
+
+| Questions per call | Calls for 395 units | Accuracy (F1) |
+|---|---|---|
+| 5 (one unit) | 395 | 77.8 (79.4) |
+| 25 | 79 | 83.9 (82.8) |
+| 100 | 20 | 84.9 (84.5) |
+| 150 | 14 | 86.8 (87.2) |
+| 250 | 8 | 86.3 (87.1) |
+| 400 | 5 | 85.8 (86.8) |
+| 1,250 | 2 | 83.4 (85.4) |
+
+**Cap.** 1,300 questions per call answered with the normal question text, and 1,350 was refused (HTTP 400 `max_tokens_exceeded`, no partial answer). One-line questions went to 2,500 and were refused at 3,000. The refusal does not follow request size or output tokens, and the rule was not isolated. Below the cap, 0 answers were invalid or missing in every arm.
+
+**Design choices.**
+
+| Choice | Result |
+|---|---|
+| Label wording | First wording 71.7 accuracy, rewritten exclusive wording 84.9. |
+| Flat labels against a two-level tree | 84.9 in 20 calls against 84.1 in 41 calls. |
+| Id form (20-unit window) | `<s12>` 85.0, `[12]` 84.9, ledger id 84.5, quoted text 81.9, bare number 80.8. |
+| Threshold | 20-unit window and 150-question window best at 0.4 (86.3 and 88.2). One unit per call best at 0.7 (81.0). |
+| Decoding | Highest probability 84.9, fixed-order first-above-threshold 81.9. |
+| Agreement between runs | 94 to 98% of units get the same label in two runs (kappa 0.93 to 0.97). Averaging 3 runs did not help the best arm (87.1 against 86.8). |
+
+**Where it errs (150 questions per call, run 1).** Prohibition (F1 95.2) and example (93.3) are easy. A gate called a rule is the largest confusion (12 of 46 gates); gate recall is 71%. Descriptive table cells and headings fall between description and none (11 of 124 description units became none).
+
+**Linking (20 blocks, 37 true links, one call per block, F1 at 0.8).**
+
+| Pool sent for each block | Calls | F1 at 0.8 |
+|---|---|---|
+| All 395 units | 20 | 79.3 |
+| All units, 100 per call | 80 | 81.3 |
+| Units labelled rule, prohibition or gate by the labeler (155 to 159 kept) | 14 labelling + 20 linking | 85.8 |
+| Units with the gold labels (upper bound only) | 20 | 90.1 (91.5 at 0.7) |
+
+Sending the whole estate at 0.5 gives recall 95% and precision 35%, because Jev says yes to many neighbours. The probability threshold, 0.8, matters more than the pool.
+
+**Run time.** 395 units took 22 to 23 s at one unit per call, 3.8 s at 150 questions per call (14 calls, one at a time) and 2.7 s at 250 (8 calls, one at a time).
 
 Cost on the fixture (13 files that go to the model today): 8,384 characters of prose, 149 units (14 headings, 37 sentences, 40 list items, 30 table cells, 28 front-matter values), 18 windows, 22,450 request characters for one set. That is about 5,600 input tokens by the characters-divided-by-four rule, so about $0.0006 on the Haiku 5.5 input price the research report gives ($0.10 per million tokens, not re-checked). The provider's own token count replaces the estimate before any run.
 
