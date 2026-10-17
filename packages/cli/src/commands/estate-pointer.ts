@@ -19,6 +19,7 @@ export type EstatePointerOptions = {
   labelerThreshold?: string;
   labelerPassAt?: string;
   labelerFailAt?: string;
+  labelerMarginCut?: string;
   /** The name of the environment variable that holds the bearer token of an http labeler. */
   labelerKey?: string;
   jobs?: string;
@@ -84,7 +85,8 @@ export async function openPointer(
   const threshold = fraction(options.labelerThreshold, '--labeler-threshold', io);
   const passAt = fraction(options.labelerPassAt, '--labeler-pass-at', io);
   const failAt = fraction(options.labelerFailAt, '--labeler-fail-at', io);
-  if (threshold === null || passAt === null || failAt === null) return undefined;
+  const marginCut = fraction(options.labelerMarginCut, '--labeler-margin-cut', io);
+  if (threshold === null || passAt === null || failAt === null || marginCut === null) return undefined;
   let jobs = DEFAULT_JOBS;
   if (options.jobs !== undefined) {
     jobs = Number(options.jobs);
@@ -116,6 +118,7 @@ export async function openPointer(
     ...(threshold === undefined ? {} : { threshold }),
     ...(passAt === undefined ? {} : { passAt }),
     ...(failAt === undefined ? {} : { failAt }),
+    ...(marginCut === undefined ? {} : { marginCut }),
     ...(options.labelerKey ? { keyVariable: options.labelerKey } : {}),
     ...(fetch ? { fetch } : {}),
   });

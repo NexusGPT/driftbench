@@ -116,19 +116,35 @@ function single(member: Labeler): Labelling {
   };
 }
 
-function stacked(system1: Labeler, system2: Labeler, bounds: { passAt: number; failAt: number }): Labelling {
-  const { passAt, failAt } = bounds;
+/**
+ * The margin of a system 1 opinion: the probability of the most likely label minus that of the second, over the
+ * probabilities of the asked labels and an implicit `none` that takes what the labels leave of 1, normalised to 1.
+ */
+export function margin(probabilities: Readonly<Record<string, number>>): { label: string; margin: number } {
+  const entries = Object.entries(probabilities);
+  const none = Math.max(0, 1 - entries.reduce((sum, [, p]) => sum + p, 0));
+  const vector: Array<[string, number]> = [...entries, ['none', none]];
+  const total = vector.reduce((sum, [, p]) => sum + p, 0) || 1;
+  const sorted = vector.map(([name, p]) => [name, p / total] as const).sort((a, b) => b[1] - a[1]);
+  return { label: sorted[0]?.[0] ?? 'none', margin: (sorted[0]?.[1] ?? 0) - (sorted[1]?.[1] ?? 0) };
+}
+
+function stacked(
+  system1: Labeler,
+  system2: Labeler,
+  bounds: { passAt: number; failAt: number; marginCut?: number },
+): Labelling {
+  const { passAt, failAt, marginCut } = bounds;
   return {
     members: [system1, system2],
     hash: sha(
       canonical({
         members: [describeMember(system1), describeMember(system2)],
         passAt,
-        failAt,
-        rule: 'cascade',
+        ...(marginCut === undefined ? { passAt, failAt, rule: 'cascade' } : { marginCut, rule: 'margin' }),
       }),
     ).slice(0, 16),
-    describe: `${label(system1)} then ${label(system2)} (pass at ${passAt}, fail at ${failAt})`,
+    describe: `${label(system1)} then ${label(system2)} (${marginCut === undefined ? `pass at ${passAt}, fail at ${failAt}` : `margin cut ${marginCut}`})`,
     decide([first, second], set) {
       if (!first && !second) return undefined;
       const fromSecond = (opinion: Opinion): Decision => ({
@@ -145,6 +161,14 @@ function stacked(system1: Labeler, system2: Labeler, bounds: { passAt: number; f
       // A label that asks for a target cannot be asked of system 1: system 2 alone decides it.
       const asked = new Set(askedLabels(set, true).map((entry) => entry.name));
       if (second.label !== 'none' && !asked.has(second.label)) return fromSecond(second);
+      if (marginCut !== undefined) {
+        // System 1 decides a unit it is clear about: its top label leads the second by the cut or more.
+        const lead = margin(first.probabilities ?? {});
+        if (lead.margin >= marginCut) {
+          return { label: lead.label, by: 'system1', sources: sourcesOf(first, second) };
+        }
+        return fromSecond(second);
+      }
       let top: { label: string; p: number } | undefined;
       for (const [name, p] of Object.entries(first.probabilities ?? {})) {
         if (!top || p > top.p) top = { label: name, p };
@@ -184,6 +208,8 @@ export type LabellingOptions = {
   passAt?: number;
   /** A stack: the probability under which system 1 decides that a unit has no label. */
   failAt?: number;
+  /** A stack that decides by margin instead: system 1 decides a unit whose top label leads the second by this much. */
+  marginCut?: number;
   /** The name of the variable that holds the bearer token of an HTTP labeler. */
   keyVariable?: string;
   fetch?: HttpOptions['fetch'];
@@ -298,7 +324,15 @@ export async function buildLabelling(
       }
     }
     const [first, second] = members;
-    if (first && second) return { ok: true, labelling: stacked(first, second, { passAt, failAt }) };
+    if (first && second)
+      return {
+        ok: true,
+        labelling: stacked(first, second, {
+          passAt,
+          failAt,
+          ...(options.marginCut === undefined ? {} : { marginCut: options.marginCut }),
+        }),
+      };
     if (first) return { ok: true, labelling: single(first) };
     return { ok: false, message: 'no labeler' };
   } catch (cause) {

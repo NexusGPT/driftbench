@@ -82,6 +82,7 @@ export {
   type LabelerSpec,
   type Labelling,
   type LabellingOptions,
+  margin,
   parseLabelerSpec,
   singleLabelling,
   stackedLabelling,

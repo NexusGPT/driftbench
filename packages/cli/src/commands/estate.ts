@@ -113,6 +113,10 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
       'with --pointer and a stack: system 1 decides that a unit has no label under this probability (default 0.1); in between, system 2 decides',
     )
     .option(
+      '--labeler-margin-cut <m>',
+      'with --pointer and a stack: decide by margin instead: system 1 decides a unit whose top label leads the second by this much, system 2 the rest',
+    )
+    .option(
       '--labeler-key <variable>',
       'with --pointer: the environment variable that holds the bearer token of an http labeler',
     )

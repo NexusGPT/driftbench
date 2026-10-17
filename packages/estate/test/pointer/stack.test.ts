@@ -5,6 +5,7 @@ import {
   DEFAULT_FAIL_AT,
   DEFAULT_LABELER_SPECS,
   DEFAULT_PASS_AT,
+  margin,
   type Opinion,
   parseLabelerSpec,
   pointerScan,
@@ -395,5 +396,51 @@ describe('a stack in a scan', () => {
     expect(wide.carried).toBe(0);
     expect(wide.decidedBy).toEqual({ system1: 0, system2: 6 });
     expect(wide.labelled.every((item) => item.label === 'order' && item.by === 'system2')).toBe(true);
+  });
+});
+
+describe('a stack that decides by margin', () => {
+  const first = plantedYesNo(() => ({}), [], { threshold: 0.4 });
+  const second = plantedDense(() => []);
+  const stack = stackedLabelling(first, second, { passAt: 0.9, failAt: 0.1, marginCut: 0.65 });
+  const one = (label: string, p: Record<string, number>): Opinion => ({
+    label,
+    probabilities: p,
+    source: 'aaaaaaaaaaaa',
+  });
+  const two = (label: string): Opinion => ({ label, source: 'bbbbbbbbbbbb' });
+
+  it('measures the margin over the labels and an implicit none, normalised', () => {
+    // 0.9 + 0.05 asked, so none takes 0.05: the vector is 0.9, 0.05, 0.05.
+    expect(margin({ order: 0.9, remark: 0.05 })).toEqual({ label: 'order', margin: expect.closeTo(0.85, 5) });
+    // Nothing is likely: none leads with 0.96 against 0.02, a margin of 0.94.
+    expect(margin({ order: 0.02, remark: 0.02 })).toEqual({ label: 'none', margin: expect.closeTo(0.94, 5) });
+    // Two labels close together: a small margin.
+    expect(margin({ order: 0.5, remark: 0.45 }).margin).toBeCloseTo(0.05, 5);
+    // Both certain: the sum passes 1 and the vector is normalised.
+    expect(margin({ order: 1, remark: 1 }).margin).toBe(0);
+  });
+
+  it('lets system 1 decide a clear unit, and system 2 every unit below the cut', () => {
+    expect(stack.decide([one('order', { order: 0.9, remark: 0.05 }), two('remark')], DUTY)).toMatchObject({
+      label: 'order',
+      by: 'system1',
+    });
+    expect(stack.decide([one('none', { order: 0.5, remark: 0.45 }), two('remark')], DUTY)).toMatchObject({
+      label: 'remark',
+      by: 'system2',
+    });
+    // A unit nothing fits is clear: none, decided by system 1.
+    expect(stack.decide([one('none', { order: 0.02, remark: 0.02 }), two('order')], DUTY)).toMatchObject({
+      label: 'none',
+      by: 'system1',
+    });
+  });
+
+  it('is a labelling of its own: the cut is in the hash', () => {
+    const other = stackedLabelling(first, second, { passAt: 0.9, failAt: 0.1, marginCut: 0.5 });
+    const bounds = stackedLabelling(first, second, { passAt: 0.9, failAt: 0.1 });
+    expect(new Set([stack.hash, other.hash, bounds.hash]).size).toBe(3);
+    expect(stack.describe).toContain('margin cut 0.65');
   });
 });
