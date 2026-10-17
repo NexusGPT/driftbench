@@ -1,0 +1,54 @@
+{"job": 39032147370, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 10, "ms": 10904, "unitMs": 78.76, "unitSamples": 17, "units": 138}
+{"job": 39032147370, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 100, "ms": 69353, "unitMs": 57.34, "unitSamples": 181, "units": 1209}
+{"job": 39032147370, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 10, "ms": 10910, "unitMs": 66.09, "unitSamples": 20, "units": 165}
+{"job": 39032147370, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 100, "ms": 69513, "unitMs": 58.28, "unitSamples": 178, "units": 1193}
+{"job": 39032147370, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 10, "ms": 10567, "unitMs": 66.49, "unitSamples": 20, "units": 159}
+{"job": 39032147370, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 100, "ms": 68540, "unitMs": 58.03, "unitSamples": 176, "units": 1181}
+{"job": 39032147370, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "plant": "twice as slow", "seed": 1, "factor": 100, "ms": 106549, "unitMs": 53.14, "unitSamples": 338, "units": 2005}
+{"job": 39032147370, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "plant": "quadratic", "seed": 1, "factor": 100, "ms": 94883, "unitMs": 54.71, "unitSamples": 283, "units": 1734}
+{"job": 39032147370, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "plant": "host three times slower", "seed": 1, "factor": 100, "ms": 204009, "unitMs": 173.34, "unitSamples": 177, "units": 1177}
+{"job": 39032152170, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 10, "ms": 11292, "unitMs": 78.05, "unitSamples": 19, "units": 145}
+{"job": 39032152170, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 100, "ms": 72952, "unitMs": 64.16, "unitSamples": 172, "units": 1137}
+{"job": 39032152170, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 10, "ms": 10696, "unitMs": 77.66, "unitSamples": 18, "units": 138}
+{"job": 39032152170, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 100, "ms": 73308, "unitMs": 64.08, "unitSamples": 172, "units": 1144}
+{"job": 39032152170, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 10, "ms": 10778, "unitMs": 74.18, "unitSamples": 19, "units": 145}
+{"job": 39032152170, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 100, "ms": 73549, "unitMs": 64.48, "unitSamples": 172, "units": 1141}
+{"job": 39032152170, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "plant": "twice as slow", "seed": 1, "factor": 100, "ms": 113195, "unitMs": 60.24, "unitSamples": 315, "units": 1879}
+{"job": 39032152170, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "plant": "quadratic", "seed": 1, "factor": 100, "ms": 100131, "unitMs": 61.93, "unitSamples": 264, "units": 1617}
+{"job": 39032152170, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "plant": "host three times slower", "seed": 1, "factor": 100, "ms": 221589, "unitMs": 193.11, "unitSamples": 172, "units": 1147}
+{"job": 39032157025, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 10, "ms": 8188, "unitMs": 55.85, "unitSamples": 19, "units": 147}
+{"job": 39032157025, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 100, "ms": 53395, "unitMs": 44.83, "unitSamples": 181, "units": 1191}
+{"job": 39032157025, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 10, "ms": 8428, "unitMs": 52.91, "unitSamples": 19, "units": 159}
+{"job": 39032157025, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 100, "ms": 53930, "unitMs": 44.34, "unitSamples": 183, "units": 1216}
+{"job": 39032157025, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 10, "ms": 8098, "unitMs": 55.44, "unitSamples": 18, "units": 146}
+{"job": 39032157025, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 100, "ms": 53584, "unitMs": 45.65, "unitSamples": 177, "units": 1174}
+{"job": 39032157025, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "plant": "twice as slow", "seed": 1, "factor": 100, "ms": 85698, "unitMs": 40.91, "unitSamples": 352, "units": 2095}
+{"job": 39032157025, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "plant": "quadratic", "seed": 1, "factor": 100, "ms": 80663, "unitMs": 41.98, "unitSamples": 319, "units": 1921}
+{"job": 39032157025, "head": "1b1c8c1b2", "runner": "ubuntu-24.04", "plant": "host three times slower", "seed": 1, "factor": 100, "ms": 161158, "unitMs": 135.67, "unitSamples": 179, "units": 1188}
+{"job": 39040741057, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 10, "ms": 10706, "unitMs": 74.23, "unitSamples": 19, "units": 144}
+{"job": 39040741057, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 100, "ms": 72787, "unitMs": 65.12, "unitSamples": 168, "units": 1118}
+{"job": 39040741057, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 10, "ms": 11031, "unitMs": 75.26, "unitSamples": 18, "units": 147}
+{"job": 39040741057, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 100, "ms": 72844, "unitMs": 64.29, "unitSamples": 171, "units": 1133}
+{"job": 39040741057, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 10, "ms": 10977, "unitMs": 73.2, "unitSamples": 18, "units": 150}
+{"job": 39040741057, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 100, "ms": 72657, "unitMs": 66.21, "unitSamples": 166, "units": 1097}
+{"job": 39040741057, "head": "ea28036fa", "runner": "ubuntu-24.04", "plant": "twice as slow", "seed": 1, "factor": 100, "ms": 114296, "unitMs": 58.91, "unitSamples": 325, "units": 1940}
+{"job": 39040741057, "head": "ea28036fa", "runner": "ubuntu-24.04", "plant": "quadratic", "seed": 1, "factor": 100, "ms": 100929, "unitMs": 61.09, "unitSamples": 269, "units": 1652}
+{"job": 39040741057, "head": "ea28036fa", "runner": "ubuntu-24.04", "plant": "host three times slower", "seed": 1, "factor": 100, "ms": 218659, "unitMs": 192.93, "unitSamples": 170, "units": 1133}
+{"job": 39040746597, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 10, "ms": 5897, "unitMs": 34.67, "unitSamples": 20, "units": 170}
+{"job": 39040746597, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 100, "ms": 37521, "unitMs": 30.83, "unitSamples": 176, "units": 1217}
+{"job": 39040746597, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 10, "ms": 6080, "unitMs": 31.68, "unitSamples": 22, "units": 192}
+{"job": 39040746597, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 100, "ms": 37450, "unitMs": 31.56, "unitSamples": 173, "units": 1187}
+{"job": 39040746597, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 10, "ms": 6096, "unitMs": 32.59, "unitSamples": 22, "units": 187}
+{"job": 39040746597, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 100, "ms": 37551, "unitMs": 31.19, "unitSamples": 175, "units": 1204}
+{"job": 39040746597, "head": "ea28036fa", "runner": "ubuntu-24.04", "plant": "twice as slow", "seed": 1, "factor": 100, "ms": 58270, "unitMs": 27.45, "unitSamples": 350, "units": 2123}
+{"job": 39040746597, "head": "ea28036fa", "runner": "ubuntu-24.04", "plant": "quadratic", "seed": 1, "factor": 100, "ms": 63801, "unitMs": 27.67, "unitSamples": 388, "units": 2306}
+{"job": 39040746597, "head": "ea28036fa", "runner": "ubuntu-24.04", "plant": "host three times slower", "seed": 1, "factor": 100, "ms": 113381, "unitMs": 90, "unitSamples": 183, "units": 1260}
+{"job": 39040752461, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 10, "ms": 8409, "unitMs": 58.94, "unitSamples": 18, "units": 143}
+{"job": 39040752461, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 1, "seed": 1, "factor": 100, "ms": 53249, "unitMs": 44.27, "unitSamples": 184, "units": 1203}
+{"job": 39040752461, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 10, "ms": 8351, "unitMs": 49.96, "unitSamples": 20, "units": 167}
+{"job": 39040752461, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 2, "seed": 1, "factor": 100, "ms": 53422, "unitMs": 44.37, "unitSamples": 182, "units": 1204}
+{"job": 39040752461, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 10, "ms": 8244, "unitMs": 48.88, "unitSamples": 20, "units": 169}
+{"job": 39040752461, "head": "ea28036fa", "runner": "ubuntu-24.04", "round": 3, "seed": 1, "factor": 100, "ms": 53176, "unitMs": 45.25, "unitSamples": 178, "units": 1175}
+{"job": 39040752461, "head": "ea28036fa", "runner": "ubuntu-24.04", "plant": "twice as slow", "seed": 1, "factor": 100, "ms": 85285, "unitMs": 41.33, "unitSamples": 347, "units": 2064}
+{"job": 39040752461, "head": "ea28036fa", "runner": "ubuntu-24.04", "plant": "quadratic", "seed": 1, "factor": 100, "ms": 81647, "unitMs": 42.56, "unitSamples": 318, "units": 1918}
+{"job": 39040752461, "head": "ea28036fa", "runner": "ubuntu-24.04", "plant": "host three times slower", "seed": 1, "factor": 100, "ms": 161462, "unitMs": 135.86, "unitSamples": 179, "units": 1188}

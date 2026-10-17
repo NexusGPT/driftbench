@@ -12,6 +12,9 @@
  * window (docs/validators.md, "The reference unit of the generator's scale items").
  */
 
+// A module, so the loop below may wait at the top level; it imports and exports nothing else.
+export {};
+
 /** The spec-like objects one unit builds, writes and parses. */
 const UNIT_SPECS = 800;
 /** The blocks of each. */

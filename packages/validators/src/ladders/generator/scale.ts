@@ -25,10 +25,13 @@ export const SCALE_HEAP_MB = 2048;
  * the runs, so the budget is in work the host could have done, not in host seconds. Derivation and the runs
  * behind each number: validators/CONSTANTS.md, "Generator scale".
  */
-/** The reference unit's CPU time on the host the second budgets were set on, in milliseconds. */
-export const SCALE_REFERENCE_UNIT_MS = 35;
+/**
+ * The reference unit's CPU time on the host class that judges, in milliseconds: its mean over the clean 100 times
+ * windows of six separate jobs on the CI runner (ubuntu-24.04), where the jobs' CPU time ranged from 37.5 to 73.5 s.
+ */
+export const SCALE_REFERENCE_UNIT_MS = 51.3;
 /** The time budget per factor, in reference units: half of SCALE_BUDGET_MS divided by SCALE_REFERENCE_UNIT_MS. */
-export const SCALE_BUDGET_UNITS: Record<number, number> = { 10: 857, 100: 1714 };
+export const SCALE_BUDGET_UNITS: Record<number, number> = { 10: 584, 100: 1169 };
 /** Fewer unit samples than this during the runs measure nothing: the time item fails. */
 export const SCALE_MIN_UNITS = 10;
 /** The sampler's units that end before the window starts: their code is still being compiled. */
@@ -75,7 +78,7 @@ export function timeVerdict(report: ScaleReport): [boolean, string] {
   const units = report.ms / report.unitMs;
   return [
     units <= budget,
-    `two runs took ${report.ms} ms of CPU time, ${Math.round(units)} reference units (a unit took ${report.unitMs.toFixed(1)} ms, the mean of ${report.unitSamples} samples taken during the runs); the budget is ${budget} units, ${budget * SCALE_REFERENCE_UNIT_MS} ms where a unit takes ${SCALE_REFERENCE_UNIT_MS} ms`,
+    `two runs took ${report.ms} ms of CPU time, ${Math.round(units)} reference units (a unit took ${report.unitMs.toFixed(1)} ms, the mean of ${report.unitSamples} samples taken during the runs); the budget is ${budget} units, ${Math.round(budget * SCALE_REFERENCE_UNIT_MS)} ms where a unit takes ${SCALE_REFERENCE_UNIT_MS} ms`,
   ];
 }
 

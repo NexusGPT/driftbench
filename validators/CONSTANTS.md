@@ -8,31 +8,45 @@ The time items `scale.10x.time` and `scale.100x.time` (docs/validators.md sectio
 
 | Constant | Value | What it is |
 |---|---|---|
-| `SCALE_REFERENCE_UNIT_MS` | 35 | the reference unit's CPU time, in ms, on the host the second budgets were set on |
-| `SCALE_BUDGET_UNITS[10]` | 857 | the 10 times budget in units: floor(30000 / 35) |
-| `SCALE_BUDGET_UNITS[100]` | 1714 | the 100 times budget in units: floor(60000 / 35) |
+| `SCALE_REFERENCE_UNIT_MS` | 51.3 | the reference unit's CPU time, in ms, on the host class that judges: the CI runner (ubuntu-24.04) |
+| `SCALE_BUDGET_UNITS[10]` | 584 | the 10 times budget in units: floor(30000 / 51.3) |
+| `SCALE_BUDGET_UNITS[100]` | 1169 | the 100 times budget in units: floor(60000 / 51.3) |
 | `SCALE_MIN_UNITS` | 10 | the fewest unit samples in the window that measure anything |
+| `SCALE_UNIT_WARMUP` | 5 | the sampler's units that end before the window starts, while its code is compiled |
 | `SCALE_BUDGET_MS` | 60000 at 10 times, 120000 at 100 times | unchanged: the wall-clock cap is 10 times this |
 
 ### How they were derived
 
-* The second budgets, 30 s for the two runs at 10 times and 60 s at 100 times (half of `SCALE_BUDGET_MS`), are the earlier budgets. The unit budgets keep them on a host where the unit takes 35 ms. Where the unit costs more, the second budget is larger by the same factor, and where it costs less, smaller.
-* 35 ms is the unit's cost on an Apple M4 Pro with 12 cores (8 fast, 4 efficient), shared with other jobs, at a load average of 28 to 130. Across 30 scale windows beside the sampler (14 experiment rounds of a 10 times and a 100 times window, and 2 runs of the real scale child at 100 times), the unit's median or mean per window was 30.0 to 44.7 ms. 35 ms is near the middle of the runs at 100 times, where the means were 32.0 to 40.2 ms. The CI runner's figure is in the pull request that set these numbers.
-* The minimum is 10 samples. A clean 10 times window on that host took 4.7 to 8.5 s of CPU, and the sampler gave 30 to 87 samples in it. With fewer than 10, a few slow units decide the mean.
+* The second budgets, 30 s for the two runs at 10 times and 60 s at 100 times (half of `SCALE_BUDGET_MS`), are the earlier budgets. The unit budgets keep them on a runner whose unit takes 51.3 ms.
+* 51.3 ms is the mean unit over the 18 clean 100 times windows of six separate jobs on the CI runner, three windows each (the table below). Each job's three windows weigh the same. The runners differed: the jobs' CPU time at 100 times ranged from 37450 to 73549 ms, and their unit from 30.83 to 66.21 ms.
+* The units held across the jobs: 1097 to 1217 at 100 times, an 11% spread, while the CPU time nearly doubled. The pass condition was a spread under 15%.
+* The three jobs on the final sampler code (`ea28036fa`) alone give a mean of 47.01 ms, so 1276 units. The reference rests on six jobs, not three, because one runner (job 39040746597) ran the unit twice as fast as the others. A seventh job could move the mean again.
+* The minimum is 10 samples. A 10 times window on the runner gave 17 to 22 samples, and a 100 times window 166 to 184.
+* The warm-up is 5 units. Before it, the unit cost 13 to 37% more in the 10 times windows than in the 100 times windows (jobs 39032147370 to 39032157025). After it, it still cost 0 to 33% more (jobs 39040741057 to 39040752461). At 10 times, the units are therefore read low; the 10 times budget is far above them.
 
-### Runs behind them
+### The runs behind them
 
-The scale window at 100 times the behaviours of seed 1, beside the sampler, on the host above. The experiment harness rows ran the product of main `7a712b6`; the real scale child rows ran main `183abfd` with this measure:
+`validators/generator/evidence/scale-reference-unit-runner.jsonl` holds every row. The scale window at 10 and 100 times the behaviours of seed 1, beside the sampler, on the CI runner, dispatched separately (`jobs=generator-scale,plants`). The product is main `183abfd`:
 
-| Product | CPU ms | Units (window CPU ÷ unit) | Verdict at 1714 |
-|---|---|---|---|
-| clean, 10 runs of an experiment harness, load 33 to 130 | 47411 to 59672 (26% spread) | 1526 to 1679 by the median unit; 1460 to 1557 by the mean, 6 of the runs | pass |
-| clean, the real scale child, mean unit | 67733 | 1683 | pass |
-| slower host: every CPU time read three times the real one, in the child and the sampler | 187541 | 1667 | pass |
-| twice as slow: each generation spends its own CPU again | 96888 | 2527 | fail |
-| twice as slow, the experiment harness, median unit, 2 runs | 93540 to 100477 | 2458 to 2560 | fail |
-| quadratic: 0.033 µs × specs squared after each generation, 2 runs of the experiment harness | 129066 to 131616 | 3676 to 3729 | fail |
-| quadratic, same constant, the real scale child | killed at the wall cap of 1200 s | 0 samples | fail |
-| quadratic: 0.012 µs × specs squared after each generation, the real scale child | 97112 | 2379 | fail |
+| Job | Head | Clean 100x CPU ms | Unit ms | Clean 100x units | Clean 10x units | Twice as slow | Quadratic | Host three times slower |
+|---|---|---|---|---|---|---|---|---|
+| 39032147370 | `1b1c8c1b2` | 68540 to 69513 | 57.34 to 58.28 | 1181 to 1209 | 138 to 165 | 2005 | 1734 | 1177 |
+| 39032152170 | `1b1c8c1b2` | 72952 to 73549 | 64.08 to 64.48 | 1137 to 1144 | 138 to 145 | 1879 | 1617 | 1147 |
+| 39032157025 | `1b1c8c1b2` | 53395 to 53930 | 44.34 to 45.65 | 1174 to 1216 | 146 to 159 | 2095 | 1921 | 1188 |
+| 39040741057 | `ea28036fa` | 72657 to 72844 | 64.29 to 66.21 | 1097 to 1133 | 144 to 150 | 1940 | 1652 | 1133 |
+| 39040746597 | `ea28036fa` | 37450 to 37551 | 30.83 to 31.56 | 1187 to 1217 | 170 to 192 | 2123 | 2306 | 1260 |
+| 39040752461 | `ea28036fa` | 53176 to 53422 | 44.27 to 45.25 | 1175 to 1204 | 143 to 169 | 2064 | 1918 | 1188 |
 
-The growth from 10 to 100 times, measured in the same process, was tried as the measure and rejected. It does not catch a product twice as slow, since both sizes slow down alike: clean growth was 6.5 to 11.1 and the twice-as-slow product's 7.5 to 9.1. A slack of 4 times the multiple, as in the blocks scale family, is 40, and the quadratic product above grew only 14.8 to 18.0.
+At the budgets above, on every job:
+* **Twice as slow fails** (1879 to 2123 units). Each generation spends its own CPU time again.
+* **Quadratic fails** (1617 to 2306 units). After each generation, it spends 0.012 µs times the specs squared.
+* **The clean product sits at the budget** (1097 to 1217 against 1169), so its verdict depends on the runner. The product passes on some runners and fails on others: it is too slow for a margin, and that is a product finding.
+* **The planted slower host gives the clean product's units** (1133 to 1260). It reads every CPU time in the child and the sampler as three times the real one, so it cancels by construction: it checks the division, not a real slower host. The runner jobs above are the evidence that a slower host keeps its units.
+
+On a Mac with 12 cores, shared and at load 40 to 90, the same product read 266 to 313 units at 10 times and 1626 to 2430 at 100 times. The unit stayed at 26 to 27 ms while the product's CPU time moved from 42 to 63 s with the load. The unit corrects for the speed of a runner, not for contention on an oversubscribed host, so a Mac's units do not compare with a runner's.
+
+### Earlier measures, kept for the record
+
+* An absolute budget of 30 s and 60 s of CPU time: the same code took 47 to 98 s on that Mac.
+* A file-based unit (200 small JSON files written, read and deleted): 21.5 to 22.1 ms on the runner against 38 to 40 ms on the Mac, while the product cost more on the runner. The same run read 2.1 times more units there.
+* The growth from 10 to 100 times in one process: it does not catch a product twice as slow, since both sizes slow down alike (clean 6.5 to 11.1, twice as slow 7.5 to 9.1). The blocks scale family's slack of 4 times the multiple is 40, and a quadratic product grew only 14.8 to 18.0.
