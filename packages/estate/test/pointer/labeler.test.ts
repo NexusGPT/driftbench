@@ -242,7 +242,11 @@ describe('the Jev labeler', () => {
     const labeler = createJevLabeler({
       env: { JEV_API_KEY: 'k-secret', JEV_ROUTE: 'gateway', JEV_MODEL: 'jev-test' },
       fetch: fakeFetch(
-        { model: 'jev-test', answers: { [questionKey(1, 'greeting')]: { noul: 0.8 }, odd: { noul: 3 } } },
+        {
+          model: 'jev-test',
+          answers: { [questionKey(1, 'greeting')]: { noul: 0.8 }, odd: { noul: 3 } },
+          usage: { input_tokens: 4200, output_tokens: 31 },
+        },
         calls,
       ),
     });
@@ -252,6 +256,7 @@ describe('the Jev labeler', () => {
     expect(calls[0]?.headers['api-key']).toBe('k-secret');
     expect(calls[0]?.body.model).toBe('jev-test');
     expect(recorded?.probabilities).toEqual({ [questionKey(1, 'greeting')]: 0.8 });
+    expect(recorded?.usage).toEqual({ input: 4200, output: 31 });
   });
 
   it('has no call without a key or a route', () => {

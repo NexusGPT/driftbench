@@ -319,11 +319,13 @@ export function createJevLabeler(options: JevOptions = {}): Labeler {
         const p = isRecord(answer) ? answer.noul : undefined;
         if (typeof p === 'number' && p >= 0 && p <= 1) probabilities[name] = p;
       }
+      // The endpoint reports what it read and wrote; a missing figure is 0, never a guess.
+      const usage = isRecord(payload) && isRecord(payload.usage) ? payload.usage : {};
       return {
         probabilities,
         returnedModel: String(isRecord(payload) && typeof payload.model === 'string' ? payload.model : model),
         stopReason: 'answered',
-        usage: { input: 0, output: 0 },
+        usage: { input: Number(usage.input_tokens ?? 0), output: Number(usage.output_tokens ?? 0) },
       };
     },
   };
