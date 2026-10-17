@@ -1,4 +1,4 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -62,6 +62,28 @@ describe('the blocks bank', () => {
   it('holds the section 12.1 minimum: 300 items, no family under 20, every tier, every level, unique ids', () => {
     expect(bankProblems(bank)).toEqual([]);
     expect(bank.length).toBeGreaterThanOrEqual(300);
+  });
+
+  it('cites for every item a doc section that defines its contract, and that section exists', () => {
+    const missing: string[] = [];
+    for (const item of bank) {
+      const ref = item.contract ?? '';
+      const local = /^(docs\/[^#]+)#(.+)$/.exec(ref);
+      if (/^origin\/[^:]+:(docs|research)\/[^#]+(#.+)?$/.test(ref)) continue;
+      if (!local) {
+        missing.push(`${item.id}: ${ref || 'none'}`);
+        continue;
+      }
+      const [, path, heading] = local as unknown as [string, string, string];
+      const text = existsSync(join(ROOT, path)) ? readFileSync(join(ROOT, path), 'utf8') : '';
+      const headings = text
+        .split('\n')
+        .filter((line) => /^#+ /.test(line))
+        .map((line) => line.replace(/^#+ /, '').trim());
+      if (!headings.some((each) => each === heading || each.startsWith(heading)))
+        missing.push(`${item.id}: ${ref}`);
+    }
+    expect(missing).toEqual([]);
   });
 
   it('tags every item with one fix cause, and holds about 200 distinct causes', () => {

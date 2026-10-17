@@ -37,6 +37,8 @@ export type BankItem = {
   /** `catch` for an item that passes where its capability is built and guards against a bug, a shortcut or a
    * cheat: it counts for no hardness. Absent for a hardness item. */
   role?: 'catch';
+  /** The doc section that defines the contract the item checks (contracts.ts), set by the bank. */
+  contract?: string;
   check(ctx: ItemContext): Promise<ItemResult>;
 };
 

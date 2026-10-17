@@ -2,6 +2,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type BankEntry, bankMeasure, type Measure } from '../../ladder';
+import { CONTRACTS } from './contracts';
 import { releaseAgents } from './kinds';
 import { adversarialItems } from './levels/adversarial';
 import { blastItems } from './levels/blast';
@@ -55,6 +56,7 @@ export function blocksBank(): BankItem[] {
     ...personaItems(),
   ];
   return items
+    .map((item) => ({ ...item, ...(CONTRACTS[item.cause] ? { contract: CONTRACTS[item.cause] } : {}) }))
     .map((item) =>
       CATCH.test(item.id) && !HARDNESS.test(item.id) ? { ...item, role: 'catch' as const } : item,
     )
@@ -77,6 +79,7 @@ export function bankProblems(items: readonly BankItem[]): string[] {
     if (ids.has(item.id)) problems.push(`the id ${item.id} appears twice`);
     ids.add(item.id);
     if (item.cause.trim() === '') problems.push(`the item ${item.id} names no cause`);
+    if (!item.contract) problems.push(`the item ${item.id} cites no contract: add its cause to contracts.ts`);
   }
   if (items.length < MIN_BANK) problems.push(`the bank holds ${items.length} items, under ${MIN_BANK}`);
   const families = new Map<string, number>();
@@ -145,10 +148,13 @@ export async function levelMeasure(
         tier: item.tier,
         cause: item.cause,
         ...(item.role ? { role: item.role } : {}),
+        ...(item.contract ? { contract: item.contract } : {}),
         pass: result.pass,
         ...(result.pass
           ? {}
-          : { detail: `asks: ${item.title}. found: ${result.detail}. Fix: ${item.cause}` }),
+          : {
+              detail: `asks: ${item.title}. found: ${result.detail}. Contract: ${item.contract ?? 'none'}. Fix: ${item.cause}`,
+            }),
       });
     }
     return bankMeasure(entries, 'blocks');

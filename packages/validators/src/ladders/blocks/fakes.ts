@@ -911,4 +911,49 @@ export const CHEATERS: readonly Cheater[] = [
       return patched(base, { name: 'drop-unknown-keys', core: { validateSpec: dropped } });
     },
   },
+  {
+    // Right answers in quadratic time: every exported function first burns CPU in proportion to the square of
+    // the size of its arguments. The scale items (docs/validators.md section 13.1) must fail on it.
+    name: 'quadratic',
+    levels: [1, 9],
+    make: (base) => {
+      const size = (args: unknown[]) => {
+        try {
+          return (
+            JSON.stringify(args, (_key, value) => (typeof value === 'function' ? undefined : value))
+              ?.length ?? 0
+          );
+        } catch {
+          return 0;
+        }
+      };
+      const burn = (n: number) => {
+        let x = 0;
+        // 500 steps per square kilobyte, at most 4e9: about 20 ms on a 200 kB spec, 100 times that at 10 times the size.
+        const steps = Math.min(4e9, 500 * (n / 1000) ** 2);
+        for (let i = 0; i < steps; i += 1) x = (x + i) % 7919;
+        return x;
+      };
+      const slow = (mod: Record<string, unknown>) =>
+        Object.fromEntries(
+          Object.entries(mod).map(([name, value]) => [
+            name,
+            typeof value === 'function' && !/^[A-Z]/.test(name)
+              ? (...args: unknown[]) => {
+                  burn(size(args));
+                  return (value as (...a: unknown[]) => unknown)(...args);
+                }
+              : value,
+          ]),
+        );
+      return patched(base, {
+        name: 'quadratic',
+        core: slow(base.core),
+        checks: slow(base.checks),
+        stats: slow(base.stats),
+        report: slow(base.report),
+        sandbox: slow(base.sandbox),
+      });
+    },
+  },
 ];
