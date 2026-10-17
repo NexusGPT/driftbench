@@ -7,7 +7,7 @@ import type { Question } from './jev';
 export const L5 = ['rule', 'prohibition', 'gate', 'example', 'description'] as const;
 export type Label5 = (typeof L5)[number];
 export type U2 = { file: string; n: number; id: string; text: string; section: string; label: string; labelA: string; labelB: string; contested: boolean; split: 'dev' | 'test'; g: number; role: string };
-const raw = JSON.parse(readFileSync(join(dir, 'gold2.json'), 'utf8')) as { units: Omit<U2, 'role'>[] };
+const raw = JSON.parse(readFileSync(join(dir, process.env.GOLD2_FILE ?? 'gold2.json'), 'utf8')) as { units: Omit<U2, 'role'>[] };
 const rolesByFile = new Map<string, string>();
 for (const u of raw.units) if (u.n === 1 && u.section === '') rolesByFile.set(u.file, u.text);
 export const U: U2[] = raw.units.map((u) => ({ ...u, text: u.text.replace(/\s*\n\s*/g, ' '), role: rolesByFile.get(u.file) ?? '' }));

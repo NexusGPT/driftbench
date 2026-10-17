@@ -1,0 +1,48 @@
+standing-instructions.md#25	annot2b-a.tsv=description	annot2b-b1.tsv=rule	The ledger is read only for you; changes go through the move tool, which writes its own audit line.
+standing-instructions.md#57	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	If a message mentions a person in the water, a fire aboard, or a boat aground, stop the booking chat.
+standing-instructions.md#66	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	If you are unsure of a Norse-Gaelic word, use the English one rather than guess.
+standing-instructions.md#77	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	One question per message; two questions in one message get half an answer.
+standing-instructions.md#83	annot2b-a.tsv=description	annot2b-b1.tsv=rule	Customer names are for the booking only.
+standing-instructions.md#86	annot2b-a.tsv=gate	annot2b-b1.tsv=rule	The ledger holds phone numbers; read one back only after the customer has quoted the last two digits.
+refund-desk-skill.md#5	annot2b-a.tsv=description	annot2b-b1.tsv=prohibition	It does not decide refunds and it does not move money.
+refund-desk-skill.md#24	annot2b-a.tsv=rule	annot2b-b1.tsv=description	Sailing cancelled by the co-op
+refund-desk-skill.md#25	annot2b-a.tsv=rule	annot2b-b1.tsv=description	Desk, automatic
+refund-desk-skill.md#26	annot2b-a.tsv=rule	annot2b-b1.tsv=description	Full refund is the normal outcome
+refund-desk-skill.md#42	annot2b-a.tsv=rule	annot2b-b1.tsv=description	The "Who decides" column is for you, not for the customer.
+tide-tables-skill.md#43	annot2b-a.tsv=rule	annot2b-b1.tsv=example	A customer who asks "can I get to Skarra at two?" wants a yes or a no, then the nearest boat that works.
+tide-tables-skill.md#49	annot2b-a.tsv=rule	annot2b-b1.tsv=description	Tide too low → the boat waits, and the next sailing may be cancelled
+tide-tables-skill.md#50	annot2b-a.tsv=rule	annot2b-b1.tsv=description	Tide too high under the bridge → the water taxi does not sail
+dock-notice-helper.md#4	annot2b-a.tsv=description	annot2b-b1.tsv=rule	You write the paper notices that hang in the glass case on the quay.
+dock-notice-helper.md#10	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	If a fact is missing, ask for it in your reply
+rather than inventing a plausible one.
+dock-notice-helper.md#14	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	State the change, not the topic: "Skarra boat moves to 16:40", not "Timetable update".
+dock-notice-helper.md#20	annot2b-a.tsv=description	annot2b-b1.tsv=rule	Both are printed small.
+dock-notice-helper.md#26	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	Say "from Monday", not "as of next week"
+dock-notice-helper.md#31	annot2b-a.tsv=description	annot2b-b1.tsv=rule	Writing "we regret" is the clerks' habit and the customers' pet hate.
+dock-notice-helper.md#34	annot2b-a.tsv=rule	annot2b-b1.tsv=description	Calm, and a little dry.
+dock-notice-helper.md#35	annot2b-a.tsv=rule	annot2b-b1.tsv=description	The quay is a working place; the notices should sound like the people who work there.
+dock-notice-helper.md#61	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	Return both with a one-line question for the caller; the caller knows which is current.
+dock-notice-helper.md#70	annot2b-a.tsv=gate	annot2b-b1.tsv=rule	Phone numbers go in the body only after the office has confirmed them.
+memory-notes.md#18	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	Answer the worry, not the tone.
+memory-notes.md#24	annot2b-a.tsv=rule	annot2b-b1.tsv=gate	Wait for the customer's reply before you offer a second option
+memory-notes.md#28	annot2b-a.tsv=description	annot2b-b1.tsv=example	The ledger showed the boat as scheduled, not as running.
+memory-notes.md#32	annot2b-a.tsv=rule	annot2b-b1.tsv=gate	Look at the seat count afterwards.
+memory-notes.md#39	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	A customer who asks about a new sailing should be told to ring the office, not told it does not exist.
+memory-notes.md#55	annot2b-a.tsv=description	annot2b-b1.tsv=rule	Remember that the harbour is dark by half past four in December.
+memory-notes.md#59	annot2b-a.tsv=description	annot2b-b1.tsv=example	Fog is the harbour's only real timetable.
+scheduler-reference.md#24	annot2b-a.tsv=none	annot2b-b1.tsv=description	**The scheduler never retries a failed read.**
+scheduler-reference.md#26	annot2b-a.tsv=rule	annot2b-b1.tsv=gate	Ask again yourself, once, after a short pause.
+scheduler-reference.md#60	annot2b-a.tsv=prohibition	annot2b-b1.tsv=description	The audit line is written by the tool, never by you.
+scheduler-reference.md#84	annot2b-a.tsv=example	annot2b-b1.tsv=gate	Call list_day with the date, filter by destination, and read the status of each sailing before you answer.
+lost-property-skill.md#6	annot2b-a.tsv=rule	annot2b-b1.tsv=description	Cash and passports are not covered; they go straight to the office.
+lost-property-skill.md#13	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	Describe the item the way the customer does, not the way you would.
+lost-property-skill.md#14	annot2b-a.tsv=description	annot2b-b1.tsv=example	A "navy bag" and a "dark blue holdall" are the same bag, and the shelf clerk searches by the customer's words.
+lost-property-skill.md#22	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	Two points make a maybe, and you pass a maybe to the office rather than tell the customer it is found.
+lost-property-skill.md#31	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	Quote the postage from the office, not from memory.
+lost-property-skill.md#40	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	Say "we have logged your item", not "we will find your item".
+lost-property-skill.md#46	annot2b-a.tsv=prohibition	annot2b-b1.tsv=description	For rings, watches and anything with sentimental value, the office wants a phone call, never an email, and the
+night-shift-handover.md#13	annot2b-a.tsv=gate	annot2b-b1.tsv=rule	Switch off the quay lights only after the last boat has tied up.
+night-shift-handover.md#19	annot2b-a.tsv=gate	annot2b-b1.tsv=rule	Wipe it only when the morning clerk has copied it to the page.
+night-shift-handover.md#54	annot2b-a.tsv=description	annot2b-b1.tsv=prohibition	It is not for booking questions.
+night-shift-handover.md#57	annot2b-a.tsv=gate	annot2b-b1.tsv=rule	Stay on the line until the harbour master says you can stop.
+night-shift-handover.md#68	annot2b-a.tsv=rule	annot2b-b1.tsv=prohibition	Print the fare card in March, not April

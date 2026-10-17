@@ -1,0 +1,30 @@
+standing-instructions.md#7	annot2b-a.tsv=description	annot2b-b2.tsv=rule	Quill sounds like a calm harbour clerk.
+standing-instructions.md#57	annot2b-a.tsv=rule	annot2b-b2.tsv=prohibition	If a message mentions a person in the water, a fire aboard, or a boat aground, stop the booking chat.
+standing-instructions.md#65	annot2b-a.tsv=rule	annot2b-b2.tsv=description	Place names keep their island spelling in every language.
+standing-instructions.md#77	annot2b-a.tsv=rule	annot2b-b2.tsv=prohibition	One question per message; two questions in one message get half an answer.
+refund-desk-skill.md#24	annot2b-a.tsv=rule	annot2b-b2.tsv=description	Sailing cancelled by the co-op
+refund-desk-skill.md#25	annot2b-a.tsv=rule	annot2b-b2.tsv=description	Desk, automatic
+refund-desk-skill.md#26	annot2b-a.tsv=rule	annot2b-b2.tsv=description	Full refund is the normal outcome
+refund-desk-skill.md#42	annot2b-a.tsv=rule	annot2b-b2.tsv=description	The "Who decides" column is for you, not for the customer.
+refund-desk-skill.md#45	annot2b-a.tsv=prohibition	annot2b-b2.tsv=rule	Keep the note to six lines.
+tide-tables-skill.md#43	annot2b-a.tsv=rule	annot2b-b2.tsv=description	A customer who asks "can I get to Skarra at two?" wants a yes or a no, then the nearest boat that works.
+tide-tables-skill.md#49	annot2b-a.tsv=rule	annot2b-b2.tsv=description	Tide too low → the boat waits, and the next sailing may be cancelled
+tide-tables-skill.md#50	annot2b-a.tsv=rule	annot2b-b2.tsv=description	Tide too high under the bridge → the water taxi does not sail
+dock-notice-helper.md#4	annot2b-a.tsv=description	annot2b-b2.tsv=rule	You write the paper notices that hang in the glass case on the quay.
+dock-notice-helper.md#20	annot2b-a.tsv=description	annot2b-b2.tsv=rule	Both are printed small.
+dock-notice-helper.md#61	annot2b-a.tsv=rule	annot2b-b2.tsv=prohibition	Return both with a one-line question for the caller; the caller knows which is current.
+dock-notice-helper.md#65	annot2b-a.tsv=rule	annot2b-b2.tsv=gate	After the notice, add one line starting with "Check:" that lists anything you were unsure of.
+memory-notes.md#24	annot2b-a.tsv=rule	annot2b-b2.tsv=gate	Wait for the customer's reply before you offer a second option
+memory-notes.md#28	annot2b-a.tsv=description	annot2b-b2.tsv=example	The ledger showed the boat as scheduled, not as running.
+memory-notes.md#59	annot2b-a.tsv=description	annot2b-b2.tsv=example	Fog is the harbour's only real timetable.
+scheduler-reference.md#24	annot2b-a.tsv=none	annot2b-b2.tsv=description	**The scheduler never retries a failed read.**
+scheduler-reference.md#26	annot2b-a.tsv=rule	annot2b-b2.tsv=gate	Ask again yourself, once, after a short pause.
+scheduler-reference.md#71	annot2b-a.tsv=description	annot2b-b2.tsv=rule	The id is wrong or the sailing has been removed.
+scheduler-reference.md#74	annot2b-a.tsv=description	annot2b-b2.tsv=rule	The date is outside the printed season.
+scheduler-reference.md#77	annot2b-a.tsv=description	annot2b-b2.tsv=rule	You tried to write.
+scheduler-reference.md#80	annot2b-a.tsv=description	annot2b-b2.tsv=rule	The date was in the wrong form.
+lost-property-skill.md#6	annot2b-a.tsv=rule	annot2b-b2.tsv=description	Cash and passports are not covered; they go straight to the office.
+lost-property-skill.md#14	annot2b-a.tsv=description	annot2b-b2.tsv=example	A "navy bag" and a "dark blue holdall" are the same bag, and the shelf clerk searches by the customer's words.
+lost-property-skill.md#46	annot2b-a.tsv=prohibition	annot2b-b2.tsv=description	For rings, watches and anything with sentimental value, the office wants a phone call, never an email, and the
+night-shift-handover.md#61	annot2b-a.tsv=rule	annot2b-b2.tsv=description	A difference of more than two pounds is written on the page and shown to the lead.
+night-shift-handover.md#77	annot2b-a.tsv=rule	annot2b-b2.tsv=prohibition	Hand over the item instead, and keep the key.

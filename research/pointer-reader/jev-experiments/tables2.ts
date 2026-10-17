@@ -8,7 +8,7 @@ import { L5, SUBKEYS, type P2Run } from './src/p2';
 
 const runs = loadRuns2().filter((r) => r.variant);
 const by = (id: string, rs = runs) => rs.filter((r) => r.variant === id);
-const H = [1, 2, 3].map((r) => JSON.parse(readFileSync(join(dir, 'results2', `haiku-r${r}.json`), 'utf8')) as { labels: Record<number, string>; calls: number });
+const H = [1, 2, 3].map((r) => JSON.parse(readFileSync(join(dir, 'results2', `${process.env.HAIKU_PREFIX ?? 'haiku'}-r${r}.json`), 'utf8')) as { labels: Record<number, string>; calls: number });
 const votes = (g: number) => { const c = Object.fromEntries(C6.map((k) => [k, 0])) as Record<C6, number>; for (const h of H) c[h.labels[g] as C6]++; return c; };
 const hm = U.map((u) => { const c = votes(u.g); const s = [...C6].sort((a, b) => c[b] - c[a]); return { label: s[0]!, unanimous: c[s[0]!] === 3 }; });
 const ix = (f: (u: (typeof U)[0]) => boolean) => U.map((_, i) => i).filter((i) => f(U[i]!));

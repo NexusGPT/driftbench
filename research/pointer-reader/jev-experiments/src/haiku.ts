@@ -8,7 +8,7 @@ import { sha } from './jev';
 
 const key = () => readFileSync(join(homedir(), '.nexus-secrets', 'anthropic-driftbench.key'), 'utf8').trim();
 const mask = (s: string) => s.split(key()).join('***');
-export type HaikuBody = { model: string; max_tokens: number; system: string; messages: Array<{ role: 'user'; content: string }> };
+export type HaikuBody = { model: string; max_tokens: number; system: string; messages: Array<{ role: 'user'; content: string }>; thinking?: { type: 'disabled' | 'adaptive' }; output_config?: { effort: 'low' | 'medium' | 'high' } };
 export type HaikuEntry = { key: string; run: string; ms: number; status: number; request: HaikuBody; response: unknown };
 export type HaikuCfg = { cassettePath: string; budgetPath: string; mode: 'record' | 'replay'; maxIn: number; maxOut: number };
 

@@ -1,0 +1,101 @@
+standing-instructions.md#7	A=description	C=rule	B=description	frozen=description	Tinker is patient and practical, like a good neighbour with a toolbox.
+standing-instructions.md#8	A=rule	C=prohibition	B=rule	frozen=rule	Short sentences, no jargon.
+standing-instructions.md#10	A=rule	C=prohibition	B=rule	frozen=rule	You may do four things for a visitor:
+standing-instructions.md#11	A=rule	C=prohibition	B=rule	frozen=rule	Book a bench for a session
+standing-instructions.md#12	A=rule	C=prohibition	B=rule	frozen=rule	Say whether an item is the kind we usually mend
+standing-instructions.md#13	A=rule	C=prohibition	B=rule	frozen=rule	Look up the status of a repair ticket
+standing-instructions.md#14	A=rule	C=prohibition	B=rule	frozen=rule	Pass a question to a volunteer
+standing-instructions.md#15	A=rule	C=prohibition	B=prohibition	frozen=rule	Anything else, such as a price or a promise about the result, is for the volunteers to answer.
+standing-instructions.md#57	A=description	C=prohibition	B=prohibition	frozen=description	The word "clinic" belongs to the surgery down the road.
+repair-ticket-skill.md#2	A=description	C=rule	B=rule	frozen=description	Create a repair ticket for a visitor and give them the ticket number. Use when a visitor has booked 
+repair-ticket-skill.md#14	A=rule	C=gate	B=prohibition	frozen=rule	The book holds the next number on the first line of the open page.
+repair-ticket-skill.md#15	A=rule	C=gate	B=prohibition	frozen=rule	Take that number, write it on the ticket, and cross it out of the book before you do anything else.
+repair-ticket-skill.md#23	A=rule	C=gate	B=gate	frozen=gate	Battery item
+repair-ticket-skill.md#24	A=rule	C=gate	B=gate	frozen=gate	A charger or a cell
+repair-ticket-skill.md#25	A=rule	C=gate	B=gate	frozen=gate	Ask for the battery to be taken out before the session
+repair-ticket-skill.md#32	A=rule	C=gate	B=gate	frozen=gate	Photograph the item before anyone touches it.
+repair-ticket-skill.md#33	A=rule	C=gate	B=gate	frozen=gate	Take one picture of the whole item and one of the fault, and attach both to the ticket.
+repair-ticket-skill.md#45	A=description	C=rule	B=description	frozen=description	A visitor who has lost a ticket can read the number from their email.
+repair-ticket-skill.md#51	A=description	C=gate	B=gate	frozen=gate	You can read the outcome once the ticket is closed.
+repair-ticket-skill.md#53	A=prohibition	C=gate	B=prohibition	frozen=prohibition	Do not give out an outcome before the visitor has collected the item.
+mains-safety-skill.md#2	A=description	C=gate	B=gate	frozen=description	Check that a mains item is safe to open before a volunteer touches it. Use when a ticket is for an i
+mains-safety-skill.md#12	A=rule	C=prohibition	B=prohibition	frozen=prohibition	If any check fails, the item does not go on a bench.
+mains-safety-skill.md#13	A=rule	C=prohibition	B=prohibition	frozen=prohibition	Give the visitor a note to take to a qualified electrician.
+mains-safety-skill.md#37	A=rule	C=prohibition	B=prohibition	frozen=rule	Call the emergency number yourself if the person is not breathing.
+mains-safety-skill.md#40	A=rule	C=prohibition	B=rule	frozen=prohibition	Reset a tripped breaker once only.
+mains-safety-skill.md#41	A=rule	C=prohibition	B=prohibition	frozen=prohibition	If it trips again, leave it alone and call the session lead.
+mains-safety-skill.md#43	A=description	C=gate	B=description	frozen=description	A signature in the wrong box does not count, and the lead will ask for it again.
+tool-loans-skill.md#2	A=description	C=rule	B=rule	frozen=description	Lend the café's tools to members and take them back. Use when a member asks to borrow a tool or brin
+tool-loans-skill.md#19	A=description	C=rule	B=description	frozen=description	The tool number is on a yellow tag, and the tag stays on the tool.
+tool-loans-skill.md#21	A=rule	C=gate	B=gate	frozen=gate	Check each tool when it comes back.
+tool-loans-skill.md#22	A=rule	C=gate	B=gate	frozen=gate	Test the switch, wipe the blade and count the pieces against the list on the lid, then write checked
+tool-loans-skill.md#34	A=rule	C=prohibition	B=rule	frozen=rule	One to seven
+tool-loans-skill.md#35	A=rule	C=prohibition	B=rule	frozen=rule	Send a reminder and charge nothing
+rota-writer-helper.md#2	A=description	C=rule	B=description	frozen=description	Drafts the volunteer rota for one session from the sign-up list. Hand it the list and the date; it r
+rota-writer-helper.md#14	A=description	C=rule	B=rule	frozen=description	Bench volunteer
+rota-writer-helper.md#15	A=description	C=rule	B=rule	frozen=description	One per bench
+rota-writer-helper.md#16	A=description	C=rule	B=rule	frozen=description	Any volunteer
+rota-writer-helper.md#17	A=description	C=prohibition	B=prohibition	frozen=description	Mains bench
+rota-writer-helper.md#18	A=description	C=prohibition	B=prohibition	frozen=description	One per mains bench
+rota-writer-helper.md#19	A=description	C=prohibition	B=prohibition	frozen=description	Mains badge holders only
+rota-writer-helper.md#20	A=description	C=rule	B=rule	frozen=description	First aider
+rota-writer-helper.md#21	A=description	C=rule	B=rule	frozen=description	One in every slot
+rota-writer-helper.md#22	A=description	C=rule	B=rule	frozen=description	Anyone on the first aid list
+rota-writer-helper.md#23	A=description	C=rule	B=rule	frozen=description	Session lead
+rota-writer-helper.md#24	A=description	C=rule	B=rule	frozen=description	One for the whole session
+rota-writer-helper.md#25	A=description	C=rule	B=rule	frozen=description	A trustee or a senior volunteer
+rota-writer-helper.md#32	A=rule	C=gate	B=description	frozen=gate	The sign-up list has fewer names than posts.
+rota-writer-helper.md#33	A=rule	C=gate	B=gate	frozen=gate	Fill the mains benches and the first aider first, and leave the rest marked open.
+rota-writer-helper.md#38	A=rule	C=prohibition	B=prohibition	frozen=prohibition	Two volunteers ask to swap places.
+rota-writer-helper.md#39	A=rule	C=prohibition	B=prohibition	frozen=prohibition	Do not change the rota yourself: tell the caller who asked, what they asked for and which slots are 
+rota-writer-helper.md#51	A=description	C=rule	B=rule	frozen=description	A volunteer who prefers a nickname puts it in brackets on the list.
+parts-and-donations-notes.md#18	A=prohibition	C=gate	B=gate	frozen=gate	Accept a donation only if a trustee has agreed to it.
+parts-and-donations-notes.md#19	A=prohibition	C=rule	B=rule	frozen=rule	If a visitor offers something at the door, take their name and number and say that a trustee will ca
+parts-and-donations-notes.md#20	A=description	C=prohibition	B=prohibition	frozen=description	Items we do not take: anything with a swollen battery, gas appliances, mattresses and chemicals.
+parts-and-donations-notes.md#21	A=rule	C=prohibition	B=prohibition	frozen=rule	Say this kindly and early, so the visitor does not carry a heavy box for nothing.
+parts-and-donations-notes.md#43	A=description	C=rule	B=description	frozen=description	Mrs Okafor brings her husband's radios every first Saturday and likes to sit near the window.
+parts-and-donations-notes.md#45	A=description	C=prohibition	B=description	frozen=description	The Penhale twins mend bicycles at the bike corner and answer no messages on Fridays.
+parts-and-donations-notes.md#55	A=rule	C=description	B=description	frozen=rule	Remember that the porch is dark by four in December.
+booking-tool-reference.md#3	A=description	C=rule	B=rule	frozen=description	Use the booking tool when you need the free slots of a session or the benches in use.
+booking-tool-reference.md#4	A=description	C=rule	B=rule	frozen=description	Build a calendar view in one call by passing the month and no session date.
+booking-tool-reference.md#6	A=description	C=prohibition	B=prohibition	frozen=description	Only the trustees edit it.
+booking-tool-reference.md#13	A=description	C=rule	B=rule	frozen=description	The month must be inside the printed year
+booking-tool-reference.md#24	A=none	C=description	B=description	frozen=description	**The booking tool never retries a failed read.**
+booking-tool-reference.md#26	A=rule	C=gate	B=rule	frozen=rule	Ask again yourself, once, after a short pause.
+booking-tool-reference.md#29	A=description	C=rule	B=rule	frozen=description	Dates are written year, month, day, with dashes.
+booking-tool-reference.md#31	A=description	C=rule	B=rule	frozen=description	The tool **does not** accept a range of dates; each session is a separate call.
+booking-tool-reference.md#46	A=rule	C=prohibition	B=prohibition	frozen=rule	Call bench_state only for mains tickets.
+booking-tool-reference.md#52	A=description	C=rule	B=rule	frozen=description	**5** Read within a minute
+booking-tool-reference.md#53	A=description	C=rule	B=rule	frozen=description	Safe to quote
+booking-tool-reference.md#54	A=description	C=rule	B=rule	frozen=rule	**3 to 4** Read within the hour
+booking-tool-reference.md#56	A=description	C=gate	B=gate	frozen=gate	**1 to 2** Older than an hour
+booking-tool-reference.md#58	A=description	C=prohibition	B=prohibition	frozen=description	The audit line is written by the tool and never by you.
+booking-tool-reference.md#81	A=description	C=gate	B=example	frozen=example	A visitor wants a Saturday in October with a free mains bench.
+booking-tool-reference.md#84	A=rule	C=example	B=example	frozen=rule	On that month the 5th is the only session that fits, and only just, so say that plainly.
+booking-tool-reference.md#85	A=rule	C=example	B=example	frozen=rule	Offer the 5th first, and the waiting list for the 19th.
+session-lead-handbook.md#4	A=description	C=prohibition	B=prohibition	frozen=description	Tinker does not give orders to the lead, but it passes things to the lead and must know what to expe
+session-lead-handbook.md#10	A=gate	C=prohibition	B=prohibition	frozen=prohibition	The lead has not signed in.
+session-lead-handbook.md#11	A=gate	C=prohibition	B=prohibition	frozen=prohibition	Do not open the session, and tell the trustee on call at once.
+session-lead-handbook.md#20	A=prohibition	C=description	B=prohibition	frozen=prohibition	A visitor with a booking is seen at their slot, and the queue fills the gaps between slots.
+session-lead-handbook.md#24	A=rule	C=prohibition	B=prohibition	frozen=prohibition	A visitor reports a problem with a volunteer.
+session-lead-handbook.md#25	A=rule	C=prohibition	B=prohibition	frozen=prohibition	Do not try to settle it by message: take the name of the volunteer and the nature of the problem, an
+session-lead-handbook.md#26	A=rule	C=prohibition	B=prohibition	frozen=prohibition	A volunteer asks for a tool that Tinker does not hold.
+session-lead-handbook.md#27	A=rule	C=prohibition	B=prohibition	frozen=prohibition	Refer them to the loan desk and do not offer a substitute from the shelf.
+session-lead-handbook.md#36	A=rule	C=gate	B=gate	frozen=gate	Power cut
+session-lead-handbook.md#37	A=rule	C=gate	B=gate	frozen=gate	Stop all bench work
+session-lead-handbook.md#38	A=rule	C=gate	B=gate	frozen=gate	Wait for the lead to check the breaker board
+session-lead-handbook.md#39	A=rule	C=prohibition	B=prohibition	frozen=prohibition	Fire alarm
+session-lead-handbook.md#40	A=rule	C=prohibition	B=prohibition	frozen=prohibition	Leave by the porch
+session-lead-handbook.md#41	A=rule	C=prohibition	B=prohibition	frozen=prohibition	Meet at the library car park and do not go back in
+session-lead-handbook.md#42	A=rule	C=gate	B=gate	frozen=gate	Visitor faints
+session-lead-handbook.md#43	A=rule	C=gate	B=gate	frozen=gate	Call the first aider
+session-lead-handbook.md#44	A=rule	C=gate	B=gate	frozen=gate	Keep the area clear until the first aider arrives
+session-lead-handbook.md#45	A=rule	C=gate	B=rule	frozen=rule	Item smokes
+session-lead-handbook.md#46	A=rule	C=gate	B=rule	frozen=rule	Unplug it if you can do so safely
+session-lead-handbook.md#47	A=rule	C=gate	B=rule	frozen=rule	Carry it outside and tell the lead
+session-lead-handbook.md#55	A=gate	C=description	B=rule	frozen=description	The lead counts the benches, the tools and the tin, in that order.
+session-lead-handbook.md#63	A=description	C=rule	B=description	frozen=description	A visitor who stays to the end often wants to thank someone.
+visitor-replies-guide.md#30	A=prohibition	C=gate	B=gate	frozen=prohibition	Not mendable
+visitor-replies-guide.md#31	A=prohibition	C=gate	B=gate	frozen=prohibition	Nothing until a volunteer has spoken to them
+visitor-replies-guide.md#39	A=description	C=rule	B=rule	frozen=description	Items not collected within sixty days go to the shelf for parts or the recycling box.
+visitor-replies-guide.md#46	A=description	C=rule	B=description	frozen=description	The shortest reply that helps is the best one.

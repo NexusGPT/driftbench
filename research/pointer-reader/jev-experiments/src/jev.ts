@@ -12,13 +12,21 @@ import { join } from 'node:path';
 const GATEWAY = 'https://jev-gateway.nexus-orga.gpt.nexus/v1/systemone';
 const TYPESAFE = 'https://api.typesafe.ai/v1/systemone';
 
-export type Question = { type: 'noul'; instructions: { question: string; focus?: string } };
+/** noul: yes/no probability. choice: one option of `criteria` (label -> description or null). score: ordered levels (criteria array). */
+export type Question =
+  | { type: 'noul'; instructions: { question: string; focus?: string } }
+  | { type: 'noul'; instructions?: string; criteria?: { true?: string; false?: string } }
+  | { type: 'choice'; instructions: string; criteria: Record<string, string | null> }
+  | { type: 'score'; instructions: string; criteria: string[] };
+export type TypedAnswer = { type: string; noul?: number; choice?: string; confidence?: number; probabilities?: Record<string, number>; score?: number; legend?: Record<string, string> };
 export type JevBody = { model: string; state: unknown; questions: Record<string, Question> };
 export type JevResult = {
   ok: boolean;
   status: number;
   ms: number;
   answers: Record<string, number>;
+  /** every answer object as returned (noul, choice and score) */
+  typed?: Record<string, TypedAnswer>;
   raw: unknown;
   error?: string;
   cached?: boolean;
@@ -138,9 +146,9 @@ export async function ask(cfg: Config, body: JevBody, run: string, cassette: Cas
 
 function toResult(status: number, ms: number, payload: unknown, cached: boolean): JevResult {
   const answers: Record<string, number> = {};
-  const a = (payload as { answers?: Record<string, { noul?: unknown }> })?.answers;
+  const a = (payload as { answers?: Record<string, TypedAnswer> })?.answers;
   if (a && typeof a === 'object')
     for (const [k, v] of Object.entries(a)) if (typeof v?.noul === 'number') answers[k] = v.noul;
   const ok = status >= 200 && status < 300 && !!a;
-  return { ok, status, ms, answers, raw: payload, cached, ...(ok ? {} : { error: mask(JSON.stringify(payload)).slice(0, 400) }) };
+  return { ok, status, ms, answers, ...(a && typeof a === 'object' ? { typed: a } : {}), raw: payload, cached, ...(ok ? {} : { error: mask(JSON.stringify(payload)).slice(0, 400) }) };
 }
