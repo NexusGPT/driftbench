@@ -74,7 +74,7 @@ The hash is the first 12 hex characters of the SHA-256 of the spec's canonical J
 ## `driftbench spec lint`
 
 ```
-driftbench spec lint <paths...> [--json] [--strict] [--sections <registries...>]
+driftbench spec lint <paths...> [--json] [--strict] [--summaries] [--sections <registries...>]
 ```
 
 Validates every spec like `spec validate`, then prints the warnings of the valid ones. `--sections` also checks every `prompt_section` link against the section registry of its prompt (see [prompt sections and block links](../concepts/blast-radius.md#prompt-sections-and-block-links)).
@@ -90,6 +90,9 @@ Checked 1 spec: 1 valid, 0 invalid, 1 warning.
 |---|---|
 | `--json` | print one JSON document |
 | `--strict` | treat warnings as failures |
+| `--summaries` | also warn when a workspace folder or a named session state has no summary (`GIVEN_SUMMARY_MISSING`) |
+
+The warnings include the findings of the Given verifier (`GIVEN_UNMET`, `GIVEN_CHAIN`): see [running](../running.md#outcomes) for what a Given error does at run time.
 
 | Exit code | When |
 |---|---|
@@ -256,6 +259,10 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `TASK_WITHOUT_OUTCOME` | warning | a task spec checks none of `artifacts`, `workspace`, `execution` and `end_state` |
 | `PERTURBATION_NO_RECOVERY` | warning | a perturbation has no `recovery`, so its recovery is not measured |
 | `PREFIX_PROSE_HISTORY` | warning | an assistant message of a prefix states a ledger fact in its text that no recorded tool call of the prefix holds and the user never said, in a spec that names tools: the agent may call the tool again |
+| `GIVEN_UNMET` | warning | the Given verifier found a Given error on a block (`tool_history_paired`, `tool_known`, `history_matches_world` or `value_in_message`, named first in the message). The runner does not send that block: it is `not_run` with kind `given_unmet` |
+| `GIVEN_CHAIN` | warning | a block's `ledger_add` contradicts the ledger it starts from (check `chain`) |
+| `GIVEN_SUMMARY_MISSING` | warning | with `--summaries` only: a workspace folder (`world.workspace.from`) or a named session state (`vars.session_state`) has no summary (check `summary_present`) |
+| `GIVEN_CANONICAL_UNPAIRED` | warning | a prefix whose `origin` is `canonical` holds a tool call with no output or error. Advice only: the block runs |
 
 ## Global options
 
