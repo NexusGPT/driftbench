@@ -131,6 +131,73 @@ describe('sectionsFromHeadings reads CommonMark headings', () => {
     });
   });
 
+  describe('front matter', () => {
+    const agent =
+      '---\nname: lamp-keeper\ndescription: Trims wicks and logs the oil.\ntools: Read\nmodel: haiku\n---\n\nYou keep the lamp.\n';
+
+    it('is not read as a setext heading, so an agent prompt without headings is one preamble section', () => {
+      expect(ids(agent)).toEqual(['preamble']);
+    });
+
+    it('leaves the headings after it to start sections', () => {
+      const text = `${agent}\n## Wicks\nTrim them.\n\nOil\n---\nLog it.\n`;
+      expect(ids(text)).toEqual(['preamble', 'wicks', 'oil']);
+    });
+
+    it('needs a closing line, and only a first line of exactly --- opens it', () => {
+      expect(ids('---\nname: lamp\nYou keep the lamp.\n')).toEqual(['preamble']);
+      expect(ids('\n---\nname: lamp\n---\nYou keep the lamp.\n')).toEqual(['name_lamp']);
+    });
+
+    it('reads a text of three --- lines and words as a front matter block then a heading', () => {
+      expect(ids('---\nFoo\n---\nBar\n---\nBaz\n')).toEqual(['preamble', 'bar']);
+    });
+  });
+
+  describe('containers', () => {
+    it('opens a fence on a list-marker line and on a quote line', () => {
+      expect(ids('## Tides\nSteps:\n- ```\n  # in\n  ```\n## Moorings\nTie off.\n')).toEqual([
+        'tides',
+        'moorings',
+      ]);
+      expect(ids('## Tides\nSteps:\n1. ~~~\n   # in\n   ~~~\n## Moorings\nTie off.\n')).toEqual([
+        'tides',
+        'moorings',
+      ]);
+      expect(ids('## Tides\n> ```\n> # in\n> ```\n## Moorings\nTie off.\n')).toEqual(['tides', 'moorings']);
+    });
+
+    it('does not let 2. interrupt a paragraph, but lets a bullet and 1. do so', () => {
+      expect(titles('Steps\n2. bar\n---\nTie off.\n')).toEqual(['Steps 2. bar']);
+      expect(titles('Steps\n1. bar\n---\nTie off.\n')).toEqual(['preamble']);
+      expect(titles('Steps\n- bar\n---\nTie off.\n')).toEqual(['preamble']);
+    });
+
+    it('does not let an empty list item interrupt a paragraph', () => {
+      expect(titles('Steps\n*\n---\nTie off.\n')).toEqual(['Steps *']);
+    });
+  });
+
+  describe('sections that cannot be anchored', () => {
+    it('folds adjacent empty headings into the section before them', () => {
+      const text = '## Tides\nRead the gauge.\n##\n##\n#\n';
+      expect(ids(text)).toEqual(['tides']);
+      expect(built(text)[0]?.span.end).toBe(text.trimEnd().length);
+    });
+
+    it('folds empty headings at the start into the section after them', () => {
+      const text = '##\n##\n## Real\nBody text is here.\n';
+      expect(ids(text)).toEqual(['real']);
+      expect(titles(text)).toEqual(['Real']);
+      expect(built(text)[0]?.span.start).toBe(0);
+    });
+
+    it('keeps the whole text as one section when every heading is empty, and reports an empty prompt', () => {
+      expect(ids('##\n##\n')).toEqual(['section']);
+      expect(sectionsFromHeadings('  \n', { promptId: 'lighthouse', version: 'v1' }).ok).toBe(false);
+    });
+  });
+
   describe('ids', () => {
     it('numbers repeats _2, _3 in order', () => {
       expect(ids('# T\nOne.\n# T\nTwo.\n# T\nThree.\n')).toEqual(['t', 't_2', 't_3']);

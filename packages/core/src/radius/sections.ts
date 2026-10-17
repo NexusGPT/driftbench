@@ -231,26 +231,51 @@ const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})(.*)$/;
 const ATX = /^ {0,3}(#{1,6})(?:[ \t]+(.*))?$/;
 const SETEXT_UNDERLINE = /^ {0,3}(=+|-+)[ \t]*$/;
 const THEMATIC_BREAK = /^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$/;
-const CONTAINER = /^ {0,3}(?:>|[-+*](?:[ \t]|$)|\d{1,9}[.)](?:[ \t]|$))/;
+const CONTAINER = /^ {0,3}(?:>[ \t]?|(?:[-+*]|(\d{1,9})[.)])(?:[ \t]+|$))/;
+
+/**
+ * The text after a quote marker or a list marker, when the line starts a container that can interrupt the
+ * current paragraph: a paragraph is only interrupted by a bullet or by `1.`, and only by an item with content.
+ */
+function containerRest(line: string, inParagraph: boolean): string | undefined {
+  const match = CONTAINER.exec(line);
+  if (!match) return undefined;
+  const rest = line.slice(match[0].length);
+  const quote = match[0].trimStart().startsWith('>');
+  if (inParagraph && !quote && (rest.trim() === '' || (match[1] !== undefined && Number(match[1]) !== 1)))
+    return undefined;
+  return rest;
+}
+
+/** The lines of a leading YAML front matter block (a first line of `---` up to the next `---` line), else 0. */
+function frontMatterLines(lines: string[]): number {
+  if (lines[0]?.trimEnd() !== '---') return 0;
+  const close = lines.findIndex((line, index) => index > 0 && line.trimEnd() === '---');
+  return close < 0 ? 0 : close + 1;
+}
 
 /**
  * The headings of a markdown text as CommonMark reads them, of level 1 to `level`: ATX headings indented up to
  * three spaces with their closing # sequence dropped, and setext headings (a paragraph underlined with = or -).
- * A # line inside a fenced code block is code, not a heading. `at` is where the heading starts, after its
- * indentation; for a setext heading, where the first line of its paragraph starts.
+ * A # line inside a fenced code block is code, not a heading, and a leading YAML front matter block is not read.
+ * `at` is where the heading starts, after its indentation; for a setext heading, where the first line of its
+ * paragraph starts.
  */
 function markdownHeadings(text: string, level: number): { at: number; title: string }[] {
   const found: { at: number; title: string }[] = [];
-  let fence: { char: string; length: number } | undefined;
+  let fence: { char: string; length: number; inContainer: boolean } | undefined;
   let paragraph: { at: number; lines: string[] } | undefined;
   // After a quote or a list item, a line without a blank before it continues that container (lazily).
   let container = false;
   let offset = 0;
-  for (const line of text.split('\n')) {
+  const lines = text.split('\n');
+  const skip = frontMatterLines(lines);
+  for (const [number, line] of lines.entries()) {
     const lineStart = offset;
     offset += line.length + 1;
+    if (number < skip) continue;
     if (fence) {
-      const close = /^ {0,3}(`+|~+)[ \t]*$/.exec(line);
+      const close = (fence.inContainer ? /^[ \t>]*(`+|~+)[ \t]*$/ : /^ {0,3}(`+|~+)[ \t]*$/).exec(line);
       if (close?.[1]?.[0] === fence.char && close[1].length >= fence.length) fence = undefined;
       continue;
     }
@@ -263,7 +288,7 @@ function markdownHeadings(text: string, level: number): { at: number; title: str
     const open = FENCE_OPEN.exec(line);
     if (open?.[1] && !(open[1][0] === '`' && (open[2] ?? '').includes('`'))) {
       paragraph = undefined;
-      fence = { char: open[1][0] ?? '`', length: open[1].length };
+      fence = { char: open[1][0] ?? '`', length: open[1].length, inContainer: false };
       continue;
     }
     const atx = ATX.exec(line);
@@ -288,9 +313,14 @@ function markdownHeadings(text: string, level: number): { at: number; title: str
       container = false;
       continue;
     }
-    if (CONTAINER.test(line)) {
+    const inner = containerRest(line, paragraph !== undefined);
+    if (inner !== undefined) {
       paragraph = undefined;
       container = true;
+      // A fence can open on the marker line itself: `- ```` or `> ~~~`.
+      const nested = FENCE_OPEN.exec(inner.replace(/^[ \t]+/, ''));
+      if (nested?.[1] && !(nested[1][0] === '`' && (nested[2] ?? '').includes('`')))
+        fence = { char: nested[1][0] ?? '`', length: nested[1].length, inContainer: true };
       continue;
     }
     if (container) continue;
@@ -304,8 +334,10 @@ function markdownHeadings(text: string, level: number): { at: number; title: str
 
 /**
  * A first registry for a markdown prompt: one section per CommonMark heading of level 1 to `level` (ATX or
- * setext, never one inside a fenced code block), from the heading to the next one, the text before the first
- * heading as `preamble`. Ids are the slugged titles; a repeated slug takes the next free `_2`, `_3`, ...
+ * setext, never one inside a fenced code block, none in a leading front matter block), from the heading to the
+ * next one, the text before the first heading as `preamble`. Ids are the slugged titles; a repeated slug takes
+ * the next free `_2`, `_3`, ... A heading whose section holds no quote that is unique in the prompt (an empty
+ * heading next to another) is folded into the section before it, or into the one after it when it comes first.
  * Every section starts global, the safe reading: the author marks local the sections that reach only
  * the blocks linked to them, and adds references and overrides.
  */
@@ -320,18 +352,38 @@ export function sectionsFromHeadings(
     const firstAt = starts[0]?.at ?? text.length;
     if (text.slice(0, firstAt).trim() !== '') starts.unshift({ at: 0, title: 'preamble' });
   }
+  const spanEnd = (index: number): number => {
+    const from = starts[index]?.at ?? 0;
+    let end = starts[index + 1]?.at ?? text.length;
+    while (end > from + 1 && /\s/.test(text[end - 1] ?? '')) end--;
+    return end;
+  };
+  // Anchor each section; one that cannot be anchored is folded into a neighbour, then its neighbour is anchored again.
+  const entries: PromptSection[] = [];
+  for (let index = 0; index < starts.length; ) {
+    const start = starts[index];
+    const entry = start && sectionEntry(text, start.at, spanEnd(index), { id: 'section', scope: 'global' });
+    if (entry || !start || starts.length === 1) {
+      if (entry) entries[index] = entry;
+      index++;
+      continue;
+    }
+    const next = starts[index + 1];
+    if (index === 0 && next) next.at = start.at;
+    starts.splice(index, 1);
+    entries.splice(index, 1);
+    index = Math.max(0, index - 1);
+  }
   const errors: string[] = [];
   const sections: PromptSection[] = [];
   const taken = new Set<string>();
   starts.forEach((each, index) => {
-    let end = starts[index + 1]?.at ?? text.length;
-    while (end > each.at + 1 && /\s/.test(text[end - 1] ?? '')) end--;
     const base = slug(each.title);
     let id = base;
     for (let next = 2; taken.has(id); next++) id = `${base}_${next}`;
     taken.add(id);
-    const entry = sectionEntry(text, each.at, end, { id, title: each.title, scope: 'global' });
-    if (entry) sections.push(entry);
+    const entry = entries[index];
+    if (entry) sections.push({ ...entry, id, title: each.title });
     else errors.push(`${id}: no quote inside the section is unique in the prompt`);
   });
   if (sections.length === 0) errors.push('the prompt has no section');
