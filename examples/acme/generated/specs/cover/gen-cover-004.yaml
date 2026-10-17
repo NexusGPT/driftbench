@@ -98,3 +98,15 @@ metadata:
         phrase:
           dimension: deviation
           value: D6_instruction_in_data
+    reduced_ends:
+      from_blocks: 3
+      to_blocks: 1
+      duplicates:
+        - block: b2-needs-to-identify
+          duplicate_of:
+            spec: gen-twise-150
+            block: b2-needs-to-identify
+        - block: b3-identify-to-offer
+          duplicate_of:
+            spec: gen-twise-150
+            block: b3-identify-to-offer

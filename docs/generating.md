@@ -322,6 +322,21 @@ A walk often ends the way another walk already ended: the same turn, said from t
 
 The Then must hold across channels and across personas, and that is read off a pair of whole walks that differ only there (twins). So the first twin of a written walk on each path and each of the two axes is written whole; the twins after it are repeats like any other. It repeats while the new last block qualifies, and it stops at one block. Exactly one walk ends on a block: a cut that stops with more than one block left, on a block another written walk ends on, is taken back to the deepest cut that ends elsewhere, or to the whole walk. A walk cut down to its first block always stays cut. A walk is never cut down to a restated request: the move after it is the test of the latest value. The first variant of a metamorphic family is cut like any walk, and the other variants are cut to the same length, because a family differs only in its phrasing: two families that end on the same block are one test, so the second family loses the copy. With `--spec-cap` the reduction runs after the cap, on the specs that are written, in the order they were written: a walk loses an end only when a spec that stays says it. It reads no agent, so it removes a repeat, not everything a validator could call redundant: the same turn from another stage, or a repeat in the middle of a walk, stays. Tasks, walks with an end state and specs with a gap are never reduced.
 
+Each removed end block is recorded in the shortened spec's `metadata.generated.reduced_ends`.
+The record gives `from_blocks`, `to_blocks`, and `duplicates`: the removed block's `block` ID and
+its `duplicate_of` witness (`spec`, `block`, and `family` when the witness is metamorphic).
+The witness names the first retained metamorphic family when one exists; otherwise it names an earlier
+written spec. A removed block's `duplicate_family` names the earlier family that drafted the same block,
+even when that family's copy was also cut: `duplicate_of` still points to a block the suite retains.
+Every variant of a shortened family keeps this record and names the same retained witnesses as its
+first variant. Ordinary walks use the same record. Only the final cut is recorded; a cut taken back
+leaves no removed blocks in the record. Whole specs have no `reduced_ends` entry.
+
+The report's `seeders.<seeder>.cut_blocks` counts the removed blocks in that seeder's written specs,
+including each shortened variant. It is zero when no block is cut. This count is separate from `cut`,
+which reports a seeder stopped by `--max`. With `--spec-cap`, both the count and witnesses refer only
+to specs retained by the cap. The eager and disk APIs write the same record.
+
 ### The machine Then in every block
 
 A complete generated block reads observed state, not only words. Code derives each part of its Then from the approved relations:

@@ -25,6 +25,7 @@
     "graph": {
       "specs": 12,
       "blocks": 48,
+      "cut_blocks": 0,
       "complete": 12,
       "needs_phrase": 0,
       "needs_then": 0,
@@ -39,6 +40,7 @@
     "twise": {
       "specs": 156,
       "blocks": 793,
+      "cut_blocks": 0,
       "complete": 153,
       "needs_phrase": 0,
       "needs_then": 3,
@@ -53,6 +55,7 @@
     "boundary": {
       "specs": 85,
       "blocks": 180,
+      "cut_blocks": 3,
       "complete": 13,
       "needs_phrase": 72,
       "needs_then": 15,
@@ -67,6 +70,7 @@
     "deviation": {
       "specs": 137,
       "blocks": 526,
+      "cut_blocks": 38,
       "complete": 137,
       "needs_phrase": 0,
       "needs_then": 0,
@@ -81,6 +85,7 @@
     "metamorphic": {
       "specs": 42,
       "blocks": 188,
+      "cut_blocks": 4,
       "complete": 42,
       "needs_phrase": 0,
       "needs_then": 0,
@@ -95,6 +100,7 @@
     "task": {
       "specs": 67,
       "blocks": 71,
+      "cut_blocks": 0,
       "complete": 67,
       "needs_phrase": 0,
       "needs_then": 0,
@@ -109,6 +115,7 @@
     "cover": {
       "specs": 11,
       "blocks": 48,
+      "cut_blocks": 2,
       "complete": 11,
       "needs_phrase": 0,
       "needs_then": 0,
