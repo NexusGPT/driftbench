@@ -429,6 +429,33 @@ describe('a reference to a navigation document is no test', () => {
       navigationReference(atom('gate.x.y', { fields: { path: 'a/templates/form.md' } }), navigation),
     ).toBe(false);
   });
+
+  it('judges a reference by its position whatever its title says', () => {
+    const navigation = navigationFiles([{ path: 'a/templates/form.md', role: 'template' }]);
+    const titled = (title: string, quote: string) => ({
+      ...atom('reference.x.y', { fields: { path: 'a/templates/form.md' } }),
+      title,
+      provenance: { file: 'a/SKILL.md', startLine: 3, endLine: 3, quote },
+    });
+    const none = new Set<string>();
+    for (const title of ['the report template', 'Form', 'Open the form', '']) {
+      // Listed: the first thing after the markup is the path, with its folder or without.
+      for (const quote of [
+        '- a/templates/form.md',
+        '- templates/form.md',
+        '- `form.md`',
+        '| form.md | layout |',
+      ]) {
+        expect(navigationReference(titled(title, quote), navigation, none), `${title} / ${quote}`).toBe(true);
+      }
+      // Acted on: words come before the reference.
+      for (const quote of ['- see a/templates/form.md', 'Fill in form.md first.', '- Template: form.md']) {
+        expect(navigationReference(titled(title, quote), navigation, none), `${title} / ${quote}`).toBe(
+          false,
+        );
+      }
+    }
+  });
 });
 
 describe('a unit-mode row expects nothing a run with no model cannot observe', () => {
