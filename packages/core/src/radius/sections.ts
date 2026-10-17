@@ -247,37 +247,94 @@ function containerRest(line: string, inParagraph: boolean): string | undefined {
   return rest;
 }
 
-/** The lines of a leading YAML front matter block (a first line of `---` up to the next `---` line), else 0. */
+/** A key line of a YAML mapping: `name: value`, `"quoted key": value`, `key:`. */
+const YAML_KEY = /^(?:[\w.-][^:]*|"[^"]*"|'[^']*'):(?:[ \t]|$)/;
+
+/**
+ * The lines of a leading YAML front matter block (a first line of `---` up to the next `---` line), else 0. The
+ * block must look like a YAML mapping: empty, or with at least one key line and no other unindented line but
+ * comments and `- ` items. Otherwise the two `---` lines are thematic breaks or underlines and the text between
+ * them is read for headings.
+ */
 function frontMatterLines(lines: string[]): number {
-  if (lines[0]?.trimEnd() !== '---') return 0;
+  if ((lines[0] ?? '').replace(/^\uFEFF/, '').trimEnd() !== '---') return 0;
   const close = lines.findIndex((line, index) => index > 0 && line.trimEnd() === '---');
-  return close < 0 ? 0 : close + 1;
+  if (close < 0) return 0;
+  const block = lines.slice(1, close).filter((line) => line.trim() !== '' && !/^\s/.test(line));
+  const body = block.filter((line) => !line.startsWith('#') && !/^-[ \t]/.test(line));
+  if (body.some((line) => !YAML_KEY.test(line))) return 0;
+  if (block.length > 0 && !body.some((line) => YAML_KEY.test(line))) return 0;
+  return close + 1;
+}
+
+type Container = { kind: 'quote' } | { kind: 'list'; offset: number };
+
+/** The quote and list markers that open a line, outermost first, and what follows them. */
+function containerChain(line: string): { stack: Container[]; rest: string } {
+  const stack: Container[] = [];
+  let rest = line;
+  for (;;) {
+    const quote = /^ {0,3}>[ \t]?/.exec(rest);
+    if (quote) {
+      stack.push({ kind: 'quote' });
+      rest = rest.slice(quote[0].length);
+      continue;
+    }
+    const list = /^( {0,3})([-+*]|\d{1,9}[.)])([ \t]*)/.exec(rest);
+    if (!list || (list[3] === '' && list[0].length < rest.length)) return { stack, rest };
+    const after = rest.slice(list[0].length);
+    const width = after.trim() === '' || (list[3] ?? '').length > 4 ? 1 : (list[3] ?? '').length;
+    stack.push({ kind: 'list', offset: (list[1] ?? '').length + (list[2] ?? '').length + width });
+    rest = rest.slice((list[1] ?? '').length + (list[2] ?? '').length + width);
+  }
+}
+
+/** The line inside the containers, or undefined when the line is outside one of them (the container ended). */
+function insideContainers(line: string, stack: Container[]): string | undefined {
+  let rest = line;
+  for (const each of stack) {
+    if (each.kind === 'quote') {
+      const quote = /^ {0,3}>[ \t]?/.exec(rest);
+      if (!quote) return undefined;
+      rest = rest.slice(quote[0].length);
+    } else if (rest.trim() === '') rest = '';
+    else if (rest.length - rest.trimStart().length >= each.offset) rest = rest.slice(each.offset);
+    else return undefined;
+  }
+  return rest;
 }
 
 /**
  * The headings of a markdown text as CommonMark reads them, of level 1 to `level`: ATX headings indented up to
  * three spaces with their closing # sequence dropped, and setext headings (a paragraph underlined with = or -).
- * A # line inside a fenced code block is code, not a heading, and a leading YAML front matter block is not read.
- * `at` is where the heading starts, after its indentation; for a setext heading, where the first line of its
- * paragraph starts.
+ * A # line inside a fenced code block is code, not a heading; a fence opened inside a quote or a list item ends
+ * with it. A leading YAML front matter block is not read. `at` is where the heading starts, after its indentation;
+ * for a setext heading, where the first line of its paragraph starts. `bodyAt` is where its own lines end.
  */
-function markdownHeadings(text: string, level: number): { at: number; title: string }[] {
-  const found: { at: number; title: string }[] = [];
-  let fence: { char: string; length: number; inContainer: boolean } | undefined;
+function markdownHeadings(text: string, level: number): { at: number; title: string; bodyAt: number }[] {
+  const found: { at: number; title: string; bodyAt: number }[] = [];
+  let fence: { char: string; length: number; stack: Container[] } | undefined;
   let paragraph: { at: number; lines: string[] } | undefined;
   // After a quote or a list item, a line without a blank before it continues that container (lazily).
   let container = false;
   let offset = 0;
   const lines = text.split('\n');
   const skip = frontMatterLines(lines);
-  for (const [number, line] of lines.entries()) {
-    const lineStart = offset;
-    offset += line.length + 1;
+  for (const [number, raw] of lines.entries()) {
+    const bom = number === 0 && raw.startsWith('\uFEFF');
+    const line = bom ? raw.slice(1) : raw;
+    const lineStart = offset + (bom ? 1 : 0);
+    offset += raw.length + 1;
     if (number < skip) continue;
     if (fence) {
-      const close = (fence.inContainer ? /^[ \t>]*(`+|~+)[ \t]*$/ : /^ {0,3}(`+|~+)[ \t]*$/).exec(line);
-      if (close?.[1]?.[0] === fence.char && close[1].length >= fence.length) fence = undefined;
-      continue;
+      const inner = insideContainers(line, fence.stack);
+      if (inner !== undefined) {
+        const close = /^ {0,3}(`+|~+)[ \t]*$/.exec(inner);
+        if (close?.[1]?.[0] === fence.char && close[1].length >= fence.length) fence = undefined;
+        continue;
+      }
+      fence = undefined;
+      container = false;
     }
     if (line.trim() === '') {
       paragraph = undefined;
@@ -288,7 +345,7 @@ function markdownHeadings(text: string, level: number): { at: number; title: str
     const open = FENCE_OPEN.exec(line);
     if (open?.[1] && !(open[1][0] === '`' && (open[2] ?? '').includes('`'))) {
       paragraph = undefined;
-      fence = { char: open[1][0] ?? '`', length: open[1].length, inContainer: false };
+      fence = { char: open[1][0] ?? '`', length: open[1].length, stack: [] };
       continue;
     }
     const atx = ATX.exec(line);
@@ -297,14 +354,18 @@ function markdownHeadings(text: string, level: number): { at: number; title: str
       container = false;
       if (atx[1].length <= level) {
         const title = (atx[2] ?? '').replace(/(?:^|[ \t]+)#+[ \t]*$/, '').trim();
-        found.push({ at: lineStart + indent, title });
+        found.push({ at: lineStart + indent, title, bodyAt: lineStart + line.length });
       }
       continue;
     }
     const underline = SETEXT_UNDERLINE.exec(line);
     if (underline?.[1] && paragraph && !container) {
       if (underline[1][0] === '=' ? 1 <= level : 2 <= level)
-        found.push({ at: paragraph.at, title: paragraph.lines.join(' ') });
+        found.push({
+          at: paragraph.at,
+          title: paragraph.lines.join(' '),
+          bodyAt: lineStart + line.length,
+        });
       paragraph = undefined;
       continue;
     }
@@ -313,14 +374,14 @@ function markdownHeadings(text: string, level: number): { at: number; title: str
       container = false;
       continue;
     }
-    const inner = containerRest(line, paragraph !== undefined);
-    if (inner !== undefined) {
+    if (containerRest(line, paragraph !== undefined) !== undefined) {
       paragraph = undefined;
       container = true;
-      // A fence can open on the marker line itself: `- ```` or `> ~~~`.
-      const nested = FENCE_OPEN.exec(inner.replace(/^[ \t]+/, ''));
+      // A fence can open on the marker line itself: `- ```` , `> ~~~` or `> - ```` .
+      const chain = containerChain(line);
+      const nested = FENCE_OPEN.exec(chain.rest);
       if (nested?.[1] && !(nested[1][0] === '`' && (nested[2] ?? '').includes('`')))
-        fence = { char: nested[1][0] ?? '`', length: nested[1].length, inContainer: true };
+        fence = { char: nested[1][0] ?? '`', length: nested[1].length, stack: chain.stack };
       continue;
     }
     if (container) continue;
@@ -350,7 +411,7 @@ export function sectionsFromHeadings(
   const starts = markdownHeadings(text, level);
   if (starts.length === 0 || (starts[0]?.at ?? 0) > 0) {
     const firstAt = starts[0]?.at ?? text.length;
-    if (text.slice(0, firstAt).trim() !== '') starts.unshift({ at: 0, title: 'preamble' });
+    if (text.slice(0, firstAt).trim() !== '') starts.unshift({ at: 0, title: 'preamble', bodyAt: 0 });
   }
   const spanEnd = (index: number): number => {
     const from = starts[index]?.at ?? 0;
@@ -365,6 +426,11 @@ export function sectionsFromHeadings(
     const entry = start && sectionEntry(text, start.at, spanEnd(index), { id: 'section', scope: 'global' });
     if (entry || !start || starts.length === 1) {
       if (entry) entries[index] = entry;
+      index++;
+      continue;
+    }
+    // Only a section with no words of its own (an empty heading, a lone rule) folds into a neighbour; two equal sections with text stop init.
+    if (/[\p{L}\p{N}]/u.test(text.slice(start.bodyAt, spanEnd(index)))) {
       index++;
       continue;
     }
