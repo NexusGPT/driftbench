@@ -1,0 +1,92 @@
+/** Statistics: intervals, reliability, paired tests, multiple comparisons, power, non-inferiority, drift, agreement, variance components and coverage. */
+export const packageName = '@driftbench/stats';
+
+export {
+  type AlphaLevel,
+  type AlphaResult,
+  cohenKappa,
+  type KappaOptions,
+  type KappaResult,
+  krippendorffAlpha,
+  type Label,
+} from './agreement';
+export { mean, mulberry32, quantile, quantileSorted, sampleVariance } from './basics';
+export {
+  abundances,
+  type ChaoResult,
+  chaoCoverage,
+  type GoodTuringResult,
+  goodTuring,
+  type HillNumbers,
+  hillNumber,
+  hillNumbers,
+} from './coverage';
+export {
+  type Alarm,
+  type CusumOptions,
+  type CusumResult,
+  cusum,
+  type KsResult,
+  kolmogorovSf,
+  ksTest,
+  type PageHinkleyOptions,
+  type PageHinkleyResult,
+  pageHinkley,
+} from './drift';
+export {
+  type BootstrapInterval,
+  type BootstrapOptions,
+  bootstrapCI,
+  clopperPearson,
+  designEffect,
+  effectiveSampleSize,
+  type Interval,
+  wilson,
+  Z95,
+  zeroFailureBound,
+  zFor,
+} from './intervals';
+export { type BenjaminiHochbergResult, benjaminiHochberg } from './multiple';
+export {
+  type McNemarOptions,
+  type McNemarResult,
+  mcnemar,
+  type NonInferiorityInput,
+  type NonInferiorityResult,
+  nonInferiority,
+  type PairedDifference,
+  type PairedTable,
+  pairedRateDifference,
+  type WilcoxonMethod,
+  type WilcoxonOptions,
+  type WilcoxonResult,
+  wilcoxonSignedRank,
+} from './paired';
+export { type MdeInput, type MdeResult, mde } from './power';
+export { passAtK, passK, unreliability } from './reliability';
+export {
+  betaQuantile,
+  binomialCdf,
+  chiSquareSf,
+  erfc,
+  incompleteBeta,
+  logGamma,
+  normalCdf,
+  normalQuantile,
+  normalSf,
+} from './special';
+export {
+  type Component,
+  icc,
+  type LevelCorrelation,
+  type NeymanInput,
+  type NeymanResult,
+  neymanAllocation,
+  type Observation,
+  type RepeatsForFloorInput,
+  type RepeatsForFloorResult,
+  repeatsForFloor,
+  type VarianceComponentsOptions,
+  type VarianceComponentsResult,
+  varianceComponents,
+} from './variance';
