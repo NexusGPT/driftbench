@@ -253,6 +253,12 @@ describe('the fixture gives each script a usage line and fixtures that a fake ca
       (t) => t.replace('exit 1; }', 'exit 0; }'),
     ],
     [
+      'track: the carrier code is matched in any case',
+      ['sh'],
+      'shipment-tracker/scripts/track.sh',
+      (t) => t.replace('grep "', 'grep -i "'),
+    ],
+    [
       'track: the table is read from the working folder',
       ['sh'],
       'shipment-tracker/scripts/track.sh',
@@ -260,28 +266,46 @@ describe('the fixture gives each script a usage line and fixtures that a fake ca
     ],
   ];
 
-  it.each(MUTANTS)('turns %s red', async (_label, interpreter, tail, mutate) => {
-    const path = `.claude/skills/${tail}`;
-    const original = await readFile(join(FIXTURE, path), 'utf8');
-    const text = mutate(original);
-    expect(text, 'the mutation changed the script').not.toBe(original);
+  /** The script at its own place in a scratch tree: a scripts folder, and the data folder it keeps beside it. */
+  async function place(path: string, text: string): Promise<string> {
     const dir = await scratch();
-    // The mutant sits in a scripts folder of its own, with the data folder the script keeps beside it.
     await mkdir(join(dir, 'scripts'));
-    const mutant = join(dir, 'scripts', tail.split('/').at(-1) as string);
-    await writeFile(mutant, text);
-    await chmod(mutant, 0o755);
+    const placed = join(dir, 'scripts', path.split('/').at(-1) as string);
+    await writeFile(placed, text);
+    await chmod(placed, 0o755);
     const skill = dirname(dirname(join(FIXTURE, path)));
     if (existsSync(join(skill, 'data'))) {
       await mkdir(join(dir, 'data'));
       for (const name of await readdir(join(skill, 'data')))
         await writeFile(join(dir, 'data', name), await readFile(join(skill, 'data', name)));
     }
-    const results = await Promise.all(
+    return placed;
+  }
+
+  /** Every fixture of the script, run on `placed`: the problems found, per fixture. */
+  async function fixtureProblems(path: string, interpreter: readonly string[], placed: string) {
+    return Promise.all(
       ((await config()).scripts[path]?.fixtures ?? []).map(async (fixture) =>
-        problems(fixture, await runFixture([...interpreter], mutant, fixture)),
+        problems(fixture, await runFixture([...interpreter], placed, fixture)),
       ),
     );
+  }
+
+  // The control of every mutant below: the unmutated script, placed the same way, passes all its fixtures. A
+  // mutant that dies in a harness that breaks the original too proves nothing.
+  it.each(SCRIPTS)('%s, placed as a mutant is, passes every fixture unmutated', async (path, interpreter) => {
+    const placed = await place(path, await readFile(join(FIXTURE, path), 'utf8'));
+    expect(await fixtureProblems(path, interpreter, placed)).toEqual(
+      ((await config()).scripts[path]?.fixtures ?? []).map(() => []),
+    );
+  });
+
+  it.each(MUTANTS)('turns %s red', async (_label, interpreter, tail, mutate) => {
+    const path = `.claude/skills/${tail}`;
+    const original = await readFile(join(FIXTURE, path), 'utf8');
+    const text = mutate(original);
+    expect(text, 'the mutation changed the script').not.toBe(original);
+    const results = await fixtureProblems(path, interpreter, await place(path, text));
     expect(results.some((found) => found.length > 0)).toBe(true);
   });
 });
