@@ -12,7 +12,11 @@ import { declaredToolWitnesses, operationWitnesses } from './operation-witnesses
  * The verdicts by which a guard acts on a run (docs/estate.md, unit section): it stops the act (deny, block) or tells
  * the agent something and lets the act through (warn, nudge). A guard's message is judged for these and no other.
  */
-const ACTING_VERDICTS: readonly string[] = ['deny', 'block', 'warn', 'nudge'];
+export const ACTING_VERDICTS: readonly string[] = ['deny', 'block', 'warn', 'nudge'];
+
+/** Of the acting verdicts, those that answer and let the act through (warn, nudge): a guard that stops it says deny or block. */
+export const answersWithoutStopping = (verdict: unknown): boolean =>
+  typeof verdict === 'string' && ACTING_VERDICTS.includes(verdict) && !/^(deny|block)$/i.test(verdict);
 /** Of those, the ones whose spelling in another case a run may still carry (a hook's own deny and block wording). */
 const STOPPING = /^(deny|block)$/i;
 
