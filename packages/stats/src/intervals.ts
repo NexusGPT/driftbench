@@ -8,7 +8,7 @@ import {
   mulberry32,
   quantileSorted,
 } from './basics';
-import { betaQuantile, normalQuantile } from './special';
+import { betaQuantile, betaQuantileUpper, normalQuantile } from './special';
 
 /** z for a two-sided 95 percent interval. */
 export const Z95 = 1.959963984540054;
@@ -44,7 +44,7 @@ export function clopperPearson(k: number, n: number, alpha = 0.05): Interval {
   if (n === 0) throw new RangeError('clopperPearson: n must be at least 1');
   if (k > n) throw new RangeError(`clopperPearson: k (${k}) exceeds n (${n})`);
   const lower = k === 0 ? 0 : betaQuantile(alpha / 2, k, n - k + 1);
-  const upper = k === n ? 1 : betaQuantile(1 - alpha / 2, k + 1, n - k);
+  const upper = k === n ? 1 : betaQuantileUpper(alpha / 2, k + 1, n - k);
   return { estimate: k / n, lower, upper };
 }
 

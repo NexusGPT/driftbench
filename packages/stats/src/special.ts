@@ -47,8 +47,9 @@ function stirlingRemainder(z: number): number {
  * The deviance term x log(x / np) + np - x (Loader 2000, as in R's bd0), which is small when x is near np. Its
  * series for |x - np| below a tenth of x + np keeps the digits that the direct form loses to cancellation.
  */
-function bd0(x: number, np: number): number {
-  if (Math.abs(x - np) >= 0.1 * (x + np)) return x * Math.log(x / np) + np - x;
+function bd0(x: number, np: number, logNp: number = Math.log(np)): number {
+  // log(x / np) is formed as log x - log np: the ratio itself overflows when np is below 1e-308 x.
+  if (Math.abs(x - np) >= 0.1 * (x + np)) return x * (Math.log(x) - logNp) + np - x;
   let v = (x - np) / (x + np);
   let s = (x - np) * v;
   let ej = 2 * x * v;
@@ -73,7 +74,11 @@ function betaFront(x: number, y: number, a: number, b: number): number {
   return (
     Math.sqrt((a * b) / (2 * Math.PI * n)) *
     Math.exp(
-      stirlingRemainder(n) - stirlingRemainder(a) - stirlingRemainder(b) - bd0(a, n * x) - bd0(b, n * y),
+      stirlingRemainder(n) -
+        stirlingRemainder(a) -
+        stirlingRemainder(b) -
+        bd0(a, n * x, Math.log(n) + Math.log(x)) -
+        bd0(b, n * y, Math.log(n) + Math.log(y)),
     )
   );
 }
@@ -115,30 +120,76 @@ function betaContinuedFraction(a: number, b: number, x: number): number {
   return h;
 }
 
+/**
+ * Both tails of Beta(a, b) at x, with y = 1 - x. The smaller tail comes from its own continued fraction and the other
+ * is its complement, so a tail far below 1e-16 keeps its digits.
+ */
+function betaTails(x: number, y: number, a: number, b: number): { lower: number; upper: number } {
+  const front = betaFront(x, y, a, b);
+  if (x < (a + 1) / (a + b + 2)) {
+    const lower = (front * betaContinuedFraction(a, b, x)) / a;
+    return { lower, upper: 1 - lower };
+  }
+  const upper = (front * betaContinuedFraction(b, a, y)) / b;
+  return { lower: 1 - upper, upper };
+}
+
 /** Regularized incomplete beta function I_x(a, b). */
 export function incompleteBeta(x: number, a: number, b: number): number {
   if (x < 0 || x > 1) return Number.NaN;
   if (x <= 0) return 0;
   if (x >= 1) return 1;
-  const front = betaFront(x, 1 - x, a, b);
-  if (x < (a + 1) / (a + b + 2)) return (front * betaContinuedFraction(a, b, x)) / a;
-  return 1 - (front * betaContinuedFraction(b, a, 1 - x)) / b;
+  return betaTails(x, 1 - x, a, b).lower;
 }
 
-/** Quantile of the Beta(a, b) distribution, by bisection on the regularized incomplete beta. */
-export function betaQuantile(p: number, a: number, b: number): number {
-  if (Number.isNaN(p)) throw new RangeError('betaQuantile: p must not be NaN');
-  if (p <= 0) return 0;
-  if (p >= 1) return 1;
-  let lo = 0;
+/**
+ * The root of a monotone test on (0, 1): the x where `isBelow` turns from true to false. The bracket halves down from 1
+ * until it holds the root, so a root of 1e-200 is found as exactly as one of 0.3; plain bisection on [0, 1] stops
+ * resolving it at 2^-200. A root below the smallest double comes back as 0.
+ */
+function bisectBeta(isBelow: (x: number) => boolean): number {
   let hi = 1;
+  while (hi > Number.MIN_VALUE && !isBelow(hi / 2)) hi /= 2;
+  let lo = hi > Number.MIN_VALUE ? hi / 2 : 0;
   for (let i = 0; i < 200; i += 1) {
     const mid = (lo + hi) / 2;
-    if (incompleteBeta(mid, a, b) < p) lo = mid;
+    if (isBelow(mid)) lo = mid;
     else hi = mid;
     if (hi - lo <= 1e-15 * hi) break;
   }
   return (lo + hi) / 2;
+}
+
+/** x with P(X <= x) = p for X ~ Beta(a, b), p below one half, from the lower tail. */
+function betaLowerTailQuantile(p: number, a: number, b: number): number {
+  return bisectBeta((x) => betaTails(x, 1 - x, a, b).lower < p);
+}
+
+/** x with P(X > x) = q for X ~ Beta(a, b), q below one half, from the upper tail. */
+function betaUpperTailQuantile(q: number, a: number, b: number): number {
+  return bisectBeta((x) => betaTails(x, 1 - x, a, b).upper > q);
+}
+
+/**
+ * Quantile of the Beta(a, b) distribution, by bisection on the regularized incomplete beta. Above one half it solves
+ * the upper tail 1 - p, which is exact there, so p near 1 keeps its digits.
+ */
+export function betaQuantile(p: number, a: number, b: number): number {
+  if (Number.isNaN(p)) throw new RangeError('betaQuantile: p must not be NaN');
+  if (p <= 0) return 0;
+  if (p >= 1) return 1;
+  return p <= 0.5 ? betaLowerTailQuantile(p, a, b) : betaUpperTailQuantile(1 - p, a, b);
+}
+
+/**
+ * The x with P(X > x) = q for X ~ Beta(a, b): the upper quantile, `betaQuantile(1 - q, a, b)` without forming
+ * `1 - q`, which rounds to 1 for q below 1.1e-16.
+ */
+export function betaQuantileUpper(q: number, a: number, b: number): number {
+  if (Number.isNaN(q)) throw new RangeError('betaQuantileUpper: q must not be NaN');
+  if (q <= 0) return 1;
+  if (q >= 1) return 0;
+  return q <= 0.5 ? betaUpperTailQuantile(q, a, b) : betaLowerTailQuantile(1 - q, a, b);
 }
 
 /** Regularized lower incomplete gamma P(a, x), series expansion (x < a + 1). */
