@@ -1,4 +1,4 @@
-import { blockStatus, type RunResult, runOutcome } from '@agent-nexus/driftbench-core';
+import { blockStatus, type RunResult, runOutcome, type Spec } from '@agent-nexus/driftbench-core';
 import { hierarchicalBetaBinomial, mde } from '@agent-nexus/driftbench-stats';
 import { groupBy, runPassed, scoredRuns } from './data';
 import type { Estimate } from './estimate';
@@ -67,6 +67,32 @@ function meanEffective(counts: readonly { n: number; k: number }[], p: number, r
   return { effective, designEffect: runs / effective, degenerate };
 }
 
+/** What the headline reads besides the runs. */
+export type SuiteHeadlineOptions = {
+  /**
+   * The spec's parent links of a run, child block id to parent block id. A run need not record every
+   * ancestor (a replayed ancestor adds no block), so the links name the root the run alone cannot.
+   */
+  parentsOf?: (run: RunResult) => ReadonlyMap<string, string> | undefined;
+};
+
+const LINKS = new WeakMap<Spec, ReadonlyMap<string, string>>();
+
+/** A spec's parent links, child block id to parent block id; undefined when no block has a parent. */
+export function parentLinks(spec: Spec | undefined): ReadonlyMap<string, string> | undefined {
+  if (!spec) return undefined;
+  let links = LINKS.get(spec);
+  if (!links) {
+    links = new Map(
+      spec.blocks.flatMap((block) =>
+        block.id !== undefined && block.parent !== undefined ? [[block.id, block.parent] as const] : [],
+      ),
+    );
+    LINKS.set(spec, links);
+  }
+  return links.size > 0 ? links : undefined;
+}
+
 /**
  * The suite headline of runs, grouped into trees by `treeOf`, over the scored runs (pass or fail). Undefined
  * with no scored run.
@@ -74,6 +100,7 @@ function meanEffective(counts: readonly { n: number; k: number }[], p: number, r
 export function suiteHeadline(
   all: readonly RunResult[],
   treeOf: (run: RunResult) => string,
+  options: SuiteHeadlineOptions = {},
 ): SuiteHeadline | undefined {
   // Only scored runs count, linked or not: a run not run or blocked (no failure) is left out of every rate
   // and count, whatever trees inside it were measured.
@@ -88,18 +115,22 @@ export function suiteHeadline(
       continue;
     }
     const ids = new Map(run.blocks.map((block) => [block.blockId, block]));
+    const links = options.parentsOf?.(run);
+    // The root of a family is its topmost ancestor: the spec's links name it, else the recorded blocks do. An
+    // ancestor the run did not record still names the family, so a rerun of a leaf joins its root's tree.
+    const parentOf = (id: string): string | undefined => links?.get(id) ?? ids.get(id)?.parent;
     const trees = groupBy(
       run.blocks.filter((block) => block.specIndex !== undefined),
       (block) => {
-        let root = block;
-        const seen = new Set<string>();
-        while (root.parent !== undefined && !seen.has(root.parent)) {
-          seen.add(root.parent);
-          const parent = ids.get(root.parent);
-          if (!parent) break;
+        let root = block.blockId ?? `block ${block.index}`;
+        let parent = (block.blockId === undefined ? undefined : links?.get(block.blockId)) ?? block.parent;
+        const seen = new Set<string>([root]);
+        while (parent !== undefined && !seen.has(parent)) {
+          seen.add(parent);
           root = parent;
+          parent = parentOf(parent);
         }
-        return root.blockId ?? `block ${root.index}`;
+        return root;
       },
     );
     const outcomes: Array<{ root: string; failed: boolean }> = [];
