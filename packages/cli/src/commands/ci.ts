@@ -38,7 +38,7 @@ import {
 } from '../judge-options';
 import { optionNumber } from '../number';
 import { type CampaignDeps, campaignRunCommand, defaultDeps, parseTarget } from './campaign';
-import { parseGate } from './compare';
+import { hasScoredRun, parseGate } from './compare';
 
 /**
  * The verdict families whose failing gating verdict is a gating FLAG, as `compare` counts them: an act that
@@ -330,7 +330,11 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   const shared = { flagFamilies: flags, minGoldens: gate.minGoldens, strict: gate.strict };
   let margin: number;
   let marginAuto: CiSummary['marginAuto'] = null;
-  if (gate.margin === 'auto') {
+  if (gate.margin === 'auto' && !hasScoredRun(baseline.data)) {
+    // A baseline whose every run is not run or blocked pairs no golden with itself: the 2 point default stands,
+    // and the comparison below says that no golden is shared.
+    margin = 0.02;
+  } else if (gate.margin === 'auto') {
     const auto = autoMargin(baseline.data, shared);
     margin = auto.margin;
     marginAuto = {
@@ -668,30 +672,38 @@ function summarize(input: {
           : 'not-shown-non-inferior',
     input.aggregates,
   );
-  // Then blocks not run beyond the threshold: the gate did not measure that part of the suite.
+  // Then a regression, by compare's own test, in the part of the suite that ran: it wins over everything but a
+  // radius miss, so the verdict never depends on whether an unrelated spec was not run. A golden that flipped
+  // while compare calls the change noise is no regression. Then blocks not run beyond the threshold.
   const notRunOver = input.notRun?.over ?? [];
-  const verdict: CiVerdict = misses > 0 ? 'radius-miss' : notRunOver.length > 0 ? 'not-run' : compared;
+  const regressed = result.verdict === 'regressed';
+  const verdict: CiVerdict =
+    misses > 0 ? 'radius-miss' : regressed ? 'regression' : notRunOver.length > 0 ? 'not-run' : compared;
+  const notRunReason = `${count(notRunOver.length, 'spec')} of the candidate had blocks not run beyond --max-not-run ${input.notRun?.threshold}: ${notRunOver.join(', ')}. A block not run is a Given the target could not apply, never a pass: fix the spec or the target, or raise the threshold for an exploratory suite`;
+  const regressedNames = rows.filter((row) => row.change === 'regressed').map((row) => row.name);
+  const regressedReason = `${count(regressedNames.length, 'golden')} regressed${regressedNames.length > 0 ? `: ${regressedNames.join(', ')}` : ''}`;
   const failingAggregates = input.aggregates.filter((entry) => entry.passed === false);
+  const incompleteReason = `${count(candidate.incompleteCells, 'cell')} of the candidate did not run (budget or pending): parity cannot be shown on part of the suite`;
+  const aggregateReasons = failingAggregates.map((entry) => `aggregate ${entry.name} fails: ${entry.reason}`);
   const reasons =
     verdict === 'radius-miss'
       ? [
           `the audit ran ${input.radius?.audit?.sampled} cells outside the radius and ${misses} did not reproduce the carried result: the change reaches cells the manifest left out, so nothing was carried`,
           ...result.reasons,
         ]
-      : verdict === 'not-run'
+      : verdict === 'regression'
         ? [
-            `${count(notRunOver.length, 'spec')} of the candidate had blocks not run beyond --max-not-run ${input.notRun?.threshold}: ${notRunOver.join(', ')}. A block not run is a Given the target could not apply, never a pass: fix the spec or the target, or raise the threshold for an exploratory suite`,
+            regressedReason,
             ...result.reasons,
+            ...(candidate.incompleteCells > 0 ? [incompleteReason] : []),
+            ...aggregateReasons,
+            ...(notRunOver.length > 0 ? [notRunReason] : []),
           ]
-        : verdict === 'incomplete'
-          ? [
-              `${count(candidate.incompleteCells, 'cell')} of the candidate did not run (budget or pending): parity cannot be shown on part of the suite`,
-              ...result.reasons,
-            ]
-          : [
-              ...result.reasons,
-              ...failingAggregates.map((entry) => `aggregate ${entry.name} fails: ${entry.reason}`),
-            ];
+        : verdict === 'not-run'
+          ? [notRunReason, ...result.reasons]
+          : verdict === 'incomplete'
+            ? [incompleteReason, ...result.reasons]
+            : [...result.reasons, ...aggregateReasons];
   return {
     verdict,
     aggregates: input.aggregates,
