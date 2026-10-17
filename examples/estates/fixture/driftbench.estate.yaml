@@ -244,3 +244,8 @@ scripts:
         expect:
           exitCode: 1
           stdout: ""
+      # A carrier code is matched as written: another case is another code.
+      - args: [nwx, "123"]
+        expect:
+          exitCode: 1
+          stdout: ""
