@@ -1,11 +1,12 @@
-import type {
-  ArtifactExpect,
-  CriterionDef,
-  GuardExpect,
-  ReferenceExpect,
-  SkillExpect,
-  SubagentExpect,
-  ToolExpect,
+import {
+  type ArtifactExpect,
+  type CriterionDef,
+  GUARD_INTERVENTIONS,
+  type GuardExpect,
+  type ReferenceExpect,
+  type SkillExpect,
+  type SubagentExpect,
+  type ToolExpect,
 } from '@agent-nexus/driftbench-core';
 import { type EstateAtom, type EstateEvidence, EVIDENCE_TYPES } from './inputs';
 import { literal } from './literal';
@@ -16,6 +17,7 @@ import {
   compileToolAbsence,
   isCompiledPredicate,
 } from './predicates';
+import { recoveryAction } from './recovery';
 
 export { literal };
 
@@ -144,6 +146,8 @@ export type ThenContext = {
   judge?: boolean;
   /** The files of the estate, relative to its root: a read is expected only of one of them. */
   files?: ReadonlySet<string>;
+  /** The atoms of the estate by id, so a rule can find the unit it is read from. */
+  atoms?: ReadonlyMap<string, EstateAtom>;
   /** True for a live row: the runtime's own trace is all there is, no decision log the estate writes. */
   live?: boolean;
   /** Files the runtime loads by itself (no Read call ever shows it): a read of one is never expected. */
@@ -258,9 +262,14 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     }
     case 'stage_reached':
-      // A step allowed at any point is never required, and no order can place it: what a run must still show
-      // is the flow around it closing on its closing step.
+      // A step allowed at any point has no place in the order, so it is reached when the runtime reports it once
+      // in the block, wherever: a run that drops the step then fails. Without that check, the flow around it
+      // still closes on its closing step.
       if (ctx.stages.anytime.has(evidence.name)) {
+        if (ctx.customChecks.has('stage_seen')) {
+          then.custom.stage_seen = { name: evidence.name, block: 0 };
+          return;
+        }
         if (ctx.stages.closing !== undefined) then.stage = ctx.stages.closing;
         else
           gap(
@@ -318,9 +327,40 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         }
       }
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
+        const recovery = recoveryAction(atom);
+        const declared = evidence.options ?? {};
+        const reread = [
+          ...new Set([
+            ...(Array.isArray(declared.reread)
+              ? declared.reread.filter(
+                  (path): path is string => typeof path === 'string' && path.trim() !== '',
+                )
+              : []),
+            ...recovery.reread,
+          ]),
+        ];
+        const calls = [...(Array.isArray(declared.calls) ? declared.calls : []), ...recovery.calls];
+        const retry = declared.retry === true || recovery.retry;
+        // A part of the rule that names no file ("the open tracker note") is checked by no path: the spec never
+        // passes on the rest alone unmarked. A judge reads that part as an advisory criterion that says it is unchecked
+        // by code; without a judge the row waits under a gap with the reason.
+        for (const part of recovery.unpathed) {
+          if (ctx.judge) judgePart(then, atom, part);
+          else
+            gap(
+              then,
+              MARKERS.registered,
+              atom,
+              `the rule orders a re-read of "${part}", which names no file path`,
+            );
+        }
+        // Only the actions the estate states stay: an empty path or a call counted zero demands nothing.
+        const { reread: _reread, calls: _calls, retry: _retry, ...rest } = declared;
         then.custom.hazard_recovery = {
-          ...(evidence.options ?? {}),
-          ...(heldPaths(atom, ctx).length > 0 ? { reread: heldPaths(atom, ctx) } : {}),
+          ...rest,
+          ...(reread.length > 0 ? { reread } : {}),
+          ...(calls.length > 0 ? { calls } : {}),
+          ...(retry ? { retry: true } : {}),
           block: 0,
         };
         return;
@@ -359,6 +399,8 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         ) {
           const known = (then.custom.permission?.rules ?? []) as unknown[];
           then.custom.permission = { rules: [...known, { effect, rule }], block: 0 };
+          // A declared tool is allowed while the unit that declares it is at work: the run shows that unit.
+          if (effect === 'declared') declaringUnit(then, atom, ctx);
           return;
         }
         gap(
@@ -407,8 +449,10 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
     case 'guard':
       if (untraced(then, atom, evidence.name, ctx)) return;
       // A guard runs on every event it watches and logs `allow` when it lets the act through: a control
-      // forbids the guard's act, its declared verdict, else a block.
-      addGuard(then, { name: evidence.name, verdict: evidence.verdict ?? 'deny', count: 0 });
+      // forbids the guard's act, by its declared verdict. A guard with no declared verdict may stop the act or
+      // only warn, so the control forbids every verdict by which a guard acts, and `allow` stays free.
+      for (const verdict of evidence.verdict === undefined ? GUARD_INTERVENTIONS : [evidence.verdict])
+        addGuard(then, { name: evidence.name, verdict, count: 0 });
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
@@ -452,6 +496,24 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     default:
       noInverse(then, atom, `${evidence.type} has no negative control`, ctx);
+  }
+}
+
+/**
+ * The skill or helper that declares a tool, read from the file the tool rule is read from, joins the Then: the
+ * run must load the skill or dispatch the helper, since only then does the declaration apply.
+ */
+function declaringUnit(then: ThenParts, atom: EstateAtom, ctx: ThenContext): void {
+  const file = atom.provenance?.file;
+  if (file === undefined || ctx.atoms === undefined) return;
+  for (const owner of ctx.atoms.values()) {
+    if ((owner.kind !== 'skill' && owner.kind !== 'subagent') || owner.provenance?.file !== file) continue;
+    const name = owner.fields?.name;
+    if (typeof name !== 'string' || name === '') continue;
+    if (owner.kind === 'skill') addSkill(then, { name, count: { min: 1 } });
+    else if (!then.subagents.some((known) => known.name === name))
+      then.subagents.push({ name, count: { min: 1 } });
+    return;
   }
 }
 
@@ -634,6 +696,28 @@ function judgeRule(then: ThenParts, atom: EstateAtom, polarity: Polarity): void 
   addUnique(then.judged, atom.id);
 }
 
+/**
+ * A judged criterion for one part of a rule that no code check reaches (the re-read of a note, not a file). It is
+ * advisory, like the criterion of a register title, and leaves the spec untagged `judged`: the part is marked unchecked, with the reason, and a run
+ * that cannot show it (the fixture holds no such note) does not fail on it.
+ */
+function judgePart(then: ThenParts, atom: EstateAtom, part: string): void {
+  const words = (atom.provenance?.quote ?? atom.title).replace(/\s+/g, ' ').trim();
+  const name = `${atom.id}.${part
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')}`;
+  if (then.criteria.some((criterion) => criterion.name === name)) return;
+  then.criteria.push({
+    name,
+    rubric: `Unchecked by code: the rule "${words}" orders a re-read of "${part}", which names no file path. Did the agent re-read "${part}"?`,
+    pass: `The agent re-read "${part}" before it went on.`,
+    fail: `The agent went on without re-reading "${part}".`,
+    gating: false,
+    scope: 'block',
+  });
+}
+
 function addCriterion(then: ThenParts, atom: EstateAtom): void {
   if (!then.criteria.some((criterion) => criterion.name === atom.id)) {
     then.criteria.push({ name: atom.id, rubric: atom.title, gating: false, scope: 'block' });
@@ -642,17 +726,6 @@ function addCriterion(then: ThenParts, atom: EstateAtom): void {
 
 function addSomeCall(then: ThenParts, call: SomeCall): void {
   if (!then.someCalls.some((known) => same(known, call))) then.someCalls.push(call);
-}
-
-/** The paths an atom's passage names that the estate holds (all of them when no file list is known). */
-function heldPaths(atom: EstateAtom, ctx: ThenContext): string[] {
-  const files = ctx.files;
-  if (!files) return pathsOf(atom);
-  return pathsOf(atom).filter((path) => {
-    const clean = path.replace(/^\.?\/+/, '');
-    for (const file of files) if (file === clean || file.endsWith(`/${clean}`)) return true;
-    return false;
-  });
 }
 
 /** Paths an atom's passage names: in backticks, or a word with a slash or a file extension. */

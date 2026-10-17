@@ -13,6 +13,7 @@ import {
   WorldState,
 } from './common';
 import { parameterSchema, unsupportedSchemaKeywords } from './json-schema';
+import { BlockLinks } from './links';
 
 /**
  * The spec format. A spec is one golden conversation (or one task for a code agent) written as a
@@ -130,6 +131,13 @@ export const GuardExpect = z
     'One runtime check that fired during the block, with its verdict. The adapter maps the runtime names.',
   );
 export type GuardExpect = z.infer<typeof GuardExpect>;
+
+/**
+ * The verdicts by which a runtime check acts on a run: it stops the act (`deny`, `block`) or tells the agent
+ * something and lets the act through (`warn`, `nudge`). Every other verdict (`allow`, a timeout, a verdict the
+ * estate names itself) is no intervention, and a check that judges what a guard says reads these runs only.
+ */
+export const GUARD_INTERVENTIONS = ['deny', 'block', 'warn', 'nudge'] as const;
 
 /** The reply is JSON: an optional JSON Schema (strict) and paths with an assertion each. */
 export const JsonExpect = z
@@ -817,6 +825,12 @@ export const Spec = z
     metadata: z
       .record(z.string(), z.unknown())
       .superRefine((metadata, ctx) => {
+        if (metadata.links !== undefined) {
+          const links = BlockLinks.safeParse(metadata.links);
+          if (!links.success)
+            for (const issue of links.error.issues)
+              ctx.addIssue({ code: 'custom', message: issue.message, path: ['links', ...issue.path] });
+        }
         if (!isPlainObject(metadata.tool_schemas)) return;
         for (const [label, definition] of Object.entries(metadata.tool_schemas)) {
           for (const issue of unsupportedSchemaKeywords(parameterSchema(definition))) {
@@ -825,7 +839,9 @@ export const Spec = z
         }
       })
       .optional()
-      .describe('Free metadata.'),
+      .describe(
+        'Free metadata. `links` holds the links of the blocks to prompt sections, spec clauses and past turns; it and `provenance` stay out of the spec hash.',
+      ),
   })
   .describe('One golden conversation, or one task for a code agent, written as a succession of blocks.');
 export type Spec = z.infer<typeof Spec>;

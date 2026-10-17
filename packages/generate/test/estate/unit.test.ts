@@ -3,6 +3,7 @@ import type { EstateAtom } from '../../src/estate/inputs';
 import {
   brokenForms,
   clausesOf,
+  helperUnitTestOf,
   hostileForms,
   matcherTools,
   materialOf,
@@ -400,5 +401,91 @@ describe('the run a unit-mode spec carries', () => {
       cases: [],
     });
     expect(specUnitOf({ testType: 'obligation' }, [watched], nursery)).toBe('obligation has no unit run');
+  });
+});
+
+it('uses declared reply boundaries for positive payloads and keeps negative payloads below them', () => {
+  const limit: EstateAtom = {
+    ...rule('limit', 'Keep replies short.'),
+    kind: 'register',
+    evidence: [{ type: 'custom', name: 'max_characters', options: { max: 37 } }],
+  };
+  const g = guard({ event: 'Stop', enforces: [{ atom: 'limit', by: 'registry' }] });
+  const atoms = new Map([['limit', limit]]);
+  for (const testType of ['guard_positive', 'guard_speed', 'guard_hostile', 'guard_register']) {
+    const result = specUnitOf({ testType }, [g], atoms);
+    expect(typeof result).toBe('object');
+    if (typeof result === 'string') throw new Error(result);
+    expect(result.cases.some((c) => String(c.payload.last_reply).length > 37)).toBe(true);
+  }
+  const negative = specUnitOf({ testType: 'guard_negative' }, [g], atoms);
+  if (typeof negative === 'string') throw new Error(negative);
+  expect(negative.cases.every((c) => String(c.payload.last_reply).length <= 37)).toBe(true);
+});
+
+it('reports an unsupported declared reply boundary instead of substituting a short rule quote', () => {
+  const limit: EstateAtom = {
+    ...rule('large-limit', 'Keep replies short.'),
+    evidence: [{ type: 'custom', name: 'max_characters', options: { max: 1000000 } }],
+  };
+  const result = specUnitOf(
+    { testType: 'guard_positive' },
+    [guard({ event: 'Stop', enforces: [{ atom: limit.id, by: 'id' }] })],
+    new Map([[limit.id, limit]]),
+  );
+  expect(result).toContain('outside the supported payload size');
+});
+
+it('can exercise a zero-character limit with a truly empty negative reply', () => {
+  const limit: EstateAtom = {
+    ...rule('zero-limit', 'No reply text.'),
+    evidence: [{ type: 'custom', name: 'max_characters', options: { max: 0 } }],
+  };
+  const result = specUnitOf(
+    { testType: 'guard_negative' },
+    [guard({ event: 'Stop', enforces: [{ atom: limit.id, by: 'id' }] })],
+    new Map([[limit.id, limit]]),
+  );
+  expect(typeof result !== 'string' && result.cases[0]?.payload.last_reply).toBe('');
+});
+
+describe('the JSON run record of a helper run alone', () => {
+  const helper: EstateAtom = {
+    id: 'subagent.harbour.helper-pilot',
+    kind: 'subagent',
+    title: 'Helper pilot',
+    approved: true,
+    evidence: [],
+    fields: { name: 'pilot' },
+    provenance: { quote: 'name: pilot', file: '.claude/agents/pilot.md' },
+  };
+  const at = { id: 'contract_alone.subagent.harbour.helper-pilot' };
+
+  it('holds the task and the seeded files as its one case, and the agent file as the target', () => {
+    const made = helperUnitTestOf(
+      helper,
+      { task: 'Berth the Aster.', files: { 'log/aster.txt': 'Aster, 40 m' } },
+      'hash',
+      'unit.contract_alone.pilot',
+      at,
+    );
+    if (typeof made === 'string') throw new Error(made);
+    expect(made.target).toEqual({ kind: 'subagent', name: 'pilot', file: '.claude/agents/pilot.md' });
+    expect(made.testType).toBe('contract_alone');
+    expect(made.cases).toEqual([
+      {
+        id: 'case-01',
+        payload: { task: 'Berth the Aster.', files: { 'log/aster.txt': 'Aster, 40 m' } },
+        material: 'Berth the Aster.',
+      },
+    ]);
+    expect(made.cases[0]?.expected).toBeUndefined();
+  });
+
+  it('says why a helper with no agent file or no task has none', () => {
+    expect(
+      helperUnitTestOf({ ...helper, provenance: { quote: 'x' } }, { task: 'Go.', files: {} }, 'h', 'i', at),
+    ).toMatch(/no helper with an agent file/);
+    expect(helperUnitTestOf(helper, { task: '  ', files: {} }, 'h', 'i', at)).toMatch(/no task/);
   });
 });

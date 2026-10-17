@@ -1,7 +1,9 @@
 export {
   casesFromSource,
   ESTATE_CONFIG_FILE,
+  type HelperObservation,
   neutral,
+  observeHelper,
   observeUnitTests,
   outcomeOf,
   runUnitTests,

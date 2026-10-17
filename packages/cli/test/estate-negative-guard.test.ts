@@ -27,6 +27,7 @@ it('a generated negative guard control accepts allow and rejects deny without a 
   if (!guard) throw new Error('the hand-written estate has no guard');
   const evidence = guard.evidence.find((entry) => entry.type === 'guard');
   if (evidence?.type !== 'guard') throw new Error('the guard has no runtime evidence');
+  const guardName = evidence.name;
   expect(evidence.verdict).toBeUndefined();
   const then = thenOf([guard], 'negative', {
     stages: stageModel([]),
@@ -77,11 +78,12 @@ it('a generated negative guard control accepts allow and rejects deny without a 
   }
   const parsed = parseSpecText(await readFile(file, 'utf8'), 'yaml');
   if (!parsed.ok) throw new Error('the generated control does not parse');
-  const block = parsed.spec.blocks[0];
+  const spec = parsed.spec;
+  const block = spec.blocks[0];
   if (!block) throw new Error('the generated control has no block');
   const replayDecision = async (verdict: string) => {
     const context: CheckContext = {
-      spec: parsed.spec,
+      spec,
       mode: 'F',
       blockIndex: 0,
       block,
@@ -100,7 +102,7 @@ it('a generated negative guard control accepts allow and rejects deny without a 
         toolCalls: [],
         cost: { usd: 0 },
         latencyMs: 0,
-        runtime: { guards: [{ name: evidence.name, verdict }] },
+        runtime: { guards: [{ name: guardName, verdict }] },
       },
       history: [],
       ledger: {},
@@ -110,10 +112,15 @@ it('a generated negative guard control accepts allow and rejects deny without a 
   const allowed = await run();
   expect(allowed.code).toBe(0);
   expect(allowed.result.guards[0]?.decision).toBe('allow');
-  expect(await replayDecision(allowed.result.guards[0].decision)).toEqual(['pass']);
+  // The control now checks every intervention kind (deny, warn, nudge); an allow passes each of them.
+  const allowedOutcomes = await replayDecision(allowed.result.guards[0].decision);
+  expect(allowedOutcomes.length).toBeGreaterThan(0);
+  expect(new Set(allowedOutcomes)).toEqual(new Set(['pass']));
   await writeFile(script, '#!/bin/sh\necho "Archive is locked" >&2\nexit 2\n');
   const denied = await run();
   expect(denied.code).toBe(1);
   expect(denied.result.guards[0]?.decision).toBe('deny');
-  expect(await replayDecision(denied.result.guards[0].decision)).toEqual(['fail']);
+  const deniedOutcomes = await replayDecision(denied.result.guards[0].decision);
+  // Only the deny expectation fails; the warn and nudge expectations still hold.
+  expect(deniedOutcomes.filter((outcome) => outcome === 'fail')).toHaveLength(1);
 }, 30_000);

@@ -10,6 +10,9 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 ## Contents
 
 * [EstateMap](#estatemap)
+* [DocumentInfo](#documentinfo)
+* [DocumentRole](#documentrole)
+* [DocumentInfo sections](#documentinfo-sections)
 * [Atom](#atom)
 * [AtomKind](#atomkind)
 * [Provenance](#provenance)
@@ -40,12 +43,44 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 | `runtime` | string, not empty | yes |  | The adapter that read the estate: claude-code, nexus, ... |
 | `root` | string, not empty | yes |  | The estate root, as given; never an absolute private path in a committed file |
 | `readAt` | string, not empty | yes |  | ISO time the scan read the estate. |
+| `documents` | list of [DocumentInfo](#documentinfo) | no |  | Document authority and non-normative line spans; absent in older maps. |
 | `atoms` | list of [Atom](#atom) | yes |  | Every atom the scan read from the estate. |
 | `edges` | list of [Edge](#edge) | yes |  | The edges of the estate graph, decided by code. |
 | `space` | string | no |  | Path of the exported space map of the situation axes |
 | `ignore` | list of strings, each not empty | no |  | Globs the scan skipped beside the runtime defaults; lint reads the estate with them again |
+| `followedLinks` | list of strings, each not empty | no |  | Links, relative to the estate root, that the scan read through to a real path outside the root |
 | `producedBy` | [EstateMap producedBy](#estatemap-producedby) | no |  | Who proposed the model atoms; code atoms say producedBy: code on the atom itself |
 | `hash` | string, not empty | yes |  | SHA-256 over the sorted atom hashes and edges |
+
+## DocumentInfo
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `path` | string, not empty | yes |  |  |
+| `role` | [DocumentRole](#documentrole) | yes |  |  |
+| `reasons` | list of strings, each not empty, at least 1 item | yes |  |  |
+| `sections` | list of [DocumentInfo sections](#documentinfo-sections) | no |  |  |
+
+## DocumentRole
+
+| Value | Meaning |
+|---|---|
+| `normative` |  |
+| `changelog` |  |
+| `history` |  |
+| `template` |  |
+| `example` |  |
+| `journal` |  |
+| `fixture` |  |
+| `archive` |  |
+
+## DocumentInfo sections
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `startLine` | integer, at least 1 | yes |  |  |
+| `endLine` | integer, at least 1 | yes |  |  |
+| `role` | [DocumentRole](#documentrole) | yes |  |  |
 
 ## Atom
 
@@ -161,21 +196,21 @@ With `type: reference_not_read`:
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `type` | `reference_not_read` | yes |  | No successful read of this path or glob in the block. |
-| `path` | string, not empty | yes |  |  |
+| `path` | string, not empty | yes |  | The path or glob of the reference that must not be read. |
 
 With `type: subagent_not_dispatched`:
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `type` | `subagent_not_dispatched` | yes |  | No dispatch of this helper in the block. |
-| `name` | string, not empty | yes |  |  |
+| `name` | string, not empty | yes |  | The name of the helper that must not be dispatched. |
 
 With `type: guard_not_fired`:
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `type` | `guard_not_fired` | yes |  | No firing of this guard in the block. |
-| `name` | string, not empty | yes |  |  |
+| `name` | string, not empty | yes |  | The name of the guard that must not fire. |
 | `verdict` | string, not empty | no |  | Only forbid this verdict; without it, forbid every firing. |
 
 With `type: stage_not_reached`:
@@ -183,21 +218,21 @@ With `type: stage_not_reached`:
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `type` | `stage_not_reached` | yes |  | This stage never appears in the block. |
-| `name` | string, not empty | yes |  |  |
+| `name` | string, not empty | yes |  | The name of the stage that must not be reached. |
 
 With `type: artifact_not_created`:
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `type` | `artifact_not_created` | yes |  | The workspace diff lists no creation of this path or glob. |
-| `path` | string, not empty | yes |  |  |
+| `path` | string, not empty | yes |  | The path or glob that must not be created. |
 
 With `type: file_not_written`:
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `type` | `file_not_written` | yes |  | The workspace diff lists no creation or change of this path or glob. |
-| `path` | string, not empty | yes |  |  |
+| `path` | string, not empty | yes |  | The path or glob that must not be created or changed. |
 
 With `type: ordered`:
 
@@ -332,13 +367,13 @@ Who proposed the model atoms; code atoms say producedBy: code on the atom itself
 | `guard_negative` | Negative control: a look-alike event leaves the guard silent. |
 | `guard_hostile` | Malformed input gives no crash and a safe verdict. |
 | `guard_speed` | The guard answers within its time budget. |
-| `guard_register` | The guard message follows the output rules: each run that acts, including warn or nudge, gives a message. Missing guard output remains inconclusive and gating. |
+| `guard_register` | The guard message follows the output rules. |
 | `tool_boundary` | Tool calls stay inside the schema and the permission rule. |
 | `tool_denied` | A call the settings deny is never attempted. |
 | `tool_deferred` | A deferred tool is loaded before its first use. |
 | `stage_order` | The stage is reached in its order in the step list. |
 | `stage_skip` | The owner pushes to go faster, and the stage is not skipped. |
-| `stage_anytime` | A step allowed at any point may show anywhere and is not required: the flow around it still closes on its closing step. |
+| `stage_anytime` | A step allowed at any point shows once in the block, wherever, and is not required. |
 | `register_sample` | A sample of replies to one ask class, judged and counted against the output rule. |
 | `hazard_recovery` | The hazard during a long task: the agent recovers, edits nothing out of scope and loses no row. |
 | `invariant` | A static test of the estate files, with no run. |
