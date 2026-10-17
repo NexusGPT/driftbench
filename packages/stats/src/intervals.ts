@@ -55,13 +55,16 @@ export function zeroFailureBound(p: number, alpha = 0.05): number {
 
 /** The design effect 1 + (m - 1) rho for clusters of size m with intraclass correlation rho. */
 export function designEffect(m: number, rho: number): number {
-  if (!(m >= 1)) throw new RangeError(`designEffect: cluster size must be at least 1, got ${m}`);
+  if (!(Number.isFinite(m) && m >= 1)) throw new RangeError(`designEffect: cluster size must be at least 1, got ${m}`);
   if (!(rho >= -1 && rho <= 1)) throw new RangeError(`designEffect: rho must lie in [-1, 1], got ${rho}`);
   return 1 + (m - 1) * rho;
 }
 
 /** The effective number of independent units: n divided by the design effect. */
 export function effectiveSampleSize(n: number, m: number, rho: number): number {
+  if (!Number.isFinite(n) || n < 0) {
+    throw new RangeError(`effectiveSampleSize: n must be finite and at least 0, got ${n}`);
+  }
   return n / designEffect(m, rho);
 }
 

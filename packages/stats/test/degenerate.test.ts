@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ksTest, mean, wilcoxonSignedRank, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
+import { designEffect, effectiveSampleSize, ksTest, mean, wilcoxonSignedRank, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
 
 const bad = [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
 
@@ -74,5 +74,23 @@ describe('wilcoxonSignedRank refuses a non-finite value', () => {
   });
   it('still answers on ordinary input', () => {
     expect(wilcoxonSignedRank(x, x.map((v) => v + 0.5)).pValue).toBeLessThan(0.05);
+  });
+});
+
+describe('designEffect and effectiveSampleSize refuse non-finite input', () => {
+  it('designEffect throws a RangeError on an infinite or NaN cluster size or rho', () => {
+    expect(() => designEffect(Number.POSITIVE_INFINITY, 0.1)).toThrow(RangeError);
+    expect(() => designEffect(Number.NaN, 0.1)).toThrow(RangeError);
+    expect(() => designEffect(4, Number.NaN)).toThrow(RangeError);
+  });
+  it('effectiveSampleSize throws a RangeError on an infinite or NaN n, m or rho', () => {
+    expect(() => effectiveSampleSize(Number.POSITIVE_INFINITY, 4, 0.1)).toThrow(RangeError);
+    expect(() => effectiveSampleSize(Number.NaN, 4, 0.1)).toThrow(RangeError);
+    expect(() => effectiveSampleSize(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, 0.1)).toThrow(RangeError);
+    expect(() => effectiveSampleSize(100, 4, Number.NaN)).toThrow(RangeError);
+  });
+  it('still answers on ordinary input', () => {
+    expect(designEffect(5, 0.25)).toBe(2);
+    expect(effectiveSampleSize(100, 5, 0.25)).toBe(50);
   });
 });
