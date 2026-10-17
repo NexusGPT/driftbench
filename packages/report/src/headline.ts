@@ -106,10 +106,14 @@ export function suiteHeadline(
   // and count, whatever trees inside it were measured.
   const runs = scoredRuns(all);
   if (runs.length === 0) return undefined;
-  const linked = runs.some((run) => run.blocks.some((block) => block.parent !== undefined));
+  // A run is read as a forest when its spec has parent links or one of its blocks names a parent: a subset
+  // run that recorded only roots still belongs to those roots, not to the golden as a whole.
+  const forest = (run: RunResult) =>
+    options.parentsOf?.(run) !== undefined || run.blocks.some((block) => block.parent !== undefined);
+  const linked = runs.some(forest);
   const samples = new Map<string, boolean[]>();
   for (const run of runs) {
-    if (!run.blocks.some((block) => block.parent !== undefined)) {
+    if (!forest(run)) {
       const key = treeOf(run);
       samples.set(key, [...(samples.get(key) ?? []), runPassed(run)]);
       continue;
