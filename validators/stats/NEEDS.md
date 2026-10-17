@@ -404,3 +404,11 @@ A random differential test of the 57 exports (about 12,000 cases against scipy, 
 Measured both ways. On the commit the sweep ran on, 14 of 14 fail. On that commit plus the six open pull requests of the lead's stats-fix lane (#699 hillNumber, #702 normalQuantile, #703 alpha complement, #707 log prefactor, #700 ksTest tail, #709 betaQuantile tails), 14 of 14 pass. #740 (erfc limits) is a separate fix whose items are the `sibling` and `valid-odd` items of batch 9.
 
 The floor of the ladder stays at the level of the pilot. These items are written to fail until the fixes land; until then the bank on `main` is 14 items short of 100 percent, which is the point: the fixes are the work.
+
+## Batch 11: four statistics the docs now define and the package lacks
+
+`docs/concepts/statistics.md` gains a section "Planned: four statistics the pages already lean on", written before any item: `holm` (family-wise control for a gate on several criteria), `sampleSizeForEffect` (the inverse of `mde`; the README promises that the gate says how many conversations a suite needs), `kappaInterval` (judge calibration prints a kappa with no interval on it) and `mcnemarMidP` (the exact test `compare` prints cannot reach 0.05 at five discordant pairs). Each has its definition on the page, an oracle in Python (`make_exact_capabilities.py`: exact rationals and scipy) and 32 items in all, in the family `exact-estimators`. The four functions do not exist, so the items fail with the signature to add and the page that defines them; there are four causes.
+
+The oracles were checked against an independent implementation written in TypeScript in a scratch file (not in the package): 32 of 32 pass, so an executor who writes the functions from the page gets green items.
+
+This is the honest size of capability growth. The statistics the pages lean on and the package lacks number four, not a hundred; the 155 quarantined methods have no page that needs them (batch 1 to 5), and adding them would be the padding section 12.1 rules out.

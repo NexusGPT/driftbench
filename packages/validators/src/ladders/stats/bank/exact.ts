@@ -99,6 +99,8 @@ export type Spec = {
   /** Calls the function on a case; returns what to compare with `c.expected`. */
   call: (s: StatsImpl, c: Row, root: string) => unknown | Promise<unknown>;
   budgetMs?: number;
+  /** What to tell an executor when the function does not exist yet: its signature and the page that defines it. */
+  missing?: string;
 };
 
 export const SRC = 'packages/stats/src';
@@ -201,6 +203,8 @@ export function exactItem(spec: Spec): BankItem {
       for (const [i, c] of cases.entries()) {
         const got = await attemptAsync(async () => spec.call(s, c, root));
         if (got.error) {
+          if (spec.missing && got.error.message.includes('is not exported'))
+            return fail(`${spec.fn} does not exist in @agent-nexus/driftbench-stats. ${spec.missing}`);
           misses.push(`case ${i} threw ${got.error.name}: ${got.error.message}`);
           continue;
         }

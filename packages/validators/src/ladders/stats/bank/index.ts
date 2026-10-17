@@ -6,6 +6,7 @@ import { degenerateItems } from './degenerate';
 import { designBoundItems, edgeItems, ruleItems } from './edges';
 import { exactItems } from './exact';
 import { branchItems } from './exact-branches';
+import { capabilityItems } from './exact-capabilities';
 import { defectItems } from './exact-defects';
 import { attempt, BANK_LEVELS, type BankItem, type BankLevel, type ItemOutcome, itemRng } from './item';
 import { productItems } from './product';
@@ -66,6 +67,7 @@ export function statsBank(root: string): BankItem[] {
     ...branchItems(),
     ...sourceGuardItems(),
     ...defectItems(),
+    ...capabilityItems(),
     ...edgeItems(root),
     ...designBoundItems(),
     ...ruleItems(),
