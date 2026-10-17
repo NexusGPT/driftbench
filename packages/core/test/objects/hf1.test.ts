@@ -16,6 +16,7 @@ import {
   parseSpecText,
   resolveGiven,
   Spec,
+  specIdentity,
   Uses,
 } from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -126,9 +127,10 @@ describe('HF1: backward compatibility over examples/', () => {
     const differs: string[] = [];
     for (const entry of loaded) {
       const legacy = Legacy.parse(entry.spec);
-      if (contentHash(legacy) !== entry.hash) differs.push(`${entry.file}: spec hash`);
-      const { version: _version, ...unlabelled } = entry.spec;
-      // Main's cache-key rule was the spec without its version label.
+      // Main's hash rule reads the spec through specIdentity (links and provenance stay out of it).
+      if (contentHash(specIdentity(legacy)) !== entry.hash) differs.push(`${entry.file}: spec hash`);
+      const { version: _version, ...unlabelled } = specIdentity(entry.spec);
+      // Main's cache-key rule was the spec identity without its version label.
       if (cacheSpecHash(entry.spec) !== contentHash(unlabelled))
         differs.push(`${entry.file}: cache spec hash`);
     }
