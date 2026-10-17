@@ -190,6 +190,38 @@ function slug(title: string): string {
   return base === '' ? 'section' : base;
 }
 
+/**
+ * The longest stretch from `origin` that another place in the text repeats: the largest common prefix of the
+ * text from `origin` (up to `end`) and the text from any other position. One pass of the Z algorithm over the
+ * stretch followed by the text, so the cost is linear in the text.
+ */
+function longestRepeat(text: string, origin: number, end: number): number {
+  const length = end - origin;
+  const codes = new Int32Array(length + 1 + text.length);
+  for (let i = 0; i < length; i++) codes[i] = text.charCodeAt(origin + i);
+  codes[length] = -1;
+  for (let i = 0; i < text.length; i++) codes[length + 1 + i] = text.charCodeAt(i);
+  const z = new Int32Array(codes.length);
+  let left = 0;
+  let right = 0;
+  for (let i = 1; i < codes.length; i++) {
+    let k = i < right ? Math.min(right - i, z[i - left] ?? 0) : 0;
+    while (i + k < codes.length && codes[k] === codes[i + k]) k++;
+    z[i] = k;
+    if (i + k > right) {
+      left = i;
+      right = i + k;
+    }
+  }
+  let longest = 0;
+  for (let p = 0; p < text.length; p++) {
+    if (p === origin) continue;
+    const common = z[length + 1 + p] ?? 0;
+    if (common > longest) longest = common;
+  }
+  return longest;
+}
+
 /** The shortest prefix of the section's body (at least 24 units, or all of it) found once in the text. */
 function uniqueQuote(text: string, start: number, end: number): { quote: string; at: number } | undefined {
   let from = start;
@@ -198,10 +230,13 @@ function uniqueQuote(text: string, start: number, end: number): { quote: string;
   if (newline >= 0 && newline + 1 < end && /^#{1,6}\s/.test(text.slice(start, newline))) from = newline + 1;
   while (from < end && /\s/.test(text[from] ?? '')) from++;
   for (const origin of from < end ? [from, start] : [start]) {
-    for (let length = Math.min(24, end - origin); origin + length <= end; length++) {
-      const quote = text.slice(origin, origin + length);
-      if (quote.trim() !== '' && count(text, quote).length === 1) return { quote, at: origin };
-    }
+    const room = end - origin;
+    // A prefix is unique once it is longer than every repeat of the text from here, and it needs a visible character.
+    let visible = 0;
+    while (visible < room && /\s/.test(text[origin + visible] ?? '')) visible++;
+    if (visible >= room) continue;
+    const length = Math.max(Math.min(24, room), visible + 1, longestRepeat(text, origin, end) + 1);
+    if (length <= room) return { quote: text.slice(origin, origin + length), at: origin };
   }
   return undefined;
 }
