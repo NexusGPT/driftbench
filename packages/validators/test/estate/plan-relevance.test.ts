@@ -134,20 +134,27 @@ describe('the 13 relations, each from what the generator planted', () => {
     expect(ids('output', t)).toEqual(['rule:reg', 'rule:text']);
   });
 
-  it('outside data: a read, a search or a fetch by a rule, and an order that starts with a read; a Bash call or another order is not', () => {
+  it('outside data: a read, a search or a fetch by a rule, and a gate whose line names a file to read; a Bash call, an order of acts alone (read before edit) or another order is not', () => {
     const t = truth({
       atoms: [
         ['gate:skill', 'gate'],
         ['rule:readgate', 'gate'],
         ['rule:ordered', 'gate'],
+        ['rule:readbeforeedit', 'gate'],
         ['rule:fetch', 'instruction'],
         ['rule:bash', 'instruction'],
         ['tool:allow:Read', 'tool'],
       ],
       rules: [
-        { hid: 'gate:skill', kind: 'gate', evidence: [{ type: 'ordered', before: 'Read' }] },
+        {
+          hid: 'gate:skill',
+          kind: 'gate',
+          evidence: [{ type: 'ordered' }, { type: 'tool_called', label: 'Read' }],
+        },
         { hid: 'rule:readgate', kind: 'gate', evidence: [{ type: 'tool_called', label: 'Read' }] },
-        { hid: 'rule:ordered', kind: 'gate', evidence: [{ type: 'ordered', before: 'verify' }] },
+        { hid: 'rule:ordered', kind: 'gate', evidence: [{ type: 'ordered' }] },
+        // Read before edit, with no file to read: an order of acts, not a read of data.
+        { hid: 'rule:readbeforeedit', kind: 'gate', evidence: [{ type: 'ordered' }] },
         { hid: 'rule:fetch', kind: 'instruction', evidence: [{ type: 'tool_called', label: 'WebFetch' }] },
         { hid: 'rule:bash', kind: 'instruction', evidence: [{ type: 'tool_called', label: 'Bash' }] },
       ],
@@ -395,6 +402,7 @@ describe('hand-written plans: a correct plan passes, a cross-everything plan fai
       ['rule:text', 'instruction'],
       ['gate:skill', 'gate'],
       ['rule:gate', 'gate'],
+      ['rule:readbeforeedit', 'gate'],
       ['tool:allow:WebFetch', 'tool'],
       ['guard:stop', 'guard'],
       ['rule:stop', 'instruction'],
@@ -411,7 +419,12 @@ describe('hand-written plans: a correct plan passes, a cross-everything plan fai
     ],
     rules: [
       { hid: 'rule:text', kind: 'instruction', evidence: [{ type: 'text' }] },
-      { hid: 'gate:skill', kind: 'gate', evidence: [{ type: 'ordered', before: 'Read' }] },
+      {
+        hid: 'gate:skill',
+        kind: 'gate',
+        evidence: [{ type: 'ordered' }, { type: 'tool_called', label: 'Read' }],
+      },
+      { hid: 'rule:readbeforeedit', kind: 'gate', evidence: [{ type: 'ordered' }] },
       { hid: 'rule:gate', kind: 'gate', evidence: [{ type: 'tool_called', label: 'Read' }] },
       { hid: 'rule:restart', kind: 'instruction', hazard: 'restart', scope: 'restart', evidence: [] },
       { hid: 'rule:compact', kind: 'instruction', hazard: 'compaction', scope: 'compaction', evidence: [] },
@@ -436,7 +449,7 @@ describe('hand-written plans: a correct plan passes, a cross-everything plan fai
       'route:h',
     ],
     'instruction-in-data': ['gate:skill', 'rule:gate'],
-    'loose-confirmation': ['gate:skill', 'rule:gate'],
+    'loose-confirmation': ['gate:skill', 'rule:gate', 'rule:readbeforeedit'],
     'rate-wave': ['script:s', 'helper:h', 'tool:allow:WebFetch'],
     'process-restart': ['rule:restart'],
     compaction: ['rule:compact'],
@@ -444,7 +457,7 @@ describe('hand-written plans: a correct plan passes, a cross-everything plan fai
     'after-restart': ['rule:restart'],
     resumed: ['rule:stop'],
     'stop-signal': ['guard:stop', 'rule:stop'],
-    'no-questions': ['gate:skill', 'rule:gate'],
+    'no-questions': ['gate:skill', 'rule:gate', 'rule:readbeforeedit'],
     'goal-shift': ['route:h', 'route:k', 'skill:k'],
     'off-topic': ['route:h', 'route:k', 'skill:k'],
     'out-of-scope': ['route:h', 'route:k', 'skill:k'],
@@ -514,6 +527,20 @@ describe('hand-written plans: a correct plan passes, a cross-everything plan fai
       rowsFor(() => ['ref:d']),
     );
     for (const { key } of CASES) expect(wrong[key]?.pass, key).toBe(false);
+  });
+
+  it('fails the weak form: a gate that is only read-before-edit (no file to read) crossed with the instruction in data', async () => {
+    const rows = [{ atom: 'rule:readbeforeedit', dimension: 'deviation', value: 'D6_instruction_in_data' }];
+    const out = await judge(t, rows);
+    expect(out['instruction-in-data'], out['instruction-in-data']?.detail).toMatchObject({ pass: false });
+    // The gate that names a file to read, and a rule that calls a data tool, are targets of it.
+    for (const atom of ['gate:skill', 'rule:gate'])
+      expect(
+        (await judge(t, [{ atom, dimension: 'deviation', value: 'D6_instruction_in_data' }]))[
+          'instruction-in-data'
+        ],
+        atom,
+      ).toMatchObject({ pass: true });
   });
 
   it('passes a plan that keeps a situation as a row with no atom when no atom holds its relation', async () => {
@@ -623,6 +650,59 @@ describe('independence: a planner that reads the map perfectly is caught when on
         const item = out.get(`plan.relevance.${key}`);
         if (own === relation) expect(item?.pass, `${key}: ${item?.detail}`).toBe(false);
         else expect(item?.pass, `${key}: ${item?.detail}`).toBe(true);
+      }
+    },
+  );
+
+  it.each([1, 4])(
+    'seed %i: crossing D6 only with the read-before-edit gate fails (the weak form)',
+    async (seed) => {
+      const run = await pipeline.estateRun(seed);
+      const gate = [...run.scanned.match.hidOf].find(([, hid]) => hid === 'rule:read-before-edit')?.[0];
+      if (!gate) throw new Error('the estate has no read-before-edit gate');
+      const base = run.plan.plan.rows.find((row) => row.id.startsWith('pairwise.'));
+      if (!base) throw new Error('no pairwise row');
+      const weak = {
+        ...run,
+        plan: {
+          ...run.plan,
+          plan: {
+            ...run.plan.plan,
+            rows: [
+              ...run.plan.plan.rows.filter(
+                (row) => !(row.id.startsWith('pairwise.') && row.cell.deviation === 'D6_instruction_in_data'),
+              ),
+              {
+                ...structuredClone(base),
+                id: 'pairwise.weak',
+                atomIds: [gate],
+                cell: { deviation: 'D6_instruction_in_data' },
+              },
+            ],
+          },
+        },
+      } as pipeline.EstateRun;
+      const out = await verdicts(weak);
+      expect(out.get('plan.relevance.instruction-in-data'), `seed ${seed}`).toMatchObject({ pass: false });
+    },
+  );
+
+  it.each([1, 2, 4])(
+    'seed %i: no relation allows an atom the reviewed map-based oracle rejected',
+    async (seed) => {
+      const run = await pipeline.estateRun(seed);
+      const t = truthOf(run);
+      const map = run.scanned.map;
+      const planted = plantedOfRun(run);
+      for (const relation of RELATIONS) {
+        const truthIds = [...plantedTargets(relation, t)].flatMap(
+          (hid) => run.scanned.match.idOf.get(hid) ?? [],
+        );
+        const reviewed = targetsOf(relation as never, map, planted);
+        expect(
+          truthIds.filter((id) => !reviewed.has(id)),
+          `${relation}, seed ${seed}`,
+        ).toEqual([]);
       }
     },
   );

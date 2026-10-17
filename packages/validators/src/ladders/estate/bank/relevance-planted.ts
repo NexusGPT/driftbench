@@ -43,7 +43,7 @@ export type Truth = {
     kind: string;
     hazard?: string;
     scope?: string;
-    evidence: ReadonlyArray<{ type: string; label?: string; before?: string }>;
+    evidence: ReadonlyArray<{ type: string; label?: string }>;
   }>;
   /** The guards, with the event each runs on. */
   guards: ReadonlyArray<{ hid: string; event: string }>;
@@ -97,15 +97,10 @@ export function plantedTargets(relation: Relation, truth: Truth): Set<string> {
         if (rule.get(hid)?.evidence.some((e) => e.type === 'text')) out.add(hid);
       break;
     case 'data':
-      // A rule whose planted evidence is a read of outside data, or an order that starts with one (read before edit).
-      for (const hid of ofKind('gate', 'instruction'))
-        if (
-          called(hid, DATA_TOOLS) ||
-          rule
-            .get(hid)
-            ?.evidence.some((e) => e.type === 'ordered' && e.before !== undefined && DATA_TOOLS.has(e.before))
-        )
-          out.add(hid);
+      // A rule whose planted evidence is a call of a tool that brings outside data in. A gate whose line names a file to
+      // read carries that Read in its planted evidence (truthOf); an order of acts alone ("read before edit") is no read
+      // of data and is not enough.
+      for (const hid of ofKind('gate', 'instruction')) if (called(hid, DATA_TOOLS)) out.add(hid);
       break;
     case 'confirmation':
       for (const hid of ofKind('gate')) out.add(hid);
