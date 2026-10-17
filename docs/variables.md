@@ -10,7 +10,7 @@ Three sources feed it:
 | Past conversations | the values they show, and how often | counts and a hash of the private set, never a line of text |
 | The owner | a value that is missing, a combination that cannot occur, a weight | the owner's words and the day they said them |
 
-Status. Built: the format, a loader that checks it, the conversion from a space map and from a map proposal, the conversion back to a space map, and the check of every quote against its file. Not built yet: the readers that fill a store from an estate, from past conversations and from an interview; the ledger that gives the ids (the store checks only their shape); the planner and the generator reading a store; a command for the store. The `space` commands read a space map, and `variablesToSpaceMap` makes one from a store.
+Status. Built: the format, a loader that checks it, the conversion from a space map and from a map proposal, the conversion back to a space map, the check of every quote against its file, and the feed that fills a store from an estate map ([below](#from-an-estate)). Not built yet: the readers that fill a store from past conversations and from an interview; the planner and the generator reading a store; a command for the store. The `space` commands read a space map, and `variablesToSpaceMap` makes one from a store.
 
 ## The file
 
@@ -219,6 +219,37 @@ Three conversions connect the store to the two files it replaces.
 * `spaceMapToVariables(map)` turns a space map into a store. Each dimension becomes an approved axis, each constraint an approved one, and no entry has provenance or an author, because a space map says neither. The weights of the prior move onto the values they weigh. The store keeps one weight per value, so the weight a value wrote itself, when the prior also weighs its dimension, is the one thing not kept; a space command never read it. Everything else a space command reads is kept: converting back gives the same map.
 * `proposalToVariables(proposal)` turns the dimensions and constraints of a map proposal into a store. It keeps every field: the role, the flags, who proposed each entry (`produced_by`), the rule fields and the weight of each value, and the evidence of each entry as a `quote` with the path as the proposal wrote it, so write the store beside the proposal. The phrases, the relations and the numeric settings stay in the proposal. Rebuilding the dimensions and constraints from the store gives the proposal's own, for the approved Acme proposal and for the one nobody approved.
 * `variablesToSpaceMap(store, options)` turns a store into a space map: its approved axes, their values, weights and required flags, and the constraints whose values are all in the map. It returns the result of `validateSpaceMap`, so a store with no approved axis gives the error `SCHEMA_TOO_SMALL` on `dimensions`. With `approvedOnly: false` it keeps what is not approved. It does not add the value `none` to a deviation axis; the generator adds it when it builds the cells, as it does for a proposal.
+
+## From an estate
+
+`estateToVariables` (in `@agent-nexus/driftbench-estate`, the `variables` namespace) turns an estate map into a store. The estate map is the estate's proposal: each atom is a place that states behaviour, with its file, its line span and its quote, and `produced_by` says whether code or a model read it and `approved` whether a person did. The feed makes two kinds of variable:
+
+| Variable | Role | Values |
+|---|---|---|
+| `atoms.<kind>` for each atom kind that holds axis atoms | `axis`, kind `behaviour` | each atom |
+| `details.<kind>` for each kind that holds detail atoms | `detail`, kind `data` | each atom |
+| `condition.<subject>` for each condition a situation states with a number | `detail`, kind `data` | `above_N`, `at_N`, `below_N`, and the boundary between them with its `limit`, `comparison` and `unit` |
+
+The condition reader is a closed grammar, not a guess: one comparison phrase (`more than`, `over`, `above`, `less than`, `fewer than`, `under`, `below`, `at least`, `at most`, `no more than`, `up to`, `within`), then a number in digits or in words up to twenty and the round tens, then at most one unit word. A situation with no such phrase ("a tool failed twice in a row"), or with two, makes no variable. Two situations that state the same condition ("a credit note above 500.00 EUR waits for approval" and "... waits for the finance lead") make one variable with both quotes.
+
+A value stands on a quote or it is refused. The quote is the atom's own, its file is the path, and its ledger id is the id of the pointer unit that holds it (`pointer.nextLedger`, or a committed ledger when one is given, so the ids agree with an `estate scan --pointer` of the same estate). An atom is refused, named in `refused` with the reason, and left out of the store when:
+
+* its quote is empty or blank;
+* its quote is longer than 1,000 characters;
+* its file is not prose the pointer reader cuts (a script, a JSON file): it has no ledger unit and so no id;
+* no unit holds its quote, or the committed ledger no longer matches the text.
+
+The fixed situation axes of every estate (`ask_class`, `session_state` and the others) name no source and are not part of the feed. The result depends on the map and the ledger alone: `renderVariableStore` writes the same bytes for the same estate. The three invented estates of `examples/estates` have their stores beside their maps: `fixture/variables.yaml`, `fixture-v2/variables.yaml` and `reader-cases/variables.yaml`. Each validates, every quote is in its file, and every value carries a ledger id. The atoms the feed refuses in them are the ones read from JSON and scripts (guards, stages, tools, settings, invariants).
+
+```ts
+import { loadEstateMap, variables } from '@agent-nexus/driftbench-estate';
+
+const loaded = await loadEstateMap('examples/estates/fixture/approved.yaml');
+if (!loaded.ok) throw new Error('map refused');
+const texts = new Map([['CLAUDE.md', await readFile('examples/estates/fixture/CLAUDE.md', 'utf8')]]); // every file the atoms name
+const { store, refused } = variables.estateToVariables(loaded.map, variables.ledgerResolver(texts), { agent: 'northwind' });
+await writeFile('variables.yaml', variables.renderVariableStore(store));
+```
 
 ## Worked examples
 

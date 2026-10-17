@@ -61,6 +61,22 @@ describe.each(ESTATES)('the variable store of the $dir estate', ({ dir, map }) =
 });
 
 describe('the conditions the Northwind estates state', () => {
+  it('reads the two credit-note situations of the second version as one condition with both quotes', async () => {
+    const { result } = await feed('fixture-v2', 'map.yaml');
+    const credit = result.store.variables.filter((v) => v.id === 'condition.a_credit_note_above_500_00_eur');
+    expect(credit).toHaveLength(1);
+    expect(credit[0]?.boundaries?.[0]).toMatchObject({ limit: 500, comparison: 'gt', unit: 'eur' });
+    expect(credit[0]?.boundaries?.[0]?.provenance).toHaveLength(2);
+  });
+
+  it('reads the two credit-note situations of the second version as one condition with both quotes', async () => {
+    const { result } = await feed('fixture-v2', 'map.yaml');
+    const credit = result.store.variables.filter((v) => v.id === 'condition.a_credit_note_above_500_00_eur');
+    expect(credit).toHaveLength(1);
+    expect(credit[0]?.boundaries?.[0]).toMatchObject({ limit: 500, comparison: 'gt', unit: 'eur' });
+    expect(credit[0]?.boundaries?.[0]?.provenance).toHaveLength(2);
+  });
+
   it('reads the limit of the late shipment in the first version, and its change in the second', async () => {
     const first = (await feed('fixture', 'approved.yaml')).result.store.variables;
     const second = (await feed('fixture-v2', 'map.yaml')).result.store.variables;

@@ -1019,6 +1019,7 @@
       "transitionId": "value",
       "validateEstateMap": "value",
       "validatePlan": "value",
+      "variables": "value",
       "writeRetirements": "value"
     },
     "generate": {

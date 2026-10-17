@@ -14,7 +14,7 @@ describe('the condition reader: a closed grammar of comparisons with a number', 
     ['A mooring waits fewer than ten minutes', { comparison: 'lt', limit: 10, unit: 'minutes' }],
     ['A fee above 500', { comparison: 'gt', limit: 500 }],
   ])('reads %s', (text, expected) => {
-    expect(readCondition(text)).toEqual(expected);
+    expect(readCondition(text)).toMatchObject(expected);
   });
 
   it.each([
@@ -26,6 +26,17 @@ describe('the condition reader: a closed grammar of comparisons with a number', 
     'More than a few days',
   ])('reads nothing from %s: no number, or two comparisons, or no quantity', (text) => {
     expect(readCondition(text)).toBeUndefined();
+  });
+});
+
+describe('the subject of a condition is the words up to its number and unit', () => {
+  it.each([
+    ['A credit note above 500.00 EUR waits for approval', 'A credit note above 500.00 EUR'],
+    ['A shipment is late by more than two days', 'A shipment is late by more than two days'],
+    ['A reply is under 120 words, say the editors', 'A reply is under 120 words'],
+    ['A fee above 500 and a late fee', 'A fee above 500'],
+  ])('%s', (text, subject) => {
+    expect(readCondition(text)?.subject).toBe(subject);
   });
 });
 

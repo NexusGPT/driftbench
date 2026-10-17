@@ -117,6 +117,35 @@ describe('the estate feed keeps where each value comes from', () => {
     });
   });
 
+  it('keeps only approved atoms when asked, and every atom with its own flag otherwise', () => {
+    const map = mapOf([
+      atom({ quote: KEEPER, approved: true }),
+      atom({ quote: 'Never hand out a key without a signature.', approved: false }),
+    ]);
+    const all = estateToVariables(map, resolver()).store.variables.flatMap((variable) => variable.values);
+    const approved = estateToVariables(map, resolver(), { approvedOnly: true }).store.variables.flatMap(
+      (variable) => variable.values,
+    );
+    expect(all.map((value) => value.approved)).toEqual([true, false]);
+    expect(approved.map((value) => value.approved)).toEqual([true]);
+  });
+
+  it('gives no id from a committed ledger that no longer matches the text: the unit changed since it was written', () => {
+    const { ledger } = nextLedger(
+      [{ path: 'CLAUDE.md', cut: cut(HALL['CLAUDE.md'] as string) }],
+      undefined,
+      'estate',
+    );
+    for (const entry of ledger.entries) entry.fp = 'stale';
+    const result = estateToVariables(
+      mapOf([atom({ quote: KEEPER })]),
+      ledgerResolver(new Map(Object.entries(HALL)), { ledger }),
+    );
+    expect(result.refused.map((entry) => entry.reason)).toEqual([
+      'no ledger unit of CLAUDE.md holds the quote',
+    ]);
+  });
+
   it('carries the flags of the atom: approval, who proposed it, the role, the rule polarity', () => {
     const result = estateToVariables(
       mapOf([
