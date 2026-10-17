@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { designEffect, effectiveSampleSize, ksTest, mean, wilcoxonSignedRank, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
+import { chiSquareSf, designEffect, normalCdf, normalSf, effectiveSampleSize, ksTest, mean, wilcoxonSignedRank, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
 
 const bad = [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
 
@@ -108,5 +108,32 @@ describe('all-equal samples give the defined answer exactly (rule 3)', () => {
   it('mean and variance of ordinary values are unchanged', () => {
     expect(mean([1, 2, 3, 4])).toBe(2.5);
     expect(sampleVariance([1, 2, 3, 4])).toBeCloseTo(5 / 3, 12);
+  });
+});
+
+describe('normalCdf and chiSquareSf at the edge of their domain (rule 2)', () => {
+  it('normalCdf gives the limits at infinity and NaN for NaN', () => {
+    expect(normalCdf(Number.POSITIVE_INFINITY)).toBe(1);
+    expect(normalCdf(Number.NEGATIVE_INFINITY)).toBe(0);
+    expect(normalCdf(Number.NaN)).toBeNaN();
+    expect(normalSf(Number.POSITIVE_INFINITY)).toBe(0);
+    expect(normalSf(Number.NEGATIVE_INFINITY)).toBe(1);
+  });
+  it('chiSquareSf gives 0 at infinity, and NaN or a RangeError for a non-positive df', () => {
+    expect(chiSquareSf(Number.POSITIVE_INFINITY, 3)).toBe(0);
+    const bad = (f: () => number): boolean => {
+      try {
+        return Number.isNaN(f());
+      } catch (e) {
+        return e instanceof RangeError;
+      }
+    };
+    expect(bad(() => chiSquareSf(2, 0))).toBe(true);
+    expect(bad(() => chiSquareSf(2, -1))).toBe(true);
+    expect(bad(() => chiSquareSf(2, Number.NaN))).toBe(true);
+  });
+  it('ordinary values are unchanged', () => {
+    expect(normalCdf(0)).toBeCloseTo(0.5, 15);
+    expect(chiSquareSf(3.841458820694124, 1)).toBeCloseTo(0.05, 10);
   });
 });

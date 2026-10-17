@@ -138,11 +138,17 @@ export function erfc(x: number): number {
 
 /** Standard normal cumulative distribution function. */
 export function normalCdf(z: number): number {
+  if (Number.isNaN(z)) return Number.NaN;
+  if (z === Number.POSITIVE_INFINITY) return 1;
+  if (z === Number.NEGATIVE_INFINITY) return 0;
   return 0.5 * erfc(-z / Math.SQRT2);
 }
 
 /** Standard normal survival function, 1 - cdf, accurate in the upper tail. */
 export function normalSf(z: number): number {
+  if (Number.isNaN(z)) return Number.NaN;
+  if (z === Number.POSITIVE_INFINITY) return 0;
+  if (z === Number.NEGATIVE_INFINITY) return 1;
   return 0.5 * erfc(z / Math.SQRT2);
 }
 
@@ -195,7 +201,9 @@ export function normalQuantile(p: number): number {
 
 /** Survival function of the chi-square distribution with df degrees of freedom. */
 export function chiSquareSf(x: number, df: number): number {
+  if (Number.isNaN(x) || !(df > 0)) return Number.NaN;
   if (x <= 0) return 1;
+  if (x === Number.POSITIVE_INFINITY) return 0;
   return upperIncompleteGamma(df / 2, x / 2);
 }
 
