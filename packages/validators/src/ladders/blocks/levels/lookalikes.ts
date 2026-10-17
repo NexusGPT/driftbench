@@ -525,6 +525,8 @@ async function planted(
     const runtime = [
       ...(cause.runtime ?? []),
       ...Array.from({ length: cause.skill?.loads ?? 0 }, () => ({ type: 'skill' as const, name: skill })),
+      // The runtime reports a skills list: another skill loaded, so the expected one is absent, not unobserved.
+      ...(cause.skill ? [{ type: 'skill' as const, name: `o${token(seed, `${id}#other#${index}`)}` }] : []),
     ];
     actions.set(marker, {
       reply: cause.reply(file.path),
