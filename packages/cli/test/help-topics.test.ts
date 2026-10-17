@@ -395,11 +395,65 @@ describe('the red-team start topic matches the CLI', () => {
       expect(row, path).toBeDefined();
       const cells = (row as string)
         .split('|')
-        .slice(2, 5)
+        .slice(2, 6)
         .map((cell) => cell.trim());
       for (const code of shownExits(path)) {
         expect(cells[code], `${path}: exit ${code} is shown but its cell is empty`).not.toBe('');
       }
+    }
+  });
+
+  it('names every outcome redteam run prints, with a meaning for its exit code', async () => {
+    const outputs = section(body, 'Outputs and how to read them');
+    const exitRow = outputs.split('\n').find((line) => line.startsWith('| `redteam run` |')) ?? '';
+    const exitCells = exitRow
+      .split('|')
+      .slice(2, 6)
+      .map((cell) => cell.trim());
+    const scratch = mkdtempSync(join(tmpdir(), 'driftbench-help-redteam-outcomes-'));
+    try {
+      const fixture = JSON.parse(
+        readFileSync(join(ROOT, 'packages/cli/test/fixtures/redteam-crescendo.json'), 'utf8'),
+      ) as { turns: Record<string, unknown>[] };
+      // The shipped hand-written recording, then the same turns unscored, scored low and scored high.
+      const scored = (score: number | undefined) => ({
+        ...fixture,
+        turns: fixture.turns.map(({ gradingError: _error, scoredBy: _by, ...turn }) =>
+          score === undefined ? turn : { ...turn, score, scoredBy: 'recording' },
+        ),
+      });
+      const recordings: Record<string, unknown> = {
+        'shipped.json': fixture,
+        'unscored.json': scored(undefined),
+        'low.json': scored(1),
+        'high.json': scored(10),
+      };
+      const seen = new Set<string>();
+      for (const [name, recording] of Object.entries(recordings)) {
+        writeFileSync(join(scratch, name), JSON.stringify(recording));
+        const io = capture();
+        const code = await main(
+          [
+            'redteam',
+            'run',
+            'packages/cli/test/fixtures/redteam-acme.spec.json',
+            '--replay',
+            join(scratch, name),
+          ],
+          io,
+        );
+        const word = /^Red-team \w+: (\w+)\./.exec(io.stdout())?.[1] ?? '';
+        seen.add(word);
+        expect(outputs, `${name} prints ${word}; the outcome table should name it`).toContain(
+          `| \`${word}\` | \`redteam run\` |`,
+        );
+        expect(exitCells[code], `${name} prints ${word} and exits ${code}; that exit cell is empty`).not.toBe(
+          '',
+        );
+      }
+      expect([...seen].sort()).toEqual(['breached', 'grading_error', 'resisted', 'unscored']);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
     }
   });
 
