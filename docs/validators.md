@@ -328,6 +328,31 @@ Before merge (section 12): the 4-helper blind audit and the 10-round blind-fixer
 
 Run it: `pnpm driftbench validate blocks --seeds 1..3 --hidden`, and `--items` for the whole bank per family and tier.
 
+### 13.1 Scale budgets (family `scale`)
+
+A capability that reads a suite, a spec, a run or a workspace takes time linear in what it reads. Each scale item holds one capability to that, in CPU time (user plus system, never wall time), best of 3:
+
+* The item builds an input of a base size, measures the capability on it (`t1`), builds an input `m` times larger (`m` is 10 or 100) and measures again (`tm`).
+* The budget is `tm <= 4 * m * max(t1, 5 ms)`: linear growth with a factor 4 of slack, and a floor of 5 ms so timer noise on a very fast base never sets the budget. The item states the three numbers when it fails.
+* A first try over 5 times the budget ends the item there, so a quadratic product costs the item one slow try. The 100 times item first checks the 10 times input once for the same reason.
+* The answer must also be right at the larger size (counts, estimate, hash difference): a product that skips the work does not pass.
+* The input repeats a base input `m` times where an exact answer is known by construction, and is otherwise drawn from the seed with neutral tokens.
+
+| Capability | Base input | Grows with | Measured on |
+|---|---|---|---|
+| `validateSpec` on a conversation | 400 blocks | blocks | the loader |
+| `validateSpec` on a task | 400 blocks, one workspace file each | blocks and files | the loader |
+| `specHash` | 2,000 blocks | blocks | the spec hash |
+| `runSpec`, mode F | 25 blocks | blocks | the runner, one history |
+| `runSpec`, mode T | 25 blocks | blocks | the runner, one canonical Given per block |
+| `suiteHeadline` | 500 runs in 25 goldens | runs | the report |
+| `diffSnapshots` | 2,000 files | files | the sandbox |
+| `wilsonEffective` | 10,000 clusters | clusters | the statistics |
+| `hierarchicalBetaBinomial` | 1,000 trees | trees | the statistics |
+| `bootstrapCI` | 5,000 values in 50 clusters, fixed draws | values | the statistics |
+
+The budget is a property of the capability, not of one machine: it compares the product with its own time on the base input, so a slow runner moves both sides.
+
 ## Measurement cache during system sweeps
 
 A system sweep can invoke the statistics validator repeatedly with the same code and seed. Within that system command, these statistics sub-runs use a measurement cache keyed by the latest commit touching `packages/stats`, the statistics validator's source tree, the seed, the repository root and the full-run mode. Every system item still runs on every requested seed. Only an identical statistics sub-run can reuse its measured result.
