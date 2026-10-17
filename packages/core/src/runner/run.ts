@@ -22,7 +22,7 @@ import {
   Verdict,
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
-import { cloneJson, contentHash } from '../spec/hash';
+import { cloneJson } from '../spec/hash';
 import { specHash as specHashOf } from '../spec/identity';
 import { parentOrder } from '../spec/parents';
 import { type GivenFinding, verifyGiven } from '../spec/verify-given';
