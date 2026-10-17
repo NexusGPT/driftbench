@@ -9,6 +9,9 @@ import { FAKE, scratch } from './support';
  * The default fake agent gives each rule kind of an estate a behaviour: deleting a rule, or writing its opposite,
  * changes what the fake does. Every estate here is written by hand and names nothing of the bank.
  */
+// The fake agent module, imported by its URL: it is plain JavaScript with no type declarations.
+const AGENT = new URL('../../../../../examples/estates/fixture/live/fake/agent.mjs', import.meta.url).href;
+
 const cleanups: Array<() => Promise<void>> = [];
 afterEach(async () => {
   while (cleanups.length) await cleanups.pop()?.();
@@ -250,7 +253,7 @@ it('reads before the unit does its own work, and still stops when the later part
 });
 
 it('reads the standing file again after a compaction when the estate says so, and not otherwise', async () => {
-  const { planStream } = await import('../../../../../examples/estates/fixture/live/fake/agent.mjs');
+  const { planStream } = await import(AGENT);
   const files = (rule: string) => ({
     'CLAUDE.md': `# Rules\n\n- ${rule}\n`,
     '.claude/skills/parcel-lookup/SKILL.md': skill('parcel-lookup', '- Look parcels up.'),
@@ -429,7 +432,7 @@ it('does not remove a file under a folder the standing file forbids deleting fro
 });
 
 it('after a compaction reads every file the rule names, on each wording the scanner reads as a compaction', async () => {
-  const { planStream } = await import('../../../../../examples/estates/fixture/live/fake/agent.mjs');
+  const { planStream } = await import(AGENT);
   const reads = async (files: Record<string, string>) => {
     const dir = await estate({
       '.claude/skills/parcel-lookup/SKILL.md': skill('parcel-lookup', '- Look parcels up.'),
