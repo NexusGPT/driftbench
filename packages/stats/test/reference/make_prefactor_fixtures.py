@@ -144,6 +144,17 @@ for n in (51, 60, 101, 200, 1000, 5000, 100000, 1000000, 10000000):
             exact = binom_cdf(k, n, p)
             check(f"binom.cdf({k}, {n}, {p})", exact, float(stats.binom.cdf(k, n, p)))
             binom_cases.append(dict(k=k, n=n, p=p, expected=float(exact)))
+# n from 51 to 2000, where the term-by-term sum is still defensible: it carries about 1e-13 of logGamma error here
+mid_cases = []
+for n in (51, 60, 80, 120, 300, 700, 1000, 1500, 2000):
+    for p in (0.5, 0.01, 0.3, 0.9):
+        mean, sd = n * p, (n * p * (1 - p)) ** 0.5
+        for z in (-6, -3, -1, 0, 1, 3):
+            k = int(mean + z * sd)
+            if k < 0 or k >= n:
+                continue
+            mid_cases.append(dict(k=k, n=n, p=p, expected=float(binom_cdf(k, n, p))))
+
 # n = 1e9: the old loop over k terms takes about a minute here
 giant = []
 for z in (-1, 0):
@@ -158,7 +169,7 @@ for k in (0, 1, 2):
 mp.dps = 60
 bd0_cases = []
 for x in (1e8, 1e10):
-    for ratio in (0.5, 0.8, 0.9, 0.95, 0.99, 1.0, 1.01, 1.05, 1.1, 1.15, 1.3, 2.0):
+    for ratio in (0.0005, 0.01, 0.1, 0.3, 0.5, 0.8, 0.9, 0.95, 0.99, 1.0, 1.01, 1.05, 1.1, 1.15, 1.3, 1.6, 2.0, 3.0, 10.0, 50.0, 400.0):
         np_ = x * ratio
         value = mpf(x) * log(mpf(x) / mpf(np_)) + mpf(np_) - mpf(x)
         bd0_cases.append(dict(x=x, np=np_, expected=float(value)))
@@ -171,6 +182,7 @@ artifact = dict(
     chiSquareSf=chi_cases,
     binomialCdf=binom_cases,
     binomialCdfGiant=giant,
+    binomialCdfMid=mid_cases,
     bd0=bd0_cases,
 )
 out = Path(__file__).with_name("prefactor.json")
