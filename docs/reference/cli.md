@@ -1401,7 +1401,7 @@ driftbench compare --rank <campaigns...> --store <db> [--mode <modes>] [--json]
 
 `report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). `--config <file>` names the project config whose `aggregates:` it also scores; default `driftbench.yaml` in the working folder. `--withhold-incomplete` withholds the pass^k and pass@k value of a line with incomplete runs, instead of reporting it with the range of its missing outcomes; see [statistics](../concepts/statistics.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
 
-On the command line `report` prints, per mode, the suite headline: `Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.0 runs (design effect 3.87), detectable drop 66.4 points at 80% power.` It is the mean over goldens with the hierarchical Beta-Bernoulli interval, then the effective runs, the smallest drop two suites like it detect and the share of runs that did not complete. A rate over clustered runs elsewhere on the page prints its `n_eff` and design effect beside the Wilson interval. See [statistics](../concepts/statistics.md#the-suite-headline).
+On the command line `report` prints, per mode, the suite headline: `Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.3 runs (design effect 3.69), detectable drop 65.3 points at 80% power.` It is the mean over goldens with the hierarchical Beta-Bernoulli interval, then the effective runs, the smallest drop two suites like it detect and the share of runs that did not complete. A rate over clustered runs elsewhere on the page prints its `n_eff` and design effect beside the Wilson interval. See [statistics](../concepts/statistics.md#the-suite-headline).
 
 `compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Per criterion and for the all-pass flag it also prints three planning numbers: the floor (the smallest margin its goldens can show when nothing changed), the drop its goldens detect at 80% power, and the goldens a 10 point margin needs. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. The rule is on the [statistics](../concepts/statistics.md#the-campaign-verdict) page. The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
 
@@ -1460,7 +1460,7 @@ Runs the specs on a candidate target, then compares the new campaign with a base
 | `regressed` | `regression` | 1 | evidence of a drop: a new flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved |
 | `unproven` | `not-shown-non-inferior` | 1 | no evidence of a drop, but an interval is wider than the margin; this means too few goldens, never a regression |
 | none | `incomplete` | 1 | a candidate cell did not run (stopped by the budget, or pending) |
-| none | `not-run` | 3 | a spec of the candidate has more of its blocks not run (a Given the target cannot apply, see [running](../running.md#outcomes)) than `--max-not-run` allows, default 0. Not-run units are left out of the comparison and listed |
+| none | `not-run` | 3 | a spec of the candidate has more of its blocks not run (a Given the target cannot apply, see [running](../running.md#outcomes)) than `--max-not-run` allows, default 0, and compare finds no regression. Not-run units are left out of the comparison and listed. A regression wins over it, exit 1, so the verdict never depends on an unrelated spec not run; a golden that flipped while compare calls the change noise is no regression |
 
 Measured 2026-10-12 on the Acme golden suite (10 goldens) with the defaults:
 
@@ -1676,7 +1676,34 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 
 `driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved evidence quotes. It exits 0 when the manifest is written or printed, including a conservative whole-suite manifest, and 2 on invalid input. The separate `radius <specs> --change ...` command exits 1 when its computed radius is the whole suite. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
 
-`driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--json]` finds every section again in the new prompt and exits 1 when a section is stale, a change lies outside every section or sections changed order. See [prompt sections and block links](../concepts/blast-radius.md#prompt-sections-and-block-links).
+`driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--change-out <manifest>] [--json]` finds every section again in the new prompt, writes the `prompt_section` manifest with `--change-out`, and exits 1 when a section is stale, a change lies outside every section or sections changed order. `driftbench radius <specs> --change <manifest> --sections <registries...>` prints, after the radius, which blocks selection by section links would run; a `prompt_section` change keeps the radius the whole suite. `driftbench radius localize <specs> --store <file> --campaign <id> --sections <registries...> [--prompt <id>] [--mode <mode>] [--counting grouped|flat] [--top <n>] [--json]` ranks the local sections of a prompt by Ochiai suspiciousness from the campaign's block verdicts; it exits 0 with a ranking, 1 when nothing failed outside inherited failures, 2 on bad input. Defaults and exits of the section registry commands:
+
+* `radius sections init` makes one section for each heading of level 1 up to `--level` (a whole number from 1 to 6, default 2); a deeper heading belongs to the section above it. The text before the first heading is the section `preamble` when it is not empty. An id is the slugged title (lower case, letters and digits, other runs as `_`; a second section with the same slug gets `_2`). Every section is `global`. It prints the registry, or writes it with `--out`, and exits 0. It exits 2, writing nothing, for a `--level` outside 1 to 6, a prompt it cannot read, a prompt with no section, or a section in which no quote is unique in the prompt.
+* `radius sections check` exits 0 when every live section matches the prompt (the whole-text hash, each section's hash, span and anchor, no overlap; stale sections are not checked and are listed), 1 when the registry no longer describes the prompt, and 2 when the registry or the prompt cannot be read or the registry is invalid: it is not YAML or JSON, a field is missing or unknown, an id is used twice, or `references`, `overrides` or `duplicates` names a section that does not exist.
+* `radius sections reanchor` exits 0 when every section was found again in order and no text changed outside the sections, 1 otherwise (a stale section, text outside every section, or sections that changed order), and 2 when the registry is invalid, `--prompt` does not name exactly two files, or the registry does not describe the old prompt (its `text_sha256` differs from the old text). The statuses `kept`, `moved` and `stale` are in [re-anchoring a registry](../concepts/blast-radius.md#re-anchoring-a-registry).
+
+Example of a registry written by `radius sections init`, for a prompt with a preamble and the sections Tone, Refunds and Escalation:
+
+```text
+prompt_id: support
+version: v1
+normalisation: NFC; CRLF/CR->LF; offsets in UTF-16 code units; end exclusive
+text_sha256: 5a168ea21558287f0480ec217b789ad7925ff056bbf91a01bd3723d45ab8c344
+sections:
+  - id: preamble
+    title: preamble
+    scope: global
+    span: { start: 0, end: 45 }
+    sha256: db68cd6020275ff4d59ed333e3611bdcc32d044b8732e9f1f84badacd80d3675
+    anchor: { quote: "You are the support agen", prefix: "", suffix: "t of Harbour Freight.\n\n## Tone\nA" }
+  - id: tone
+    title: Tone
+    scope: global
+    span: { start: 47, end: 97 }
+    # sha256 and anchor as above
+```
+
+See [prompt sections and block links](../concepts/blast-radius.md#prompt-sections-and-block-links).
 
 ### `campaign rejudge`
 

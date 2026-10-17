@@ -32,12 +32,12 @@ describe('the README parent-blocks example', () => {
   it('is the runnable Acme checkout spec, word for word, and loads clean with its parent links', async () => {
     const readme = await readFile(`${ROOT}/README.md`, 'utf8');
     const spec = await readFile(`${ROOT}/${PARENTS}`, 'utf8');
-    const start = readme.indexOf('```yaml\nid: acme-parent-checkout');
+    const start = readme.indexOf('```yaml\n# file: checkout.spec.yaml\nid: acme-parent-checkout');
     expect(start, 'the README holds the example').toBeGreaterThan(0);
-    expect(readme.lastIndexOf('<summary>Parent blocks', start)).toBeGreaterThan(0);
+    expect(readme.lastIndexOf('<summary>See it in YAML</summary>', start)).toBeGreaterThan(0);
     const block = readme.slice(start + '```yaml\n'.length, readme.indexOf('\n```', start + 8)).trim();
-    expect(block).toBe(withoutComments(spec));
-    const loaded = parseSpecText(block, 'yaml');
+    expect(withoutComments(block)).toBe(withoutComments(spec));
+    const loaded = parseSpecText(withoutComments(block), 'yaml');
     expect(loaded.ok ? [] : loaded.errors).toEqual([]);
     if (!loaded.ok) return;
     expect(loaded.warnings).toEqual([]);
