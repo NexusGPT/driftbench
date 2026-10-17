@@ -302,6 +302,13 @@ function personaParentItems(): BankItem[] {
   for (const shape of SHAPES) {
     for (const order of shape.orders) {
       for (const view of VIEWS) {
+        // Kept only where the head fails it (keep rule, CI run 38997558384): when the asking branch runs last,
+        // no block of another branch comes after its reply, so the facts and the leak views cannot show.
+        if (
+          view.id !== 'conversation' &&
+          (order === 'reversed' || (shape.id === 'star' && order === 'shuffled' && view.id === 'leak'))
+        )
+          continue;
         const id = `cross/personas-parents/${shape.id}/${order}/${view.id}`;
         const forest = `a ${shape.id.replace(/-/g, ' ')} forest written ${order}`;
         items.push({
