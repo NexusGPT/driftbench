@@ -52,6 +52,8 @@ export type Action = {
   exit?: number;
   stderr?: string;
   stage?: string;
+  /** CODE: runtime events the agent reports (skills, guards with their verdict), before its stage. */
+  runtime?: { type: 'skill' | 'guard'; name: string; verdict?: string }[];
   /** CODE: paths the agent deletes, relative to the workspace. */
   deletes?: string[];
   /** CODE: symbolic links the agent makes, `path` pointing at `target` (relative to the link's folder or absolute). */
@@ -148,7 +150,7 @@ export function plantedAgent(
       commands: played.commands ?? [],
       exit: played.exit ?? 0,
       ...(played.stderr ? { stderr: played.stderr } : {}),
-      runtime: played.stage ? [{ type: 'stage', name: played.stage }] : [],
+      runtime: [...(played.runtime ?? []), ...(played.stage ? [{ type: 'stage', name: played.stage }] : [])],
     };
   }
   writeFileSync(planPath, JSON.stringify({ markers }));
