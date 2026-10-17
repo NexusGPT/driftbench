@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { betaQuantile, chiSquareSf, incompleteBeta, logGamma, designEffect, normalCdf, normalSf, effectiveSampleSize, ksTest, mean, wilcoxonSignedRank, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
+import { betaQuantile, cusum, chiSquareSf, incompleteBeta, logGamma, designEffect, normalCdf, normalSf, effectiveSampleSize, ksTest, mean, wilcoxonSignedRank, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
 
 const bad = [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
 
@@ -170,5 +170,23 @@ describe('logGamma, incompleteBeta and betaQuantile outside their domain (rule 2
     expect(nanOrThrow(() => betaQuantile(0.5, 0, 3))).toBe(true);
     expect(betaQuantile(0, 2, 3)).toBe(0);
     expect(betaQuantile(1, 2, 3)).toBe(1);
+  });
+});
+
+describe('cusum refuses options that are not finite or out of range', () => {
+  const series = [1, 2, 3, 2, 1];
+  it('throws a RangeError on a non-finite or negative sd, k, h, target or a bad warmup', () => {
+    expect(() => cusum(series, { sd: Number.POSITIVE_INFINITY })).toThrow(RangeError);
+    expect(() => cusum(series, { sd: Number.NaN })).toThrow(RangeError);
+    expect(() => cusum(series, { sd: 1, k: -0.5 })).toThrow(RangeError);
+    expect(() => cusum(series, { sd: 1, k: Number.NaN })).toThrow(RangeError);
+    expect(() => cusum(series, { sd: 1, h: Number.NaN })).toThrow(RangeError);
+    expect(() => cusum(series, { sd: 1, h: -1 })).toThrow(RangeError);
+    expect(() => cusum(series, { sd: 1, target: Number.NaN })).toThrow(RangeError);
+    expect(() => cusum(series, { warmup: 0 })).toThrow(RangeError);
+    expect(() => cusum(series, { warmup: 1.5 })).toThrow(RangeError);
+  });
+  it('still answers with valid options', () => {
+    expect(cusum(series, { sd: 1, target: 2 }).alarms).toEqual([]);
   });
 });

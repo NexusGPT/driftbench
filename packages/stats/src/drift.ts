@@ -39,6 +39,15 @@ export interface CusumResult {
 export function cusum(series: readonly number[], options: CusumOptions = {}): CusumResult {
   if (series.length === 0) throw new RangeError('cusum: empty series');
   const warmup = options.warmup ?? Math.min(20, series.length);
+  if (!Number.isInteger(warmup) || warmup < 1) {
+    throw new RangeError(`cusum: warmup must be a positive integer, got ${warmup}`);
+  }
+  if (options.target !== undefined && !Number.isFinite(options.target)) {
+    throw new RangeError(`cusum: target must be finite, got ${options.target}`);
+  }
+  if (options.sd !== undefined && !(Number.isFinite(options.sd) && options.sd > 0)) {
+    throw new RangeError(`cusum: sd must be finite and above 0, got ${options.sd}`);
+  }
   const head = series.slice(0, warmup);
   const target = options.target ?? mean(head);
   const sd = options.sd ?? Math.sqrt(sampleVariance(head));
@@ -46,6 +55,8 @@ export function cusum(series: readonly number[], options: CusumOptions = {}): Cu
   const k = options.k ?? 0.5;
   const h = options.h ?? 5;
   const reset = options.reset ?? true;
+  if (!(Number.isFinite(k) && k >= 0)) throw new RangeError(`cusum: k must be finite and at least 0, got ${k}`);
+  if (!(Number.isFinite(h) && h >= 0)) throw new RangeError(`cusum: h must be finite and at least 0, got ${h}`);
   const upper: number[] = [];
   const lower: number[] = [];
   const alarms: Alarm[] = [];
