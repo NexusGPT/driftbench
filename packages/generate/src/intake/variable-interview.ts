@@ -173,13 +173,19 @@ export async function interviewVariables(
         }
         if (reason.trim() === '') return no('give the reason the values never occur together');
         const known = draft.constraints.findIndex((constraint) =>
-          Object.entries(constraint.forbid).every(([name, wanted]) => forbid[name] === wanted),
+          Object.entries(constraint.forbid).every(
+            ([name, wanted]) => Object.hasOwn(forbid, name) && forbid[name] === wanted,
+          ),
         );
         if (known >= 0) {
           return no(`already ruled impossible by constraint ${known} (${draft.constraints[known]?.reason})`);
         }
         const candidate = structuredClone(draft);
         candidate.constraints.push(constraintOf(forbid, reason, owner(words)));
+        // The weights play no part in whether a situation is left: a half-weighted variable must not hide it.
+        for (const variable of candidate.variables) {
+          for (const value of variable.values) value.weight = undefined;
+        }
         const checked = validateVariableStore(candidate);
         if (!checked.ok && checked.errors.some((issue) => issue.code === 'VARIABLES_GRID_EMPTY')) {
           return no('that would leave no possible situation: the constraints would forbid every cell');
@@ -217,7 +223,7 @@ export async function interviewVariables(
         for (const name of Object.keys(weights)) {
           if (!ids.includes(name)) return no(`"${variable.id}" has no value "${name}"`);
         }
-        const missing = ids.filter((id) => !(id in weights));
+        const missing = ids.filter((id) => !Object.hasOwn(weights, id));
         if (missing.length > 0) return no(`give a weight to every value; missing: ${missing.join(', ')}`);
         for (const [name, weight] of Object.entries(weights)) {
           if (!Number.isFinite(weight) || weight < 0)
