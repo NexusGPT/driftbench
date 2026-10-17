@@ -127,7 +127,7 @@ export function windows(units: U2[], size: number): U2[][] {
   return [...byFile.values()].flatMap((us) => chunk(us, size));
 }
 
-export async function runVariant(ctx: Ctx, v: Variant, run: number, subset: U2[] = U, tag = ''): Promise<P2Run> {
+export async function runVariant(ctx: Ctx, v: Variant, run: number, subset: U2[] = U, tag = '', outName = 'results2'): Promise<P2Run> {
   const runId = `${v.id}${tag}-r${run}`;
   const planned = windows(subset, v.perWindow).map((w) => {
     const questions: Record<string, Question> = {};
@@ -137,7 +137,7 @@ export async function runVariant(ctx: Ctx, v: Variant, run: number, subset: U2[]
   });
   const rec = await execute(ctx, runId, planned, v.arm, v.desc, { variant: v.id }, {} as Probs);
   const out: P2Run = { runId, variant: v.id, arm: v.arm, desc: v.desc, calls: rec.calls, probs: rec.probs, asked: rec.asked, missing: rec.missing, wallMs: rec.wallMs };
-  mkdirSync(join(dir, 'results2'), { recursive: true });
-  writeFileSync(join(dir, 'results2', `${runId}.json`), JSON.stringify(out) + '\n');
+  mkdirSync(join(dir, outName), { recursive: true });
+  writeFileSync(join(dir, outName, `${runId}.json`), JSON.stringify(out) + '\n');
   return out;
 }

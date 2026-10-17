@@ -1,0 +1,2999 @@
+{
+ "note": "gold rules of gold3.json as spans: unitIds are leaf ids, in file order",
+ "rules": [
+  {
+   "id": "r74",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "6kwy5mgc74"
+   ],
+   "unitNumbers": [
+    8
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r1",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "2fztrwvivv",
+    "vay4bshxqt",
+    "e7ue3lwrk2",
+    "k6r3zp7dyh",
+    "pdo4csrsds"
+   ],
+   "unitNumbers": [
+    10,
+    11,
+    12,
+    13,
+    14
+   ],
+   "alignedNodeKind": "group",
+   "alignedNodeId": "c5uz5e2wfw",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r75",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "afkge7fbzw"
+   ],
+   "unitNumbers": [
+    15
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "dev"
+  },
+  {
+   "id": "r76",
+   "file": "standing-instructions.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "67mreoxg2t"
+   ],
+   "unitNumbers": [
+    21
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r2",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "gwfteldls6",
+    "32hbwrn3vk"
+   ],
+   "unitNumbers": [
+    22,
+    23
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "p2nhwm6ili",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r3",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "mwovjaicpz",
+    "okaazhsk6y"
+   ],
+   "unitNumbers": [
+    25,
+    26
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "x3yxw7mvuu",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r4",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "ck44ofwlgi",
+    "qml5ybhnl4"
+   ],
+   "unitNumbers": [
+    30,
+    31
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "in4mxjqs6q",
+   "contested": true,
+   "split": "dev"
+  },
+  {
+   "id": "r77",
+   "file": "standing-instructions.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "avh7f46okr"
+   ],
+   "unitNumbers": [
+    32
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r5",
+   "file": "standing-instructions.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "qrv2xr4qrh",
+    "yiwmsmo7mx"
+   ],
+   "unitNumbers": [
+    33,
+    34
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "vkg46ia7ha",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r6",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "pbljdqoilg",
+    "yjrnw34r2s"
+   ],
+   "unitNumbers": [
+    38,
+    39
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "yi4ibo2ihz",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r78",
+   "file": "standing-instructions.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "xhyk4zg75i"
+   ],
+   "unitNumbers": [
+    40
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r7",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "r2jqeajwwu",
+    "fl4ojm5zp3",
+    "gipbds3pza",
+    "qnf6nh4vsn"
+   ],
+   "unitNumbers": [
+    44,
+    45,
+    46,
+    47
+   ],
+   "alignedNodeKind": "group",
+   "alignedNodeId": "lit5cjwnsp",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r79",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "y5i36xmvxe"
+   ],
+   "unitNumbers": [
+    48
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r80",
+   "file": "standing-instructions.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "5ldx45mood"
+   ],
+   "unitNumbers": [
+    49
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r81",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "ggpddiqpow"
+   ],
+   "unitNumbers": [
+    53
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r82",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "g5rkv6uhzl"
+   ],
+   "unitNumbers": [
+    54
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r83",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "hmhgvniahl"
+   ],
+   "unitNumbers": [
+    55
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r84",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "otq7rpr6s3"
+   ],
+   "unitNumbers": [
+    56
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r85",
+   "file": "standing-instructions.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "ef2qact6ji"
+   ],
+   "unitNumbers": [
+    58
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r86",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "qhtit5wdwy"
+   ],
+   "unitNumbers": [
+    7
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r87",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "xgjhg52kjv"
+   ],
+   "unitNumbers": [
+    8
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r88",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "jfk3zt3dd6"
+   ],
+   "unitNumbers": [
+    9
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r89",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "qqphy2loqe"
+   ],
+   "unitNumbers": [
+    10
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r90",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "z76c2feo2u"
+   ],
+   "unitNumbers": [
+    11
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r8",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "n7o2hkwmbs",
+    "3p6a3htnd2",
+    "xgwifdctl4"
+   ],
+   "unitNumbers": [
+    13,
+    14,
+    15
+   ],
+   "alignedNodeKind": null,
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "dev"
+  },
+  {
+   "id": "r9",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "tbw73dh7pv",
+    "jomq23snwe",
+    "smkpio6uf7"
+   ],
+   "unitNumbers": [
+    20,
+    21,
+    22
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "4h4sw5b4dt",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r10",
+   "file": "repair-ticket-skill.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "uqw44cb7fk",
+    "wi25ykgyha",
+    "wcjsqi4pmk"
+   ],
+   "unitNumbers": [
+    23,
+    24,
+    25
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "jir2czq6nu",
+   "contested": true,
+   "split": "dev"
+  },
+  {
+   "id": "r11",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "oitq6v2zck",
+    "aeuxc6mx2i",
+    "paj4hdhsq4"
+   ],
+   "unitNumbers": [
+    26,
+    27,
+    28
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "57rvrlobq5",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r12",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "bvahie4hhi",
+    "6elibamtde",
+    "dwr6al6icu"
+   ],
+   "unitNumbers": [
+    29,
+    30,
+    31
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "s4xkdsowok",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r13",
+   "file": "repair-ticket-skill.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "ai3igyk672",
+    "q5cre3deeg"
+   ],
+   "unitNumbers": [
+    32,
+    33
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "4vl5b6lzi3",
+   "contested": true,
+   "split": "dev"
+  },
+  {
+   "id": "r91",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "3prw3crtji"
+   ],
+   "unitNumbers": [
+    36
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r92",
+   "file": "repair-ticket-skill.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "xqvqk7og7p"
+   ],
+   "unitNumbers": [
+    37
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r93",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "lbs4ojqmnj"
+   ],
+   "unitNumbers": [
+    38
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r94",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "p5rotzl57o"
+   ],
+   "unitNumbers": [
+    39
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r95",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "zbrvlfwbnb"
+   ],
+   "unitNumbers": [
+    40
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r14",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "p7i5z76umc",
+    "lmy2djaedc"
+   ],
+   "unitNumbers": [
+    41,
+    42
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "t7zc2kkpfp",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r15",
+   "file": "repair-ticket-skill.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "s2be56rmoh",
+    "dgvbtfunco"
+   ],
+   "unitNumbers": [
+    43,
+    44
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "u6aro2qj26",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r96",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "nhkmita6fs"
+   ],
+   "unitNumbers": [
+    46
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r97",
+   "file": "repair-ticket-skill.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "ksw7iqruyq"
+   ],
+   "unitNumbers": [
+    51
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "dev"
+  },
+  {
+   "id": "r98",
+   "file": "repair-ticket-skill.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "ewcxbr3knp"
+   ],
+   "unitNumbers": [
+    52
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r99",
+   "file": "repair-ticket-skill.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "bzl55wqfvu"
+   ],
+   "unitNumbers": [
+    53
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r100",
+   "file": "repair-ticket-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "fercnb2i3e"
+   ],
+   "unitNumbers": [
+    55
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "dev"
+  },
+  {
+   "id": "r16",
+   "file": "mains-safety-skill.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "uu25bpwa7w",
+    "wgygrbsixb",
+    "ipss7fecjl",
+    "zla5wi5cvw",
+    "b5332ib2v4"
+   ],
+   "unitNumbers": [
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "alignedNodeKind": "group",
+   "alignedNodeId": "vccoqfdjjn",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r17",
+   "file": "mains-safety-skill.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "wm7ckjqmcn",
+    "jtcdmnv3mw"
+   ],
+   "unitNumbers": [
+    12,
+    13
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "2qaph2mowr",
+   "contested": true,
+   "split": "dev"
+  },
+  {
+   "id": "r101",
+   "file": "mains-safety-skill.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "wy7zu2nhnn"
+   ],
+   "unitNumbers": [
+    16
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r102",
+   "file": "mains-safety-skill.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "75vboj3ozv"
+   ],
+   "unitNumbers": [
+    17
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r18",
+   "file": "mains-safety-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "pqmcv6wlvd",
+    "hgal4ginez",
+    "7rfehpe2jc"
+   ],
+   "unitNumbers": [
+    22,
+    23,
+    24
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "hul4hzuneo",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r19",
+   "file": "mains-safety-skill.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "i5mc3ueem4",
+    "fov77rvmkb",
+    "vbp2rmps2a"
+   ],
+   "unitNumbers": [
+    25,
+    26,
+    27
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "yrxz6imtwj",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r20",
+   "file": "mains-safety-skill.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "yytyfjldg7",
+    "oqvwphlck6",
+    "to5gmdzfne"
+   ],
+   "unitNumbers": [
+    28,
+    29,
+    30
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "kqsgfin4bn",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r21",
+   "file": "mains-safety-skill.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "zw67pn6r7s",
+    "vbponqemjn",
+    "ogexmvmbdu"
+   ],
+   "unitNumbers": [
+    33,
+    34,
+    35
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "vrrvvsb6py",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r103",
+   "file": "mains-safety-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "adwh5au4fp"
+   ],
+   "unitNumbers": [
+    37
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "dev"
+  },
+  {
+   "id": "r104",
+   "file": "mains-safety-skill.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "ojfvavd42k"
+   ],
+   "unitNumbers": [
+    38
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r22",
+   "file": "mains-safety-skill.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "pwzelt3kpi",
+    "4wvs6n6wll"
+   ],
+   "unitNumbers": [
+    40,
+    41
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "xxlzwn4rmq",
+   "contested": true,
+   "split": "dev"
+  },
+  {
+   "id": "r105",
+   "file": "mains-safety-skill.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "nc5jzngapk"
+   ],
+   "unitNumbers": [
+    42
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r23",
+   "file": "mains-safety-skill.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "mfdm2yhcga",
+    "wsr2gpyf6u"
+   ],
+   "unitNumbers": [
+    45,
+    46
+   ],
+   "alignedNodeKind": null,
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "dev"
+  },
+  {
+   "id": "r24",
+   "file": "mains-safety-skill.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "zqa3ez5hjh",
+    "z55oxbdtah"
+   ],
+   "unitNumbers": [
+    54,
+    55
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "d7qvqbysbx",
+   "contested": false,
+   "split": "dev"
+  },
+  {
+   "id": "r106",
+   "file": "tool-loans-skill.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "yvcsdpqpif"
+   ],
+   "unitNumbers": [
+    6
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r107",
+   "file": "tool-loans-skill.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "zt4kxn6zlk"
+   ],
+   "unitNumbers": [
+    8
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r25",
+   "file": "tool-loans-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "frdplkuaih",
+    "v3lbs4f6tk",
+    "fgtgjsqixy",
+    "sp5irdygbo",
+    "5hdnlgjymu"
+   ],
+   "unitNumbers": [
+    9,
+    10,
+    11,
+    12,
+    13
+   ],
+   "alignedNodeKind": "group",
+   "alignedNodeId": "2brdk5zmlg",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r26",
+   "file": "tool-loans-skill.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "urhje32tod",
+    "pmnc4ddvnu"
+   ],
+   "unitNumbers": [
+    14,
+    15
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "gbyktf4ixt",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r27",
+   "file": "tool-loans-skill.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "f5ho3cvpjs",
+    "bw3f4bsw6w"
+   ],
+   "unitNumbers": [
+    16,
+    17
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "tf4lwwccfm",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r108",
+   "file": "tool-loans-skill.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "rf4ockb6tu"
+   ],
+   "unitNumbers": [
+    18
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r28",
+   "file": "tool-loans-skill.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "c3bk5efywi",
+    "zjiaxrf2t3"
+   ],
+   "unitNumbers": [
+    21,
+    22
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "2ipg35imhx",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r29",
+   "file": "tool-loans-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "prjrkwr43y",
+    "k34vujb7df"
+   ],
+   "unitNumbers": [
+    23,
+    24
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "osuw7bl7km",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r30",
+   "file": "tool-loans-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "tuiypdc4gm",
+    "tubgdy5j25",
+    "vnp3zrjrqe",
+    "apafyi24wn"
+   ],
+   "unitNumbers": [
+    25,
+    26,
+    27,
+    28
+   ],
+   "alignedNodeKind": "group",
+   "alignedNodeId": "4mm2e2rxxl",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r31",
+   "file": "tool-loans-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "oincmampmf",
+    "tpiatfdg2k"
+   ],
+   "unitNumbers": [
+    34,
+    35
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "h7rkhpc3wt",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r32",
+   "file": "tool-loans-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "yuxntg3oc2",
+    "2tozpdzq2z"
+   ],
+   "unitNumbers": [
+    36,
+    37
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "nr2mzr5mww",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r33",
+   "file": "tool-loans-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "jimg7yhnhx",
+    "plvqdynvw2"
+   ],
+   "unitNumbers": [
+    38,
+    39
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "q2ofc4fqw3",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r34",
+   "file": "tool-loans-skill.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "cujv2bgrvp",
+    "rms6vvrdz5"
+   ],
+   "unitNumbers": [
+    40,
+    41
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "xduamaf7zl",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r109",
+   "file": "tool-loans-skill.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "7duigemke2"
+   ],
+   "unitNumbers": [
+    47
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r35",
+   "file": "tool-loans-skill.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "oorihagti2",
+    "esrz7sqi7j",
+    "zv3nm5adti"
+   ],
+   "unitNumbers": [
+    48,
+    49,
+    50
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "5p7ijxiug5",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r110",
+   "file": "tool-loans-skill.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "o7xdauzmlh"
+   ],
+   "unitNumbers": [
+    54
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r36",
+   "file": "tool-loans-skill.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "ko5ocojdnf",
+    "fuqljpb252"
+   ],
+   "unitNumbers": [
+    56,
+    57
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "nrg6uy6joz",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r111",
+   "file": "rota-writer-helper.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "7vjmbmvqtt"
+   ],
+   "unitNumbers": [
+    8
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r112",
+   "file": "rota-writer-helper.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "7rccha55y4"
+   ],
+   "unitNumbers": [
+    9
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r113",
+   "file": "rota-writer-helper.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "xgpuv7aoak"
+   ],
+   "unitNumbers": [
+    27
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r114",
+   "file": "rota-writer-helper.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "ptlte5k3pw"
+   ],
+   "unitNumbers": [
+    29
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r37",
+   "file": "rota-writer-helper.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "fnqsapz5le",
+    "riv32cxjjx"
+   ],
+   "unitNumbers": [
+    30,
+    31
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "3uo7bbo4ak",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r38",
+   "file": "rota-writer-helper.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "eocm4agnlt",
+    "bjkeur5ci5"
+   ],
+   "unitNumbers": [
+    32,
+    33
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "734z2bnpha",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r39",
+   "file": "rota-writer-helper.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "ydvcxe2eo4",
+    "tad6xiwfuq"
+   ],
+   "unitNumbers": [
+    35,
+    36
+   ],
+   "alignedNodeKind": null,
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r40",
+   "file": "rota-writer-helper.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "6hp4phii2o",
+    "h3egx5ctck"
+   ],
+   "unitNumbers": [
+    38,
+    39
+   ],
+   "alignedNodeKind": null,
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r41",
+   "file": "rota-writer-helper.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "w565m4xrtm",
+    "afjjreiil3",
+    "tfwgflrsoi",
+    "g3n3s235kd",
+    "62i6l3ds52"
+   ],
+   "unitNumbers": [
+    42,
+    43,
+    44,
+    45,
+    46
+   ],
+   "alignedNodeKind": "group",
+   "alignedNodeId": "m4ki3mtben",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r115",
+   "file": "rota-writer-helper.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "nyicr7gwhe"
+   ],
+   "unitNumbers": [
+    47
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r116",
+   "file": "rota-writer-helper.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "cz3tqbwqjk"
+   ],
+   "unitNumbers": [
+    49
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r117",
+   "file": "rota-writer-helper.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "yc447uodrw"
+   ],
+   "unitNumbers": [
+    50
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r118",
+   "file": "rota-writer-helper.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "pmw42twjsm"
+   ],
+   "unitNumbers": [
+    52
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r119",
+   "file": "rota-writer-helper.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "iczjrlb6nu"
+   ],
+   "unitNumbers": [
+    54
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r67",
+   "file": "rota-writer-helper.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "nac3gds6le",
+    "33ckyy3mcj"
+   ],
+   "unitNumbers": [
+    55,
+    56
+   ],
+   "alignedNodeKind": null,
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r120",
+   "file": "parts-and-donations-notes.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "vqvcykpjrr"
+   ],
+   "unitNumbers": [
+    8
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r42",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "zhi42m6hmn",
+    "b3u7arwfzh"
+   ],
+   "unitNumbers": [
+    9,
+    10
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "5p6txgzaax",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r121",
+   "file": "parts-and-donations-notes.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "nf3tdoispm"
+   ],
+   "unitNumbers": [
+    11
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r122",
+   "file": "parts-and-donations-notes.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "7knzmamrfr"
+   ],
+   "unitNumbers": [
+    18
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r123",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "62uv5iiqug"
+   ],
+   "unitNumbers": [
+    19
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r124",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "rmn5y4zpjw"
+   ],
+   "unitNumbers": [
+    21
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r43",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "ovzpqcew67",
+    "wfptfwacpy"
+   ],
+   "unitNumbers": [
+    22,
+    23
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "wk5dlznp4j",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r44",
+   "file": "parts-and-donations-notes.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "2odtlqq2iy",
+    "urifl67fqi"
+   ],
+   "unitNumbers": [
+    24,
+    25
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "ulmu5hwyce",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r125",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "qq65bdnpyn"
+   ],
+   "unitNumbers": [
+    27
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r126",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "ipgvnd3ecb"
+   ],
+   "unitNumbers": [
+    28
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r127",
+   "file": "parts-and-donations-notes.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "xvcdu2k6po"
+   ],
+   "unitNumbers": [
+    29
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r128",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "fyxhn5zer3"
+   ],
+   "unitNumbers": [
+    30
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r129",
+   "file": "parts-and-donations-notes.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "kackzuuwnn"
+   ],
+   "unitNumbers": [
+    31
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r130",
+   "file": "parts-and-donations-notes.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "4v56mr73wm"
+   ],
+   "unitNumbers": [
+    36
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r131",
+   "file": "parts-and-donations-notes.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "3lcwaycrde"
+   ],
+   "unitNumbers": [
+    39
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r132",
+   "file": "parts-and-donations-notes.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "6tmgvn4363"
+   ],
+   "unitNumbers": [
+    41
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r133",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "pg57b4suqz"
+   ],
+   "unitNumbers": [
+    44
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r134",
+   "file": "parts-and-donations-notes.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "fdnpyk2ydx"
+   ],
+   "unitNumbers": [
+    46
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r135",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "4vxisyqi4g"
+   ],
+   "unitNumbers": [
+    48
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r136",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "yacha234dw"
+   ],
+   "unitNumbers": [
+    52
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r137",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "u33exwg2u6"
+   ],
+   "unitNumbers": [
+    54
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r138",
+   "file": "parts-and-donations-notes.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "g64y263v6y"
+   ],
+   "unitNumbers": [
+    55
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r45",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "fgntb4ko5g",
+    "r3357r2mpb"
+   ],
+   "unitNumbers": [
+    26,
+    27
+   ],
+   "alignedNodeKind": null,
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r139",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "ja7uf4mgge"
+   ],
+   "unitNumbers": [
+    30
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r140",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "zwjarn76fu"
+   ],
+   "unitNumbers": [
+    38
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r141",
+   "file": "booking-tool-reference.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "uip6m5cmsc"
+   ],
+   "unitNumbers": [
+    39
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r142",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "xbwox4lcsc"
+   ],
+   "unitNumbers": [
+    40
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r143",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "qnaxxxk2lw"
+   ],
+   "unitNumbers": [
+    42
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r144",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "utcavjd3zz"
+   ],
+   "unitNumbers": [
+    44
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r145",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "nqm7himjfo"
+   ],
+   "unitNumbers": [
+    46
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r68",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "aovjjnhhcu",
+    "pmwk2m7d5s"
+   ],
+   "unitNumbers": [
+    54,
+    55
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "iolpxhi72s",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r69",
+   "file": "booking-tool-reference.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "675n7hfbka",
+    "7fuqegra5t"
+   ],
+   "unitNumbers": [
+    56,
+    57
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "ri7ir7vd4f",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r146",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "ajjgw66ex3"
+   ],
+   "unitNumbers": [
+    62
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r46",
+   "file": "booking-tool-reference.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "apnpcq4xyu",
+    "ns2cinujrb"
+   ],
+   "unitNumbers": [
+    63,
+    64
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "tcmzj3wjeb",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r147",
+   "file": "booking-tool-reference.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "gi3iqxcm6f"
+   ],
+   "unitNumbers": [
+    65
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r70",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "dqgke42tko",
+    "pijk3nglda"
+   ],
+   "unitNumbers": [
+    69,
+    70
+   ],
+   "alignedNodeKind": null,
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r71",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "pz5d43lpdf",
+    "yp7ifebkkj"
+   ],
+   "unitNumbers": [
+    72,
+    73
+   ],
+   "alignedNodeKind": null,
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r72",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "i6sfisgyx3",
+    "vkhesh2um2"
+   ],
+   "unitNumbers": [
+    75,
+    76
+   ],
+   "alignedNodeKind": null,
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r73",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "rap7h6qx2h",
+    "j24mkmpxef"
+   ],
+   "unitNumbers": [
+    78,
+    79
+   ],
+   "alignedNodeKind": null,
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r148",
+   "file": "booking-tool-reference.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "n5csalcjsh"
+   ],
+   "unitNumbers": [
+    82
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r149",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "zo5zspanwg"
+   ],
+   "unitNumbers": [
+    84
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r150",
+   "file": "booking-tool-reference.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "gl4oy4vcip"
+   ],
+   "unitNumbers": [
+    85
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r151",
+   "file": "session-lead-handbook.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "ajju7gpe6g"
+   ],
+   "unitNumbers": [
+    8
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r47",
+   "file": "session-lead-handbook.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "yilwq3rvz4",
+    "3qeq4256nx"
+   ],
+   "unitNumbers": [
+    10,
+    11
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "gt6x3rllav",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r48",
+   "file": "session-lead-handbook.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "2p2eerdcp7",
+    "35kbqchrkf",
+    "dndo2psjrs",
+    "nrwh62uysw"
+   ],
+   "unitNumbers": [
+    12,
+    13,
+    14,
+    15
+   ],
+   "alignedNodeKind": "group",
+   "alignedNodeId": "bo73476ed5",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r49",
+   "file": "session-lead-handbook.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "bawj6acn3u",
+    "szx7ozqiao"
+   ],
+   "unitNumbers": [
+    19,
+    20
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "lq5vmijtxl",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r152",
+   "file": "session-lead-handbook.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "7ct75ai4cp"
+   ],
+   "unitNumbers": [
+    21
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r153",
+   "file": "session-lead-handbook.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "yl726sm7l7"
+   ],
+   "unitNumbers": [
+    22
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r50",
+   "file": "session-lead-handbook.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "5ugvwtsdsc",
+    "va62zddiwh"
+   ],
+   "unitNumbers": [
+    24,
+    25
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "oixotpbpqt",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r51",
+   "file": "session-lead-handbook.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "edya5nnnzu",
+    "fmssiyqawn"
+   ],
+   "unitNumbers": [
+    26,
+    27
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "6qwxdcfee7",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r154",
+   "file": "session-lead-handbook.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "orcj2zh5ug"
+   ],
+   "unitNumbers": [
+    31
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r52",
+   "file": "session-lead-handbook.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "am5yxnrjvl",
+    "c3simfnbtr",
+    "wagn5wdjtg"
+   ],
+   "unitNumbers": [
+    36,
+    37,
+    38
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "7nnwviayoy",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r53",
+   "file": "session-lead-handbook.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "n6pfbzazqw",
+    "e6co2onyh5",
+    "hmowhsucxz"
+   ],
+   "unitNumbers": [
+    39,
+    40,
+    41
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "sz4xthuf5q",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r54",
+   "file": "session-lead-handbook.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "3hrekpcrsm",
+    "a7zbbsgeyh",
+    "ev4sgwdp65"
+   ],
+   "unitNumbers": [
+    42,
+    43,
+    44
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "5fngho5q77",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r55",
+   "file": "session-lead-handbook.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "tslzevvthn",
+    "makwvkqpbr",
+    "wfylyzkg56"
+   ],
+   "unitNumbers": [
+    45,
+    46,
+    47
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "j3yuhqj2cg",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r155",
+   "file": "session-lead-handbook.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "mvd2drmph2"
+   ],
+   "unitNumbers": [
+    48
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r156",
+   "file": "session-lead-handbook.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "t2epzskkmx"
+   ],
+   "unitNumbers": [
+    53
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r157",
+   "file": "session-lead-handbook.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "5bhm3h4s4q"
+   ],
+   "unitNumbers": [
+    57
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r158",
+   "file": "session-lead-handbook.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "y5anfqe6ro"
+   ],
+   "unitNumbers": [
+    59
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r159",
+   "file": "session-lead-handbook.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "bneuaaxuuv"
+   ],
+   "unitNumbers": [
+    61
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r160",
+   "file": "session-lead-handbook.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "jap4yqxbmq"
+   ],
+   "unitNumbers": [
+    64
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r161",
+   "file": "session-lead-handbook.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "uktp3cxp5z"
+   ],
+   "unitNumbers": [
+    65
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r56",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "nflga77rgr",
+    "zx6fxanarx"
+   ],
+   "unitNumbers": [
+    6,
+    7
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "h7ddgxxwpp",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r57",
+   "file": "visitor-replies-guide.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "lqr2ci62je",
+    "kl2k7652kx"
+   ],
+   "unitNumbers": [
+    8,
+    9
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "3gihueoznt",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r58",
+   "file": "visitor-replies-guide.md",
+   "kind": "gate",
+   "multiUnit": true,
+   "unitIds": [
+    "ryhyp5hajh",
+    "bg4diqmt7w"
+   ],
+   "unitNumbers": [
+    10,
+    11
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "7py5toqqfc",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r59",
+   "file": "visitor-replies-guide.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "wdgqmocm3c",
+    "5ygylnyei7"
+   ],
+   "unitNumbers": [
+    17,
+    18
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "vh7xs5gypp",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r162",
+   "file": "visitor-replies-guide.md",
+   "kind": "gate",
+   "multiUnit": false,
+   "unitIds": [
+    "gyw5k63ir2"
+   ],
+   "unitNumbers": [
+    20
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r60",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "lap7kq4ikn",
+    "ccboiecph2"
+   ],
+   "unitNumbers": [
+    24,
+    25
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "z5lz46kz7b",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r61",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "d2z2qqbwgp",
+    "eg7cqgzdnr"
+   ],
+   "unitNumbers": [
+    26,
+    27
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "k35764qddh",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r62",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "6xkz5b3sak",
+    "4tr5k5kmhs"
+   ],
+   "unitNumbers": [
+    28,
+    29
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "b4m5mtsgel",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r63",
+   "file": "visitor-replies-guide.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "3jlclsjjnv",
+    "ui6gfzoniy"
+   ],
+   "unitNumbers": [
+    30,
+    31
+   ],
+   "alignedNodeKind": "row",
+   "alignedNodeId": "symvu6wbg6",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r163",
+   "file": "visitor-replies-guide.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "yxkmutnlir"
+   ],
+   "unitNumbers": [
+    33
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r64",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": true,
+   "unitIds": [
+    "3lwmshjsx5",
+    "5pdrlv4yph"
+   ],
+   "unitNumbers": [
+    37,
+    38
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "y5s5z2j3fk",
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r164",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "c2qr7lf5mj"
+   ],
+   "unitNumbers": [
+    40
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r65",
+   "file": "visitor-replies-guide.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "deyop6w3x2",
+    "zcqy5k6y6g"
+   ],
+   "unitNumbers": [
+    42,
+    43
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "52hfeexjal",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r165",
+   "file": "visitor-replies-guide.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "zltgpvqldm"
+   ],
+   "unitNumbers": [
+    44
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r166",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "lgs6w6uh6m"
+   ],
+   "unitNumbers": [
+    47
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r167",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "bmicevsmpt"
+   ],
+   "unitNumbers": [
+    49
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r168",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "b27ilb4zge"
+   ],
+   "unitNumbers": [
+    50
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r169",
+   "file": "visitor-replies-guide.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "xvql27yc4c"
+   ],
+   "unitNumbers": [
+    51
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r170",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "lwiehyu7vk"
+   ],
+   "unitNumbers": [
+    52
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  },
+  {
+   "id": "r171",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "lhyqceig77"
+   ],
+   "unitNumbers": [
+    53
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r66",
+   "file": "visitor-replies-guide.md",
+   "kind": "prohibition",
+   "multiUnit": true,
+   "unitIds": [
+    "mxtr3nwmzs",
+    "eex7xwzuns"
+   ],
+   "unitNumbers": [
+    57,
+    58
+   ],
+   "alignedNodeKind": "paragraph",
+   "alignedNodeId": "u4yqsdbbbc",
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r172",
+   "file": "visitor-replies-guide.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "fc5zonylha"
+   ],
+   "unitNumbers": [
+    60
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r173",
+   "file": "visitor-replies-guide.md",
+   "kind": "prohibition",
+   "multiUnit": false,
+   "unitIds": [
+    "y2v35b7daw"
+   ],
+   "unitNumbers": [
+    61
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": false,
+   "split": "test"
+  },
+  {
+   "id": "r174",
+   "file": "visitor-replies-guide.md",
+   "kind": "rule",
+   "multiUnit": false,
+   "unitIds": [
+    "uw26en26ps"
+   ],
+   "unitNumbers": [
+    62
+   ],
+   "alignedNodeKind": "leaf",
+   "alignedNodeId": null,
+   "contested": true,
+   "split": "test"
+  }
+ ]
+}

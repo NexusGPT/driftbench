@@ -16,7 +16,7 @@ export function sheetOf(file: string): string {
   walk(t.root, '');
   return out.join('\n');
 }
-if (process.argv[2]) {
+if (process.argv[2] && process.argv[1]?.endsWith("sheet3.ts")) {
   const files = readdirSync(join(here, 'prose3')).filter((f) => f.endsWith('.md')).sort();
   writeFileSync(process.argv[2], files.map(sheetOf).join('\n\n') + '\n');
   console.log(files.length, 'files');

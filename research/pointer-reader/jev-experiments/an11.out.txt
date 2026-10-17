@@ -1,0 +1,6 @@
+annotator A (author tags) against the frozen gold    dev   per-unit acc 94.3 (outside 99.1, inside 86.2) exact P 100.0 R 98.2 F1 99.1 IoU.5 P 100.0 R 98.2 anyR 98.2 multi exactR 100.0 single exactR 96.9
+annotator A (author tags) against the frozen gold    test  per-unit acc 91.0 (outside 97.8, inside 74.3) exact P 90.7 R 90.7 F1 90.7 IoU.5 P 99.2 R 100.0 anyR 100.0 multi exactR 85.7 single exactR 94.2
+annotator A (author tags) against the frozen gold    all   per-unit acc 92.0 (outside 98.2, inside 78.7) exact P 93.6 R 93.1 F1 93.4 IoU.5 P 99.4 R 99.4 anyR 99.4 multi exactR 90.4 single exactR 95.0
+annotator B (fresh Haiku) against the frozen gold    dev   per-unit acc 93.1 (outside 93.6, inside 92.3) exact P 82.3 R 91.1 F1 86.4 IoU.5 P 93.5 R 100.0 anyR 100.0 multi exactR 87.5 single exactR 93.8
+annotator B (fresh Haiku) against the frozen gold    test  per-unit acc 84.4 (outside 80.6, inside 93.8) exact P 73.9 R 86.4 F1 79.7 IoU.5 P 82.6 R 96.6 anyR 96.6 multi exactR 91.8 single exactR 82.6
+annotator B (fresh Haiku) against the frozen gold    all   per-unit acc 87.1 (outside 84.3, inside 93.3) exact P 76.5 R 87.9 F1 81.8 IoU.5 P 86.0 R 97.7 anyR 97.7 multi exactR 90.4 single exactR 86.1
