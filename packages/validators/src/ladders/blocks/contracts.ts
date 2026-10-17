@@ -238,7 +238,7 @@ export const CONTRACTS: Readonly<Record<string, string>> = {
   "The loader's resolve pass refuses unknown item typo with OBJECT_ITEM_UNKNOWN.":
     'origin/feat/block-f3-object-commands:docs/reference/cli.md#Issue codes',
   "The loader's resolve pass refuses unknown object with OBJECT_UNKNOWN.":
-    'origin/feat/block-f3-object-commands:docs/reference/cli.md#Issue codes',
+    'docs/reference/block-contracts.md#Unknown parent',
   "The loader's resolve pass refuses unknown parent with OBJECT_UNKNOWN.":
     'docs/reference/block-contracts.md#Unknown parent',
   'The origin, when present, enters the spec hash and the Given hash of every block it covers.':

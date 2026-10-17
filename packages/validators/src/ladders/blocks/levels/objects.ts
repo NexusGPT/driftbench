@@ -304,7 +304,7 @@ function loaderItems(): BankItem[] {
               const record = await run(
                 product,
                 raw,
-                plantedAgent(product, kind, r.actions, { scratch: '' }).adapter,
+                plantedAgent(product, kind, r.actions, { scratch }).adapter,
               );
               const reached = place === 'spec' ? record.blocks : record.blocks.slice(-1);
               const checkOf = (verdictId: string) => verdictId.split('.')[0] as string;
@@ -354,16 +354,52 @@ function loaderItems(): BankItem[] {
               place === 'spec' ? { spec: real } : { block: real },
             ).raw;
             const twinResult = loadIssues(product, twin);
-            return twinResult.ok
+            if (!twinResult.ok)
+              return fail(
+                `a twin override ${JSON.stringify(real)} that names a real item should load; the loader refused it with ${list(twinResult.codes)}`,
+              );
+            // The far twin: the same refusal reached by another way the docs name. An unknown id under any uses
+            // key is refused (block-contracts.md, Unknown parent); a new item lacking any one of title, when, effect
+            // and impl is refused (cli.md, OBJECT_ITEM_INCOMPLETE).
+            const far = farTwin(override.id, rng, kind);
+            if (!far) return PASS;
+            const farRaw = objectSpec(seed, `${id}#far`, kind, {}).raw;
+            if (place === 'spec') farRaw.uses = far.uses;
+            else (farRaw.blocks.at(-1) as Record<string, unknown>).uses = far.uses;
+            const farResult = loadIssues(product, farRaw);
+            return !farResult.ok && farResult.codes.includes(code)
               ? PASS
               : fail(
-                  `a twin override ${JSON.stringify(real)} that names a real item should load; the loader refused it with ${list(twinResult.codes)}`,
+                  `${JSON.stringify(far.uses)} should be refused with ${code} too; the loader answered ${farResult.ok ? 'ok' : list(farResult.codes)}`,
                 );
           },
         });
       }
     }
   return items;
+}
+
+/** The uses keys other than check_set, each naming an object of its own kind. */
+const OTHER_USES = ['blame', 'placement', 'gating', 'stats', 'selection'] as const;
+
+/** A second refusal of the same code for the override, written another documented way; none for the rest. */
+function farTwin(override: string, rng: Rng, kind: Kind): { uses: Record<string, unknown> } | undefined {
+  if (override === 'unknown-object') return { uses: { [pick(rng, OTHER_USES)]: neutral(rng) } };
+  if (override === 'unknown-parent')
+    return { uses: { [pick(rng, OTHER_USES)]: { extends: neutral(rng), items: [] } } };
+  if (override === 'add-incomplete') {
+    const full: Record<string, unknown> = {
+      id: neutral(rng),
+      add: true,
+      title: 'A new check',
+      when: {},
+      effect: { gating: true },
+      impl: `builtin:check/${pick(rng, KIND_ITEMS[kind])}`,
+    };
+    delete full[pick(rng, ['title', 'when', 'effect'])];
+    return { uses: { check_set: { extends: 'default', items: [full] } } };
+  }
+  return undefined;
 }
 
 function memoryCache() {

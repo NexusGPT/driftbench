@@ -75,7 +75,7 @@ export function thrownText(cause: unknown): string {
   const name = cause instanceof Error ? cause.name : 'Error';
   const message = cause instanceof Error ? cause.message : String(cause);
   const cut = message
-    .replace(/[[{][^]*[\]}]/g, '<...>')
+    .replace(/[[{][\s\S]*[\]}]/g, '<...>')
     .replace(/\s+/g, ' ')
     .trim();
   return `${name}: ${cut}`.slice(0, 240);
