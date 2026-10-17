@@ -79,6 +79,11 @@ export type SimulatedUser = UserDriver & {
   revealed(): string[];
 };
 
+/** Where a message of the person is kept: the block's id, else the position the block has in the run. */
+function saidKey(id: string | undefined, position: number): string {
+  return id === undefined ? `#${position}` : `id:${id}`;
+}
+
 /** Families compare without case and surrounding space, as the judges package compares them. */
 function family(name: string): string {
   return name.trim().toLowerCase();
@@ -108,30 +113,34 @@ export function createSimulatedUser(options: SimulatedUserOptions): SimulatedUse
   if (!options.stopToken.trim()) throw new SimulatedUserError('the stop token is empty');
 
   const system = systemPrompt(persona, options.goal, options.stopToken);
-  const said = new Map<number, string>();
+  /** What the person wrote, by block: a block's id, else its position in the run. A branch never reads another's. */
+  const said = new Map<string, string>();
   let revealed: string[] = [];
 
   return {
     id: `simulated:${options.port.family}`,
     revealed: () => [...revealed],
     async next(ctx: DriverContext): Promise<DriverStep> {
+      // The run's first block: a new run forgets the last one. A second tree's root has an empty branch, not an empty history.
       if (ctx.history.length === 0) said.clear();
       if (ctx.blockIndex >= ctx.spec.blocks.length) {
         return { kind: 'stop', reason: `the spec has no block ${ctx.blockIndex}` };
       }
-      const agentTexts = ctx.history.map((block) => block.observed.text);
+      // Only the blocks this one follows: in a spec with parents, its ancestors, never another tree or a sibling.
+      const branch = ctx.branch ?? ctx.history;
+      const agentTexts = branch.map((block) => block.observed.text);
       revealed = Object.keys(options.facts).filter((fact) =>
         agentTexts.some((text) => asks.get(fact)?.some((pattern) => pattern.test(text))),
       );
       const hidden = Object.entries(options.facts).filter(([fact]) => !revealed.includes(fact));
       const block = ctx.spec.blocks[ctx.blockIndex];
       const hint = options.script === 'none' || !block ? undefined : redact(wordsOf(block.when), hidden);
-      const lines = ctx.history.map((result, position) => [
-        `Customer: ${said.get(position) ?? '[a message of yours that is not shown]'}`,
+      const lines = branch.map((result) => [
+        `Customer: ${said.get(saidKey(result.blockId, result.index)) ?? '[a message of yours that is not shown]'}`,
         `Assistant: ${result.observed.text}`,
       ]);
       const user = [
-        `Turn ${said.size + 1}.`,
+        `Turn ${branch.filter((result) => said.has(saidKey(result.blockId, result.index))).length + 1}.`,
         '',
         'The conversation so far:',
         ...(lines.length > 0 ? lines.flat() : ['(nothing yet: you write first)']),
@@ -161,7 +170,7 @@ export function createSimulatedUser(options: SimulatedUserOptions): SimulatedUse
           `the simulated user gave ${leaked.join(', ')} at block ${ctx.blockIndex} before the agent asked for ${leaked.length === 1 ? 'it' : 'them'}`,
         );
       }
-      said.set(ctx.history.length, answer);
+      said.set(saidKey(block?.id, ctx.history.length), answer);
       const stimulus: Stimulus = { user: answer };
       return { kind: 'block', blockIndex: ctx.blockIndex, stimulus };
     },
