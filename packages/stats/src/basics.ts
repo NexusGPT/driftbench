@@ -22,7 +22,13 @@ export function mulberry32(seed: number): () => number {
 export function quantileSorted(sorted: readonly number[], p: number): number {
   const n = sorted.length;
   if (n === 0) throw new RangeError('quantile of an empty sample');
-  if (p < 0 || p > 1) throw new RangeError(`quantile level must lie in [0, 1], got ${p}`);
+  if (!(p >= 0 && p <= 1)) throw new RangeError(`quantile level must lie in [0, 1], got ${p}`);
+  assertFiniteValues('quantile', sorted);
+  for (let i = 1; i < n; i += 1) {
+    if ((sorted[i] as number) < (sorted[i - 1] as number)) {
+      throw new RangeError('quantileSorted: the sample is not in ascending order');
+    }
+  }
   const h = (n - 1) * p;
   const lo = Math.floor(h);
   const hi = Math.min(lo + 1, n - 1);
@@ -33,10 +39,20 @@ export function quantileSorted(sorted: readonly number[], p: number): number {
 
 /** Quantile of an unsorted sample, type 7. */
 export function quantile(values: readonly number[], p: number): number {
+  assertFiniteValues('quantile', values);
   return quantileSorted(
     [...values].sort((x, y) => x - y),
     p,
   );
+}
+
+/** Throw a RangeError when any value is NaN or infinite. */
+export function assertFiniteValues(name: string, values: readonly number[]): void {
+  for (let i = 0; i < values.length; i += 1) {
+    if (!Number.isFinite(values[i])) {
+      throw new RangeError(`${name}: value ${i} is not finite (${values[i]})`);
+    }
+  }
 }
 
 export function sum(values: readonly number[]): number {
@@ -47,6 +63,7 @@ export function sum(values: readonly number[]): number {
 
 export function mean(values: readonly number[]): number {
   if (values.length === 0) throw new RangeError('mean of an empty sample');
+  assertFiniteValues('mean', values);
   return sum(values) / values.length;
 }
 
@@ -54,6 +71,7 @@ export function mean(values: readonly number[]): number {
 export function sampleVariance(values: readonly number[]): number {
   const n = values.length;
   if (n < 2) throw new RangeError('sample variance needs at least two values');
+  assertFiniteValues('sampleVariance', values);
   const m = mean(values);
   let ss = 0;
   for (const v of values) ss += (v - m) * (v - m);
