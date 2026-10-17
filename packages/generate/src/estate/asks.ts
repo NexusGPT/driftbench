@@ -313,7 +313,8 @@ const GENERIC_FILE_NAMES = new Set(['skill', 'readme', 'index', 'agents', 'claud
  * "data 3". Undefined when the name is generic, has no letters, or is not a file name.
  */
 export function fileSubjectDerivation(path: unknown): string | undefined {
-  if (typeof path !== 'string') return undefined;
+  // A path has no space: a sentence is no file name, so it gives no subject.
+  if (typeof path !== 'string' || /\s/.test(path)) return undefined;
   const stem =
     path
       .replace(/\\/g, '/')

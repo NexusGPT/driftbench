@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { actOf, codeAsk, fileSubjectDerivation } from '../../src/estate/asks';
 import { renderAsk, SUBJECT_SHAPE } from '../../src/estate/frames';
-import { fromRecord } from '../../src/estate/record';
 import type { EstateAtom } from '../../src/estate/inputs';
+import { fromRecord } from '../../src/estate/record';
 
 /** Hand-written shapes, with wordings written for this file only. */
 function atom(id: string, extra: Partial<EstateAtom> = {}): EstateAtom {
@@ -79,7 +79,7 @@ describe('the ask that names the subject of a file records where it came from', 
   it('derives the subject from the path alone, by a fixed rule', () => {
     expect(fileSubjectDerivation('references/glaze-recipes.md')).toBe('glaze recipes');
     expect(fileSubjectDerivation('data-3.json')).toBe('data 3');
-    for (const path of ['references/README.md', 'index.md', '12.json', undefined, 3])
+    for (const path of ['references/README.md', 'index.md', '12.json', 'Check the tide tables', undefined, 3])
       expect(fileSubjectDerivation(path)).toBeUndefined();
   });
 
