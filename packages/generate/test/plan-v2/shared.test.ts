@@ -57,6 +57,26 @@ describe('strength 2 on the axes that several rules share', () => {
     // p is a detail named by four rules: it is never part of a shared pair.
     const rowsOf = plan.rows.map((row) => row.values);
     expect(uncovered(rowsOf, validCells(store), ['a', 'b'])).toEqual([]);
+    // Four rules ask for two own pairs, (a, p) and (b, p), each once however many rules ask for it.
+    expect(plan.layers.find((entry) => entry.layer === 'own')).toMatchObject({ groups: 2 });
+  });
+
+  it('does not pair a detail that several rules name with an axis that several rules name', () => {
+    const store = makeStore([
+      { id: 'x', values: [{ id: 'x1', when: { m: ['m1'] } }, { id: 'x2', when: { n: ['n1'] } }, 'x3'] },
+      { id: 'm', values: ['m1', 'm2'] },
+      { id: 'n', values: ['n1', 'n2'] },
+      {
+        id: 'p',
+        role: 'detail',
+        values: [{ id: 'p1', when: { r: ['r1'] } }, { id: 'p2', when: { s: ['s1'] } }, 'p3'],
+      },
+      { id: 'r', values: ['r1', 'r2'] },
+      { id: 's', values: ['s1', 's2'] },
+    ]);
+    const plan = planV2(store);
+    // x is named by two rules and p, a detail, by two others: only one axis is shared, so no pair is asked for.
+    expect(plan.layers.find((entry) => entry.layer === 'shared')).toMatchObject({ groups: 0, targets: 0 });
   });
 
   it('counts a rule once however many of its entries name the axis', () => {
