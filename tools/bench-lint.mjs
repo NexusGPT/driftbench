@@ -16,6 +16,8 @@ const ENTRY_EXPORTS = new Map([
 const JUDGE_EXPORTS = new Set([
   'buildPrompt',
   'parseJudgeText',
+  // The recorder's wire allowance is the default judge's output room, one shared constant.
+  'outputRoom',
   'pairwiseRequest',
   'judgePairwise',
   'createClaudeCliJudge',

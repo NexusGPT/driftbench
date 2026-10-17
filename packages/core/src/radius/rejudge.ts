@@ -13,10 +13,12 @@ import {
 import { provenanceHash } from '../runner/provenance';
 import { applyRealizedTextPolicy } from '../runner/realized-text';
 import { succession } from '../runner/succession';
+import { isScored } from '../runner/verdicts';
 import type { Message } from '../schema/common';
 import { type BlockResult, type Campaign, type RunResult, Verdict } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import { canonicalJson, contentHash } from '../spec/hash';
+import { specHash, specIdentity } from '../spec/identity';
 import { parseCriterionRef } from '../spec/semantics';
 import { type CarryLimits, carryOrigin } from './carry';
 import { completeBaselineProvenance } from './provenance';
@@ -29,7 +31,7 @@ import { agentVersionOf } from './version';
  * inside a criterion, until deliberately classified as judge-only. Never project onto today's schema.
  */
 export function observationCompatibilityHash(spec: Spec, execution: { executionHash: string }): string {
-  const copy = structuredClone(spec);
+  const copy = structuredClone(specIdentity(spec));
   for (const criterion of copy.criteria ?? []) {
     for (const field of [
       'rubric',
@@ -74,7 +76,7 @@ export function prepareRejudge(
   if (!provenance || !completeBaselineProvenance({ provenance: options.baselineProvenance, runs: [run] }))
     return refuse('Legacy observation has missing, incomplete or inconsistent execution provenance');
   if (run.status !== 'completed') return refuse('The observation did not complete');
-  if (run.specHash !== contentHash(old)) return refuse('The pinned old spec hash does not match');
+  if (run.specHash !== specHash(old)) return refuse('The pinned old spec hash does not match');
   if (
     !options.agentVersion ||
     agentVersionOf(run) !== options.agentVersion ||
@@ -178,7 +180,7 @@ export function prepareRejudge(
       fromCampaign: options.fromCampaign,
       fromRun: run.runId,
       oldSpecHash: run.specHash,
-      newSpecHash: contentHash(spec),
+      newSpecHash: specHash(spec),
       compatibilityHash,
       criteria: [...names],
       judgedAt: options.now.toISOString(),
@@ -200,7 +202,8 @@ export async function rejudgeRun(
     const original = source.blocks[ctx.blockIndex];
     if (!original) return refuse('The observation disappeared');
     const selected = (ctx.expect.criteria ?? []).map((ref) => parseCriterionRef(ref)?.name ?? ref);
-    if (!selected.length) {
+    // A block not run or blocked holds no observation to judge: it stays as it was, never a pass.
+    if (!selected.length || !isScored(original)) {
       const { rejudged: _previousJudge, ...unchanged } = original;
       blocks.push({ ...unchanged, carried });
       continue;
@@ -228,7 +231,7 @@ export async function rejudgeRun(
   const { carried: _carried, events: _events, ...rest } = source;
   const updated = {
     ...rest,
-    specHash: contentHash(spec),
+    specHash: specHash(spec),
     blocks,
     carried,
     rejudged: stamp,

@@ -34,6 +34,7 @@ import {
   renderRun,
   runDetailOf,
   runPassed,
+  scoredRuns,
 } from '@agent-nexus/driftbench-report';
 import { openStore } from '@agent-nexus/driftbench-store';
 
@@ -389,20 +390,31 @@ async function queuePage(labelsDir: string, reviewer: string, csrf: string): Pro
   ]);
 }
 
+/** Runs that pass, fail, or neither, for the index: a run not run or blocked is in its own column. */
+export function passingAndFailing(runs: readonly RunResult[]): {
+  passing: number;
+  failing: number;
+  unscored: number;
+} {
+  const passing = runs.filter(runPassed).length;
+  const scored = scoredRuns(runs).length;
+  return { passing, failing: scored - passing, unscored: runs.length - scored };
+}
+
 async function indexPage(store: Store): Promise<string> {
   const campaigns = await store.listCampaigns();
   const rows: string[] = [];
   for (const campaign of campaigns) {
     const data = await loadCampaign(store, campaign.campaignId);
-    const passing = data.runs.filter(runPassed).length;
+    const { passing, failing, unscored } = passingAndFailing(data.runs);
     rows.push(
-      `<tr><td class="mono"><a href="/campaign/${encodeURIComponent(campaign.campaignId)}">${esc(campaign.campaignId)}</a></td><td>${esc(campaign.createdAt)}</td><td>${esc(campaign.modes.join(', '))}</td><td class="num">${campaign.specs.length}</td><td class="num">${data.runs.length} runs</td><td class="num">${passing}</td><td class="num">${data.runs.length - passing}</td></tr>`,
+      `<tr><td class="mono"><a href="/campaign/${encodeURIComponent(campaign.campaignId)}">${esc(campaign.campaignId)}</a></td><td>${esc(campaign.createdAt)}</td><td>${esc(campaign.modes.join(', '))}</td><td class="num">${campaign.specs.length}</td><td class="num">${data.runs.length} runs</td><td class="num">${unscored}</td><td class="num">${passing}</td><td class="num">${failing}</td></tr>`,
     );
   }
   const body =
     rows.length === 0
       ? '<p class="muted">The store holds no campaign. Run one with driftbench campaign run.</p>'
-      : `<div class="table-wrap"><table><caption>Campaigns, newest first</caption><thead><tr><th scope="col">campaign</th><th scope="col">created</th><th scope="col">modes</th><th scope="col">specs</th><th scope="col">runs</th><th scope="col">passing</th><th scope="col">not passing</th></tr></thead><tbody>${rows.join('\n')}</tbody></table></div>`;
+      : `<div class="table-wrap"><table><caption>Campaigns, newest first</caption><thead><tr><th scope="col">campaign</th><th scope="col">created</th><th scope="col">modes</th><th scope="col">specs</th><th scope="col">runs</th><th scope="col">not run or blocked</th><th scope="col">passing</th><th scope="col">failing</th></tr></thead><tbody>${rows.join('\n')}</tbody></table></div>`;
   return renderPage('driftbench view', [
     nav(),
     `<section id="campaigns"><h2>Campaigns</h2><p>Open a campaign for its scorecard and its runs; open a run to label its blocks. Compare two campaigns paired on the goldens both ran.</p>${body}</section>`,

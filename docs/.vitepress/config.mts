@@ -124,6 +124,7 @@ export default defineConfig({
           { text: 'Drift', link: '/concepts/drift' },
           { text: 'Recovery', link: '/concepts/recovery' },
           { text: 'Judges', link: '/concepts/judges' },
+          { text: 'Default judge', link: '/default-judge' },
           { text: 'Statistics', link: '/concepts/statistics' },
         ],
       },

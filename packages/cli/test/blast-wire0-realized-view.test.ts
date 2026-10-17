@@ -26,9 +26,20 @@ beforeAll(async () => {
   const db = join(dir, 'store.db');
   const store = openStore(db);
   try {
-    await storeAcmeCampaign(store, { campaignId: 'c-x3', modes: ['F'], repeats: 1, fault: 'x3-skips-recap' });
+    const original = await storeAcmeCampaign(store, {
+      campaignId: 'seed',
+      modes: ['F'],
+      repeats: 1,
+      fault: 'x3-skips-recap',
+    });
+    // Campaigns are immutable: copy into a destination that explicitly retains the displayed text.
+    await store.putCampaign({
+      ...original,
+      campaignId: 'c-x3',
+      provenance: { version: 2, adapters: [], realizedText: true },
+    });
     // Block 1 of every run: its driver sent SENT, and the run kept the text.
-    for (const run of await store.listRuns({ campaignId: 'c-x3' })) {
+    for (const run of await store.listRuns({ campaignId: 'seed' })) {
       const changed = structuredClone(run);
       const block = changed.blocks[1];
       if (!block) continue;

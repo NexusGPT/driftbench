@@ -2,6 +2,7 @@ import { existsSync, statSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
 import {
+  blockStatus,
   type CellOutcome,
   cellIdOf,
   outcomeOf,
@@ -35,6 +36,7 @@ import {
   judgeAndCheckFlags,
   type RunCheckFlags,
 } from '../judge-options';
+import { optionNumber } from '../number';
 import { type CampaignDeps, campaignRunCommand, defaultDeps, parseTarget } from './campaign';
 import { parseGate } from './compare';
 
@@ -59,7 +61,8 @@ export type CiVerdict =
   | 'not-shown-non-inferior'
   | 'incomplete'
   | 'aggregate-failed'
-  | 'radius-miss';
+  | 'radius-miss'
+  | 'not-run';
 
 const VERDICT_TEXT: Record<CiVerdict, string> = {
   parity: 'PARITY',
@@ -68,7 +71,11 @@ const VERDICT_TEXT: Record<CiVerdict, string> = {
   incomplete: 'INCOMPLETE',
   'aggregate-failed': 'AGGREGATE FAILED',
   'radius-miss': 'RADIUS MISS',
+  'not-run': 'NOT RUN',
 };
+
+/** The exit code of the verdict `not-run`: a gating spec had blocks not run, so the gate measured nothing there. */
+export const NOT_RUN_EXIT = 3;
 
 type CiCommandOptions = {
   aggregate?: string[];
@@ -97,6 +104,7 @@ type CiCommandOptions = {
   auditSeed?: string;
   maxCarry?: string;
   maxAge?: string;
+  maxNotRun: string;
 } & JudgeFlags &
   RunCheckFlags;
 
@@ -112,9 +120,13 @@ export type CiPair = {
   newFlags: string[];
 };
 
+/** A spec of the candidate with blocks not run: how many of its fresh blocks, and the first reason. */
+export type CiNotRunSpec = { specId: string; notRun: number; blocks: number; share: number; first: string };
+
 export type CiSummary = {
   verdict: CiVerdict;
-  exitCode: 0 | 1;
+  /** 3 on not-run: a gating spec had blocks not run beyond the threshold. */
+  exitCode: 0 | 1 | 3;
   /** compare's reasons, in its words. */
   reasons: string[];
   /** Campaign-level criteria from --aggregate, scored over the candidate. */
@@ -155,6 +167,11 @@ export type CiSummary = {
   rows: CiPair[];
   /** Set with --change: what ran fresh, what was carried, the blocks sent, and the audit. Absent otherwise. */
   radius?: CiRadius;
+  /**
+   * Set when a candidate block was not run: the threshold (the largest share of a spec's fresh blocks that may
+   * be not run), and every spec with a block not run; `over` lists those above the threshold. Absent otherwise.
+   */
+  notRun?: { threshold: number; specs: CiNotRunSpec[]; over: string[] };
 };
 
 /** The radius block of the summary: the campaign's radius record and the blocks it sent and carried. */
@@ -240,6 +257,11 @@ export function registerCiCommand(
     .option('--audit-seed <n>', 'with --audit: the seed of the draw (default 1)')
     .option('--max-carry <n>', 'with --change: the most campaigns in a row a result is carried')
     .option('--max-age <days>', 'with --change: the most days since a carried result was measured')
+    .option(
+      '--max-not-run <share>',
+      "the largest share of a spec's blocks that may be not run (a Given the target cannot apply) before the gate fails with exit 3, from 0 to 1",
+      '0',
+    )
     .option('--json', 'print the JSON summary instead of the table')
     .option(
       '--config <file>',
@@ -269,6 +291,11 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   const criteria = loadedCriteria.criteria;
   const gate = parseGate(options, io);
   if (!gate) return 2;
+  const maxNotRun = optionNumber(options.maxNotRun ?? '0');
+  if (!(Number.isFinite(maxNotRun) && maxNotRun >= 0 && maxNotRun <= 1)) {
+    io.err(`--max-not-run takes a share from 0 to 1, not "${options.maxNotRun}".\n`);
+    return 2;
+  }
   const flags = options.flag.length > 0 ? options.flag : [...DEFAULT_FLAGS];
   const storePath = resolve(io.cwd, options.store);
   const outPath = resolve(io.cwd, options.out ?? DEFAULT_SUMMARY);
@@ -372,14 +399,16 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   }
 
   const incompleteCells = report.summary.stoppedByBudget + report.summary.pending;
+  const notRun = notRunSpecs(candidate.runs, maxNotRun);
   let result: CompareResult | undefined;
   try {
     result = compareCampaigns(baseline.data, candidate, { ...shared, margin });
   } catch (cause) {
     // A candidate the budget stopped before any golden ran is incomplete, exit 1, not bad input. A radius
     // campaign that carried every cell measured nothing: parity is not shown, and that is not bad input.
+    // A candidate whose blocks were not run measured nothing either: the not-run verdict says why.
     const allCarried = candidate.runs.length > 0 && candidate.runs.every((run) => run.carried !== undefined);
-    if (!(incompleteCells > 0) && !allCarried) {
+    if (!(incompleteCells > 0) && !allCarried && !notRun) {
       io.err(
         `The baseline campaign ${baseline.data.campaign.campaignId} and the candidate cannot be compared: ${message(cause)}.\n`,
       );
@@ -403,6 +432,7 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
     },
     gate: { minGoldens: shared.minGoldens, strict: shared.strict },
     ...(report.radius ? { radius: report.radius } : {}),
+    ...(notRun ? { notRun } : {}),
   });
 
   try {
@@ -598,6 +628,7 @@ function summarize(input: {
   baseline: CiSummary['baseline'];
   candidate: CiSummary['candidate'];
   radius?: CiRadius;
+  notRun?: NonNullable<CiSummary['notRun']>;
 }): CiSummary {
   const { candidate } = input;
   const result = input.result ?? noComparison(input.gate);
@@ -637,27 +668,42 @@ function summarize(input: {
           : 'not-shown-non-inferior',
     input.aggregates,
   );
-  const verdict: CiVerdict = misses > 0 ? 'radius-miss' : compared;
+  // Then a regression, by compare's own test, in the part of the suite that ran: it wins over everything but a
+  // radius miss, so the verdict never depends on whether an unrelated spec was not run. A golden that flipped
+  // while compare calls the change noise is no regression. Then blocks not run beyond the threshold.
+  const notRunOver = input.notRun?.over ?? [];
+  const regressed = result.verdict === 'regressed';
+  const verdict: CiVerdict =
+    misses > 0 ? 'radius-miss' : regressed ? 'regression' : notRunOver.length > 0 ? 'not-run' : compared;
+  const notRunReason = `${count(notRunOver.length, 'spec')} of the candidate had blocks not run beyond --max-not-run ${input.notRun?.threshold}: ${notRunOver.join(', ')}. A block not run is a Given the target could not apply, never a pass: fix the spec or the target, or raise the threshold for an exploratory suite`;
+  const regressedNames = rows.filter((row) => row.change === 'regressed').map((row) => row.name);
+  const regressedReason = `${count(regressedNames.length, 'golden')} regressed${regressedNames.length > 0 ? `: ${regressedNames.join(', ')}` : ''}`;
   const failingAggregates = input.aggregates.filter((entry) => entry.passed === false);
+  const incompleteReason = `${count(candidate.incompleteCells, 'cell')} of the candidate did not run (budget or pending): parity cannot be shown on part of the suite`;
+  const aggregateReasons = failingAggregates.map((entry) => `aggregate ${entry.name} fails: ${entry.reason}`);
   const reasons =
     verdict === 'radius-miss'
       ? [
           `the audit ran ${input.radius?.audit?.sampled} cells outside the radius and ${misses} did not reproduce the carried result: the change reaches cells the manifest left out, so nothing was carried`,
           ...result.reasons,
         ]
-      : verdict === 'incomplete'
+      : verdict === 'regression'
         ? [
-            `${count(candidate.incompleteCells, 'cell')} of the candidate did not run (budget or pending): parity cannot be shown on part of the suite`,
+            regressedReason,
             ...result.reasons,
+            ...(candidate.incompleteCells > 0 ? [incompleteReason] : []),
+            ...aggregateReasons,
+            ...(notRunOver.length > 0 ? [notRunReason] : []),
           ]
-        : [
-            ...result.reasons,
-            ...failingAggregates.map((entry) => `aggregate ${entry.name} fails: ${entry.reason}`),
-          ];
+        : verdict === 'not-run'
+          ? [notRunReason, ...result.reasons]
+          : verdict === 'incomplete'
+            ? [incompleteReason, ...result.reasons]
+            : [...result.reasons, ...aggregateReasons];
   return {
     verdict,
     aggregates: input.aggregates,
-    exitCode: verdict === 'parity' ? 0 : 1,
+    exitCode: verdict === 'parity' ? 0 : verdict === 'not-run' ? NOT_RUN_EXIT : 1,
     reasons,
     marginPoints: input.marginPoints,
     marginAuto: input.marginAuto,
@@ -693,7 +739,45 @@ function summarize(input: {
     unpaired: result.unpaired.map((entry) => ({ ...entry })),
     rows,
     ...(input.radius ? { radius: input.radius } : {}),
+    ...(input.notRun ? { notRun: input.notRun } : {}),
   };
+}
+
+/**
+ * The candidate specs with blocks not run, counted over their fresh runs (a carried run is no new run), and
+ * those whose share of not-run blocks is above the threshold. Undefined when no block was not run.
+ */
+export function notRunSpecs(
+  runs: readonly RunResult[],
+  threshold: number,
+): NonNullable<CiSummary['notRun']> | undefined {
+  const bySpec = new Map<string, { notRun: number; blocks: number; first?: string }>();
+  for (const run of runs) {
+    if (run.carried !== undefined) continue;
+    const held = bySpec.get(run.specId) ?? { notRun: 0, blocks: 0 };
+    for (const block of run.blocks) {
+      held.blocks += 1;
+      if (blockStatus(block) !== 'not_run') continue;
+      held.notRun += 1;
+      if (held.first === undefined && block.notRun) {
+        held.first = `${run.mode} block ${block.index}: ${block.notRun.check}, ${block.notRun.got}`;
+      }
+    }
+    bySpec.set(run.specId, held);
+  }
+  const specs = [...bySpec.entries()]
+    .filter(([, held]) => held.notRun > 0)
+    .map(([specId, held]) => ({
+      specId,
+      notRun: held.notRun,
+      blocks: held.blocks,
+      share: round(held.notRun / held.blocks),
+      first: held.first ?? 'not run',
+    }))
+    .sort((a, b) => a.specId.localeCompare(b.specId));
+  if (specs.length === 0) return undefined;
+  const over = specs.filter((spec) => spec.notRun / spec.blocks > threshold).map((spec) => spec.specId);
+  return { threshold, specs, over };
 }
 
 /** The failing gating checks of the first failing repeat of each candidate unit, named as compare names units. */
@@ -794,6 +878,18 @@ export function verdictText(summary: CiSummary, outPath: string): string {
   if (summary.unpaired.length > 0) {
     lines.push(
       `Not compared: ${summary.unpaired.map((entry) => `${entry.unit} (${entry.reason})`).join(', ')}.`,
+    );
+  }
+  if (summary.notRun) {
+    const { threshold, specs, over } = summary.notRun;
+    lines.push(
+      `Not run (--max-not-run ${threshold}): ${specs
+        .slice(0, SHOWN_ROWS)
+        .map(
+          (spec) =>
+            `${spec.specId} ${spec.notRun} of ${count(spec.blocks, 'block')}${over.includes(spec.specId) ? ', over the threshold' : ''} (${spec.first})`,
+        )
+        .join('; ')}.`,
     );
   }
   lines.push('');

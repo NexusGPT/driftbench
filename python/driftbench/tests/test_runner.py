@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from driftbench import CampaignResult, DriftbenchError, cli_command, run_specs
+from driftbench import CampaignResult, DriftbenchError, cli_command, run_specs, verdict_of
 
 from conftest import FIXTURES, REPO
 
@@ -38,6 +38,17 @@ def test_a_python_function_agent_runs_through_the_process_adapter():
     assert failing.id == "must.0"
     assert "farewell" in failing.evidence
     assert cell.failing == ("block 1 must.0",)
+
+
+def test_a_spec_not_run_gives_exit_3_and_a_not_run_campaign_never_a_pass():
+    result = run_specs([str(FIXTURES / "echo-not-run.yaml")], agent="echo_agent:echo_with_history", python_path=[str(FIXTURES)])
+    assert result.exit_code == 3
+    assert not result.passed
+    assert verdict_of(result) == "not_run"
+    [cell] = result.cells
+    assert cell.state == "not_run"
+    assert verdict_of(cell.blocks[0]) == "not_run"
+    assert cell.blocks[0].not_run["check"] == "capability"
 
 
 def test_a_callable_is_named_by_its_module_and_name():

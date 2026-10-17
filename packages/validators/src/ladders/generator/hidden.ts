@@ -419,7 +419,9 @@ function recoveryOf(
         stageAfter: 'pending',
         tool: read,
         must: ['not answering'],
-        tools: [{ tool: read, count: { max: 2 } }],
+        // The initial failed call plus the one retry required by DEVIATION_RULES.
+        // An upper bound alone also permits skipping that retry on a self-loop.
+        tools: [{ tool: read, count: 2 }],
       };
     case 'D9_out_of_scope':
       return { stageAfter: 'pending', must: ['billing desk'] };

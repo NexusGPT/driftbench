@@ -1,7 +1,13 @@
 import { contentHash, type Inventory, isPlainObject } from '@agent-nexus/driftbench-core';
 import { type CompiledSpace, compileSpace, NONE, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { parse as parseYaml } from 'yaml';
-import { type NumericSetting, type Proposal, type ProposalPhrase, valueApproved } from '../extract/proposal';
+import {
+  FLOW_DIMENSION,
+  type NumericSetting,
+  type Proposal,
+  type ProposalPhrase,
+  valueApproved,
+} from '../extract/proposal';
 import { toSpaceMap } from '../extract/space';
 import { toolSlug } from '../extract/tools';
 import { Feasibility } from './feasible';
@@ -203,6 +209,16 @@ export function valueId(prepared: PreparedMap, dimension: number, value: number)
 /** The dimension id of an index. */
 export function dimensionId(prepared: PreparedMap, dimension: number): string {
   return prepared.space.dimensions[dimension]?.id ?? '';
+}
+
+/**
+ * True when a relation's subject is a behaviour value: a `uses_tool` with such a subject is a call the
+ * behaviour's own phrase turn makes, never a move of the walk.
+ */
+export function behaviourSubject(prepared: PreparedMap, subject: { dimension: string }): boolean {
+  // The flow dimension is of the behaviour kind too: its calls are the walk's moves.
+  if (subject.dimension === FLOW_DIMENSION) return false;
+  return prepared.space.dimensions.find((entry) => entry.id === subject.dimension)?.kind === 'behaviour';
 }
 
 /** The index of a value id in a dimension, or undefined. */

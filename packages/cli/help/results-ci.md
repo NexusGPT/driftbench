@@ -25,11 +25,12 @@ next:
 | Verdict | Exit | When |
 |---|---|---|
 | `PARITY` (`parity`) | 0 | `compare` says non-inferior: the all-pass flag and every gating criterion that is not underpowered have a 95% upper bound below the margin, and no flag family is new on the candidate |
-| `REGRESSION` (`regression`) | 1 | `compare` says regressed: a new gating flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved |
+| `REGRESSION` (`regression`) | 1 | `compare` says regressed: a new gating flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved. It outranks every verdict but radius-miss, so blocks not run, an incomplete cell or a failing aggregate never hide it; the first reason names the regressed goldens |
 | `NOT SHOWN NON-INFERIOR` (`not-shown-non-inferior`) | 1 | `compare` says unproven: an interval is wider than the margin. Too few goldens, never a regression |
-| `INCOMPLETE` (`incomplete`) | 1 | a candidate cell did not run: stopped by `--budget-usd`, or pending |
-| `AGGREGATE FAILED` (`aggregate-failed`) | 1 | a campaign-level criterion fails, unless the verdict was already incomplete |
+| `INCOMPLETE` (`incomplete`) | 1 | a candidate cell did not run: stopped by `--budget-usd`, or pending, and nothing regressed |
+| `AGGREGATE FAILED` (`aggregate-failed`) | 1 | a campaign-level criterion fails, unless the verdict is already regression, not-run or incomplete |
 | `RADIUS MISS` (`radius-miss`) | 1 | with `--change --audit`: an audited carried cell differs from its stored run. It outranks every other verdict |
+| `NOT RUN` (`not-run`) | 3 | a spec of the candidate has more of its blocks not run than `--max-not-run` allows (default 0: any block not run). A block not run is a Given the target cannot apply, never a pass. It outranks every verdict but radius-miss and regression. The verdict never depends on an unrelated spec not run: a regression gives `REGRESSION`, exit 1, with or without it. A golden that flipped while compare calls the change noise is no regression |
 | none | 2 | bad input; nothing is run and nothing is written |
 
 On the same pair of campaigns `ci` and `compare` give the same verdict and the same exit code.
@@ -73,6 +74,7 @@ driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|sto
 | `--max-age <days>` | `7` | with `--change`: the most days since a carried result was measured |
 | `--json` | off | print the JSON summary instead of the table |
 | `--config <file>` | `driftbench.yaml` in the working folder | the project config: its `aggregates:` are scored, and its `campaign:` key gives `routes`, `modes`, `repeats`, `concurrency`, `budget_usd`, `process_command` and `agent_version` where no flag is given |
+| `--max-not-run <share>` | `0` | the largest share of a spec's fresh blocks that may be not run before the verdict is `not-run`, exit 3, from 0 to 1. Raise it for an exploratory suite; the specs below it are still listed |
 | `--aggregate <spec>` | none | a campaign-level criterion `name:op threshold`, such as `pass-rate:>=0.8`; repeatable; a failing one fails the gate |
 
 Global: `--plugin <module>` loads a plugin, which can register an adapter for your own agent.
@@ -83,7 +85,7 @@ Global: `--plugin <module>` loads a plugin, which can register an adapter for yo
 `specs`, `target`, `baseline` (required), `store` (`.driftbench/ci.db`), `margin` (`auto`), `min-goldens`
 (`30`), `strict` (`false`), `repeats` (`1`), `mode` (`F`), `budget-usd`, `faults`, `route` (one
 `tag=target` per line), `process-command`, `change`, `agent-version`, `audit`, `aggregate` (one per
-line), `report-path` (`driftbench-ci.json`), `working-directory` (`.`), `driftbench` (`pnpm -s
+line), `max-not-run`, `report-path` (`driftbench-ci.json`), `working-directory` (`.`), `driftbench` (`pnpm -s
 driftbench`, the command that runs the CLI). Outputs: `verdict` (the summary's verdict, or `input-error`
 on exit 2) and `report-path`. The step exits with the CLI's exit code, so any verdict but parity fails the
 job, and it writes the margin, the underpowered criteria, the radius and the aggregates to the job summary.
@@ -126,7 +128,10 @@ The JSON summary (`--out`, and standard output with `--json`) holds: `verdict`, 
 `strict`, `underpowered`, `comparator`, `flags`, `baseline` (`campaignId`, `store`), `candidate`
 (`campaignId`, `store`, `target`, `cells`, `incompleteCells`), `pairs`, `table`, `effectPoints`
 (`estimate`, `lower`, `upper`), `smallestMarginPoints`, `criteriaNotShown`, `regressed`, `improved`,
-`newFlags`, `unpaired`, `rows` (one per golden), and `radius` with `--change`.
+`newFlags`, `unpaired`, `rows` (one per golden), `radius` with `--change`, and `notRun` when a candidate
+block was not run: `threshold`, `specs` (`specId`, `notRun`, `blocks`, `share`, `first`, the first reason) and
+`over` (the specs above the threshold). A spec whose every run of a golden was not run is not paired: its
+`unpaired` reason starts `not measured in the candidate`.
 
 ## Worked example
 
@@ -267,11 +272,15 @@ $ driftbench ci --specs examples/acme/specs/conversations --target fault:control
       "passed": true,
       "reason": "1 >= 0.8",
       "interval": {
-        "lower": 0.8620237953250198,
+        "lower": 0.7575059933447592,
         "upper": 1,
-        "n": 24
+        "n": 24,
+        "method": "wilson, clusters",
+        "clusters": 12
       },
-      "decided": true
+      "decided": false,
+      "runsNeeded": 48,
+      "goldensNeeded": 24
     }
   ],
   "exitCode": 0,

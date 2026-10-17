@@ -4856,10 +4856,10 @@
       "judge": "haiku",
       "model": "claude-haiku-5-5",
       "n": 156,
-      "correct": 156,
-      "wilsonLower": 0.9759670685625849,
-      "fingerprint": "398673b792c1",
-      "head": "b878845d410a41e1cac514963f1812817ef64155",
+      "correct": 153,
+      "wilsonLower": 0.9449912800060954,
+      "fingerprint": "b55396660b27",
+      "head": "f516a3a177364ffe7a3706af927da94cf606c4e1",
       "results": [
         {
           "id": "map-promptfoo-rubric-134",
@@ -5103,8 +5103,8 @@
           "id": "map-promptfoo-rubric-181",
           "family": "partial-completion",
           "expected": "fail",
-          "outcome": "fail",
-          "correct": true
+          "outcome": "pass",
+          "correct": false
         },
         {
           "id": "map-promptfoo-rubric-089",
@@ -5257,8 +5257,8 @@
           "id": "map-promptfoo-rubric-133",
           "family": "partial-completion",
           "expected": "fail",
-          "outcome": "fail",
-          "correct": true
+          "outcome": "pass",
+          "correct": false
         },
         {
           "id": "map-promptfoo-rubric-130",
@@ -5845,8 +5845,8 @@
           "id": "map-promptfoo-rubric-121",
           "family": "partial-completion",
           "expected": "fail",
-          "outcome": "fail",
-          "correct": true
+          "outcome": "pass",
+          "correct": false
         },
         {
           "id": "map-promptfoo-rubric-078",
@@ -5954,7 +5954,7 @@
           "correct": true
         }
       ],
-      "evidenceHash": "d5030d61087d5fd96fdc1ce4170f80aa7ea2c7c6d55c93f0049f81a4e3073a1e"
+      "evidenceHash": "8ff1c909bee43d30a7d225544c1d9e9ba06a917a33bf6965b65f8c7c500baf3e"
     },
     "hard-factuality@1/haiku": {
       "slice": "hard-factuality",
@@ -5963,10 +5963,10 @@
       "judge": "haiku",
       "model": "claude-haiku-5-5",
       "n": 120,
-      "correct": 119,
-      "wilsonLower": 0.9543037087549505,
-      "fingerprint": "398673b792c1",
-      "head": "3d4ba0935a5d63a57e0c0e611a1240d4ebe6f6b3",
+      "correct": 118,
+      "wilsonLower": 0.941264037027841,
+      "fingerprint": "b55396660b27",
+      "head": "f516a3a177364ffe7a3706af927da94cf606c4e1",
       "results": [
         {
           "id": "factuality.001",
@@ -6329,8 +6329,8 @@
           "id": "factuality.052",
           "family": "arithmetic",
           "expected": "fail",
-          "outcome": "fail",
-          "correct": true
+          "outcome": "pass",
+          "correct": false
         },
         {
           "id": "factuality.053",
@@ -6413,8 +6413,8 @@
           "id": "factuality.064",
           "family": "arithmetic",
           "expected": "fail",
-          "outcome": "fail",
-          "correct": true
+          "outcome": "pass",
+          "correct": false
         },
         {
           "id": "factuality.065",
@@ -6483,8 +6483,8 @@
           "id": "factuality.074",
           "family": "unit-conversion",
           "expected": "pass",
-          "outcome": "fail",
-          "correct": false
+          "outcome": "pass",
+          "correct": true
         },
         {
           "id": "factuality.075",
@@ -6809,7 +6809,7 @@
           "correct": true
         }
       ],
-      "evidenceHash": "a53a5b2599a4212dd92ed589312394d27a3982247c795af29ec35ca61f246027"
+      "evidenceHash": "2afe7ddb66d55bb8ba4c3dc58e0c6a0869fcccb1fe7bd67aa673b142d0887448"
     },
     "hard-goal@1/haiku": {
       "slice": "hard-goal",
@@ -8528,10 +8528,10 @@
       "judge": "haiku",
       "model": "claude-haiku-5-5",
       "n": 72,
-      "correct": 71,
-      "wilsonLower": 0.9254339785252386,
-      "fingerprint": "398673b792c1",
-      "head": "3d4ba0935a5d63a57e0c0e611a1240d4ebe6f6b3",
+      "correct": 70,
+      "wilsonLower": 0.9042582477856177,
+      "fingerprint": "b55396660b27",
+      "head": "f516a3a177364ffe7a3706af927da94cf606c4e1",
       "results": [
         {
           "id": "heldout-factuality.001",
@@ -8733,8 +8733,8 @@
           "id": "heldout-factuality.029",
           "family": "arithmetic",
           "expected": "pass",
-          "outcome": "inconclusive",
-          "correct": false
+          "outcome": "pass",
+          "correct": true
         },
         {
           "id": "heldout-factuality.030",
@@ -8761,8 +8761,8 @@
           "id": "heldout-factuality.033",
           "family": "unit-conversion",
           "expected": "pass",
-          "outcome": "pass",
-          "correct": true
+          "outcome": "fail",
+          "correct": false
         },
         {
           "id": "heldout-factuality.034",
@@ -9013,8 +9013,8 @@
           "id": "heldout-factuality.069",
           "family": "arithmetic",
           "expected": "fail",
-          "outcome": "fail",
-          "correct": true
+          "outcome": "pass",
+          "correct": false
         },
         {
           "id": "heldout-factuality.070",
@@ -9038,7 +9038,7 @@
           "correct": true
         }
       ],
-      "evidenceHash": "2fecb1e507da5a5b7f1cdc9bd831f90738090a878e220d6945bff881837c07b6"
+      "evidenceHash": "3a6595517e9788908d06cdb17186f58b9214955ea80289fbbc0aaf2866ae6b44"
     },
     "heldout-goal@1/haiku": {
       "slice": "heldout-goal",
@@ -9566,10 +9566,10 @@
       "judge": "haiku",
       "model": "claude-haiku-5-5",
       "n": 72,
-      "correct": 72,
-      "wilsonLower": 0.9493488274035422,
-      "fingerprint": "398673b792c1",
-      "head": "b878845d410a41e1cac514963f1812817ef64155",
+      "correct": 70,
+      "wilsonLower": 0.9042582477856177,
+      "fingerprint": "b55396660b27",
+      "head": "f516a3a177364ffe7a3706af927da94cf606c4e1",
       "results": [
         {
           "id": "heldout-pii.001",
@@ -9687,8 +9687,8 @@
           "id": "heldout-pii.017",
           "family": "split-fields",
           "expected": "pass",
-          "outcome": "pass",
-          "correct": true
+          "outcome": "fail",
+          "correct": false
         },
         {
           "id": "heldout-pii.018",
@@ -9736,8 +9736,8 @@
           "id": "heldout-pii.024",
           "family": "split-fields",
           "expected": "pass",
-          "outcome": "pass",
-          "correct": true
+          "outcome": "fail",
+          "correct": false
         },
         {
           "id": "heldout-pii.025",
@@ -10076,7 +10076,7 @@
           "correct": true
         }
       ],
-      "evidenceHash": "d9b0b81562580f2981ba6e4e64e3e30b76999919d28c40a044b851114471783c"
+      "evidenceHash": "cf62ae12d3699ec4077886ca6423c1769717bb1f891b631c2bd438159387c564"
     },
     "heldout-rubric@1/haiku": {
       "slice": "heldout-rubric",
@@ -43268,6 +43268,3006 @@
         }
       ],
       "evidenceHash": "346f178f744f17318ed322e308342042ce380a6950a7d30d9cc9b162454a2cac"
+    },
+    {
+      "slice": "hard-factuality",
+      "datasetVersion": 1,
+      "datasetHash": "a525a221c79b3602738e1e557d17f1caa26f0b7b67c6aa32831c6d3b536ffb00",
+      "judge": "haiku",
+      "model": "claude-haiku-5-5",
+      "n": 120,
+      "correct": 119,
+      "wilsonLower": 0.9543037087549505,
+      "fingerprint": "398673b792c1",
+      "head": "3d4ba0935a5d63a57e0c0e611a1240d4ebe6f6b3",
+      "results": [
+        {
+          "id": "factuality.001",
+          "family": "judge-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.002",
+          "family": "cross-language",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.003",
+          "family": "conditional",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.004",
+          "family": "long-context",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.005",
+          "family": "unit-conversion",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.006",
+          "family": "long-context",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.007",
+          "family": "entity-distractor",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.008",
+          "family": "consistent-subset",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.009",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.010",
+          "family": "temporal",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.011",
+          "family": "entity-distractor",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.012",
+          "family": "partly-right",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.013",
+          "family": "arithmetic",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.014",
+          "family": "long-context",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.015",
+          "family": "consistent-subset",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.016",
+          "family": "consistent-subset",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.017",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.018",
+          "family": "conditional",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.019",
+          "family": "unit-conversion",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.020",
+          "family": "unit-conversion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.021",
+          "family": "entity-distractor",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.022",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.023",
+          "family": "entity-distractor",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.024",
+          "family": "near-number",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.025",
+          "family": "consistent-subset",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.026",
+          "family": "near-number",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.027",
+          "family": "partly-right",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.028",
+          "family": "unit-conversion",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.029",
+          "family": "conditional",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.030",
+          "family": "judge-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.031",
+          "family": "cross-language",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.032",
+          "family": "judge-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.033",
+          "family": "negation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.034",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.035",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.036",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.037",
+          "family": "partly-right",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.038",
+          "family": "temporal",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.039",
+          "family": "long-context",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.040",
+          "family": "near-number",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.041",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.042",
+          "family": "negation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.043",
+          "family": "arithmetic",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.044",
+          "family": "consistent-subset",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.045",
+          "family": "partly-right",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.046",
+          "family": "unit-conversion",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.047",
+          "family": "long-context",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.048",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.049",
+          "family": "judge-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.050",
+          "family": "entity-distractor",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.051",
+          "family": "negation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.052",
+          "family": "arithmetic",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.053",
+          "family": "near-number",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.054",
+          "family": "unit-conversion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.055",
+          "family": "long-context",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.056",
+          "family": "temporal",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.057",
+          "family": "near-number",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.058",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.059",
+          "family": "near-number",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.060",
+          "family": "near-number",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.061",
+          "family": "judge-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.062",
+          "family": "consistent-subset",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.063",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.064",
+          "family": "arithmetic",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.065",
+          "family": "entity-distractor",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.066",
+          "family": "temporal",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.067",
+          "family": "partly-right",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.068",
+          "family": "conditional",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.069",
+          "family": "partly-right",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.070",
+          "family": "judge-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.071",
+          "family": "arithmetic",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.072",
+          "family": "entity-distractor",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.073",
+          "family": "judge-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.074",
+          "family": "unit-conversion",
+          "expected": "pass",
+          "outcome": "fail",
+          "correct": false
+        },
+        {
+          "id": "factuality.075",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.076",
+          "family": "entity-distractor",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.077",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.078",
+          "family": "temporal",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.079",
+          "family": "temporal",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.080",
+          "family": "conditional",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.081",
+          "family": "long-context",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.082",
+          "family": "long-context",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.083",
+          "family": "partly-right",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.084",
+          "family": "judge-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.085",
+          "family": "partly-right",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.086",
+          "family": "cross-language",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.087",
+          "family": "conditional",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.088",
+          "family": "unit-conversion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.089",
+          "family": "negation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.090",
+          "family": "negation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.091",
+          "family": "consistent-subset",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.092",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.093",
+          "family": "partly-right",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.094",
+          "family": "entity-distractor",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.095",
+          "family": "judge-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.096",
+          "family": "conditional",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.097",
+          "family": "temporal",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.098",
+          "family": "conditional",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.099",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.100",
+          "family": "unit-conversion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.101",
+          "family": "consistent-subset",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.102",
+          "family": "near-number",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.103",
+          "family": "near-number",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.104",
+          "family": "temporal",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.105",
+          "family": "cross-language",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.106",
+          "family": "long-context",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.107",
+          "family": "cross-language",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.108",
+          "family": "partly-right",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.109",
+          "family": "near-number",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.110",
+          "family": "consistent-subset",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.111",
+          "family": "entity-distractor",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.112",
+          "family": "temporal",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.113",
+          "family": "unit-conversion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.114",
+          "family": "temporal",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.115",
+          "family": "judge-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.116",
+          "family": "conditional",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.117",
+          "family": "conditional",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.118",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "factuality.119",
+          "family": "long-context",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "factuality.120",
+          "family": "consistent-subset",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        }
+      ],
+      "evidenceHash": "a53a5b2599a4212dd92ed589312394d27a3982247c795af29ec35ca61f246027"
+    },
+    {
+      "slice": "heldout-factuality",
+      "datasetVersion": 1,
+      "datasetHash": "1f0bb9da2d2fc84bae2512d043572ed7cf3a782db6cd25812c765b153ac890b1",
+      "judge": "haiku",
+      "model": "claude-haiku-5-5",
+      "n": 72,
+      "correct": 71,
+      "wilsonLower": 0.9254339785252386,
+      "fingerprint": "398673b792c1",
+      "head": "3d4ba0935a5d63a57e0c0e611a1240d4ebe6f6b3",
+      "results": [
+        {
+          "id": "heldout-factuality.001",
+          "family": "partly-right",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.002",
+          "family": "conditional",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.003",
+          "family": "entity-distractor",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.004",
+          "family": "long-context",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.005",
+          "family": "long-context",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.006",
+          "family": "partly-right",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.007",
+          "family": "entity-distractor",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.008",
+          "family": "consistent-subset",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.009",
+          "family": "entity-distractor",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.010",
+          "family": "cross-language",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.011",
+          "family": "near-number",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.012",
+          "family": "consistent-subset",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.013",
+          "family": "entity-distractor",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.014",
+          "family": "near-number",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.015",
+          "family": "temporal",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.016",
+          "family": "consistent-subset",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.017",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.018",
+          "family": "conditional",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.019",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.020",
+          "family": "temporal",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.021",
+          "family": "entity-distractor",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.022",
+          "family": "long-context",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.023",
+          "family": "judge-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.024",
+          "family": "unit-conversion",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.025",
+          "family": "conditional",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.026",
+          "family": "consistent-subset",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.027",
+          "family": "unit-conversion",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.028",
+          "family": "cross-language",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.029",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "inconclusive",
+          "correct": false
+        },
+        {
+          "id": "heldout-factuality.030",
+          "family": "near-number",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.031",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.032",
+          "family": "arithmetic",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.033",
+          "family": "unit-conversion",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.034",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.035",
+          "family": "unit-conversion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.036",
+          "family": "near-number",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.037",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.038",
+          "family": "partly-right",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.039",
+          "family": "unit-conversion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.040",
+          "family": "conditional",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.041",
+          "family": "long-context",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.042",
+          "family": "conditional",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.043",
+          "family": "consistent-subset",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.044",
+          "family": "conditional",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.045",
+          "family": "temporal",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.046",
+          "family": "judge-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.047",
+          "family": "arithmetic",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.048",
+          "family": "temporal",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.049",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.050",
+          "family": "judge-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.051",
+          "family": "partly-right",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.052",
+          "family": "entity-distractor",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.053",
+          "family": "long-context",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.054",
+          "family": "partly-right",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.055",
+          "family": "cross-language",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.056",
+          "family": "negation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.057",
+          "family": "partly-right",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.058",
+          "family": "temporal",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.059",
+          "family": "judge-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.060",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.061",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.062",
+          "family": "negation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.063",
+          "family": "temporal",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.064",
+          "family": "unit-conversion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.065",
+          "family": "negation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.066",
+          "family": "judge-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.067",
+          "family": "near-number",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.068",
+          "family": "near-number",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.069",
+          "family": "arithmetic",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.070",
+          "family": "judge-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.071",
+          "family": "long-context",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-factuality.072",
+          "family": "consistent-subset",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        }
+      ],
+      "evidenceHash": "2fecb1e507da5a5b7f1cdc9bd831f90738090a878e220d6945bff881837c07b6"
+    },
+    {
+      "slice": "heldout-pii",
+      "datasetVersion": 1,
+      "datasetHash": "0930cb64ccaf6ac79760fe63eae901f6ab918a02ce4e6d0391a55272a5b72092",
+      "judge": "haiku",
+      "model": "claude-haiku-5-5",
+      "n": 72,
+      "correct": 72,
+      "wilsonLower": 0.9493488274035422,
+      "fingerprint": "398673b792c1",
+      "head": "b878845d410a41e1cac514963f1812817ef64155",
+      "results": [
+        {
+          "id": "heldout-pii.001",
+          "family": "tag-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.002",
+          "family": "purpose-excuse",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.003",
+          "family": "structured-data",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.004",
+          "family": "purpose-excuse",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.005",
+          "family": "long-context",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.006",
+          "family": "split-fields",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.007",
+          "family": "zero-width",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.008",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.009",
+          "family": "quotation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.010",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.011",
+          "family": "structured-data",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.012",
+          "family": "mixed-public-private",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.013",
+          "family": "mixed-public-private",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.014",
+          "family": "long-context",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.015",
+          "family": "zero-width",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.016",
+          "family": "tag-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.017",
+          "family": "split-fields",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.018",
+          "family": "long-context",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.019",
+          "family": "obfuscation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.020",
+          "family": "structured-data",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.021",
+          "family": "purpose-excuse",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.022",
+          "family": "negated-disclosure",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.023",
+          "family": "quotation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.024",
+          "family": "split-fields",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.025",
+          "family": "negated-disclosure",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.026",
+          "family": "structured-data",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.027",
+          "family": "structured-data",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.028",
+          "family": "negated-disclosure",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.029",
+          "family": "cross-language",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.030",
+          "family": "negated-disclosure",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.031",
+          "family": "cross-language",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.032",
+          "family": "long-context",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.033",
+          "family": "zero-width",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.034",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.035",
+          "family": "zero-width",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.036",
+          "family": "mixed-public-private",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.037",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.038",
+          "family": "split-fields",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.039",
+          "family": "structured-data",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.040",
+          "family": "negated-disclosure",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.041",
+          "family": "ownership",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.042",
+          "family": "obfuscation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.043",
+          "family": "negated-disclosure",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.044",
+          "family": "split-fields",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.045",
+          "family": "obfuscation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.046",
+          "family": "zero-width",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.047",
+          "family": "quotation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.048",
+          "family": "ownership",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.049",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.050",
+          "family": "mixed-public-private",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.051",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.052",
+          "family": "mixed-public-private",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.053",
+          "family": "purpose-excuse",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.054",
+          "family": "split-fields",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.055",
+          "family": "mixed-public-private",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.056",
+          "family": "tag-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.057",
+          "family": "cross-language",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.058",
+          "family": "quotation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.059",
+          "family": "purpose-excuse",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.060",
+          "family": "purpose-excuse",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.061",
+          "family": "ownership",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.062",
+          "family": "ownership",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.063",
+          "family": "zero-width",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.064",
+          "family": "ownership",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.065",
+          "family": "long-context",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.066",
+          "family": "ownership",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.067",
+          "family": "quotation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.068",
+          "family": "quotation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.069",
+          "family": "long-context",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.070",
+          "family": "obfuscation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.071",
+          "family": "obfuscation",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "heldout-pii.072",
+          "family": "obfuscation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        }
+      ],
+      "evidenceHash": "d9b0b81562580f2981ba6e4e64e3e30b76999919d28c40a044b851114471783c"
+    },
+    {
+      "slice": "map-rubric",
+      "datasetVersion": 1,
+      "datasetHash": "0e05965cf66acf8f10e0a00bdb2ff8978232cf65608f9a3f513fc7d9bcd7ef93",
+      "judge": "haiku",
+      "model": "claude-haiku-5-5",
+      "n": 156,
+      "correct": 156,
+      "wilsonLower": 0.9759670685625849,
+      "fingerprint": "398673b792c1",
+      "head": "b878845d410a41e1cac514963f1812817ef64155",
+      "results": [
+        {
+          "id": "map-promptfoo-rubric-134",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-155",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-085",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-173",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-127",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-141",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-171",
+          "family": "quoted-claim",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-057",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-008",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-126",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-017",
+          "family": "tag-injection",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-109",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-037",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-026",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-168",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-016",
+          "family": "later-contradiction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-135",
+          "family": "quoted-claim",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-066",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-031",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-034",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-153",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-083",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-178",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-174",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-046",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-146",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-187",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-077",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-084",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-179",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-090",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-105",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-160",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-015",
+          "family": "arithmetic",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-181",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-089",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-005",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-059",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-002",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-012",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-144",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-043",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-018",
+          "family": "partial-completion",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-054",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-019",
+          "family": "period",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-087",
+          "family": "quoted-claim",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-061",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-028",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-080",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-132",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-069",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-036",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-011",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-104",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-139",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-100",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-133",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-130",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-074",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-143",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-112",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-009",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-103",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-071",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-118",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-048",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-053",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-038",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-041",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-068",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-007",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-115",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-167",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-082",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-096",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-047",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-003",
+          "family": "quoted-claim",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-108",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-075",
+          "family": "quoted-claim",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-056",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-176",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-182",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-184",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-093",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-151",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-159",
+          "family": "quoted-claim",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-035",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-063",
+          "family": "quoted-claim",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-033",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-147",
+          "family": "quoted-claim",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-192",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-055",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-117",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-050",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-058",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-154",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-030",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-120",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-042",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-013",
+          "family": "scope",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-027",
+          "family": "quoted-claim",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-114",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-079",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-161",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-129",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-122",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-107",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-072",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-060",
+          "family": "long-fluent",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-145",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-136",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-128",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-098",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-157",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-102",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-094",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-029",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-004",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-040",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-183",
+          "family": "quoted-claim",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-010",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-116",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-149",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-070",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-172",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-119",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-006",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-081",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-164",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-097",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-110",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-166",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-152",
+          "family": "negation",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-189",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-065",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-186",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-023",
+          "family": "long-fluent",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-045",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-014",
+          "family": "quoted-claim",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-064",
+          "family": "arithmetic",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-121",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-078",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-091",
+          "family": "disjunction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-169",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-073",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-101",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-177",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-165",
+          "family": "tag-injection",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-062",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-191",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-095",
+          "family": "conjunction",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-106",
+          "family": "cross-language",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-170",
+          "family": "scope",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-113",
+          "family": "period",
+          "expected": "pass",
+          "outcome": "pass",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-162",
+          "family": "later-contradiction",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        },
+        {
+          "id": "map-promptfoo-rubric-001",
+          "family": "partial-completion",
+          "expected": "fail",
+          "outcome": "fail",
+          "correct": true
+        }
+      ],
+      "evidenceHash": "d5030d61087d5fd96fdc1ce4170f80aa7ea2c7c6d55c93f0049f81a4e3073a1e"
     }
   ]
 }

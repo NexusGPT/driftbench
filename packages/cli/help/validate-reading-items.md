@@ -207,8 +207,7 @@ Level  Name                                                          Metric     
 20     the same operations at 10 and 100 times the input             items of scale passing / 26 items        >= 1       0.884615 FAIL (3)
 Level per seed: 1 = 19
 Level of the run: 19 of 20, the minimum over 1 seed.
-Floor: 0. At or above the floor.
-The floor 7 belongs to ladder version 1; version 2 has no floor yet.
+Floor: 20. BELOW THE FLOOR.
 Items of the first failing level:
   Seed 1, level 20 scale (the same operations at 10 and 100 times the input), 3 items:
     family scale (3):
