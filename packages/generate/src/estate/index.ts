@@ -37,6 +37,7 @@ export {
   renderAsk,
   SLOT,
   SUBJECT_SHAPE,
+  SUBJECT_TAIL,
   VERBATIM,
 } from './frames';
 export {

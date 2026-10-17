@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { actOf, codeAsk, fileSubjectDerivation } from '../../src/estate/asks';
-import { renderAsk, SUBJECT_SHAPE } from '../../src/estate/frames';
+import { renderAsk, SLOT, SUBJECT_SHAPE, SUBJECT_TAIL } from '../../src/estate/frames';
 import type { EstateAtom } from '../../src/estate/inputs';
 import { fromRecord } from '../../src/estate/record';
 
@@ -86,6 +86,22 @@ describe('the ask that names the subject of a file records where it came from', 
   it('names the unit of the task as its source, with no file suffix', () => {
     const written = codeAsk('trigger', [ref, owner], []);
     expect(written.source).toBe(`${owner.id} (asks it names)`);
+  });
+
+  it('also fits a task put as help with a topic', () => {
+    const bare = reference('references/firing-curves.md', '- `references/firing-curves.md`');
+    const helper = atom('skill.kiln2', {
+      fields: { name: 'kiln2', description: 'Use when the user asks for help with firing schedules.' },
+      provenance: { quote: 'x', file: '.claude/skills/kiln2/SKILL.md' },
+    });
+    const written = codeAsk('trigger', [bare, helper], []);
+    const from = fromRecord({
+      askFrom: written.source,
+      built: { frame: written.frame as string, act: written.act as string },
+      atoms: new Map([[helper.id, helper]]),
+    }) as unknown as { frame: string; shape: string; pieces: string[] } | undefined;
+    expect(from?.shape).toBe(`help me with ${SLOT}${SUBJECT_TAIL}`);
+    expect(renderAsk(from as { frame: string; shape: string; pieces: string[] })).toBe(written.text);
   });
 
   it('records the frame, the shape of the act and the pieces so the ask is rebuilt from them', () => {

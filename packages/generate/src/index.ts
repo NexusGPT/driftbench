@@ -158,6 +158,7 @@ export {
   StaticCheck,
   StaticTest,
   SUBJECT_SHAPE,
+  SUBJECT_TAIL,
   scriptCases,
   situationProblem,
   specId,
