@@ -1,63 +1,42 @@
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { validateVariableStore } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
-import { estateToVariables, ledgerResolver, readCondition } from '../../src/variables';
+import { estateToVariables, provenanceResolver } from '../../src/variables';
 import { atom, HALL, mapOf } from './support';
 
-describe('the condition reader: a closed grammar of comparisons with a number', () => {
-  it.each([
-    ['A shipment is late by more than two days', { comparison: 'gt', limit: 2, unit: 'days' }],
-    ['The total difference is above 50.00 EUR', { comparison: 'gt', limit: 50, unit: 'eur' }],
-    ['A boat stays at least 3 nights', { comparison: 'ge', limit: 3, unit: 'nights' }],
-    ['A reply is under 120 words', { comparison: 'lt', limit: 120, unit: 'words' }],
-    ['No more than one question per reply', { comparison: 'le', limit: 1, unit: 'question' }],
-    ['At most 0.5 litres are poured', { comparison: 'le', limit: 0.5, unit: 'litres' }],
-    ['A mooring waits fewer than ten minutes', { comparison: 'lt', limit: 10, unit: 'minutes' }],
-    ['A fee above 500', { comparison: 'gt', limit: 500 }],
-  ])('reads %s', (text, expected) => {
-    expect(readCondition(text)).toMatchObject(expected);
-  });
+const resolver = () => provenanceResolver(new Map(Object.entries(HALL)));
+const QUOTE = 'Never hand out a key without a signature.';
+const conditionsOf = (result: ReturnType<typeof estateToVariables>) =>
+  result.store.variables.filter((variable) => variable.id.startsWith('condition.'));
 
-  it.each([
-    'A tool failed twice in a row',
-    'A shipment is late',
-    'The user says stop',
-    'A crate is more than two days late and under ten kilos',
-    'Over the moon',
-    'More than a few days',
-  ])('reads nothing from %s: no number, or two comparisons, or no quantity', (text) => {
-    expect(readCondition(text)).toBeUndefined();
-  });
-});
-
-describe('the subject of a condition is the words up to its number and unit', () => {
-  it.each([
-    ['A credit note above 500.00 EUR waits for approval', 'A credit note above 500.00 EUR'],
-    ['A shipment is late by more than two days', 'A shipment is late by more than two days'],
-    ['A reply is under 120 words, say the editors', 'A reply is under 120 words'],
-    ['A fee above 500 and a late fee', 'A fee above 500'],
-  ])('%s', (text, subject) => {
-    expect(readCondition(text)?.subject).toBe(subject);
-  });
-});
-
-describe('a condition with a number becomes a variable with a boundary', () => {
-  const OVERDUE = 'When a mooring is overdue by more than two days, warn the keeper and offer a reminder.';
-  const resolver = () => ledgerResolver(new Map(Object.entries(HALL)));
-
-  it('writes the three values, the edge between them, and the limit with its comparison and unit', () => {
+describe('a numeric condition comes only from a structured field', () => {
+  it('reads the limit, comparison and unit of a field the atom carries, and writes the three values and the edge', () => {
     const result = estateToVariables(
-      mapOf([atom({ quote: OVERDUE, situation: 'A mooring is overdue by more than two days' })]),
+      mapOf([
+        atom({
+          quote: QUOTE,
+          title: 'A key needs a signature',
+          fields: { condition: { limit: 2, comparison: 'gt', unit: 'days' } },
+        }),
+      ]),
       resolver(),
     );
-    const variable = result.store.variables.find((v) => v.id.startsWith('condition.'));
+    const [variable] = conditionsOf(result);
     expect(variable).toMatchObject({
-      id: 'condition.a_mooring_is_overdue_by_more_than_two_days',
-      title: 'A mooring is overdue by more than two days',
+      title: 'A key needs a signature',
       kind: 'data',
       role: 'detail',
       produced_by: 'model',
     });
+    expect(variable?.id).toMatch(/^condition\.[a-z0-9_]+$/);
     expect(variable?.values.map((v) => v.id)).toEqual(['above_2', 'at_2', 'below_2']);
+    expect(variable?.values.map((v) => v.title)).toEqual([
+      'More than 2 days',
+      'Exactly 2 days',
+      'Under 2 days',
+    ]);
     expect(variable?.boundaries).toEqual([
       {
         holds: 'above_2',
@@ -67,69 +46,150 @@ describe('a condition with a number becomes a variable with a boundary', () => {
         comparison: 'gt',
         unit: 'days',
         provenance: [
-          {
-            kind: 'quote',
-            path: 'CLAUDE.md',
-            quote: OVERDUE,
-            ledger: expect.stringMatching(/^[a-z2-7]{10}$/),
-          },
+          { kind: 'quote', path: 'CLAUDE.md', quote: QUOTE, ledger: expect.stringMatching(/^[a-z2-7]{10}$/) },
         ],
       },
     ]);
     for (const value of variable?.values ?? [])
-      expect(value.provenance?.[0]).toMatchObject({ kind: 'quote', quote: OVERDUE });
+      expect(value.provenance).toEqual(variable?.boundaries?.[0]?.provenance);
     expect(validateVariableStore(result.store).ok).toBe(true);
   });
 
-  it('puts the failing side below the limit for "more than", and above it for "at most"', () => {
-    const more = estateToVariables(
-      mapOf([atom({ quote: OVERDUE, situation: 'A mooring is overdue by more than two days' })]),
+  it.each([
+    ['gt', 'above_5', 'below_5'],
+    ['ge', 'above_5', 'below_5'],
+    ['lt', 'below_5', 'above_5'],
+    ['le', 'below_5', 'above_5'],
+  ] as const)('puts the holding side %s of the limit on the right side', (comparison, holds, fails) => {
+    const result = estateToVariables(
+      mapOf([atom({ quote: QUOTE, fields: { condition: { limit: 5, comparison } } })]),
       resolver(),
     );
-    const most = estateToVariables(
+    expect(conditionsOf(result)[0]?.boundaries?.[0]).toMatchObject({
+      holds,
+      fails,
+      edge: 'at_5',
+      comparison,
+    });
+    expect(validateVariableStore(result.store).ok).toBe(true);
+  });
+
+  it('writes no unit when the field has none, and keeps a decimal and a negative limit', () => {
+    const result = estateToVariables(
       mapOf([
+        atom({ quote: QUOTE, fields: { condition: { limit: 0.5, comparison: 'le' } } }),
         atom({
-          quote: 'A boat that stays at most 3 nights pays the short fee.',
-          situation: 'A boat stays at most 3 nights',
+          quote: 'Lock the hall when the last boat is out.',
+          fields: { condition: { limit: -3, comparison: 'ge', unit: 'degrees' } },
         }),
       ]),
       resolver(),
     );
-    expect(more.store.variables.at(-1)?.boundaries?.[0]).toMatchObject({
-      holds: 'above_2',
-      fails: 'below_2',
+    const [first, second] = conditionsOf(result);
+    expect(first?.boundaries?.[0]).not.toHaveProperty('unit');
+    expect(first?.values.map((v) => v.id)).toEqual(['above_0.5', 'at_0.5', 'below_0.5']);
+    expect(second?.values.map((v) => v.id)).toEqual(['above_-3', 'at_-3', 'below_-3']);
+    expect(first?.id).not.toBe(second?.id);
+    expect(validateVariableStore(result.store).ok).toBe(true);
+  });
+
+  it.each([
+    ['a comparison that is not one of lt, le, gt, ge', { limit: 2, comparison: 'more than' }],
+    ['a limit that is a string', { limit: '2', comparison: 'gt' }],
+    ['a limit that is not finite', { limit: Number.POSITIVE_INFINITY, comparison: 'gt' }],
+    ['no comparison', { limit: 2 }],
+    ['no limit', { comparison: 'gt' }],
+    ['a unit that is not text', { limit: 2, comparison: 'gt', unit: 3 }],
+    ['an extra key', { limit: 2, comparison: 'gt', unit: 'days', note: 'x' }],
+  ])('makes no variable from %s', (_name, condition) => {
+    const result = estateToVariables(mapOf([atom({ quote: QUOTE, fields: { condition } })]), resolver());
+    expect(conditionsOf(result)).toEqual([]);
+    expect(result.refused).toEqual([]);
+  });
+});
+
+describe('the size ceiling of the standing instructions is a structured limit', () => {
+  const standing = (fields: Record<string, unknown>) =>
+    atom({
+      kind: 'invariant',
+      quote: '# Boat hall',
+      role: 'detail',
+      producedBy: 'code',
+      title: 'The standing instructions stay under their ceiling',
+      fields,
     });
-    expect(most.store.variables.at(-1)?.boundaries?.[0]).toMatchObject({
-      holds: 'below_3',
-      fails: 'above_3',
+
+  it('reads ceiling as an upper limit in characters from the standing_size check', () => {
+    const result = estateToVariables(
+      mapOf([standing({ check: 'standing_size', ceiling: 40000, characters: 3292, holds: true })]),
+      resolver(),
+    );
+    const [variable] = conditionsOf(result);
+    expect(variable?.id).toBe('condition.standing_size');
+    expect(variable?.boundaries?.[0]).toMatchObject({
+      holds: 'below_40000',
+      fails: 'above_40000',
+      edge: 'at_40000',
+      limit: 40000,
       comparison: 'le',
+      unit: 'characters',
     });
-    expect(validateVariableStore(most.store).ok).toBe(true);
+    expect(variable?.values.map((v) => v.title)).toEqual([
+      'More than 40000 characters',
+      'Exactly 40000 characters',
+      'Under 40000 characters',
+    ]);
   });
 
-  it('keeps two atoms that state the same condition as one variable with both quotes', () => {
+  it('reads nothing from a ceiling that another check or another kind carries, or from one that is not a number', () => {
+    for (const a of [
+      standing({ check: 'no_orphan_file', ceiling: 40000 }),
+      standing({ check: 'standing_size', ceiling: '40000' }),
+      standing({ check: 'standing_size' }),
+      atom({ kind: 'guard', quote: '# Boat hall', fields: { check: 'standing_size', ceiling: 40000 } }),
+    ]) {
+      expect(conditionsOf(estateToVariables(mapOf([a]), resolver()))).toEqual([]);
+    }
+  });
+
+  it('gives a second atom of the same check its own variable, never the id of the first', () => {
     const result = estateToVariables(
       mapOf([
-        atom({ quote: OVERDUE, situation: 'A mooring is overdue by more than two days' }),
-        atom({
-          quote: 'A boat that stays at most 3 nights pays the short fee.',
-          situation: 'A mooring is overdue by more than two days',
-          title: 'Same condition',
-        }),
+        standing({ check: 'standing_size', ceiling: 10 }),
+        standing({ check: 'standing_size', ceiling: 20 }),
       ]),
       resolver(),
     );
-    const variables = result.store.variables.filter((v) => v.id.startsWith('condition.'));
-    expect(variables).toHaveLength(1);
-    expect(variables[0]?.boundaries?.[0]?.provenance).toHaveLength(2);
+    const ids = conditionsOf(result).map((variable) => variable.id);
+    expect(new Set(ids).size).toBe(2);
+    expect(validateVariableStore(result.store).ok).toBe(true);
+  });
+});
+
+describe('no word of a prose situation or quote makes a condition', () => {
+  it.each([
+    'A shipment is late by more than two days',
+    'The total difference is above 50.00 EUR',
+    'A boat stays at least 3 nights',
+    'A reply is under 120 words',
+    'No more than one question per reply',
+    'A mooring waits fewer than ten minutes',
+    'Within 5 days of the order',
+  ])('makes none from the situation "%s"', (situation) => {
+    const result = estateToVariables(mapOf([atom({ quote: QUOTE, situation })]), resolver());
+    expect(conditionsOf(result)).toEqual([]);
+    expect(result.store.variables.map((variable) => variable.id)).toEqual(['atoms.instruction']);
   });
 
-  it('refuses the condition of an atom whose quote has no ledger unit, and writes no variable for it', () => {
-    const result = estateToVariables(
-      mapOf([atom({ quote: 'Not in the hall.', situation: 'A mooring is overdue by more than two days' })]),
-      resolver(),
-    );
-    expect(result.store.variables.filter((v) => v.id.startsWith('condition.'))).toEqual([]);
-    expect(result.refused.some((entry) => entry.variable.startsWith('condition.'))).toBe(true);
+  it('keeps no list of comparison words anywhere in the feed', async () => {
+    const dir = fileURLToPath(new URL('../../src/variables/', import.meta.url));
+    const words =
+      /\b(more than|less than|fewer than|greater than|at least|at most|no more than|up to|within|above|below|under|over)\b/i;
+    for (const file of ['condition.ts', 'feed.ts', 'ledger.ts', 'provenance.ts', 'render.ts', 'index.ts']) {
+      const text = await readFile(join(dir, file), 'utf8').catch(() => '');
+      // Doc comments may name the words the feed does not read; the code and its strings may not.
+      const code = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+      expect(code.match(words)?.[0], file).toBeUndefined();
+    }
   });
 });

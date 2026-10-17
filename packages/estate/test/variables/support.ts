@@ -9,13 +9,40 @@ export const HALL: Record<string, string> = {
     '# Boat hall',
     '',
     '- Name the keeper of every boat before it leaves the hall.',
-    '- When a mooring is overdue by more than two days, warn the keeper and offer a reminder.',
-    '- A boat that stays at most 3 nights pays the short fee.',
+    '- Warn the keeper when a mooring is overdue, and offer a reminder.',
     '',
     'Never hand out a key without a signature. Lock the hall when the last boat is out.',
     '',
   ].join('\n'),
-  'scripts/count-boats.py': 'print(3)\n',
+  '.claude/settings.json': [
+    '{',
+    '  "model": "boat-1",',
+    '  "hooks": {',
+    '    "PreToolUse": [',
+    '      {',
+    '        "matcher": "Bash",',
+    '        "hooks": [',
+    '          { "type": "command", "command": "sh .claude/guards/lock.sh", "timeout": 5 }',
+    '        ]',
+    '      }',
+    '    ]',
+    '  },',
+    '  "permissions": {',
+    '    "allow": ["Read", "Bash(sh scripts/*)"],',
+    '    "deny": ["Bash(rm *)"]',
+    '  }',
+    '}',
+    '',
+  ].join('\n'),
+  '.claude/guards/lock.sh': [
+    '#!/bin/sh',
+    '# Lock the hall when the last boat is out.',
+    'if [ "$LAST_BOAT" = "out" ]; then',
+    '  echo locked',
+    'fi',
+    '',
+  ].join('\n'),
+  '.claude/steps.yaml': ['steps:', '  - plan', '  - do', '  - verify', ''].join('\n'),
 };
 
 export async function hallFolder(files: Record<string, string> = HALL): Promise<string> {
@@ -27,9 +54,19 @@ export async function hallFolder(files: Record<string, string> = HALL): Promise<
   return root;
 }
 
+/** The 1-based line span of the first line of `file` that holds `quote` (the quote may span lines). */
+export function spanOf(file: string, quote: string, files: Record<string, string> = HALL) {
+  const text = files[file] as string;
+  const first = quote.split('\n')[0] as string;
+  const lines = text.split('\n');
+  const startLine = lines.findIndex((line) => line.includes(first)) + 1;
+  if (startLine === 0) throw new Error(`no line of ${file} holds ${first}`);
+  return { startLine, endLine: startLine + quote.split('\n').length - 1 };
+}
+
 let serial = 0;
 
-/** An atom as the estate map holds it; `quote` is copied from the hall text by the caller. */
+/** An atom as the estate map holds it, placed on the lines of `file` that hold `quote`. */
 export function atom(over: {
   kind?: Atom['kind'];
   file?: string;
@@ -40,19 +77,17 @@ export function atom(over: {
   producedBy?: Atom['producedBy'];
   situation?: string;
   fields?: Record<string, unknown>;
+  span?: { startLine: number; endLine: number };
+  files?: Record<string, string>;
 }): Atom {
   serial += 1;
+  const file = over.file ?? 'CLAUDE.md';
+  const span = over.span ?? spanOf(file, over.quote, over.files);
   return {
     id: `${over.kind ?? 'instruction'}.hall.atom-${serial}`,
     kind: over.kind ?? 'instruction',
     title: over.title ?? `Atom ${serial}`,
-    provenance: {
-      file: over.file ?? 'CLAUDE.md',
-      startLine: 1,
-      endLine: 1,
-      quote: over.quote,
-      hash: `hash-${serial}`,
-    },
+    provenance: { file, ...span, quote: over.quote, hash: `hash-${serial}` },
     producedBy: over.producedBy ?? 'model',
     role: over.role ?? 'axis',
     approved: over.approved ?? true,
