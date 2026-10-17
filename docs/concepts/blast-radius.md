@@ -302,7 +302,7 @@ A link is one entry of the spec's `metadata.links`:
 ```yaml
 metadata:
   links:
-    - block: 0                      # a block id, or its index when blocks have no id; absent: every block
+    - block: 0                      # a block id, or its index (whether or not blocks have ids); absent: every block
       to: { kind: prompt_section, prompt: support, section: refunds }
       relation: verifies            # default verifies
       status: declared
@@ -314,9 +314,11 @@ metadata:
 * `relation` is `verifies`, `exercises`, `derived_from` or `observed_in`.
 * `status` is `declared`, `attributed`, `verified`, `refuted` or `stale`, and is required.
 * `created_by` is `generator`, `author`, `attribution`, `citation`, `ir` or `mutation`.
-* A key outside this list is refused.
+* `at_version` is the version of the target the link was made at.
+* `evidence` is an optional map keyed by status, such as `verified: { mutant: m1, runs: 3, flips: 3 }`, that holds what supports the status; its values are free.
+* A key outside `block`, `to`, `relation`, `status`, `created_by`, `at_version` and `evidence` is refused.
 
-`spec validate` checks the links. A link with a value outside a list, a missing `status` or `to`, or an unknown key is refused as `SCHEMA_CUSTOM` at `metadata.links.<index>.<field>`; a `block` that names no block of the spec, or an index past the last block, is `LINK_BLOCK_UNKNOWN`. A spec with a refused link is invalid, exit 1.
+`spec validate` checks the links. A link with a value outside a list or a missing `status` or `to` is refused as `SCHEMA_CUSTOM` at `metadata.links.<index>.<field>`; an unknown key is refused as `SCHEMA_CUSTOM` at `metadata.links.<index>` (an unknown key inside `to`, at `metadata.links.<index>.to`); a `block` that names no block of the spec, or an index past the last block, is `LINK_BLOCK_UNKNOWN`. A spec with a refused link is invalid, exit 1.
 
 A section registry is read the same way, before any command uses it: an id used twice, or a `references`, `overrides` or `duplicates` entry that names no section, makes it invalid.
 
