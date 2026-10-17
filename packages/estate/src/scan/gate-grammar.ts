@@ -556,7 +556,7 @@ export function clauseEvent(phrase: string): boolean {
 export const BARE_READ_CLAUSE = /^(?:(?:and|then|also|plus)\s+)*(?:read|load)\b/i;
 /** The "Before X:" head of a clause whose own part after the colon holds no read. */
 export function beforeHead(clause: string): string | undefined {
-  const match = /\b((?:before|prior\s+to)\s+[^:]+?):\s*([^]*)$/i.exec(clause);
+  const match = /\b((?:before|prior\s+to)\s+[^:]+?):\s*([\s\S]*)$/i.exec(clause);
   if (!match) return undefined;
   return /\b(?:read|load)\b/i.test(match[2] ?? '') ? undefined : `${match[1]}:`;
 }
