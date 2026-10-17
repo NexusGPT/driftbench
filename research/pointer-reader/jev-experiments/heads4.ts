@@ -5,6 +5,7 @@ import { dir } from './src/arms';
 import { ALL_G, haikuMajority, lofoStack, type Decision } from './src/dec4';
 import { featureFn, type FeatSpec } from './src/feat4';
 import { L6 } from './src/p4';
+import { HEADS_DIR } from './src/corpus';
 
 export type Head = { id: string; name: string; spec: FeatSpec; components: Array<{ design: string; passes: number[] }>; target?: 'key' | 'haiku' };
 const D = (...ids: string[]) => ids.map((id) => ({ id }));
@@ -22,7 +23,7 @@ export const HEADS: Head[] = [
   { id: 'J1b', name: 'J* (1 pass) trained on Haiku majority labels instead of the key', spec: J2(P1), components: comp2(P1), target: 'haiku' },
 ];
 export function headDecisions(h: Head): Map<number, Decision> {
-  const path = join(dir, 'heads4', `${h.id}.json`);
+  const path = join(dir, HEADS_DIR, `${h.id}.json`);
   if (existsSync(path)) return new Map((JSON.parse(readFileSync(path, 'utf8')) as Array<[number, Decision]>));
   const target = h.target === 'haiku' ? (g: number) => haikuMajority(g).pred as string : undefined;
   const dec = target ? lofoStack(featureFn(h.spec), 0.1, 600, target, ALL_G) : lofoStack(featureFn(h.spec), 0.1);

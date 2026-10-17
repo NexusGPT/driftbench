@@ -6,6 +6,7 @@ import { chunk, dir, type CallRec, type Ctx } from './arms';
 import { ask, type JevBody, type Question } from './jev';
 import { DEF_V2 } from './p2';
 import { FILES3, TREES3, U3, offsetOf, type L3 } from './p3';
+import { R4_DIR } from './corpus';
 import type { TNode } from './tree';
 
 export const L6 = ['rule', 'prohibition', 'gate', 'example', 'description', 'none'] as const;
@@ -319,7 +320,7 @@ export async function runDesign4(ctx: Ctx, d: Design4, pass: number): Promise<Ru
     rec = { calls: [...r1.calls, ...r2.calls.map((c, i) => ({ ...c, i: r1.calls.length + i }))], probs: r2.probs, asked: r1.asked + r2.asked, missing: r1.missing + r2.missing, wallMs: r1.wallMs + r2.wallMs };
   } else rec = await executeTyped(ctx, runId, plannedFor(d, model));
   const out: Run4 = { runId, design: `${d.id}${tag}`, pass, desc: `${d.desc} [model ${model}]`, ...rec };
-  mkdirSync(join(dir, 'results4'), { recursive: true });
-  writeFileSync(join(dir, 'results4', `${runId}.json`), JSON.stringify(out) + '\n');
+  mkdirSync(join(dir, R4_DIR), { recursive: true });
+  writeFileSync(join(dir, R4_DIR, `${runId}.json`), JSON.stringify(out) + '\n');
   return out;
 }

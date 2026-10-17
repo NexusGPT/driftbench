@@ -3,12 +3,13 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { budget, config, loadCassette } from './src/jev';
 import { dir, type Ctx } from './src/arms';
+import { JEV_CASSETTE } from './src/corpus';
 import { DESIGNS4, design4, plannedFor, runDesign4, windowsOf } from './src/p4';
 
 const scratch = process.env.JEV_SCRATCH || join(dir, 'scratch');
 mkdirSync(scratch, { recursive: true });
 const replay = process.env.JEV_MODE === 'replay';
-const cfg = config(dir, { cassettePath: replay ? join(dir, 'cassette4.jsonl') : join(scratch, 'cassette4.raw.jsonl'), budgetPath: join(scratch, 'budget4.json'), maxCalls: 3000 });
+const cfg = config(dir, { cassettePath: replay ? join(dir, `${JEV_CASSETTE}.jsonl`) : join(scratch, `${JEV_CASSETTE}.raw.jsonl`), budgetPath: join(scratch, `budget${JEV_CASSETTE.slice(8)}.json`), maxCalls: 3000 });
 const ctx: Ctx = { cfg, cassette: loadCassette(cfg.cassettePath), conc: Number(process.env.JEV_CONC || 1) };
 const args = process.argv.slice(2);
 if (args[0] === 'info') {

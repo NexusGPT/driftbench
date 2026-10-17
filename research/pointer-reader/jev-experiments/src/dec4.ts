@@ -7,13 +7,14 @@ import { U3 } from './p3';
 import { KEY, LAB_FROZEN, keyG, splitOfG, wilson } from './key4';
 import { L6, type Label6, type Run4 } from './p4';
 import { predictVec, train } from './stack';
+import { GOLD_FILE, HAIKU_CASSETTE, HAIKU_DIR, R4_DIR } from './corpus';
 
 export type Vec6 = number[]; // in L6 order
 export const argmax = (v: number[]) => v.reduce((b, x, i) => (x > v[b]! ? i : b), 0);
 export const margin = (v: number[]) => { const s = [...v].sort((a, b) => b - a); return s[0]! - s[1]!; };
 export const LABEL_OF = (v: Vec6): Label6 => L6[argmax(v)]!;
 
-export function loadRuns4(dirName = 'results4'): Run4[] {
+export function loadRuns4(dirName = R4_DIR): Run4[] {
   const d = join(dir, dirName);
   return readdirSync(d).filter((f) => f.endsWith('.json')).sort().map((f) => JSON.parse(readFileSync(join(d, f), 'utf8')) as Run4);
 }
@@ -44,7 +45,7 @@ export const decisionFrom = (v: Vec6): Decision => ({ pred: LABEL_OF(v), conf: m
 export const KEY_SETS = { all: keyG, dev: keyG.filter((g) => splitOfG(g) === 'dev'), test: keyG.filter((g) => splitOfG(g) === 'test') };
 export const MULTI = (() => {
   // units that sit inside a multi-unit gold rule (frozen gold3)
-  const gold = JSON.parse(readFileSync(join(dir, 'gold3.json'), 'utf8')) as { rules: Array<{ leafG: number[]; multi: boolean }> };
+  const gold = JSON.parse(readFileSync(join(dir, GOLD_FILE), 'utf8')) as { rules: Array<{ leafG: number[]; multi: boolean }> };
   return new Set(gold.rules.filter((r) => r.multi).flatMap((r) => r.leafG));
 })();
 export type Acc = { k: number; n: number; p: number; lo: number; hi: number };
@@ -79,9 +80,9 @@ export const sumEff = (...es: Eff[]): Eff => ({ units: es[0]!.units, calls: es.r
 
 // ---- Haiku (phase 3 runs with the span guide) ----
 export type HaikuRun = { runId: string; labels: Record<number, string>; groups: Record<number, string> };
-export const HAIKU: HaikuRun[] = [1, 2, 3].map((r) => JSON.parse(readFileSync(join(dir, 'results3', `haiku-r${r}.json`), 'utf8')) as HaikuRun);
+export const HAIKU: HaikuRun[] = [1, 2, 3].map((r) => JSON.parse(readFileSync(join(dir, HAIKU_DIR, `haiku-r${r}.json`), 'utf8')) as HaikuRun);
 export const haikuEff = (runs: number[], units = U3.length): Eff => {
-  const L = gunzipSync(readFileSync(join(dir, 'cassette3-haiku.jsonl.gz'))).toString('utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l) as { run: string; ms: number; response: { usage?: { input_tokens: number; output_tokens: number } } });
+  const L = gunzipSync(readFileSync(join(dir, HAIKU_CASSETTE))).toString('utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l) as { run: string; ms: number; response: { usage?: { input_tokens: number; output_tokens: number } } });
   const sel = L.filter((e) => runs.includes(Number(e.run)));
   return { units, calls: sel.length, tokIn: sel.reduce((a, e) => a + (e.response.usage?.input_tokens ?? 0), 0), tokOut: sel.reduce((a, e) => a + (e.response.usage?.output_tokens ?? 0), 0), msList: sel.map((e) => e.ms) };
 };

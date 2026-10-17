@@ -6,13 +6,14 @@ import { dir, execute, type Ctx, type GUnit, type Probs, type RunRec } from './a
 import type { Question } from './jev';
 import type { U2 } from './p2';
 import { buildTree, type TNode, type Tree } from './tree';
+import { ESTATE_KEY, GOLD_FILE, PROSE_DIR } from './corpus';
 
 export type L3 = U2 & { group: string | null };
 export type Rule3 = { id: string; file: string; kind: string; leafG: number[]; multi: boolean; aligned: string | null; contested: boolean };
-const raw = JSON.parse(readFileSync(join(dir, 'gold3.json'), 'utf8')) as { files: Array<{ file: string; offset: number; leaves: number; split: 'dev' | 'test' }>; units: Array<Omit<L3, 'role'>>; rules: Rule3[] };
+const raw = JSON.parse(readFileSync(join(dir, GOLD_FILE), 'utf8')) as { files: Array<{ file: string; offset: number; leaves: number; split: 'dev' | 'test' }>; units: Array<Omit<L3, 'role'>>; rules: Rule3[] };
 export const FILES3 = raw.files;
 export const RULES3 = raw.rules;
-export const TREES3: Record<string, Tree> = Object.fromEntries(raw.files.map((f) => [f.file, buildTree(readFileSync(join(dir, 'prose3', f.file), 'utf8'), f.file, 'phase3-repair-cafe')]));
+export const TREES3: Record<string, Tree> = Object.fromEntries(raw.files.map((f) => [f.file, buildTree(readFileSync(join(dir, PROSE_DIR, f.file), 'utf8'), f.file, ESTATE_KEY)]));
 const roleOf = (file: string) => { const t = TREES3[file]!; const fm = t.units.filter((u) => u.container === 'front_matter_value'); return fm.at(-1)?.text ?? ''; };
 export const U3: L3[] = raw.units.map((u) => ({ ...u, text: u.text.replace(/\s*\n\s*/g, ' '), role: roleOf(u.file) }));
 export const byG3 = new Map(U3.map((u) => [u.g, u]));
