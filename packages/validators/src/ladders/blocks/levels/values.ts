@@ -593,7 +593,30 @@ function givenItems(): BankItem[] {
             undefined,
             {},
           );
-          return judged(result, givenCase.want, `${JSON.stringify(value)} against ${JSON.stringify(gold)}`);
+          const verdict = judged(
+            result,
+            givenCase.want,
+            `${JSON.stringify(value)} against ${JSON.stringify(gold)}`,
+          );
+          if (!verdict.pass || givenCase.want.rung !== 'rung2b_as_given') return verdict;
+          // The twin: the expected writing only inside a longer word is no whole token, so the rung decides nothing.
+          const twin = await ladder(product)(
+            {
+              tool: 'booking.create',
+              field: 'customer',
+              gold,
+              value,
+              input: { customer: value },
+              sources: { user: [`It is ${gold}s, thanks.`] },
+            },
+            undefined,
+            {},
+          );
+          return judged(
+            twin,
+            { outcome: 'fail', rung: 'exact_fallback' },
+            `${JSON.stringify(value)} when the user wrote only "${gold}s"`,
+          );
         },
       });
     }
@@ -791,10 +814,33 @@ function recomputeItems(): BankItem[] {
             undefined,
             {},
           );
-          return judged(
+          const verdict = judged(
             result,
             formulaCase.want,
             `${JSON.stringify(produced)} against ${formulaCase.expected}`,
+          );
+          if (!verdict.pass || variant === 'large') return verdict;
+          // The twin: a formula equal to the gold on the given inputs and on any input set outside 0.5 to 1.5 times
+          // them, and different inside: only the documented draws of the changed inputs tell it apart.
+          const roots = [c, 2 * c - 3, 5 * c - 3, 11 * c - 3].map((r) => `(C2-(${r}))`).join('*');
+          const twin = await ladder(product)(
+            {
+              field: 'Total',
+              gold: `=${formulaCase.expected}`,
+              value: `=${formulaCase.expected}+${roots}`,
+              recompute: {
+                produced: { formula: `${formulaCase.expected}+${roots}` },
+                expected: { formula: formulaCase.expected },
+                inputs: { B2: b, C2: c },
+              },
+            },
+            undefined,
+            {},
+          );
+          return judged(
+            twin,
+            { outcome: 'fail', rung: 'rung1_recompute' },
+            `the gold plus ${roots}, zero on the given inputs`,
           );
         },
       });
@@ -921,10 +967,63 @@ function stateDiffItems(): BankItem[] {
             undefined,
             {},
           );
-          return judged(
+          const verdict = judged(
             result,
             { outcome: diffCase.want, rung: 'rung1_state_diff' },
             `the diff ${JSON.stringify(diff).slice(0, 200)}`,
+          );
+          if (!verdict.pass) return verdict;
+          // The twin: the observed diff expected with a leading ./ on every path is the same diff: paths compare
+          // with forward slashes and no leading ./ (block-contracts.md, State diff).
+          const dotted = Object.fromEntries(
+            (['created', 'changed', 'deleted'] as const)
+              .filter((set) => (diff[set] ?? []).length > 0)
+              .map((set) => [set, (diff[set] ?? []).map((path: string) => `./${path}`)]),
+          );
+          const twin = await ladder(product)(
+            { field: 'workspace', gold: dotted, value: diff, stateDiff: { diff, expected: dotted } },
+            undefined,
+            {},
+          );
+          const dottedVerdict = judged(
+            twin,
+            { outcome: 'pass', rung: 'rung1_state_diff' },
+            `the diff against ${JSON.stringify(dotted).slice(0, 160)}`,
+          );
+          if (!dottedVerdict.pass || !allowed) return dottedVerdict;
+          // The second twin: ? stands for one character, so r?n.txt allows run.txt and nothing longer.
+          const single = [`${base}/logs/r?n.txt`];
+          const glob = await ladder(product)(
+            {
+              field: 'workspace',
+              gold: expected,
+              value: diff,
+              stateDiff: { diff, expected, allowed: single },
+            },
+            undefined,
+            {},
+          );
+          const globVerdict = judged(
+            glob,
+            { outcome: 'pass', rung: 'rung1_state_diff' },
+            `the allowed glob ${single[0]}`,
+          );
+          if (!globVerdict.pass) return globVerdict;
+          const narrow = [`${base}/logs/r?.txt`];
+          const tight = await ladder(product)(
+            {
+              field: 'workspace',
+              gold: expected,
+              value: diff,
+              stateDiff: { diff, expected, allowed: narrow },
+            },
+            undefined,
+            {},
+          );
+          return judged(
+            tight,
+            { outcome: 'fail', rung: 'rung1_state_diff' },
+            `the allowed glob ${narrow[0]}`,
           );
         },
       });
