@@ -153,7 +153,6 @@ export type CauseKey =
   | 'L26'
   | 'L27'
   | 'L29'
-  | 'L30'
   | 'LD1'
   | 'LD2'
   | 'LD3'
@@ -695,8 +694,8 @@ export const CAUSES: Readonly<Record<CauseKey, { text: string; contract: string 
   L24: { text: '`retry.max_attempts` is from 1 to 20.', contract: 'docs/reference/spec.md#RetrySettings' },
   L25: { text: "A criterion's `threshold` is from 0 to 1.", contract: 'docs/reference/spec.md#CriterionDef' },
   L26: {
-    text: 'The loader checks every regular expression of a spec, the regex list of expect included (block.md: spec validate checks the regular expressions; checks.md: regex takes a list of regular expressions).',
-    contract: 'docs/concepts/block.md#A spec is checked before it runs',
+    text: 'The loader checks the patterns of the regex list of expect (REGEX_INVALID): spec.md and checks.md name regex as a list of regular expressions the visible text must match.',
+    contract: 'docs/reference/spec.md#Expect',
   },
   L27: {
     text: 'The loader checks the regex assertion of a json path (REGEX_INVALID).',
@@ -704,7 +703,7 @@ export const CAUSES: Readonly<Record<CauseKey, { text: string; contract: string 
   },
   L29: {
     text: 'The loader checks the patterns in the expectations of a perturbation (REGEX_INVALID).',
-    contract: 'docs/concepts/block.md#A spec is checked before it runs',
+    contract: 'docs/reference/spec.md#Expect',
   },
   LD1: {
     text: 'The as-given rung reads the expected writing as a whole token when a punctuation mark follows it.',
@@ -809,10 +808,6 @@ export const CAUSES: Readonly<Record<CauseKey, { text: string; contract: string 
   LD26: {
     text: 'The loader accepts the documented compare modes and refuses any other word.',
     contract: 'docs/reference/block-contracts.md#Value ladder',
-  },
-  L30: {
-    text: 'The loader refuses a pattern of a JSON schema that does not compile (REGEX_INVALID), in expect.json.schema and in metadata.tool_schemas.',
-    contract: 'docs/concepts/block.md#A spec is checked before it runs',
   },
   ST1: {
     text: 'A block the tailoring does not reach keeps the shipped stamp `check-set:default@hash8`, layer shipped.',
