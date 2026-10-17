@@ -86,6 +86,15 @@ describe('the suite headline groups a run that did not record its root under tha
     expect(headline?.upper).toBe(expected.upper);
   });
 
+  it('reads empty links as no links: a spec without parents keeps the golden grouping', () => {
+    const plain = Array.from({ length: 6 }, (_, repeat) =>
+      run({ specId: `plain-${repeat % 3}`, repeat, blocks: [repeat === 1 ? { pass: false } : {}] }),
+    );
+    const without = suiteHeadline(plain, (entry) => entry.specId);
+    expect(without).toMatchObject({ trees: 3, n: 6 });
+    expect(suiteHeadline(plain, (entry) => entry.specId, { parentsOf: () => new Map() })).toEqual(without);
+  });
+
   it('still counts a run that failed before it recorded any block', () => {
     // The first step threw: the run failed with no block, so its failure belongs to no one root.
     const dead = { ...bakeryRun(6, [], []), status: 'failed' as const };
