@@ -26,12 +26,13 @@ export const SCALE_HEAP_MB = 2048;
  * behind each number: validators/CONSTANTS.md, "Generator scale".
  */
 /**
- * The reference unit's CPU time on the host class that judges, in milliseconds: its mean over the clean 100 times
- * windows of six separate jobs on the CI runner (ubuntu-24.04), where the jobs' CPU time ranged from 37.5 to 73.5 s.
+ * The reference unit's CPU time on the host class that judges, in milliseconds: its mean over the 9 clean 100 times
+ * windows of three separate jobs on the CI runner (ubuntu-24.04), with the product of main and PR 726, where the
+ * jobs' CPU time ranged from 39.6 to 53.3 s.
  */
-export const SCALE_REFERENCE_UNIT_MS = 51.3;
+export const SCALE_REFERENCE_UNIT_MS = 54.5;
 /** The time budget per factor, in reference units: half of SCALE_BUDGET_MS divided by SCALE_REFERENCE_UNIT_MS. */
-export const SCALE_BUDGET_UNITS: Record<number, number> = { 10: 584, 100: 1169 };
+export const SCALE_BUDGET_UNITS: Record<number, number> = { 10: 550, 100: 1100 };
 /** Fewer unit samples than this during the runs measure nothing: the time item fails. */
 export const SCALE_MIN_UNITS = 10;
 /** The sampler's units that end before the window starts: their code is still being compiled. */
