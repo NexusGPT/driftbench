@@ -867,6 +867,10 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
       }));
       const a = build(ctx, { estate: estateOf({ 'CLAUDE.md': file }, rules) });
       const b = build(ctx, { estate: estateOf({ 'CLAUDE.md': file }, [...rules].reverse()) });
+      for (const span of spans) {
+        const variable = exactlyOne(variablesCiting(a, span.text), `variables citing ${span.text}`);
+        must(variable.values.length === 3, `the condition ${span.text} must produce three values`);
+      }
       same(a, b, 'the rules in reverse order');
     } else if (variant === 'sessions-permuted') {
       const base = baseStore(ctx, [3, 2]);
@@ -922,6 +926,8 @@ export const SOURCES_RUNS: Record<string, StemRun> = {
   },
 
   'sources.empty-sources': (variant, ctx) => {
+    // Empty inputs are legitimate, but must not credit a reader that always returns an empty store.
+    baseStore(ctx, [2]);
     const calls: Array<{ what: string; sources: Parameters<typeof build>[1] }> =
       variant === 'nothing'
         ? [

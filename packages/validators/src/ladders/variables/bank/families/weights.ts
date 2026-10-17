@@ -175,6 +175,15 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
   },
 
   'weights.interval-holds-estimate': (variant, ctx) => {
+    // An uninformative [0, 1] contains every estimate. Require a useful interval too,
+    // including for the one-session variants where broad uncertainty is legitimate.
+    for (const count of [25, 75]) {
+      const [lo, hi] = callInterval(ctx, count, 100);
+      must(
+        lo <= count / 100 && hi >= count / 100 && hi - lo <= 1.5 * wilsonWidth(count, 100),
+        () => `weightInterval(${count}, 100) must contain its estimate with a useful width`,
+      );
+    }
     const cases: Array<[number, number]> =
       variant === 'one-session'
         ? [
@@ -219,6 +228,16 @@ export const WEIGHTS_RUNS: Record<string, StemRun> = {
       const picks = drawCategorical(rng, n, mix);
       const count = picks.filter((k) => k === 0).length;
       const [lo, hi] = callInterval(ctx, count, n);
+      must(
+        Number.isFinite(lo) &&
+          Number.isFinite(hi) &&
+          lo >= 0 &&
+          hi <= 1 &&
+          lo <= count / n + 1e-12 &&
+          hi >= count / n - 1e-12 &&
+          hi - lo <= 1.5 * wilsonWidth(count, n),
+        () => `weightInterval(${count}, ${n}) must contain its estimate with a useful width`,
+      );
       if (lo <= p && p <= hi) inside += 1;
     }
     const need = coverageThreshold(reps, p, n);

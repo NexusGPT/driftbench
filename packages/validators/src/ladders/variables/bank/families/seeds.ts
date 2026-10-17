@@ -346,6 +346,8 @@ export const SEEDS_RUNS: Record<string, StemRun> = {
     const seeds = randomSeeds(space, oracle, rng, 3);
     const given = seeds.map((s) => ({ ...s }));
     const plan = planOf(ctx, toStore(space), { seed: ctx.seed, seeds });
+    const facts = checkPlan(space, oracle, plan, { seeds, noCoverage: true });
+    must(facts.problems.length === 0, () => facts.problems.join('; '));
     seeds.forEach((s, i) => {
       must(
         plan.rows[i]?.values !== s,

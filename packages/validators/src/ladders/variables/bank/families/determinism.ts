@@ -15,7 +15,7 @@ import {
   toStore,
   withWeights,
 } from '../oracle/space';
-import { randomSeeds, randomSpace } from '../oracle/spaces';
+import { checkPlan, randomSeeds, randomSpace } from '../oracle/spaces';
 import { clone, deepFreeze, must, plainStringify, show, stableStringify } from '../util';
 import { fullSources } from './values';
 
@@ -68,7 +68,14 @@ function caseOf(ctx: ItemContext, kind: string): Case {
 }
 
 function planFresh(ctx: ItemContext, c: Case, extra: Partial<PlanOptions> = {}): Plan {
-  return planOf(ctx, clone(c.store), { ...clone(c.options), ...extra });
+  const options = { ...clone(c.options), ...extra };
+  const plan = planOf(ctx, clone(c.store), options);
+  const facts = checkPlan(c.space, new SpaceOracle(c.space), plan, {
+    seeds: options.seeds ?? [],
+    noCoverage: options.budget !== undefined,
+  });
+  must(facts.problems.length === 0, () => facts.problems.join('; '));
+  return plan;
 }
 
 type Patch = () => () => void;
@@ -232,7 +239,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
     }
     const store = toStore(space);
     const options: PlanOptions = { seed: ctx.seed };
-    const here = planJson(planOf(ctx, clone(store), clone(options)));
+    const here = planJson(planFresh(ctx, { space, store, options }));
     const there = inChild(ctx, { kind: 'plan', store, options }, env);
     must(
       here === there,
@@ -283,6 +290,7 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
 
   'determinism.json-round-trip': (variant, ctx) => {
     const c = caseOf(ctx, 'rules-seeds-budget');
+    planFresh(ctx, c);
     if (variant === 'store') {
       const store = clone(c.store);
       planOf(ctx, store, clone(c.options));

@@ -155,6 +155,8 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     );
     const planOnce = planStore(ctx, once, ctx.seed);
     const planMany = planStore(ctx, many, ctx.seed);
+    const facts = checkPlan(space, new SpaceOracle(space), planOnce);
+    must(facts.problems.length === 0, () => facts.problems.join('; '));
     must(
       stableStringify(planOnce) === stableStringify(planMany),
       'declaring a pair more than once changed the plan: repeated pairs count once',
@@ -253,6 +255,8 @@ export const IMPOSSIBLE_RUNS: Record<string, StemRun> = {
     }
     const oracle = new SpaceOracle(space);
     must(oracle.validRows().length === 0, 'the generator must build a space with no valid row');
+    // Removing the contradiction must recover a useful covering plan.
+    planAndCheck(ctx, { ...space, forbidden: [], universal: true });
     const { plan, error } = tryPlan(ctx, toStore(space), { seed: ctx.seed });
     if (error) {
       const names = space.vars.map((v) => v.id);

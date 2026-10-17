@@ -289,6 +289,7 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
     }
     if (variant === 'empty-space') {
       const space = makeSpace([1, 1, 2], { universal: false });
+      compare(ctx, space, [[0, 0, 0]], [g([0, 1, 2], 2), g([2], 1)], 'the satisfiable control');
       forbid(space, 0, 0, 1, 0);
       const r = compare(ctx, space, [], [g([0, 1, 2], 2), g([2], 1)], 'a space with no valid row');
       must(toBig(r.allowed, 'allowed') === 0n, () => `allowed ${show(r.allowed)}, expected 0`);
@@ -434,6 +435,11 @@ export const COUNTER_RUNS: Record<string, StemRun> = {
         { uncovered: limit },
       );
       const list = result.uncovered;
+      must(
+        toBig(result.allowed, 'allowed') === BigInt(required.size) &&
+          toBig(result.covered, 'covered') === BigInt(covered.size),
+        () => `coverage must count ${required.size} allowed and ${covered.size} covered tuples`,
+      );
       must(
         Array.isArray(list),
         () => `coverage was asked for the uncovered tuples (limit ${limit}) but returned ${show(list)}`,

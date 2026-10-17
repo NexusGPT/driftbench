@@ -150,6 +150,8 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     const st = store(space);
     const base: PlanOptions = { seed: ctx.seed, ...(seeds.length ? { seeds } : {}) };
     const full = planOf(ctx, st, base);
+    const facts = checkPlan(space, oracle, full, { seeds });
+    must(facts.problems.length === 0, () => facts.problems.join('; '));
     const total = full.rows.length;
     ordered(freshLogs(space, full, seeds.length), `${total} rows`);
     if (variant.startsWith('cut-')) {
@@ -244,6 +246,8 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
     }
     const st = store(space);
     const full = planOf(ctx, st, { seed: ctx.seed });
+    const facts = checkPlan(space, new SpaceOracle(space), full);
+    must(facts.problems.length === 0, () => facts.problems.join('; '));
     const total = full.rows.length;
     const b = Math.max(1, Math.floor(total / 2));
     samePrefix(full, planOf(ctx, st, { seed: ctx.seed, budget: b }), b, variant);
@@ -267,6 +271,8 @@ export const BUDGET_RUNS: Record<string, StemRun> = {
         ? randomSpace(rng, { vars: 4, minArity: 3, maxArity: 3, rules: [4], weights: true })
         : randomSpace(rng, { vars: 6, minArity: 2, maxArity: 4, shared: 3, rules: [3], weights: true });
     const plan = planOf(ctx, toStore(space), { seed: ctx.seed });
+    const facts = checkPlan(space, new SpaceOracle(space), plan);
+    must(facts.problems.length === 0, () => facts.problems.join('; '));
     for (const [i, r] of plan.rows.entries()) {
       const want = Math.exp(logWeight(space, indexRow(space, r.values)));
       must(
