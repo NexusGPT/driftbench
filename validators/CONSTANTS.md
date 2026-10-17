@@ -43,6 +43,18 @@ At 550 and 1100 units:
 * **The planted quadratic at 0.012 µs no longer fails** (927 to 974 units). Its cost grows with the square of the specs written, and this product writes about half the specs of the earlier one, so the same constant adds about a fifth of the time. `scale-run.ts` now plants 0.05 µs; its runs are in the pull request that set these numbers.
 * **The planted slower host reads the clean units** (828 to 856). It cancels by construction: it checks the division, not a real slower host. The jobs above are that evidence.
 
+**Checks at 550 and 1100, after the re-derivation** (head `e3243af72`, not used to derive the numbers), and the product without PR 726:
+
+| Job | Product | Clean 100x CPU ms | 100x unit ms | Clean 100x units | Over 30 s at 10x | Twice as slow | Quadratic, 0.05 µs | Host three times slower |
+|---|---|---|---|---|---|---|---|---|
+| 39064004364 | main `5b7aecea9` + PR 726 | 30539 to 32332 | 30.92 to 34.14 | 947 to 988, pass | 33304 ms, 1022, fail | 1764, fail | 1853, fail | 954, pass |
+| 39064011410 | main `5b7aecea9` + PR 726 | 50824 to 51407 | 60.42 to 61.89 | 822 to 842, pass | 34038 ms, 550, pass | 1483, fail | 1220, fail | 831, pass |
+| 39064071084 | main `5b7aecea9`, without PR 726 | 175195 to 178173 | 53.52 to 54.67 | 3221 to 3306, fail | not run | not run | not run | not run |
+
+* Over the five jobs with PR 726, the clean units ran from 822 to 988: 20% apart, over the 15% the calibration's three jobs held (3%). The fastest runner, whose unit took 31 to 34 ms, read about 16% more units than the others: there the unit sped up more than the product did.
+* The product over 30 s at 10 times passes on the slowest runner (550 units, exactly the budget): 34.0 s there is 30.0 s of the reference runner's work.
+* PR 726 takes the clean 100x window on the runner from 175195 to 178173 ms (3221 to 3306 units, failing) to 30539 to 53281 ms (822 to 988 units, passing).
+
 **The first calibration, product main `183abfd`**, six jobs, budgets 584 and 1169 at 51.3 ms:
 
 | Job | Head | Clean 100x CPU ms | Unit ms | Clean 100x units | Clean 10x units | Twice as slow | Quadratic | Host three times slower |
