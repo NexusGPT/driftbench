@@ -204,4 +204,57 @@ describe('a simulated user on a spec with parent blocks', () => {
     // The injected block 1 carries the message written for it; block 2 reads it back as the customer's line.
     expect(port.requests[2]?.user).toContain('Customer: Any size will do.');
   });
+
+  it('reads back the messages of a tree whose child a world change replaced', async () => {
+    const forest = spec({
+      id: 'two-trees-down',
+      stages: ['a', 'b', 'c', 'd', 'e'],
+      blocks: [
+        { id: 'shop', user: 'I need a quote for a bicycle.', expect: { stage: 'a' } },
+        { id: 'shop-ask', parent: 'shop', user: 'Please go on.', expect: { stage: 'b' } },
+        { id: 'shop-close', parent: 'shop-ask', user: 'That is all.', expect: { stage: 'c' } },
+        { id: 'repair', user: 'My bicycle chain is broken.', expect: { stage: 'd' } },
+        { id: 'repair-ask', parent: 'repair', user: 'Please go on.', expect: { stage: 'e' } },
+      ],
+      perturbations: [
+        {
+          id: 'down',
+          class: 'D8_tool_failure',
+          inject_at: 1,
+          world: { tools: { lookup: { error: 'down' } } },
+          recovery: { within_blocks: 1 },
+        },
+      ],
+    });
+    const { port, driver: base } = user([
+      'I need a bicycle quote.',
+      'Any size will do.',
+      'Thanks, that is all.',
+      'My chain snapped.',
+      'Tuesday works.',
+    ]);
+    const driver = createPerturbingDriver({ spec: forest, perturbation: 'down', base });
+    const result = await runSpec(driver.spec, {
+      adapter: adapter(),
+      driver,
+      checks: [],
+      mode: 'P',
+      repeat: 0,
+      perturbationId: 'down',
+    });
+    expect(result.status).toBe('completed');
+    const asked = port.requests.map((request) => request.user);
+    // Each tree counts its own turns; the replaced child holds its place in its tree, and its child reads its message back.
+    expect(asked.map((text) => text.split('\n')[0])).toEqual([
+      'Turn 1.',
+      'Turn 2.',
+      'Turn 3.',
+      'Turn 1.',
+      'Turn 2.',
+    ]);
+    expect(asked[2]).toContain('Customer: I need a bicycle quote.');
+    expect(asked[2]).toContain('Customer: Any size will do.');
+    expect(asked[4]).toContain('Customer: My chain snapped.');
+    expect(asked[4]).not.toContain('I need a bicycle quote.');
+  });
 });

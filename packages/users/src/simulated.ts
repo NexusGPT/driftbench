@@ -1,5 +1,11 @@
 import { readFile } from 'node:fs/promises';
-import type { DriverContext, DriverStep, Stimulus, UserDriver } from '@agent-nexus/driftbench-core';
+import type {
+  BlockResult,
+  DriverContext,
+  DriverStep,
+  Stimulus,
+  UserDriver,
+} from '@agent-nexus/driftbench-core';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 
@@ -109,10 +115,22 @@ export function createSimulatedUser(options: SimulatedUserOptions): SimulatedUse
 
   const system = systemPrompt(persona, options.goal, options.stopToken);
   /**
-   * What the person wrote, by the position the block has in the whole run (`BlockResult.index`), not by its
-   * place in its branch: a branch never reads another's message, and a block a perturbation injected is found too.
+   * What the person wrote, kept under two keys: the spec block's id and the position of the block in the whole
+   * run (`BlockResult.index`), never its place in its branch, so a branch never reads another's message. A block
+   * a perturbation injects carries the perturbation's id, so it is found by its position.
    */
-  const said = new Map<number, string>();
+  const said = new Map<string, string>();
+  const keysOf = (id: string | undefined, position: number) => [
+    ...(id === undefined ? [] : [`id:${id}`]),
+    `#${position}`,
+  ];
+  const sayingOf = (result: BlockResult): string | undefined => {
+    for (const key of keysOf(result.blockId, result.index)) {
+      const text = said.get(key);
+      if (text !== undefined) return text;
+    }
+    return undefined;
+  };
   let revealed: string[] = [];
 
   return {
@@ -134,11 +152,11 @@ export function createSimulatedUser(options: SimulatedUserOptions): SimulatedUse
       const block = ctx.spec.blocks[ctx.blockIndex];
       const hint = options.script === 'none' || !block ? undefined : redact(wordsOf(block.when), hidden);
       const lines = branch.map((result) => [
-        `Customer: ${said.get(result.index) ?? '[a message of yours that is not shown]'}`,
+        `Customer: ${sayingOf(result) ?? '[a message of yours that is not shown]'}`,
         `Assistant: ${result.observed.text}`,
       ]);
       const user = [
-        `Turn ${branch.filter((result) => said.has(result.index)).length + 1}.`,
+        `Turn ${branch.filter((result) => sayingOf(result) !== undefined).length + 1}.`,
         '',
         'The conversation so far:',
         ...(lines.length > 0 ? lines.flat() : ['(nothing yet: you write first)']),
@@ -168,7 +186,7 @@ export function createSimulatedUser(options: SimulatedUserOptions): SimulatedUse
           `the simulated user gave ${leaked.join(', ')} at block ${ctx.blockIndex} before the agent asked for ${leaked.length === 1 ? 'it' : 'them'}`,
         );
       }
-      said.set(ctx.history.length, answer);
+      for (const key of keysOf(block?.id, ctx.history.length)) said.set(key, answer);
       const stimulus: Stimulus = { user: answer };
       return { kind: 'block', blockIndex: ctx.blockIndex, stimulus };
     },

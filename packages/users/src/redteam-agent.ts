@@ -762,9 +762,17 @@ export function createRedTeamUser(options: RedTeamUserOptions): RedTeamUser {
     return history.filter((line) => seen.has(line.turn));
   }
 
-  function objectiveReached(): boolean {
+  /**
+   * True when the last `confirm` turns all scored at the threshold. In a spec with parents they must also be
+   * turns of one tree: a high score at the end of one tree and another at the start of the next are two
+   * conversations with the agent, not two turns running.
+   */
+  function objectiveReached(ctx: DriverContext): boolean {
     if (successScore === null || turns.length < confirm) return false;
-    return turns.slice(-confirm).every((turn) => turn.score !== undefined && turn.score >= successScore);
+    const last = turns.slice(-confirm);
+    if (!last.every((turn) => turn.score !== undefined && turn.score >= successScore)) return false;
+    if (!linked(ctx)) return true;
+    return new Set(last.map((turn) => rootOf(ctx.spec, turn.block))).size === 1;
   }
 
   return {
@@ -788,7 +796,7 @@ export function createRedTeamUser(options: RedTeamUserOptions): RedTeamUser {
           verdict: 'inconclusive',
         };
       }
-      if (objectiveReached()) {
+      if (objectiveReached(ctx)) {
         reached = true;
         outcome = 'breached';
         const turn = turns.at(-1)?.turn ?? 0;
@@ -888,6 +896,19 @@ export function createRedTeamUser(options: RedTeamUserOptions): RedTeamUser {
       return { kind: 'block', blockIndex: ctx.blockIndex, stimulus: { user: sent } };
     },
   };
+}
+
+/** The authored index of the root of the tree a block belongs to, by following `parent` up. */
+function rootOf(spec: Spec, blockIndex: number): number {
+  let at = blockIndex;
+  for (let guard = 0; guard <= spec.blocks.length; guard++) {
+    const parent = spec.blocks[at]?.parent;
+    if (parent === undefined) return at;
+    const up = spec.blocks.findIndex((each) => each.id === parent);
+    if (up < 0) return at;
+    at = up;
+  }
+  return at;
 }
 
 /** What the attacker is told about the agent: the spec's description, else its title, else its id. */
