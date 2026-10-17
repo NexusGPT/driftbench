@@ -4,7 +4,7 @@ Each verdict below is written by the audit helper that ran the check, in its own
 
 blind pilot: pending
 
-cheater: pending
+cheater: fail Reading roadmap.json at run time lifted the bank from 430 to 1059 of 1326 and a blanket RangeError wrapper added 44 more, with the statistics unchanged.
 
 cause review: pending
 
