@@ -156,6 +156,33 @@ function count(text: string, quote: string): number[] {
   return at;
 }
 
+/** Where each needle occurs in one text, searched once: identical sections ask for the same needles. */
+function occurrenceFinder(text: string): (needle: string) => number[] {
+  const memo = new Map<string, number[]>();
+  return (needle) => {
+    let at = memo.get(needle);
+    if (!at) {
+      at = count(text, needle);
+      memo.set(needle, at);
+    }
+    return at;
+  };
+}
+
+/** The index of `value` in an ascending list, or -1. */
+function indexInSorted(list: readonly number[], value: number): number {
+  let low = 0;
+  let high = list.length - 1;
+  while (low <= high) {
+    const middle = (low + high) >> 1;
+    const at = list[middle] as number;
+    if (at === value) return middle;
+    if (at < value) low = middle + 1;
+    else high = middle - 1;
+  }
+  return -1;
+}
+
 /**
  * Whether the registry describes this prompt text: the whole-text hash, each section's span and hash,
  * each anchor found once (or, with an `occurrence`, found at least that often, its own copy inside the
@@ -168,6 +195,7 @@ export function checkSectionRegistry(registry: SectionRegistry, prompt: string):
   if (sha256Hex(text) !== registry.text_sha256)
     problems.push('text_sha256: the registry does not describe this prompt text');
   const live = registry.sections.filter((section) => section.stale !== true);
+  const find = occurrenceFinder(text);
   for (const section of live) {
     const { start, end } = section.span;
     if (end > text.length) {
@@ -176,7 +204,7 @@ export function checkSectionRegistry(registry: SectionRegistry, prompt: string):
     }
     if (sha256Hex(text.slice(start, end)) !== section.sha256)
       problems.push(`${section.id}: the text at ${start}-${end} does not match the section hash`);
-    const at = count(text, section.anchor.quote);
+    const at = find(section.anchor.quote);
     const occurrence = section.anchor.occurrence;
     const lies = (place: number | undefined) =>
       (place ?? -1) < start || (place ?? 0) + section.anchor.quote.length > end;
@@ -239,18 +267,6 @@ function quoteOrigins(text: string, start: number, end: number): number[] {
   return from < end ? [from, start] : [start];
 }
 
-/** Where each needle occurs in the last text asked about: identical sections ask for the same needles. */
-let scans: { text: string; found: Map<string, number[]> } | undefined;
-function occurrencesIn(text: string, needle: string): number[] {
-  if (scans?.text !== text) scans = { text, found: new Map() };
-  let at = scans.found.get(needle);
-  if (!at) {
-    at = count(text, needle);
-    scans.found.set(needle, at);
-  }
-  return at;
-}
-
 /**
  * For a section whose text the prompt repeats (identical sections): the shortest prefix of its body, at least 24
  * units, that occurs as often as the whole body does, and which occurrence of it (from 1, in text order) lies in
@@ -260,12 +276,13 @@ function repeatedQuote(
   text: string,
   start: number,
   end: number,
+  find: (needle: string) => number[],
 ): { quote: string; at: number; occurrence?: number } | undefined {
   let best: { origin: number; copies: number } | undefined;
   for (const origin of quoteOrigins(text, start, end)) {
     const whole = text.slice(origin, end);
     if (whole.trim() === '') continue;
-    const copies = occurrencesIn(text, whole).length;
+    const copies = find(whole).length;
     if (!best || copies < best.copies) best = { origin, copies };
   }
   if (!best) return undefined;
@@ -278,31 +295,21 @@ function repeatedQuote(
   let high = room;
   while (low < high) {
     const middle = (low + high) >> 1;
-    if (occurrencesIn(text, text.slice(origin, origin + middle)).length === copies) high = middle;
+    if (find(text.slice(origin, origin + middle)).length === copies) high = middle;
     else low = middle + 1;
   }
   const quote = text.slice(origin, origin + low);
-  const places = occurrencesIn(text, quote);
+  const places = find(quote);
   return places.length > 1
-    ? { quote, at: origin, occurrence: places.indexOf(origin) + 1 }
+    ? { quote, at: origin, occurrence: indexInSorted(places, origin) + 1 }
     : { quote, at: origin };
 }
 
-/**
- * A section entry for the text at `start` to `end`. Undefined when no quote inside it is unique, unless
- * `repeated` accepts a quote the prompt repeats: the anchor then carries the `occurrence` that lies in this
- * section, so identical sections keep an entry each.
- */
-export function sectionEntry(
-  text: string,
-  start: number,
-  end: number,
-  fields: Omit<PromptSection, 'span' | 'sha256' | 'anchor'>,
-  options: { repeated?: boolean } = {},
-): PromptSection | undefined {
-  const found: { quote: string; at: number; occurrence?: number } | undefined =
-    uniqueQuote(text, start, end) ?? (options.repeated ? repeatedQuote(text, start, end) : undefined);
-  if (!found) return undefined;
+type Fields = Omit<PromptSection, 'span' | 'sha256' | 'anchor'>;
+type Quote = { quote: string; at: number; occurrence?: number };
+
+/** A section entry for the text at `start` to `end` anchored on `found`. */
+function entryAt(text: string, start: number, end: number, fields: Fields, found: Quote): PromptSection {
   return {
     ...fields,
     span: { start, end },
@@ -314,6 +321,17 @@ export function sectionEntry(
       ...(found.occurrence === undefined ? {} : { occurrence: found.occurrence }),
     },
   };
+}
+
+/** A section entry for the text at `start` to `end`. Undefined when no quote inside it is unique. */
+export function sectionEntry(
+  text: string,
+  start: number,
+  end: number,
+  fields: Fields,
+): PromptSection | undefined {
+  const found = uniqueQuote(text, start, end);
+  return found ? entryAt(text, start, end, fields, found) : undefined;
 }
 
 const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})(.*)$/;
@@ -508,18 +526,30 @@ export function sectionsFromHeadings(
   // Anchor each section. A section with words keeps an entry of its own, even when the prompt repeats its text.
   // One with no word (an empty heading, a lone rule) cannot be told from its neighbours: it folds into the section
   // before it, or into the one after it when it comes first, and that neighbour is anchored again.
+  const find = occurrenceFinder(text);
+  const wordy = /[\p{L}\p{N}]/u;
+  // A section whose whole text another section repeats has no unique quote, so the search for one is skipped.
+  // The count is taken once; a fold changes the texts, so after the first fold every section is searched.
+  const sameText = new Map<string, number>();
+  for (let index = 0; index < starts.length; index++) {
+    const own = text.slice(starts[index]?.at ?? 0, spanEnd(index));
+    sameText.set(own, (sameText.get(own) ?? 0) + 1);
+  }
+  let folded = false;
   const entries: PromptSection[] = [];
   for (let index = 0; index < starts.length; ) {
     const start = starts[index];
-    const entry =
-      start &&
-      sectionEntry(
-        text,
-        start.at,
-        spanEnd(index),
-        { id: 'section', scope: 'global' },
-        { repeated: /[\p{L}\p{N}]/u.test(text.slice(start.at, spanEnd(index))) },
-      );
+    let entry: PromptSection | undefined;
+    if (start) {
+      const end = spanEnd(index);
+      const own = text.slice(start.at, end);
+      const fields: Fields = { id: 'section', scope: 'global' };
+      const repeats = !folded && (sameText.get(own) ?? 0) > 1;
+      const found =
+        (repeats ? undefined : uniqueQuote(text, start.at, end)) ??
+        (wordy.test(own) ? repeatedQuote(text, start.at, end, find) : undefined);
+      entry = found && entryAt(text, start.at, end, fields, found);
+    }
     if (entry || !start || starts.length === 1) {
       if (entry) entries[index] = entry;
       index++;
@@ -529,15 +559,21 @@ export function sectionsFromHeadings(
     if (index === 0 && next) next.at = start.at;
     starts.splice(index, 1);
     entries.splice(index, 1);
+    folded = true;
     index = Math.max(0, index - 1);
   }
   const errors: string[] = [];
   const sections: PromptSection[] = [];
   const taken = new Set<string>();
+  // The last suffix given to each slug: ids only ever get taken, so a repeat resumes after it.
+  const lastSuffix = new Map<string, number>();
   starts.forEach((each, index) => {
     const base = slug(each.title);
     let id = base;
-    for (let next = 2; taken.has(id); next++) id = `${base}_${next}`;
+    for (let next = (lastSuffix.get(base) ?? 1) + 1; taken.has(id); next++) {
+      id = `${base}_${next}`;
+      lastSuffix.set(base, next);
+    }
     taken.add(id);
     const entry = entries[index];
     if (entry) sections.push({ ...entry, id, title: each.title });
@@ -591,11 +627,16 @@ const squash = (text: string) => text.replace(/\s+/g, '');
  * The anchor of a section placed in `text` with its quote at `at`: the same quote and window, with the
  * `occurrence` that lies in the section when the text repeats the quote, and none when it is found once.
  */
-function anchorIn(text: string, anchor: PromptSection['anchor'], at: number): PromptSection['anchor'] {
+function anchorIn(
+  text: string,
+  find: (needle: string) => number[],
+  anchor: PromptSection['anchor'],
+  at: number,
+): PromptSection['anchor'] {
   if (at < 0 || text.slice(at, at + anchor.quote.length) !== anchor.quote) return anchor;
   const { occurrence: _old, ...rest } = anchor;
-  const places = count(text, anchor.quote);
-  return places.length > 1 ? { ...rest, occurrence: places.indexOf(at) + 1 } : rest;
+  const places = find(anchor.quote);
+  return places.length > 1 ? { ...rest, occurrence: indexInSorted(places, at) + 1 } : rest;
 }
 
 /**
@@ -627,16 +668,8 @@ export function reanchorRegistry(
     };
   const sections: ReanchoredSection[] = [];
   const entries: PromptSection[] = [];
-  const inOld = new Map<string, number[]>();
-  const inNext = new Map<string, number[]>();
-  const where = (memo: Map<string, number[]>, text: string, needle: string): number[] => {
-    let at = memo.get(needle);
-    if (!at) {
-      at = count(text, needle);
-      memo.set(needle, at);
-    }
-    return at;
-  };
+  const inOld = occurrenceFinder(old);
+  const inNext = occurrenceFinder(next);
   for (const section of registry.sections) {
     const from = section.span;
     const body = old.slice(from.start, from.end);
@@ -647,8 +680,8 @@ export function reanchorRegistry(
     }
     let to: { start: number; end: number } | undefined;
     let method: ReanchorMethod | undefined;
-    const copies = where(inOld, old, body);
-    const exact = where(inNext, next, body);
+    const copies = inOld(body);
+    const exact = inNext(body);
     const repeated = copies.length > 1;
     if (!repeated) {
       if (exact.length === 1 && exact[0] !== undefined) {
@@ -656,7 +689,7 @@ export function reanchorRegistry(
         method = 'same_hash';
       }
     } else {
-      const same = exact[copies.indexOf(from.start)];
+      const same = exact[indexInSorted(copies, from.start)];
       if (exact.length === copies.length && same !== undefined) {
         to = { start: same, end: same + body.length };
         method = 'occurrence';
@@ -667,8 +700,8 @@ export function reanchorRegistry(
     const place = (needle: string, inner: number, how: ReanchorMethod) => {
       if (to || quoteAt < 0) return;
       // The surroundings of a repeated text tell its copies apart only if they name one copy in the old prompt too.
-      if (repeated && where(inOld, old, needle).length !== 1) return;
-      const found = where(inNext, next, needle);
+      if (repeated && inOld(needle).length !== 1) return;
+      const found = inNext(needle);
       if (found.length !== 1 || found[0] === undefined) return;
       const start = found[0] + inner - offset;
       if (start >= 0 && next.slice(start, start + body.length) === body) {
@@ -680,7 +713,7 @@ export function reanchorRegistry(
     const prefix = section.anchor.prefix ?? '';
     place(prefix + section.anchor.quote + (section.anchor.suffix ?? ''), prefix.length, 'window');
     if (!to || !method) {
-      const quoteFound = count(next, section.anchor.quote).length === 1;
+      const quoteFound = inNext(section.anchor.quote).length === 1;
       sections.push({
         id: section.id,
         status: 'stale',
@@ -705,7 +738,7 @@ export function reanchorRegistry(
     entries.push({
       ...live,
       span: to,
-      anchor: anchorIn(next, section.anchor, quoteAt < 0 ? -1 : to.start + offset),
+      anchor: anchorIn(next, inNext, section.anchor, quoteAt < 0 ? -1 : to.start + offset),
     });
   }
 
@@ -713,7 +746,7 @@ export function reanchorRegistry(
   // Nothing tells which of them it is, so none of them keeps the place: a place belongs to one section or to none.
   const claimed = new Map<number, number[]>();
   sections.forEach((each, index) => {
-    if (each.to && where(inOld, old, old.slice(each.from.start, each.from.end)).length > 1)
+    if (each.to && inOld(old.slice(each.from.start, each.from.end)).length > 1)
       claimed.set(each.to.start, [...(claimed.get(each.to.start) ?? []), index]);
   });
   for (const indexes of claimed.values()) {
