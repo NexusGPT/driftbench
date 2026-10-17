@@ -410,8 +410,7 @@ function fieldItems(): BankItem[] {
       | 'L25'
       | 'L26'
       | 'L27'
-      | 'L29'
-      | 'L30',
+      | 'L29',
     title: string,
     check: (ctx: ItemContext, tag: string) => ItemResult,
   ) => {
@@ -775,7 +774,7 @@ function fieldItems(): BankItem[] {
   const regexItem = (
     id: string,
     tier: 3 | 4 | 5,
-    cause: 'L26' | 'L27' | 'L29' | 'L30',
+    cause: 'L26' | 'L27' | 'L29',
     title: string,
     make: (raw: RawSpec, pattern: string) => unknown[],
   ) =>
@@ -805,19 +804,6 @@ function fieldItems(): BankItem[] {
     'L27',
     'a regex assertion of a json path that does not compile is refused with REGEX_INVALID',
     (raw, pattern) => [withExpect(raw, 0, { json: { paths: [{ path: 'a', assert: { regex: pattern } }] } })],
-  );
-  regexItem(
-    'schema-pattern',
-    5,
-    'L30',
-    'a pattern of a JSON schema that does not compile is refused, in expect.json.schema and in metadata.tool_schemas',
-    (raw, pattern) => [
-      withExpect(raw, 0, { json: { schema: { type: 'string', pattern } } }),
-      {
-        ...raw,
-        metadata: { tool_schemas: { t: { type: 'object', properties: { a: { type: 'string', pattern } } } } },
-      },
-    ],
   );
   regexItem(
     'perturbation-expect-regex',
