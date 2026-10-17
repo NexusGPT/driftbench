@@ -985,7 +985,7 @@ See also: [checks](reference/checks.md), [running](running.md), [statistics](con
 
 ## Regenerate the fixture
 
-The Northwind folders hold outputs that tests compare byte for byte: the map, the approved map, the space map, the plan and its summary, the approved copy of the plan, the generated suite, and the fixture-v2 map, diff and impact. Make them again after a change to a file the scan reads under `examples/estates/fixture`, to its `answers.yaml`, `phrases.yaml` or `sessions/`, or to the scan, plan or generate code. The commands call no model and write in place. Run them from the repository root, in this order.
+The Northwind folders hold outputs that tests compare byte for byte: the map, the approved map, the space map, the plan and its summary, the approved copy of the plan, the generated suite, and the fixture-v2 map, diff and impact. Make them again after a change to a file the scan reads under `examples/estates/fixture`, to its `answers.yaml`, `phrases.yaml` or `sessions/`, or to the scan, plan or generate code. A change under `examples/estates/fixture-v2` alone needs only step 7. The commands call no model and write in place. Run them from the repository root, in this order.
 
 ```sh
 F=examples/estates/fixture
@@ -1024,19 +1024,20 @@ pnpm -s driftbench estate diff $F/approved.yaml $V/map.yaml --old-guards $V/main
 pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests > $V/maintain/impact.txt
 pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests --out $V/maintain/impact.json
 pnpm exec biome format --write $V/maintain/diff.json $V/maintain/impact.json
+rm -rf "$T"
 ```
 
 | Step | Writes | Notes |
 |---|---|---|
-| 1 | `map.yaml` | The scan exits 1 when a prose file has no recorded answer, and names the file. Add an entry to `answers.yaml` for it (`atoms: []` when it holds no rule) and run the step again. A scan that gives a different map than the committed one fails `packages/estate/test/fixture.test.ts`. |
+| 1 | `map.yaml` | The scan exits 1 when a prose file has no recorded answer, and names the file. Add an entry to `answers.yaml` for it (`atoms: []` when it holds no rule). The failed scan still writes a partial `map.yaml`, without the atoms of that file, and the block has no `set -e` (steps 6 and 7 exit 1 on purpose): run the whole block again from step 1. A scan that gives a different map than the committed one fails `packages/estate/test/fixture.test.ts`. |
 | 2 | `approved.yaml`, `space.yaml` | `approved.yaml` is `map.yaml` with every atom approved. The space map names the agent `northwind`. Both are checked by `fixture.test.ts`. |
 | 3 | `phrases.yaml`, `packages/generate/test/estate/fixtures/plan.yaml`, `packages/adapters/test/claude-code/live/support.ts` | The hash of the map replaces the old one in the phrase bank, in the hand-written plan and in the live adapter test. Nothing changes when the hash did not. `estate generate` refuses a bank written against another map and prints both hashes. |
 | 4 | `plan.yaml`, `plan.summary.json` | The committed plan is the plan of the full declared space, the one `estate map` writes with the agent name `estate`. The space file of this step is a scratch file. `packages/cli/test/estate-plan.test.ts` checks the committed bytes. |
 | 5 | `packages/generate/test/estate/fixtures/planner-plan.approved.yaml` | The plan with every row approved. `head -3` keeps the three note lines at the top of the file. `packages/generate/test/estate/generate.test.ts` checks that the file is the plan with only the status changed. |
 | 6 | `generated/` | Replaces `specs/`, `incomplete/`, `static/`, `unit/`, `estate-generate-report.json` and `run-order.txt`, and nothing else in the folder. Exit 1 is normal while some spec stays incomplete. The seed is 1. `generate.test.ts` compares every file. |
-| 7 | `fixture-v2/map.yaml`, `fixture-v2/maintain/diff.json`, `diff.txt`, `impact.json`, `impact.txt` | `estate impact` exits 1: the planted changes wait for a person. Its text goes to `impact.txt` without `--out`, so the file holds no line that names the JSON file. The repository formatter formats the two JSON files. `packages/estate/test/maintain/fixture-v2.test.ts` compares them. |
+| 7 | `fixture-v2/map.yaml`, `fixture-v2/maintain/diff.json`, `diff.txt`, `impact.json`, `impact.txt` | `estate impact` exits 1: the planted changes wait for a person. Its text goes to `impact.txt` without `--out`, so the file holds no line that names the JSON file. The repository formatter formats the two JSON files. `packages/estate/test/maintain/fixture-v2.test.ts` compares the JSON files as data, and `packages/cli/test/estate-maintain.test.ts` compares the two text files. |
 
-`phrases.yaml`, `sessions/`, `answers.yaml` and the files of the estate itself are inputs written by hand. The hand-written plan names atoms by id: when a change renames or removes an atom it names, edit the plan by hand.
+`phrases.yaml`, `sessions/`, `answers.yaml` and the files of the estate itself are inputs written by hand. The hand-written plan and `phrases.yaml` name atoms by id: when a change renames or removes an atom they name, edit both by hand. Step 6 exits 2 and names the entry of `phrases.yaml` that no longer matches an atom.
 
 A run on an estate that did not change changes only the time of the scan: `readAt` and the `at` of `producedBy` in `map.yaml`, `approved.yaml` and `fixture-v2/map.yaml`, and the two `readAt` values in `fixture-v2/maintain/diff.json`. Restore those four files with `git checkout` when nothing else moved. Use this as a check: if anything else changes on an estate you did not touch, the code behind a command changed its output.
 
@@ -1048,8 +1049,10 @@ After a change of the estate, the tests that count what the fixture holds fail w
 | `packages/cli/test/estate-plan.test.ts` | plan rows, by source and by status |
 | `packages/cli/test/estate-maintain.test.ts` | atoms unchanged between the map and its approved copy |
 | `packages/estate/test/scan.test.ts` | files by kind, atoms by kind, references |
-| `packages/estate/test/graph.test.ts` | edges by kind |
-| `packages/estate/test/map.test.ts` | approval counts |
+| `packages/estate/test/graph.test.ts` | edges by kind, the rules and the unenforced rules |
+| `packages/estate/test/map.test.ts` | approval counts, and the size of each target dimension of the space map (`atoms.instruction` and the other kinds) |
+| `packages/estate/test/plan/plan.test.ts` | plan rows per atom kind (`perKind`) |
+| `packages/estate/test/lint.test.ts` | the `UNENFORCED` count of the lint |
 | `packages/estate/test/maintain/fixture-v2.test.ts` | atoms unchanged in the fixture-v2 diff |
 | `packages/generate/test/estate/generate.test.ts` | approved rows, and the specs, blocks, complete, incomplete and judged specs of the suite |
 | `packages/cli/test/estate-generate.test.ts` | the sessions and the replay specs written over them, which move with `sessions/` and `phrases.yaml` |
