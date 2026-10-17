@@ -188,7 +188,7 @@ The labelers are named by the class the judges use (`docs/concepts/judges.md`): 
 | Class | Client | How it answers | Notes |
 |---|---|---|---|
 | system 2 | `anthropic` (default model `claude-haiku-5-5`) | One dense request per window and set; JSON with the labels of the set; response blocks read by type (thinking blocks may precede the text); hidden reasoning off. Temperature cannot be pinned, so determinism lives in the cassette. | Key from `ANTHROPIC_API_KEY`, never printed or put in a recording. |
-| system 1 | `jev` (Nexus platform; `packages/judges/src/clients/system1.ts` for the judge) | One binary question per (unit, label). One request carries a window of up to 250 questions, split only when units times labels pass the cap. A unit takes the label with the highest probability at or above a threshold (0.4), else `none`. State is the numbered window with its heading path; `jev-unit` is the other state (one unit with all its labels, one request per unit, threshold 0.7). Questions are keyed `u<n>__<label>`. | The probabilities are kept in the cassette so the threshold can change without a re-record. Call shape, cap, window size and threshold are measured on one planted estate (section 10a). The endpoint reports its usage in tokens. |
+| system 1 | `system1` client (Nexus platform; `packages/judges/src/clients/system1.ts` for the judge) | One binary question per (unit, label). One request carries a window of up to 250 questions, split only when units times labels pass the cap. A unit takes the label with the highest probability at or above a threshold (0.4), else `none`. State is the numbered window with its heading path; `system1` unit state is the other state (one unit with all its labels, one request per unit, threshold 0.7). Questions are keyed `u<n>__<label>`. | The probabilities are kept in the cassette so the threshold can change without a re-record. Call shape, cap, window size and threshold are measured on one planted estate (section 10a). The endpoint reports its usage in tokens. |
 | system 1 | `openai-decisions` | The public example of the class: the same questions as predicates to `POST /v1/decisions`. | The shapes follow the provider's public description; no live call has confirmed them here. |
 | either | `http:<url>`, `module:<path>` | A user labeler: the request is `{ set, window, prompt }` (system 2) or `{ set, window, state, questions }` (system 1), the answer is `{ labels }` or `{ probabilities }`. | Recorded and replayed through the cassette like the others, with the id in every key: a hash of the address, or `module:<id>`. |
 | any | replay | Reads a cassette; no network. | Used by CI and validators. |
@@ -202,11 +202,11 @@ The default labeller is a system 1 labeler and a system 2 labeler working togeth
 
 The bounds were set from the fictional fixture only, never from a private estate. On the fixture the units that system 1 called with a probability from 0.6 to 0.9 and system 2 did not were wrong nine times in ten, and no unit that system 2 called an atom had every system 1 probability under 0.4, so the bounds sit at the extremes. Section 14 gives the sweep.
 
-### Jev settings (measured, section 10a)
+### System-1 settings (measured, section 10a)
 
-Measured on one fictional estate with gold written by the helper (395 units, 5 labels, `jev-1.13.0`). The numbers show a direction, not a calibrated default. Section 10a holds the tables.
+Measured on one fictional estate with gold written by the helper (395 units, 5 labels, a pinned model version). The numbers show a direction, not a calibrated default. Section 10a holds the tables.
 
-- **Batched windows of 150 to 250 questions.** A call with 30 to 50 numbered units and all 5 label questions each scored 86.8 and 86.3 accuracy. A window of 20 units scored 84.9, one unit per call 77.8. The estate took 8 to 14 calls, against 395 for one unit per call. The Jev window is sized by question count, not by the 100,000 token bound above.
+- **Batched windows of 150 to 250 questions.** A call with 30 to 50 numbered units and all 5 label questions each scored 86.8 and 86.3 accuracy. A window of 20 units scored 84.9, one unit per call 77.8. The estate took 8 to 14 calls, against 395 for one unit per call. The the system-1 labeller window is sized by question count, not by the 100,000 token bound above.
 - **Cap of 1,300 questions per call with normal question text.** 1,300 answered and 1,350 was refused with HTTP 400 `max_tokens_exceeded`. A refused call returns no answer at all, and the refusal does not follow request bytes. Accuracy does not rise above 250 questions, so the port stays at 150 to 250 and halves the window on a 400.
 - **Flat labels, not a tree.** A two-level tree took 41 calls against 20 for the flat form, scored 84.1 against 84.9, and agreed less between runs (kappa 0.927 against 0.959).
 - **The label wording is the largest lever.** Two wordings of the same five definitions moved accuracy by 13 points (71.7 and 84.9). The exclusive wording, where each definition rules out the others, is the better one. Label descriptions are therefore the quality surface of a label set (section 1), and experiment 15 keeps the builder text generic around them.
@@ -277,7 +277,7 @@ Determinism lives entirely in the cassette, because the models cannot be pinned 
 
 - **Key.** SHA-256 of the canonical request (model, system, messages, output settings, `max_tokens`, thinking setting). The request already contains the label-set text, so the **label-set hash is in the key**. Editing a label re-labels only under that set.
 - **Readable fields** beside the key, so a miss can name what differs from the nearest entry: file, window, prompt version, schema version, set name and hash, labeler id, **cut digest**.
-- **Stored answer.** The labels, the returned model id, `stop_reason`, usage, and for Jev the per-question probabilities. No file text is stored.
+- **Stored answer.** The labels, the returned model id, `stop_reason`, usage, and for the system-1 labeller the per-question probabilities. No file text is stored.
 - **Modes.** CI mode fails on a miss (no network). Record is explicit. Entries never expire. A returned-model mismatch on re-record warns.
 - **Seam.** The model port's HTTP `fetch` is the single recording seam.
 - **Where.** Fixture estates commit `examples/estates/<name>/cassette.jsonl`. Private estates keep theirs in an uncommitted `.cache/` folder.
@@ -336,7 +336,7 @@ All use one gold set: 40 prompt and agent files from several estates, with span-
 | # | Hypothesis | Experiment | Falsified if | Cost |
 |---|---|---|---|---|
 | 1 | Plain integer ids give fewer invalid ids than prefixed forms; dense beats sparse. | Gold set, 3 runs, arms `12`, `L12`, `[12]`, `<s12>`, dense. | Arms differ by under 2 F1 and invalid ids under 1%. | ~600 calls |
-| 1 (Jev side) | Done for Jev on the planted estate (section 10a): `[12]`, `<s12>` and the ledger id are within 0.5 points, the bare number is 4 points lower. No invalid id in any arm. The Haiku side and the gold set are still open. | Planted estate, 3 runs per arm. | Not applicable (measured). | Spent |
+| 1 (System-1 side) | Done for the system-1 labeller on the planted estate (section 10a): `[12]`, `<s12>` and the ledger id are within 0.5 points, the bare number is 4 points lower. No invalid id in any arm. The Haiku side and the gold set are still open. | Planted estate, 3 runs per arm. | Not applicable (measured). | Spent |
 | 2 | Id-only labelling is within 3 F1 of quote-then-locate and of Citations, at lower cost. | Three pipelines on the gold set. | Either alternative wins by over 3 F1 at under 3x the cost. | ~400 calls |
 | 3 | 95% of gold boundaries coincide with unit boundaries; under 15% of rules span several units. | Offline: cut the gold files. | Alignment under 95%. | Offline |
 | 4 | Under 5% of gold rules sit in regions kept opaque. | Offline: count by region. | Any region over 5%. | Offline |
@@ -344,12 +344,12 @@ All use one gold set: 40 prompt and agent files from several estates, with span-
 | 6 | The cut digest is identical across Node and ICU builds. | Offline: Node 20, 22, 24, small-icu, 200 files. | Zero files differ (then a version stamp is enough). | Offline |
 | 7 | One recorded pass is stable (Jaccard 0.9 across runs); window carry-forward keeps unrelated flips under 1%. | 10 live runs per file; 100 edits; file-keyed against window-keyed. | Agreement under 0.9 (then majority of 3). | ~1,500 calls |
 | 8 | Large windows fail more; integer enums cut invalid ids. | Sweep window size and selection ratio. | Range check alone leaves under 0.5% invalid. | ~300 calls |
-| 8 (Jev side) | Done for Jev on the planted estate (section 10a): accuracy peaks at 150 to 250 questions per call, a hard cap sits at 1,300, and no answer below the cap was invalid. The Haiku side is open. | Planted estate, 9 window sizes from 25 to 1,250 questions. | Not applicable (measured). | Spent |
+| 8 (System-1 side) | Done for the system-1 labeller on the planted estate (section 10a): accuracy peaks at 150 to 250 questions per call, a hard cap sits at 1,300, and no answer below the cap was invalid. The Haiku side is open. | Planted estate, 9 window sizes from 25 to 1,250 questions. | Not applicable (measured). | Spent |
 | 9 | The ladder gets 90% of units in the right class, zero wrong anchors on unambiguous cases, 15 points over diff alone. | 50 synthetic edits per class plus the labelled history; threshold sweep 0.3 to 0.7. | Any wrong anchor on an unambiguous case. | Offline |
 | 10 | The normaliser flags under 2% of cosmetic commits and never merges a semantic flip. | Offline over history; 200 minimal mutations. | A semantic miss, or cosmetic suspects over 2%. | Offline |
 | 11 | Verified span links give blast-radius precision and recall of 0.8 against a full rerun. | 30 spans, 3 mutants each. | Recall under 0.8 and advisory links do not help. | ~90 suite runs |
 | 12 | Cassette replay is byte-identical, and a one-field change misses and names the field. | Offline: replay twice, perturb each key field. | Any difference or silent hit. | Offline |
-| 13 | **System 1 against system 2, and the two together**, on the same labelled set: accuracy, cost, speed and run-to-run agreement. **Status: the Jev side ran on the planted estate (section 10a). On the fictional fixture the arms ran once against a coarse reference (section 14); the gold-set comparison has not run.** | Same units and sets, arms: system 2 alone (Haiku, one dense request per window), system 1 alone with window state (one request per window and set), system 1 alone with unit state (one request per unit, all labels as questions, so the window state is measured against the unit state), and the stack; 3 runs each, with the probability bounds swept. Metrics: per-unit accuracy and F1 against gold, cost per file, wall time per file, pairwise agreement across runs. | Reported, not falsified: it decides which labelers are the default and whether system 1 needs a calibration step. | ~600 calls each |
+| 13 | **System 1 against system 2, and the two together**, on the same labelled set: accuracy, cost, speed and run-to-run agreement. **Status: the System-1 side ran on the planted estate (section 10a). On the fictional fixture the arms ran once against a coarse reference (section 14); the gold-set comparison has not run.** | Same units and sets, arms: system 2 alone (Haiku, one dense request per window), system 1 alone with window state (one request per window and set), system 1 alone with unit state (one request per unit, all labels as questions, so the window state is measured against the unit state), and the stack; 3 runs each, with the probability bounds swept. Metrics: per-unit accuracy and F1 against gold, cost per file, wall time per file, pairwise agreement across runs. | Reported, not falsified: it decides which labelers are the default and whether system 1 needs a calibration step. | ~600 calls each |
 | 14 | Editing one label re-labels only under its set. | Offline with a fake labeler: edit one label of one of two sets. | Any call under the unedited set, or any unit id change. | Offline |
 | 15 | The labeler prompt generated from a set is generic: the same prompt text builds for an agent set and a bakery style set. | Offline: build prompts for both sets and check no estate word is in the template. | A fixed word in the template. | Offline |
 
@@ -357,7 +357,7 @@ Order: offline first (3, 4, 5, 6, 9, 10, 12, 14, 15), then the pointing experime
 
 ## 10a. Offline results so far (prototype in `research/pointer-reader/`)
 
-The table below ran on a throwaway prototype, with no model call. The Jev measurements after it are live recorded calls (subsection "Jev measurements"). Nothing here is the gold-set study: experiments 3 and 4 wait for the two-annotator gold set, and the gold in 5 and 9 is built by construction from hand-written sentences and synthetic edits, so the numbers show what the machinery can do on cases the author thought of.
+The table below ran on a throwaway prototype, with no model call. The System-1 measurements after it are live recorded calls (subsection "System-1 measurements"). Nothing here is the gold-set study: experiments 3 and 4 wait for the two-annotator gold set, and the gold in 5 and 9 is built by construction from hand-written sentences and synthetic edits, so the numbers show what the machinery can do on cases the author thought of.
 
 | # | Result |
 |---|---|
@@ -375,18 +375,18 @@ Findings that change the design:
 - The cutter must stop recursing into HTML blocks: an `<role>` line that is not a tag-only line re-parses as the same HTML block. The prototype cuts nested HTML at depth 2 as opaque.
 - The fingerprint's container-marker stripping erases a real "- " or "1. " that a hard wrap puts at a line start. It is rare (0.2%) and errs towards a suspect link, not a missed change.
 
-### Jev measurements (research/jev-id-experiments, 5f985e100)
+### System-1 measurements (research branch, 5f985e100)
 
-Full tables, run files and the recorded answers are in `research/pointer-reader/jev-experiments/RESULTS.md` on that branch. All numbers below come from that file.
+Full tables, run files and the recorded answers are in `RESULTS.md` of the research branch. All numbers below come from that file.
 
 **Caveats that bind every number here.**
 
 - One fictional estate (a bakery, 13 files, 395 planted units, 20 test blocks with 37 true links), written by one person.
-- The gold labels were written by the helper, then changed once after it saw Jev's errors (25 units relabelled, the question text unchanged). Against the first gold the three main arms score 2 points apart and no ranking changes.
-- The label definitions were rewritten once after the first run. The 13-point wording effect below compares the first wording with the rewrite, so part of it is the author learning where Jev failed.
+- The gold labels were written by the helper, then changed once after it saw the system-1 labeller's errors (25 units relabelled, the question text unchanged). Against the first gold the three main arms score 2 points apart and no ranking changes.
+- The label definitions were rewritten once after the first run. The 13-point wording effect below compares the first wording with the rewrite, so part of it is the author learning where the system-1 labeller failed.
 - The units are short imperative sentences. Real prose, several estates, units longer than a sentence and other label sets are not covered.
-- Haiku was not run. There is no Jev against Haiku comparison (experiment 13).
-- Measured use was 9,206,100 tokens in and 3,345,114 out over 2,405 answered requests. At the Jev price of section 11 (USD 0.042 per million input tokens, output free) that is USD 0.39.
+- Haiku was not run. There is no comparison of the system-1 labeller with Haiku comparison (experiment 13).
+- Measured use was 9,206,100 tokens in and 3,345,114 out over 2,405 answered requests. At the system-1 price of section 11 (USD 0.042 per million input tokens, output free) that is USD 0.39.
 
 **Window size (5 labels per unit, threshold 0.5, accuracy %, Macro F1 in brackets).**
 
@@ -424,7 +424,7 @@ Full tables, run files and the recorded answers are in `research/pointer-reader/
 | Units labelled rule, prohibition or gate by the labeler (155 to 159 kept) | 14 labelling + 20 linking | 85.8 |
 | Units with the gold labels (upper bound only) | 20 | 90.1 (91.5 at 0.7) |
 
-Sending the whole estate at 0.5 gives recall 95% and precision 35%, because Jev says yes to many neighbours. The probability threshold, 0.8, matters more than the pool.
+Sending the whole estate at 0.5 gives recall 95% and precision 35%, because the system-1 labeller says yes to many neighbours. The probability threshold, 0.8, matters more than the pool.
 
 **Run time.** 395 units took 22 to 23 s at one unit per call, 3.8 s at 150 questions per call (14 calls, one at a time) and 2.7 s at 250 (8 calls, one at a time).
 
@@ -433,14 +433,14 @@ Cost on the fixture (13 files that go to the model today): 8,384 characters of p
 ## 11. Model, key and cost
 
 - System 2: `anthropic`, default model `claude-haiku-5-5`, key from `ANTHROPIC_API_KEY`, never printed or put in a recording. Price: USD 0.10 per million input tokens and 0.50 per million output tokens, derived from the recorded receipts of the repository (three receipts fit to four digits).
-- System 1: `jev` reads `JEV_API_KEY`, `JEV_URL` or `JEV_ROUTE` and `JEV_MODEL`; its answers carry `usage.input_tokens` and `usage.output_tokens`. Price: USD 0.042 per million input tokens, output free (source: the owner, 17 October 2026). The same source also says prices "drop to around 0.25 per million" on volume packs, which contradicts the first figure; this page uses 0.042.
+- System 1: `system1` client reads `JEV_API_KEY`, `JEV_URL` or `JEV_ROUTE` and `JEV_MODEL`; its answers carry `usage.input_tokens` and `usage.output_tokens`. Price: USD 0.042 per million input tokens, output free (source: the owner, 17 October 2026). The same source also says prices "drop to around 0.25 per million" on volume packs, which contradicts the first figure; this page uses 0.042.
 - The cost of a run is the tokens each service reported times its price. A stack costs the sum of its two members, and its two single-class arms cost nothing more, because they replay the same cassette.
 - Before any spend on an estate, the scan prints a plan: per labeler, the requests it needs, how many the cassette answers and the characters left to send. A token count is estimated by the characters per token measured on the fixture (3.1 for the dense request, 3.85 for the yes or no request) until a first run replaces it with the reported tokens. A private estate is sized by counts only.
 
 ## 12. Open questions
 
 - Whether `Intl.Segmenter` is deterministic enough (experiment 6).
-- Whether Jev's per-unit binary questions can match Haiku's single dense pass on accuracy, and at what cost (experiment 13).
+- Whether the system-1 labeller's per-unit binary questions can match Haiku's single dense pass on accuracy, and at what cost (experiment 13).
 - Whether a gate may target a unit in another file of the skill.
 - How the reviewer sees `description`-like labels without an atom mapping.
 - Whether the advisory (section-level) set is worth its noise (experiment 11).
@@ -452,7 +452,7 @@ Cost on the fixture (13 files that go to the model today): 8,384 characters of p
 3. Cassette, replay seam, planted labeler; experiments 12, 14, 15.
 4. Label sets, prompt builder, Haiku port, window carry-forward.
 5. Links and blast radius.
-6. Jev port; experiments 1, 2, 7, 8, 13.
+6. The system-1 port; experiments 1, 2, 7, 8, 13.
 7. Remove the word-list finder and its tests; move the corpora into labeler tests.
 
 ## 14. What is built
@@ -466,7 +466,7 @@ Behind an opt-in flag, `driftbench estate scan <root> --pointer --cassette <file
 | Cassette keyed by the whole request and the labeler id, readable fields, a miss that names the differing field | Built. One file holds the answers of every labeler of a run; each answer is appended as it arrives. |
 | Label sets as data, the shipped `agent-rules` set loaded by the same parser | Built. |
 | System 2 client (`anthropic`, default `claude-haiku-5-5`, hidden reasoning off) | Built. |
-| System 1 clients (`jev` with window and unit state, `openai-decisions`) | Built. The probabilities are recorded, so a threshold is a replay setting. `openai-decisions` is unconfirmed by a live call. |
+| System 1 clients (`system1` client with window and unit state, `openai-decisions`) | Built. The probabilities are recorded, so a threshold is a replay setting. `openai-decisions` is unconfirmed by a live call. |
 | The default stack with `pass at` and `fail at`, and each class alone | Built. |
 | User labelers by HTTP endpoint or module, through the same port | Built. |
 | Parallel requests (`--jobs`) with the same ledger and the same cassette bytes | Built. |
@@ -502,6 +502,6 @@ Reference for the next table: the 57 prose atoms of the fixture map that its aut
 
 Reading: on this one small fictional estate system 2 alone is the most precise at the same recall, system 1 alone finds one or two more approved atoms for 20 more atoms, and the stack falls between them, closer to system 2 the more extreme the bounds. The units that system 1 called with a probability from 0.6 to 0.9 and system 2 did not (10 units, 1 in the reference) show why the bounds are extreme. One estate, one run per arm and a reference built by overlap prove no ranking. They make experiment 13 on the gold set worth its cost. The bounds are not tuned on any private estate.
 
-### Jev request size on the fixture
+### System-1 request size on the fixture
 
 The window of 48 units with 6 labels (288 questions) was answered. Repeating its units to larger windows: 504 and 1,002 questions were answered, 1,500 and above were refused with HTTP 400 `max_tokens_exceeded`. The cap is a token budget, not a count, which matches the 1,300 and 1,350 of section 10a. The client defaults to 250 questions per request and halves a window that the endpoint refuses.
