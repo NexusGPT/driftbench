@@ -543,3 +543,59 @@ describe('the pair question on a variable that is half weighted', () => {
     expect(result.ok && result.store.constraints).toHaveLength(2);
   });
 });
+
+describe('the values question and the other variables of the store', () => {
+  const axis = (id: string, kind: string, ids: string[], role = 'axis') => ({
+    id,
+    title: id,
+    kind,
+    role,
+    approved: true,
+    values: ids.map((value) => ({ id: value, title: value })),
+  });
+  const of = (...variables: unknown[]) => validate({ format: 1, agent: 'x', version: '1', variables });
+  const add = (id: string) => ({ values: [{ id, title: 'New', ...words('Said by the owner.') }] });
+
+  it('asks again for a value that belongs to another axis of the same kind, and names that variable', async () => {
+    const store = of(axis('x', 'data', ['a']), axis('y', 'data', ['b', 'c']));
+    const { result, refusals } = await refusalsOf('values:x', [add('c'), add('d')], store);
+    expect(refusals.map((e) => e.reason)).toEqual([
+      '"c" is already a value of "y", an axis of the same kind: a spec names such a value without its variable, so give it another id',
+    ]);
+    expect(result.ok && result.store.variables[0]?.values.map((v) => v.id)).toEqual(['a', 'd']);
+  });
+
+  it('asks again for a value the interview gave another axis a moment ago', async () => {
+    const store = of(axis('x', 'persona', ['a']), axis('y', 'persona', ['b']));
+    const { asker, calls } = scripted({ 'values:x': [add('c')], 'values:y': [add('c'), add('e')] });
+    const result = await interviewVariables(store, asker, { now: NOW });
+    expect(calls.filter((c) => c.key === 'values:y').map((c) => c.refusal?.slice(0, 31))).toEqual([
+      undefined,
+      '"c" is already a value of "x", ',
+    ]);
+    expect(result.ok).toBe(true);
+  });
+
+  it('accepts the same value in a detail, and the value none in two axes', async () => {
+    const store = of(
+      axis('x', 'data', ['a']),
+      axis('y', 'data', ['b', 'c'], 'detail'),
+      axis('z', 'data', ['none']),
+    );
+    expect((await refusalsOf('values:x', [add('c')], store)).refusals).toEqual([]);
+    expect((await refusalsOf('values:x', [add('none')], store)).refusals).toEqual([]);
+  });
+
+  it('asks again for a value on a deviation axis that is no deviation class', async () => {
+    const store = of(axis('deviation', 'deviation', ['none']));
+    const { result, refusals } = await refusalsOf(
+      'values:deviation',
+      [add('D99_shouting'), add('D4_loose_confirmation')],
+      store,
+    );
+    expect(refusals.map((e) => e.reason)).toEqual([
+      '"D99_shouting" is not a deviation class: use D1_off_topic to D12_prompt_extraction, or none',
+    ]);
+    expect(result.ok).toBe(true);
+  });
+});
