@@ -39,6 +39,7 @@ import {
   INCOMPLETE_DIR,
   measuredCoverage,
   REPORT_FILE,
+  reachabilityReport,
   type SeederTotals,
 } from './generate';
 import { StreamCoverage } from './stream-coverage';
@@ -356,6 +357,7 @@ function writeSuite(
           .filter((cell) => cell.count === 0)
           .map((cell) => cell.values),
       })),
+      ...(prepared.reachability ? { reachability: reachabilityReport(prepared) } : {}),
       t,
       allowed: completeCoverage.allowed,
       complete: completeCoverage,
