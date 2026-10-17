@@ -923,6 +923,14 @@ function titleLike(terms: Term[]): boolean {
  * object, followed by a condition with no object of its own, describes the trigger and tells no one to act.
  */
 function triggerIdiom(terms: Term[]): boolean {
+  // "Use the hold list when you need a reader to wait": a pick-this-when-you-need-that line describes an option.
+  const joined = terms.map((term) => term.text).join(' ');
+  if (
+    /^(?:use|pick|choose|select|prefer|try)\b.*\b(?:when|whenever|if)\s+you\s+(?:need|want|would\s+like|prefer|are\s+looking|plan|wish)\b/i.test(
+      joined,
+    )
+  )
+    return true;
   const first = (terms[0]?.text ?? '').toLowerCase();
   return (
     /^(?:use|apply|invoke|trigger|call|run|load|activate)$/.test(first) &&

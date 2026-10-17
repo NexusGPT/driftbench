@@ -116,3 +116,31 @@ describe('clauses cut at an abbreviation', () => {
     expect(atoms.map((atom) => atom.provenance.quote).filter((quote) => /^[a-z]/.test(quote))).toEqual([]);
   });
 });
+
+describe('two coordinated rules and option summaries', () => {
+  it.each([
+    [
+      'Water the ferns on Monday and never mist the cacti.',
+      ['Water the ferns on Monday', 'never mist the cacti.'],
+    ],
+    ['Lock the gate, but do not lock the shed.', ['Lock the gate', 'do not lock the shed.']],
+  ])('splits one sentence that holds two directives: %s', async (text, quotes) => {
+    const { atoms } = await candidates(`# Notes\n\n${text}\n`);
+    expect(atoms.map((atom) => atom.provenance.quote)).toEqual(quotes);
+  });
+  it('keeps a "never" that is not a second directive in one clause', async () => {
+    const { atoms } = await candidates('# Notes\n\nNever open the gate and the shed at once.\n');
+    expect(atoms.map((atom) => atom.provenance.quote)).toEqual(['Never open the gate and the shed at once.']);
+  });
+  it.each([
+    'Use the kiln log when you need the firing times.',
+    'Pick the long ladder if you want to reach the loft.',
+    'Choose the red pen when you would like a bold line.',
+  ])('does not propose a line that describes an option: %s', async (text) => {
+    expect((await candidates(`# Notes\n\n${text}\n`)).atoms).toEqual([]);
+  });
+  it('still proposes an instruction that only starts the same way', async () => {
+    const { atoms } = await candidates('# Notes\n\nUse the kiln log before you fire.\n');
+    expect(atoms).toHaveLength(1);
+  });
+});

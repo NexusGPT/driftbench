@@ -457,15 +457,28 @@ function ruleText(text: string): string {
 }
 
 const sentenceSegments = new Intl.Segmenter('en', { granularity: 'sentence' });
+/**
+ * A sentence that joins two clauses with "and" or "but" before a second directive ("... and never X") holds two
+ * rules a reader would act on separately; the join belongs to neither.
+ */
+const COORDINATED_DIRECTIVE =
+  /,?\s+(?:and|but)\s+(?=(?:never|always|do\s+not|don['’]t|must|should|please)\b)/giu;
+
 function* proseClauses(text: string): Generator<{ segment: string; index: number; opening: boolean }> {
   for (const sentence of sentenceSegments.segment(text)) {
     if (sentence.segment.includes('?')) continue;
     for (const clause of sentence.segment.matchAll(/[^;]+/g)) {
-      yield {
-        segment: clause[0],
-        index: sentence.index + (clause.index ?? 0),
-        opening: (clause.index ?? 0) === 0,
-      };
+      const base = sentence.index + (clause.index ?? 0);
+      let from = 0;
+      let opening = (clause.index ?? 0) === 0;
+      for (const join of clause[0].matchAll(COORDINATED_DIRECTIVE)) {
+        const head = clause[0].slice(from, join.index);
+        if (/^\s*$/.test(head)) continue;
+        yield { segment: head, index: base + from, opening };
+        from = (join.index ?? 0) + join[0].length;
+        opening = false;
+      }
+      yield { segment: clause[0].slice(from), index: base + from, opening };
     }
   }
 }
