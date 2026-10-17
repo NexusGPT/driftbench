@@ -435,6 +435,9 @@ function judgeClause(clause: string, delimiter: string): boolean | 'defer' {
   // an imperative ("In invoices/INV-1.json set the note field").
   if (NOT_A_HEAD.has(head) && !(FRONTED.has(head) && !requested)) return false;
   if (head === 'do' && NEGATIONS.has(rest[0] ?? '')) return false;
+  // A session command with only courtesy, time or sufficiency after it ("stop now") is a whole request.
+  if (SESSION_CONTROL.has(head) && rest.every((word) => TRIGGER_TAIL.has(word.replace(/[^a-z']/g, ''))))
+    return true;
   // Unless a frame or "please" makes it a request, the clause must be an imperative: a main verb and no subject.
   if (!requested && !(SESSION_CONTROL.has(head) && rest.length === 0) && !isImperative(text)) return false;
   const object = rest.filter((word) => !SKIP.has(word));
@@ -532,6 +535,13 @@ export type TaskContext = {
   against?: readonly string[];
 };
 
+/** Whether a clause is only a command to the session itself: one session-control word and nothing else. */
+function sessionControlOnly(clause: string): boolean {
+  const { words, requested } = wordsOf(clause);
+  const [head] = words;
+  return !requested && words.length === 1 && head !== undefined && SESSION_CONTROL.has(head);
+}
+
 /**
  * Whether an ask holds a task: a question about something, or an imperative request with an object. An
  * imperative is a clause that opens with a request frame ("please", "could you", "I need you to") or with a verb
@@ -559,6 +569,19 @@ export function holdsTask(ask: string, context: TaskContext = {}): boolean {
     )
       continue;
     const verdict = judgeClause(part.text, part.delimiter);
+    // A command to the session itself ("stop") is a whole request only when what follows it is courtesy, time or
+    // sufficiency ("Stop now.", "Stop, that is enough for now."): the stop word in front of a label or a note does not
+    // turn that label or note into a task.
+    if (
+      verdict === true &&
+      sessionControlOnly(part.text) &&
+      !parts
+        .filter((other) => other !== part && other.text !== '')
+        .every((other) =>
+          wordsOf(other.text).words.every((word) => TRIGGER_TAIL.has(word.replace(/[^a-z']/g, ''))),
+        )
+    )
+      continue;
     if (verdict === 'defer') {
       const after = parts
         .slice(index + 1)
@@ -685,18 +708,59 @@ export function triggersOfGuard(
   ];
 }
 
+/** The words of the rules a guard enforces (title and quote), lower-cased: what a stop request may repeat of its rule. */
+export function ruleWordsOfGuard(
+  guard: { fields?: Record<string, unknown> },
+  atoms: ReadonlyArray<{ id: string; title?: string; provenance: { quote: string } }>,
+): string[] {
+  const enforced = new Set(
+    ((guard.fields?.enforces as Array<{ atom?: string }> | undefined) ?? []).flatMap((entry) =>
+      entry.atom === undefined ? [] : [entry.atom],
+    ),
+  );
+  return [
+    ...new Set(
+      atoms
+        .filter((atom) => enforced.has(atom.id))
+        .flatMap(
+          (atom) => `${atom.title ?? ''} ${atom.provenance.quote}`.toLowerCase().match(/[a-z']+/g) ?? [],
+        ),
+    ),
+  ];
+}
+
 /**
- * Whether an ask is the trigger of a guard on the prompt event itself: the trigger word or phrase alone, or at the head
- * of the ask, set off by punctuation ("stop", "Stop, that is enough for now."). Anything else is no trigger and goes
- * through the task predicate like any other ask.
+ * The closed class of words a bare stop request may add after its trigger: courtesy, time, sufficiency and a pointer to
+ * the session itself ("Stop now.", "Stop, that is enough for now.", "Please, stop everything."). It holds no noun that
+ * names a thing in the estate, no number and no code, so a label or a pasted note after the trigger is never in it.
  */
-export function isOwnTrigger(ask: string, triggers: readonly string[]): boolean {
+const TRIGGER_TAIL = new Set(
+  `now please thanks thank you that this it is its are was be enough for already right away immediately here
+  everything all of the a an okay ok just really thats that's it's i we let's lets and so then thx`
+    .split(/\s+/)
+    .filter(Boolean),
+);
+
+/**
+ * Whether an ask is the trigger of a guard on the prompt event as a whole request: the trigger word or phrase, a whole
+ * word at the head of the ask, followed by nothing, by end punctuation, or by a tail made only of the closed class
+ * above and of the words of the rules the guard enforces (`allowed`, read from the map). A tail with any other word, a
+ * digit or a placeholder is not the trigger: it goes through the task predicate like any other ask.
+ */
+export function isOwnTrigger(
+  ask: string,
+  triggers: readonly string[],
+  allowed: Iterable<string> = [],
+): boolean {
   const text = ask.trim().toLowerCase();
   if (PLACEHOLDER.test(text)) return false;
+  const tail = new Set([...TRIGGER_TAIL, ...allowed]);
   return triggers.some((trigger) => {
     if (!text.startsWith(trigger)) return false;
     const rest = text.slice(trigger.length);
-    return /^[\s]*$/.test(rest.replace(/[.!?]+$/, '')) || /^[,;:!.?]\s*\S/.test(rest);
+    // The trigger is a whole word: "stopwatch" and "stop4411" are not "stop".
+    if (/^[a-z0-9]/.test(rest)) return false;
+    return rest.split(/[^a-z0-9']+/).every((word) => word === '' || tail.has(word));
   });
 }
 
@@ -748,6 +812,10 @@ export function taskFamily(): Family {
                 spec.atoms.flatMap((id) => {
                   const guard = promptGuards.get(id);
                   return guard ? triggersOfGuard(guard, atoms) : [];
+                }),
+                spec.atoms.flatMap((id) => {
+                  const guard = promptGuards.get(id);
+                  return guard ? ruleWordsOfGuard(guard, atoms) : [];
                 }),
               )
             ) &&
