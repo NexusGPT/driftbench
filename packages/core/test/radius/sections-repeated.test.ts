@@ -346,3 +346,90 @@ describe('sections reanchor keeps identical sections apart', () => {
     expect(checkSectionRegistry(second.result.registry, two)).toEqual([]);
   });
 });
+
+/** CPU time of a run, as the other timing tests of the radius package count it. */
+function cpuMs<T>(run: () => T): { result: T; ms: number } {
+  const before = process.cpuUsage();
+  const result = run();
+  const used = process.cpuUsage(before);
+  return { result, ms: (used.user + used.system) / 1000 };
+}
+
+describe('many identical sections take CPU time near linear in the sections', () => {
+  const BUDGET_MS = 3000;
+  const identical = (count: number) =>
+    Array.from({ length: count }, () => '## Same\nThe same rule says that the same item stays.\n').join('\n');
+
+  function everything(count: number) {
+    const text = identical(count);
+    const init = cpuMs(() => sectionsFromHeadings(text, { promptId: 'p', version: '1' }));
+    if (!init.result.ok) throw new Error(init.result.errors[0]);
+    const registry = init.result.registry;
+    const check = cpuMs(() => checkSectionRegistry(registry, text));
+    const next = `## Weather\nRead the glass at dawn.\n\n${text}`;
+    const moved = cpuMs(() => reanchorRegistry(registry, text, next, 'v2'));
+    return { registry, check, moved, init, next };
+  }
+
+  it.each([2000, 8000])('%d identical sections: init, check and reanchor', (count) => {
+    const { registry, init, check, moved, next } = everything(count);
+    expect(registry.sections).toHaveLength(count);
+    expect(new Set(registry.sections.map((each) => each.id)).size).toBe(count);
+    expect(registry.sections.at(-1)).toMatchObject({ id: `same_${count}`, anchor: { occurrence: count } });
+    expect(check.result).toEqual([]);
+    if (!moved.result.ok) throw new Error(moved.result.errors.join('\n'));
+    expect(moved.result.result.sections.every((each) => each.method === 'occurrence')).toBe(true);
+    expect(checkSectionRegistry(moved.result.result.registry, next)).toEqual([]);
+    expect(init.ms).toBeLessThan(BUDGET_MS);
+    expect(check.ms).toBeLessThan(BUDGET_MS);
+    expect(moved.ms).toBeLessThan(BUDGET_MS);
+  });
+
+  it('four times the identical sections take about four times the time', () => {
+    const total = (count: number) => {
+      const run = everything(count);
+      return run.init.ms + run.check.ms + run.moved.ms;
+    };
+    total(500);
+    const small = Math.max(total(2000), 5);
+    const large = total(8000);
+    expect(large / small).toBeLessThan(10);
+  });
+});
+
+describe('repeated slugs take the next free suffix', () => {
+  // The reference: the naive search from _2 that the cursor per slug must agree with.
+  function naive(slugs: string[]): string[] {
+    const taken = new Set<string>();
+    return slugs.map((base) => {
+      let id = base;
+      for (let next = 2; taken.has(id); next++) id = `${base}_${next}`;
+      taken.add(id);
+      return id;
+    });
+  }
+
+  it('agrees with the naive search on random orders of titles that collide with their own suffixes', () => {
+    const titles = ['T', 'T 2', 'T 3', 'T 2 2', 'T 2 3', 'U', 'U 2'];
+    const slugOf = (title: string) => title.toLowerCase().replace(/ /g, '_');
+    let state = 20260101;
+    const next = () => {
+      state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+      return state / 2 ** 32;
+    };
+    for (let round = 0; round < 300; round++) {
+      const picked = Array.from(
+        { length: 4 + Math.floor(next() * 12) },
+        () => titles[Math.floor(next() * titles.length)] as string,
+      );
+      const text = picked
+        .map((title, at) => `## ${title}\nBody number ${at} of round ${round}.\n`)
+        .join('\n');
+      const built = register(text);
+      expect(
+        built.sections.map((each) => each.id),
+        picked.join(' | '),
+      ).toEqual(naive(picked.map(slugOf)));
+    }
+  });
+});

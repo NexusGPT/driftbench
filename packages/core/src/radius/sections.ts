@@ -779,6 +779,10 @@ export function reanchorRegistry(
   // stale section lies between them (its new text is not known).
   const outside: string[] = [];
   if (reordered.length === 0) {
+    // The old sections that came out stale, found once: the first entry of an id decides, as a search by id would.
+    const statusOf = new Map<string, ReanchoredSection['status']>();
+    for (const each of sections) if (!statusOf.has(each.id)) statusOf.set(each.id, each.status);
+    const staleOld = registry.sections.filter((section) => statusOf.get(section.id) === 'stale');
     const bounds = [
       { id: '(start)', from: { start: 0, end: 0 }, to: { start: 0, end: 0 } },
       ...found,
@@ -793,11 +797,8 @@ export function reanchorRegistry(
       const right = bounds[index];
       if (!left?.to || !right?.to) continue;
       const oldGap = { start: left.from.end, end: right.from.start };
-      const stale = registry.sections.filter(
-        (section) =>
-          sections.find((each) => each.id === section.id)?.status === 'stale' &&
-          section.span.start >= oldGap.start &&
-          section.span.end <= oldGap.end,
+      const stale = staleOld.filter(
+        (section) => section.span.start >= oldGap.start && section.span.end <= oldGap.end,
       );
       const newText = squash(next.slice(left.to.end, right.to.start));
       const label = `between ${left.id} and ${right.id}`;
