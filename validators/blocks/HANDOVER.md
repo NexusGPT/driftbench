@@ -19,7 +19,7 @@ None for ladder version 2: a floor starts at level 1 or more (docs/validators.md
 
 ## Open items
 
-Ladder version 2 (docs/validators.md section 13): 1,765 items, 63 families, 383 causes (at most about 27 items each), both agent kinds (a normal agent behind the function adapter, a code-interpreter agent behind the process adapter in a local sandbox) on every level. On main every failing item is a capability of an open pull request, except one:
+Ladder version 2 (docs/validators.md section 13): 2,206 items, 75 families, 522 causes (at most about 27 items each), both agent kinds (a normal agent behind the function adapter, a code-interpreter agent behind the process adapter in a local sandbox) on every level. On main every failing item is a capability of an open pull request, except one:
 
 - Level 1 (verdicts): every pattern with a parent fails, because the loader refuses the `parent` key, and the binary and byte-order-mark seeds fail, because `workspace.binary` is not in the schema (both on PR 562, head 03a6cc0e8, where level 1 passes). Every other level 1 item passes, the code-interpreter checks and the pairwise fault combinations included.
 - Level 2 (parents): PR 562 (03a6cc0e8): parents 110 of 110 and the byte-exact carry 20 of 20 pass there.
