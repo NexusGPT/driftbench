@@ -1,0 +1,24 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+const here = new URL('.', import.meta.url).pathname;
+const L = ['rule', 'prohibition', 'gate', 'example', 'description', 'none'];
+const g = JSON.parse(readFileSync(join(here, 'gold5.json'), 'utf8')).units as Array<{ file: string; g: number; estate: string; labelAuthor: string; labelOpus: string; agreed: boolean }>;
+const R = JSON.parse(readFileSync(join(here, 'results5', 'jev5-r1.json'), 'utf8')) as { probs: Record<number, Record<string, number>>; calls: Array<{ ms: number; tokIn: number; tokOut: number }> };
+const pred = (n: number) => { const p = R.probs[n]!; return L.reduce((b, l) => ((p[l] ?? 0) > (p[b] ?? 0) ? l : b), L[0]!); };
+const conf = (n: number) => { const s = L.map((l) => R.probs[n]![l] ?? 0).sort((a, b) => b - a); return s[0]! - s[1]!; };
+const w = (k: number, n: number) => { const z = 1.96, p = k / n, d = 1 + z * z / n, c = p + z * z / (2 * n), m = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)); return `${(100 * p).toFixed(1)} [${(100 * (c - m) / d).toFixed(1)}, ${(100 * (c + m) / d).toFixed(1)}]`; };
+const out: string[] = ['| Units | n | Jev choice, window of 30, 1 pass: accuracy % [Wilson 95%] | Same, 10% unsure |', '|---|---|---|---|'];
+const row = (name: string, us: typeof g, truth: (u: (typeof g)[0]) => string) => {
+  const ok = us.filter((u) => pred(u.g) === truth(u)).length;
+  const keep = [...us].sort((a, b) => conf(b.g) - conf(a.g)).slice(0, Math.round(us.length * 0.9));
+  const ok10 = keep.filter((u) => pred(u.g) === truth(u)).length;
+  out.push(`| ${name} | ${us.length} | ${w(ok, us.length)} | ${w(ok10, keep.length)} |`);
+};
+for (const e of ['A', 'B', 'C']) row(`Estate ${e}, agreed units (author = Opus)`, g.filter((u) => u.estate === e && u.agreed), (u) => u.labelAuthor);
+row('All three estates, agreed units', g.filter((u) => u.agreed), (u) => u.labelAuthor);
+row('All three estates, all units against the author labels', g, (u) => u.labelAuthor);
+row('All three estates, all units against the Opus labels', g, (u) => u.labelOpus);
+const ms = R.calls.map((c) => c.ms).sort((a, b) => a - b);
+out.push('', `Calls ${R.calls.length}, input tokens ${R.calls.reduce((a, c) => a + c.tokIn, 0)}, output tokens ${R.calls.reduce((a, c) => a + c.tokOut, 0)}, median ${ms[Math.floor(ms.length / 2)]} ms, p90 ${ms[Math.floor(ms.length * 0.9)]} ms; USD ${(R.calls.reduce((a, c) => a + c.tokIn, 0) * 0.042 / 1e6).toFixed(4)} (Jev input only, 0.042 per million, owner, 17 October 2026).`);
+writeFileSync(join(here, 'an5j.out.md'), out.join('\n') + '\n');
+console.log(out.join('\n'));
