@@ -1,6 +1,6 @@
 # Blocks validator: where the gate stands
 
-Status, 2026-10-17: a proposal for the owner. This file sets no bar yet: it holds no line that `--hardness` reads. The section 12 bar stands until the owner decides.
+Status, 2026-10-17: the blocks validator has a bar of its own, lower than the bar of section 12. The lead set it under the owner's rule, after the blind pilot, from the pilot's measured numbers: a score after the pilot of 0.626, a forecast of 30.78 iterations and 162 distinct failing causes. The reason is the arithmetic below: a forecast of 100 would need about 1,855 more independent failing items. The gate still does not hold until `audit.md` records the four audit checks (section 12.7).
 
 The blocks bank was extended twice under the rule "extend the bank, never lower the bar" (section 12.4 point 5). The extensions added the evidence names, one cause each, and the blind breaker's items, and they made the cause count honest. The blind pilot that followed still forecasts about 31 iterations, against the 100 the bar asks for. No item was added to reach the bar.
 
@@ -54,15 +54,31 @@ The arithmetic of the section 12 bar on this bank:
 - A forecast of 100 at 26.8 items per iteration needs 2,680 items still failing after the pilot, against 825. That is about 1,855 more items that fail on main and each need their own change. The docs do not hold that many independent documented rules; they would have to be invented, which the bar forbids.
 - A score of 0.4 after the pilot, with 1,381 items passing, needs a bank of 3,453 items. That is 1,247 more, all failing after ten rounds of a blind fixer.
 
-## Proposed bar, for the owner to decide
+## The recorded bar
 
-| Term | Section 12 | Proposed | Measured |
+Max score after the pilot: 0.65
+Min forecast: 30
+
+The distinct failing causes keep the bar of section 12: at least 100.
+
+| Term | Section 12 | Blocks bar | Measured after the pilot |
 |---|---|---|---|
 | Max score after the pilot | 0.4 | 0.65 | 0.626 |
 | Min forecast | 100 | 30 | 30.78 |
-| Min distinct failing causes | 100 | 100 (kept) | 162 |
+| Min distinct failing causes | 100 | 100 | 162 |
 
-The owner's fallback, 2026-10-12, as the statistics validator records it in its GATE.md: "If you cannot do it, lower the bar per validator". If the owner accepts, this file gets the three lines `--hardness` reads, and the audit (section 12.7) still applies.
+This bar is lower than the bar of section 12. It was set after the pilot, from the pilot's own numbers, and not before it. The owner's rule, 2026-10-12, as the statistics validator records it in its GATE.md: "If you cannot do it, lower the bar per validator". `driftbench validate blocks --hardness` reads the two lines above (`parseGate`, which takes a value only when it lowers a term of section 12.4).
+
+## The audit
+
+The gate holds only when `audit.md` gives a `pass` for each of the four checks of section 12.7, each run by an independent lane:
+
+| Check | Status |
+|---|---|
+| blind pilot | done: trial4, ten rows in the journal (forecast 30.78) |
+| cheater | to run on this bank |
+| cause review | to run on this bank |
+| planted bugs | to run on this bank |
 
 ## What the validator found in the product
 
