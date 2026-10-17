@@ -17,7 +17,7 @@ import {
 import { type Action, KINDS, type Kind, plantedAgent, token } from '../kinds';
 import type { BlocksProduct } from '../product';
 import { type BlockPlan, KIND_CAPS, recipe, settle } from '../recipe';
-import { type BankItem, fail, PASS, type Tier } from '../types';
+import { type BankItem, fail, PASS, type Tier, thrownText } from '../types';
 import { judge, play } from './verdicts';
 
 /**
@@ -86,9 +86,7 @@ const marks = (seed: number, tag: string, n: number) =>
   Array.from({ length: n }, (_, i) => token(seed, `${tag}#m${i}`, 8));
 
 function guard(error: unknown) {
-  return fail(
-    `the spec should load and run; it threw: ${error instanceof Error ? error.message.slice(0, 200) : String(error)}`,
-  );
+  return fail(`the spec should load and run; it threw: ${thrownText(error)}`);
 }
 
 /** NORMAL behaviours of inheritance. */

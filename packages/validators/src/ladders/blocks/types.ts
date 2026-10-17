@@ -61,3 +61,17 @@ export const BANK_LEVELS = [
   { level: 8, id: 'personas', name: 'personas: one test played by different simulated users' },
   { level: 9, id: 'intervals', name: 'intervals: coverage of a planted true rate' },
 ] as const;
+
+/**
+ * What a thrown error may say in an item's detail: its name and message, with every JSON-like span cut, so a
+ * product that throws the arguments it was called with learns nothing of the item's inputs from the report.
+ */
+export function thrownText(cause: unknown): string {
+  const name = cause instanceof Error ? cause.name : 'Error';
+  const message = cause instanceof Error ? cause.message : String(cause);
+  const cut = message
+    .replace(/[[{][^]*[\]}]/g, '<...>')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return `${name}: ${cut}`.slice(0, 240);
+}

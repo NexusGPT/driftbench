@@ -72,6 +72,11 @@ type Override = {
   ): { ref: unknown; code: string | undefined };
 };
 
+/** A name that says nothing about the item: seeded letters and digits. */
+const neutral = (rng: Rng) =>
+  `n${Math.floor(rng() * 36 ** 6)
+    .toString(36)
+    .padStart(6, '0')}`;
 const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const others = (item: string, pool: readonly string[]) => pool.filter((each) => each !== item);
@@ -130,10 +135,10 @@ const OVERRIDES: Override[] = [
   {
     id: 'add-incomplete',
     tier: 3,
-    build: (p, _rng, _order, _pool) => ({
+    build: (_p, rng, _order, _pool) => ({
       ref: {
         extends: 'default',
-        items: [{ id: p(['extra_check', 'slow_reply']), add: true, title: 'A new check' }],
+        items: [{ id: neutral(rng), add: true, title: 'A new check' }],
       },
       code: 'OBJECT_ITEM_INCOMPLETE',
     }),
@@ -197,16 +202,16 @@ const OVERRIDES: Override[] = [
   {
     id: 'unknown-object',
     tier: 1,
-    build: (p, _rng, _order, _pool) => ({
-      ref: p(['no-such-set', 'defaults', 'Default']),
+    build: (p, rng, _order, _pool) => ({
+      ref: p([neutral(rng), 'defaults', 'Default']),
       code: 'OBJECT_UNKNOWN',
     }),
   },
   {
     id: 'unknown-parent',
     tier: 2,
-    build: (p, _rng, _order, _pool) => ({
-      ref: { extends: p(['missing', 'default2']), items: [] },
+    build: (p, rng, _order, _pool) => ({
+      ref: { extends: p([neutral(rng), 'default2']), items: [] },
       code: 'OBJECT_UNKNOWN',
     }),
   },
@@ -297,10 +302,24 @@ function loaderItems(): BankItem[] {
               return result.ok
                 ? PASS
                 : fail(`the loader refused ${JSON.stringify(ref)}: ${list(result.codes)}`);
-            return !result.ok && result.codes.includes(code)
+            if (result.ok || !result.codes.includes(code))
+              return fail(
+                `the override ${JSON.stringify(ref)} should be refused with ${code}; the loader answered ${result.ok ? 'ok' : list(result.codes)}`,
+              );
+            // The near-miss twin: an override of the same shape that names a real item. A loader that refuses
+            // every override, or every one of this shape, refuses it too.
+            const real = { extends: 'default', items: [{ id: pick(rng, KIND_ITEMS[kind]), enabled: false }] };
+            const twin = objectSpec(
+              seed,
+              `${id}#twin`,
+              kind,
+              place === 'spec' ? { spec: real } : { block: real },
+            ).raw;
+            const twinResult = loadIssues(product, twin);
+            return twinResult.ok
               ? PASS
               : fail(
-                  `the override ${JSON.stringify(ref)} should be refused with ${code}; the loader answered ${result.ok ? 'ok' : list(result.codes)}`,
+                  `a twin override ${JSON.stringify(real)} that names a real item should load; the loader refused it with ${list(twinResult.codes)}`,
                 );
           },
         });
@@ -386,8 +405,8 @@ const projectObject = (id: string, item: string) => ({
 
 /** A project: driftbench.yaml with one inline object, one object file, and a spec whose last block uses it. */
 function writeProject(dir: string, p: <T>(items: readonly T[]) => T, seed: number) {
-  const objectId = p(['quiet-tools', 'no-accuracy', 'lean-checks']);
-  const fileId = p(['strict-order', 'short-set']);
+  const objectId = token(seed, 'project#inline');
+  const fileId = token(seed, 'project#file');
   const item = p(CHECK_SET_ITEMS);
   mkdirSync(join(dir, 'driftbench', 'check-set'), { recursive: true });
   writeFileSync(join(dir, 'driftbench.yaml'), stringify({ objects: [projectObject(objectId, item)] }));
@@ -454,7 +473,7 @@ const CLI_CASES: CliCase[] = [
     exit: 2,
     setup: (dir, p, seed) => {
       writeProject(dir, p, seed);
-      const id = p(['nothing', 'defaults']);
+      const id = p([token(seed, 'show#id'), 'defaults']);
       return { args: ['show', `check-set/${id}`], holds: [new RegExp(id)] };
     },
   },
@@ -521,7 +540,7 @@ const CLI_CASES: CliCase[] = [
           '--at',
           `${project.specPath}#b0`,
           '--set',
-          `check-set/${p(['missing', 'ghost'])}#must.limit=2`,
+          `check-set/${token(seed, 'set#absent')}#must.limit=2`,
         ],
       };
     },
@@ -545,9 +564,12 @@ const CLI_CASES: CliCase[] = [
     exit: 1,
     setup: (dir, p, seed) => {
       writeProject(dir, p, seed);
-      const specPath = join(dir, 'ghost.yaml');
+      const specPath = join(dir, `${token(seed, 'explain#spec')}.yaml`);
       // The spec layer names the object, so the block explained (b0) is one that names it.
-      writeFileSync(specPath, stringify(toolSpec(seed, 'ghost', { spec: p(['ghost-set', 'vanished']) })));
+      writeFileSync(
+        specPath,
+        stringify(toolSpec(seed, 'explain#unresolved', { spec: token(seed, 'explain#object') })),
+      );
       return { args: ['explain', 'check-set', '--at', `${specPath}#b0`] };
     },
   },
@@ -557,9 +579,9 @@ const CLI_CASES: CliCase[] = [
     exit: 0,
     setup: (dir, p, seed) => {
       writeProject(dir, p, seed);
-      const file = join(dir, 'driftbench', 'check-set', `${p(['fresh', 'mine'])}.yaml`);
+      const file = join(dir, 'driftbench', 'check-set', `${token(seed, 'init#file')}.yaml`);
       return {
-        args: ['init', 'check-set', p(['fresh-set', 'my-set']), '--from', 'default', '--out', file],
+        args: ['init', 'check-set', token(seed, 'init#id'), '--from', 'default', '--out', file],
         file,
       };
     },
@@ -610,12 +632,12 @@ const CLI_CASES: CliCase[] = [
     exit: 1,
     setup: (dir, p, seed) => {
       writeProject(dir, p, seed);
-      const file = join(dir, 'bad.yaml');
+      const file = join(dir, `${token(seed, 'validate#file')}.yaml`);
       writeFileSync(
         file,
         stringify({
           kind: 'check-set',
-          id: 'bad',
+          id: token(seed, 'validate#file'),
           extends: 'default',
           items: [{ id: p(['Must', 'tools.count', 'forbiden']), enabled: false }],
         }),
@@ -629,8 +651,8 @@ const CLI_CASES: CliCase[] = [
     exit: 1,
     setup: (dir, p, seed) => {
       writeProject(dir, p, seed);
-      const a = p(['ring-a', 'loop-a']);
-      const b = p(['ring-b', 'loop-b']);
+      const a = token(seed, 'graph#a');
+      const b = token(seed, 'graph#b');
       writeFileSync(
         join(dir, 'driftbench', 'check-set', `${a}.yaml`),
         stringify({ kind: 'check-set', id: a, extends: b, items: [] }),

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { between, list, loadIssues, type RawSpec, type Rng, rngFor, run } from '../harness';
 import { type Action, type FileAction, plantedAgent, token } from '../kinds';
 import type { BlocksProduct } from '../product';
-import { type BankItem, fail, PASS, type Tier } from '../types';
+import { type BankItem, fail, PASS, type Tier, thrownText } from '../types';
 
 /**
  * Files that are not plain UTF-8 text. A code agent's workspace holds xlsx, docx and pdf files, and text files
@@ -95,9 +95,7 @@ function seedItems(): BankItem[] {
           try {
             turns = (await playSpec(product, scratch, raw, actions)).turns;
           } catch (error) {
-            return fail(
-              `the spec should load and run; it threw: ${error instanceof Error ? error.message.slice(0, 200) : String(error)}`,
-            );
+            return fail(`the spec should load and run; it threw: ${thrownText(error)}`);
           }
           const got = turns.find((turn) => turn.marker === marker)?.digests[path];
           return got === sha(bytes)
@@ -140,10 +138,24 @@ function seedItems(): BankItem[] {
             blocks: [block(0), block(1)],
           };
           const result = loadIssues(product, raw);
-          return !result.ok && result.codes.includes('WORKSPACE_PATH_TWICE')
+          if (result.ok || !result.codes.includes('WORKSPACE_PATH_TWICE'))
+            return fail(
+              `the spec should be refused with WORKSPACE_PATH_TWICE; the loader answered ${result.ok ? 'ok' : list(result.codes)}`,
+            );
+          // The near-miss twin: the same text and bytes on two different paths loads.
+          const apart = { files: workspace.files, binary: { [`${path}.bin`]: workspace.binary[path] } };
+          const twin = {
+            ...raw,
+            ...(where !== 'block' ? { workspace_seed: apart } : {}),
+            blocks: raw.blocks.map((each, i) =>
+              where !== 'spec' && i === 0 ? { ...each, given: { world: { workspace: apart } } } : each,
+            ),
+          };
+          const twinResult = loadIssues(product, twin);
+          return twinResult.ok
             ? PASS
             : fail(
-                `the spec should be refused with WORKSPACE_PATH_TWICE; the loader answered ${result.ok ? 'ok' : list(result.codes)}`,
+                `a twin spec with the text and the bytes on two paths should load; the loader refused it with ${list(twinResult.codes)}`,
               );
         },
       });
@@ -187,9 +199,7 @@ function seedItems(): BankItem[] {
           try {
             turns = (await playSpec(product, scratch, raw, actions)).turns;
           } catch (error) {
-            return fail(
-              `the spec should load and run; it threw: ${error instanceof Error ? error.message.slice(0, 200) : String(error)}`,
-            );
+            return fail(`the spec should load and run; it threw: ${thrownText(error)}`);
           }
           const got = turns.find((turn) => turn.marker === marker)?.digests[path];
           return got === sha(bytes)
@@ -300,9 +310,7 @@ function carryItems(): BankItem[] {
             try {
               played = await playSpec(product, scratch, raw, actions);
             } catch (error) {
-              return fail(
-                `the spec should load and run; it threw: ${error instanceof Error ? error.message.slice(0, 200) : String(error)}`,
-              );
+              return fail(`the spec should load and run; it threw: ${thrownText(error)}`);
             }
             const last = markers[depth] as string;
             const block = played.record.blocks[depth] as

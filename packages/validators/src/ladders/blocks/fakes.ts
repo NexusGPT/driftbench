@@ -879,4 +879,36 @@ export const CHEATERS: readonly Cheater[] = [
         },
       }),
   },
+  {
+    // The loader that drops every key it does not know and loads what is left: a spec with parent links, uses,
+    // personas or binary files then runs as if they were not there. No family may pass on it.
+    name: 'drop-unknown-keys',
+    levels: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    make: (base) => {
+      const validate = base.core.validateSpec as (raw: unknown, path?: string) => Record<string, unknown>;
+      const dropped = (raw: unknown, path?: string): Record<string, unknown> => {
+        let current = structuredClone(raw) as Record<string, unknown>;
+        for (let round = 0; round < 8; round += 1) {
+          const result = validate(current, path);
+          if (result.ok === true) return result;
+          const issues = (result.errors as { path?: string; code?: string; message?: string }[]) ?? [];
+          const unknown = issues.filter((issue) => issue.code === 'SCHEMA_UNRECOGNIZED_KEYS');
+          if (unknown.length === 0 || unknown.length < issues.length) return result;
+          for (const issue of unknown) {
+            const holder = String(issue.path ?? '')
+              .split('.')
+              .filter((part) => part !== '')
+              .reduce<unknown>((at, part) => (at as Record<string, unknown> | undefined)?.[part], current);
+            const keys = /unknown keys?: (.+)$/.exec(issue.message ?? '')?.[1]?.split(/,\s*/) ?? [];
+            for (const key of keys)
+              if (holder && typeof holder === 'object')
+                delete (holder as Record<string, unknown>)[key.trim()];
+          }
+          current = structuredClone(current);
+        }
+        return validate(current, path);
+      };
+      return patched(base, { name: 'drop-unknown-keys', core: { validateSpec: dropped } });
+    },
+  },
 ];

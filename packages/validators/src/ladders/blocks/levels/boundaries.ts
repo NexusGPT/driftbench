@@ -11,7 +11,7 @@ import {
 } from '../harness';
 import { type Action, plantedAgent, token } from '../kinds';
 import { type BlocksProduct, need } from '../product';
-import { type BankItem, fail, type ItemResult, PASS, type Tier } from '../types';
+import { type BankItem, fail, type ItemResult, PASS, type Tier, thrownText } from '../types';
 
 /**
  * Documented behaviour at its boundary (the v3 partition, family F1). Each group holds one rule of the docs at
@@ -57,7 +57,7 @@ const guarded = async (body: () => Promise<ItemResult>): Promise<ItemResult> => 
   try {
     return await body();
   } catch (error) {
-    return fail(`the item threw: ${error instanceof Error ? error.message.slice(0, 200) : String(error)}`);
+    return fail(`the item threw: ${thrownText(error)}`);
   }
 };
 

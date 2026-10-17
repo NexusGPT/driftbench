@@ -328,10 +328,24 @@ function errorItems(): BankItem[] {
               return result.ok
                 ? PASS
                 : fail(`a forward reference should load; the loader answered ${list(result.codes)}`);
-            return !result.ok && result.codes.includes(errorCase.code)
+            if (result.ok || !result.codes.includes(errorCase.code))
+              return fail(
+                `the spec should be refused with ${errorCase.code}; the loader answered ${result.ok ? 'ok' : list(result.codes)}`,
+              );
+            // The near-miss twin: the same blocks with every link pointing at an earlier block of the spec. A loader
+            // that refuses by the shape of the parent key, not by what it points at, refuses it too.
+            const twin = r.raw.blocks.map((block, i) => ({
+              ...block,
+              ...(i === 0 ? {} : { parent: ids[between(rng, 0, i - 1)] }),
+            }));
+            const twinResult = loadIssues(product, {
+              ...r.raw,
+              blocks: twin,
+            });
+            return twinResult.ok
               ? PASS
               : fail(
-                  `the spec should be refused with ${errorCase.code}; the loader answered ${result.ok ? 'ok' : list(result.codes)}`,
+                  `a twin spec whose links all point at earlier blocks should load; the loader refused it with ${list(twinResult.codes)}`,
                 );
           },
         });

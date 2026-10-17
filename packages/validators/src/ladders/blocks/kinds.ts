@@ -1,4 +1,5 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -82,6 +83,14 @@ export type Planted = {
  * CODE runs as `node code-agent.mjs` in a local sandbox under `scratch`, its plan and log beside the sandboxes,
  * never inside a workspace.
  */
+const privateFolders = new Set<string>();
+
+/** Removes the private plan folders of the planted agents made so far: the bank calls it after each item. */
+export function releaseAgents(): void {
+  for (const folder of privateFolders) rmSync(folder, { recursive: true, force: true });
+  privateFolders.clear();
+}
+
 export function plantedAgent(
   product: BlocksProduct,
   kind: Kind,
@@ -123,8 +132,11 @@ export function plantedAgent(
   agents += 1;
   const folder = join(options.scratch, `agent-${agents}`);
   mkdirSync(join(folder, 'boxes'), { recursive: true });
-  const planPath = join(folder, 'plan.json');
-  const logPath = join(folder, 'delivered.jsonl');
+  // The plan (what the agent does) and its log never sit where the product works: a private folder of its own.
+  const hidden = mkdtempSync(join(tmpdir(), 'dbp-'));
+  privateFolders.add(hidden);
+  const planPath = join(hidden, 'plan.json');
+  const logPath = join(hidden, 'delivered.jsonl');
   const markers: Record<string, unknown> = {};
   for (const [marker, action] of actions) {
     const played = noisy(action, options.noisy, marker);

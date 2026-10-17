@@ -187,6 +187,27 @@ export function initialize(product: BlocksProduct): void {
 }
 
 /** A raw spec through the product's loader; a refusal throws with the loader's first issues. */
+/**
+ * The same spec with the keys of every object in a seeded order: a product must read a spec by its keys, never
+ * by their order or by the bytes of its serialisation. Arrays keep their order.
+ */
+export function shuffleKeys<T>(value: T, rng: Rng): T {
+  if (Array.isArray(value)) return value.map((each) => shuffleKeys(each, rng)) as T;
+  if (value === null || typeof value !== 'object') return value;
+  const entries = Object.entries(value as Record<string, unknown>);
+  for (let index = entries.length - 1; index > 0; index -= 1) {
+    const other = Math.floor(rng() * (index + 1));
+    [entries[index], entries[other]] = [
+      entries[other] as [string, unknown],
+      entries[index] as [string, unknown],
+    ];
+  }
+  return Object.fromEntries(entries.map(([key, each]) => [key, shuffleKeys(each, rng)])) as T;
+}
+
+const shaken = <T>(raw: T): T =>
+  shuffleKeys(raw, rngFor(0, `keys#${String((raw as { id?: unknown })?.id ?? '')}`));
+
 export function load(product: BlocksProduct, raw: RawSpec): Loaded {
   initialize(product);
   const validateSpec = need<(raw: unknown, path?: string) => Record<string, unknown>>(
@@ -194,7 +215,7 @@ export function load(product: BlocksProduct, raw: RawSpec): Loaded {
     'core',
     'validateSpec',
   );
-  const result = validateSpec(raw, `blocks:${raw.id}`);
+  const result = validateSpec(shaken(raw), `blocks:${raw.id}`);
   if (result.ok !== true) {
     const errors = (result.errors as { path: string; code?: string; message: string }[])
       .slice(0, 3)
@@ -212,7 +233,7 @@ export function loadIssues(product: BlocksProduct, raw: unknown): { ok: boolean;
     'core',
     'validateSpec',
   );
-  const result = validateSpec(raw, 'blocks:issues');
+  const result = validateSpec(shaken(raw), 'blocks:issues');
   if (result.ok === true) return { ok: true, codes: [] };
   return { ok: false, codes: (result.errors as { code?: string }[]).map((issue) => issue.code ?? '') };
 }

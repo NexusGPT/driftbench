@@ -2,6 +2,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type BankEntry, bankMeasure, type Measure } from '../../ladder';
+import { releaseAgents } from './kinds';
 import { blastItems } from './levels/blast';
 import { boundaryItems } from './levels/boundaries';
 import { carryBankItems } from './levels/carry';
@@ -18,7 +19,7 @@ import { personaItems } from './levels/personas';
 import { valueItems } from './levels/values';
 import { verdictItems } from './levels/verdicts';
 import type { BlocksProduct } from './product';
-import { BANK_LEVELS, type BankItem, type ItemResult } from './types';
+import { BANK_LEVELS, type BankItem, type ItemResult, thrownText } from './types';
 
 /** Section 12.1: the bank at merge holds at least this many items, no family under the second number. */
 export const MIN_BANK = 300;
@@ -86,13 +87,16 @@ export async function runItem(
   scratch: string,
   product: BlocksProduct,
 ): Promise<ItemResult> {
+  // Each item works in a fresh folder of its own, so no item sees another's specs, stores or files.
+  const own = mkdtempSync(join(tmpdir(), 'dbi-'));
+  void scratch;
   try {
-    return await item.check({ seed: itemSeed(seed), root, scratch, product });
+    return await item.check({ seed: itemSeed(seed), root, scratch: own, product });
   } catch (cause) {
-    return {
-      pass: false,
-      detail: `the item threw: ${cause instanceof Error ? cause.message : String(cause)}`.slice(0, 600),
-    };
+    return { pass: false, detail: `the item threw: ${thrownText(cause)}` };
+  } finally {
+    releaseAgents();
+    rmSync(own, { recursive: true, force: true });
   }
 }
 
