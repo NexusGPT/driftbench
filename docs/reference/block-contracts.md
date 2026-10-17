@@ -74,7 +74,8 @@ PR 449 (`origin/feat/block-f2-stamps`) builds `Verdict.by`. Neither is on `origi
 
 * `uses` on the spec and on a block is part of the spec hash. A change to `uses` gives another spec hash, another cell id and another run id.
 * The block cache key leaves `uses` out, on the spec and on every block. The objects `uses` names only score the run.
-* A change to `uses` re-scores the stored observations. It never reruns the agent.
+* A change to `uses` re-scores the stored observations. It never reruns the agent of a block the cache holds.
+* A code block run in a sandbox is not replayed from the cache, so a change to its `uses` runs it again. This holds on B4 merged with PR 446.
 * A spec with no `uses` key hashes as it did before.
 
 ### Verdict.by
