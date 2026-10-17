@@ -1,6 +1,6 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { stringify } from 'yaml';
+import { parse, stringify } from 'yaml';
 import {
   between,
   list,
@@ -468,7 +468,32 @@ type CliCase = {
     p: <T>(items: readonly T[]) => T,
     seed: number,
   ): { args: string[]; holds?: RegExp[]; file?: string };
+  /**
+   * The twin, run in the same project after the case passes: the same command reaching the object another
+   * documented way (an inline object of driftbench.yaml, another kind, an object file), with its own exit.
+   */
+  twin?(
+    dir: string,
+    p: <T>(items: readonly T[]) => T,
+    seed: number,
+  ): {
+    args: string[];
+    exit: number;
+    holds?: RegExp[];
+    fileHolds?: { file: string; words: readonly string[] };
+  };
 };
+
+/** Adds objects to the `objects:` key of the project's driftbench.yaml. */
+function addInline(dir: string, ...objects: unknown[]) {
+  const file = join(dir, 'driftbench.yaml');
+  const config = (parse(readFileSync(file, 'utf8')) ?? {}) as { objects?: unknown[] };
+  writeFileSync(file, stringify({ ...config, objects: [...(config.objects ?? []), ...objects] }));
+}
+
+/** Policy kinds other than check-set and value-check: each ships a `default`. */
+const OTHER_KINDS = ['policy/blame', 'policy/placement', 'policy/gating', 'policy/stats', 'policy/selection'];
+const inlineId = (seed: number) => token(seed, 'project#inline');
 
 const projectObject = (id: string, item: string) => ({
   kind: 'check-set',
@@ -518,6 +543,10 @@ const CLI_CASES: CliCase[] = [
         holds: CHECK_SET_ITEMS.map((item) => new RegExp(`\\b${item}\\b`)),
       };
     },
+    twin: (_dir, p) => {
+      const kind = p(OTHER_KINDS);
+      return { args: ['show', `${kind}/default`], exit: 0, holds: [/default/] };
+    },
   },
   {
     id: 'show-project',
@@ -540,6 +569,10 @@ const CLI_CASES: CliCase[] = [
       const kind = p(['check-sets', 'checkset', 'policy/valuecheck']);
       return { args: ['show', `${kind}/default`], holds: [new RegExp(escapeRegExp(kind))] };
     },
+    twin: (_dir, p) => {
+      const kind = p(OTHER_KINDS);
+      return { args: ['show', `${kind}/default`], exit: 0, holds: [/default/] };
+    },
   },
   {
     id: 'show-unknown-id',
@@ -550,6 +583,11 @@ const CLI_CASES: CliCase[] = [
       const id = p([token(seed, 'show#id'), 'defaults']);
       return { args: ['show', `check-set/${id}`], holds: [new RegExp(id)] };
     },
+    twin: (_dir, _p, seed) => ({
+      args: ['show', `check-set/${inlineId(seed)}`],
+      exit: 0,
+      holds: [new RegExp(inlineId(seed))],
+    }),
   },
   {
     id: 'explain-block',
@@ -618,6 +656,22 @@ const CLI_CASES: CliCase[] = [
         ],
       };
     },
+    twin: (dir, p, seed) => {
+      const id = token(seed, 'set#inline');
+      addInline(dir, { kind: 'policy/value-check', id, extends: 'default', items: [] });
+      return {
+        args: [
+          'explain',
+          'policy/value-check',
+          '--at',
+          `${join(dir, 'spec.yaml')}#b0`,
+          '--set',
+          `policy/value-check/${id}#rung1_outcome.distractors_required=${p(['false', 'true'])}`,
+        ],
+        exit: 0,
+        holds: [/distractors_required/],
+      };
+    },
   },
   {
     id: 'explain-missing-block',
@@ -646,6 +700,15 @@ const CLI_CASES: CliCase[] = [
       );
       return { args: ['explain', 'check-set', '--at', `${specPath}#b0`] };
     },
+    twin: (dir, _p, seed) => {
+      const specPath = join(dir, `${token(seed, 'explain#inline-spec')}.yaml`);
+      writeFileSync(specPath, stringify(toolSpec(seed, 'explain#resolved', { spec: inlineId(seed) })));
+      return {
+        args: ['explain', 'check-set', '--at', `${specPath}#b0`],
+        exit: 0,
+        holds: [new RegExp(inlineId(seed))],
+      };
+    },
   },
   {
     id: 'init-then-validate',
@@ -657,6 +720,14 @@ const CLI_CASES: CliCase[] = [
       return {
         args: ['init', 'check-set', token(seed, 'init#id'), '--from', 'default', '--out', file],
         file,
+      };
+    },
+    twin: (dir, _p, seed) => {
+      const file = join(dir, 'driftbench', 'check-set', `${token(seed, 'init#commented')}.yaml`);
+      return {
+        args: ['init', 'check-set', token(seed, 'init#commented'), '--from', 'default', '--out', file],
+        exit: 0,
+        fileHolds: { file, words: CHECK_SET_ITEMS },
       };
     },
   },
@@ -679,6 +750,19 @@ const CLI_CASES: CliCase[] = [
         holds: [new RegExp(project.fileId)],
       };
     },
+    twin: (dir, _p, seed) => ({
+      args: [
+        'init',
+        'check-set',
+        inlineId(seed),
+        '--from',
+        'default',
+        '--out',
+        join(dir, 'driftbench', 'check-set', `${token(seed, 'init#again')}.yaml`),
+      ],
+      exit: 2,
+      holds: [new RegExp(inlineId(seed))],
+    }),
   },
   {
     id: 'validate-project',
@@ -687,6 +771,15 @@ const CLI_CASES: CliCase[] = [
     setup: (dir, p, seed) => {
       writeProject(dir, p, seed);
       return { args: ['validate'] };
+    },
+    twin: (dir, p, seed) => {
+      addInline(dir, {
+        kind: 'check-set',
+        id: token(seed, 'validate#inline-bad'),
+        extends: 'default',
+        items: [{ id: p(['Must', 'tools.count', 'forbiden']), enabled: false }],
+      });
+      return { args: ['validate'], exit: 1 };
     },
   },
   {
@@ -698,6 +791,10 @@ const CLI_CASES: CliCase[] = [
       const file = join(dir, 'driftbench', 'check-set', 'default.yaml');
       writeFileSync(file, stringify({ kind: 'check-set', id: 'default', extends: null, items: [] }));
       return { args: ['validate', file], holds: [/immutable/] };
+    },
+    twin: (dir) => {
+      addInline(dir, { kind: 'check-set', id: 'default', extends: null, items: [] });
+      return { args: ['validate'], exit: 1 };
     },
   },
   {
@@ -718,6 +815,15 @@ const CLI_CASES: CliCase[] = [
       );
       return { args: ['validate', file], holds: [/unknown item/] };
     },
+    twin: (dir, p, seed) => {
+      addInline(dir, {
+        kind: 'check-set',
+        id: token(seed, 'validate#inline-item'),
+        extends: inlineId(seed),
+        items: [{ id: p(['Must', 'tools.count', 'forbiden']), enabled: false }],
+      });
+      return { args: ['validate'], exit: 1 };
+    },
   },
   {
     id: 'validate-cycle',
@@ -736,6 +842,16 @@ const CLI_CASES: CliCase[] = [
         stringify({ kind: 'check-set', id: b, extends: a, items: [] }),
       );
       return { args: ['validate'], holds: [/cycle/] };
+    },
+    twin: (dir, _p, seed) => {
+      const a = token(seed, 'graph#inline-a');
+      const b = token(seed, 'graph#inline-b');
+      addInline(
+        dir,
+        { kind: 'check-set', id: a, extends: b, items: [] },
+        { kind: 'check-set', id: b, extends: a, items: [] },
+      );
+      return { args: ['validate'], exit: 1 };
     },
   },
   {
@@ -756,6 +872,28 @@ const CLI_CASES: CliCase[] = [
       );
       return { args: ['validate', file], holds: [/needs .*when/] };
     },
+    twin: (dir, p) => {
+      const file = join(dir, 'add-impl.yaml');
+      const item = p(CHECK_SET_ITEMS);
+      writeFileSync(
+        file,
+        stringify({
+          kind: 'check-set',
+          id: 'adds2',
+          extends: 'default',
+          items: [
+            {
+              id: 'extra_check',
+              add: true,
+              title: 'Extra',
+              effect: { gating: true },
+              impl: `builtin:check/${item}`,
+            },
+          ],
+        }),
+      );
+      return { args: ['validate', file], exit: 1, holds: [/needs .*when/] };
+    },
   },
   {
     id: 'diff-differ',
@@ -768,6 +906,13 @@ const CLI_CASES: CliCase[] = [
         holds: [new RegExp(project.item.replace('.', '\\.'))],
       };
     },
+    twin: (dir, p, seed) => {
+      const item = p(CHECK_SET_ITEMS);
+      const a = token(seed, 'diff#inline-a');
+      const b = token(seed, 'diff#inline-b');
+      addInline(dir, projectObject(a, item), projectObject(b, item));
+      return { args: ['diff', `check-set/${a}`, `check-set/${b}`], exit: 0 };
+    },
   },
   {
     id: 'diff-same',
@@ -776,6 +921,14 @@ const CLI_CASES: CliCase[] = [
     setup: (dir, p, seed) => {
       writeProject(dir, p, seed);
       return { args: ['diff', 'check-set/default', 'check-set/default'] };
+    },
+    twin: (dir, _p, seed) => {
+      const file = join(dir, `${token(seed, 'diff#file')}.yaml`);
+      writeFileSync(
+        file,
+        stringify({ kind: 'check-set', id: token(seed, 'diff#file'), extends: 'default', items: [] }),
+      );
+      return { args: ['diff', 'check-set/default', file], exit: 0 };
     },
   },
   {
@@ -822,6 +975,26 @@ function cliItems(): BankItem[] {
           if (!existsSync(file)) return fail(`init wrote no ${file}`);
           const again = await product.cli(['object', 'validate', file], dir);
           if (again.code !== 0) return fail(`validate on the file init wrote exited ${again.code}`);
+        }
+        const twin = cliCase.twin?.(dir, (xs) => pick(rng, xs), seed);
+        if (!twin) return PASS;
+        const second = await product.cli(['object', ...twin.args], dir);
+        const secondText = `${second.out}\n${second.err}`;
+        if (second.code !== twin.exit)
+          return fail(
+            `object ${twin.args.join(' ')} exited ${second.code}, expected ${twin.exit}: ${secondText.trim().slice(0, 240)}`,
+          );
+        const lacking = (twin.holds ?? []).filter((pattern) => !pattern.test(secondText));
+        if (lacking.length > 0)
+          return fail(
+            `object ${twin.args.join(' ')}: the output lacks ${list(lacking.map(String))}: ${secondText.trim().slice(0, 240)}`,
+          );
+        if (twin.fileHolds) {
+          if (!existsSync(twin.fileHolds.file)) return fail(`init wrote no ${twin.fileHolds.file}`);
+          const written = readFileSync(twin.fileHolds.file, 'utf8');
+          const absent = twin.fileHolds.words.filter((word) => !new RegExp(`\\b${word}\\b`).test(written));
+          if (absent.length > 0)
+            return fail(`init should list every parent item as a comment; the file lacks ${list(absent)}`);
         }
         return PASS;
       },
