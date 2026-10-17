@@ -84,4 +84,21 @@ describe('driftbench estate scan and lint read the user-level skill layer only w
     expect(unasked.code).toBe(2);
     expect(unasked.err).toContain('--user-skills <folder>');
   }, 60_000);
+
+  it('reads a relative --user-skills folder from the folder the command is typed in', async () => {
+    process.env.HOME = await folder({});
+    const work = await folder({
+      'team/tide-chart/SKILL.md': skill('tide-chart'),
+      'project/.claude/skills/dock-roster/SKILL.md': skill('dock-roster'),
+    });
+    const scanned = await run(
+      ['estate', 'scan', 'project', '--no-model', '--user-skills', 'team', '--out', 'map.yaml'],
+      work,
+    );
+    expect(scanned.code).toBe(0);
+    expect(scanned.out).toContain('User skill layer: 1 skill read');
+    expect(await readFile(join(work, 'map.yaml'), 'utf8')).toContain('~/.claude/skills/tide-chart/SKILL.md');
+    const linted = await run(['estate', 'lint', 'map.yaml', '--user-skills', 'team'], work);
+    expect(linted.err).not.toContain('--user-skills <folder>');
+  }, 60_000);
 });

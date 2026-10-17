@@ -49,6 +49,11 @@ export type EstateScanOptions = {
   ceiling?: string;
 };
 
+/** The folder `--user-skills` names: relative to where the command was typed, `~` left for the reader to expand. */
+function userFolder(value: string, io: Io): string {
+  return value === '~' || value.startsWith('~/') ? value : resolve(io.cwd, value);
+}
+
 const USER_SKILLS_FLAG = '--user-skills <folder>';
 const USER_SKILLS_HELP =
   'also read the user-level skill layer from this folder, such as ~/.claude/skills; none is read without it; a project skill wins a name clash';
@@ -150,7 +155,7 @@ export async function estateScanCommand(
   const runtime = options.runtime ?? 'claude-code';
   const reader = readerFor(runtime, {
     ignore: options.ignore ?? [],
-    ...(options.userSkills !== undefined ? { userSkills: options.userSkills } : {}),
+    ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
   });
   if (!reader) {
     io.err(`error: unknown runtime "${runtime}": use ${RUNTIMES.join(', ')}\n`);
@@ -309,7 +314,7 @@ export async function estateLintCommand(
   // A map scanned with a user layer is linted with it: the folder comes again from --user-skills or the configuration.
   const reader = readerFor(loaded.map.runtime, {
     ignore,
-    ...(options.userSkills !== undefined ? { userSkills: options.userSkills } : {}),
+    ...(options.userSkills !== undefined ? { userSkills: userFolder(options.userSkills, io) } : {}),
   });
   if (!reader) {
     io.err(`The map was read by the runtime "${loaded.map.runtime}", which this driftbench cannot read.\n`);
