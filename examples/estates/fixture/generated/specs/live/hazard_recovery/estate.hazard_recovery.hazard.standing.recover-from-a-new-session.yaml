@@ -64,6 +64,8 @@ metadata:
       form: hazard
       field: hazard.standing.recover-from-a-new-session#hazard
       fp: d6d4113709eb2f56fa5b03113993b02baea85874f2a00d01a3e5da0fe488fd9c
+      frame: trigger
+      shape: go on with the task we were doing, after {}
       pieces:
         - a new session
     outcome: no-delete

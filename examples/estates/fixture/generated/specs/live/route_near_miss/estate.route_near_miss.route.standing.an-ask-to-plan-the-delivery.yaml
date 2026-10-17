@@ -63,6 +63,8 @@ metadata:
       form: situation
       field: route.standing.an-ask-to-plan-the-delivery#situation
       fp: 45a66aac1af73dbdd0935638e401d5f53eb85559d6bd1d5f2954dc33c35e8b78
+      frame: near_miss
+      shape: "{}"
       pieces:
         - plan the delivery routes for tomorrow
     outcome: no-change:negative

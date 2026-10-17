@@ -60,6 +60,8 @@ metadata:
       form: title
       field: instruction.standing.never-invent-order-numbers-prices-or#title
       fp: 66f2722795c14f02b55a188cfd2b71de2365b1f7306c74389201b2d547ac36f5
+      frame: trigger
+      shape: "{}"
       pieces:
         - invent order numbers
     outcome: no-delete

@@ -66,6 +66,8 @@ metadata:
       form: governed clause
       field: reference.invoice-reconcile.read-references-matching-rules-md#governed clause
       fp: 325e8f257e9fe79e49ec05ee8fc0924c67745030f686564b5f98cf7dc7532b79
+      frame: trigger
+      shape: "{}"
       pieces:
         - match any line
     outcome: no-delete

@@ -73,6 +73,8 @@ metadata:
       form: asks it names
       field: skill.weekly-report.skill-weekly-report#asks it names
       fp: ba980774df8de197cb05f447eeac78a1b8abbd592f480ab4126784a1cf35c368
+      frame: trigger
+      shape: help me with {}
       pieces:
-        - help me with the weekly report or a summary of last week
+        - the weekly report or a summary of last week
     outcome: no-delete

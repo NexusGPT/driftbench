@@ -63,6 +63,8 @@ metadata:
       form: situation
       field: route.standing.an-ask-to-prepare-the-weekly#situation
       fp: 9d2dc2e78398b136e571533a62db24a7621b2f43891c5056233a7901cff3a85f
+      frame: near_miss
+      shape: "{}"
       pieces:
         - prepare the weekly report
     outcome: no-change:negative

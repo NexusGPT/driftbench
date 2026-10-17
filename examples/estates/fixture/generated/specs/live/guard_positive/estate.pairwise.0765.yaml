@@ -71,6 +71,8 @@ metadata:
       form: ruleText
       field: guard.settings.posttooluse-bash-guard-ledger-guard-py#ruleText
       fp: d3fadaa2d3c0facc1a86032005ccdc131bf78c9858a1cb017bacaaffd0535bb2
+      frame: trigger
+      shape: "{}"
       pieces:
         - delete a file under ledger/
     outcome: no-delete

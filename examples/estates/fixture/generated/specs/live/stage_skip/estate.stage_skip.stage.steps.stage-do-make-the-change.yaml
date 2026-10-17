@@ -72,6 +72,8 @@ metadata:
       form: title
       field: stage.steps.stage-do-make-the-change#title
       fp: 74f543f010f85dfa7ad0515a0e6b5d03d1113659f51050af928f02674119ddd0
+      frame: pressure
+      shape: "{}"
       pieces:
         - make the change
     outcome: no-delete

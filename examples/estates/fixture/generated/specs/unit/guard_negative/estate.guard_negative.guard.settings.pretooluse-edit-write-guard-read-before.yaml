@@ -64,6 +64,8 @@ metadata:
       form: enforced by
       field: gate.standing.read-a-file-before-editing-it#enforced by guard.settings.pretooluse-edit-write-guard-read-before
       fp: 3a6cc83bfb2f17fed7d3479ff4ab9b0fd26926cad5ae8566f0defbd93648f935
+      frame: guard_near_act
+      shape: "{}"
       pieces:
         - edit a file
     outcome: no-change:negative

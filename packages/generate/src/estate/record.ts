@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { decompose } from './frames';
 import type { EstateAtom } from './inputs';
 
 /**
@@ -26,7 +27,16 @@ export type FromRecord =
   | { bank: string; phrase: number }
   | { session: string }
   | { neutral: 'outside' | 'resume' | 'guard-event' }
-  | { form: string; field: string; fp: string; pieces: string[] };
+  | {
+      form: string;
+      field: string;
+      fp: string;
+      /** The frame, the shape of the act and of the context sentence, and the pieces they hold. */
+      frame: string;
+      shape: string;
+      context?: string;
+      pieces: string[];
+    };
 
 /** The forms of the generator that write an ask from a field of an atom: the closed set a `from` may name. */
 export const ASK_FORMS = [
@@ -49,9 +59,6 @@ export const ASK_FORMS = [
   'trigger',
   'user prompt',
 ] as const;
-
-/** The forms whose ask is the piece itself, with no phrase of the generator around it. */
-export const VERBATIM_FORMS: readonly string[] = ['user prompt'];
 
 const TOOL_LABEL = /^[A-Z][A-Za-z0-9_]*$/;
 
@@ -135,8 +142,8 @@ export function fromRecord(input: {
   bank?: { situation: string; phrase: number };
   session?: string;
   askFrom?: string;
-  /** The parts of a code-written ask that came from its source. */
-  pieces?: string[];
+  /** What a code-written ask was built from: the frame, the act put into it and the context sentence. */
+  built?: { frame: string; act: string; context?: string };
   /** For a neutral ask: which fixed ask it is. */
   neutral?: 'outside' | 'resume' | 'guard-event';
   atoms: ReadonlyMap<string, EstateAtom>;
@@ -155,6 +162,8 @@ export function fromRecord(input: {
     form: formOf(label),
     field: `${atom.id}#${label}`,
     fp: fingerprintOf(atom),
-    pieces: input.pieces ?? [],
+    ...(input.built
+      ? decompose(input.built.frame, input.built.act, input.built.context)
+      : { frame: '', shape: '', pieces: [] }),
   };
 }

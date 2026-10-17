@@ -64,6 +64,8 @@ metadata:
       form: situation
       field: route.standing.an-ask-to-audit-the-ledger#situation
       fp: ec8409408d7dff1c7fdd7fa5903bc63d983fb921935f7c21aef6e3d08e0efcfe
+      frame: misroute
+      shape: "{}"
       pieces:
         - audit the ledger for duplicate payments
     outcome: no-change:read-only

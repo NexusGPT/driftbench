@@ -80,6 +80,8 @@ metadata:
       form: route nearest the rule
       field: route.supplier-email.an-ask-that-fits-supplier-email#route nearest the rule
       fp: 6039dbbf139b5140eedfd1b71e3060c02d6a4998794526966b34231d6b2ab513
+      frame: trigger
+      shape: "{}"
       pieces:
         - draft, answer or chase an email to a supplier
     outcome: no-delete

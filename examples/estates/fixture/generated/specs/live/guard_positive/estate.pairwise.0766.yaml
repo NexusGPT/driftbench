@@ -71,6 +71,8 @@ metadata:
       form: user prompt
       field: guard.settings.userpromptsubmit-guard-stop-word-sh#user prompt
       fp: 6517b4facc46292b82f905ab949ae4e59b685923204188679a8a00658947d8d5
+      frame: verbatim
+      shape: "{}"
       pieces:
         - stop
     outcome: no-delete

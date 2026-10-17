@@ -74,6 +74,8 @@ metadata:
       form: governed clause
       field: gate.weekly-report.read-templates-report-md-before-writing#governed clause
       fp: 9732610d57bb391eeae9138225f1408016b6c4d636d46c3df429f9ca5bf7369d
+      frame: pressure
+      shape: "{}"
       pieces:
         - write the report
     outcome: no-delete

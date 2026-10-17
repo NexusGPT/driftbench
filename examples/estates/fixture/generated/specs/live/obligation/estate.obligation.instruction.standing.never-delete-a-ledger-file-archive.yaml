@@ -61,6 +61,8 @@ metadata:
       form: title
       field: instruction.standing.never-delete-a-ledger-file-archive#title
       fp: 57226b724d7133da3ae6b5a589c858c8a0f252f8b0169a86991575edb8ae9901
+      frame: trigger
+      shape: "{}"
       pieces:
         - delete a ledger file
     outcome: no-delete

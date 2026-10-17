@@ -7,7 +7,6 @@ export {
   clauseOf,
   codeAsk,
   DEVIATION_ASKS,
-  HAZARD_FRAME,
   imperative,
   OUTSIDE_ASK,
   plain,
@@ -24,6 +23,18 @@ export {
   taskAtoms,
 } from './context';
 export { type ReadYaml, readEstateYaml, type YamlSchema } from './files';
+export {
+  ACT_SHAPES,
+  ASK_FRAMES,
+  askedClauses,
+  CONTEXT_SHAPES,
+  fillShape,
+  HAZARD_FRAME,
+  pronounDerivation,
+  renderAsk,
+  SLOT,
+  VERBATIM,
+} from './frames';
 export {
   type AskSource,
   checkEstateInputs,
@@ -78,7 +89,6 @@ export {
   type FromRecord,
   fingerprintOf,
   type LinkRecord,
-  VERBATIM_FORMS,
 } from './record';
 export {
   STATIC_DIR,

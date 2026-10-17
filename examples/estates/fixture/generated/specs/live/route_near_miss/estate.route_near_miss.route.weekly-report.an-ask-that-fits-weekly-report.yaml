@@ -63,6 +63,8 @@ metadata:
       form: situation
       field: route.weekly-report.an-ask-that-fits-weekly-report#situation
       fp: 87ed3871bace9182fea65db638d5470a8f0412d690c5c38967f50ba37d8f30ce
+      frame: near_miss
+      shape: help me with {}
       pieces:
-        - help me with the weekly report or a summary of last week
+        - the weekly report or a summary of last week
     outcome: no-change:negative

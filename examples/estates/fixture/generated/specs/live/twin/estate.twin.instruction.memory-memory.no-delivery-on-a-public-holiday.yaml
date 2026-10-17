@@ -66,6 +66,8 @@ metadata:
       form: route nearest the rule
       field: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile#route nearest the rule
       fp: d93b4fa8fa438ad670cb24af50281ad13800f37edd5c07119354ed83c19ef73a
+      frame: twin
+      shape: "{}"
       pieces:
         - reconcile a supplier invoice against its purchase order and the goods received
     outcome: no-delete

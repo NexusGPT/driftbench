@@ -2,14 +2,16 @@ import type { Observed } from '@agent-nexus/driftbench-core';
 import type { Atom } from '@agent-nexus/driftbench-estate';
 import {
   ASK_FORMS,
-  HAZARD_FRAME,
   OUTSIDE_ASK,
   RESUME_ASK,
+  renderAsk,
+  SLOT,
   TOOL_ACTS,
-  VERBATIM_FORMS,
+  VERBATIM,
 } from '@agent-nexus/driftbench-generate';
 import type { SuiteSpec } from './fixture-suite';
 import { type Act, actOfAtom, sameTarget, targetsOf } from './task-act';
+import { type Field, fieldsOf, isClauseOf, orderedShare } from './task-span';
 
 /**
  * gen.task, read from ids and structure. An ask is judged by what the spec says about it
@@ -25,10 +27,10 @@ import { type Act, actOfAtom, sameTarget, targetsOf } from './task-act';
  *   fake shows the act (a control shows none).
  *
  * Limits, stated:
- * - An ask written from prose by the generator is held to its source and to the tie of its pieces to that
- *   source, not to its derivation. The tie proves provenance, not that the text is a task: a fragment that
- *   the estate holds itself ("Open orders") passes the tie when a generator records it as a piece of an atom
- *   that holds it. Measured on the planted corpus: the best host accepts 4 of 161.
+ * - An ask written by the generator is rebuilt from the names of its frame and shapes and its pieces, and each
+ *   piece must be a whole clause of the text it cites (`task-span.ts`). That proves provenance, not that the
+ *   clause is a task: a whole clause of an atom that is not a request (a statement, a heading) passes, as does
+ *   a clause with up to three leading words removed.
  * - A spec that cites a true source and prints other text is a forged spec; only the trace of an explicit ask
  *   reaches it.
  * - A unit whose act no trace shows (a reply rule) rests on C1 to C3.
@@ -51,27 +53,10 @@ export type AskEnv = {
   byId: ReadonlyMap<string, Atom>;
   bank: BankLike;
   sessions: SessionsLike;
-  /**
-   * The tie of a code-written ask to the text it cites: the share of the character runs (of `gram` characters)
-   * of each piece of the ask that the cited atom and the atoms of the row also hold must reach `floor`. Off when
-   * absent.
-   */
-  tie?: { floor: number; gram: number };
 };
 
-export function envOf(
-  atoms: readonly Atom[],
-  bank: BankLike,
-  sessions: SessionsLike,
-  tie?: { floor: number; gram: number },
-): AskEnv {
-  return {
-    atoms,
-    byId: new Map(atoms.map((atom) => [atom.id, atom])),
-    bank,
-    sessions,
-    ...(tie ? { tie } : {}),
-  };
+export function envOf(atoms: readonly Atom[], bank: BankLike, sessions: SessionsLike): AskEnv {
+  return { atoms, byId: new Map(atoms.map((atom) => [atom.id, atom])), bank, sessions };
 }
 
 /** The atoms a bank situation may list for a row: the row's own, what they enforce or are enforced by, and for a tool rule the atoms of its file. */
@@ -91,26 +76,16 @@ function relatedIds(env: AskEnv, ids: readonly string[]): Set<string> {
   return out;
 }
 
-/** The text of an atom a code-written ask may be made of: its title, situation, passage and string fields. */
-function textOf(atom: Atom): string {
-  const parts = [atom.title, atom.situation ?? '', atom.provenance.quote];
-  for (const value of Object.values(atom.fields ?? {})) if (typeof value === 'string') parts.push(value);
-  return flat(parts.join(' . '));
-}
-
-/** The share of the runs of `gram` characters of `piece` that `source` also holds (1 when the piece is shorter than a run and sits in the source whole). */
-export function containment(piece: string, source: string, gram: number): number {
-  const core = ` ${flat(piece)} `;
-  const pool = ` ${flat(source)} `;
-  if (core.trim() === '') return 1;
-  if (core.length <= gram) return pool.includes(core) ? 1 : 0;
-  let held = 0;
-  let total = 0;
-  for (let at = 0; at + gram <= core.length; at += 1) {
-    total += 1;
-    if (pool.includes(core.slice(at, at + gram))) held += 1;
-  }
-  return held / total;
+/**
+ * The share of the words of a rule, in their order, that an ask may hold before it restates the rule. A real
+ * ask asks for the work a rule governs; the most any real ask of the Northwind suite takes of a rule of the
+ * estate is 0.89 (the ask to pass a carrier code, which holds 8 of the 9 words of its rule), so the bound sits
+ * above it. A rule restated with one word changed in a rule of 19 words or fewer is held to the bound.
+ */
+export const RESTATED_SHARE = 0.95;
+const MIN_RULE_WORDS = 4;
+function restatedShare(rule: string, ask: string): number {
+  return flat(rule).split(' ').length < MIN_RULE_WORDS ? 0 : orderedShare(rule, ask);
 }
 
 /** Test types whose ask must not set the unit off. */
@@ -153,20 +128,12 @@ export function spansOf(ask: string): string[] {
     .filter((span) => span.trim() !== '');
 }
 
-/** The text of the atoms a piece of a code-written ask may be written from: the cited atom and the row's own. */
-function pooledText(env: AskEnv, cited: Atom, atomIds: readonly string[]): string {
-  const texts = [textOf(cited)];
-  for (const id of atomIds) {
-    const atom = env.byId.get(id);
-    if (atom && atom.id !== cited.id) texts.push(textOf(atom));
-  }
-  return texts.join(' . ');
-}
-
 /**
- * What a code-written ask owes its source: every piece it names is in the ask, and, when the tie is on, every
- * piece is made of the text of the atoms it came from. A piece set into the fixed phrase of a tool (the act the
- * tool of a guard performs) owes the table of the generator instead.
+ * What a code-written ask owes its source. The ask is rebuilt from the frame, the shapes and the pieces the spec
+ * names (`renderAsk`) and must equal them: no word stands outside a declared frame or a piece. Each piece must be
+ * a whole clause of a field of the cited atom or of the row's atoms (`isClauseOf`). The fixed phrase of a tool
+ * is the generator's table, and belongs to a tool the cited guard watches; the fixed words of a hazard ask are
+ * its own frame. A shape with no piece in it is allowed for those two only.
  */
 function pieceReasons(
   from: Record<string, unknown>,
@@ -175,41 +142,47 @@ function pieceReasons(
   atomIds: readonly string[],
   env: AskEnv,
 ): string[] {
+  const text = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined);
+  const frame = text(from.frame);
+  const shape = text(from.shape);
+  const context = text(from.context);
+  const pieces = Array.isArray(from.pieces) ? (from.pieces as unknown[]).map(text) : undefined;
+  if (frame === undefined || shape === undefined || !pieces || pieces.some((piece) => piece === undefined))
+    return ['the ask names no frame, shape and pieces it is built from'];
+  const list = pieces as string[];
+  const rebuilt = renderAsk({ frame, shape, ...(context !== undefined ? { context } : {}), pieces: list });
+  if (rebuilt === undefined) return [`the frame ${frame} and the shape ${shape} are not the generator's`];
+  if (rebuilt !== ask) return ['the ask is not what its frame, shapes and pieces give'];
   const reasons: string[] = [];
-  const pieces = Array.isArray(from.pieces)
-    ? (from.pieces as unknown[]).filter((piece): piece is string => typeof piece === 'string')
-    : undefined;
-  if (!pieces) return ['the ask names the pieces it is made of: none'];
-  if (from.form === 'hazard' && !ask.includes(HAZARD_FRAME))
-    reasons.push('a hazard ask without the fixed words of one');
-  if (pieces.length === 0 && from.form !== 'hazard')
-    return ['a code-written ask holds nothing written from its source'];
-  if (VERBATIM_FORMS.includes(String(from.form)) && flat(ask) !== flat(pieces.join(' ')))
-    reasons.push('an ask of this form is its source and nothing around it');
-  const pool = pooledText(env, cited, atomIds);
   const tools =
-    from.form === 'tool' && typeof cited.fields?.matcher === 'string'
+    typeof cited.fields?.matcher === 'string'
       ? cited.fields.matcher
           .split('|')
           .map((tool) => TOOL_ACTS[tool] ?? `use the ${tool} tool on the files here`)
       : [];
-  for (const piece of pieces) {
-    if (!ask.includes(piece)) {
-      reasons.push(`the piece "${piece}" is not in the ask`);
-      continue;
-    }
-    let rest = piece;
-    if (from.form === 'tool') {
-      const phrase = tools.find((candidate) => piece.startsWith(candidate));
-      if (phrase === undefined) {
-        reasons.push(`the piece "${piece}" is no act of a tool the guard watches`);
-        continue;
-      }
-      rest = piece.slice(phrase.length);
-    }
-    if (env.tie && flat(rest) !== '' && containment(rest, pool, env.tie.gram) < env.tie.floor)
-      reasons.push(`the piece "${piece}" is not made of the text of ${cited.id}`);
+  const phrase = [...new Set(Object.values(TOOL_ACTS))].find((candidate) => shape.startsWith(candidate));
+  if (phrase !== undefined && (from.form !== 'tool' || !tools.includes(phrase)))
+    reasons.push(`the act ${phrase} is no act of a tool the cited unit watches`);
+  const bare = shape.split(SLOT).length === 1 && context === undefined;
+  if (bare && phrase === undefined && !(from.form === 'hazard' && shape.startsWith('go on with')))
+    reasons.push('a code-written ask holds nothing written from its source');
+  if (frame === VERBATIM && from.form !== 'user prompt') reasons.push('only a user prompt is its own act');
+  if (from.form === 'hazard' && !shape.startsWith('go on with'))
+    reasons.push('a hazard ask without the fixed words of one');
+  const fields: Field[] = [];
+  // The text a piece may come from: the cited atom, the atoms of the row, and the rules the cited guard enforces.
+  const enforced = Array.isArray(cited.fields?.enforces)
+    ? (cited.fields.enforces as Array<{ atom?: unknown }>).flatMap((link) =>
+        typeof link.atom === 'string' ? [link.atom] : [],
+      )
+    : [];
+  for (const id of new Set([cited.id, ...atomIds, ...enforced])) {
+    const atom = env.byId.get(id);
+    if (atom) fields.push(...fieldsOf(atom));
   }
+  for (const piece of list)
+    if (!isClauseOf(piece, fields))
+      reasons.push(`the piece "${piece}" is no whole clause of the text of ${cited.id}`);
   return reasons;
 }
 
@@ -289,14 +262,12 @@ export function checkAsk(spec: SuiteSpec, env: AskEnv): AskVerdict {
     else reasons.push(...pieceReasons(from, cited, ask, atomIds, env));
   } else reasons.push('the source of the ask is none of bank, session, neutral or form');
 
-  // C3, last part: an ask never holds the text of a rule of the estate.
-  const text = flat(ask);
+  // C3, last part: an ask never restates a rule of the estate.
   for (const rule of env.atoms) {
     if (!RULE_KINDS.has(rule.kind)) continue;
     for (const candidate of [rule.title, rule.provenance.quote]) {
-      const rule_ = flat(candidate);
-      if (rule_.length >= 12 && text.includes(rule_)) {
-        reasons.push(`the ask holds the text of the rule ${rule.id}`);
+      if (restatedShare(candidate, ask) >= RESTATED_SHARE) {
+        reasons.push(`the ask restates the rule ${rule.id}`);
         break;
       }
     }

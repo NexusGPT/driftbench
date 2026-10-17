@@ -74,6 +74,8 @@ metadata:
       form: asks it names
       field: skill.invoice-reconcile.skill-invoice-reconcile#asks it names
       fp: 5d0404156288a5b0c0591447e6bde04acd722aa71b80494f4e2a78413aac4217
+      frame: twin
+      shape: "{}"
       pieces:
         - check, match or reconcile an invoice
     outcome: no-delete

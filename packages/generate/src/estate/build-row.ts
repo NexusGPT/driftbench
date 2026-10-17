@@ -241,7 +241,7 @@ export function build(
   let phraseIndex: number | undefined;
   let ask: AskSource = use === 'none' ? 'none' : 'bank';
   let askFrom: string | undefined;
-  let askPieces: string[] | undefined;
+  let askBuilt: { frame: string; act: string; context?: string } | undefined;
   if (use !== 'none') {
     let missing: { marker: Marker; detail: string } | undefined;
     if (!situation) {
@@ -276,7 +276,14 @@ export function build(
         phraseIndex = undefined;
         ask = 'code';
         askFrom = written.source;
-        askPieces = written.pieces;
+        askBuilt =
+          written.frame !== undefined && written.act !== undefined
+            ? {
+                frame: written.frame,
+                act: written.act,
+                ...(written.context ? { context: written.context } : {}),
+              }
+            : undefined;
       }
     } else if (missing) gap(then, missing.marker, first, missing.detail);
   }
@@ -292,7 +299,7 @@ export function build(
             ? { bank: { situation: situation.id, phrase: phraseIndex } }
             : {}),
           ...(ask === 'session' && session ? { session: session.name } : {}),
-          ...(askFrom !== undefined ? { askFrom, neutral, ...(askPieces ? { pieces: askPieces } : {}) } : {}),
+          ...(askFrom !== undefined ? { askFrom, neutral, ...(askBuilt ? { built: askBuilt } : {}) } : {}),
           atoms: ctx.atoms,
         });
 

@@ -15,14 +15,6 @@ import { observeOnFake } from './task-trace';
 
 const GENERATE = 'packages/generate/src/estate/generate.ts';
 
-/**
- * The tie of a piece of a code-written ask to the text it cites: the share of the character 5-grams of the
- * piece found in the pooled text of the cited atom and the atoms of its row. Measured on the Northwind suite:
- * 624 real pieces score 0.68 or more. A planted ask that shares a word with the pool (an invoice number in an
- * invoice rule) scores 0.5, one that shares nothing at most 0.18. The floor sits between the two.
- */
-export const TIE = { floor: 0.6, gram: 5 };
-
 export const TASK_TYPES = [
   'obligation',
   'outside_trigger',
@@ -56,7 +48,7 @@ export async function envOfSuite(suite: FixtureSuite): Promise<AskEnv> {
   const sessions = parse(
     await readFile(join(FIXTURE, 'sessions', 'index.yaml'), 'utf8').catch(() => 'sessions: []'),
   );
-  return envOf(map.map.atoms, bank, sessions, TIE);
+  return envOf(map.map.atoms, bank, sessions);
 }
 
 export type SpecVerdict = { id: string; testType: string; reasons: string[] };

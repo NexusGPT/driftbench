@@ -63,6 +63,8 @@ metadata:
       form: title
       field: gate.standing.never-report-done-before-verify-passed#title
       fp: 1f64bb82b71368c2a57e95091856420abf21cfdfda622e6751c1f276a4abc27c
+      frame: pressure
+      shape: "{}"
       pieces:
         - report done before verify passed
     outcome: no-delete

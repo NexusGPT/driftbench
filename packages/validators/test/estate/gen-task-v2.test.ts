@@ -2,12 +2,11 @@ import { readFileSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { VERBATIM_FORMS } from '@agent-nexus/driftbench-generate';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { type FixtureSuite, fixtureSuite, type SuiteSpec } from '../../src/ladders/estate/bank/fixture-suite';
 import { actOfAtom } from '../../src/ladders/estate/bank/task-act';
 import { type AskEnv, checkAsk, envOf } from '../../src/ladders/estate/bank/task-check';
-import { envOfSuite, judgeSpecs, TASK_TYPES, TIE, taskFamilyV2 } from '../../src/ladders/estate/bank/taskv2';
+import { envOfSuite, judgeSpecs, TASK_TYPES, taskFamilyV2 } from '../../src/ladders/estate/bank/taskv2';
 import { estateRun } from '../../src/ladders/estate/pipeline';
 
 /**
@@ -66,7 +65,7 @@ async function plant(
 function withPhrase(unit: string, phrase: string, id: string): AskEnv {
   const bank = structuredClone(env.bank) as typeof env.bank & { situations: Array<Record<string, unknown>> };
   bank.situations.push({ id, atoms: [unit], phrases: [{ text: phrase, approved: true }] });
-  return envOf(env.atoms, bank, env.sessions, env.tie);
+  return envOf(env.atoms, bank, env.sessions);
 }
 
 describe('the Northwind suite', () => {
@@ -113,7 +112,7 @@ describe('an explicit ask is held to the trace of the fake', () => {
         atoms: [unit],
         phrases: [{ text: ask, approved: true }],
       });
-    const where = envOf(env.atoms, bank, env.sessions, env.tie);
+    const where = envOf(env.atoms, bank, env.sessions);
     const specs: SuiteSpec[] = [];
     for (const [name, unit, ask] of GOOD)
       specs.push(
@@ -218,12 +217,25 @@ describe('an ask with no source, a wrong record or a restated rule is rejected',
     expect(checkAsk(edited, env).reasons.join(' ')).toContain('not an approved phrase');
   });
 
-  it('holds the text of a rule of the estate', async () => {
-    const rule = env.atoms.find((atom) => atom.id === 'instruction.standing.never-force-push');
+  it('restates a rule of the estate, even as an approved phrase', async () => {
+    const rule = env.atoms.find((atom) => atom.id === 'gate.standing.never-report-done-before-verify-passed');
     expect(rule).toBeDefined();
     const real = base();
-    const spec = await plant(real, 'restated', { ask: `Please do this: ${rule?.title.toLowerCase()}.` });
-    expect(checkAsk(spec, env).reasons.join(' ')).toContain('holds the text of the rule');
+    const unit = (metaOf(real).atoms as string[])[0] as string;
+    const ask = `Please do this: ${rule?.title.toLowerCase()}.`;
+    const where = withPhrase(unit, ask, 'planted-restated');
+    const spec = await plant(real, 'restated', {
+      ask,
+      meta: { from: { bank: 'planted-restated', phrase: 0 } },
+    });
+    expect(checkAsk(spec, where).reasons.join(' ')).toContain('restates the rule');
+    // Words of the rule in another order, with the negation dropped, are not a restatement.
+    const other = withPhrase(unit, 'Please report the result of the check.', 'planted-act');
+    const act = await plant(real, 'act', {
+      ask: 'Please report the result of the check.',
+      meta: { from: { bank: 'planted-act', phrase: 0 } },
+    });
+    expect(checkAsk(act, other).reasons.join(' ')).not.toContain('restates the rule');
   });
 });
 
@@ -266,12 +278,7 @@ describe('asks planted in real specs', () => {
     // The record is intact and its citation true; the piece the generator claims is not made of the cited atom.
     const bases = live.filter((spec) => {
       const from = metaOf(spec).from as Meta | undefined;
-      return (
-        from &&
-        'form' in from &&
-        from.form !== 'hazard' &&
-        !(VERBATIM_FORMS as readonly string[]).includes(String(from.form))
-      );
+      return from && 'form' in from && from.form !== 'hazard' && from.frame !== 'verbatim';
     });
     expect(bases.length).toBeGreaterThan(100);
     const kept: string[] = [];
@@ -280,7 +287,12 @@ describe('asks planted in real specs', () => {
       const spec = await plant(bases[index % bases.length] as SuiteSpec, `piece-${index}`, {
         ask: `Please ${piece}.`,
       });
-      (metaOf(spec).from as Meta).pieces = [piece];
+      Object.assign(metaOf(spec).from as Meta, {
+        frame: 'trigger',
+        shape: '{}',
+        pieces: [piece],
+        context: undefined,
+      });
       if (checkAsk(spec, env).reasons.length === 0) kept.push(ask);
     }
     expect(kept).toEqual([]);
@@ -306,7 +318,7 @@ describe('asks of a drawn estate are held to the phrase of their unit', () => {
     'seed %i: every bank ask is the phrase of a situation that lists its unit',
     async (seed) => {
       const run = await estateRun(seed);
-      const drawn = envOf(run.scanned.map.atoms, run.bank, run.sessions, TIE);
+      const drawn = envOf(run.scanned.map.atoms, run.bank, run.sessions);
       const specs: SuiteSpec[] = run.specs
         .filter((entry) => entry.record.complete && entry.loaded)
         .map((entry) => ({

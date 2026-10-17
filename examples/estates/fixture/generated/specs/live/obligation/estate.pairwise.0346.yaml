@@ -80,6 +80,9 @@ metadata:
       form: route nearest the rule
       field: route.weekly-report.an-ask-that-fits-weekly-report#route nearest the rule
       fp: 87ed3871bace9182fea65db638d5470a8f0412d690c5c38967f50ba37d8f30ce
+      frame: trigger
+      shape: "{}"
+      context: "{}"
       pieces:
         - prepare the weekly operations report from the ledger and the shipment log
         - The weekly report is prepared

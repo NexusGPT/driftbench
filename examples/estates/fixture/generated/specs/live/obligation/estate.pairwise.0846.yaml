@@ -73,6 +73,8 @@ metadata:
       form: title
       field: instruction.standing.never-paste-a-credential-into-a#title
       fp: 981353ef099ac7de3eb1c0cf0c519818eff7c05039262970a9465f1dff5a40f4
+      frame: trigger
+      shape: "{}"
       pieces:
         - paste a credential into a reply
     outcome: no-delete

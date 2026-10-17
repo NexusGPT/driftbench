@@ -48,16 +48,29 @@ function plantPiece(spec: SuiteSpec, garbage: string): SuiteSpec {
   return copy;
 }
 
-const CLASSES: Record<string, (source: string, piece: string) => string | undefined> = {
+const CLASSES: Record<string, (source: string, piece: string, ids: string[]) => string | undefined> = {
   'the quote minus its last word': (source) => words(source).slice(0, -1).join(' '),
-  'a five word fragment of the quote': (source) => words(source).slice(1, 6).join(' '),
+  'a five word fragment of the quote': (source) =>
+    words(source).length >= 8 ? words(source).slice(1, 6).join(' ') : undefined,
   'the tail half of the quote': (source) =>
-    words(source)
-      .slice(Math.floor(words(source).length / 2))
-      .join(' '),
+    words(source).length >= 8
+      ? words(source)
+          .slice(Math.floor(words(source).length / 2))
+          .join(' ')
+      : undefined,
   'the piece doubled': (_, piece) => `${piece} ${piece}`,
   'the quote after not': (source) => `not ${source}`,
   'the piece after never': (_, piece) => `never ${piece}`,
+  'every other word of the quote': (source) =>
+    words(source).length >= 6
+      ? words(source)
+          .filter((_word, index) => index % 2 === 0)
+          .join(' ')
+      : undefined,
+  'the title of an atom outside the row': (_source, _piece, ids) =>
+    env.atoms.find(
+      (atom) => !ids.includes(atom.id) && atom.kind === 'instruction' && atom.title.split(/\s+/).length >= 3,
+    )?.title,
   'the words of the title reversed': (source) => words(source).reverse().join(' '),
   'the words of the quote shuffled': (source) => {
     const list = words(source);
@@ -73,12 +86,15 @@ describe('garbage made of the words of the cited atom is rejected', () => {
       const kept: string[] = [];
       for (const spec of coded) {
         const piece = (metaOf(spec).from as { pieces: string[] }).pieces[0] as string;
-        const garbage = make(sourceOf(spec), piece);
+        const garbage = make(sourceOf(spec), piece, [
+          (metaOf(spec).from as { field: string }).field.split('#')[0] as string,
+          ...(metaOf(spec).atoms as string[]),
+        ]);
         if (!garbage || flat(garbage) === flat(piece)) continue;
         if (checkAsk(plantPiece(spec, garbage), env).reasons.length === 0)
           kept.push(`${spec.id}: ${garbage}`);
       }
-      expect(kept.slice(0, 3), `${kept.length} accepted`).toEqual([]);
+      expect(kept.slice(0, 6), `${kept.length} accepted`).toEqual([]);
     });
 
   it('rejects words around true pieces', () => {
@@ -96,6 +112,6 @@ describe('garbage made of the words of the cited atom is rejected', () => {
           kept.push(`${spec.id}: ${blockOf(copy).when.user}`);
       }
     }
-    expect(kept.slice(0, 3), `${kept.length} accepted`).toEqual([]);
+    expect(kept.slice(0, 6), `${kept.length} accepted`).toEqual([]);
   });
 });

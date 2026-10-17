@@ -88,11 +88,20 @@ describe('the record an ask carries about itself', () => {
     });
     expect(fromRecord({ session: 'rope-snapped', atoms })).toEqual({ session: 'rope-snapped' });
     expect(fromRecord({ askFrom: 'neutral', neutral: 'resume', atoms })).toEqual({ neutral: 'resume' });
-    expect(fromRecord({ askFrom: 'route.a (asks it names)', atoms })).toEqual({
+    expect(
+      fromRecord({
+        askFrom: 'route.a (asks it names)',
+        built: { frame: 'trigger', act: 'help me with a delivery', context: 'The carrier answers' },
+        atoms,
+      }),
+    ).toEqual({
       form: 'asks it names',
       field: 'route.a#asks it names',
       fp: 'hash-route.a',
-      pieces: [],
+      frame: 'trigger',
+      shape: 'help me with {}',
+      context: '{}',
+      pieces: ['a delivery', 'The carrier answers'],
     });
     expect(fromRecord({ askFrom: 'route.a (situation: a heading with a count)', atoms })).toMatchObject({
       form: 'situation',
