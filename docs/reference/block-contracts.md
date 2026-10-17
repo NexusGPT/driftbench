@@ -243,6 +243,8 @@ The blame reading of value facts is not built yet. The shipped `value-mismatch` 
 * `nonDefault` lists every object a block was scored with whose id is not `default`.
 * An object appears once, even when many blocks resolved it. The list is sorted.
 * Each entry is written `kind:id@hash`, with the hash recorded in `BlockResult.resolved`.
+* The objects are read from `BlockResult.resolved.objects` of every block of every run. The `objects` option adds the objects the campaign was scored with, for records that do not carry them.
+* A fix keeps its own fields. Its `fixAction` is free text.
 * The text scorecard prints `Non-default rules: <list>.` The HTML scorecard prints a `non-default` badge.
 
 ### Blame and value facts
