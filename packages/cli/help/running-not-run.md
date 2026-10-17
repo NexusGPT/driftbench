@@ -69,7 +69,7 @@ The cell states and the exit code change; the options do not. A cell is `not_run
 | 2 | bad input; nothing ran |
 | 3 | no cell failed, but a cell is not run or blocked |
 
-`campaign resume`, `campaign rejudge` and `family verify` follow the same rule: when nothing failed but something was not run, they exit 3.
+`campaign resume`, `campaign rejudge` and `family verify` follow the same rule: when nothing failed but something was not run, they exit 3. `campaign resume` reuses a stored run whose block was not run: the cell line reads `not_run (reused)`, and its blocks are never sent again. To measure the spec, run it in a new campaign on a target that applies the layer.
 
 ### driftbench ci
 
@@ -83,14 +83,14 @@ driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|sto
 
 Every other option of `ci` is in the topic results-ci. In the GitHub Action, the input `max-not-run` passes this option; empty means 0.
 
-The `not-run` verdict outranks every verdict but `radius-miss`. With `--max-not-run 1`, no spec is over the threshold, so the comparison decides the verdict as usual.
+The verdicts rank in this order: `radius-miss`, then `regression`, then `not-run`, then the rest. A regression is what compare's own test calls regressed, in the goldens that ran. So a regression gives exit 1 whether or not some other spec was not run, and the not-run specs stay listed in its reasons. With `--max-not-run 1`, no spec is over the threshold, so the comparison decides the verdict as usual.
 
 | Exit | When |
 |---|---|
 | 0 | parity |
-| 1 | regression, not shown non-inferior, incomplete, a failing aggregate, a radius miss |
+| 1 | a radius miss, a regression (even with blocks not run), not shown non-inferior, incomplete, a failing aggregate |
 | 2 | bad input, a `--max-not-run` outside 0 to 1 included |
-| 3 | a spec has more of its blocks not run than `--max-not-run` allows |
+| 3 | a spec has more of its blocks not run than `--max-not-run` allows, and compare finds no regression |
 
 ## Inputs
 
@@ -136,9 +136,9 @@ A later block that was not run because an earlier one was not run says so in `go
 
 ### report, compare, JUnit and the pass rates
 
-* `report` prints `Campaign <id>: <n> runs, <p> pass, <f> fail, <x> not run, <b> did not complete.` The scorecard and the run page give such a run or block its own badge, `not run` or `blocked`, with the reason.
-* `compare` pairs a golden on its scored runs only. A golden with no scored run is not paired, with the reason `not measured in the candidate: block <i> not run (<check>: <got>)`, or `in the baseline`.
-* The JUnit file marks such a run `skipped`, with the first reason as its message.
+* `report` prints `Campaign <id>: <n> runs, <p> pass, <f> fail, <x> not run, <b> did not complete.`, with `<y> blocked, ` after `not run` when a run is blocked. The suite headline of each mode leaves such runs out of its rate and prints their share after it, such as `1 golden, 50.0% not run.` The scorecard and the run page give such a run or block its own badge, `not run` or `blocked`, with the reason.
+* `compare` pairs a golden on its scored runs only. A golden with no scored run is not paired, with the reason `not measured in the candidate: block <i> not run (<check>: <got>)`, or `in the baseline`. `compare` has no threshold for blocks not run: it decides on the paired goldens alone, so a golden not run never changes its verdict or its exit code. Only `ci` fails on blocks not run.
+* The JUnit file marks such a run `<skipped>`, with the first reason as its message, such as `block 0 not run: capability: process declares toolStubs false: the agent would never see it`, and counts it in the `skipped` of its test suite.
 * The `pass-rate` aggregate, reliability, spread, succession and the compounding index count scored blocks only.
 * A run with a block not run is never carried by `--change`, and a re-judge leaves that block as it was.
 
@@ -348,6 +348,81 @@ $ driftbench ci --specs examples/acme/specs/conversations/tool-failure.yaml --ta
 
 Read the first `ci` output from the bottom: `Verdict: NOT RUN. Exit 3.`, then the `Not run` line names the spec and the first reason. The fix is a target that applies the layer, here the function target the baseline ran on.
 
+
+### Resume, report, compare and a regression
+
+A stored campaign of the same run, resumed. A process target needs its `--process-command` again on resume:
+
+```sh
+driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --target process:my-agent --process-command my-agent --store nr.db --campaign nr # exit 3
+driftbench campaign resume nr --store nr.db --process-command my-agent # exit 3
+```
+
+```text
+$ driftbench campaign resume nr --store nr.db --process-command my-agent
+...
+- acme-tool-failure · process:my-agent · F · repeat 0  not_run (reused)  block 0 not_run capability, block 1 not_run capability, block 2 not_run capability
+1 cell: 0 pass, 0 fail, 1 not run, 0 failed, 1 reused. Spent $0.00.
+(exit 3)
+```
+
+The stored run is reused, so its blocks are not sent again. Next, a suite of two specs: the tool failure conversation and the price sheet task. On the Acme ops agent (`process:acme-ops`), the price sheet passes and the conversation is not run:
+
+```sh setup
+mkdir mixed
+cp examples/acme/specs/conversations/tool-failure.yaml examples/acme/specs/tasks/price-sheet.yaml mixed
+```
+
+```sh
+driftbench campaign run mixed --store mixed.db --campaign mixed-base
+driftbench campaign run mixed --target process:acme-ops --store mixed.db --campaign mixed-ops # exit 3
+driftbench report mixed-ops --store mixed.db --out mixed.html --junit mixed.xml
+driftbench compare --baseline mixed-base --candidate mixed-ops --store mixed.db --margin 80
+```
+
+```text
+$ driftbench report mixed-ops --store mixed.db --out mixed.html --junit mixed.xml
+...
+Campaign mixed-ops: 2 runs, 1 pass, 0 fail, 1 not run, 0 did not complete.
+Suite pass rate, mode F: 100.0% no interval: one cluster (one golden); 1 golden, 50.0% not run.
+Wrote mixed.html and mixed.xml.
+$ driftbench compare --baseline mixed-base --candidate mixed-ops --store mixed.db --margin 80
+...
+Not paired:
+  acme-tool-failure · F  not measured in the candidate: block 0 not run (capability: process declares toolStubs false: the agent would never see it)
+
+Verdict: NON-INFERIOR.
+  every gating criterion and the all-pass flag have an upper bound below the margin 80.0 points, and no new gating flag
+```
+
+The pass rate counts the one scored run, and `50.0% not run` gives the share left out. `compare` exits 0: the golden not run is listed, not counted. In `mixed.xml` the run not run is a skipped test case:
+
+```text
+  <testsuite name="acme-tool-failure" tests="1" failures="0" errors="0" skipped="1" time="0.000" timestamp="...">
+    <testcase classname="acme-tool-failure" name="process:acme-ops · F · repeat 0" time="0.000">
+      <skipped message="block 0 not run: capability: process declares toolStubs false: the agent would never see it"/>
+```
+
+Last, a regression and a spec not run in one `ci`. The fault `x3-skips-recap` breaks the order conversations. The route sends the `flow:new-home` conversations to the ops agent: there the tool failure spec is not run, and the two others fail. The regression wins: exit 1, not 3.
+
+```sh
+driftbench campaign run examples/acme/specs/conversations --store conv.db --campaign conv
+driftbench ci --specs examples/acme/specs/conversations --target fault:x3-skips-recap --faults examples/acme/faults --route flow:new-home=process:acme-ops --baseline conv --store conv.db --out regress.json # exit 1
+```
+
+```text
+$ driftbench ci --specs examples/acme/specs/conversations --target fault:x3-skips-recap --faults examples/acme/faults --route flow:new-home=process:acme-ops --baseline conv --store conv.db --out regress.json
+...
+  verdict                                      REGRESSION
+...
+Not run (--max-not-run 0): acme-tool-failure 3 of 3 blocks, over the threshold (F block 0: capability, process declares toolStubs false: the agent would never see it).
+
+Why:
+  - 5 goldens regressed: acme-new-customer-coverage · F, acme-number-porting · F, acme-off-topic-return · F, acme-order-loose-confirmation · F, acme-plan-upgrade · F
+...
+Verdict: REGRESSION. Exit 1.
+(exit 1)
+```
 ## Common errors
 
 | Message or symptom | Cause | Fix |
@@ -359,3 +434,6 @@ Read the first `ci` output from the bottom: `Verdict: NOT RUN. Exit 3.`, then th
 | `--max-not-run takes a share from 0 to 1, not "<value>".` (exit 2) | a value below 0, above 1, or not a number | give a share such as `0.25`; it is a share, not a percentage |
 | `unpaired` reason `not measured in the candidate: ...` in `compare` or `ci` | every run of that golden had a block not run | the same fix as the block's own reason |
 | a cell with a block not run runs again though `--change` was given | a run that holds a block not run is never carried | expected: it has no result to carry |
+| `No adapter is set up for process:<name>.` from `campaign resume` (exit 2) | the campaign's target is a process agent, and resume was not given its command | pass the same `--process-command` as the run |
+| `campaign resume` exits 3 again and the cell reads `not_run (reused)` | resume reuses the stored run; it never sends a block not run again | run the spec in a new campaign, on a target that applies the layer |
+| `ci` exits 1, not 3, though a spec has blocks not run | a regression wins over blocks not run: the `Why` lines name the regressed goldens first | fix the regression; the not-run line still names the spec |

@@ -106,7 +106,7 @@ Judging and the checks take the same options as `campaign run`, with the same de
 | `--verify <kind>` | none | `arithmetic`: check explicit equations in the reply, in a bounded sandbox, before the judge reads it |
 | `--prompt-budget <chars>` | none | drop the oldest transcript entries until the judge prompt fits; the last block stays |
 | `--record <cassette>` | none | save every live judge answer as a cassette, to replay with `--judges` |
-| `--agent-family <family>` | none | the model family of the agent under test: a judge of that family is refused. `none` for no model |
+| `--agent-family <family>` | not set | the model family of the agent under test: a judge of that family is refused. `none` for no model |
 | `--owner <values...>` | none | the owner's own email, phone, IBAN or national number, left out by the `pii` check |
 | `--owner-file <file>` | none | owner values for the `pii` check, one per line; `#` starts a comment |
 | `--tool-policy <rules>` | none | a YAML list of `{ pattern, action: allow \| deny \| ask }`; a denied call fails its block's `tool_policy` check |
