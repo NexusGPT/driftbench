@@ -49,7 +49,7 @@ Commands with their own codes:
 | `smoke` | transcripts identical, every run completed | transcripts differ, or a run did not complete | bad input | |
 | `report` | written | | bad input | |
 | `compare` | non-inferior (parity) | regressed, or not shown non-inferior | bad input | |
-| `ci` | non-inferior (parity) | regressed, not shown non-inferior, incomplete, a failing aggregate, a radius miss | bad input | 3: a gating spec had blocks not run (a Given the target cannot apply) beyond `--max-not-run`, and no golden regressed: a regressed golden exits 1 |
+| `ci` | non-inferior (parity) | regressed, not shown non-inferior, incomplete, a failing aggregate, a radius miss | bad input | 3: a gating spec had blocks not run (a Given the target cannot apply) beyond `--max-not-run`, and compare finds no regression: a regression exits 1 |
 | `campaign rejudge` | every re-judged run passes | a run fails, or a gating result is inconclusive | bad input | 3: no run fails but a block was not run or blocked (the summary names each with its reason) |
 | `family verify` | the reference passes every spec | the reference fails one, or one is invalid | bad input | 3: none fails but the reference could not run one (a block not run: unverified, counted apart, not shipped) |
 | `monitor` | no shift | two of the three detectors alarm | bad input | |
