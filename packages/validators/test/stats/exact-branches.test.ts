@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { branchItems } from '../../src/ladders/stats/bank/exact-branches';
 import { runItem } from '../../src/ladders/stats/bank/index';
 import type { StatsImpl } from '../../src/ladders/stats/reference';
-import { real, ROOT } from './support';
+import { ROOT, real } from './support';
 
 /**
  * The branch items of the statistics bank (bank/exact-branches.ts) against planted faults.

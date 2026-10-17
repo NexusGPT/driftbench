@@ -1,6 +1,6 @@
 import type { StatsImpl } from '../reference';
+import { BRANCH_FIXTURE, call, EXACT, exactItem, LIBRARY, type Row, type Spec, SRC, type Tol } from './exact';
 import type { BankItem, Tier } from './item';
-import { BRANCH_FIXTURE, call, EXACT, exactItem, LIBRARY, type Row, SRC, type Spec, type Tol } from './exact';
 
 /**
  * Items on single branches of the functions that the audit of the bank (docs/validators.md section 12) found

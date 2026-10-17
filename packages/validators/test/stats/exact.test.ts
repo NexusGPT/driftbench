@@ -53,6 +53,11 @@ const FAULTS: Record<string, (real: Fn) => Fn> = {
       const r = f(...a) as { kind: string; k?: number };
       return r.kind === 'at_least' ? { ...r, k: 1 } : r;
     },
+  // one run more than the bound
+  zeroFailureBound:
+    (f) =>
+    (...a) =>
+      (f(...a) as number) + 1,
   // the sequence of the next seed
   mulberry32: (f) => (seed: unknown) => f((seed as number) + 1),
 };
