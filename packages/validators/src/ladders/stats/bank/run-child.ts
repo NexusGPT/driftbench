@@ -5,9 +5,7 @@
  * as a JSON array on stdin.
  */
 import { dirname, join } from 'node:path';
-import * as stats from '@agent-nexus/driftbench-stats';
 import type { StatsImpl } from '../reference';
-import { runItem, statsBank } from './index';
 import { installTrap } from './trap';
 
 async function main(args: readonly string[]): Promise<void> {
@@ -23,7 +21,9 @@ async function main(args: readonly string[]): Promise<void> {
     ...(implPath ? [dirname(implPath.startsWith('file://') ? new URL(implPath).pathname : implPath)] : []),
     join(root as string, 'packages', 'stats', 'src'),
   ]);
-  const s = (implPath ? await import(implPath) : stats) as StatsImpl;
+  const s = (await import(implPath ?? '@agent-nexus/driftbench-stats')) as StatsImpl;
+  // The bank also imports the target transitively: load it only after the trap is active.
+  const { runItem, statsBank } = await import('./index');
   const byId = new Map(statsBank(root as string).map((item) => [item.id, item]));
   const items = ids.map((id) => {
     const item = byId.get(id);
