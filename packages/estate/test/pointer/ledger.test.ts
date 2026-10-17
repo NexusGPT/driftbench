@@ -112,7 +112,7 @@ describe('the ledger', () => {
   it('keeps a recorded label only when the text and both neighbours are unchanged', () => {
     const first = scan({ 'hall.md': HALL });
     for (const entry of first.ledger.entries) {
-      entry.labels.house = { label: 'rule', setHash: 'h1', source: 'cassette:abc' };
+      entry.labels.house = { label: 'rule', setHash: 'h1', labeler: 'l1', source: 'cassette:abc' };
     }
     // A reworded neighbour changes the context of the units beside it, never their text.
     const second = scan(

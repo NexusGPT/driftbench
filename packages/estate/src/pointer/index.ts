@@ -12,24 +12,27 @@ export {
 } from './cassette';
 export { type Container, type Cut, cut, fingerprint, sentenceSpans, type Unit } from './cut';
 export {
-  createHaikuLabeler,
-  createJevLabeler,
-  DEFAULT_HAIKU_MODEL,
-  DEFAULT_JEV_MAX_QUESTIONS,
-  DEFAULT_JEV_THRESHOLD,
+  type AnthropicLabelerOptions,
+  createAnthropicLabeler,
+  DEFAULT_ANTHROPIC_LABELER_MODEL,
   DENSE_SYSTEM,
+  denseLabels,
+  denseOpinions,
   denseUser,
-  type HaikuOptions,
+  parseDenseAnswer,
+  windowLines,
+} from './dense';
+export {
   isTooLarge,
-  type JevOptions,
   type Labeler,
+  type LabelerClass,
   LabelerConfigError,
   LabelerError,
-  labelerByName,
+  type Opinion,
+  type Opinions,
   PROMPT_VERSION,
-  parseDenseAnswer,
-  questionKey,
   SCHEMA_VERSION,
+  usageOf,
 } from './labeler';
 export {
   type Checked,
@@ -61,9 +64,50 @@ export {
 } from './ledger';
 export {
   DEFAULT_WINDOW_UNITS,
+  type LabelerUsage,
   type LabelledUnit,
+  type MemberPlan,
   type PointerInput,
+  type PointerPlan,
   type PointerResult,
   pointerScan,
   windowsOf,
 } from './scan';
+export {
+  buildLabelling,
+  DEFAULT_FAIL_AT,
+  DEFAULT_LABELER_SPECS,
+  DEFAULT_PASS_AT,
+  type Decision,
+  type LabelerSpec,
+  type Labelling,
+  type LabellingOptions,
+  parseLabelerSpec,
+  singleLabelling,
+  stackedLabelling,
+} from './stack';
+export {
+  createHttpLabeler,
+  type HttpLabelerOptions,
+  httpLabelerId,
+  type LabelerModule,
+  loadModuleLabeler,
+  type UserOptions,
+  userAnswer,
+  userRequest,
+} from './user';
+export {
+  askedLabels,
+  createJevLabeler,
+  createOpenAiDecisionsLabeler,
+  DEFAULT_DECISIONS_MAX_QUESTIONS,
+  DEFAULT_MAX_QUESTIONS,
+  DEFAULT_THRESHOLD,
+  type OpenAiDecisionsOptions,
+  questionKey,
+  type YesNoOptions,
+  yesNoOpinions,
+  yesNoQuestion,
+  yesNoQuestions,
+  yesNoText,
+} from './yesno';

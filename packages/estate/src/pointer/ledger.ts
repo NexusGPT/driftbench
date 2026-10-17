@@ -9,7 +9,18 @@ import { canonical } from './labels';
  * that is edited keeps its id when the ladder below can follow it.
  */
 
-export type LedgerLabel = { label: string; setHash: string; source: string; target?: string };
+export type LedgerLabel = {
+  label: string;
+  /** The hash of the label set that was asked. */
+  setHash: string;
+  /** The hash of the labelers and settings that decided the label. A change of either re-labels the unit. */
+  labeler: string;
+  /** The cassette keys (first 12 characters) of the answers the label comes from. */
+  source: string;
+  /** The class that decided: system1 or system2. */
+  by?: 'system1' | 'system2';
+  target?: string;
+};
 
 export type LedgerEntry = {
   id: string;

@@ -49,7 +49,7 @@ export async function scanAtoms(raw: RawEstate, options: ScanAtomsOptions = {}):
       pointed.labelled,
       new Map(proseFiles.map((path) => [path, files.get(path)?.text ?? ''])),
       builder,
-      options.pointer.labeler.id,
+      options.pointer.labelling.members.map((member) => member.id).join('+'),
     );
     return {
       builder,

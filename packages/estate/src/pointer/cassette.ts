@@ -64,6 +64,8 @@ export class CassetteMiss extends Error {
 
 export class Cassette {
   readonly entries = new Map<string, CassetteEntry>();
+  /** Called with each entry as it is recorded, so a long run can append it to a file and lose nothing if it stops. */
+  onPut?: (entry: CassetteEntry) => void;
 
   static parse(text: string): Cassette {
     const cassette = new Cassette();
@@ -121,6 +123,7 @@ export class Cassette {
     const key = wireKey(wire);
     const entry = { key, readable, answer };
     this.entries.set(key, entry);
+    this.onPut?.(entry);
     return entry;
   }
 }

@@ -9,6 +9,7 @@ import {
 } from '../../src/index';
 import { AtomBuilder } from '../../src/scan';
 import { estate, NOW } from '../support';
+import { plantedDense } from './support';
 
 // An invented harbour office: nothing here names a real estate.
 const FILES = {
@@ -67,25 +68,9 @@ function setsOf(text = SETS) {
 
 /** A labeler that says what a table says, window by window; a unit it does not name is none. */
 function table(rows: Record<string, pointer.Labelled[]>): pointer.Labeler {
-  return {
-    id: 'planted',
-    family: 'planted',
-    model: 'planted-1',
-    maxUnits: (_set, wanted) => wanted,
-    render: (set, window) => ({
-      labeler: 'planted',
-      body: { set: set.set, window: window.id, units: window.units.map((unit) => unit.text) },
-    }),
-    interpret: (recorded) => recorded.labels ?? [],
-    async call(_wire, _set, window) {
-      return {
-        labels: rows[window.path] ?? [{ units: `1-${window.units.length}`, label: 'none' }],
-        returnedModel: 'planted-1',
-        stopReason: 'end_turn',
-        usage: { input: 1, output: 1 },
-      };
-    },
-  };
+  return plantedDense(
+    (window) => rows[window.path] ?? [{ units: `1-${window.units.length}`, label: 'none' }],
+  );
 }
 
 async function scan(rows: Record<string, pointer.Labelled[]>, over: Partial<pointer.PointerInput> = {}) {
@@ -95,7 +80,13 @@ async function scan(rows: Record<string, pointer.Labelled[]>, over: Partial<poin
     root,
     reader: new ClaudeCodeReader(),
     now: NOW,
-    pointer: { sets: setsOf(), labeler: table(rows), cassette, mode: 'record', ...over },
+    pointer: {
+      sets: setsOf(),
+      labelling: pointer.singleLabelling(table(rows)),
+      cassette,
+      mode: 'record',
+      ...over,
+    },
   });
   return { root, result, cassette };
 }

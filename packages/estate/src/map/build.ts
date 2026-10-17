@@ -107,7 +107,13 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     edges: graph.edges,
     ...(raw.ignored?.chosen && raw.ignored.chosen.length > 0 ? { ignore: raw.ignored.chosen } : {}),
     ...(input.pointer
-      ? { producedBy: { family: input.pointer.labeler.family, model: input.pointer.labeler.model, at } }
+      ? {
+          producedBy: {
+            family: input.pointer.labelling.members.map((member) => member.family).join('+'),
+            model: input.pointer.labelling.members.map((member) => member.model).join('+'),
+            at,
+          },
+        }
       : input.port
         ? { producedBy: { family: input.port.family, model: input.port.model ?? 'unknown', at } }
         : {}),

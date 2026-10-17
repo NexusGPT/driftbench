@@ -9,12 +9,14 @@ import {
   type Labelled,
   type LabelSet,
   type PointerInput,
-  parseLabelSets,
+  type PointerPlan,
   pointerScan,
   renderLedger,
+  singleLabelling,
   type Window,
   windowsOf,
 } from '../../src/pointer';
+import { load, plantedDense } from './support';
 
 // Invented files: a harbour office with quays, ropes and skippers.
 const QUAY = [
@@ -52,41 +54,6 @@ const SETS = `labels:
       - name: long
         description: A unit of more than three words.
 `;
-const load = (text: string): LabelSet[] => {
-  const parsed = parseLabelSets(text);
-  if (!parsed.ok) throw new Error(parsed.message);
-  return parsed.sets;
-};
-
-/** A labeler that answers from a table of its own, and keeps a log of the windows it was asked about. */
-function planted(
-  answer: (window: Window, set: LabelSet) => Labelled[],
-  log: string[] = [],
-  options: { fail?: (window: Window) => Error | undefined } = {},
-): Labeler {
-  return {
-    id: 'planted',
-    family: 'planted',
-    model: 'planted-1',
-    maxUnits: (_set, wanted) => wanted,
-    render: (set, window) => ({
-      labeler: 'planted',
-      body: { set: set, window: window.id, units: window.units.map((unit) => unit.text) },
-    }),
-    interpret: (recorded) => recorded.labels ?? [],
-    async call(_wire, set, window) {
-      log.push(`${window.id}:${set.set}`);
-      const failure = options.fail?.(window);
-      if (failure) throw failure;
-      return {
-        labels: answer(window, set),
-        returnedModel: 'planted-1',
-        stopReason: 'end_turn',
-        usage: { input: 10, output: 4 },
-      };
-    },
-  };
-}
 
 /** Everything is an order in `duty`; the tone label follows the length of the unit's text. */
 const byLength = (window: Window, set: LabelSet): Labelled[] =>
@@ -98,11 +65,13 @@ const byLength = (window: Window, set: LabelSet): Labelled[] =>
 const input = (labeler: Labeler, cassette: Cassette, over: Partial<PointerInput> = {}): PointerInput => ({
   files: FILES,
   sets: load(SETS),
-  labeler,
+  labelling: singleLabelling(labeler),
   cassette,
   mode: 'record',
   ...over,
 });
+
+const replayOf = (labeler: Labeler): Labeler => ({ ...labeler, call: undefined });
 
 describe('the windows', () => {
   it('cut at a top-level heading and at the size, and leave an opaque unit out', () => {
@@ -122,17 +91,20 @@ describe('the pointer scan', () => {
   it('records one answer per window and set, then replays the same ledger with no labeler', async () => {
     const log: string[] = [];
     const cassette = new Cassette();
-    const first = await pointerScan(input(planted(byLength, log), cassette));
+    const first = await pointerScan(input(plantedDense(byLength, log), cassette));
     expect(first.failed).toEqual([]);
     expect(first.refusals).toEqual([]);
     expect(first.unlabeled).toBe(0);
     // Two files, one window each, two sets.
     expect(log).toHaveLength(4);
     expect(cassette.entries.size).toBe(4);
-    expect(first.usage).toEqual({ input: 40, output: 16 });
+    expect(first.usage).toEqual([
+      { id: 'planted', cls: 'system2', model: 'planted-1', calls: 4, recorded: 4, input: 40, output: 16 },
+    ]);
 
-    const replayer: Labeler = { ...planted(byLength), call: undefined };
-    const second = await pointerScan(input(replayer, Cassette.parse(cassette.render()), { mode: 'replay' }));
+    const second = await pointerScan(
+      input(replayOf(plantedDense(byLength)), Cassette.parse(cassette.render()), { mode: 'replay' }),
+    );
     expect(second.calls).toBe(0);
     expect(renderLedger(second.ledger)).toBe(renderLedger(first.ledger));
     expect(second.labelled.map((item) => [item.id, item.label])).toEqual(
@@ -141,20 +113,20 @@ describe('the pointer scan', () => {
   });
 
   it('keeps a label of the ledger without asking again', async () => {
-    const cassette = new Cassette();
-    const first = await pointerScan(input(planted(byLength), cassette));
+    const first = await pointerScan(input(plantedDense(byLength), new Cassette()));
     const log: string[] = [];
     const again = await pointerScan(
-      input(planted(byLength, log), new Cassette(), { previous: first.ledger, mode: 'replay' }),
+      input(plantedDense(byLength, log), new Cassette(), { previous: first.ledger, mode: 'replay' }),
     );
     expect(log).toEqual([]);
-    expect(again.carried).toBe(4);
     expect(again.windows).toBe(0);
+    expect(again.carried).toBe(again.plan.units);
+    expect(again.decided).toBe(0);
   });
 
   it('re-labels only the windows of an edited unit', async () => {
     const files = [{ path: 'quay.md', text: QUAY }];
-    const first = await pointerScan(input(planted(byLength), new Cassette(), { files, windowUnits: 4 }));
+    const first = await pointerScan(input(plantedDense(byLength), new Cassette(), { files, windowUnits: 4 }));
     const log: string[] = [];
     const edited = [
       {
@@ -163,7 +135,7 @@ describe('the pointer scan', () => {
       },
     ];
     await pointerScan(
-      input(planted(byLength, log), new Cassette(), {
+      input(plantedDense(byLength, log), new Cassette(), {
         files: edited,
         windowUnits: 4,
         previous: first.ledger,
@@ -174,13 +146,13 @@ describe('the pointer scan', () => {
   });
 
   it('re-labels only the set whose label was edited, and changes no unit id', async () => {
-    const first = await pointerScan(input(planted(byLength), new Cassette()));
+    const first = await pointerScan(input(plantedDense(byLength), new Cassette()));
     const edited = load(
       SETS.replace('A unit that only says how the quay is.', 'A unit that describes the quay.'),
     );
     const log: string[] = [];
     const second = await pointerScan(
-      input(planted(byLength, log), new Cassette(), { sets: edited, previous: first.ledger }),
+      input(plantedDense(byLength, log), new Cassette(), { sets: edited, previous: first.ledger }),
     );
     expect(log.every((entry) => entry.endsWith(':duty'))).toBe(true);
     expect(log).toHaveLength(2);
@@ -191,10 +163,21 @@ describe('the pointer scan', () => {
     expect(tone(second)).toEqual(tone(first));
   });
 
+  it('re-labels every unit when the labelers or their settings change, and keeps the ids', async () => {
+    const first = await pointerScan(input(plantedDense(byLength), new Cassette()));
+    const other = { ...plantedDense(byLength), settings: { threshold: 0.9 } };
+    const log: string[] = [];
+    const second = await pointerScan(
+      input({ ...other, call: plantedDense(byLength, log).call }, new Cassette(), { previous: first.ledger }),
+    );
+    expect(log).toHaveLength(4);
+    expect(second.carried).toBe(0);
+    expect(second.ledger.entries.map((entry) => entry.id)).toEqual(
+      first.ledger.entries.map((entry) => entry.id),
+    );
+  });
+
   it('misses in replay on a changed set, and names the field that differs', async () => {
-    const cassette = new Cassette();
-    await pointerScan(input(planted(byLength), cassette));
-    const edited = load(SETS.replace('What the harbour notes ask of a skipper.', 'What the notes ask.'));
     // A labeler that renders the set into the request, as a real one does.
     const real = (labeler: Labeler): Labeler => ({
       ...labeler,
@@ -204,12 +187,11 @@ describe('the pointer scan', () => {
       }),
     });
     const recorded = new Cassette();
-    await pointerScan(input(real(planted(byLength)), recorded));
+    await pointerScan(input(real(plantedDense(byLength)), recorded));
+    const edited = load(SETS.replace('What the harbour notes ask of a skipper.', 'What the notes ask.'));
     await expect(
-      pointerScan(
-        input({ ...real(planted(byLength)), call: undefined }, recorded, { sets: edited, mode: 'replay' }),
-      ),
-    ).rejects.toThrow(/differs in: .*part\.body|differs in: .*setHash/);
+      pointerScan(input(replayOf(real(plantedDense(byLength))), recorded, { sets: edited, mode: 'replay' })),
+    ).rejects.toThrow(/differs in: .*setHash/);
   });
 
   it('refuses a bad pointer, lists it, and labels nothing from it', async () => {
@@ -223,7 +205,7 @@ describe('the pointer scan', () => {
           ]
         : byLength(window, set);
     const result = await pointerScan(
-      input(planted(bad), new Cassette(), { files: [FILES[0] as (typeof FILES)[number]] }),
+      input(plantedDense(bad), new Cassette(), { files: [FILES[0] as (typeof FILES)[number]] }),
     );
     expect(result.refusals).toEqual([
       'quay.md#1: "99" leaves the window',
@@ -244,7 +226,7 @@ describe('the pointer scan', () => {
     const cassette = new Cassette();
     const result = await pointerScan(
       input(
-        planted(byLength, log, {
+        plantedDense(byLength, log, {
           fail: (window) =>
             window.path === 'office.md' ? new LabelerError('the answer is not JSON') : undefined,
         }),
@@ -261,7 +243,10 @@ describe('the pointer scan', () => {
   it('does not retry a refusal', async () => {
     const log: string[] = [];
     const result = await pointerScan(
-      input(planted(byLength, log, { fail: () => new ModelError('refusal', 'declined') }), new Cassette()),
+      input(
+        plantedDense(byLength, log, { fail: () => new ModelError('refusal', 'declined') }),
+        new Cassette(),
+      ),
     );
     expect(log).toHaveLength(4);
     expect(result.failed).toHaveLength(4);
@@ -269,13 +254,13 @@ describe('the pointer scan', () => {
 
   it('stops on a miss when it may not record', async () => {
     await expect(
-      pointerScan(input({ ...planted(byLength), call: undefined }, new Cassette(), { mode: 'replay' })),
+      pointerScan(input(replayOf(plantedDense(byLength)), new Cassette(), { mode: 'replay' })),
     ).rejects.toBeInstanceOf(CassetteMiss);
   });
 
   it('gives the labeler no text of a unit it cannot point at', async () => {
     const seen: string[] = [];
-    const labeler = planted((window) => {
+    const labeler = plantedDense((window) => {
       seen.push(...window.units.map((unit) => unit.text));
       return [];
     });
@@ -295,7 +280,7 @@ describe('the pointer scan', () => {
       window.units.length > limit ? tooLarge() : undefined;
     const cassette = new Cassette();
     const first = await pointerScan(
-      input(planted(byLength, log, { fail: refuseOver(2) }), cassette, { files, windowUnits: 12 }),
+      input(plantedDense(byLength, log, { fail: refuseOver(2) }), cassette, { files, windowUnits: 12 }),
     );
     // Six units: the window of six and the two halves of three are refused, the quarters of two and one answer.
     expect(first.failed).toEqual([]);
@@ -314,7 +299,7 @@ describe('the pointer scan', () => {
     expect([...cassette.entries.values()].some((entry) => entry.answer.refused === 'too_large')).toBe(true);
 
     const again = await pointerScan(
-      input({ ...planted(byLength), call: undefined }, Cassette.parse(cassette.render()), {
+      input(replayOf(plantedDense(byLength)), Cassette.parse(cassette.render()), {
         files,
         windowUnits: 12,
         mode: 'replay',
@@ -327,7 +312,7 @@ describe('the pointer scan', () => {
   it('fails a window of one unit that is still refused as too large', async () => {
     const result = await pointerScan(
       input(
-        planted(byLength, [], {
+        plantedDense(byLength, [], {
           fail: () => new ModelError('http', '400 max_tokens_exceeded', { status: 400 }),
         }),
         new Cassette(),
@@ -336,5 +321,102 @@ describe('the pointer scan', () => {
     );
     expect(result.failed).toHaveLength(2);
     expect(result.failed[0]).toContain('window of one unit');
+  });
+});
+
+describe('requests in flight', () => {
+  const many = Array.from({ length: 6 }, (_, at) => ({
+    path: `note-${at}.md`,
+    text: `# Note ${at}\n\n- Check the rope number ${at}\n- Close gate ${at}\n`,
+  }));
+
+  /** A labeler that counts the requests in flight at once. */
+  function tracked(delay: number): { labeler: Labeler; peak: () => number } {
+    const base = plantedDense(byLength, [], { delay });
+    let now = 0;
+    let peak = 0;
+    const labeler: Labeler = {
+      ...base,
+      async call(wire, set, window) {
+        now++;
+        peak = Math.max(peak, now);
+        try {
+          return await (base.call as NonNullable<Labeler['call']>)(wire, set, window);
+        } finally {
+          now--;
+        }
+      },
+    };
+    return { labeler, peak: () => peak };
+  }
+
+  it('never exceeds the number of jobs, and uses them', async () => {
+    const one = tracked(15);
+    await pointerScan(input(one.labeler, new Cassette(), { files: many, jobs: 1 }));
+    expect(one.peak()).toBe(1);
+    const three = tracked(15);
+    await pointerScan(input(three.labeler, new Cassette(), { files: many, jobs: 3 }));
+    expect(three.peak()).toBeGreaterThan(1);
+    expect(three.peak()).toBeLessThanOrEqual(3);
+  });
+
+  it('gives the same ledger and the same cassette bytes whatever the number of jobs', async () => {
+    const serial = new Cassette();
+    const first = await pointerScan(input(tracked(5).labeler, serial, { files: many, jobs: 1 }));
+    const parallel = new Cassette();
+    const second = await pointerScan(input(tracked(5).labeler, parallel, { files: many, jobs: 6 }));
+    expect(renderLedger(second.ledger)).toBe(renderLedger(first.ledger));
+    expect(parallel.render()).toBe(serial.render());
+    expect(second.refusals).toEqual(first.refusals);
+    expect(second.failed).toEqual(first.failed);
+  });
+
+  it('stops starting requests after a miss it cannot fix', async () => {
+    const log: string[] = [];
+    await expect(
+      pointerScan(
+        input(replayOf(plantedDense(byLength, log)), new Cassette(), {
+          files: many,
+          jobs: 2,
+          mode: 'replay',
+        }),
+      ),
+    ).rejects.toBeInstanceOf(CassetteMiss);
+    expect(log).toEqual([]);
+  });
+});
+
+describe('the plan and the cassette file', () => {
+  it('reports the requests, the ones the cassette answers and the characters left to send', async () => {
+    const plans: PointerPlan[] = [];
+    const cassette = new Cassette();
+    const first = await pointerScan(
+      input(plantedDense(byLength), cassette, { onPlan: (plan) => plans.push(plan) }),
+    );
+    expect(plans).toHaveLength(1);
+    expect(plans[0]?.files).toBe(2);
+    expect(plans[0]?.members).toEqual([
+      expect.objectContaining({ id: 'planted', cls: 'system2', windows: 4, cached: 0 }),
+    ]);
+    expect(plans[0]?.members[0]?.characters).toBeGreaterThan(0);
+    expect(first.plan).toEqual(plans[0]);
+
+    // The same files with the answers in the cassette: nothing is left to send.
+    const again: PointerPlan[] = [];
+    await pointerScan(
+      input(replayOf(plantedDense(byLength)), cassette, {
+        mode: 'replay',
+        onPlan: (plan) => again.push(plan),
+      }),
+    );
+    expect(again[0]?.members[0]).toMatchObject({ windows: 4, cached: 4, characters: 0 });
+  });
+
+  it('hands each recorded answer to the cassette hook as it arrives', async () => {
+    const seen: string[] = [];
+    const cassette = new Cassette();
+    cassette.onPut = (entry) => seen.push(entry.readable.window ?? '');
+    await pointerScan(input(plantedDense(byLength), cassette));
+    expect(seen.sort()).toEqual(['office.md#1', 'office.md#1', 'quay.md#1', 'quay.md#1']);
   });
 });

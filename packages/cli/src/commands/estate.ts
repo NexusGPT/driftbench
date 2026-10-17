@@ -21,7 +21,13 @@ import {
   scanEstate,
   toEstateSpaceMap,
 } from '@agent-nexus/driftbench-estate';
-import { ModelError, type ModelPort, portFromEnv, shortQuote } from '@agent-nexus/driftbench-generate';
+import {
+  type FetchLike,
+  ModelError,
+  type ModelPort,
+  portFromEnv,
+  shortQuote,
+} from '@agent-nexus/driftbench-generate';
 import { formatSpaceMap, gridSize, validateSpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import { exists, show, writeOut } from '../files';
@@ -54,6 +60,8 @@ export type EstateDeps = {
   port?: ModelPort;
   env?: Record<string, string | undefined>;
   now?: () => Date;
+  /** The fetch the pointer labelers call with instead of the global one. Tests pass a fake. */
+  fetch?: FetchLike;
 };
 
 /**
@@ -79,21 +87,36 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--force', 'replace an existing map; the approvals in it are lost')
     .option(
       '--pointer',
-      'read the prose with the pointer reader: units cut by structure, a labeler points at them',
+      'read the prose with the pointer reader: units cut by structure, labelers of two classes point at them',
     )
     .option(
       '--labels <file>',
       'with --pointer: the label sets (YAML); default is the shipped agent-rules set',
     )
     .option('--cassette <file>', 'with --pointer: the recorded labeler answers (JSON lines)')
-    .option('--record', 'with --pointer: call the labeler on a cassette miss and record the answer')
-    .option('--labeler <name>', 'with --pointer: haiku, jev or jev-unit', 'haiku')
-    .option('--labeler-model <model>', 'with --pointer: the model the labeler calls')
+    .option('--record', 'with --pointer: call the labelers on a cassette miss and record the answer')
+    .option(
+      '--labeler <spec>',
+      'with --pointer: <class>:<client>[:<model>], class system1 or system2; repeat it for a stack of both (default: system1:jev and system2:anthropic)',
+      collect,
+    )
     .option(
       '--labeler-threshold <p>',
-      'with --pointer and jev: the probability of yes a unit needs to take a label',
-      undefined,
+      'with --pointer: the probability of yes at which a system 1 labeler takes a label',
     )
+    .option(
+      '--labeler-pass-at <p>',
+      'with --pointer and a stack: system 1 decides a unit alone from this probability (default 0.9)',
+    )
+    .option(
+      '--labeler-fail-at <p>',
+      'with --pointer and a stack: system 1 decides that a unit has no label under this probability (default 0.1); in between, system 2 decides',
+    )
+    .option(
+      '--labeler-key <variable>',
+      'with --pointer: the environment variable that holds the bearer token of an http labeler',
+    )
+    .option('--jobs <n>', 'with --pointer: requests in flight at once (default 4)')
     .option(
       '--ledger <file>',
       'with --pointer: the ledger of unit ids beside the estate; read, then rewritten',
@@ -177,8 +200,16 @@ export async function estateScanCommand(
     io.err('error: --pointer cannot be used with --no-model or --replay: the cassette replays the labeler\n');
     return 2;
   }
-  if (!options.pointer && (options.cassette || options.record || options.ledger || options.labels)) {
-    io.err('error: --cassette, --record, --ledger and --labels need --pointer\n');
+  if (
+    !options.pointer &&
+    (options.cassette ||
+      options.record ||
+      options.ledger ||
+      options.labels ||
+      options.labeler?.length ||
+      options.jobs)
+  ) {
+    io.err('error: --cassette, --record, --ledger, --labels, --labeler and --jobs need --pointer\n');
     return 2;
   }
   const ceiling = parseCeiling(options.ceiling, io);
@@ -215,7 +246,9 @@ export async function estateScanCommand(
     }
   }
 
-  const handle = options.pointer ? await openPointer(options, io, deps.env ?? process.env) : undefined;
+  const handle = options.pointer
+    ? await openPointer(options, io, deps.env ?? process.env, deps.fetch)
+    : undefined;
   if (options.pointer && !handle) return 2;
 
   let result: ScanEstateResult;
@@ -237,7 +270,7 @@ export async function estateScanCommand(
     throw cause;
   }
   if (!(await writeOut(out, renderEstateMap(result.map), io))) return 2;
-  io.out(scanReport(result, out, io));
+  io.out(scanReport(result, out, io, handle?.describe));
   const closing = handle ? await handle.finish(result) : 0;
   if (closing === 2) return 2;
   const failed =
@@ -261,7 +294,7 @@ function ignoredLines(result: ScanEstateResult): string[] {
   ];
 }
 
-function scanReport(result: ScanEstateResult, out: string, io: Io): string {
+function scanReport(result: ScanEstateResult, out: string, io: Io, describe = ''): string {
   const { map, analysis } = result;
   const byModel = map.atoms.filter((atom) => atom.producedBy === 'model').length;
   const lines = [
@@ -279,7 +312,7 @@ function scanReport(result: ScanEstateResult, out: string, io: Io): string {
   }
   const prose = proseInventoryLines(proseInventory(result.raw), result.chunks.length > 0 || !!result.pointer);
   if (result.pointer) {
-    lines.push(...prose, ...pointerLines(result));
+    lines.push(...prose, ...pointerLines(result, describe));
   } else if (result.chunks.length === 0)
     lines.push('  No model call: structured atoms only (--no-model).', ...prose);
   else {
