@@ -96,8 +96,8 @@ function newerSchema(raw: unknown): Issue | undefined {
 
 /**
  * Reads one file. `.json` is parsed as JSON, anything else as YAML. The file is read in one synchronous call:
- * a spec file is small, and a read through the thread pool (open, stat, read and close as four queued
- * operations) costs about three times the CPU of the synchronous read, which a suite of many files pays per file.
+ * a spec file is small, and a read through the thread pool (open, stat, read and close as queued operations)
+ * costs more CPU than the synchronous read, once per file of a suite.
  */
 export async function loadSpecFile(path: string): Promise<LoadResult> {
   let text: string;
