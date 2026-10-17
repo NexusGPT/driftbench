@@ -25,6 +25,25 @@ describe('betaQuantile in the lower tail', () => {
   });
 });
 
+describe('betaQuantile above one half', () => {
+  const above = reference.betaQuantile.filter((c) => c.p > 0.5 && c.p !== 0.5);
+
+  it.each(above)('betaQuantile($p, $a, $b) keeps the digits of the upper tail', (c) => {
+    // p is exact and 1 - p is exact for p of 0.5 and above, so the root is determined to double precision.
+    expect(relative(betaQuantile(c.p, c.a, c.b), c.expected)).toBeLessThan(1e-11);
+  });
+
+  it('solves p near 1 through the upper tail: the round trip of the upper tail returns 1 - p', () => {
+    for (const [p, a, b] of [
+      [0.999999999999, 2, 5],
+      [0.9999999999, 3, 17],
+    ] as const) {
+      const x = betaQuantile(p, a, b);
+      expect(Math.abs(1 - incompleteBeta(x, a, b) - (1 - p)) / (1 - p)).toBeLessThan(1e-9);
+    }
+  });
+});
+
 describe('betaQuantileUpper and the upper limit of clopperPearson', () => {
   it.each(reference.betaQuantileUpper)('betaQuantileUpper($q, $a, $b) matches the 60-digit root', (c) => {
     expect(relative(betaQuantileUpper(c.q, c.a, c.b), c.expected)).toBeLessThan(1e-10);
