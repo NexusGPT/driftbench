@@ -25,12 +25,12 @@ next:
 | Verdict | Exit | When |
 |---|---|---|
 | `PARITY` (`parity`) | 0 | `compare` says non-inferior: the all-pass flag and every gating criterion that is not underpowered have a 95% upper bound below the margin, and no flag family is new on the candidate |
-| `REGRESSION` (`regression`) | 1 | `compare` says regressed: a new gating flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved |
+| `REGRESSION` (`regression`) | 1 | `compare` says regressed: a new gating flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved. It outranks every verdict but radius-miss, so blocks not run, an incomplete cell or a failing aggregate never hide it; the first reason names the regressed goldens |
 | `NOT SHOWN NON-INFERIOR` (`not-shown-non-inferior`) | 1 | `compare` says unproven: an interval is wider than the margin. Too few goldens, never a regression |
-| `INCOMPLETE` (`incomplete`) | 1 | a candidate cell did not run: stopped by `--budget-usd`, or pending |
-| `AGGREGATE FAILED` (`aggregate-failed`) | 1 | a campaign-level criterion fails, unless the verdict was already incomplete |
+| `INCOMPLETE` (`incomplete`) | 1 | a candidate cell did not run: stopped by `--budget-usd`, or pending, and nothing regressed |
+| `AGGREGATE FAILED` (`aggregate-failed`) | 1 | a campaign-level criterion fails, unless the verdict is already regression, not-run or incomplete |
 | `RADIUS MISS` (`radius-miss`) | 1 | with `--change --audit`: an audited carried cell differs from its stored run. It outranks every other verdict |
-| `NOT RUN` (`not-run`) | 3 | a spec of the candidate has more of its blocks not run than `--max-not-run` allows (default 0: any block not run). A block not run is a Given the target cannot apply, never a pass. It outranks every verdict but radius-miss |
+| `NOT RUN` (`not-run`) | 3 | a spec of the candidate has more of its blocks not run than `--max-not-run` allows (default 0: any block not run). A block not run is a Given the target cannot apply, never a pass. It outranks every verdict but radius-miss and regression. The verdict never depends on an unrelated spec not run: a regression gives `REGRESSION`, exit 1, with or without it. A golden that flipped while compare calls the change noise is no regression |
 | none | 2 | bad input; nothing is run and nothing is written |
 
 On the same pair of campaigns `ci` and `compare` give the same verdict and the same exit code.
