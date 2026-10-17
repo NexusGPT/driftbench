@@ -578,6 +578,7 @@ describe('a live guard_positive row forces the act', () => {
     const ledger = result.specs.find(
       (record) =>
         record.testType === 'guard_positive' &&
+        record.mode === 'live' &&
         record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py',
     );
     const when = ledger ? (only(byId, ledger.id).blocks[0]?.when as { user?: string }) : undefined;
