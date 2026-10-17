@@ -22,7 +22,7 @@ The core is generic. It knows units, labels, fingerprints, ledgers, cassettes an
 
 "Rule, gate, example" is one way of labelling prose. A label set is a named list of labels the user declares and describes. Labels are data, not code.
 
-```yaml
+```text
 # driftbench.estate.yaml (or a file named by `labels: path` in it)
 labels:
   - set: agent-rules            # shipped as the default set for agent estates
