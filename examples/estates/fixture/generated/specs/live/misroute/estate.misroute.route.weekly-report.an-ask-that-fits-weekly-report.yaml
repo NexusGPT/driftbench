@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please help me with the weekly report or a summary of last week.
+      user: Please use the weekly-report skill for its task.
     expect:
       skills:
         - name: weekly-report
@@ -51,7 +51,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.weekly-report.an-ask-that-fits-weekly-report (situation)
+    askFrom: route.weekly-report.an-ask-that-fits-weekly-report (structured act)
     link:
       span: route.weekly-report.an-ask-that-fits-weekly-report
       fp: 87ed3871bace9182fea65db638d5470a8f0412d690c5c38967f50ba37d8f30ce
@@ -61,11 +61,11 @@ metadata:
       kind: skill
       name: weekly-report
     from:
-      form: situation
-      field: route.weekly-report.an-ask-that-fits-weekly-report#situation
+      form: structured act
+      field: route.weekly-report.an-ask-that-fits-weekly-report#structured act
       fp: 87ed3871bace9182fea65db638d5470a8f0412d690c5c38967f50ba37d8f30ce
       frame: misroute
-      shape: help me with {}
+      shape: use the {} skill for its task
       pieces:
-        - the weekly report or a summary of last week
+        - weekly-report
     outcome: no-delete

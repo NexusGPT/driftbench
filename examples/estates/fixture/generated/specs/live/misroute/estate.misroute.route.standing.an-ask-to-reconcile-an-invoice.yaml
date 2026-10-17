@@ -51,7 +51,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.standing.an-ask-to-reconcile-an-invoice (situation)
+    askFrom: route.standing.an-ask-to-reconcile-an-invoice (structured ask)
     link:
       span: route.standing.an-ask-to-reconcile-an-invoice
       fp: 427e359fb34ea68eccbb1e655877a9c5c07c8fedbccc700995e0d68329cf897e
@@ -61,8 +61,8 @@ metadata:
       kind: skill
       name: invoice-reconcile
     from:
-      form: situation
-      field: route.standing.an-ask-to-reconcile-an-invoice#situation
+      form: structured ask
+      field: route.standing.an-ask-to-reconcile-an-invoice#structured ask
       fp: 427e359fb34ea68eccbb1e655877a9c5c07c8fedbccc700995e0d68329cf897e
       frame: misroute
       shape: "{}"

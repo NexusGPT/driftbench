@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Could you audit the ledger for duplicate payments and invoices paid twice? The brief lacks the invoice or the order number. Thanks.
+      user: Could you delegate `ledger-auditor`? Thanks.
     expect:
       subagents:
         - name: ledger-auditor
@@ -52,7 +52,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: subagent.ledger-auditor.helper-ledger-auditor (description)
+    askFrom: instruction.ledger-auditor.a-brief-missing-a-number-gets (structured act)
     link:
       span: instruction.ledger-auditor.a-brief-missing-a-number-gets
       fp: 88c8be30ed5d4cc4946cfa5fb487d225eabb17d1bb2dbe0674a34b6d97c52038
@@ -63,13 +63,11 @@ metadata:
       name: ledger-auditor
       target: helper
     from:
-      form: description
-      field: subagent.ledger-auditor.helper-ledger-auditor#description
-      fp: 8fd8b99c2d0e6a54bd70890d02f8e562c04359680c48436154470d321b4efbf3
+      form: structured act
+      field: instruction.ledger-auditor.a-brief-missing-a-number-gets#structured act
+      fp: 88c8be30ed5d4cc4946cfa5fb487d225eabb17d1bb2dbe0674a34b6d97c52038
       frame: twin
-      shape: "{}"
-      context: "{}"
+      shape: delegate `{}`
       pieces:
-        - audit the ledger for duplicate payments and invoices paid twice
-        - The brief lacks the invoice or the order number
+        - ledger-auditor
     outcome: no-change:read-only

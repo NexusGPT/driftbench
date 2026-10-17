@@ -34,7 +34,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please check, match or reconcile an invoice.
+      user: Please use the invoice-reconcile skill for its task.
     expect:
       skills:
         - name: invoice-reconcile
@@ -68,7 +68,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: skill.invoice-reconcile.skill-invoice-reconcile (asks it names)
+    askFrom: instruction.invoice-reconcile.an-invoice-line-with-no-order (structured act)
     link:
       span: instruction.invoice-reconcile.an-invoice-line-with-no-order
       fp: 3a7e9ad13ddf4be595b65fbf8cde4e91078e907183cc8b7b131bc802c9345e75
@@ -79,13 +79,13 @@ metadata:
       name: invoice-reconcile
       target: skill
     from:
-      form: asks it names
-      field: skill.invoice-reconcile.skill-invoice-reconcile#asks it names
-      fp: 5d0404156288a5b0c0591447e6bde04acd722aa71b80494f4e2a78413aac4217
+      form: structured act
+      field: instruction.invoice-reconcile.an-invoice-line-with-no-order#structured act
+      fp: 3a7e9ad13ddf4be595b65fbf8cde4e91078e907183cc8b7b131bc802c9345e75
       frame: trigger
-      shape: "{}"
+      shape: use the {} skill for its task
       pieces:
-        - check, match or reconcile an invoice
+        - invoice-reconcile
     outcome: no-delete
     judged:
       - instruction.invoice-reconcile.an-invoice-line-with-no-order

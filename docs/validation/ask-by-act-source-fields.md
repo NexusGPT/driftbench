@@ -74,11 +74,10 @@ No schema gap remains for these seven additions: the existing `fields` and custo
 
 The fixture-suite recipe is implemented in `packages/validators/src/ladders/estate/bank/fixture-suite.ts`: copy `approved.yaml`, `plan.yaml`, `phrases.yaml` and `sessions/` to a scratch directory; approve every plan row; run `estate generate` against that copied map and plan.
 
-Use the same CLI sequence for committed generated output, through the task's required command-slot wrapper:
+Regenerate committed output with the already approved planner fixture, through the task's required command-slot wrapper. Leave the committed `examples/estates/fixture/plan.yaml` unchanged; approving its rows is only part of the separate scratch diagnostic recipe above.
 
 ```sh
-pnpm driftbench estate plan approve examples/estates/fixture/plan.yaml --all
-pnpm driftbench estate generate --map examples/estates/fixture/approved.yaml --plan examples/estates/fixture/plan.yaml --out examples/estates/fixture/generated
+pnpm driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out examples/estates/fixture/generated --force --json
 ```
 
 The complete diagnostic recipe is:

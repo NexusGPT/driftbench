@@ -18,7 +18,7 @@
       "payload": {
         "tool_name": "Bash",
         "tool_input": {
-          "command": "rm ledger/",
+          "command": "rm \"ledger/\"",
           "description": "unit test"
         },
         "tool_response": {
@@ -27,7 +27,7 @@
           "interrupted": false
         }
       },
-      "material": "rm ledger/"
+      "material": "rm \"ledger/\""
     }
   ]
 }

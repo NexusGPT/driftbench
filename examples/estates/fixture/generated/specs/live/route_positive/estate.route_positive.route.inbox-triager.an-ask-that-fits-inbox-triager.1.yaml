@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please sort the shared operations inbox into invoices, shipment questions and supplier mail.
+      user: Please delegate `inbox-triager`.
     expect:
       subagents:
         - name: inbox-triager
@@ -50,7 +50,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.inbox-triager.an-ask-that-fits-inbox-triager (situation)
+    askFrom: route.inbox-triager.an-ask-that-fits-inbox-triager (structured act)
     link:
       span: route.inbox-triager.an-ask-that-fits-inbox-triager
       fp: 9b3dbfc25fdb4fa0640aa8fe150fef15504d57db97f3642bd986e076301605fe
@@ -60,11 +60,11 @@ metadata:
       kind: helper
       name: inbox-triager
     from:
-      form: situation
-      field: route.inbox-triager.an-ask-that-fits-inbox-triager#situation
+      form: structured act
+      field: route.inbox-triager.an-ask-that-fits-inbox-triager#structured act
       fp: 9b3dbfc25fdb4fa0640aa8fe150fef15504d57db97f3642bd986e076301605fe
       frame: trigger
-      shape: "{}"
+      shape: delegate `{}`
       pieces:
-        - sort the shared operations inbox into invoices, shipment questions and supplier mail
+        - inbox-triager
     outcome: no-change:read-only

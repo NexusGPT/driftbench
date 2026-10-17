@@ -22,7 +22,7 @@
           "description": "unit test"
         }
       },
-      "material": "./scripts/track.sh  123"
+      "material": "{\"command\":\"./scripts/track.sh  123\",\"description\":\"unit test\"}"
     },
     {
       "id": "case-02",
@@ -33,7 +33,7 @@
           "description": "unit test"
         }
       },
-      "material": "./SCRIPTS/TRACK.SH 123"
+      "material": "{\"command\":\"./SCRIPTS/TRACK.SH 123\",\"description\":\"unit test\"}"
     },
     {
       "id": "case-03",
@@ -44,7 +44,7 @@
           "description": "unit test"
         }
       },
-      "material": "./scripts/track.sh '' 123"
+      "material": "{\"command\":\"./scripts/track.sh '' 123\",\"description\":\"unit test\"}"
     },
     {
       "id": "case-04",
@@ -55,10 +55,54 @@
           "description": "unit test"
         }
       },
-      "material": "echo ok && ./scripts/track.sh 123"
+      "material": "{\"command\":\"echo ok && ./scripts/track.sh 123\",\"description\":\"unit test\"}"
     },
     {
       "id": "case-05",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "./scripts/track.sh 123",
+          "description": "unit  test"
+        }
+      },
+      "material": "{\"command\":\"./scripts/track.sh 123\",\"description\":\"unit  test\"}"
+    },
+    {
+      "id": "case-06",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "./scripts/track.sh 123",
+          "description": "UNIT TEST"
+        }
+      },
+      "material": "{\"command\":\"./scripts/track.sh 123\",\"description\":\"UNIT TEST\"}"
+    },
+    {
+      "id": "case-07",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "./scripts/track.sh 123",
+          "description": "unit '' test"
+        }
+      },
+      "material": "{\"command\":\"./scripts/track.sh 123\",\"description\":\"unit '' test\"}"
+    },
+    {
+      "id": "case-08",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "./scripts/track.sh 123",
+          "description": "echo ok && unit test"
+        }
+      },
+      "material": "{\"command\":\"./scripts/track.sh 123\",\"description\":\"echo ok && unit test\"}"
+    },
+    {
+      "id": "case-09",
       "payload": {
         "tool_name": "Bash",
         "tool_input": {
@@ -66,10 +110,10 @@
           "description": "unit test"
         }
       },
-      "material": "./scripts/track.sh  NWX"
+      "material": "{\"command\":\"./scripts/track.sh  NWX\",\"description\":\"unit test\"}"
     },
     {
-      "id": "case-06",
+      "id": "case-10",
       "payload": {
         "tool_name": "Bash",
         "tool_input": {
@@ -77,10 +121,10 @@
           "description": "unit test"
         }
       },
-      "material": "./SCRIPTS/TRACK.SH NWX"
+      "material": "{\"command\":\"./SCRIPTS/TRACK.SH NWX\",\"description\":\"unit test\"}"
     },
     {
-      "id": "case-07",
+      "id": "case-11",
       "payload": {
         "tool_name": "Bash",
         "tool_input": {
@@ -88,10 +132,10 @@
           "description": "unit test"
         }
       },
-      "material": "./scripts/track.sh '' NWX"
+      "material": "{\"command\":\"./scripts/track.sh '' NWX\",\"description\":\"unit test\"}"
     },
     {
-      "id": "case-08",
+      "id": "case-12",
       "payload": {
         "tool_name": "Bash",
         "tool_input": {
@@ -99,7 +143,51 @@
           "description": "unit test"
         }
       },
-      "material": "echo ok && ./scripts/track.sh NWX"
+      "material": "{\"command\":\"echo ok && ./scripts/track.sh NWX\",\"description\":\"unit test\"}"
+    },
+    {
+      "id": "case-13",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "./scripts/track.sh NWX",
+          "description": "unit  test"
+        }
+      },
+      "material": "{\"command\":\"./scripts/track.sh NWX\",\"description\":\"unit  test\"}"
+    },
+    {
+      "id": "case-14",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "./scripts/track.sh NWX",
+          "description": "UNIT TEST"
+        }
+      },
+      "material": "{\"command\":\"./scripts/track.sh NWX\",\"description\":\"UNIT TEST\"}"
+    },
+    {
+      "id": "case-15",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "./scripts/track.sh NWX",
+          "description": "unit '' test"
+        }
+      },
+      "material": "{\"command\":\"./scripts/track.sh NWX\",\"description\":\"unit '' test\"}"
+    },
+    {
+      "id": "case-16",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "./scripts/track.sh NWX",
+          "description": "echo ok && unit test"
+        }
+      },
+      "material": "{\"command\":\"./scripts/track.sh NWX\",\"description\":\"echo ok && unit test\"}"
     }
   ]
 }

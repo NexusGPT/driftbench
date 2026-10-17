@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "No need to do anything: just tell me in one sentence what it would mean to help me with a delivery, a tracking number or a late shipment."
+      user: "No need to do anything: just tell me in one sentence what it would mean to use the shipment-tracker skill for its task."
     expect:
       skills:
         - name: shipment-tracker
@@ -50,7 +50,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.shipment-tracker.an-ask-that-fits-shipment-tracker (situation)
+    askFrom: route.shipment-tracker.an-ask-that-fits-shipment-tracker (structured act)
     link:
       span: route.shipment-tracker.an-ask-that-fits-shipment-tracker
       fp: 5a5207240ee62e81914d773e2738df1ee1ed480810a5835630bb96705dc3ce16
@@ -60,11 +60,11 @@ metadata:
       kind: skill
       name: shipment-tracker
     from:
-      form: situation
-      field: route.shipment-tracker.an-ask-that-fits-shipment-tracker#situation
+      form: structured act
+      field: route.shipment-tracker.an-ask-that-fits-shipment-tracker#structured act
       fp: 5a5207240ee62e81914d773e2738df1ee1ed480810a5835630bb96705dc3ce16
       frame: near_miss
-      shape: help me with {}
+      shape: use the {} skill for its task
       pieces:
-        - a delivery, a tracking number or a late shipment
+        - shipment-tracker
     outcome: no-change:negative

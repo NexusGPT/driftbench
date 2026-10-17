@@ -22,7 +22,7 @@
           "description": "unit test"
         }
       },
-      "material": "git  push  --force"
+      "material": "{\"command\":\"git  push  --force\",\"description\":\"unit test\"}"
     },
     {
       "id": "case-02",
@@ -33,7 +33,7 @@
           "description": "unit test"
         }
       },
-      "material": "GIT PUSH --FORCE"
+      "material": "{\"command\":\"GIT PUSH --FORCE\",\"description\":\"unit test\"}"
     },
     {
       "id": "case-03",
@@ -44,7 +44,7 @@
           "description": "unit test"
         }
       },
-      "material": "git '' push --force"
+      "material": "{\"command\":\"git '' push --force\",\"description\":\"unit test\"}"
     },
     {
       "id": "case-04",
@@ -55,7 +55,51 @@
           "description": "unit test"
         }
       },
-      "material": "echo ok && git push --force"
+      "material": "{\"command\":\"echo ok && git push --force\",\"description\":\"unit test\"}"
+    },
+    {
+      "id": "case-05",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "git push --force",
+          "description": "unit  test"
+        }
+      },
+      "material": "{\"command\":\"git push --force\",\"description\":\"unit  test\"}"
+    },
+    {
+      "id": "case-06",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "git push --force",
+          "description": "UNIT TEST"
+        }
+      },
+      "material": "{\"command\":\"git push --force\",\"description\":\"UNIT TEST\"}"
+    },
+    {
+      "id": "case-07",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "git push --force",
+          "description": "unit '' test"
+        }
+      },
+      "material": "{\"command\":\"git push --force\",\"description\":\"unit '' test\"}"
+    },
+    {
+      "id": "case-08",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "git push --force",
+          "description": "echo ok && unit test"
+        }
+      },
+      "material": "{\"command\":\"git push --force\",\"description\":\"echo ok && unit test\"}"
     }
   ]
 }

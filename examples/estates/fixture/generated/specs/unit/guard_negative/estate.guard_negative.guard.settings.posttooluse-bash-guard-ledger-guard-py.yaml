@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Without changing anything, tell me in one sentence what it would mean to delete a file under ledger/.
+      user: Without changing anything, tell me in one sentence what it would mean to run a command in the shell here.
     expect:
       guards:
         - name: ledger-guard.py
@@ -48,7 +48,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: guard.settings.posttooluse-bash-guard-ledger-guard-py (ruleText)
+    askFrom: guard.settings.posttooluse-bash-guard-ledger-guard-py (tool)
     link:
       span: guard.settings.posttooluse-bash-guard-ledger-guard-py
       fp: d3fadaa2d3c0facc1a86032005ccdc131bf78c9858a1cb017bacaaffd0535bb2
@@ -59,13 +59,13 @@ metadata:
       name: ledger-guard.py
       verdict: warn
     from:
-      form: ruleText
-      field: guard.settings.posttooluse-bash-guard-ledger-guard-py#ruleText
+      form: tool
+      field: guard.settings.posttooluse-bash-guard-ledger-guard-py#tool
       fp: d3fadaa2d3c0facc1a86032005ccdc131bf78c9858a1cb017bacaaffd0535bb2
       frame: guard_near_act
-      shape: "{}"
-      pieces:
-        - delete a file under ledger/
+      shape: run a command in the shell here
+      pieces: []
+      tool: Bash
     outcome: no-change:negative
     unit:
       target:

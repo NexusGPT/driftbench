@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please edit any invoice file.
+      user: Please read `.claude/skills/invoice-reconcile/references/matching-rules.md`.
     expect:
       references:
         - path: "**/.claude/skills/invoice-reconcile/references/matching-rules.md"
@@ -47,7 +47,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: reference.standing.read-claude-skills-invoice-reconcile-references (governed clause)
+    askFrom: reference.standing.read-claude-skills-invoice-reconcile-references (structured act)
     link:
       span: reference.standing.read-claude-skills-invoice-reconcile-references
       fp: e12ecf7ab42e0ea78dd8896e9e71ca4b8408f7de193bb345b9b6c9c6d7bcf8e6
@@ -57,11 +57,11 @@ metadata:
       kind: read
       target: .claude/skills/invoice-reconcile/references/matching-rules.md
     from:
-      form: governed clause
-      field: reference.standing.read-claude-skills-invoice-reconcile-references#governed clause
+      form: structured act
+      field: reference.standing.read-claude-skills-invoice-reconcile-references#structured act
       fp: e12ecf7ab42e0ea78dd8896e9e71ca4b8408f7de193bb345b9b6c9c6d7bcf8e6
       frame: trigger
-      shape: "{}"
+      shape: read `{}`
       pieces:
-        - edit any invoice file
+        - .claude/skills/invoice-reconcile/references/matching-rules.md
     outcome: no-delete

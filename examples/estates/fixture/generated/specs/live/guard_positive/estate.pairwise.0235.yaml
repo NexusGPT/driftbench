@@ -32,7 +32,7 @@ blocks:
           count:
             min: 1
       workspace:
-        deleted: []
+        others_untouched: true
 perturbations:
   - id: deviation-D3_contradiction
     class: D3_contradiction
@@ -63,7 +63,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: guard.settings.userpromptsubmit-guard-stop-word-sh (user prompt)
+    askFrom: guard.settings.userpromptsubmit-guard-stop-word-sh (structured ask)
     link:
       span: guard.settings.userpromptsubmit-guard-stop-word-sh
       fp: 6517b4facc46292b82f905ab949ae4e59b685923204188679a8a00658947d8d5
@@ -74,11 +74,11 @@ metadata:
       name: stop-word.sh
       verdict: nudge
     from:
-      form: user prompt
-      field: guard.settings.userpromptsubmit-guard-stop-word-sh#user prompt
+      form: structured ask
+      field: guard.settings.userpromptsubmit-guard-stop-word-sh#structured ask
       fp: 6517b4facc46292b82f905ab949ae4e59b685923204188679a8a00658947d8d5
       frame: verbatim
       shape: "{}"
       pieces:
         - stop
-    outcome: no-delete
+    outcome: no-change:guard

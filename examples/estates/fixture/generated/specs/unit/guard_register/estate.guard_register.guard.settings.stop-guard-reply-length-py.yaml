@@ -91,10 +91,12 @@ metadata:
       relation: exercises
       createdBy: generator
     act:
-      kind: reply
+      kind: guard
+      name: reply-length.py
+      verdict: deny
     from:
-      bank: open-items
-      phrase: 1
+      bank: long-status-report
+      phrase: 0
     outcome: bank
     unit:
       target:

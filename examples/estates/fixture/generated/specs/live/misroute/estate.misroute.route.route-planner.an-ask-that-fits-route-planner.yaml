@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please help me with the delivery plan of a day.
+      user: Please delegate `route-planner`.
     expect:
       subagents:
         - name: route-planner
@@ -51,7 +51,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.route-planner.an-ask-that-fits-route-planner (situation)
+    askFrom: route.route-planner.an-ask-that-fits-route-planner (structured act)
     link:
       span: route.route-planner.an-ask-that-fits-route-planner
       fp: b7ca00271c25a19bfca3bdadaf1926b9823a6191587dcee0bb3cee7032768ead
@@ -61,11 +61,11 @@ metadata:
       kind: helper
       name: route-planner
     from:
-      form: situation
-      field: route.route-planner.an-ask-that-fits-route-planner#situation
+      form: structured act
+      field: route.route-planner.an-ask-that-fits-route-planner#structured act
       fp: b7ca00271c25a19bfca3bdadaf1926b9823a6191587dcee0bb3cee7032768ead
       frame: misroute
-      shape: help me with {}
+      shape: delegate `{}`
       pieces:
-        - the delivery plan of a day
+        - route-planner
     outcome: no-delete

@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please check, match or reconcile an invoice. When the invoice is not in EUR.
+      user: Please read `.claude/skills/invoice-reconcile/references/currency-table.md`.
     expect:
       skills:
         - name: invoice-reconcile
@@ -53,7 +53,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: skill.invoice-reconcile.skill-invoice-reconcile (asks it names)
+    askFrom: reference.invoice-reconcile.read-references-currency-table-md (structured act)
     link:
       span: reference.invoice-reconcile.read-references-currency-table-md
       fp: 123dd607986fa70d29afe0cea484c56d778a41284e5f7e17caaab5ed93a97002
@@ -63,13 +63,11 @@ metadata:
       kind: read
       target: .claude/skills/invoice-reconcile/references/currency-table.md
     from:
-      form: asks it names
-      field: skill.invoice-reconcile.skill-invoice-reconcile#asks it names
-      fp: 5d0404156288a5b0c0591447e6bde04acd722aa71b80494f4e2a78413aac4217
+      form: structured act
+      field: reference.invoice-reconcile.read-references-currency-table-md#structured act
+      fp: 123dd607986fa70d29afe0cea484c56d778a41284e5f7e17caaab5ed93a97002
       frame: trigger
-      shape: "{}"
-      context: "{}"
+      shape: read `{}`
       pieces:
-        - check, match or reconcile an invoice
-        - When the invoice is not in EUR
+        - .claude/skills/invoice-reconcile/references/currency-table.md
     outcome: no-delete

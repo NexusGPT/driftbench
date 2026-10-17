@@ -50,7 +50,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.standing.an-ask-to-write-to-or (situation)
+    askFrom: route.standing.an-ask-to-write-to-or (structured ask)
     link:
       span: route.standing.an-ask-to-write-to-or
       fp: 309201071d12291a4d917a045010c02837863d1ea0f004baa65cb3184ee82f10
@@ -60,8 +60,8 @@ metadata:
       kind: skill
       name: supplier-email
     from:
-      form: situation
-      field: route.standing.an-ask-to-write-to-or#situation
+      form: structured ask
+      field: route.standing.an-ask-to-write-to-or#structured ask
       fp: 309201071d12291a4d917a045010c02837863d1ea0f004baa65cb3184ee82f10
       frame: near_miss
       shape: "{}"

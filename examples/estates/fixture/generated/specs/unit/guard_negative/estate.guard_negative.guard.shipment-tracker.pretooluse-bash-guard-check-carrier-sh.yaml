@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Without changing anything, tell me in one sentence what it would mean to run a command in the shell here to pass the carrier code to the tracking script.
+      user: Without changing anything, tell me in one sentence what it would mean to run a command in the shell here.
     expect:
       guards:
         - name: check-carrier.sh
@@ -65,9 +65,9 @@ metadata:
       field: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh#tool
       fp: ae7d8cdf4db42242e4f0793f8b4b05883f2b0302be4c188e2d3f264803e8c953
       frame: guard_near_act
-      shape: run a command in the shell here to {}
-      pieces:
-        - pass the carrier code to the tracking script
+      shape: run a command in the shell here
+      pieces: []
+      tool: Bash
     outcome: no-change:negative
     unit:
       target:

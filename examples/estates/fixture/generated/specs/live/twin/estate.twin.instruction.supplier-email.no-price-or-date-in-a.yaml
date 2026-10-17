@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Could you write to a supplier, answer one, or chase a late delivery or a missing credit note? Thanks.
+      user: Could you use the supplier-email skill for its task? Thanks.
     expect:
       skills:
         - name: supplier-email
@@ -54,7 +54,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: skill.supplier-email.skill-supplier-email (asks it names)
+    askFrom: instruction.supplier-email.no-price-or-date-in-a (structured act)
     link:
       span: instruction.supplier-email.no-price-or-date-in-a
       fp: cd1a231e497055a330b6353a7a96a8a3929a56d0980674d70065bf659d62745e
@@ -65,11 +65,11 @@ metadata:
       name: supplier-email
       target: skill
     from:
-      form: asks it names
-      field: skill.supplier-email.skill-supplier-email#asks it names
-      fp: 72bd688b10bca10559cee53e7444ac54c7f319f798013e6f2006e8d702dde788
+      form: structured act
+      field: instruction.supplier-email.no-price-or-date-in-a#structured act
+      fp: cd1a231e497055a330b6353a7a96a8a3929a56d0980674d70065bf659d62745e
       frame: twin
-      shape: "{}"
+      shape: use the {} skill for its task
       pieces:
-        - write to a supplier, answer one, or chase a late delivery or a missing credit note
+        - supplier-email
     outcome: no-change:read-only

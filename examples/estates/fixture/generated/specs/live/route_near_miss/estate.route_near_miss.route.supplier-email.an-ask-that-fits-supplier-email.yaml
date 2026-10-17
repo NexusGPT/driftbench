@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "No need to do anything: just tell me in one sentence what it would mean to write to a supplier, answer one, or chase a late delivery or a missing credit note."
+      user: "No need to do anything: just tell me in one sentence what it would mean to use the supplier-email skill for its task."
     expect:
       skills:
         - name: supplier-email
@@ -50,7 +50,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.supplier-email.an-ask-that-fits-supplier-email (situation)
+    askFrom: route.supplier-email.an-ask-that-fits-supplier-email (structured act)
     link:
       span: route.supplier-email.an-ask-that-fits-supplier-email
       fp: 6039dbbf139b5140eedfd1b71e3060c02d6a4998794526966b34231d6b2ab513
@@ -60,11 +60,11 @@ metadata:
       kind: skill
       name: supplier-email
     from:
-      form: situation
-      field: route.supplier-email.an-ask-that-fits-supplier-email#situation
+      form: structured act
+      field: route.supplier-email.an-ask-that-fits-supplier-email#structured act
       fp: 6039dbbf139b5140eedfd1b71e3060c02d6a4998794526966b34231d6b2ab513
       frame: near_miss
-      shape: "{}"
+      shape: use the {} skill for its task
       pieces:
-        - write to a supplier, answer one, or chase a late delivery or a missing credit note
+        - supplier-email
     outcome: no-change:negative

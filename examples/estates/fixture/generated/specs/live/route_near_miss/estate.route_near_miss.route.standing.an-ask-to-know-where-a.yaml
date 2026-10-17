@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "No need to do anything: just tell me in one sentence what it would mean to help me with a delivery, a tracking number or a late shipment."
+      user: "No need to do anything: just tell me in one sentence what it would mean to know where a shipment is."
     expect:
       skills:
         - name: shipment-tracker
@@ -50,7 +50,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: skill.shipment-tracker.skill-shipment-tracker (asks it names)
+    askFrom: route.standing.an-ask-to-know-where-a (structured ask)
     link:
       span: route.standing.an-ask-to-know-where-a
       fp: f8ee267adfd511b09ebb8ea660f993e1b5968d02cdd5d87a929a6eb53e9967cc
@@ -60,11 +60,11 @@ metadata:
       kind: skill
       name: shipment-tracker
     from:
-      form: asks it names
-      field: skill.shipment-tracker.skill-shipment-tracker#asks it names
-      fp: ef1bf02575dd862062412ec73a2b2428fa0ed65dfad4cc28f7b3f4e45abd3af5
+      form: structured ask
+      field: route.standing.an-ask-to-know-where-a#structured ask
+      fp: f8ee267adfd511b09ebb8ea660f993e1b5968d02cdd5d87a929a6eb53e9967cc
       frame: near_miss
-      shape: help me with {}
+      shape: "{}"
       pieces:
-        - a delivery, a tracking number or a late shipment
+        - know where a shipment is
     outcome: no-change:negative

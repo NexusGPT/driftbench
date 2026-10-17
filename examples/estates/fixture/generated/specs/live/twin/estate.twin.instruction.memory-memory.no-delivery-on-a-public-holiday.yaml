@@ -31,7 +31,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Could you reconcile a supplier invoice against its purchase order and the goods received? Thanks.
+      user: Could you plan a delivery for the next public holiday in the receiving country? Thanks.
     expect:
       workspace:
         deleted: []
@@ -54,7 +54,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (route nearest the rule)
+    askFrom: instruction.memory-memory.no-delivery-on-a-public-holiday (structured ask)
     link:
       span: instruction.memory-memory.no-delivery-on-a-public-holiday
       fp: cfe7892d64c7588aa193a0a49b5bdd7c876550c70079aae9d4c5e11368abbfce
@@ -63,13 +63,13 @@ metadata:
     act:
       kind: reply
     from:
-      form: route nearest the rule
-      field: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile#route nearest the rule
-      fp: d93b4fa8fa438ad670cb24af50281ad13800f37edd5c07119354ed83c19ef73a
+      form: structured ask
+      field: instruction.memory-memory.no-delivery-on-a-public-holiday#structured ask
+      fp: cfe7892d64c7588aa193a0a49b5bdd7c876550c70079aae9d4c5e11368abbfce
       frame: twin
       shape: "{}"
       pieces:
-        - reconcile a supplier invoice against its purchase order and the goods received
+        - plan a delivery for the next public holiday in the receiving country
     outcome: no-delete
     judged:
       - instruction.memory-memory.no-delivery-on-a-public-holiday

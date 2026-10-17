@@ -8,6 +8,7 @@ import { envOfSuite, judgeSpecs, TASK_TYPES } from '../../src/ladders/estate/ban
 
 const output = resolve(process.argv[2] ?? '/tmp/astra-askwords-fixture-gaps.json');
 const scratch = resolve(process.argv[3] ?? '/tmp/astra-askwords-fixture-gap-work');
+const staticOnly = process.argv.includes('--static-only');
 await mkdir(scratch, { recursive: true });
 process.env.TMPDIR = scratch;
 const suite = await fixtureSuite();
@@ -56,7 +57,7 @@ const ready = suite.specs.filter(
 let traceResults: Array<{ id: string; testType: string; reasons: string[] }>;
 let traceExecutionError: string | undefined;
 try {
-  traceResults = await judgeSpecs(ready, env);
+  traceResults = staticOnly ? [] : await judgeSpecs(ready, env);
 } catch (error) {
   traceExecutionError = error instanceof Error ? error.message : String(error);
   traceResults = ready.map((spec) => ({
@@ -74,13 +75,15 @@ const traced = traceResults.map((entry) => ({
 const artifact = {
   fixture: 'examples/estates/fixture',
   work: suite.work,
-  scope:
-    'All generator incomplete rows, native-unit omissions, static checkAsk verdicts and actual fake-agent traces for every static-passing complete ask.',
+  scope: staticOnly
+    ? 'All generator incomplete rows, native-unit omissions and static checkAsk verdicts. Traces are explicitly untested by this run.'
+    : 'All generator incomplete rows, native-unit omissions, static checkAsk verdicts and actual fake-agent traces for every static-passing complete ask.',
   summary: report.summary,
   population: { planRows: plan.rows.length, loadedSpecs: suite.specs.length, staticAsks: staticAsks.length },
   incomplete,
   unitGaps,
   traceExecutionError,
+  traceUnchecked: staticOnly ? ready.map((spec) => spec.id) : [],
   traceGaps: traced.filter((entry) => entry.reasons.length > 0),
   tracePasses: traced.filter((entry) => entry.reasons.length === 0),
   invalid: report.invalid ?? [],

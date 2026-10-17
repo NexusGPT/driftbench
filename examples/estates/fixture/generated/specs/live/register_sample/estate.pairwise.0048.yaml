@@ -31,7 +31,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please help me with the delivery plan of a day.
+      user: Please delegate `route-planner`.
     expect:
       subagents:
         - name: route-planner
@@ -67,7 +67,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: subagent.route-planner.helper-route-planner (asks it names)
+    askFrom: register.route-planner.the-plan-is-a-table-of (structured act)
     link:
       span: register.route-planner.the-plan-is-a-table-of
       fp: 4af7db8a12fab75fa7e11db6c3d14920630b1ffebc3aabc7d1315bb9544360b0
@@ -78,11 +78,11 @@ metadata:
       name: route-planner
       target: helper
     from:
-      form: asks it names
-      field: subagent.route-planner.helper-route-planner#asks it names
-      fp: 53cf02c01afd9d7e23c3fe81ea6804738b5502183f36043f43f6d56de139d8a8
+      form: structured act
+      field: register.route-planner.the-plan-is-a-table-of#structured act
+      fp: 4af7db8a12fab75fa7e11db6c3d14920630b1ffebc3aabc7d1315bb9544360b0
       frame: trigger
-      shape: help me with {}
+      shape: delegate `{}`
       pieces:
-        - the delivery plan of a day
+        - route-planner
     outcome: no-delete

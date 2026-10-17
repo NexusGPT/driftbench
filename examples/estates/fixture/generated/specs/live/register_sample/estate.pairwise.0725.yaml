@@ -96,6 +96,6 @@ metadata:
     act:
       kind: reply
     from:
-      bank: open-items
-      phrase: 1
+      bank: long-status-report
+      phrase: 0
     outcome: bank

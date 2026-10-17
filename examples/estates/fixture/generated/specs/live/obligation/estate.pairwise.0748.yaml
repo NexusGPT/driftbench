@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please help me with a delivery, a tracking number or a late shipment. The user gives no tracking number.
+      user: Please use the shipment-tracker skill for its task.
     expect:
       skills:
         - name: shipment-tracker
@@ -60,7 +60,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: skill.shipment-tracker.skill-shipment-tracker (asks it names)
+    askFrom: instruction.shipment-tracker.ask-for-the-tracking-number-when (structured act)
     link:
       span: instruction.shipment-tracker.ask-for-the-tracking-number-when
       fp: 3fa9ef6b787f7a093e5feb3ff3cfcab3eba4bbd79bf2cd3a33213029ef16c0d8
@@ -71,13 +71,11 @@ metadata:
       name: shipment-tracker
       target: skill
     from:
-      form: asks it names
-      field: skill.shipment-tracker.skill-shipment-tracker#asks it names
-      fp: ef1bf02575dd862062412ec73a2b2428fa0ed65dfad4cc28f7b3f4e45abd3af5
+      form: structured act
+      field: instruction.shipment-tracker.ask-for-the-tracking-number-when#structured act
+      fp: 3fa9ef6b787f7a093e5feb3ff3cfcab3eba4bbd79bf2cd3a33213029ef16c0d8
       frame: trigger
-      shape: help me with {}
-      context: "{}"
+      shape: use the {} skill for its task
       pieces:
-        - a delivery, a tracking number or a late shipment
-        - The user gives no tracking number
+        - shipment-tracker
     outcome: no-delete

@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "No need to do anything: just tell me in one sentence what it would mean to audit the ledger for duplicate payments and invoices paid twice."
+      user: "No need to do anything: just tell me in one sentence what it would mean to delegate `ledger-auditor`."
     expect:
       subagents:
         - name: ledger-auditor
@@ -50,7 +50,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.ledger-auditor.an-ask-that-fits-ledger-auditor (situation)
+    askFrom: route.ledger-auditor.an-ask-that-fits-ledger-auditor (structured act)
     link:
       span: route.ledger-auditor.an-ask-that-fits-ledger-auditor
       fp: b268e9e133cbdc4743c1d660bb356804ac861d878b2b96e2b6621db1ce80e58e
@@ -60,11 +60,11 @@ metadata:
       kind: helper
       name: ledger-auditor
     from:
-      form: situation
-      field: route.ledger-auditor.an-ask-that-fits-ledger-auditor#situation
+      form: structured act
+      field: route.ledger-auditor.an-ask-that-fits-ledger-auditor#structured act
       fp: b268e9e133cbdc4743c1d660bb356804ac861d878b2b96e2b6621db1ce80e58e
       frame: near_miss
-      shape: "{}"
+      shape: delegate `{}`
       pieces:
-        - audit the ledger for duplicate payments and invoices paid twice
+        - ledger-auditor
     outcome: no-change:negative

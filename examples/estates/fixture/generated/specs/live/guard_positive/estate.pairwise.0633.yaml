@@ -97,7 +97,9 @@ metadata:
       relation: exercises
       createdBy: generator
     act:
-      kind: reply
+      kind: guard
+      name: reply-length.py
+      verdict: deny
     from:
       bank: forced-long-reply
       phrase: 0

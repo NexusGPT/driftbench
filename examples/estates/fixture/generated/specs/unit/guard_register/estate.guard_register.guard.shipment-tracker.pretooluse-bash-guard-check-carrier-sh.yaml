@@ -97,8 +97,8 @@ metadata:
       name: check-carrier.sh
       verdict: deny
     from:
-      bank: shipment-late
-      phrase: 0
+      bank: carrier-code-lookup
+      phrase: 1
     outcome: bank
     unit:
       target:

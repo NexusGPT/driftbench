@@ -50,7 +50,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.standing.an-ask-to-audit-the-ledger (situation)
+    askFrom: route.standing.an-ask-to-audit-the-ledger (structured ask)
     link:
       span: route.standing.an-ask-to-audit-the-ledger
       fp: ec8409408d7dff1c7fdd7fa5903bc63d983fb921935f7c21aef6e3d08e0efcfe
@@ -60,8 +60,8 @@ metadata:
       kind: helper
       name: ledger-auditor
     from:
-      form: situation
-      field: route.standing.an-ask-to-audit-the-ledger#situation
+      form: structured ask
+      field: route.standing.an-ask-to-audit-the-ledger#structured ask
       fp: ec8409408d7dff1c7fdd7fa5903bc63d983fb921935f7c21aef6e3d08e0efcfe
       frame: near_miss
       shape: "{}"

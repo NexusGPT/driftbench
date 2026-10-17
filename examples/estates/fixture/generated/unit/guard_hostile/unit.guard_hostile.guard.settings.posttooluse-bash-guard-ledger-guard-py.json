@@ -18,7 +18,7 @@
       "payload": {
         "tool_name": "Bash",
         "tool_input": {
-          "command": "rm  ledger/",
+          "command": "rm  \"ledger/\"",
           "description": "unit test"
         },
         "tool_response": {
@@ -27,14 +27,14 @@
           "interrupted": false
         }
       },
-      "material": "rm  ledger/"
+      "material": "{\"command\":\"rm  \\\"ledger/\\\"\",\"description\":\"unit test\"}"
     },
     {
       "id": "case-02",
       "payload": {
         "tool_name": "Bash",
         "tool_input": {
-          "command": "RM LEDGER/",
+          "command": "RM \"LEDGER/\"",
           "description": "unit test"
         },
         "tool_response": {
@@ -43,14 +43,14 @@
           "interrupted": false
         }
       },
-      "material": "RM LEDGER/"
+      "material": "{\"command\":\"RM \\\"LEDGER/\\\"\",\"description\":\"unit test\"}"
     },
     {
       "id": "case-03",
       "payload": {
         "tool_name": "Bash",
         "tool_input": {
-          "command": "rm '' ledger/",
+          "command": "rm '' \"ledger/\"",
           "description": "unit test"
         },
         "tool_response": {
@@ -59,14 +59,14 @@
           "interrupted": false
         }
       },
-      "material": "rm '' ledger/"
+      "material": "{\"command\":\"rm '' \\\"ledger/\\\"\",\"description\":\"unit test\"}"
     },
     {
       "id": "case-04",
       "payload": {
         "tool_name": "Bash",
         "tool_input": {
-          "command": "echo ok && rm ledger/",
+          "command": "echo ok && rm \"ledger/\"",
           "description": "unit test"
         },
         "tool_response": {
@@ -75,7 +75,71 @@
           "interrupted": false
         }
       },
-      "material": "echo ok && rm ledger/"
+      "material": "{\"command\":\"echo ok && rm \\\"ledger/\\\"\",\"description\":\"unit test\"}"
+    },
+    {
+      "id": "case-05",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "rm \"ledger/\"",
+          "description": "unit  test"
+        },
+        "tool_response": {
+          "stdout": "",
+          "stderr": "",
+          "interrupted": false
+        }
+      },
+      "material": "{\"command\":\"rm \\\"ledger/\\\"\",\"description\":\"unit  test\"}"
+    },
+    {
+      "id": "case-06",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "rm \"ledger/\"",
+          "description": "UNIT TEST"
+        },
+        "tool_response": {
+          "stdout": "",
+          "stderr": "",
+          "interrupted": false
+        }
+      },
+      "material": "{\"command\":\"rm \\\"ledger/\\\"\",\"description\":\"UNIT TEST\"}"
+    },
+    {
+      "id": "case-07",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "rm \"ledger/\"",
+          "description": "unit '' test"
+        },
+        "tool_response": {
+          "stdout": "",
+          "stderr": "",
+          "interrupted": false
+        }
+      },
+      "material": "{\"command\":\"rm \\\"ledger/\\\"\",\"description\":\"unit '' test\"}"
+    },
+    {
+      "id": "case-08",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "rm \"ledger/\"",
+          "description": "echo ok && unit test"
+        },
+        "tool_response": {
+          "stdout": "",
+          "stderr": "",
+          "interrupted": false
+        }
+      },
+      "material": "{\"command\":\"rm \\\"ledger/\\\"\",\"description\":\"echo ok && unit test\"}"
     }
   ]
 }

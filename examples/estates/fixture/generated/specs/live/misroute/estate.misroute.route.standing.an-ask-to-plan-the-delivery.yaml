@@ -51,7 +51,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.standing.an-ask-to-plan-the-delivery (situation)
+    askFrom: route.standing.an-ask-to-plan-the-delivery (structured ask)
     link:
       span: route.standing.an-ask-to-plan-the-delivery
       fp: 45a66aac1af73dbdd0935638e401d5f53eb85559d6bd1d5f2954dc33c35e8b78
@@ -61,8 +61,8 @@ metadata:
       kind: helper
       name: route-planner
     from:
-      form: situation
-      field: route.standing.an-ask-to-plan-the-delivery#situation
+      form: structured ask
+      field: route.standing.an-ask-to-plan-the-delivery#structured ask
       fp: 45a66aac1af73dbdd0935638e401d5f53eb85559d6bd1d5f2954dc33c35e8b78
       frame: misroute
       shape: "{}"

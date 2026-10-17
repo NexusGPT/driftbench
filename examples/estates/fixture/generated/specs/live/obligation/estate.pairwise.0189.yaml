@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please draft, answer or chase an email to a supplier. The supplier is not in the language table.
+      user: Please draft a missing-invoice email to the fictional supplier Cedar Crates. Cedar Crates is absent from the supplier language table.
     expect:
       lang: EN
       workspace:
@@ -60,7 +60,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.supplier-email.an-ask-that-fits-supplier-email (route nearest the rule)
+    askFrom: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and (structured ask)
     link:
       span: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
       fp: df92803514ae0dd121783f91adfd59947061c0c9ff1184672f790017bf3fc07b
@@ -69,13 +69,13 @@ metadata:
     act:
       kind: reply
     from:
-      form: route nearest the rule
-      field: route.supplier-email.an-ask-that-fits-supplier-email#route nearest the rule
-      fp: 6039dbbf139b5140eedfd1b71e3060c02d6a4998794526966b34231d6b2ab513
+      form: structured ask
+      field: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and#structured ask
+      fp: df92803514ae0dd121783f91adfd59947061c0c9ff1184672f790017bf3fc07b
       frame: trigger
       shape: "{}"
-      context: "{}"
       pieces:
-        - draft, answer or chase an email to a supplier
-        - The supplier is not in the language table
+        - draft a missing-invoice email to the fictional supplier Cedar Crates
+        - Cedar Crates is absent from the supplier language table
+      context: "{}"
     outcome: no-delete

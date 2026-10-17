@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please check, match or reconcile an invoice.
+      user: Please use the invoice-reconcile skill for its task.
     expect:
       skills:
         - name: invoice-reconcile
@@ -51,7 +51,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (situation)
+    askFrom: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile (structured act)
     link:
       span: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
       fp: d93b4fa8fa438ad670cb24af50281ad13800f37edd5c07119354ed83c19ef73a
@@ -61,11 +61,11 @@ metadata:
       kind: skill
       name: invoice-reconcile
     from:
-      form: situation
-      field: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile#situation
+      form: structured act
+      field: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile#structured act
       fp: d93b4fa8fa438ad670cb24af50281ad13800f37edd5c07119354ed83c19ef73a
       frame: misroute
-      shape: "{}"
+      shape: use the {} skill for its task
       pieces:
-        - check, match or reconcile an invoice
+        - invoice-reconcile
     outcome: no-delete

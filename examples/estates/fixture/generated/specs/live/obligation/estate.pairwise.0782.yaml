@@ -33,7 +33,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please help me with a delivery, a tracking number or a late shipment. The carrier answers with an error.
+      user: Please use the shipment-tracker skill for its task.
     expect:
       skills:
         - name: shipment-tracker
@@ -74,7 +74,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: skill.shipment-tracker.skill-shipment-tracker (asks it names)
+    askFrom: instruction.shipment-tracker.on-a-carrier-error-say-so (structured act)
     link:
       span: instruction.shipment-tracker.on-a-carrier-error-say-so
       fp: 8b561381ecbdf8e7bbfa87e1624f3aacd10a94b8d8bf60b25cceef691be2fcae
@@ -85,15 +85,13 @@ metadata:
       name: shipment-tracker
       target: skill
     from:
-      form: asks it names
-      field: skill.shipment-tracker.skill-shipment-tracker#asks it names
-      fp: ef1bf02575dd862062412ec73a2b2428fa0ed65dfad4cc28f7b3f4e45abd3af5
+      form: structured act
+      field: instruction.shipment-tracker.on-a-carrier-error-say-so#structured act
+      fp: 8b561381ecbdf8e7bbfa87e1624f3aacd10a94b8d8bf60b25cceef691be2fcae
       frame: trigger
-      shape: help me with {}
-      context: "{}"
+      shape: use the {} skill for its task
       pieces:
-        - a delivery, a tracking number or a late shipment
-        - The carrier answers with an error
+        - shipment-tracker
     outcome: no-delete
     judged:
       - instruction.shipment-tracker.on-a-carrier-error-say-so

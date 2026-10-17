@@ -26,7 +26,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please edit a file.
+      user: Please edit the existing invoice matching rules file.
     expect:
       skills:
         - name: invoice-reconcile
@@ -63,7 +63,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: gate.standing.read-a-file-before-editing-it (enforced by guard.settings.pretooluse-edit-write-guard-read-before)
+    askFrom: guard.settings.pretooluse-edit-write-guard-read-before (structured ask)
     link:
       span: guard.settings.pretooluse-edit-write-guard-read-before
       fp: bbcd2051e28ce971d38bb6b50abe32e2f9898d03c08d4a979083985e9a7b3574
@@ -74,11 +74,11 @@ metadata:
       name: read-before-edit.py
       verdict: deny
     from:
-      form: enforced by
-      field: gate.standing.read-a-file-before-editing-it#enforced by guard.settings.pretooluse-edit-write-guard-read-before
-      fp: 3a6cc83bfb2f17fed7d3479ff4ab9b0fd26926cad5ae8566f0defbd93648f935
+      form: structured ask
+      field: guard.settings.pretooluse-edit-write-guard-read-before#structured ask
+      fp: bbcd2051e28ce971d38bb6b50abe32e2f9898d03c08d4a979083985e9a7b3574
       frame: trigger
       shape: "{}"
       pieces:
-        - edit a file
+        - edit the existing invoice matching rules file
     outcome: no-change:guard

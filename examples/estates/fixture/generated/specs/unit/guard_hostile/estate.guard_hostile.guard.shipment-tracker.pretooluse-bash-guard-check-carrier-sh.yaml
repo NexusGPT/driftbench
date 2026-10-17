@@ -88,8 +88,8 @@ metadata:
       name: check-carrier.sh
       verdict: deny
     from:
-      bank: shipment-late
-      phrase: 0
+      bank: carrier-code-lookup
+      phrase: 1
     outcome: bank
     unit:
       target:
@@ -113,61 +113,117 @@ metadata:
             tool_input:
               command: ./scripts/track.sh  123
               description: unit test
-          material: ./scripts/track.sh  123
+          material: '{"command":"./scripts/track.sh  123","description":"unit test"}'
         - id: case-03
           payload:
             tool_name: Bash
             tool_input:
               command: ./SCRIPTS/TRACK.SH 123
               description: unit test
-          material: ./SCRIPTS/TRACK.SH 123
+          material: '{"command":"./SCRIPTS/TRACK.SH 123","description":"unit test"}'
         - id: case-04
           payload:
             tool_name: Bash
             tool_input:
               command: ./scripts/track.sh '' 123
               description: unit test
-          material: ./scripts/track.sh '' 123
+          material: "{\"command\":\"./scripts/track.sh '' 123\",\"description\":\"unit test\"}"
         - id: case-05
           payload:
             tool_name: Bash
             tool_input:
               command: echo ok && ./scripts/track.sh 123
               description: unit test
-          material: echo ok && ./scripts/track.sh 123
+          material: '{"command":"echo ok && ./scripts/track.sh 123","description":"unit test"}'
         - id: case-06
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ./scripts/track.sh 123
+              description: unit  test
+          material: '{"command":"./scripts/track.sh 123","description":"unit  test"}'
+        - id: case-07
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ./scripts/track.sh 123
+              description: UNIT TEST
+          material: '{"command":"./scripts/track.sh 123","description":"UNIT TEST"}'
+        - id: case-08
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ./scripts/track.sh 123
+              description: unit '' test
+          material: "{\"command\":\"./scripts/track.sh 123\",\"description\":\"unit '' test\"}"
+        - id: case-09
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ./scripts/track.sh 123
+              description: echo ok && unit test
+          material: '{"command":"./scripts/track.sh 123","description":"echo ok && unit test"}'
+        - id: case-10
           payload:
             tool_name: Bash
             tool_input:
               command: ./scripts/track.sh NWX
               description: unit test
           material: ./scripts/track.sh NWX
-        - id: case-07
+        - id: case-11
           payload:
             tool_name: Bash
             tool_input:
               command: ./scripts/track.sh  NWX
               description: unit test
-          material: ./scripts/track.sh  NWX
-        - id: case-08
+          material: '{"command":"./scripts/track.sh  NWX","description":"unit test"}'
+        - id: case-12
           payload:
             tool_name: Bash
             tool_input:
               command: ./SCRIPTS/TRACK.SH NWX
               description: unit test
-          material: ./SCRIPTS/TRACK.SH NWX
-        - id: case-09
+          material: '{"command":"./SCRIPTS/TRACK.SH NWX","description":"unit test"}'
+        - id: case-13
           payload:
             tool_name: Bash
             tool_input:
               command: ./scripts/track.sh '' NWX
               description: unit test
-          material: ./scripts/track.sh '' NWX
-        - id: case-10
+          material: "{\"command\":\"./scripts/track.sh '' NWX\",\"description\":\"unit test\"}"
+        - id: case-14
           payload:
             tool_name: Bash
             tool_input:
               command: echo ok && ./scripts/track.sh NWX
               description: unit test
-          material: echo ok && ./scripts/track.sh NWX
+          material: '{"command":"echo ok && ./scripts/track.sh NWX","description":"unit test"}'
+        - id: case-15
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ./scripts/track.sh NWX
+              description: unit  test
+          material: '{"command":"./scripts/track.sh NWX","description":"unit  test"}'
+        - id: case-16
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ./scripts/track.sh NWX
+              description: UNIT TEST
+          material: '{"command":"./scripts/track.sh NWX","description":"UNIT TEST"}'
+        - id: case-17
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ./scripts/track.sh NWX
+              description: unit '' test
+          material: "{\"command\":\"./scripts/track.sh NWX\",\"description\":\"unit '' test\"}"
+        - id: case-18
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ./scripts/track.sh NWX
+              description: echo ok && unit test
+          material: '{"command":"./scripts/track.sh NWX","description":"echo ok && unit test"}'
       budgetMs: 60000
