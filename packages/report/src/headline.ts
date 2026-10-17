@@ -109,7 +109,7 @@ export function suiteHeadline(
   // A run is read as a forest when its spec has parent links or one of its blocks names a parent: a subset
   // run that recorded only roots still belongs to those roots, not to the golden as a whole.
   const forest = (run: RunResult) =>
-    options.parentsOf?.(run) !== undefined || run.blocks.some((block) => block.parent !== undefined);
+    (options.parentsOf?.(run)?.size ?? 0) > 0 || run.blocks.some((block) => block.parent !== undefined);
   const linked = runs.some(forest);
   const samples = new Map<string, boolean[]>();
   for (const run of runs) {
