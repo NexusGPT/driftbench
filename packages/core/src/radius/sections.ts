@@ -398,7 +398,8 @@ function markdownHeadings(text: string, level: number): { at: number; title: str
  * setext, never one inside a fenced code block, none in a leading front matter block), from the heading to the
  * next one, the text before the first heading as `preamble`. Ids are the slugged titles; a repeated slug takes
  * the next free `_2`, `_3`, ... A heading whose section holds no quote that is unique in the prompt (an empty
- * heading next to another) is folded into the section before it, or into the one after it when it comes first.
+ * heading next to another, one with no word of its own) is folded into the section before it, or into the one
+ * after it when it comes first. Two sections with text and no unique quote stop with an error.
  * Every section starts global, the safe reading: the author marks local the sections that reach only
  * the blocks linked to them, and adds references and overrides.
  */
