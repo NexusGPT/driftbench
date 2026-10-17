@@ -224,7 +224,7 @@ function patternCause(pattern: Pattern, capability: string): string {
     case 'all-fail':
       return 'The runner records a block as pass or fail from its gating verdicts alone, and a run fails on any failing block.';
     default:
-      return 'The runner records not_run for a block its adapter cannot set up (a tool stub, a prefix) and still runs every other block.';
+      return 'The runner records not_run for a block its adapter cannot set up (a tool stub, a prefix): in mode T every other block still runs; in modes F and P the blocks after it are not_run too.';
   }
 }
 
