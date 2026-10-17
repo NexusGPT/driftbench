@@ -45,7 +45,14 @@ type NormalBlock = {
 };
 
 /** A NORMAL spec from explicit blocks, played by a scripted agent; returns the record and every turn it saw. */
-async function playNormal(product: BlocksProduct, seed: number, tag: string, blocks: NormalBlock[]) {
+async function playNormal(product: BlocksProduct, seed: number, tag: string, given: NormalBlock[]) {
+  // A bystander: a root written second, which no other block descends from. A block with a parent must never see
+  // its turn, so a runner that keeps the parent key and runs the blocks in written order fails every item.
+  const bystander: NormalBlock = {
+    id: token(seed, `${tag}#bystander`),
+    marker: token(seed, `${tag}#bystander`, 8),
+  };
+  const blocks = [...given.slice(0, 1), bystander, ...given.slice(1)];
   const log: AgentLog = { turns: [] };
   const replies = new Map(
     blocks.map((block) => [block.marker, () => block.reply ?? observed(`Noted (${block.marker}).`)]),
@@ -65,7 +72,19 @@ async function playNormal(product: BlocksProduct, seed: number, tag: string, blo
   };
   const record = await run(product, raw, adapter);
   const turnOf = (marker: string) => log.turns.filter((turn) => turn.user.includes(marker));
-  return { record, turnOf };
+  const leak = given
+    .filter((block) => block.parent !== undefined)
+    .find((block) =>
+      turnOf(block.marker).some((turn) =>
+        turn.messages.some((msg) => msg.content.includes(bystander.marker)),
+      ),
+    );
+  const ancestry = leak
+    ? fail(
+        `${leak.id} should receive its ancestors' turns only; it received the turn of ${bystander.id}, a root of another tree`,
+      )
+    : undefined;
+  return { record, turnOf, ancestry };
 }
 
 /** A reply that calls one tool and gets its output or error back. */
@@ -141,7 +160,8 @@ function normalInheritItems(): BankItem[] {
         marker: m[i] as string,
         ...(i > 0 && i < n ? { parent: b[i - 1] } : {}),
       }));
-      const { turnOf } = await playNormal(product, seed, id, blocks);
+      const { turnOf, ancestry } = await playNormal(product, seed, id, blocks);
+      if (ancestry) return ancestry;
       const last = turnOf(m[n] as string)[0];
       if (!last) return fail(`${b[n]}, a second root, should reach the agent; it never did`);
       const foreign = m
@@ -175,7 +195,8 @@ function normalInheritItems(): BankItem[] {
         },
         { id: b[1] as string, marker: m[1] as string, parent: b[0] },
       ];
-      const { turnOf } = await playNormal(product, seed, id, blocks);
+      const { turnOf, ancestry } = await playNormal(product, seed, id, blocks);
+      if (ancestry) return ancestry;
       const child = turnOf(m[1] as string)[0];
       if (!child) return fail(`${b[1]} should reach the agent; it never did`);
       const calls = child.messages
@@ -218,7 +239,8 @@ function normalInheritItems(): BankItem[] {
             }
           : {}),
       }));
-      const { turnOf } = await playNormal(product, seed, id, blocks);
+      const { turnOf, ancestry } = await playNormal(product, seed, id, blocks);
+      if (ancestry) return ancestry;
       const child = turnOf(m[n] as string)[0];
       if (!child) return fail(`${b[n]} should reach the agent; it never did`);
       const inherited = m
@@ -253,7 +275,8 @@ function normalInheritItems(): BankItem[] {
         { id: b[3] as string, marker: m[3] as string },
       ];
       const order = rng() < 0.5 ? blocks : [blocks[0], blocks[3], blocks[1], blocks[2]];
-      const { turnOf } = await playNormal(product, seed, id, order as NormalBlock[]);
+      const { turnOf, ancestry } = await playNormal(product, seed, id, order as NormalBlock[]);
+      if (ancestry) return ancestry;
       const world = (marker: string) => JSON.stringify(turnOf(marker)[0]?.world ?? {});
       if (!world(m[2] as string).includes(mine) || !world(m[2] as string).includes(own))
         return fail(
@@ -282,7 +305,8 @@ function normalInheritItems(): BankItem[] {
         marker: m[i] as string,
         ...(i > 0 ? { parent: b[0] } : {}),
       }));
-      const { turnOf } = await playNormal(product, seed, id, shuffled(rng, blocks));
+      const { turnOf, ancestry } = await playNormal(product, seed, id, shuffled(rng, blocks));
+      if (ancestry) return ancestry;
       const counts = m.map((marker) => turnOf(marker).length);
       const wrong = counts.flatMap((count, i) => (count === 1 ? [] : [`${b[i]} ${count} times`]));
       return wrong.length === 0 ? PASS : fail(`each block should reach the agent once; ${list(wrong)}`);
@@ -545,8 +569,9 @@ function codeExportItems(): BankItem[] {
         check: async ({ seed, scratch, product }) => {
           const rng = rngFor(seed, id);
           const planted = each.plant(seed, id, rng);
-          const b = ids(seed, id, 3);
-          const m = marks(seed, id, 3);
+          // Three chained blocks and a fourth, unrelated root written last: it starts from the spec's own seed.
+          const b = ids(seed, id, 4);
+          const m = marks(seed, id, 4);
           const raw: RawSpec = {
             id: `spec-${token(seed, `${id}#spec`)}`,
             kind: 'task',
@@ -554,7 +579,7 @@ function codeExportItems(): BankItem[] {
             blocks: b.map((blockId, i) => ({
               id: blockId,
               user: `${m[i]} Step ${i + 1}.`,
-              ...(i > 0 ? { parent: b[i - 1] } : {}),
+              ...(i > 0 && i < 3 ? { parent: b[i - 1] } : {}),
               ...(i === 1 && planted.childGiven ? { given: planted.childGiven } : {}),
               expect: { execution: { ran_code: true }, ...(i === 1 ? (planted.childExpect ?? {}) : {}) },
             })),
@@ -576,6 +601,17 @@ function codeExportItems(): BankItem[] {
             const child = turns.find((turn) => turn.marker === m[1]);
             const at = (index: number) =>
               record.blocks.find((block) => block.blockId === b[index]) as Got['child'] & Got['grandchild'];
+            const written = [
+              ...(planted.parent.files ?? []).map((file) => file.path),
+              ...(planted.parent.links ?? []).map((link) => link.path),
+            ];
+            const other = turns.find((turn) => turn.marker === m[3]);
+            if (!other) return fail(`${b[3]}, an unrelated root, should run; the agent never received it`);
+            const leaked = written.filter((path) => other.digests?.[path] !== undefined);
+            if (leaked.length > 0)
+              return fail(
+                `${b[3]}, an unrelated root, should start from the spec's seed; it saw ${list(leaked)}, written by another tree`,
+              );
             const problem = planted.judge({
               childFiles: child?.digests,
               child: at(1),
@@ -670,8 +706,10 @@ function generalItems(): BankItem[] {
                 snapshot: KIND_CAPS[kind as Kind].snapshot,
               });
               try {
-                const { record, delivered } = await play(product, shuffledRecipe, scratch, { mode });
-                return judge(product, r, record, truth, delivered);
+                const { record, delivered, deliveries } = await play(product, shuffledRecipe, scratch, {
+                  mode,
+                });
+                return judge(product, r, record, truth, delivered, deliveries);
               } catch (error) {
                 return guard(error);
               }

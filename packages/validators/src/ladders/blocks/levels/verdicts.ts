@@ -1,7 +1,16 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { stringify } from 'yaml';
-import { between, type Capabilities, outcomeOf, type RunRecord, rngFor, run, statusOf } from '../harness';
+import {
+  between,
+  type Capabilities,
+  list,
+  outcomeOf,
+  type RunRecord,
+  rngFor,
+  run,
+  statusOf,
+} from '../harness';
 import { startHttpAgent } from '../http-agent';
 import { KINDS, type Kind, plantedAgent, token } from '../kinds';
 import { type BlocksProduct, need } from '../product';
@@ -118,6 +127,10 @@ export function judge(
   record: RunRecord,
   truth: ReadonlyMap<string, Truth>,
   delivered: readonly (string | undefined)[],
+  deliveries?: readonly {
+    marker: string | undefined;
+    history: readonly { role: string; content: string }[];
+  }[],
 ): ItemResult {
   const skipReason = need<(block: unknown) => string | undefined>(product.core, 'core', 'skipReason');
   const byId = new Map(record.blocks.map((block) => [block.blockId, block]));
@@ -166,6 +179,29 @@ export function judge(
       return fail(
         `${block.id} should be blocked by ${want.blockedBy} (root ${want.root}); got by ${got.blocked?.by} (root ${got.blocked?.root})`,
       );
+  }
+  // A parent-linked spec runs as a forest: what reaches a block is its ancestors' turns, in order, and nothing of
+  // another branch. A runner that keeps the parent key and runs the blocks in written order fails here.
+  const parentOf = new Map(
+    (r.raw.blocks as { id?: string; parent?: string }[]).map((block) => [block.id, block.parent] as const),
+  );
+  if (deliveries && [...parentOf.values()].some((parent) => parent !== undefined)) {
+    const markerOf = new Map(r.blocks.map((block) => [block.id, block.marker]));
+    for (const block of r.blocks) {
+      const turn = deliveries.find((each) => each.marker === block.marker);
+      if (!turn) continue;
+      const lineage: string[] = [];
+      for (let at = parentOf.get(block.id); at !== undefined; at = parentOf.get(at))
+        lineage.unshift(markerOf.get(at) as string);
+      const seen = turn.history
+        .filter((message) => message.role === 'user')
+        .map((message) => r.blocks.find((each) => message.content.includes(each.marker))?.marker)
+        .filter((marker): marker is string => marker !== undefined && marker !== block.marker);
+      if (seen.join(',') !== lineage.join(','))
+        return fail(
+          `${block.id} should receive the turns of its ancestors only, in order (${lineage.length === 0 ? 'none' : list(lineage.map((m) => r.blocks.find((b) => b.marker === m)?.id as string))}); it received ${seen.length === 0 ? 'none' : list(seen.map((m) => r.blocks.find((b) => b.marker === m)?.id as string))}`,
+        );
+    }
   }
   const outcome = outcomeOf(product, record);
   const wantOutcome = runVerdict(truth);
@@ -272,8 +308,15 @@ function patternItems(): BankItem[] {
               const r = recipe(seed, id, kind, plans, { parents: pattern.parents === true });
               const setting = settingOf(kind, capability.off, mode, pattern.parents === true);
               const truth = settle(r, plans, setting);
-              const { record, delivered } = await play(product, r, scratch, { mode, off: capability.off });
-              return judge(product, r, record, truth, delivered);
+              // A parent-linked spec is written children first: the forest order is the runner's job, not the file's.
+              const written = pattern.parents
+                ? { ...r, raw: { ...r.raw, blocks: [...r.raw.blocks].reverse() } }
+                : r;
+              const { record, delivered, deliveries } = await play(product, written, scratch, {
+                mode,
+                off: capability.off,
+              });
+              return judge(product, r, record, truth, delivered, deliveries);
             },
           });
         }
@@ -315,7 +358,11 @@ function tallyItems(): BankItem[] {
                   : p.parents === true,
             );
             for (let index = 0; index < size; index += 1) {
-              const pattern = pool[Math.floor(rng() * pool.length)] as Pattern;
+              // A tally with blocked runs holds at least one: the first run's root fails, so its children are blocked.
+              const pattern =
+                mix === 'with-blocked' && index === 0
+                  ? (PATTERNS.find((p) => p.id === 'chain-root-fails') as Pattern)
+                  : (pool[Math.floor(rng() * pool.length)] as Pattern);
               const plans = pattern.plan(3, 1);
               const r = recipe(seed, `${id}#${index}`, kind, plans, { parents: pattern.parents === true });
               const truth = settle(r, plans, settingOf(kind, {}, 'F', pattern.parents === true));

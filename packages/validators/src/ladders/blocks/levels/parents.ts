@@ -121,7 +121,13 @@ function forestPlans(rng: Rng, shape: Shape, placement: Placement, small: boolea
   const plans: BlockPlan[] = parents.map(
     (parent, i) => ({ fate: 'pass', ...(parent === -1 ? {} : { parent }), ...changes[i] }) as BlockPlan,
   );
-  return { plans, written: forward ? shuffled(rng, [...plans.keys()]) : [...plans.keys()] };
+  if (!forward) return { plans, written: [...plans.keys()] };
+  // Written out of order: at least one child comes before its parent, so the forest order is the runner's work.
+  let written = shuffled(rng, [...plans.keys()]);
+  const childFirst = (order: number[]) =>
+    plans.some((plan, i) => plan.parent !== undefined && order.indexOf(i) < order.indexOf(plan.parent));
+  if (!childFirst(written)) written = [...plans.keys()].reverse();
+  return { plans, written };
 }
 
 function verdictItems(): BankItem[] {
@@ -130,7 +136,7 @@ function verdictItems(): BankItem[] {
     for (const shape of SHAPES) {
       for (const placement of PLACEMENTS) {
         if (kind === 'code' && shape.tier >= 4 && placement.tier === 0) continue;
-        const forward = shape.tier >= 3 || placement.id === 'two-causes';
+        const forward = true;
         const id = `parents/verdicts/${kind}/${shape.id}/${placement.id}`;
         items.push({
           id,
@@ -163,8 +169,8 @@ function verdictItems(): BankItem[] {
               toolStubs: kind === 'code' ? KIND_CAPS.code.toolStubs : !plans.some((plan) => plan.stub),
               snapshot: KIND_CAPS[kind].snapshot,
             });
-            const { record, delivered } = await play(product, r, scratch, { off });
-            const verdict = judge(product, r, record, truth, delivered);
+            const { record, delivered, deliveries } = await play(product, r, scratch, { off });
+            const verdict = judge(product, r, record, truth, delivered, deliveries);
             if (!verdict.pass) return verdict;
             const countBlocks = need<(blocks: unknown[]) => Record<string, number>>(
               product.core,
@@ -224,9 +230,23 @@ function stateItems(): BankItem[] {
                   : "A child's history holds each ancestor's user turn once.",
           check: async ({ seed, scratch, product }) => {
             const rng = rngFor(seed, id);
-            const { plans } = forestPlans(rng, shape, PLACEMENTS[0] as Placement, kind === 'code', false);
+            const { plans, written } = forestPlans(
+              rng,
+              shape,
+              PLACEMENTS[0] as Placement,
+              kind === 'code',
+              true,
+            );
             const r = recipe(seed, id, kind, plans, { parents: true });
-            const { deliveries } = await play(product, r, scratch);
+            // Written out of order: a child before its parent, so the history is the forest's, not the file's.
+            const { deliveries } = await play(
+              product,
+              {
+                ...r,
+                raw: { ...r.raw, blocks: written.map((i) => r.raw.blocks[i] as Record<string, unknown>) },
+              },
+              scratch,
+            );
             const markers = r.blocks.map((block) => block.marker);
             for (const [i, block] of r.blocks.entries()) {
               const turns = deliveries.filter((each) => each.marker === block.marker);
