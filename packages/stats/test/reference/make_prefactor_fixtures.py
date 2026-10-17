@@ -153,6 +153,17 @@ for z in (-1, 0):
 for k in (0, 1, 2):
     binom_cases.append(dict(k=k, n=1000, p=0.5, expected=float(binom_cdf(k, 1000, 0.5))))
 
+# The deviance term bd0(x, np) = x log(x / np) + np - x at 60 digits, on both sides of the 10 percent window where
+# the code switches from the direct form to a series. x and np are exact doubles.
+mp.dps = 60
+bd0_cases = []
+for x in (1e8, 1e10):
+    for ratio in (0.5, 0.8, 0.9, 0.95, 0.99, 1.0, 1.01, 1.05, 1.1, 1.15, 1.3, 2.0):
+        np_ = x * ratio
+        value = mpf(x) * log(mpf(x) / mpf(np_)) + mpf(np_) - mpf(x)
+        bd0_cases.append(dict(x=x, np=np_, expected=float(value)))
+mp.dps = 50
+
 artifact = dict(
     method="50-digit sums of probability masses from the mode (binomial, Poisson); incomplete beta and chi-square sf through their integer identities",
     dependencies=dict(mpmath=mpmath.__version__, scipy=scipy.__version__),
@@ -160,6 +171,7 @@ artifact = dict(
     chiSquareSf=chi_cases,
     binomialCdf=binom_cases,
     binomialCdfGiant=giant,
+    bd0=bd0_cases,
 )
 out = Path(__file__).with_name("prefactor.json")
 out.write_text(json.dumps(artifact, allow_nan=False) + "\n")

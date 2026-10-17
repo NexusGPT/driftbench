@@ -47,7 +47,7 @@ function stirlingRemainder(z: number): number {
  * The deviance term x log(x / np) + np - x (Loader 2000, as in R's bd0), which is small when x is near np. Its
  * series for |x - np| below a tenth of x + np keeps the digits that the direct form loses to cancellation.
  */
-function bd0(x: number, np: number): number {
+export function bd0(x: number, np: number): number {
   if (Math.abs(x - np) >= 0.1 * (x + np)) return x * Math.log(x / np) + np - x;
   let v = (x - np) / (x + np);
   let s = (x - np) * v;
@@ -83,6 +83,19 @@ function gammaFront(a: number, x: number): number {
   return Math.sqrt(a / (2 * Math.PI)) * Math.exp(-bd0(a, x) - stirlingRemainder(a));
 }
 
+/** The most terms a series or continued fraction of the incomplete beta or gamma function may run. */
+const STEP_CEILING = 5_000_000;
+
+/**
+ * Terms allowed to the series and continued fractions of the incomplete gamma and beta functions at shape `scale` (a,
+ * or the larger of a and b). Near the peak they fall off over about 8 sqrt(scale) steps, so 10000 steps stop short for
+ * a shape above 1e6. The ceiling keeps a shape of 1e300 from running for longer than the machine lives: a function that
+ * has not converged by then returns NaN, not the partial sum.
+ */
+export function seriesStepLimit(scale: number): number {
+  return Math.min(STEP_CEILING, 10000 + Math.ceil(20 * Math.sqrt(scale)));
+}
+
 /** Continued fraction for the incomplete beta function (modified Lentz). */
 function betaContinuedFraction(a: number, b: number, x: number): number {
   const qab = a + b;
@@ -93,7 +106,9 @@ function betaContinuedFraction(a: number, b: number, x: number): number {
   if (Math.abs(d) < TINY) d = TINY;
   d = 1 / d;
   let h = d;
-  for (let m = 1; m <= 10000; m += 1) {
+  const steps = seriesStepLimit(Math.max(a, b));
+  let converged = false;
+  for (let m = 1; m <= steps; m += 1) {
     const m2 = 2 * m;
     let aa = (m * (b - m) * x) / ((qam + m2) * (a + m2));
     d = 1 + aa * d;
@@ -110,9 +125,12 @@ function betaContinuedFraction(a: number, b: number, x: number): number {
     d = 1 / d;
     const del = d * c;
     h *= del;
-    if (Math.abs(del - 1) < EPS) break;
+    if (Math.abs(del - 1) < EPS) {
+      converged = true;
+      break;
+    }
   }
-  return h;
+  return converged ? h : Number.NaN;
 }
 
 /** Regularized incomplete beta function I_x(a, b). */
@@ -146,15 +164,18 @@ function gammaSeries(a: number, x: number): number {
   let ap = a;
   let sum = 1 / a;
   let del = sum;
-  // The terms near x = a fall off over about 8 sqrt(a) steps: 10000 steps stop short for a above 1e6.
-  const steps = 10000 + Math.ceil(20 * Math.sqrt(a));
+  const steps = seriesStepLimit(a);
+  let converged = false;
   for (let n = 1; n <= steps; n += 1) {
     ap += 1;
     del *= x / ap;
     sum += del;
-    if (Math.abs(del) < Math.abs(sum) * EPS) break;
+    if (Math.abs(del) < Math.abs(sum) * EPS) {
+      converged = true;
+      break;
+    }
   }
-  return sum * gammaFront(a, x);
+  return converged ? sum * gammaFront(a, x) : Number.NaN;
 }
 
 /** Regularized upper incomplete gamma Q(a, x), continued fraction (x >= a + 1). */
@@ -163,7 +184,8 @@ function gammaContinuedFraction(a: number, x: number): number {
   let c = 1 / TINY;
   let d = 1 / b;
   let h = d;
-  const steps = 10000 + Math.ceil(20 * Math.sqrt(a));
+  const steps = seriesStepLimit(a);
+  let converged = false;
   for (let i = 1; i <= steps; i += 1) {
     const an = -i * (i - a);
     b += 2;
@@ -174,9 +196,12 @@ function gammaContinuedFraction(a: number, x: number): number {
     d = 1 / d;
     const del = d * c;
     h *= del;
-    if (Math.abs(del - 1) < EPS) break;
+    if (Math.abs(del - 1) < EPS) {
+      converged = true;
+      break;
+    }
   }
-  return gammaFront(a, x) * h;
+  return converged ? gammaFront(a, x) * h : Number.NaN;
 }
 
 /** Regularized upper incomplete gamma Q(a, x). */
