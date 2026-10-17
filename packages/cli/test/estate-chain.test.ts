@@ -3,7 +3,8 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { contentHash } from '@agent-nexus/driftbench-core';
+import { claudeCodeLiveAdapter, loadStateLibrary } from '@agent-nexus/driftbench-adapters';
+import { contentHash, type RunResult } from '@agent-nexus/driftbench-core';
 import {
   type EstateMap,
   loadEstateMap,
@@ -13,10 +14,15 @@ import {
   quoteAtSpan,
   toEstateSpaceMap,
 } from '@agent-nexus/driftbench-estate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { loadSpaceMap, type SpaceMap } from '@agent-nexus/driftbench-space';
+import { openStore } from '@agent-nexus/driftbench-store';
+import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { parse as parseYaml } from 'yaml';
+import { type CampaignDeps, defaultDeps, registerCampaignCommands } from '../src/commands/campaign';
 import { isStandIn } from '../src/commands/estate-live';
+import { replayChecks } from '../src/commands/replay';
 import { type Io, main } from '../src/index';
 
 /**
@@ -127,6 +133,19 @@ const chain: {
   diff?: DiffJson;
   /** The impact of the diff on the generated suite, read by step 9. */
   suiteImpact?: ImpactJson;
+  /** What step 6 ran: the specs, who names the atom, and each spec's result on the estate and on its mutant. */
+  universe?: {
+    entries: Generated[];
+    naming: Set<string>;
+    before: Record<string, { outcome: string; failing: string[] }>;
+    after: Record<string, { outcome: string; failing: string[] }>;
+    mutantDir: string;
+    mutantHash: string;
+  };
+  /** What step 9 wrote and read: the change manifest and the radius report over the generated suite. */
+  radius?: { manifest: string; report: RadiusJson };
+  /** The baseline campaign of step 10. */
+  baseline?: { runs: RunResult[]; calls: number };
 } = {};
 
 let work = '';
@@ -868,6 +887,14 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       for (const entry of [...sharing, ...controls]) {
         expect(after[entry.spec.id], entry.spec.id).toEqual(before[entry.spec.id]);
       }
+      chain.universe = {
+        entries: [...naming, ...sharing, ...controls],
+        naming: new Set(naming.map((entry) => entry.spec.id)),
+        before,
+        after,
+        mutantDir,
+        mutantHash: record.mapHash,
+      };
       return `${R7} inverted, map ${short(approved.hash)} to ${short(record.mapHash)}; ${red.length} of ${naming.length} specs that name it fail, ${sharing.length + controls.length} others unchanged`;
     });
   });
@@ -1132,14 +1159,267 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       expect(sorted(impact.reapprove.find((entry) => entry.atom === R7)?.tests ?? [])).toEqual(
         sorted(namingR7),
       );
+      chain.radius = { manifest, report };
       return `manifest ${report.manifest.hash} names ${R7}; ${inside} of ${inside + outside} blocks in the radius, ${outside} out`;
     });
   });
 
-  it('step 10: every hand-off above is verified, and the table lists them', () => {
+  // Steps 10 and 11 run campaigns of the stand-in through the live adapter, in this process, as the radius
+  // tests of the Acme suite do: the agent version labels the estate, and a radius run carries the stored runs.
+  const AGENT_V1 = 'northwind-v1';
+  const AGENT_V2 = 'northwind-v2';
+  const outcomeOf = (run: RunResult): string =>
+    run.status !== 'completed' ? run.status : run.blocks.every((block) => block.pass) ? 'pass' : 'fail';
+  const failingOf = (run: RunResult): string[] =>
+    run.blocks.flatMap((block) =>
+      block.verdicts
+        .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')
+        .map((verdict) => `block ${block.index}: ${verdict.id}`),
+    );
+
+  /** One campaign through the `campaign` commands, over the estate in `root` and the stand-in command. */
+  async function runCampaign(root: string, pins: string[], calls: string, argv: string[]) {
+    const library = await loadStateLibrary(STATES);
+    const deps: CampaignDeps = {
+      ...defaultDeps,
+      checks: replayChecks(),
+      adapterFor: async (target) =>
+        target.adapter === 'claude-code'
+          ? claudeCodeLiveAdapter({
+              command: FAKE,
+              estateRoot: root,
+              provider: localProvider(),
+              pins,
+              library,
+              env: { FAKE_MANIFEST: MANIFEST, FAKE_CALLS: calls },
+              args: [],
+              config: 'isolated',
+              retries: { backoffMs: 0 },
+            })
+          : undefined,
+    };
+    const output = { out: '', err: '' };
+    const io: Io = {
+      out: (text) => {
+        output.out += text;
+      },
+      err: (text) => {
+        output.err += text;
+      },
+      cwd: work,
+    };
+    let code = 0;
+    const program = new Command('driftbench')
+      .exitOverride()
+      .configureOutput({ writeOut: io.out, writeErr: io.err });
+    registerCampaignCommands(
+      program,
+      io,
+      (exit) => {
+        code = exit;
+      },
+      deps,
+    );
+    try {
+      await program.parseAsync(['campaign', 'run', ...argv], { from: 'user' });
+    } catch (cause) {
+      if (!(cause instanceof CommanderError)) throw cause;
+      return { code: 2, ...output };
+    }
+    return { code, ...output };
+  }
+  /**
+   * The calls of the stand-in that answered an ask: one per block sent. The log holds other lines, such as
+   * the wave of overloaded answers a planted hazard makes the run retry.
+   */
+  const callsIn = async (path: string): Promise<number> =>
+    (await readFile(path, 'utf8'))
+      .split('\n')
+      .filter((line) => line !== '')
+      .filter((line) => (JSON.parse(line) as { played?: string }).played !== undefined).length;
+  const runsOf = async (id: string): Promise<RunResult[]> => {
+    const db = await openStore(join(work, 'campaigns.db'));
+    try {
+      return await db.listRuns({ campaignId: id });
+    } finally {
+      await db.close();
+    }
+  };
+
+  it('step 10: the version 1 campaign runs the specs of step 6 on the estate and stores their verdicts', async () => {
+    await prove('10 campaign v1', 'step 6 specs, fixture estate', 'campaigns.db c-v1', async () => {
+      const approved = must(chain.approved, '2');
+      const universe = must(chain.universe, '6');
+      const paths = universe.entries.map((entry) => entry.path).sort();
+      const calls = join(work, 'calls-v1.jsonl');
+      const result = await runCampaign(FIXTURE, [approved.hash], calls, [
+        ...paths,
+        '--target',
+        'claude-code:northwind',
+        '--agent-version',
+        AGENT_V1,
+        '--campaign',
+        'c-v1',
+        '--store',
+        join(work, 'campaigns.db'),
+        '--no-cache',
+        '--concurrency',
+        '1',
+      ]);
+      expect(result.err).toBe('');
+      // Exit 1: the planted faults of the recorded streams fail by design.
+      expect(result.code).toBe(1);
+      const runs = await runsOf('c-v1');
+      expect(runs.map((run) => run.specId).sort(), 'one run per spec').toEqual(
+        universe.entries.map((entry) => entry.spec.id).sort(),
+      );
+      // Every cell ran, fresh: one block of each reached the stand-in, and none was carried.
+      expect(runs.every((run) => run.carried === undefined)).toBe(true);
+      const blocks = runs.reduce((sum, run) => sum + run.blocks.length, 0);
+      expect(await callsIn(calls)).toBe(blocks);
+      // The verdicts are those step 6 read from `estate run` on the same specs and the same estate.
+      for (const run of runs) {
+        expect({ outcome: outcomeOf(run), failing: failingOf(run) }, run.specId).toEqual(
+          universe.before[run.specId],
+        );
+      }
+      chain.baseline = { runs, calls: blocks };
+      return `${runs.length} cells of map ${short(approved.hash)} run as agent version ${AGENT_V1}; ${blocks} blocks sent to the stand-in`;
+    });
+  });
+
+  it('step 11: only the radius subset is run against the changed prompt, and the rest is carried with its verdict', async () => {
+    await prove('11 subset run', 'radius, change manifest, mutant estate', 'campaigns.db c-v2', async () => {
+      const approved = must(chain.approved, '2');
+      const universe = must(chain.universe, '6');
+      const radius = must(chain.radius, '9');
+      const baseline = must(chain.baseline, '10');
+      const paths = universe.entries.map((entry) => entry.path).sort();
+      const ids = universe.entries.map((entry) => entry.spec.id);
+
+      // The subset: the specs of this campaign that step 9 put in the radius of the change.
+      const inRadius = new Set(
+        radius.report.specs
+          .filter((spec) => spec.blocks.some((block) => block.state.F !== 'out'))
+          .map((spec) => spec.specId),
+      );
+      const subset = ids.filter((id) => inRadius.has(id)).sort();
+      expect(subset).toEqual(sorted(universe.naming));
+      expect(subset.length).toBeLessThan(ids.length);
+
+      // The changed prompt is version 2: the mutant estate of step 6. The agent is the stand-in again.
+      const calls = join(work, 'calls-v2.jsonl');
+      const result = await runCampaign(universe.mutantDir, [approved.hash, universe.mutantHash], calls, [
+        ...paths,
+        '--target',
+        'claude-code:northwind',
+        '--agent-version',
+        AGENT_V2,
+        '--campaign',
+        'c-v2',
+        '--change',
+        radius.manifest,
+        '--from',
+        'c-v1',
+        '--store',
+        join(work, 'campaigns.db'),
+        '--no-cache',
+        '--concurrency',
+        '1',
+      ]);
+      expect(result.err).toBe('');
+      // Exit 1: the specs that name the inverted atom fail, as step 6 predicted.
+      expect(result.code).toBe(1);
+      const runs = await runsOf('c-v2');
+      expect(runs).toHaveLength(ids.length);
+      const fresh = runs.filter((run) => run.carried === undefined);
+      const carried = runs.filter((run) => run.carried !== undefined);
+
+      // (a) Exactly the subset ran, and the agent was sent exactly its blocks.
+      expect(sorted(fresh.map((run) => run.specId))).toEqual(subset);
+      const sent = fresh.reduce((sum, run) => sum + run.blocks.length, 0);
+      expect(await callsIn(calls)).toBe(sent);
+      expect(sent).toBeLessThan(baseline.calls);
+
+      // (b) Their verdicts are the ones step 6 predicted on the mutant: the specs that carry a changed ask
+      // fail on the check that the reply says "late", and the outside-trigger control stays green.
+      for (const run of fresh) {
+        expect({ outcome: outcomeOf(run), failing: failingOf(run) }, run.specId).toEqual(
+          universe.after[run.specId],
+        );
+      }
+      const red = fresh.filter((run) => outcomeOf(run) === 'fail').map((run) => run.specId);
+      expect(red.length).toBeGreaterThan(0);
+      expect(red.length).toBeLessThan(fresh.length);
+
+      // (c) Every spec outside the subset is carried, not rerun, and its verdict is unchanged: the stored
+      // blocks of version 1, the verdict of version 1, and the verdict step 6 measured on the mutant.
+      expect(sorted(carried.map((run) => run.specId))).toEqual(sorted(ids.filter((id) => !inRadius.has(id))));
+      const stored = new Map(baseline.runs.map((run) => [run.specId, run]));
+      for (const run of carried) {
+        const source = stored.get(run.specId);
+        expect(run.carried, run.specId).toMatchObject({
+          fromCampaign: 'c-v1',
+          fromRun: source?.runId,
+          agentVersion: AGENT_V1,
+          age: { campaigns: 1 },
+        });
+        expect(run.blocks, run.specId).toEqual(source?.blocks);
+        const verdict = { outcome: outcomeOf(run), failing: failingOf(run) };
+        expect(verdict, run.specId).toEqual(universe.before[run.specId]);
+        expect(verdict, run.specId).toEqual(universe.after[run.specId]);
+      }
+
+      // (d) The report lists the subset and why: the change names the atom, and each cell of the subset
+      // is in the radius for that atom, where the others are out.
+      const db = await openStore(join(work, 'campaigns.db'));
+      const stored2 = await db.getCampaign('c-v2');
+      await db.close();
+      expect(stored2?.radius).toMatchObject({
+        fromVersion: AGENT_V1,
+        toVersion: AGENT_V2,
+        changes: [`prompt:${R7}`],
+        from: 'c-v1',
+        fresh: subset.length,
+        carried: carried.length,
+      });
+      expect(stored2?.radius?.manifest).toBe(radius.report.manifest.hash);
+      expect(stored2?.radius?.whole).toBeUndefined();
+      expect(result.out).toContain(
+        `Blast radius of ${AGENT_V1} to ${AGENT_V2} (manifest ${radius.report.manifest.hash}): prompt:${R7}.`,
+      );
+      expect(result.out).toContain(
+        `${subset.length} of ${ids.length} cells in the radius. ${subset.length} cells run fresh, ${carried.length} carried from c-v1.`,
+      );
+      expect(result.out).toContain(`Saved: ${baseline.calls - sent} of ${baseline.calls} blocks`);
+      for (const id of subset) expect(result.out, id).toMatch(new RegExp(`${id} .* (pass|fail)`));
+      for (const id of carried.map((run) => run.specId)) {
+        expect(result.out, id).toContain(`${id} · claude-code:northwind · F · repeat 0`);
+      }
+      const why = radius.report.specs.filter((spec) => subset.includes(spec.specId));
+      for (const spec of why) {
+        for (const block of spec.blocks) expect(block.why, spec.specId).toEqual([`prompt:${R7}`]);
+      }
+      return `${subset.length} of ${ids.length} specs run (${sent} blocks sent, ${baseline.calls - sent} saved), ${carried.length} carried from c-v1; ${red.length} red on the changed ${R7}`;
+    });
+  });
+
+  it('step 12: every hand-off above is verified, and the table lists them', () => {
     // The table is printed even when a step failed, so the failing step shows as NO.
     console.log(`\n${table()}\n`);
-    expect(rows.map((row) => row.step.slice(0, 1))).toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    expect(rows.map((row) => row.step.split(' ')[0])).toEqual([
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      '11',
+    ]);
     expect(rows.filter((row) => row.verified !== 'yes')).toEqual([]);
   });
 });
