@@ -1,9 +1,6 @@
 import type { Spec } from '@agent-nexus/driftbench-core';
-import { answersWithoutStopping } from './completion';
+import { ACTING_VERDICTS, answersWithoutStopping } from './completion';
 import type { EstateRun, GeneratedSpec } from './pipeline';
-
-/** The verdicts by which a guard acts on a call or a prompt; a guard that allows does not act. */
-const ACTING_VERDICTS = ['deny', 'block', 'warn', 'nudge'] as const;
 
 /** Required check structure is the generated structure plus source evidence. The latter
  * prevents deletion of a generated assertion from also deleting its validation probe.
