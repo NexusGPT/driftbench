@@ -1,3 +1,4 @@
+import { posix } from 'node:path';
 import {
   type ArtifactExpect,
   type CriterionDef,
@@ -780,18 +781,76 @@ function untraced(then: ThenParts, atom: EstateAtom, name: string, ctx: ThenCont
   return true;
 }
 
+/**
+ * The files a Read obligation names, in every form the schema lets an input be asserted: a bare string, `exact`,
+ * `contains`, `one_of` (each alternative) or `regex`, on `file_path`, `path` or `notebook_path`. Undefined when the
+ * input names no path (another key, `nonempty`, `absent`, `subset`).
+ */
+type ReadPaths = { paths: string[]; contains: boolean } | { regex: RegExp };
+function readPathsOf(input: Record<string, unknown>): ReadPaths | undefined {
+  const assertion = input.file_path ?? input.path ?? input.notebook_path;
+  if (typeof assertion === 'string') return { paths: [assertion], contains: false };
+  if (typeof assertion !== 'object' || assertion === null) return undefined;
+  const entries = Object.entries(assertion as Record<string, unknown>);
+  if (entries.length !== 1) return undefined;
+  const [kind, value] = entries[0] as [string, unknown];
+  if ((kind === 'exact' || kind === 'equals') && typeof value === 'string')
+    return { paths: [value], contains: false };
+  if (kind === 'contains' && typeof value === 'string') return { paths: [value], contains: true };
+  if (kind === 'one_of' && Array.isArray(value)) {
+    const paths = value.filter((item): item is string => typeof item === 'string');
+    return paths.length === value.length && paths.length > 0 ? { paths, contains: false } : undefined;
+  }
+  if (kind === 'regex' && typeof value === 'string') {
+    try {
+      return { regex: new RegExp(value) };
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
+}
+
+/** A path as the estate lists its files: no leading `./` or `/`, no doubled or dotted segment. */
+function relativePath(path: string): string {
+  return posix.normalize(path.trim()).replace(/^(?:\.?\/)+/, '');
+}
+
+/**
+ * Whether a file the estate holds is one the assertion names. An exact path (a bare string, `exact`, `one_of`) is held
+ * when it is the same normalized relative path, from the root or from the folder of the file the atom was read in. A
+ * `contains` path is held when a file's path ends with it at a folder boundary, since the path of the call contains
+ * it; the other way round is no match: `refs/notes.md` is not held by a file `notes.md`. A regex is held when it
+ * matches a file.
+ */
+function holdsFile(files: ReadonlySet<string>, target: ReadPaths, atomFile: string | undefined): boolean {
+  if ('regex' in target) return [...files].some((file) => target.regex.test(file));
+  const folder = atomFile !== undefined && atomFile.includes('/') ? posix.dirname(atomFile) : '';
+  return target.paths.some((path) => {
+    const own = relativePath(path);
+    const near = folder === '' ? own : relativePath(`${folder}/${path}`);
+    if (!target.contains) return files.has(own) || files.has(near);
+    return [...files].some((file) => file === own || file.endsWith(`/${own}`));
+  });
+}
+
 /** A Read of a file the runtime loads by itself: never seen as a call, so never expected. */
 function loadedRead(label: string, input: Record<string, unknown>, ctx: ThenContext): boolean {
   if (label !== 'Read' || !ctx.loaded) return false;
-  const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
-  return value !== undefined && ctx.loaded(value.replace(/^\.?\/+/, ''));
+  const target = readPathsOf(input);
+  return (
+    target !== undefined &&
+    'paths' in target &&
+    target.paths.every((path) => ctx.loaded?.(relativePath(path)) === true)
+  );
 }
 
 /**
  * A spec expects a Read only of a file the estate holds. A file the estate does not hold is the estate's defect (the
  * lint code MISSING_REFERENCE), not a test to write: an attempt to read what is not there tests nothing the estate
  * says, so the row waits on `needs-existing-file`, whatever checks the runner registers. True when it is such a read.
- * A path matches a file when one ends with the other.
+ * The path is read from every assertion form of the input; whether the estate holds it is `holdsFile` (or the path a
+ * reference atom resolved).
  */
 function missingRead(
   then: ThenParts,
@@ -801,13 +860,15 @@ function missingRead(
   ctx: ThenContext,
 ): boolean {
   if (label !== 'Read' || !ctx.files) return false;
-  const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
-  if (value === undefined) return false;
-  const path = value.replace(/^\.?\/+/, '');
-  for (const file of ctx.files) {
-    if (file === path || file.endsWith(`/${path}`) || path.endsWith(`/${file}`)) return false;
-  }
-  gap(then, MARKERS.existingFile, atom, `${path} is no file of the estate`);
+  const target = readPathsOf(input);
+  if (target === undefined) return false;
+  // A reference atom carries the path the scan resolved for it: the file it names, however the Read cites it.
+  const resolved =
+    atom.kind === 'reference' && typeof atom.fields?.path === 'string' ? atom.fields.path : undefined;
+  if (resolved !== undefined && ctx.files.has(relativePath(resolved))) return false;
+  if (holdsFile(ctx.files, target, atom.provenance?.file)) return false;
+  const named = 'paths' in target ? target.paths.map(relativePath).join(' or ') : String(target.regex);
+  gap(then, MARKERS.existingFile, atom, `${named} is no file of the estate`);
   return true;
 }
 
