@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mean, quantile, quantileSorted, sampleVariance } from '../src/index';
+import { mean, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
 
 const bad = [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
 
@@ -24,5 +24,27 @@ describe('basics refuse non-finite input (degenerate-input contract, rule 1)', (
     expect(mean([1, 2, 3])).toBe(2);
     expect(quantile([3, 1, 2], 0.5)).toBe(2);
     expect(sampleVariance([1, 2, 3])).toBe(1);
+  });
+});
+
+describe('pageHinkley refuses input it cannot answer for', () => {
+  const series = [1, 2, 3];
+  it('throws a RangeError on an empty series', () => {
+    expect(() => pageHinkley([])).toThrow(RangeError);
+  });
+  it('throws a RangeError on a non-finite value', () => {
+    for (const b of bad) expect(() => pageHinkley([0.4, b, 0.2, 0.1])).toThrow(RangeError);
+  });
+  it('throws a RangeError on a bad option', () => {
+    expect(() => pageHinkley(series, { threshold: -1 })).toThrow(RangeError);
+    expect(() => pageHinkley(series, { delta: Number.NaN })).toThrow(RangeError);
+    expect(() => pageHinkley(series, { threshold: Number.NaN })).toThrow(RangeError);
+    expect(() => pageHinkley(series, { delta: Number.POSITIVE_INFINITY })).toThrow(RangeError);
+    expect(() => pageHinkley(series, { minInstances: -1 })).toThrow(RangeError);
+    expect(() => pageHinkley(series, { minInstances: 1.5 })).toThrow(RangeError);
+  });
+  it('still detects a shift', () => {
+    const xs = [...new Array<number>(40).fill(0), ...new Array<number>(40).fill(10)];
+    expect(pageHinkley(xs, { threshold: 20, minInstances: 5 }).alarms.length).toBeGreaterThan(0);
   });
 });
