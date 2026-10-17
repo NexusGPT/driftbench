@@ -165,18 +165,28 @@ export function navigationFiles(documents: readonly EstateDocument[] | undefined
 
 /**
  * Whether a reference only sits in a link list or an index: the line it is read from is a list item, a table
- * row or a heading, and nothing but markup precedes the reference (it leads the item or the first cell). A
- * reference with words before it ("Read `x.md` first", "fill in `x.md`") belongs to a sentence that acts on
- * it. Position in the line decides, never a word. The line and the written name come from the atom itself.
+ * row or a heading, and the first thing after the markup (the list marker, the table bar, the heading hashes,
+ * emphasis, backticks, a link label) is the reference itself. A reference with words before it ("Read `x.md`
+ * first", "fill in `x.md`") belongs to a sentence that acts on it. Position in the line decides, never a word,
+ * and never the title of the atom: the first token is compared with the path the atom records.
  */
 export function listedReference(atom: EstateAtom): boolean {
   const line = atom.provenance?.quote ?? '';
-  const path = typeof atom.fields?.path === 'string' ? atom.fields.path : '';
-  const written = atom.title.startsWith('Read ') ? atom.title.slice(5) : (path.split('/').pop() ?? path);
-  const start = written === '' ? -1 : line.indexOf(written);
-  if (start < 0 || !/^\s*(?:[-*+]\s|\d+[.)]\s|\||#{1,6}\s)/.test(line)) return false;
+  const path = typeof atom.fields?.path === 'string' ? atom.fields.path.replaceAll('\\', '/') : '';
+  const marker = /^\s*(?:>\s*)*(?:[-*+]\s+|\d+[.)]\s+|\|\s*|#{1,6}\s+)/.exec(line);
+  if (path === '' || marker === null) return false;
+  let rest = line.slice(marker[0].length).replace(/^[\s*_~`<(]+/, '');
   // A link label before its target (`[The form](form.md)`) is markup of the list item, not an instruction.
-  return /^[\s>|*+\-#\d.)[\]`_(~]*$/.test(line.slice(0, start).replace(/\[[^\]]*\]\($/, ''));
+  const link = /^\[\[?([^\]]*)\]\]?(?:\(<?([^)\s>]*)>?\))?/.exec(rest);
+  if (link) rest = link[2] ?? link[1] ?? '';
+  const token = (rest.split(/[\s|]/)[0] ?? '')
+    .replace(/[`*_~>)\]]+$/, '')
+    .replace(/^(?:\$\{?CLAUDE_PROJECT_DIR\}?\/|@|\.\/)/, '')
+    .replace(/[#?].*$/, '')
+    .replace(/:\d+(?::\d+)?$/, '')
+    .replace(/[:,;.]+$/, '')
+    .replaceAll('\\', '/');
+  return token !== '' && (path === token || path.endsWith(`/${token}`) || path === `${token}.md`);
 }
 
 /**
