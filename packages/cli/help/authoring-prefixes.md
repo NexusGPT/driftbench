@@ -12,6 +12,7 @@ see_also:
   - authoring-spec-format
   - authoring-perturbations
   - running-tool-history
+  - authoring-given-checks
 next:
   - authoring-script-api
 ---
@@ -167,7 +168,14 @@ The topic authoring-import tells the rest of the command.
 
 A `prefix` or an `origin` at the top-level `given` is a schema error: only a block takes them. An `origin` on a block that writes no `prefix` is `GIVEN_ORIGIN_WITHOUT_PREFIX`.
 
-The Given verifier checks a prefix before the block runs (topic authoring-spec-check): every tool call carries an `output` or an `error`, no call id repeats within one message, a call of a tool `world.tools` forces records that forced result, and each `shared` fact said by the user or the agent is in the message it names. A block that fails one is `not_run` (kind `given_unmet`), never sent, and `spec lint` warns `GIVEN_UNMET`.
+The Given verifier checks a prefix before the block runs (topic authoring-spec-check). Its rules:
+
+- every tool call carries an `output` or an `error`;
+- no call id repeats within one message;
+- a call of a tool that `world.tools` forces records that forced result;
+- each `shared` fact said by the user or the agent is in the message it names.
+
+ A block that fails one is `not_run` (kind `given_unmet`), never sent, and `spec lint` warns `GIVEN_UNMET`. Topic authoring-given-checks has every check, the `shared` and `summary` keys and a worked example.
 
 ### A message of the prefix
 
@@ -301,7 +309,7 @@ blocks:
       must: ['CONFIRM']
 ```
 
-The recorded call has no `output`, so the Acme agent reads the catalog again for that past turn, without recording a new call.
+The recorded call carries its `output`, as the Given verifier requires: the agent replays that result as the real answer of the past turn. A call with no `output` and no `error` would make the block `not_run` (topic authoring-given-checks).
 
 ```sh
 driftbench spec validate out/authoring-prefixes/resume-at-offer.yaml
@@ -505,7 +513,13 @@ Problems with no message:
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| a block fails right after a prefix | a recorded `output` with a shape the real tool never returns | copy the output from a real run, or leave `output` out so the agent reads the tool again |
+| `SCHEMA_INVALID_VALUE` on `role` | a role outside the four | `user`, `assistant`, `system` or `tool` |
+| `SCHEMA_INVALID_TYPE` on `content` | an assistant turn with tool calls only and no `content` | write `content: ''` |
+| `SCHEMA_INVALID_TYPE` on `tool_calls.N.label` | a tool call with no name | add `label` |
+| `SCHEMA_UNRECOGNIZED_KEYS` on `given` | `prefix` or `origin` at the top-level `given` | move it to a block's `given` |
+| `GIVEN_ORIGIN_WITHOUT_PREFIX` | `origin` on a block with no `prefix` | add the `prefix` it describes, or remove `origin` |
+| `PREFIX_PROSE_HISTORY` warning | an assistant message states a ledger fact no recorded call holds | record the call with its `output` in `tool_calls`, or keep the prose on purpose and read the results as a different test |
+| a block fails right after a prefix | a recorded `output` with a shape the real tool never returns | copy the output from a real run. Leaving `output` out is no fix: the block is then `not_run` |
 | `GIVEN_UNMET  tool_history_paired` from `spec lint`, and the block is `not_run` | a prefix tool call has no `output` and no `error`: an agent replaying its history would read an empty result the spec never wrote | record what the tool returned in `output` (or `error`) |
 | the block is `not_run`, check `capability` | the adapter has no `seedPrefix` capability (`nexus`, live Claude Code), so the agent could not receive the prefix, or in mode T the canonical history of the blocks before | write the earlier turns as blocks instead, or run on an adapter with `seedPrefix` |
 | the prefix seems ignored on `process` | the agent does not read `DRIFTBENCH_HISTORY_FILE` | read the history from that file in the agent |
