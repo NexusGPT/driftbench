@@ -139,7 +139,7 @@ export function suiteHeadline(
     const trees = groupBy(
       run.blocks.filter((block) => block.specIndex !== undefined),
       (block) => {
-        let root = block.blockId ?? `block ${block.index}`;
+        let root = block.blockId ?? `block ${block.specIndex ?? block.index}`;
         let parent = (block.blockId === undefined ? undefined : links?.get(block.blockId)) ?? block.parent;
         const seen = new Set<string>([root]);
         while (parent !== undefined && !seen.has(parent)) {
