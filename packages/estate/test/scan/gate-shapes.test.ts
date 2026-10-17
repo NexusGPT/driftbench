@@ -119,6 +119,7 @@ describe('layouts of a read-before rule', () => {
 describe('a read with no object gates only through "this" or one path that follows', () => {
   it.each([
     'Read before any change.',
+    'Read before you edit __init__ settings.',
     'Title line\nRead before any change.',
     'READ BEFORE YOU WRITE',
     '### Rule: Read before you write',

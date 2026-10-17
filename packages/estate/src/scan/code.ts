@@ -2026,7 +2026,7 @@ function gateAtoms(
       .trim();
     const rawLine = `${written} ${line.text}`;
     const ruleMarker =
-      /!!|\u203C|\*\*|__[^_]/.test(rawLine) ||
+      /!!|\u203C|\*\*/.test(rawLine) ||
       /\b(?:READ|BEFORE)\b/.test(line.text) ||
       /^\s*(?:[-*>\s]*)[A-Z][A-Z0-9 ]{2,}\s*(?:--|[\u2014\u2013:])/.test(line.text);
     const titleLine =
