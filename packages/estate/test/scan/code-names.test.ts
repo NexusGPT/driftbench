@@ -278,25 +278,59 @@ describe('a sentence is not a path', () => {
   });
 });
 
-describe('a source introduced after a write verb is a prerequisite', () => {
-  it.each([
-    'Create the order using `.claude/order-template.md`.',
-    'Write the report, following `.claude/style-guide.md`.',
-    'Export the photos after reviewing `.claude/photo-rules.md`.',
-    'Generate the label with `.claude/label-template.md`.',
-    'Produce the invoice based on `.claude/price-list.md`.',
-    'Save the glaze notes in the format of `.claude/notes-format.md`.',
-    'Write the summary according to `.claude/summary-rules.md`.',
-    'Emit the table matching `.claude/table-shape.md`.',
-  ])('keeps a missing file a finding: %s', async (line) => {
-    const { result } = await lint({ 'CLAUDE.md': `# Rules\n${line}\n` });
+describe('a path is an output only when it is the destination of a write', () => {
+  const prerequisites = [
+    'Create the order using `@@`.',
+    'Write the report, following `@@`.',
+    'Export the photos after reviewing `@@`.',
+    'Generate the label with `@@`.',
+    'Produce the invoice based on `@@`.',
+    'Save the glaze notes in the format of `@@`.',
+    'Write the summary according to `@@`.',
+    'Emit the table matching `@@`.',
+    'Generate the report by parsing `@@`.',
+    'Generate the report by analyzing `@@`.',
+    'Generate the report after you ingest `@@`.',
+    'Write a summary of `@@`.',
+    'Write tests for `@@`.',
+    'Store notes as described in `@@`.',
+    'Produce output that conforms to `@@`.',
+    'Create the file in the layout defined by `@@`.',
+    'Export the rows listed in `@@`.',
+    'Generate the invoice, looking at `@@` for prices.',
+    'Write the email, and look at `@@`.',
+    'Summarize and save the result of `@@`.',
+    'Use the export script `@@`.',
+    'Run the export script `@@`.',
+    'Call the upload helper `@@`.',
+    'The store config is at `@@`.',
+    'The save step reads `@@`.',
+    'Follow the create template `@@`.',
+    'Keep the write policy `@@` in mind.',
+    'Write the report, then read `@@`.',
+    'Save the card after checking `@@`.',
+  ];
+  it.each(prerequisites)('keeps a missing file a finding: %s', async (line) => {
+    const { result } = await lint({
+      'CLAUDE.md': `# Rules\n${line.replace('@@', '.claude/data/prices.csv')}\n`,
+    });
     expect(result.counts.MISSING_REFERENCE).toBe(1);
   });
 
-  it('still skips a plain destination and keeps the earlier read-then-write cases', async () => {
+  const outputs = [
+    'Write the report to `@@`.',
+    'Save the card in `@@`.',
+    'Write `@@` when a run ends.',
+    'Create the summary file called `@@`.',
+    'Export the rows into `@@`.',
+    'When a run ends, write the log `@@`.',
+    'Read and then write `@@`.',
+    'Save the result as `@@`.',
+    'Store the notes under `@@`.',
+  ];
+  it.each(outputs)('skips a destination: %s', async (line) => {
     const { result } = await lint({
-      'CLAUDE.md':
-        '# Rules\nWrite the report to `.claude/out-report.md`.\nRead and then write `.claude/firing-log.md`.\nSave the card in `.claude/cards/card.md`.\n',
+      'CLAUDE.md': `# Rules\n${line.replace('@@', '.claude/data/made.csv')}\n`,
     });
     expect(result.counts.MISSING_REFERENCE).toBe(0);
   });

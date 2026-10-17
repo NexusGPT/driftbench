@@ -1082,26 +1082,52 @@ function outsideEstate(raw: RawEstate, files: ReadonlyMap<string, EstateFile>, w
 }
 
 const WRITE_VERB =
-  /\b(?:writ(?:e|es|ing)|sav(?:e|es|ing)|creat(?:e|es|ing)|generat(?:e|es|ing)|produc(?:e|es|ing)|export(?:s|ing)?|upload(?:s|ing)?|stor(?:e|es|ing)|emit(?:s|ting)?)\b/gi;
-/** Verbs and prepositions that make a path an input the work reads: the verb forms, then a source preposition. */
-const READ_VERB =
-  /\b(?:read(?:s|ing)?|open(?:s|ed|ing)?|load(?:s|ed|ing)?|see(?:s|ing)?|seen|consult(?:s|ed|ing)?|check(?:s|ed|ing)?|follow(?:s|ed|ing)?|us(?:e|es|ed|ing)|review(?:s|ed|ing)?|refer(?:s|red|ring)?|fetch(?:es|ed|ing)?|cat|sourc(?:e|es|ed|ing)|per|from|with|via|against|matching|according to|based on|in the (?:format|style|shape) of|as in|like)\b/gi;
+  /^(?:writ(?:e|es|ing)|sav(?:e|es|ing)|creat(?:e|es|ing)|generat(?:e|es|ing)|produc(?:e|es|ing)|export(?:s|ing)?|upload(?:s|ing)?|stor(?:e|es|ing)|emit(?:s|ting)?)$/;
+/** A destination word: what a path follows when it is the place something is put. */
+const DESTINATION = /^(?:to|into|onto|in|at|as|under|called|named)$/;
+/** Words that start a noun phrase, then words a verb phrase cannot hold between the verb and its destination. */
+const DETERMINER =
+  /^(?:the|a|an|this|that|these|those|your|our|its|their|his|her|my|each|every|any|all|new|final)$/;
+/** A write word before one of these is a noun or a modifier, not a verb. */
+const MODIFIED =
+  /^(?:script|scripts|helper|helpers|step|steps|config|configuration|template|templates|policy|policies|up|command|commands|tool|tools|module|modules|routine|job|function|hook|plugin)$/;
+/** Words between a write verb and its object that make the object something read, or a different phrase. */
+const NOT_A_DESTINATION =
+  /^(?:of|for|by|from|with|via|per|about|on|over|across|between|against|through|using|following|according|matching|based|like|than|that|which|who|where|when|while|if|after|before|until|looking|look|parsing|parse|analyz\w*|ingest\w*|read\w*|open\w*|load\w*|see|seen|check\w*|review\w*|consult\w*|follow\w*|us(?:e|es|ed|ing)|described|defined|listed|specified|documented|given|stated|outlined|shown|conform\w*|refer\w*|adher\w*|correspond\w*|similar|equal)$/;
 
-/** Whether the nearest verb before a path in its own clause makes the path something to produce. */
+/**
+ * Whether a path is the destination of a write: it follows a write verb directly (determiners and a short
+ * noun phrase only), or follows to, into, in, at, as, under, called or named after one. A write word that is a
+ * noun or a modifier (after a determiner, or before script, helper, step, config, template, policy, up) is
+ * not a verb. Every other path keeps its finding: it is a prerequisite the work reads.
+ */
 export function writeDestination(line: string, start: number): boolean {
-  // File names and quoted text are not verbs: only the words around them decide.
+  // File names and quoted text are not words: only the words around them decide.
   const clause =
-    line
-      .slice(0, start)
-      .replace(/`[^`]*`|"[^"]*"|'[^']*'|\S*[./\\]\S*/g, ' ')
-      .split(/[;:!?]|\.(?=\s|$)/)
-      .pop() ?? '';
-  const last = (pattern: RegExp) => {
-    let at = -1;
-    for (const match of clause.matchAll(pattern)) at = match.index ?? at;
-    return at;
-  };
-  return last(WRITE_VERB) > last(READ_VERB);
+    (
+      line
+        .slice(0, start)
+        .replace(/`[^`]*`|"[^"]*"|'[^']*'|\S*[./\\]\S*/g, ' ')
+        .split(/[;:!?]|\.(?=\s|$)|,|\b(?:and|then|but|while|when)\b/i)
+        .pop() ?? ''
+    )
+      .toLowerCase()
+      .match(/[a-z']+/g) ?? [];
+  let verb = -1;
+  for (let index = 0; index < clause.length; index++) {
+    const word = clause[index] as string;
+    if (!WRITE_VERB.test(word)) continue;
+    if (DETERMINER.test(clause[index - 1] ?? '') || MODIFIED.test(clause[index + 1] ?? '')) continue;
+    verb = index;
+  }
+  if (verb < 0) return false;
+  const between = clause.slice(verb + 1);
+  const destination = DESTINATION.test(between.at(-1) ?? '');
+  const object = destination ? between.slice(0, -1) : between;
+  if (object.some((word) => NOT_A_DESTINATION.test(word) || MODIFIED.test(word))) return false;
+  if (destination) return true;
+  // Directly after the verb: determiners and at most two words of noun phrase.
+  return object.length <= 3;
 }
 
 function referenceAtoms(
