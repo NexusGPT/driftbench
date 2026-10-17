@@ -50,7 +50,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Give me a short status of invoices, shipments and supplier emails.
+      user: Go through the week 41 ledger and tell me about each invoice.
     expect:
       guards:
         - name: reply-length.py
@@ -72,7 +72,7 @@ metadata:
     mode: unit
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: open-items
+    situation: long-reply
     phrase: 1
     ask: bank
     outcome: bank

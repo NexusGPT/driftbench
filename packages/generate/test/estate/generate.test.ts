@@ -496,8 +496,8 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1562,
       blocks: 1557,
-      complete: 1522,
-      incomplete: 40,
+      complete: 1546,
+      incomplete: 16,
       judged: 464,
     });
     expect(result.report.invalid).toEqual([]);
@@ -578,6 +578,7 @@ describe('a live guard_positive row forces the act', () => {
     const ledger = result.specs.find(
       (record) =>
         record.testType === 'guard_positive' &&
+        record.mode === 'live' &&
         record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py',
     );
     const when = ledger ? (only(byId, ledger.id).blocks[0]?.when as { user?: string }) : undefined;

@@ -15,13 +15,13 @@
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 27,
-    "phrases": 52,
+    "situations": 33,
+    "phrases": 64,
     "workspaces": 5
   },
   "sessions": {
     "path": "../sessions/index.yaml",
-    "sessions": 3
+    "sessions": 9
   },
   "options": {
     "seed": 1,
@@ -44,35 +44,11 @@
   "summary": {
     "specs": 1562,
     "blocks": 1557,
-    "complete": 1522,
-    "incomplete": 40,
+    "complete": 1546,
+    "incomplete": 16,
     "judged": 464
   },
   "incomplete": [
-    {
-      "spec": "estate.obligation.instruction.standing.read-the-memory-index-at-the",
-      "path": "incomplete/live/obligation/estate.obligation.instruction.standing.read-the-memory-index-at-the.yaml",
-      "row": "obligation.instruction.standing.read-the-memory-index-at-the",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.twin.instruction.standing.read-the-memory-index-at-the",
-      "path": "incomplete/live/twin/estate.twin.instruction.standing.read-the-memory-index-at-the.yaml",
-      "row": "twin.instruction.standing.read-the-memory-index-at-the",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
     {
       "spec": "estate.skip_pressure.gate.standing.write-a-helper-s-brief-before",
       "path": "incomplete/live/skip_pressure/estate.skip_pressure.gate.standing.write-a-helper-s-brief-before.yaml",
@@ -82,90 +58,6 @@
           "marker": "needs-askable-act",
           "atom": "gate.standing.write-a-helper-s-brief-before",
           "detail": "no task in the atom's words (gate.standing.write-a-helper-s-brief-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.read_when.reference.standing.read-claude-steps-json",
-      "path": "incomplete/live/read_when/estate.read_when.reference.standing.read-claude-steps-json.yaml",
-      "row": "read_when.reference.standing.read-claude-steps-json",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "reference.standing.read-claude-steps-json",
-          "detail": "no task in the atom's words (reference.standing.read-claude-steps-json (title)): the act does not start with a verb: \"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.read_when.reference.standing.read-claude-memory-memory-md",
-      "path": "incomplete/live/read_when/estate.read_when.reference.standing.read-claude-memory-memory-md.yaml",
-      "row": "read_when.reference.standing.read-claude-memory-memory-md",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "reference.standing.read-claude-memory-memory-md",
-          "detail": "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act does not start with a verb: \"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.read_when.reference.memory-memory.read-supplier-languages-md",
-      "path": "incomplete/live/read_when/estate.read_when.reference.memory-memory.read-supplier-languages-md.yaml",
-      "row": "read_when.reference.memory-memory.read-supplier-languages-md",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "reference.memory-memory.read-supplier-languages-md",
-          "detail": "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (title)): the act does not start with a verb: \"\""
-        }
-      ]
-    },
-    {
-      "spec": "estate.guard_positive.guard.settings.pretooluse-bash-guard-block-force-push",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.settings.pretooluse-bash-guard-block-force-push.yaml",
-      "row": "guard_positive.guard.settings.pretooluse-bash-guard-block-force-push",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.settings.pretooluse-bash-guard-block-force-push",
-          "detail": "no recorded session of force-push"
-        }
-      ]
-    },
-    {
-      "spec": "estate.guard_positive.guard.settings.pretooluse-edit-write-guard-read-before",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.settings.pretooluse-edit-write-guard-read-before.yaml",
-      "row": "guard_positive.guard.settings.pretooluse-edit-write-guard-read-before",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.settings.pretooluse-edit-write-guard-read-before",
-          "detail": "no recorded session of invoice-file-edit"
-        }
-      ]
-    },
-    {
-      "spec": "estate.guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py.yaml",
-      "row": "guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-          "detail": "no recorded session of this situation"
-        }
-      ]
-    },
-    {
-      "spec": "estate.guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml",
-      "row": "guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no recorded session of stop-word"
         }
       ]
     },
@@ -182,18 +74,6 @@
       ]
     },
     {
-      "spec": "estate.guard_positive.guard.settings.stop-guard-reply-length-py",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.settings.stop-guard-reply-length-py.yaml",
-      "row": "guard_positive.guard.settings.stop-guard-reply-length-py",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.settings.stop-guard-reply-length-py",
-          "detail": "no recorded session of open-items"
-        }
-      ]
-    },
-    {
       "spec": "estate.guard_negative.guard.settings.stop-guard-reply-length-py",
       "path": "incomplete/unit/guard_negative/estate.guard_negative.guard.settings.stop-guard-reply-length-py.yaml",
       "row": "guard_negative.guard.settings.stop-guard-reply-length-py",
@@ -202,18 +82,6 @@
           "marker": "needs-askable-act",
           "atom": "guard.settings.stop-guard-reply-length-py",
           "detail": "no task in the atom's words (guard.settings.stop-guard-reply-length-py (rule)): the guard documents no rule or watched act to come near"
-        }
-      ]
-    },
-    {
-      "spec": "estate.guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh.yaml",
-      "row": "guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
-          "detail": "no recorded session of shipment-late"
         }
       ]
     },
@@ -242,42 +110,6 @@
       ]
     },
     {
-      "spec": "estate.pairwise.0070",
-      "path": "incomplete/live/obligation/estate.pairwise.0070.yaml",
-      "row": "pairwise.0070",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0102",
-      "path": "incomplete/live/obligation/estate.pairwise.0102.yaml",
-      "row": "pairwise.0102",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0180",
-      "path": "incomplete/live/obligation/estate.pairwise.0180.yaml",
-      "row": "pairwise.0180",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
       "spec": "estate.pairwise.0236",
       "path": "incomplete/live/guard_positive/estate.pairwise.0236.yaml",
       "row": "pairwise.0236",
@@ -302,30 +134,6 @@
       ]
     },
     {
-      "spec": "estate.pairwise.0338",
-      "path": "incomplete/live/obligation/estate.pairwise.0338.yaml",
-      "row": "pairwise.0338",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0417",
-      "path": "incomplete/live/obligation/estate.pairwise.0417.yaml",
-      "row": "pairwise.0417",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
       "spec": "estate.pairwise.0472",
       "path": "incomplete/live/guard_positive/estate.pairwise.0472.yaml",
       "row": "pairwise.0472",
@@ -338,18 +146,6 @@
       ]
     },
     {
-      "spec": "estate.pairwise.0498",
-      "path": "incomplete/live/obligation/estate.pairwise.0498.yaml",
-      "row": "pairwise.0498",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
       "spec": "estate.pairwise.0554",
       "path": "incomplete/live/guard_positive/estate.pairwise.0554.yaml",
       "row": "pairwise.0554",
@@ -358,18 +154,6 @@
           "marker": "needs-askable-act",
           "atom": "guard.settings.stop-guard-reply-length-py",
           "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0576",
-      "path": "incomplete/live/obligation/estate.pairwise.0576.yaml",
-      "row": "pairwise.0576",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
         }
       ]
     },
@@ -398,18 +182,6 @@
       ]
     },
     {
-      "spec": "estate.pairwise.0702",
-      "path": "incomplete/live/obligation/estate.pairwise.0702.yaml",
-      "row": "pairwise.0702",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
       "spec": "estate.pairwise.0798",
       "path": "incomplete/live/guard_positive/estate.pairwise.0798.yaml",
       "row": "pairwise.0798",
@@ -418,30 +190,6 @@
           "marker": "needs-askable-act",
           "atom": "guard.settings.stop-guard-reply-length-py",
           "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0811",
-      "path": "incomplete/live/obligation/estate.pairwise.0811.yaml",
-      "row": "pairwise.0811",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0911",
-      "path": "incomplete/live/obligation/estate.pairwise.0911.yaml",
-      "row": "pairwise.0911",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
         }
       ]
     },
@@ -470,18 +218,6 @@
       ]
     },
     {
-      "spec": "estate.pairwise.1027",
-      "path": "incomplete/live/obligation/estate.pairwise.1027.yaml",
-      "row": "pairwise.1027",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
       "spec": "estate.pairwise.1056",
       "path": "incomplete/live/guard_positive/estate.pairwise.1056.yaml",
       "row": "pairwise.1056",
@@ -494,18 +230,6 @@
       ]
     },
     {
-      "spec": "estate.pairwise.1100",
-      "path": "incomplete/live/obligation/estate.pairwise.1100.yaml",
-      "row": "pairwise.1100",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
       "spec": "estate.pairwise.1124",
       "path": "incomplete/live/guard_positive/estate.pairwise.1124.yaml",
       "row": "pairwise.1124",
@@ -514,18 +238,6 @@
           "marker": "needs-askable-act",
           "atom": "guard.settings.stop-guard-reply-length-py",
           "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.1172",
-      "path": "incomplete/live/obligation/estate.pairwise.1172.yaml",
-      "row": "pairwise.1172",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "instruction.standing.read-the-memory-index-at-the",
-          "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
         }
       ]
     }
@@ -614,10 +326,10 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9743918053777209,
-    "askedTests": 1514,
-    "distinctAsks": 128,
-    "distinctAsksPer100": 8.45442536327609
+    "completeShare": 0.9897567221510883,
+    "askedTests": 1538,
+    "distinctAsks": 135,
+    "distinctAsksPer100": 8.777633289986996
   },
   "unit": {
     "tests": 29,
@@ -634,17 +346,17 @@
   },
   "sources": {
     "asks": {
-      "bank": 448,
+      "bank": 466,
       "code": 1066,
-      "session": 0,
+      "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 1006,
+      "bank": 1048,
       "no-change:guard": 26,
       "no-change:negative": 56,
       "no-change:read-only": 83,
-      "no-delete": 343,
+      "no-delete": 325,
       "static": 8
     },
     "judged": 304
@@ -654,8 +366,8 @@
     "obligation": {
       "rows": 603,
       "specs": 603,
-      "complete": 589,
-      "incomplete": 14
+      "complete": 603,
+      "incomplete": 0
     },
     "outside_trigger": {
       "rows": 43,
@@ -666,8 +378,8 @@
     "twin": {
       "rows": 43,
       "specs": 43,
-      "complete": 42,
-      "incomplete": 1
+      "complete": 43,
+      "incomplete": 0
     },
     "ordered_pair": {
       "rows": 112,
@@ -702,8 +414,8 @@
     "read_when": {
       "rows": 9,
       "specs": 9,
-      "complete": 6,
-      "incomplete": 3
+      "complete": 9,
+      "incomplete": 0
     },
     "script_fixture": {
       "rows": 2,
@@ -732,8 +444,8 @@
     "guard_positive": {
       "rows": 84,
       "specs": 84,
-      "complete": 65,
-      "incomplete": 19
+      "complete": 71,
+      "incomplete": 13
     },
     "guard_negative": {
       "rows": 6,
@@ -824,8 +536,8 @@
     "replay": {
       "rows": 6,
       "specs": 6,
-      "complete": 0,
-      "incomplete": 6
+      "complete": 6,
+      "incomplete": 0
     },
     "unit": {
       "rows": 37,
@@ -836,56 +548,65 @@
     "live": {
       "rows": 1526,
       "specs": 1519,
-      "complete": 1487,
-      "incomplete": 32
+      "complete": 1505,
+      "incomplete": 14
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 34,
+      "specs": 16,
       "atoms": [
         "gate.standing.write-a-helper-s-brief-before",
         "guard.settings.stop-guard-reply-length-py",
-        "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "instruction.standing.read-the-memory-index-at-the",
-        "reference.memory-memory.read-supplier-languages-md",
-        "reference.standing.read-claude-memory-memory-md",
-        "reference.standing.read-claude-steps-json"
+        "guard.settings.userpromptsubmit-guard-stop-word-sh"
       ],
       "details": [
         "no task in the atom's words (gate.standing.write-a-helper-s-brief-before (title)): the atom's words: it describes the unit, and names no task the user wants done",
         "no task in the atom's words (guard.settings.stop-guard-reply-length-py (rule)): the guard documents no rule or watched act to come near",
         "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the guard documents no rule or watched act to come near",
-        "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done",
-        "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (reference.standing.read-claude-steps-json (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
-      ]
-    },
-    {
-      "marker": "needs-recorded-session",
-      "specs": 6,
-      "atoms": [
-        "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-        "guard.settings.pretooluse-bash-guard-block-force-push",
-        "guard.settings.pretooluse-edit-write-guard-read-before",
-        "guard.settings.stop-guard-reply-length-py",
-        "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh"
-      ],
-      "details": [
-        "no recorded session of force-push",
-        "no recorded session of invoice-file-edit",
-        "no recorded session of open-items",
-        "no recorded session of shipment-late",
-        "no recorded session of stop-word",
-        "no recorded session of this situation"
       ]
     }
   ],
-  "replay": [],
+  "replay": [
+    {
+      "spec": "estate.guard_positive.guard.settings.pretooluse-bash-guard-block-force-push.force-push-blocked",
+      "session": "force-push-blocked",
+      "planRow": "guard_positive.guard.settings.pretooluse-bash-guard-block-force-push",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.pretooluse-edit-write-guard-read-before.invoice-edit-gated",
+      "session": "invoice-edit-gated",
+      "planRow": "guard_positive.guard.settings.pretooluse-edit-write-guard-read-before",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py.ledger-delete-warned",
+      "session": "ledger-delete-warned",
+      "planRow": "guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh.stop-word-nudged",
+      "session": "stop-word-nudged",
+      "planRow": "guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.stop-guard-reply-length-py.long-reply-nudged",
+      "session": "long-reply-nudged",
+      "planRow": "guard_positive.guard.settings.stop-guard-reply-length-py",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh.carrier-missing-denied",
+      "session": "carrier-missing-denied",
+      "planRow": "guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
+      "expect": "pass"
+    }
+  ],
   "waiting": [],
   "struck": [],
   "invalid": [],

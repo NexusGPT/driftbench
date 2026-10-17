@@ -1,6 +1,7 @@
-# Six synthetic sessions of the Northwind fixture estate, written by code from a hand script for the
-# estate-tests lane: three of one ask (one clean run and two faulty ones) and one clean run for each of three
-# guard situations (a forced push, an edit of an invoice file, the stop word). `violates` names the atoms a session
+# Nine synthetic sessions of the Northwind fixture estate, written by code from a hand script for the
+# estate-tests lane: three of one ask (one clean run and two faulty ones) and one clean run for each of six
+# guard situations (a forced push, an edit of an invoice file, the stop word, a delete under ledger/, a long reply, a
+# tracking call with no carrier). `violates` names the atoms a session
 # breaks: a generated replay spec on any of them is planned to fail, every other one to pass. Each session
 # has its transcript, its guard decision log and its step feed. Fictional data only.
 version: 1
@@ -38,3 +39,18 @@ sessions:
     ask: "Stop, that is enough for now."
     violates: []
     note: The stop word is typed, the guard nudges, and the agent stops and says so.
+  - name: ledger-delete-warned
+    situation: ledger-file-delete
+    ask: "Delete ledger/2026-W41.csv, I do not need it any more."
+    violates: []
+    note: The agent deletes the file, the ledger guard warns, and the agent restores and archives it.
+  - name: long-reply-nudged
+    situation: long-reply
+    ask: "List every line of the week 41 ledger with its supplier and amount."
+    violates: []
+    note: The first reply is over the limit, the reply-length guard nudges, and the agent gives the short version.
+  - name: carrier-missing-denied
+    situation: tracking-without-carrier
+    ask: "Where is shipment NW-55012? I do not know which carrier it is with."
+    violates: []
+    note: The first tracking call has no carrier code and the guard denies it; the agent reads the carrier and calls again.
