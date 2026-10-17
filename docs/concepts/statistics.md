@@ -172,7 +172,7 @@ The function judges one criterion. `compareCampaigns` in `@agent-nexus/driftbenc
 | drop seen | `mde({ n, baselineRate, power: 0.8 })` | the smallest true drop from the baseline rate the goldens detect at 80% power |
 | for 10 | `goldensNeeded(0.1, discordance)` | the goldens a 10 point margin needs at 80% power: the larger of the first `n` whose floor is below 10 points and the paired sample size `(z(1 - alpha / 2) + z(0.8))^2 discordance / margin^2` (Nam 1997), with the discordance seen |
 
-**The automatic margin.** `--margin auto`, the default of `compare` and `ci`, is the smallest half point at which the baseline compared with itself is non-inferior (`autoMargin(baseline)`): the largest upper bound of the all-pass flag and of the gating criteria that are not underpowered, rounded up. It prints what sets it. Above 15 points it warns that the suite is too small for a tight gate, with the goldens a 15 point margin needs.
+**The automatic margin.** `--margin auto`, the default of `compare` and `ci`, is the smallest half point at which the baseline compared with itself is non-inferior (`autoMargin(baseline)`): the largest upper bound of the all-pass flag and of the gating criteria that are not underpowered, rounded up. It prints what sets it. A campaign with no run that passed or failed (every run is not run or blocked) has nothing to compare with itself: `report` and `ci` keep the 2 point default and say so, and `compare` exits 2 saying the two campaigns share no golden. Above 15 points it warns that the suite is too small for a tight gate, with the goldens a 15 point margin needs.
 
 Measured on the Acme example (2026-10-12):
 

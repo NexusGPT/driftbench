@@ -295,6 +295,56 @@ A prompt can carry a section registry, `prompts/<prompt-id>.sections.yaml`, that
 
 A block names the sections it tests in the spec's `metadata.links`, each link with a status: `declared`, `attributed`, `verified`, `refuted` or `stale`. `metadata.links` and `metadata.provenance` stay out of the spec hash, so a link added or promoted never changes a run id or a cache key and never invalidates a carry or a rejudge. `spec lint --sections <registries>` checks that every link names a section its registry holds.
 
+### The link
+
+A link is one entry of the spec's `metadata.links`:
+
+```yaml
+metadata:
+  links:
+    - block: 0                      # a block id, or its index (whether or not blocks have ids); absent: every block
+      to: { kind: prompt_section, prompt: support, section: refunds }
+      relation: verifies            # default verifies
+      status: declared
+      created_by: author
+      at_version: v1                # the prompt version the link was made at
+```
+
+* `to` has one of three kinds: `prompt_section` (`prompt`, `section`), `spec_clause` (`spec`, `clause`, optional `sha256`) or `source_turn` (`conversation`, `turn`, optional `cluster` and `redacted`).
+* `relation` is `verifies`, `exercises`, `derived_from` or `observed_in`.
+* `status` is `declared`, `attributed`, `verified`, `refuted` or `stale`, and is required.
+* `created_by` is `generator`, `author`, `attribution`, `citation`, `ir` or `mutation`.
+* `at_version` is the version of the target the link was made at.
+* `evidence` is an optional map keyed by status, such as `verified: { mutant: m1, runs: 3, flips: 3 }`, that holds what supports the status; its values are free.
+* A key outside `block`, `to`, `relation`, `status`, `created_by`, `at_version` and `evidence` is refused.
+
+`spec validate` checks the links. A link with a value outside a list or a missing `status` or `to` is refused as `SCHEMA_CUSTOM` at `metadata.links.<index>.<field>`; an unknown key is refused as `SCHEMA_CUSTOM` at `metadata.links.<index>` (an unknown key inside `to`, at `metadata.links.<index>.to`); a `block` that names no block of the spec, or an index past the last block, is `LINK_BLOCK_UNKNOWN`. A spec with a refused link is invalid, exit 1.
+
+A section registry is read the same way, before any command uses it: an id used twice, or a `references`, `overrides` or `duplicates` entry that names no section, makes it invalid.
+
+### Re-anchoring a registry
+
+`radius sections reanchor` compares the sections in the new text, not in the old: for each section it looks for the old text, by hash, in the new prompt. The result per section is one of three statuses.
+
+| Status | Meaning |
+|---|---|
+| `kept` | the same text, found once, at the same offsets |
+| `moved` | the same text, found once, at other offsets; the registry of the new version holds the new span |
+| `stale` | the text was not found again once: the section was edited inside or removed; its entry keeps the span and hash of the last version where it was found, and every link to it reads as stale |
+
+An edit that keeps the length leaves every other section `kept` at its own span: only the section that was edited turns `stale`. An edit that changes the length moves the sections after it, which become `moved`. A section already stale in the old registry stays stale. The method that found a section is `same_hash`, else `quote` (the anchor quote found once and the old text at the same distance from it), else `window` (the prefix, quote and suffix found once).
+
+```text
+# support v1 to v3: a section "Languages" was added between Tone and Refunds
+sections:
+  - { id: preamble,   status: kept,  method: same_hash }
+  - { id: tone,       status: kept,  method: same_hash }
+  - { id: refunds,    status: moved, method: same_hash }
+  - { id: escalation, status: moved, method: same_hash }
+outside: ["between tone and refunds"]   # text that is in no section, so it can reach any block
+reordered: []
+```
+
 ### Advisory section selection
 
 A change manifest can name a section: `kind: prompt_section`, `id: <prompt-id>#<section-id>`. `radius sections reanchor --change-out <file>` writes one per stale or reordered section, and a global `prompt` change when text changed outside every section. A `prompt_section` change makes the radius the whole suite, with the reason `section selection is advisory until links are verified by mutation`. `radius <specs> --change <manifest> --sections <registries>` adds what selection by links would run:
@@ -308,7 +358,7 @@ Why it does not skip tests yet: on the H7 suite (the Acme stand-in prompt of 30 
 
 ### Localisation over sections
 
-`radius localize <specs> --store <file> --campaign <id> --sections <registries>` ranks the local sections of a prompt by Ochiai suspiciousness from a stored campaign: a block covers the sections it links to, `failed` and `passed` sum the failure and pass rates of the linked blocks over the suite runs, and the score is `failed / sqrt(total failure weight x (failed + passed))`. A failure is dropped when an earlier block of the same conversation (or a parent block) failed in the same run; a block that passes after a failing one stays a row. Global sections are not ranked; ties print as a rank range. On the stored H7 runs (`packages/core/test/radius/localize.test.ts`) this rule ranks the planted section worse than flat counting on 3 of 98 faults; dropping every block after a failing one ranks worse on 18 of 98, the registered H5 result. Ranking against each block's own baseline verdict comes with the mutation runner.
+`radius localize <specs> --store <file> --campaign <id> --sections <registries>` ranks the local sections of a prompt by Ochiai suspiciousness from a stored campaign: a block covers the sections it links to, `failed` and `passed` sum the failure and pass rates of the linked blocks over the suite runs, and the score is `failed / sqrt(total failure weight x (failed + passed))`. A failure is dropped when an earlier block of the same conversation (or a parent block) failed in the same run; a block that passes after a failing one stays a row. A link whose status is `refuted` adds nothing to the counts: a block covers only the sections its other links name, and a section reached only by refuted links has no covering block, so it is not ranked. A link to another prompt, to a global section or to a stale section adds nothing either. Global sections are not ranked; ties print as a rank range. On the stored H7 runs (`packages/core/test/radius/localize.test.ts`) this rule ranks the planted section worse than flat counting on 3 of 98 faults; dropping every block after a failing one ranks worse on 18 of 98, the registered H5 result. Ranking against each block's own baseline verdict comes with the mutation runner.
 
 Anthropic Citations give `start_char_index` and `end_char_index` in code points. On a text with two emoji before the cited sentence the API gave 23 where UTF-16 gives 25, so an imported citation is converted (`codePointToUtf16`, `citationSpan`) before it is compared with a span.
 
