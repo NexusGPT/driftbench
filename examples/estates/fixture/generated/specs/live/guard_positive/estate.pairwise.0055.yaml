@@ -28,10 +28,11 @@ blocks:
     expect:
       guards:
         - name: reply-length.py
+          verdict: deny
           count:
             min: 1
       workspace:
-        deleted: []
+        others_untouched: true
 perturbations:
   - id: deviation-D5_language_switch
     class: D5_language_switch
@@ -63,4 +64,4 @@ metadata:
     phrase: null
     ask: code
     askFrom: register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)
-    outcome: no-delete
+    outcome: no-change:guard

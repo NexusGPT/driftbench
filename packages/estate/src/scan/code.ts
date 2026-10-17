@@ -124,6 +124,22 @@ export class AtomBuilder {
   }
 }
 
+/**
+ * The verdict a guard source declares on a line of its own, in a comment or a docstring: `Verdict: deny`.
+ * It is read only for a guard the registry gives no verdict.
+ */
+export function declaredVerdict(text: string | undefined): string | undefined {
+  if (text === undefined) return undefined;
+  for (const line of text.split('\n')) {
+    const match =
+      /^\s*(?:[#*/]+\s*)?Verdict\s*:\s*(deny|block|warn|nudge|allow|ask)\s*\.?\s*(?:\*\/|""")?\s*$/i.exec(
+        line,
+      );
+    if (match?.[1]) return match[1].toLowerCase();
+  }
+  return undefined;
+}
+
 /** The name a trace gives a guard: a catalogue check's id, else its script's file name, else a slug of its command. */
 export function guardName(guard: Pick<GuardDecl, 'script' | 'command' | 'check'>): string {
   if (guard.check) return guard.check.id;
@@ -219,17 +235,23 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     const name = guardName(guard);
     const row = registryRowOf(guard, raw.registry);
     const rows = registryRowsOf(guard, raw.registry).filter((entry) => entry.origin !== 'catalogue');
+    // With no registry verdict, the guard's own source may declare it on a line of its own: `Verdict: deny`.
+    const declared = row?.verdict
+      ? undefined
+      : declaredVerdict(guard.script ? files.get(guard.script)?.text : undefined);
+    const verdict = row?.verdict ?? declared;
     builder.add({
       kind: 'guard',
       title: `${guard.event}${guard.matcher ? ` ${guard.matcher}` : ''} guard ${name}`,
       at: guard.at,
-      evidence: [{ type: 'guard', name, ...(row?.verdict ? { verdict: row.verdict } : {}) }],
+      evidence: [{ type: 'guard', name, ...(verdict ? { verdict } : {}) }],
       fields: {
         name,
         event: guard.event,
         command: guard.command,
         anchored: guard.anchored,
         scope: guard.scope,
+        ...(declared ? { verdictFrom: 'source' } : {}),
         ...(guard.matcher ? { matcher: guard.matcher } : {}),
         ...(guard.script ? { script: guard.script, scriptExists: files.has(guard.script) } : {}),
         ...(guard.dispatcher ? { dispatcher: guard.dispatcher } : {}),

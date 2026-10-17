@@ -70,7 +70,7 @@ An atom is one place where the estate says what the agent must do, with a quote 
 
 Every atom carries: an id (`kind.scope.slug`, stable and valid as a space value id), its kind, its title, its provenance (file, line span, quote, and a SHA-256 hash of file, span and quote), `producedBy` (code or model), its role (axis or detail), `approved`, the situation it applies in, its evidence predicates (typed: `skill_loaded`, `skill_not_loaded`, `guard`, `tool_called` with input fields, `tool_not_called`, `ordered`, `stage_reached`, `workspace`, `artifact`, `text`, `static`, `custom`), and its enforcement: the guards that already check it. Empty enforcement means "trusted", which is a finding of its own.
 
-A guard's evidence carries the verdict of its check registry row. A guard with no row has evidence with no verdict: any verdict counts, as in the guards check.
+A guard's evidence carries the verdict of its check registry row. A guard with no row has evidence with no verdict: any verdict counts, as in the guards check. A guard source may declare its verdict on a line of its own, beside `Enforces:`, in a comment or a docstring (`Verdict: deny`; one of deny, block, warn, nudge, allow, ask). The registry row always wins when there is one; the declaration is read only for a guard without a row, and the guard atom then carries `fields.verdictFrom: source`. A declaration never makes a missing registry row acceptable: `REGISTRY_ROW` is still reported.
 
 Not read yet: MCP server files, deferred tools and plugin folders. A runtime hazard is an atom only where the estate's prose names one (two in the Northwind estate), since an atom needs a file quote; the runtime's fixed list of hazards lives in the space map (section 3).
 

@@ -410,4 +410,48 @@ describe('the planner suite of the fixture over its recorded sessions', () => {
     expect(result.runs).toHaveLength(6);
     expect(result.runs.filter((entry) => !entry.pass)).toEqual([]);
   }, 120_000);
+  it('fails each guard replay spec when its session loses the decision that made the guard act', async () => {
+    const dir = join(FIXTURE, 'generated/specs/replay/guard_positive');
+    const work = await mkdtemp(join(tmpdir(), 'estate-replay-deciding-'));
+    const outcomes: string[] = [];
+    for (const file of await readdir(dir)) {
+      const session =
+        file
+          .replace(/\.yaml$/, '')
+          .split('.')
+          .at(-1) ?? '';
+      const loaded = parseSpecText(await readFile(join(dir, file), 'utf8'), 'yaml', file);
+      if (!loaded.ok) throw new Error(`${file}: ${JSON.stringify(loaded.errors)}`);
+      const guard = loaded.spec.blocks?.[0]?.expect?.guards?.[0]?.name;
+      if (guard === undefined) throw new Error(`${file}: no guard in its expectation`);
+      const kept = join(work, session);
+      await mkdir(join(kept, 'suite'), { recursive: true });
+      await copyFile(join(dir, file), join(kept, 'suite', file));
+      // The same decision log without the rows where this guard did anything but allow.
+      const rows = (await readFile(join(SESSIONS, `${session}.decisions.jsonl`), 'utf8'))
+        .split('\n')
+        .filter((line) => line.trim() !== '');
+      const without = rows.filter((line) => {
+        const row = JSON.parse(line) as { check: string; verdict: string };
+        return !(row.check === guard && row.verdict !== 'allow');
+      });
+      expect(without.length, `${session} has a deciding row for ${guard}`).toBeLessThan(rows.length);
+      await writeFile(join(kept, 'decisions.jsonl'), `${without.join('\n')}\n`);
+      const replay = await run([
+        'replay',
+        join(SESSIONS, `${session}.jsonl`),
+        '--decisions',
+        join(kept, 'decisions.jsonl'),
+        '--steps',
+        join(SESSIONS, `${session}.steps.jsonl`),
+        '--suite',
+        join(kept, 'suite'),
+        '--json',
+      ]);
+      const result = JSON.parse(replay.out) as { runs: Array<{ pass: boolean }> };
+      if (result.runs.length !== 1 || result.runs[0]?.pass)
+        outcomes.push(`${session}: still passes without its deciding row of ${guard}`);
+    }
+    expect(outcomes).toEqual([]);
+  }, 120_000);
 });

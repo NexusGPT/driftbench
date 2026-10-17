@@ -436,7 +436,7 @@ atoms:
     role: axis
     approved: true
     evidence:
-      - { type: guard, name: reply-length.py }
+      - { type: guard, name: reply-length.py, verdict: deny }
     enforcement: []
     fields:
       name: reply-length.py
@@ -444,6 +444,7 @@ atoms:
       command: python3 "$CLAUDE_PROJECT_DIR"/.claude/guards/reply-length.py
       anchored: true
       scope: estate
+      verdictFrom: source
       script: .claude/guards/reply-length.py
       scriptExists: true
       enforces:

@@ -29,10 +29,11 @@ blocks:
     expect:
       guards:
         - name: reply-length.py
+          verdict: deny
           count:
             min: 1
       workspace:
-        deleted: []
+        others_untouched: true
 perturbations:
   - id: deviation-D7_silence_or_burst
     class: D7_silence_or_burst
@@ -64,4 +65,4 @@ metadata:
     phrase: null
     ask: code
     askFrom: register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)
-    outcome: no-delete
+    outcome: no-change:guard
