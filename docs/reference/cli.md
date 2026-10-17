@@ -74,10 +74,10 @@ The hash is the first 12 hex characters of the SHA-256 of the spec's canonical J
 ## `driftbench spec lint`
 
 ```
-driftbench spec lint <paths...> [--json] [--strict]
+driftbench spec lint <paths...> [--json] [--strict] [--sections <registries...>]
 ```
 
-Validates every spec like `spec validate`, then prints the warnings of the valid ones.
+Validates every spec like `spec validate`, then prints the warnings of the valid ones. `--sections` also checks every `prompt_section` link against the section registry of its prompt (see [prompt sections and block links](../concepts/blast-radius.md#prompt-sections-and-block-links)).
 
 ```
 $ pnpm -s driftbench spec lint _captures/docs3/cli/specs
@@ -244,6 +244,9 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `RETENTION_FACT_UNKNOWN` | error | `expect.knowledge_retention` names a fact that no ledger holds before the block: not in `given.ledger`, nor in an earlier block's `ledger_add` |
 | `TOOL_FORBIDDEN_EXPECTED` | error | a block expects a tool that the rules forbid, in `forbidden_tools` or with `max_calls` at 0 |
 | `GIVEN_ORIGIN_WITHOUT_PREFIX` | error | a block's `given.origin` says where a prefix comes from, and the block writes no `given.prefix` |
+| `LINK_BLOCK_UNKNOWN` | error | a link in `metadata.links` names a block id the spec does not have, or an index past its last block |
+| `LINK_TARGET_UNKNOWN` | error or warning | `spec lint --sections` only: error when the registry of the prompt has no such section, warning when no registry was given for the prompt |
+| `LINK_STALE` | warning | `spec lint --sections` only: the link's status is `stale`, or its section was not found again in the registry's version |
 | `SCHEMA_*` | error | the schema refuses a value; the suffix is the zod issue code, such as `SCHEMA_UNRECOGNIZED_KEYS`, `SCHEMA_INVALID_TYPE`, `SCHEMA_INVALID_VALUE` or `SCHEMA_TOO_SMALL` |
 | `CRITERION_UNRESOLVED` | warning | blocks name criteria and the spec defines none; they must come from a shared catalogue |
 | `BLOCK_NO_EXPECTATION` | warning | a block checks nothing |
@@ -1388,7 +1391,7 @@ driftbench compare --rank <campaigns...> --store <db> [--mode <modes>] [--json]
 
 `report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). `--config <file>` names the project config whose `aggregates:` it also scores; default `driftbench.yaml` in the working folder. `--withhold-incomplete` withholds the pass^k and pass@k value of a line with incomplete runs, instead of reporting it with the range of its missing outcomes; see [statistics](../concepts/statistics.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
 
-On the command line `report` prints, per mode, the suite headline: `Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.0 runs (design effect 3.87), detectable drop 66.4 points at 80% power.` It is the mean over goldens with the hierarchical Beta-Bernoulli interval, then the effective runs, the smallest drop two suites like it detect and the share of runs that did not complete. A rate over clustered runs elsewhere on the page prints its `n_eff` and design effect beside the Wilson interval. See [statistics](../concepts/statistics.md#the-suite-headline).
+On the command line `report` prints, per mode, the suite headline: `Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.3 runs (design effect 3.69), detectable drop 65.3 points at 80% power.` It is the mean over goldens with the hierarchical Beta-Bernoulli interval, then the effective runs, the smallest drop two suites like it detect and the share of runs that did not complete. A rate over clustered runs elsewhere on the page prints its `n_eff` and design effect beside the Wilson interval. See [statistics](../concepts/statistics.md#the-suite-headline).
 
 `compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Per criterion and for the all-pass flag it also prints three planning numbers: the floor (the smallest margin its goldens can show when nothing changed), the drop its goldens detect at 80% power, and the goldens a 10 point margin needs. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. The rule is on the [statistics](../concepts/statistics.md#the-campaign-verdict) page. The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
 
@@ -1662,6 +1665,8 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 ### Prompt change manifests
 
 `driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved evidence quotes. It exits 0 when the manifest is written or printed, including a conservative whole-suite manifest, and 2 on invalid input. The separate `radius <specs> --change ...` command exits 1 when its computed radius is the whole suite. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
+
+`driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--change-out <manifest>] [--json]` finds every section again in the new prompt, writes the `prompt_section` manifest with `--change-out`, and exits 1 when a section is stale, a change lies outside every section or sections changed order. `driftbench radius <specs> --change <manifest> --sections <registries...>` prints, after the radius, which blocks selection by section links would run; a `prompt_section` change keeps the radius the whole suite. `driftbench radius localize <specs> --store <file> --campaign <id> --sections <registries...> [--prompt <id>] [--mode <mode>] [--counting grouped|flat] [--top <n>] [--json]` ranks the local sections of a prompt by Ochiai suspiciousness from the campaign's block verdicts; it exits 0 with a ranking, 1 when nothing failed outside inherited failures, 2 on bad input. See [prompt sections and block links](../concepts/blast-radius.md#prompt-sections-and-block-links).
 
 ### `campaign rejudge`
 
