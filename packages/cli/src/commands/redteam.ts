@@ -121,7 +121,7 @@ export function registerRedteamCommand(
     .option('--encoding-probability <p>', 'chance from 0 to 1 of encoding a live attack', '0')
     .option(
       '--no-score-responses',
-      'disable live scoring: no breach can be detected, so the search is unscored',
+      'disable live scoring: a live search is then unscored; a replay keeps its recorded scores',
     )
     .option('--no-detect-refusals', 'score even short refusal-only replies through the model')
     .option('--attack-plan <file>', 'UTF-8 Crescendo plan; default ask the model; unused by GOAT or replay')
