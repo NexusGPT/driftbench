@@ -72,4 +72,17 @@ describe('the suite headline groups a run that did not record its root under tha
     // pay is as high as the run alone can tell, so the cart family splits in two.
     expect(headline).toMatchObject({ trees: 3, n: 8 });
   });
+
+  it('keys a rerun that recorded only roots by those roots, never by the golden', () => {
+    // A subset run of one root each: refund passes, cart fails. No recorded block names a parent.
+    const subsets = [bakeryRun(4, ['refund'], []), bakeryRun(5, ['cart'], ['cart'])];
+    const headline = suiteHeadline([...runs, ...subsets], (entry) => entry.specId, { parentsOf });
+    const expected = hierarchicalBetaBinomial([
+      { n: 5, k: 2 },
+      { n: 5, k: 5 },
+    ]);
+    expect(headline).toMatchObject({ trees: 2, n: 10, runs: 6 });
+    expect(headline?.lower).toBe(expected.lower);
+    expect(headline?.upper).toBe(expected.upper);
+  });
 });
