@@ -1083,8 +1083,9 @@ function outsideEstate(raw: RawEstate, files: ReadonlyMap<string, EstateFile>, w
 
 const WRITE_VERB =
   /\b(?:writ(?:e|es|ing)|sav(?:e|es|ing)|creat(?:e|es|ing)|generat(?:e|es|ing)|produc(?:e|es|ing)|export(?:s|ing)?|upload(?:s|ing)?|stor(?:e|es|ing)|emit(?:s|ting)?)\b/gi;
+/** Verbs and prepositions that make a path an input the work reads: the verb forms, then a source preposition. */
 const READ_VERB =
-  /\b(?:read|reads|reading|open|opens|load|loads|see|consult|check|checks|follow|follows|use|uses|review|refer|cat|fetch|source|per|from)\b/gi;
+  /\b(?:read(?:s|ing)?|open(?:s|ed|ing)?|load(?:s|ed|ing)?|see(?:s|ing)?|seen|consult(?:s|ed|ing)?|check(?:s|ed|ing)?|follow(?:s|ed|ing)?|us(?:e|es|ed|ing)|review(?:s|ed|ing)?|refer(?:s|red|ring)?|fetch(?:es|ed|ing)?|cat|sourc(?:e|es|ed|ing)|per|from|with|via|against|matching|according to|based on|in the (?:format|style|shape) of|as in|like)\b/gi;
 
 /** Whether the nearest verb before a path in its own clause makes the path something to produce. */
 export function writeDestination(line: string, start: number): boolean {

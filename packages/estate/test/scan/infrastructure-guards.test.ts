@@ -96,7 +96,7 @@ describe('a launcher or a long-lived process is not a check', () => {
     ).toEqual(['ask.py']);
   });
 
-  it('needs no row for a launcher whose command hands it another estate script, with no source evidence', async () => {
+  it('needs no row for a launcher that reads its argument and executes it, whatever the resolver found', async () => {
     expect(
       await rows({
         '.claude/settings.json': settings([
@@ -104,7 +104,8 @@ describe('a launcher or a long-lived process is not a check', () => {
           ['check-b.py'],
           ['launch.py', ' .claude/hooks/worker.py'],
         ]),
-        '.claude/hooks/launch.py': 'print("launcher")\n',
+        '.claude/hooks/launch.py':
+          'import sys\nexec(compile(open(sys.argv[1]).read(), sys.argv[1], "exec"))\n',
         '.claude/hooks/worker.py': check,
       }),
     ).toEqual([]);
@@ -118,5 +119,36 @@ describe('a launcher or a long-lived process is not a check', () => {
         '.claude/hooks/rules.json': '{}\n',
       }),
     ).toEqual(['plain.py']);
+  });
+
+  it('asks for a row from a check that retries a lock in a loop it leaves, or is handed a shell data file', async () => {
+    const lock =
+      'import os, sys, time\nwhile True:\n    try:\n        os.mkdir("/tmp/lamp.lock")\n        break\n    except FileExistsError:\n        time.sleep(0.1)\nsys.exit(0)\n';
+    const shellData = 'import sys\nprint(open(sys.argv[1]).read())\n';
+    expect(
+      await rows({
+        '.claude/settings.json': settings([
+          ['check-a.py'],
+          ['check-b.py'],
+          ['lock.py'],
+          ['env.py', ' .claude/hooks/lamp-env.sh'],
+        ]),
+        '.claude/hooks/lock.py': lock,
+        '.claude/hooks/env.py': shellData,
+        '.claude/hooks/lamp-env.sh': 'LAMP=1\n',
+      }),
+    ).toEqual(['env.py', 'lock.py']);
+  });
+
+  it('asks for a row from a check using bind and listen on different receivers, and none from one receiver doing both', async () => {
+    const unrelated = 'handler.bind(null);\nbus.listen("x", handler);\n';
+    const server = 'const srv = net.createServer();\nsrv.bind(0);\nsrv.listen(8080);\n';
+    expect(
+      await rows({
+        '.claude/settings.json': settings([['check-a.py'], ['check-b.py'], ['unrelated.js'], ['server.js']]),
+        '.claude/hooks/unrelated.js': unrelated,
+        '.claude/hooks/server.js': server,
+      }),
+    ).toEqual(['unrelated.js']);
   });
 });

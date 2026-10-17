@@ -78,12 +78,21 @@ export type InvariantState = {
   rowsWithoutGuard: string[];
 };
 
+/** Whether a script reads an argument and executes (an exec, a runpy, a subprocess, a loader). */
+function executesArgument(text: string): boolean {
+  return (
+    /\bsys\.argv\b|\bprocess\.argv\b|"\$@"|\$1\b/.test(text) &&
+    /\b(?:exec|execfile|runpy|subprocess|os\.exec\w*|importlib|spawn|child_process|eval)\b/.test(text)
+  );
+}
+
 /** Guard scripts that launch other guards or run as long-lived processes. */
 function infrastructureScripts(raw: RawEstate): Set<string> {
   const guardScripts = new Set(
     raw.guards.flatMap((guard) => (!guard.check && guard.script ? [guard.script] : [])),
   );
   const named = codeNames(raw).links;
+  const texts = new Map(raw.files.map((file) => [file.path, file.text]));
   const paths = new Set(raw.files.map((file) => file.path));
   // A command that hands another estate script to the script it runs wraps it: the script is a launcher.
   const wraps = (guard: GuardDecl): boolean => {
@@ -96,14 +105,17 @@ function infrastructureScripts(raw: RawEstate): Set<string> {
       const found = [clean, posix.join(posix.dirname(guard.script ?? ''), clean)].map((p) =>
         posix.normalize(p),
       );
-      if (found.some((path) => path !== guard.script && paths.has(path))) return true;
+      // The handed file is a launched script when it is itself a guard script, or when this script reads its
+      // argument and executes things. A data or environment file handed to a check is neither.
+      const handed = found.find((path) => path !== guard.script && paths.has(path));
+      if (handed && (guardScripts.has(handed) || executesArgument(texts.get(guard.script ?? '') ?? '')))
+        return true;
     }
     return false;
   };
   const launchers = new Set(
     raw.guards.flatMap((guard) => (!guard.check && guard.script && wraps(guard) ? [guard.script] : [])),
   );
-  const texts = new Map(raw.files.map((file) => [file.path, file.text]));
   const found = new Set<string>();
   for (const script of guardScripts) {
     const others = (named.get(script) ?? []).filter((path) => path !== script && guardScripts.has(path));

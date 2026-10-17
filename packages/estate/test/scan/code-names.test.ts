@@ -278,6 +278,30 @@ describe('a sentence is not a path', () => {
   });
 });
 
+describe('a source introduced after a write verb is a prerequisite', () => {
+  it.each([
+    'Create the order using `.claude/order-template.md`.',
+    'Write the report, following `.claude/style-guide.md`.',
+    'Export the photos after reviewing `.claude/photo-rules.md`.',
+    'Generate the label with `.claude/label-template.md`.',
+    'Produce the invoice based on `.claude/price-list.md`.',
+    'Save the glaze notes in the format of `.claude/notes-format.md`.',
+    'Write the summary according to `.claude/summary-rules.md`.',
+    'Emit the table matching `.claude/table-shape.md`.',
+  ])('keeps a missing file a finding: %s', async (line) => {
+    const { result } = await lint({ 'CLAUDE.md': `# Rules\n${line}\n` });
+    expect(result.counts.MISSING_REFERENCE).toBe(1);
+  });
+
+  it('still skips a plain destination and keeps the earlier read-then-write cases', async () => {
+    const { result } = await lint({
+      'CLAUDE.md':
+        '# Rules\nWrite the report to `.claude/out-report.md`.\nRead and then write `.claude/firing-log.md`.\nSave the card in `.claude/cards/card.md`.\n',
+    });
+    expect(result.counts.MISSING_REFERENCE).toBe(0);
+  });
+});
+
 describe('a verb inside a file name is not a verb', () => {
   it('keeps an absent path a reference when a write-verb word only appears in another file name', async () => {
     const { result } = await lint({
