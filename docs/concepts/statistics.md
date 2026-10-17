@@ -119,17 +119,17 @@ The coverage column is the share of simulated suites whose interval held the tru
 
 The children of one parent inherit its end state, so they move together. A tree for the headline is then the whole family (the root and all its descendants), not each child. `simulateFamilyCoverage` measures the difference. Each family has a pass rate around the suite's mean, each child a rate around its family's, and each child is run several times. The hierarchical interval is read with every child as a tree (the grouping of the headline today) and with every family as a tree.
 
-Measured on 48 cells (12 or 40 families, 3 or 8 children each, 3 runs per child, a true mean of 0.6 or 0.9, a family concentration of 0.5, 2 or 8, a child concentration of 2 or 20, 400 simulated suites per cell):
+Measured on 48 cells (12 or 40 families, 3 or 8 children each, 3 runs per child, a true mean of 0.6 or 0.9, a family concentration of 0.5, 2 or 8, a child concentration of 2 or 20, 400 simulated suites per cell, the cells numbered 1 to 48 in the order of that list with the first factor changing slowest, and cell `i` run with seed 100 + `i`). The means and worst cells below are from that seed; six base seeds (100, 200, 300, 400, 500, 600) gave the ranges in the last column:
 
-| Reading | Mean coverage | Worst cell |
-|---|---|---|
-| naive Wilson on all runs | 59.8 percent | below 32 percent |
-| hierarchical, every child a tree | 74.2 percent | 48.5 percent |
-| hierarchical, every family a tree | 95.5 percent | 90.0 percent |
+| Reading | Mean coverage (seed 100) | Worst cell (seed 100) | Worst cell, six seeds |
+|---|---|---|---|
+| naive Wilson on all runs | 59.8 percent | 31.3 percent | 31.3 to 35.0 percent |
+| hierarchical, every child a tree | 74.2 percent | 48.5 percent | 48.5 to 50.7 percent |
+| hierarchical, every family a tree | 95.5 percent | 90.0 percent | 88.3 to 90.8 percent |
 
 * With strong agreement inside a family, grouping by child leaves the interval too narrow: it holds the true mean in about three suites of four. Grouping by family restores it to the target.
 * Without a family effect (the control in the test) both groupings cover, so grouping by family costs nothing there.
-* The weakest cells for family grouping have 8 children per family, a true mean of 0.9 and mild agreement between families (a family concentration of 8): 90.0 to 92.7 percent.
+* The worst cell is seed-dependent, because each cell rests on 400 suites (a single cell near 90 percent moves by about 2 points between seeds). In all six seeds the weakest family-grouping cell had 8 children per family, a true mean of 0.9 and mild agreement between families (a family concentration of 8); the six seeds put it between 88.3 and 90.8 percent. The mean over the 48 cells moved between 95.4 and 95.6 percent.
 * The suite headline groups by golden today. The parent link is not in the spec schema yet, so the report cannot group by root. When it lands, `suiteHeadline` takes the root of the chain as its tree key: its `treeOf` argument already accepts any grouping. The test `packages/stats/test/family-coverage.test.ts` runs a 24-cell subset in about four seconds and requires naive Wilson under 70 percent, the child grouping under 85 percent, the family grouping at 93 percent or more, and the family grouping ahead in at least 20 of the 24 cells.
 
 ## Where results vary
