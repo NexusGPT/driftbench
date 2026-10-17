@@ -235,6 +235,26 @@ describe('terminal subsumption and the perturbations a block carries', () => {
     expect(walks.map((draft) => draft.blocks.length)).toEqual([length, 1, 1]);
   });
 
+  it('never cuts a walk down to a restated request, whose next move is the test of the latest value', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = walk(prepared, 'written', path);
+    written.perturbations = undefined;
+    const second = walk(prepared, 'second', path);
+    second.perturbations = undefined;
+    const request = second.blocks[1];
+    if (!request) throw new Error('missing second block');
+    request.id = 'b2-restated';
+    const length = second.blocks.length;
+    minimal.reduce(written);
+    minimal.reduce(second);
+    // The walk may lose its end, but never the move after the request: it keeps two blocks at least.
+    expect(second.blocks.length).toBeGreaterThanOrEqual(3);
+    expect(second.blocks.length).toBeLessThan(length + 1);
+  });
+
   it('keeps the block when no other written walk places the class it declares', () => {
     const prepared = fixture();
     const path = prepared.relations.paths[0];

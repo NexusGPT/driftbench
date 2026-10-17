@@ -97,6 +97,9 @@ export class TerminalSubsumption {
         if (!this.blocks.has(this.key(spec, last))) break;
         // A block that injects a class is that class's test, and the deviation of its row: it stays.
         if ('injection' in (spec.blocks[last]?.when ?? {})) break;
+        // The move right after a restated request is the test of the latest value: a walk is never cut to end on
+        // the request alone, which asks for a value and checks none of the slot's later states.
+        if (spec.blocks[last - 1]?.id?.endsWith('-restated')) break;
         // A declaration names a block and goes with it when the block is removed: the declarations on it are
         // dropped and the later ones move up. The class they placed must be placed by a spec already written,
         // which the tuples below check; a declaration before the block is untouched.
