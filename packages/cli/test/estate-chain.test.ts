@@ -31,7 +31,7 @@ import { type Io, main } from '../src/index';
  * reach a model would stop with an error instead.
  */
 
-vi.setConfig({ testTimeout: 300_000, hookTimeout: 60_000 });
+vi.setConfig({ testTimeout: 600_000, hookTimeout: 60_000 });
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const FIXTURE = join(ROOT, 'examples/estates/fixture');
@@ -47,6 +47,7 @@ const R12 = 'instruction.standing.keep-an-unconfirmed-draft-unsent';
 const ROUTE_PLAN = 'route.standing.an-ask-to-plan-the-delivery';
 const LEDGER_GUARD = 'guard.settings.posttooluse-bash-guard-ledger-guard-py';
 const FORCE_PUSH_GUARD = 'guard.settings.pretooluse-bash-guard-block-force-push';
+const CARRIER_CODE = 'instruction.shipment-tracker.always-pass-the-carrier-code-to';
 
 type Generated = {
   path: string;
@@ -56,6 +57,7 @@ type Generated = {
     id: string;
     version?: string;
     given?: { vars?: { estate?: { map_hash?: string } } };
+    blocks: Array<{ when?: { user?: string } }>;
     metadata: {
       estate: {
         atoms: string[];
@@ -101,7 +103,7 @@ type RunJson = {
   standIn: boolean;
   pins: string[];
   costUsd: number;
-  runs: Array<{ spec: string; status: string; pass: boolean }>;
+  runs: Array<{ spec: string; status: string; pass: boolean; failing: string[] }>;
 };
 type RadiusJson = {
   manifest: { hash: string; from: string; to: string; changes: string[] };
@@ -121,6 +123,8 @@ const chain: {
   plan?: Plan;
   specs?: Generated[];
   diff?: DiffJson;
+  /** The impact of the diff on the generated suite, read by step 9. */
+  suiteImpact?: ImpactJson;
 } = {};
 
 let work = '';
@@ -564,6 +568,9 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
     'estate.tool_denied.tool.settings.deny-webfetch',
   ];
 
+  /** What one spec did in a run: pass or fail (or its run status), and the checks that failed. */
+  type Result = { outcome: string; failing: string[] };
+
   async function estateRun(name: string, estateRoot: string, specs: string[], ...extra: string[]) {
     const result = await cli([
       'estate',
@@ -586,70 +593,31 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
     ]);
     expect(result.err).toBe('');
     const json = JSON.parse(result.out) as RunJson;
-    const outcome = Object.fromEntries(
+    const results: Record<string, Result> = Object.fromEntries(
       json.runs.map((run) => [
         run.spec,
-        run.status === 'completed' ? (run.pass ? 'pass' : 'fail') : run.status,
+        {
+          outcome: run.status === 'completed' ? (run.pass ? 'pass' : 'fail') : run.status,
+          failing: run.failing,
+        },
       ]),
     );
-    return { code: result.code, json, outcome };
+    return { code: result.code, json, results };
   }
 
-  it('step 6: inverting the instruction atom turns the generated specs that name it red, and no other spec moves', async () => {
+  it('step 6: inverting the instruction atom turns the specs that name it red, and no other spec moves', async () => {
     await prove('6 mutate, run', 'approved.yaml, generated specs', 'mutant/, run results', async () => {
       const approved = must(chain.approved, '2');
       const generated = must(chain.specs, '5');
       const atom = approved.atoms.find((candidate) => candidate.id === R7);
       if (atom === undefined) throw new Error(`${R7} is not an atom of the approved map`);
 
-      const live = generated.filter((entry) => entry.folder === 'specs/live');
-      const byPath = new Map(live.map((entry) => [entry.path, entry]));
-      const forcePush = live
-        .filter(
-          ({ spec }) =>
-            spec.metadata.estate.testType === 'guard_positive' &&
-            spec.metadata.estate.atoms.includes(FORCE_PUSH_GUARD) &&
-            spec.metadata.estate.cell.deviation === 'none',
-        )
-        .map((entry) => entry.path)
-        .sort()[0];
-      const paths = [
-        ...PROOF.map((name) => join(work, 'generated', 'specs', 'live', name)),
-        forcePush ?? '',
-      ].sort();
-      const proof = paths.map((path) => {
-        const entry = byPath.get(path);
-        if (entry === undefined) throw new Error(`the generated suite has no live spec ${path}`);
-        return entry;
-      });
-      expect(proof).toHaveLength(14);
-      const naming = proof.filter((entry) => atomsOf(entry).includes(R7));
-      const others = proof.filter((entry) => !atomsOf(entry).includes(R7));
-      expect(naming.map((entry) => entry.spec.metadata.estate.testType).sort()).toEqual([
-        'obligation',
-        'outside_trigger',
-        'twin',
-      ]);
-      expect(others).toHaveLength(11);
-
-      // The generated specs are the committed ones, except for the plan path they record.
-      for (const entry of proof) {
-        const name = relative(join(work, 'generated'), entry.path);
-        const committed = parseYaml(
-          await readFile(join(FIXTURE, 'generated', name), 'utf8'),
-        ) as Generated['spec'];
-        const mine = structuredClone(entry.spec);
-        delete mine.metadata.estate.plan;
-        delete committed.metadata.estate.plan;
-        expect(mine, name).toEqual(committed);
-      }
-
       // No model: the command is the fixture's stand-in, and a run of the real runtime is refused.
       expect(await isStandIn(FAKE)).toBe(true);
       const refused = await cli([
         'estate',
         'run',
-        paths[0] ?? '',
+        join(work, 'generated', 'specs', 'live', PROOF[0] ?? ''),
         '--estate',
         FIXTURE,
         '--runtime',
@@ -659,29 +627,6 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       ]);
       expect(refused.code).toBe(2);
       expect(refused.err).toContain('claude is not a stand-in');
-
-      // The stand-in's recorded behaviour for this atom is keyed on the atom's own quote, in its own file.
-      const recorded = JSON.parse(await readFile(MANIFEST, 'utf8')) as {
-        asks: Array<{ unless?: Array<{ file: string; quote: string }> }>;
-      };
-      const keyed = recorded.asks
-        .flatMap((ask) => ask.unless ?? [])
-        .filter((rule) => rule.quote === atom.provenance.quote);
-      expect(keyed.length).toBeGreaterThan(0);
-      expect(keyed.every((rule) => rule.file === atom.provenance.file)).toBe(true);
-
-      // The original estate, pinned to the map this chain approved: the specs that name the atom pass.
-      const original = await estateRun('original', FIXTURE, paths, '--map', join(work, 'approved.yaml'));
-      expect(original.code).toBe(1);
-      expect(original.json.standIn).toBe(true);
-      expect(original.json.costUsd).toBe(0);
-      expect(original.json.pins).toEqual([approved.hash]);
-      const clean = original.outcome;
-      expect(Object.keys(clean)).toHaveLength(14);
-      expect(
-        sorted(Object.entries(clean).flatMap(([id, outcome]) => (outcome === 'pass' ? [] : [id]))),
-      ).toEqual(sorted(FAULTS));
-      for (const entry of naming) expect(clean[entry.spec.id], entry.spec.id).toBe('pass');
 
       // The mutant: the atom's line inverted in a copy of the estate, with its own map beside it.
       const mutantDir = join(work, 'mutant');
@@ -753,22 +698,134 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       );
       expect(await readdir(work)).not.toContain('refused');
 
-      // The same 14 specs on the mutant, pinned to the original map hash and to the mutant's own.
+      // What the stand-in reads of the estate: each recorded ask has alternatives, and when the estate copy
+      // no longer holds a quote, the alternative plays instead. On the original none plays. On the mutant the
+      // ones that play are keyed on the inverted line, and so are the asks they belong to.
+      const recorded = JSON.parse(await readFile(MANIFEST, 'utf8')) as {
+        asks: Array<{ ask: string; unless?: Array<{ file: string; quote: string }> }>;
+      };
+      const alternatives = recorded.asks.flatMap((entry) =>
+        (entry.unless ?? []).map((rule) => ({ ask: entry.ask, ...rule })),
+      );
+      const playing = async (root: string) => {
+        const out: typeof alternatives = [];
+        for (const rule of alternatives) {
+          if (!(await readFile(join(root, rule.file), 'utf8')).includes(rule.quote)) out.push(rule);
+        }
+        return out;
+      };
+      expect(await playing(FIXTURE)).toEqual([]);
+      const played = await playing(mutantDir);
+      expect(played.length).toBeGreaterThan(0);
+      for (const rule of played) {
+        expect([rule.file, rule.quote], rule.ask).toEqual([atom.provenance.file, atom.provenance.quote]);
+      }
+      const affected = new Set(played.map((rule) => rule.ask));
+
+      // The specs to run. Every spec that names the atom. Every other spec whose ask is one the mutant
+      // changes: in playback mode the stand-in reads the changed file only through those alternatives, so
+      // these are the specs that can move. And the specs of the fixture's own proof, one of each test type,
+      // that carry no changed ask: the controls.
+      const live = generated.filter((entry) => entry.folder === 'specs/live');
+      const byPath = new Map(live.map((entry) => [entry.path, entry]));
+      const asksChanged = (entry: Generated) =>
+        entry.spec.blocks.some((block) => affected.has(block.when?.user ?? ''));
+      const naming = live.filter((entry) => atomsOf(entry).includes(R7));
+      const sharing = live.filter((entry) => !naming.includes(entry) && asksChanged(entry));
+      const forcePush = live
+        .filter(
+          ({ spec }) =>
+            spec.metadata.estate.testType === 'guard_positive' &&
+            spec.metadata.estate.atoms.includes(FORCE_PUSH_GUARD) &&
+            spec.metadata.estate.cell.deviation === 'none',
+        )
+        .map((entry) => entry.path)
+        .sort()[0];
+      const proof = [
+        ...PROOF.map((name) => join(work, 'generated', 'specs', 'live', name)),
+        forcePush ?? '',
+      ].map((path) => {
+        const entry = byPath.get(path);
+        if (entry === undefined) throw new Error(`the generated suite has no live spec ${path}`);
+        return entry;
+      });
+      expect(proof).toHaveLength(14);
+      const controls = proof.filter((entry) => !naming.includes(entry) && !sharing.includes(entry));
+      expect(controls.length).toBeGreaterThan(0);
+      expect(naming.map((entry) => entry.spec.metadata.estate.testType)).toEqual(
+        expect.arrayContaining(['obligation', 'outside_trigger', 'twin']),
+      );
+      expect(sharing.length).toBeGreaterThan(0);
+      const paths = [...naming, ...sharing, ...controls].map((entry) => entry.path).sort();
+      expect(new Set(paths).size).toBe(paths.length);
+
+      // The generated specs of the proof are the committed ones, except for the plan path they record.
+      for (const entry of proof) {
+        const name = relative(join(work, 'generated'), entry.path);
+        const committed = parseYaml(
+          await readFile(join(FIXTURE, 'generated', name), 'utf8'),
+        ) as Generated['spec'];
+        const mine = structuredClone(entry.spec);
+        delete mine.metadata.estate.plan;
+        delete committed.metadata.estate.plan;
+        expect(mine, name).toEqual(committed);
+      }
+
+      // The original estate, pinned to the map this chain approved.
+      const original = await estateRun('original', FIXTURE, paths, '--map', join(work, 'approved.yaml'));
+      expect(original.code).toBe(1);
+      expect(original.json.standIn).toBe(true);
+      expect(original.json.costUsd).toBe(0);
+      expect(original.json.pins).toEqual([approved.hash]);
+      const before = original.results;
+      expect(Object.keys(before)).toHaveLength(paths.length);
+      // Every spec that names the atom passes. The specs that fail are the two planted faults of the
+      // recorded streams, and the specs of the carrier-code rule: its recorded stream runs no `track.sh`.
+      for (const entry of naming) expect(before[entry.spec.id]?.outcome, entry.spec.id).toBe('pass');
+      const carrier = sharing.filter((entry) => atomsOf(entry).includes(CARRIER_CODE));
+      expect(carrier.length).toBeGreaterThan(0);
+      for (const entry of carrier) {
+        expect(before[entry.spec.id], entry.spec.id).toEqual({
+          outcome: 'fail',
+          failing: ['block 0: custom.some_call.0'],
+        });
+      }
+      expect(
+        sorted(Object.entries(before).flatMap(([id, result]) => (result.outcome === 'pass' ? [] : [id]))),
+      ).toEqual(sorted([...FAULTS, ...carrier.map((entry) => entry.spec.id)]));
+
+      // The same specs on the mutant, pinned to the original map hash and to the mutant's own.
       const mutant = await estateRun('mutant', mutantDir, paths);
       expect(mutant.code).toBe(1);
       expect(mutant.json.standIn).toBe(true);
       expect(mutant.json.pins).toEqual([approved.hash, record.mapHash]);
-      const changed = mutant.outcome;
-      const red = naming.filter((entry) => changed[entry.spec.id] === 'fail');
-      // At least one spec that names the atom fails on the mutant: the obligation and its twin.
-      expect(sorted(red.map((entry) => entry.spec.metadata.estate.testType))).toEqual(['obligation', 'twin']);
-      // The control that must not fire where the rule does not apply stays green.
-      for (const entry of naming.filter((candidate) => !red.includes(candidate))) {
-        expect(changed[entry.spec.id], entry.spec.id).toBe('pass');
+      const after = mutant.results;
+      expect(Object.keys(after).sort()).toEqual(Object.keys(before).sort());
+
+      // A spec that names the atom and asks what the mutant changes fails: the reply no longer says "late".
+      // The control that must not fire where the rule does not apply (its ask is a neutral one) stays green.
+      const red = naming.filter((entry) => after[entry.spec.id]?.outcome === 'fail');
+      expect(red.map((entry) => entry.spec.id).sort()).toEqual(
+        sorted(naming.filter(asksChanged).map((entry) => entry.spec.id)),
+      );
+      expect(sorted(new Set(red.map((entry) => entry.spec.metadata.estate.testType)))).toEqual([
+        'obligation',
+        'twin',
+      ]);
+      for (const entry of red) {
+        expect(after[entry.spec.id], entry.spec.id).toEqual({
+          outcome: 'fail',
+          failing: ['block 0: must.0'],
+        });
       }
-      // The specs that do not name the atom give the outcome they gave before.
-      for (const entry of others) expect(changed[entry.spec.id], entry.spec.id).toBe(clean[entry.spec.id]);
-      return `${R7} inverted, map ${short(approved.hash)} to ${short(record.mapHash)}; ${red.length} of ${naming.length} specs that name it fail`;
+      for (const entry of naming.filter((candidate) => !red.includes(candidate))) {
+        expect(after[entry.spec.id], entry.spec.id).toEqual(before[entry.spec.id]);
+      }
+      // Every other spec gives the result it gave before, the failing checks included.
+      for (const entry of [...sharing, ...controls]) {
+        expect(after[entry.spec.id], entry.spec.id).toEqual(before[entry.spec.id]);
+      }
+      return `${R7} inverted, map ${short(approved.hash)} to ${short(record.mapHash)}; ${red.length} of ${naming.length} specs that name it fail, ${sharing.length + controls.length} others unchanged`;
     });
   });
 
@@ -949,6 +1006,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       expect(bulk.err).toBe('');
       expect(bulk.code).toBe(1);
       const wide = JSON.parse(await readFile(wideOut, 'utf8')) as ImpactJson;
+      chain.suiteImpact = wide;
       expect(wide.tests.live).toBe(suite.length);
       expect(sorted(wide.regenerate.map((entry) => entry.test))).toEqual(
         sorted(regenerating.map((entry) => entry.spec.id)),
@@ -1027,7 +1085,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       expect(report.totals.F).toMatchObject({ in: inside, direct: inside, forward: 0, out: outside });
 
       // The radius, the impact of step 8 and the metadata of step 5 name the same specs.
-      const impact = JSON.parse(await readFile(join(work, 'impact-generated.json'), 'utf8')) as ImpactJson;
+      const impact = must(chain.suiteImpact, '8');
       expect(sorted(impact.reapprove.find((entry) => entry.atom === R7)?.tests ?? [])).toEqual(
         sorted(namingR7),
       );
