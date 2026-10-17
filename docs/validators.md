@@ -36,6 +36,15 @@ Score. Level 1: every generated spec validates and lints, and the same seed give
 
 Feedback. An unkilled fault prints the fault, the rule it breaks, and the nearest block that targets that rule with the check it lacks (for example, a D6 fault unkilled because no block expects must_not on the planted instruction). A wrong expectation prints the block, the follower's actual trace, and the map entry the expectation came from. A cheater-passed block prints which cheater and which check let it through.
 
+### 3.1 The reference unit of the generator's scale items
+
+The scale items generate the hidden specification with 10 and 100 times its behaviours, each factor in its own child process. The time items (`scale.10x.time`, `scale.100x.time`) measure the CPU time of the child's window: both generations and their writes, the byte comparison, the reload and the cleanup. CPU time in seconds depends on the host. On a host with fast and slow cores, or under load, the same code costs several times more. So the items divide it by a reference unit measured during the same window.
+
+* The unit is fixed work that uses only Node built-ins: build 200 small JSON objects, write each to its own file, read them back, parse and hash them, delete the folder. `scale-unit.ts` repeats it in a separate process beside the window. It sleeps four times the unit's wall time between units, so it takes about a fifth of one core.
+* The window's CPU time is divided by the mean CPU time of the units that ended inside the window. A run passes when the result is at most the factor's budget in units. With fewer than 10 unit samples in the window, the item fails and says so.
+* The budgets are 857 units at 10 times and 1714 units at 100 times. These are the earlier 30 s and 60 s on a host where the unit takes 35 ms. The derivation and the runs behind each number are in [validators/CONSTANTS.md](../validators/CONSTANTS.md).
+* A product that is slower or grows faster costs more units, on any host. A slower host makes the units cost more too, so the verdict stays the same.
+
 ## 4. The judge validator (do judges classify, resist, and agree)
 
 How it works. A judge is a classifier of transcript slices. The validator builds a labelled set without human labels beyond the fixture pairs: a transcript from the reference agent is a pass for every criterion the agent satisfies by construction; a transcript from a fault agent is a fail for the criterion that fault breaks and a pass for the others. Labels come from the fault family, so they are exact. The set is split into visible and hidden. Each judge client (chat judges and system-1 judges) runs on it through its cassette; a live run is a separate, billed mode the owner approves.

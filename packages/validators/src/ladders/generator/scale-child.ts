@@ -11,11 +11,16 @@
  * (docs/generating.md, "Streaming generation to disk"), the child generates through it, so the memory budget
  * measures the generator's bounded path and not a whole suite the harness itself keeps. The optional fourth
  * argument names a module overriding `generateSuiteToDisk` or `loadApprovedMap`: tests plant mutants with it.
+ *
+ * Beside the measured window the child runs the reference unit sampler (`scale-unit.ts`) and reports the mean CPU
+ * time of the units that ended inside the window, with their count: the time items divide the window's CPU time
+ * by it. `DRIFTBENCH_SCALE_UNIT_IMPORT` names a module the sampler imports first: tests plant a slower host.
  */
+import { spawn } from 'node:child_process';
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, sep } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { type LoadedSpec, loadSpecFile } from '@agent-nexus/driftbench-core';
 import * as generator from '@agent-nexus/driftbench-generate';
 import {
@@ -93,11 +98,52 @@ function isSpec(path: string): boolean {
   );
 }
 
+/** The reference unit samples, as [end wall time, CPU ms], read from the sampler while it runs. */
+const units: Array<[number, number]> = [];
+const planted = process.env.DRIFTBENCH_SCALE_UNIT_IMPORT;
+const sampler = spawn(
+  process.execPath,
+  [
+    '--import',
+    'tsx',
+    ...(planted ? ['--import', pathToFileURL(planted).href] : []),
+    fileURLToPath(new URL('./scale-unit.ts', import.meta.url)),
+  ],
+  { stdio: ['pipe', 'pipe', 'pipe'] },
+);
+// A sampler that stops early leaves fewer samples, which the time item reports; it never stops the child.
+let samplerErr = '';
+sampler.stderr.on('data', (chunk) => {
+  samplerErr = `${samplerErr}${String(chunk)}`.slice(-2000);
+});
+sampler.stdin.on('error', () => {});
+const samplerClosed = new Promise<void>((resolve) => {
+  sampler.on('close', (code) => {
+    if (code !== 0 && code !== null)
+      process.stderr.write(`reference unit sampler exited ${code}: ${samplerErr}\n`);
+    resolve();
+  });
+  sampler.on('error', () => resolve());
+});
+let unitText = '';
+sampler.stdout.on('data', (chunk) => {
+  unitText += String(chunk);
+  const lines = unitText.split('\n');
+  unitText = lines.pop() ?? '';
+  for (const line of lines) {
+    const [end, ms] = line.split(' ').map(Number);
+    if (Number.isFinite(end) && Number.isFinite(ms)) units.push([end as number, ms as number]);
+  }
+});
+
 // Match the old generateFrom(spec, renderMap(spec), seed) window, including setup and the first load.
 // CPU time (user and system) excludes time spent waiting for a busy machine.
+const windowStart = Date.now();
 const started = process.cpuUsage();
 const root = await mkdtemp(join(tmpdir(), 'driftbench-vscale-'));
 let measuredMicros = 0;
+let unitMs = 0;
+let unitSamples = 0;
 let out: ScaleReport;
 try {
   const mapDir = join(root, 'map');
@@ -132,6 +178,13 @@ try {
   }
   const used = process.cpuUsage(started);
   measuredMicros = used.user + used.system;
+  const windowEnd = Date.now();
+  sampler.stdin.end();
+  await Promise.race([samplerClosed, new Promise((resolve) => setTimeout(resolve, 30_000))]);
+  sampler.kill('SIGKILL');
+  const inside = units.filter(([end]) => end >= windowStart && end <= windowEnd).map(([, ms]) => ms);
+  unitSamples = inside.length;
+  unitMs = inside.reduce((sum, ms) => sum + ms, 0) / Math.max(1, inside.length);
   const adapter = followerAdapter(createFollower(spec));
   let followerPass = 0;
   let followerTotal = 0;
@@ -169,8 +222,11 @@ try {
     completeShare: report && report.summary.specs > 0 ? report.summary.complete / report.summary.specs : 0,
     followerPass,
     followerTotal,
+    unitMs,
+    unitSamples,
   };
 } finally {
+  sampler.kill('SIGKILL');
   // Files must survive for the follower's one-spec-at-a-time reads. Count their cleanup separately,
   // keeping follower execution and its extra reads outside the original generation-time window.
   const cleanupStarted = process.cpuUsage();

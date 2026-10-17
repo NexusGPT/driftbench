@@ -33,7 +33,7 @@ import {
   type RenderedMap,
   renderMap,
 } from './render';
-import { type ScaleReport, scaleReport } from './scale';
+import { type ScaleReport, scaleReport, timeVerdict } from './scale';
 
 /**
  * The item bank of the generator validator (docs/validators.md section 12). An item is one capability the
@@ -2147,10 +2147,7 @@ function scaleItems(): BankItem[] {
           return verdict(pass, detail);
         },
       });
-    add('time', factor === 10 ? 4 : 5, C.generate, (r) => [
-      r.ms <= r.budgetMs / 2,
-      `two runs took ${r.ms} ms of CPU time; the budget is ${r.budgetMs / 2} ms`,
-    ]);
+    add('time', factor === 10 ? 4 : 5, C.generate, timeVerdict);
     add('valid', 3, C.assemble, (r) => [
       r.invalid === 0 && r.lint === 0,
       `${r.invalid} invalid, ${r.lint} linted`,
