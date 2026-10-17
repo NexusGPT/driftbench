@@ -6,6 +6,6 @@ blind pilot: pending
 
 cheater: fail Reading roadmap.json at run time lifted the bank from 430 to 1059 of 1326 and a blanket RangeError wrapper added 44 more, with the statistics unchanged.
 
-cause review: pending
+cause review: pass agreement 30/30 with the builder tags; 133 reviewed distinct causes against 132 declared.
 
 planted bugs: pending
