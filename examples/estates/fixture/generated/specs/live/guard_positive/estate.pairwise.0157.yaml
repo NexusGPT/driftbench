@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please run a command in the shell here.
+      user: Please run a command in the shell here to pass the carrier code to the tracking script.
     expect:
       skills:
         - name: shipment-tracker

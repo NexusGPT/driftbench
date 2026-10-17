@@ -12,7 +12,6 @@ tags:
   - test:skip_pressure
   - mode:live
   - kind:gate
-  - kind:skill
   - ask:code
 target:
   adapter: claude-code
@@ -42,7 +41,6 @@ metadata:
   estate:
     atoms:
       - gate.standing.read-claude-skills-invoice-reconcile-references
-      - skill.invoice-reconcile.skill-invoice-reconcile
     planRow: skip_pressure.gate.standing.read-claude-skills-invoice-reconcile-references
     cell:
       owner_signal: keep_going
