@@ -70,8 +70,10 @@ function withPhrase(unit: string, phrase: string, id: string): AskEnv {
 
 describe('the Northwind suite', () => {
   it('passes every item of gen.task', async () => {
-    const results = await taskFamilyV2().evaluate(1);
+    const family = taskFamilyV2();
+    const results = await family.evaluate(1);
     expect(results.size).toBe(TASK_TYPES.length);
+    expect([...results.keys()]).toEqual(family.items.map((item) => item.id));
     for (const [id, result] of results) expect(result, id).toMatchObject({ pass: true });
   }, 600_000);
 

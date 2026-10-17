@@ -48,6 +48,35 @@ describe('a piece is a whole clause of its source', () => {
     expect(isClauseOf('Never moor on a Sunday', rule)).toBe(false);
     expect(isClauseOf('moor on a Sunday', rule)).toBe(true);
   });
+
+  it.each([
+    ['check', 'Check, match or reconcile an invoice.'],
+    ['check invoices, match receipts', 'Check invoices, match receipts, or reconcile a payment.'],
+    ['check an invoice', 'Check an invoice, before paying the supplier.'],
+    ['match receipts', 'Check invoices, match receipts, or reconcile a payment.'],
+    ['reconcile a payment', 'Check, match or reconcile a payment.'],
+    ['match a receipt', 'Check an invoice, match a receipt.'],
+  ])('rejects the comma cut %s from %s', (piece, source) => {
+    expect(isClauseOf(piece, fieldsOf(atom({ fields: { description: source } })))).toBe(false);
+  });
+
+  it.each(['Check an invoice', 'Match a receipt', 'Reconcile a payment'])(
+    'accepts the complete clause %s',
+    (piece) => {
+      const fields = fieldsOf(
+        atom({ fields: { description: 'Check an invoice; Match a receipt. Reconcile a payment' } }),
+      );
+      expect(isClauseOf(piece, fields)).toBe(true);
+    },
+  );
+
+  it.each([
+    ['Check', 'Check "the invoice" before paying.'],
+    ['Check an invoice', 'Check an invoice (before paying the supplier).'],
+    ['Check an invoice', 'Check an invoice: match its reference first.'],
+  ])('rejects the punctuation cut %s from %s', (piece, source) => {
+    expect(isClauseOf(piece, fieldsOf(atom({ fields: { description: source } })))).toBe(false);
+  });
 });
 
 describe('the share of a rule an ask restates', () => {
