@@ -18,6 +18,7 @@ import { objectItems } from './levels/objects';
 import { parentItems } from './levels/parents';
 import { personaItems } from './levels/personas';
 import { scaleItems } from './levels/scale';
+import { twinItems } from './levels/twins';
 import { valueItems } from './levels/values';
 import { verdictItems } from './levels/verdicts';
 import type { BlocksProduct } from './product';
@@ -38,6 +39,7 @@ export function blocksBank(): BankItem[] {
     ...boundaryItems(),
     ...adversarialItems(),
     ...scaleItems(),
+    ...twinItems(),
     ...historyItems(),
     ...intervalItems(),
     ...objectItems(),
