@@ -5,8 +5,8 @@ import { APPROVED_PLAN, fixtureInputs, PLANNER_PATHS } from './support';
 
 const GUARD = 'guard.settings.stop-guard-reply-length-py';
 const APPROVED = [
-  'List every skill in this workspace and what each one does.',
-  'Walk me through every folder of this workspace and what it holds.',
+  'List every skill in this workspace and what each one does in your reply.',
+  'Walk me through every folder of this workspace and what it holds in a reply.',
 ];
 
 it('asks the live positive tests of the reply-length guard with an approved request that leads to a long reply', async () => {
@@ -25,6 +25,8 @@ it('asks the live positive tests of the reply-length guard with an approved requ
     // The rule's exception is a request for detail: the approved request does not make it.
     expect(ask, record.id).not.toMatch(/detail/i);
     expect(ask, record.id).toMatch(/every/i);
+    // The guard watches the reply: an ask that names the reply names the act the rule governs.
+    expect(ask, record.id).toMatch(/\breply\b/i);
     expect(APPROVED, record.id).toContain(ask);
   }
 }, 120_000);

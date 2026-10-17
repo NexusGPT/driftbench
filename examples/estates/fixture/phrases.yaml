@@ -303,8 +303,8 @@ situations:
     workspace: northwind-ops
     touches: {}
     phrases:
-      - { text: 'List every skill in this workspace and what each one does.', lang: en, approved: true }
-      - { text: 'Walk me through every folder of this workspace and what it holds.', lang: en, approved: true }
+      - { text: 'List every skill in this workspace and what each one does in your reply.', lang: en, approved: true }
+      - { text: 'Walk me through every folder of this workspace and what it holds in a reply.', lang: en, approved: true }
 
   - id: plain-push
     title: An ask to push with no force

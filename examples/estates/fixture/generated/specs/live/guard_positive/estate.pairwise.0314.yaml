@@ -53,7 +53,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: List every skill in this workspace and what each one does.
+      user: List every skill in this workspace and what each one does in your reply.
     expect:
       guards:
         - name: reply-length.py
