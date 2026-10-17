@@ -279,7 +279,10 @@ export function actOf(
   // that unit shares. What tells them apart is what each file is about: its own name.
   if (head?.kind !== 'reference' || found.act === '' || found.source.startsWith(`${head.id} (`)) return found;
   const subject = fileSubject(head.fields?.path);
-  if (subject === undefined || lower(found.act).includes(subject)) return found;
+  if (subject === undefined) return found;
+  // A subject whose words the task already holds is not repeated ("weave a panel" holds "weave panel").
+  const taskWords = new Set(lower(found.act).match(/\p{L}+|\d+/gu) ?? []);
+  if (subject.split(' ').every((word) => taskWords.has(word))) return found;
   return {
     ...found,
     act: `${found.act}, including the ${subject}`,

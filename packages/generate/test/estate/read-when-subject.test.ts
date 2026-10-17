@@ -53,4 +53,20 @@ describe('a file that states no moment is read at the work of its unit and the s
     const found = actOf([reference('references/batch.md', '- `references/batch.md`'), owner]);
     expect(found.act).toBe('fire a batch');
   });
+
+  it('compares words, not substrings, to decide a subject is already in the task', () => {
+    const weaver = atom('skill.loom', {
+      fields: { name: 'loom', description: 'Weave a panel. Use when the user asks to weave a panel.' },
+      provenance: { quote: 'x', file: '.claude/skills/loom/SKILL.md' },
+    });
+    const ref = (path: string) =>
+      atom(`reference.loom.${path.replace(/\W+/g, '-')}`, {
+        fields: { path, readWhen: `- \`${path}\`` },
+        provenance: { quote: path, file: '.claude/skills/loom/SKILL.md' },
+      });
+    // Every word of the subject is in the task, in another order and with words between: not repeated.
+    expect(actOf([ref('references/weave-panel.md'), weaver]).act).toBe('weave a panel');
+    // A word that only sits inside a longer one is not a repeat: "pan" is not in "panel".
+    expect(actOf([ref('references/pan.md'), weaver]).act).toBe('weave a panel, including the pan');
+  });
 });
