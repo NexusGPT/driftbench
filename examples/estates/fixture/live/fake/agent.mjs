@@ -228,26 +228,26 @@ function covers(matcher, tool) {
   }
 }
 
-/** Whether a permission rule of the settings denies a call. */
-function denied(settings, tool, input) {
-  const rules = settings?.permissions?.deny ?? [];
-  return rules.some((rule) => {
-    const match = /^([A-Za-z]+)(?:\((.*)\))?$/.exec(rule);
-    if (!match || match[1] !== tool) return false;
-    if (match[2] === undefined) return true;
-    const pattern = match[2].replace(/:\*$/, '').replace(/\*$/, '');
-    return typeof input.command === 'string' && input.command.trim().startsWith(pattern);
-  });
-}
-
-/** The tools the runtime runs without asking: reading and searching, loading a skill, dispatching a helper. */
-const UNASKED = new Set(['Read', 'Grep', 'Glob', 'LS', 'Skill', 'Agent', 'Task', 'TodoWrite']);
+/**
+ * The tools the runtime runs without asking: reading, searching and dispatching a helper. Loading a skill is asked
+ * for: the live adapter passes `Skill` in `--allowed-tools` on a trusted run for that reason.
+ */
+const UNASKED = new Set(['Read', 'Grep', 'Glob', 'LS', 'Agent', 'Task', 'TodoWrite']);
 const EDIT_TOOLS = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit']);
 
+/** The commands of a shell line: the parts between `&&`, `||`, `;` and `|`, each judged on its own. */
+function commandParts(command) {
+  return command
+    .split(/&&|\|\||;|\|/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
 /**
- * Whether a permission rule (`Tool` or `Tool(pattern)`) covers a call, as the runtime reads it: a command pattern
- * is read on the command (`:*` or a trailing `*` as a prefix, `*` elsewhere as any text), a path pattern on the
- * file path. A rule a skill declares names its own files from its folder (`Bash(./scripts/x.sh *)`).
+ * Whether a permission rule (`Tool` or `Tool(pattern)`) covers one call, or one command of a shell line, as the
+ * runtime reads it: a command pattern is read on the command (`:*` or a trailing `*` as a prefix, `*` elsewhere as
+ * any text), a path pattern on the file path. A rule a skill declares names its own files from its folder
+ * (`Bash(./scripts/x.sh *)`).
  */
 function ruleCovers(rule, tool, input, cwd, folder = '') {
   const match = /^\s*([A-Za-z]+)\s*(?:\((.*)\))?\s*$/.exec(String(rule));
@@ -271,21 +271,32 @@ function ruleCovers(rule, tool, input, cwd, folder = '') {
 }
 
 /**
- * What the permission system does with a call: `deny` (a deny rule), `ask` (an ask rule), `allow` (an allow rule
- * of the settings or of the run, a tool the active skill declares in `allowed-tools`, a tool that needs no
- * permission, or a mode that grants it), else `ask`. Deny comes before ask and ask before allow.
+ * What the permission system does with a call, in the runtime's order: `deny` (a tool the run disallows, or a deny
+ * rule of the settings), `ask` (an ask rule; plan mode, for a call that is not a read, a search or a dispatch),
+ * `allow` (a tool that needs no permission, a mode that grants it, a rule the run allows with `--allowed-tools`, or a
+ * tool the active skill declares in `allowed-tools`), else `ask`. The settings' own allow list is not read: a headless
+ * run in a folder never trusted interactively ignores it, and the live adapter passes it as `--allowed-tools` when it
+ * trusts the estate. A shell line is covered by an allow rule only when each of its commands is, and by a deny or ask
+ * rule when one of them is.
  */
-function permissionOf({ settings, mode, granted, unit, cwd }, tool, input) {
+function permissionOf({ settings, mode, granted, disallowed, skill, cwd }, tool, input) {
   const rules = settings?.permissions ?? {};
-  const covered = (list, folder = '') =>
-    (Array.isArray(list) ? list : []).some((rule) => ruleCovers(rule, tool, input, cwd, folder));
-  if (covered(rules.deny)) return 'deny';
-  if (covered(rules.ask)) return 'ask';
-  if (UNASKED.has(tool) || mode === 'bypassPermissions') return 'allow';
+  const inputs =
+    tool === 'Bash' && typeof input.command === 'string'
+      ? commandParts(input.command).map((command) => ({ ...input, command }))
+      : [input];
+  const covers = (list, one, folder = '') =>
+    (Array.isArray(list) ? list : []).some((rule) => ruleCovers(rule, tool, one, cwd, folder));
+  const some = (list) => inputs.some((one) => covers(list, one));
+  if (some(disallowed) || some(rules.deny)) return 'deny';
+  if (some(rules.ask)) return 'ask';
+  if (UNASKED.has(tool)) return 'allow';
+  if (mode === 'plan') return 'ask';
+  if (mode === 'bypassPermissions') return 'allow';
   if (mode === 'acceptEdits' && EDIT_TOOLS.has(tool)) return 'allow';
-  const declared = unit?.kind === 'skill' ? String(unit.tools ?? '').split(/,(?![^(]*\))/) : [];
-  if (covered(rules.allow) || covered(granted) || covered(declared, unit?.folder ?? '')) return 'allow';
-  return 'ask';
+  const declared = skill ? String(skill.tools ?? '').split(/,(?![^(]*\))/) : [];
+  const each = inputs.every((one) => covers(granted, one) || covers(declared, one, skill?.folder ?? ''));
+  return each ? 'allow' : 'ask';
 }
 
 // Sentence boundaries outside code spans only: dots in filenames and commands are not punctuation.
@@ -875,6 +886,7 @@ export function planStream({
   compacted = false,
   permissionMode,
   allowedTools = [],
+  disallowedTools = [],
 }) {
   const estate = readEstate(cwd);
   const unit = route(ask, estate);
@@ -947,6 +959,22 @@ export function planStream({
     return block;
   };
 
+  // The skill whose instructions the session holds: set once its load ran; its `allowed-tools` grant only then.
+  let activeSkill;
+  const permit = (tool, input) =>
+    permissionOf(
+      {
+        settings: estate.settings,
+        mode,
+        granted: allowedTools,
+        disallowed: disallowedTools,
+        skill: activeSkill,
+        cwd,
+      },
+      tool,
+      input,
+    );
+
   /**
    * A tool call as the runtime makes it: denied by a permission, blocked by a hook, refused when it needs a
    * permission nobody granted (a headless run cannot ask), else done.
@@ -958,12 +986,8 @@ export function planStream({
       text(prohibition);
       return undefined;
     }
-    if (denied(estate.settings, tool, input)) return undefined;
-    const permission = permissionOf(
-      { settings: estate.settings, mode, granted: allowedTools, unit, cwd },
-      tool,
-      input,
-    );
+    const permission = permit(tool, input);
+    if (permission === 'deny') return undefined;
     const useId = `toolu_agent_${++id}`;
     out.push({
       type: 'assistant',
@@ -1028,9 +1052,7 @@ export function planStream({
     const before = read(path) ?? '';
     const added = `${before.endsWith('\n') ? '' : '\n'}Updated as asked.\n`;
     // The change goes through a tool the run may use: Edit, else Write of the whole file when only Write is granted.
-    const granted = (tool, input) =>
-      permissionOf({ settings: estate.settings, mode, granted: allowedTools, unit, cwd }, tool, input) ===
-      'allow';
+    const granted = (tool, input) => permit(tool, input) === 'allow';
     const edit = { file_path: path, old_string: before.split('\n').pop() ?? '', new_string: added };
     const whole = { file_path: path, content: `${before}${added}` };
     const [tool, input] =
@@ -1098,7 +1120,8 @@ export function planStream({
     }
   }
   if (unit?.kind === 'skill') {
-    call('Skill', { skill: unit.name }, () => ({ content: `Launching skill: ${unit.name}` }));
+    const loaded = call('Skill', { skill: unit.name }, () => ({ content: `Launching skill: ${unit.name}` }));
+    if (loaded && !loaded.error) activeSkill = unit;
   } else if (unit?.kind === 'helper') {
     const sorted = sortedBy(unit, ask, cwd);
     helperLines = sorted.lines;
@@ -1160,7 +1183,8 @@ export function planStream({
       }));
     }
   }
-  const planUnit = unit?.kind === 'skill' ? unit : { body: '', folder: '' };
+  // A skill whose load was refused gives no instructions to follow.
+  const planUnit = activeSkill ?? { body: '', folder: '' };
   const requested = requestedActions(ask).filter(
     (action) => !(unit?.kind === 'helper' && action.kind === 'Agent' && action.literal === unit.name),
   );
@@ -1256,7 +1280,8 @@ export function planStream({
   text(
     blocked
       ? 'A guard blocked part of the work; I stopped there.'
-      : (replyOf(unit, ask, outputs) ?? ['Done. Here is what I did, in short.', ...helperLines].join('\n')),
+      : (replyOf(activeSkill ?? (unit?.kind === 'helper' ? unit : undefined), ask, outputs) ??
+          ['Done. Here is what I did, in short.', ...helperLines].join('\n')),
   );
   hooks('Stop', undefined, { stop_hook_active: false });
   return { records: out, blocked };
