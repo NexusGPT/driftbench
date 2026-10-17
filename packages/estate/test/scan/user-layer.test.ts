@@ -95,6 +95,15 @@ describe('the user-level skill layer is a second skill layer', () => {
     expect([...(raw.userLayer?.read ?? [])].sort()).toEqual(['kept', 'visible']);
   });
 
+  it.each(['trash', 'Trash'])(
+    'reads a top-level folder named %s that holds a SKILL.md as a skill',
+    async (name) => {
+      process.env.HOME = await home({ [`.claude/skills/${name}/SKILL.md`]: skill('bin-skill') });
+      const { map } = await scan({ 'CLAUDE.md': '# Standing\n' });
+      expect(skillNames(map)).toEqual(['bin-skill']);
+    },
+  );
+
   it('does not read a folder named Trash or trash as a container, but reads a skill that holds a SKILL.md', async () => {
     process.env.HOME = await home({
       '.claude/skills/kept/SKILL.md': skill('kept'),
@@ -164,6 +173,13 @@ describe('the user-level skill layer is a second skill layer', () => {
 });
 
 describe('the folder of the user layer is configurable', () => {
+  it.each(['', '   '])(
+    'refuses an empty userSkills option (%j) instead of reading the working folder',
+    (value) => {
+      expect(() => new ClaudeCodeReader({ userSkills: value })).toThrow(/userSkills must name a folder/);
+    },
+  );
+
   it('reads the folder the reader is given instead of the home folder', async () => {
     process.env.HOME = await home({ '.claude/skills/in-home/SKILL.md': skill('in-home') });
     const other = await home({ 'skills/elsewhere/SKILL.md': skill('elsewhere') });

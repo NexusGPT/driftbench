@@ -178,6 +178,10 @@ export class ClaudeCodeReader implements EstateReader {
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
     this.ignore = options.ignore ?? [];
+    if (options.userSkills !== undefined && options.userSkills.trim() === '')
+      throw new RangeError(
+        'userSkills must name a folder: an empty value would read the working folder as the layer',
+      );
     this.userSkills = options.userSkills;
   }
 
