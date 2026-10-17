@@ -5,10 +5,12 @@ import { mulberry32, quantileSorted, wilson, zFor } from '@agent-nexus/driftbenc
  *
  * A reader is not exact. Without a calibration set the shares are the shares of its decisions, with a Wilson
  * interval that covers sampling only. With a calibration set (conversations whose value a person knows, read
- * by the same reader) the confusion of the reader is estimated, the shares are the maximum-likelihood shares
- * under that confusion (expectation-maximisation), and the interval comes from a parametric bootstrap that
- * redraws both the decisions and the calibration rows, so it covers sampling and the uncertainty of the
- * confusion.
+ * by the same reader) the confusion of the reader is estimated and the shares are the maximum-likelihood shares
+ * under that confusion (expectation-maximisation). The interval is the 2.5 and 97.5 percent points of the
+ * shares that follow from posterior draws of both the decisions and the confusion: the column shares of the
+ * decisions and each row of the confusion are drawn from a Dirichlet distribution with a half added to every
+ * cell (Jeffreys). A column no conversation showed therefore still has a chance of being drawn, which is what
+ * keeps the interval open at a rare share; a redraw from the observed counts alone would leave it closed.
  */
 
 /** Decisions on the conversations read for one variable. `values` follows the order of the variable's values. */
@@ -72,17 +74,11 @@ export function estimateShares(
   const observed = columns(tally);
   const shares = valueShares(correct(observed, confusion), k);
   const draws: number[][] = Array.from({ length: k }, () => []);
+  const decisions = sum(observed);
   for (let b = 0; b < resamples; b++) {
-    const obs = sampleCounts(sum(observed), observed, rng);
-    // Each row is redrawn from its counts plus one fifth per cell, so a cell that was never seen can still appear.
-    const rows = confusion.map((row) =>
-      sampleCounts(
-        sum(row),
-        row.map((cell) => cell + 0.2),
-        rng,
-      ),
-    );
-    const drawn = valueShares(correct(obs, rows), k);
+    const q = dirichlet(observed, rng).map((share) => share * decisions);
+    const rows = confusion.map((row) => dirichlet(row, rng));
+    const drawn = valueShares(correct(q, rows), k);
     if (drawn.every(Number.isFinite)) {
       for (const [i, share] of drawn.entries()) draws[i]?.push(share);
     }
@@ -148,21 +144,33 @@ function correct(observed: readonly number[], rows: readonly number[][]): number
   return pi;
 }
 
-/** One multinomial draw of `n` items over `counts / sum(counts)`, by inverse transform. */
-function sampleCounts(n: number, counts: readonly number[], rng: () => number): number[] {
-  const total = sum(counts);
-  const cumulative: number[] = [];
-  let running = 0;
-  for (const count of counts) {
-    running += count / total;
-    cumulative.push(running);
-  }
-  const out = new Array<number>(counts.length).fill(0);
-  for (let draw = 0; draw < n; draw++) {
+/** A draw from Dirichlet(counts + 1/2): the posterior of a multinomial under the Jeffreys prior. */
+function dirichlet(counts: readonly number[], rng: () => number): number[] {
+  const g = counts.map((count) => gamma(count + 0.5, rng));
+  const total = sum(g);
+  return g.map((x) => x / total);
+}
+
+/** A draw from Gamma(shape, 1) by Marsaglia and Tsang; a shape below 1 is raised by one and scaled back. */
+function gamma(shape: number, rng: () => number): number {
+  if (shape < 1) return gamma(shape + 1, rng) * rng() ** (1 / shape);
+  const d = shape - 1 / 3;
+  const c = 1 / Math.sqrt(9 * d);
+  for (;;) {
+    let x: number;
+    let v: number;
+    do {
+      x = normal(rng);
+      v = 1 + c * x;
+    } while (v <= 0);
+    v = v * v * v;
     const u = rng();
-    let j = 0;
-    while (j < cumulative.length - 1 && u >= (cumulative[j] ?? 1)) j++;
-    out[j] = (out[j] ?? 0) + 1;
+    if (u < 1 - 0.0331 * x ** 4 || Math.log(u) < 0.5 * x * x + d * (1 - v + Math.log(v))) return d * v;
   }
-  return out;
+}
+
+/** A standard normal draw by the Box and Muller method. */
+function normal(rng: () => number): number {
+  const u = 1 - rng();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rng());
 }

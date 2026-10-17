@@ -217,19 +217,28 @@ export async function feedVariables(input: FeedInput): Promise<FeedResult> {
   };
 }
 
-/** The part of a report that may be kept beside the private conversations. */
+/**
+ * The part of a report that may be kept beside the private conversations: numbers only. A variable and a value
+ * are named by their position in the store; the ids stay in the store file.
+ */
 export function privateCountsOf(report: FeedReport): PrivateCounts {
   return {
     agent: report.agent,
     set_hash: report.set_hash,
     read: report.read,
-    variables: report.variables.map((v) => ({
-      id: v.id,
+    variables: report.variables.map((v, variable) => ({
+      variable,
       decided: v.decided,
       unsure: v.unsure,
       absent: v.absent,
       unread: v.unread,
-      values: v.values.map((value) => ({ ...value })),
+      values: v.values.map((value, index) => ({
+        value: index,
+        count: value.count,
+        share: value.share,
+        lower: value.lower,
+        upper: value.upper,
+      })),
     })),
   };
 }

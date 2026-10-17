@@ -1,4 +1,4 @@
-import { chmod, mkdir, mkdtemp, readFile, stat, symlink, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, realpath, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -71,10 +71,14 @@ describe('what leaves a private run', () => {
     const { result } = await run();
     const dir = await mkdtemp(join(tmpdir(), 'feed-private-'));
     const path = await writePrivateCounts(privateCountsOf(result.report), { dir });
-    expect(path).toBe(join(dir, `feed-fixture-agent-${result.report.set_hash.slice(0, 12)}.json`));
+    expect(path).toBe(
+      join(await realpath(dir), `feed-fixture-agent-${result.report.set_hash.slice(0, 12)}.json`),
+    );
     expect((await stat(path)).mode & 0o077).toBe(0);
     const counts = JSON.parse(await readFile(path, 'utf8')) as { variables: Array<{ values: unknown[] }> };
-    expect(counts.variables[0]?.values[0]).toEqual(expect.objectContaining({ count: expect.any(Number) }));
+    expect(counts.variables[0]?.values[0]).toEqual(
+      expect.objectContaining({ count: expect.any(Number), value: 0 }),
+    );
   });
 
   it('refuses a folder inside a git repository', async () => {

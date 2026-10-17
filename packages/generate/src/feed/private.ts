@@ -1,8 +1,9 @@
-import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { createHash, randomBytes } from 'node:crypto';
+import { existsSync, realpathSync } from 'node:fs';
+import { chmod, lstat, mkdir, readdir, readFile, realpath, rename, rm, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { dirname, extname, join, resolve } from 'node:path';
+import { basename, dirname, extname, join, resolve } from 'node:path';
+import { z } from 'zod';
 
 /** One past conversation, as plain text. The id names it for the person who owns the set and is never stored. */
 export type Conversation = { id: string; text: string };
@@ -27,9 +28,25 @@ export function privateDir(env: Record<string, string | undefined> = process.env
   return env.DRIFTBENCH_PRIVATE_DIR?.trim() || join(homedir(), '.driftbench', 'private');
 }
 
-/** Throws when `path`, or a folder above it, is a git work tree: private counts never go where a commit can take them. */
+/** The real path of `path`: symlinks followed as far as the path exists, the rest appended as written. */
+function realPathOf(path: string): string {
+  let existing = resolve(path);
+  const rest: string[] = [];
+  while (!existsSync(existing)) {
+    const parent = dirname(existing);
+    if (parent === existing) break;
+    rest.unshift(basename(existing));
+    existing = parent;
+  }
+  return join(realpathSync(existing), ...rest);
+}
+
+/**
+ * Throws when `path` is, or sits under, a git work tree. The check runs on the real path: a symlink that points
+ * into a repository is inside it, wherever the link itself stands. Private counts never go where a commit can take them.
+ */
 export function assertOutsideRepository(path: string): void {
-  let dir = resolve(path);
+  let dir = realPathOf(path);
   for (;;) {
     if (existsSync(join(dir, '.git'))) {
       throw new Error(`${path} is inside a git repository (${dir}): private counts stay outside it`);
@@ -40,41 +57,70 @@ export function assertOutsideRepository(path: string): void {
   }
 }
 
-/** Counts only: the shape that may leave the machine of the owner of the conversations, besides the store. */
-export type PrivateCounts = {
-  agent: string;
-  set_hash: string;
-  read: number;
-  variables: ReadonlyArray<{
-    id: string;
-    decided: number;
-    unsure: number;
-    absent: number;
-    unread: number;
-    values: ReadonlyArray<{
-      id: string;
-      count: number;
-      share: number | null;
-      lower: number | null;
-      upper: number | null;
-    }>;
-  }>;
-};
+const Count = z.number().int().min(0);
+const Fraction = z.number().min(0).max(1).nullable();
 
 /**
- * Writes the counts of a feed to `<dir>/feed-<agent>-<first 12 hash characters>.json`, owner-only. The folder
- * defaults to privateDir() and must be outside any git repository. Returns the path written.
+ * Counts only, and numbers only: a variable and a value are named by their position in the store, never by a
+ * string. The two strings are the agent (a plain name) and the SHA-256 of the set. Anything else is refused,
+ * so no text can ride in a counts file whatever the caller passes.
+ */
+const PrivateCountsSchema = z.strictObject({
+  agent: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/),
+  set_hash: z.string().regex(/^[0-9a-f]{64}$/),
+  read: Count,
+  variables: z.array(
+    z.strictObject({
+      variable: Count,
+      decided: Count,
+      unsure: Count,
+      absent: Count,
+      unread: Count,
+      values: z.array(
+        z.strictObject({ value: Count, count: Count, share: Fraction, lower: Fraction, upper: Fraction }),
+      ),
+    }),
+  ),
+});
+
+export type PrivateCounts = z.infer<typeof PrivateCountsSchema>;
+
+/**
+ * Writes the counts of a feed to `<dir>/feed-<agent>-<first 12 hash characters>.json`, owner-only (0600) on
+ * every write. The folder defaults to privateDir(); its real path must be outside any git repository, and the
+ * file must not be a symlink. The file is written beside its final name and renamed over it, so an existing
+ * file keeps no older mode and a link is replaced, never followed. Returns the path written.
  */
 export async function writePrivateCounts(
   counts: PrivateCounts,
   options: { dir?: string; env?: Record<string, string | undefined> } = {},
 ): Promise<string> {
-  const dir = resolve(options.dir ?? privateDir(options.env));
+  const parsed = PrivateCountsSchema.safeParse(counts);
+  if (!parsed.success) {
+    // Only the places of the problems: an issue must never echo the value it refused.
+    throw new Error(
+      `invalid counts: ${parsed.error.issues.map((issue) => issue.path.join('.') || '(top)').join(', ')}`,
+    );
+  }
+  const requested = resolve(options.dir ?? privateDir(options.env));
+  assertOutsideRepository(requested);
+  await mkdir(requested, { recursive: true, mode: 0o700 });
+  const dir = await realpath(requested);
   assertOutsideRepository(dir);
-  await mkdir(dir, { recursive: true, mode: 0o700 });
-  const safeAgent = counts.agent.replace(/[^A-Za-z0-9._-]/g, '_');
-  const path = join(dir, `feed-${safeAgent}-${counts.set_hash.slice(0, 12)}.json`);
-  await writeFile(path, `${JSON.stringify(counts, null, 2)}\n`, { mode: 0o600 });
+  const path = join(dir, `feed-${parsed.data.agent}-${parsed.data.set_hash.slice(0, 12)}.json`);
+  const existing = await lstat(path).catch(() => undefined);
+  if (existing?.isSymbolicLink())
+    throw new Error(`${path} is a symlink: private counts are not written through a link`);
+  if (existing !== undefined && !existing.isFile()) throw new Error(`${path} is not a regular file`);
+  const scratch = join(dir, `.feed-${process.pid}-${randomBytes(6).toString('hex')}.tmp`);
+  try {
+    await writeFile(scratch, `${JSON.stringify(parsed.data, null, 2)}\n`, { flag: 'wx', mode: 0o600 });
+    await chmod(scratch, 0o600);
+    await rename(scratch, path);
+  } catch (cause) {
+    await rm(scratch, { force: true });
+    throw cause;
+  }
   return path;
 }
 
