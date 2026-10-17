@@ -63,6 +63,26 @@ describe('judges version 3 labeller bank', () => {
     },
   );
 
+  it.each([1, 2, 647384989])('rejects position-cycle answers on every item for seed %i', async (seed) => {
+    const passing: string[] = [];
+    for (const item of bank) {
+      const result = await runLabellerItem(item, seed, () => {
+        let callIndex = 0;
+        return {
+          id: 'position-cycle',
+          label(request) {
+            const answer =
+              request.labelSet.labels[callIndex % request.labelSet.labels.length]?.name ?? 'none';
+            callIndex += 1;
+            return answer;
+          },
+        };
+      });
+      if (result.pass) passing.push(item.id);
+    }
+    expect(passing).toEqual([]);
+  });
+
   it('regenerates the exact same fixtures but changes construction across seeds', () => {
     for (const item of bank) {
       const first = buildLabellerFixture(item, 17);

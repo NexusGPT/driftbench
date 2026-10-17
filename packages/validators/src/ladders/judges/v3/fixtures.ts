@@ -96,10 +96,19 @@ export function buildLabellerFixture(item: FixtureSpec, seed: number): LabellerF
   };
   const units: FixtureUnit[] = [];
   const rounds = 16 + item.tier * 4;
+  // Preserve every class and the intended prevalence, but never reveal gold through call position.
+  const categories = Array.from({ length: rounds }, (_, n) =>
+    item.family === 'agreement' && item.variant === 5 && n >= count ? (n % 4 === 0 ? 1 : 0) : n % count,
+  );
+  for (let i = categories.length - 1; i > 0; i -= 1) {
+    const j = random() % (i + 1);
+    const atI = categories[i] as number;
+    categories[i] = categories[j] as number;
+    categories[j] = atI;
+  }
   const padding = `Unrelated archive entry. `.repeat(2 ** (item.tier + 2));
   for (let n = 0; n < rounds; n += 1) {
-    let category = n % count;
-    if (item.family === 'agreement' && item.variant === 5 && n >= count) category = n % 4 === 0 ? 1 : 0;
+    const category = categories[n] as number;
     const value = offset + category * width + (random() % width);
     let gold = names[category] as string;
     const serial = `Fictional vessel ${random().toString(36)}. `;

@@ -1,8 +1,8 @@
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { defineLadder, type Ladder } from '@agent-nexus/driftbench-validators';
 import * as validators from '@agent-nexus/driftbench-validators';
+import { defineLadder, type Ladder } from '@agent-nexus/driftbench-validators';
 import { afterEach, expect, it } from 'vitest';
 import { validateCommand } from '../src/commands/validate';
 
@@ -12,19 +12,46 @@ it('registers both judges versions while preserving the default', () => {
   expect(validators.registeredLadderVersions().judges?.[2]?.version).toBe(2);
   expect(validators.registeredLadderVersions().judges?.[3]?.version).toBe(3);
 });
-afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
+afterEach(() => {
+  for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
+});
 function setup() {
   const root = mkdtempSync(join(tmpdir(), 'astra-judges-version-'));
   roots.push(root);
-  const ladder = (version: number): Ladder => defineLadder({
-    component: 'judges', version,
-    levels: [{ id: 'one', name: 'one', metric: 'correct / total', threshold: 1,
-      compute: () => ({ value: 1, items: [] }) }],
-  });
+  const ladder = (version: number): Ladder =>
+    defineLadder({
+      component: 'judges',
+      version,
+      levels: [
+        {
+          id: 'one',
+          name: 'one',
+          metric: 'correct / total',
+          threshold: 1,
+          compute: () => ({ value: 1, items: [] }),
+        },
+      ],
+    });
   const output = { out: '', err: '' };
-  const io = { cwd: root, out: (text: string) => { output.out += text; }, err: (text: string) => { output.err += text; } };
-  return { root, output, io, deps: { root, ladders: () => ({ judges: ladder(2) }),
-    versions: () => ({ judges: { 2: ladder(2), 3: ladder(3) } }) } };
+  const io = {
+    cwd: root,
+    out: (text: string) => {
+      output.out += text;
+    },
+    err: (text: string) => {
+      output.err += text;
+    },
+  };
+  return {
+    root,
+    output,
+    io,
+    deps: {
+      root,
+      ladders: () => ({ judges: ladder(2) }),
+      versions: () => ({ judges: { 2: ladder(2), 3: ladder(3) } }),
+    },
+  };
 }
 
 it('selects version 3 without changing the default version 2', async () => {
@@ -58,8 +85,10 @@ it('reads version 3 hardness evidence apart from the legacy journal', async () =
 it('keeps version 3 commands and evidence paths in the fresh brief', async () => {
   const { io, output, deps, root } = setup();
   mkdirSync(join(root, 'validators'), { recursive: true });
-  writeFileSync(join(root, 'validators/EXECUTOR.md'),
-    'Run driftbench validate <component> --items. Read validators/<component>/HANDOVER.md.');
+  writeFileSync(
+    join(root, 'validators/EXECUTOR.md'),
+    'Run driftbench validate <component> --items. Read validators/<component>/HANDOVER.md.',
+  );
   expect(await validateCommand('judges', { ladderVersion: '3', brief: true, fresh: true }, io, deps)).toBe(0);
   expect(output.out).toContain('driftbench validate judges --ladder-version 3 --items');
   expect(output.out).toContain('validators/judges/v3/HANDOVER.md');
@@ -67,5 +96,7 @@ it('keeps version 3 commands and evidence paths in the fresh brief', async () =>
 
 it('rejects version selection for protect instead of ignoring it', async () => {
   const { io, deps } = setup();
-  expect(await validateCommand('protect', { ladderVersion: '3', branch: 'fix/example', base: 'main' }, io, deps)).toBe(64);
+  expect(
+    await validateCommand('protect', { ladderVersion: '3', branch: 'fix/example', base: 'main' }, io, deps),
+  ).toBe(64);
 });

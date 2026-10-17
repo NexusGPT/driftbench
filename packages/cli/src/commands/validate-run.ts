@@ -90,7 +90,8 @@ export async function validateCommand(
       io.err(`--ladder-version is a whole number of at least 1, not "${options.ladderVersion}".\n`);
       return USAGE_EXIT;
     }
-    const found = deps.versions?.()[component]?.[version] ??
+    const found =
+      deps.versions?.()[component]?.[version] ??
       (ladders[component] && ladderVersion(ladders[component]) === version ? ladders[component] : undefined);
     if (!found) {
       io.err(`No ladder version ${version} is registered for "${component}".\n`);
@@ -135,9 +136,23 @@ export async function validateCommand(
     io.err('--brief, --journal and --hardness take one component, not all.\n');
     return USAGE_EXIT;
   }
-  if (options.hardness) return hardnessCommand(evidenceComponent(chosen[0] as Ladder), Boolean(options.json), root, io);
+  if (options.hardness)
+    return hardnessCommand(
+      component,
+      Boolean(options.json),
+      root,
+      io,
+      evidenceComponent(chosen[0] as Ladder),
+    );
   if (options.journal !== undefined) {
-    return journalCommand(chosen[0] as Ladder, options.journal, floors, root, io, evidenceComponent(chosen[0] as Ladder));
+    return journalCommand(
+      chosen[0] as Ladder,
+      options.journal,
+      floors,
+      root,
+      io,
+      evidenceComponent(chosen[0] as Ladder),
+    );
   }
   if (options.checkHandover) return handoverCheckCommand(chosen, root, io, evidenceComponent);
   const visible = parseSeeds(options);
@@ -162,7 +177,16 @@ export async function validateCommand(
   if (chosen.some((ladder) => ladder.component === 'system')) await withinStatsMeasurementSweep(measure);
   else await measure();
   if (options.brief)
-    return briefCommand(reports[0] as LadderReport, hidden, floors, Boolean(options.fresh), deps, root, io, evidenceComponent(chosen[0] as Ladder));
+    return briefCommand(
+      reports[0] as LadderReport,
+      hidden,
+      floors,
+      Boolean(options.fresh),
+      deps,
+      root,
+      io,
+      evidenceComponent(chosen[0] as Ladder),
+    );
   print(reports, component === 'all', hidden, floors, options, io);
   if (!options.checkFloor) return Math.min(...reports.map((report) => report.level));
   const tops = Object.fromEntries(
@@ -210,23 +234,29 @@ function protectCommand(options: ValidateCommandOptions, deps: ValidateDeps, roo
 }
 
 /** `validate <component> --hardness`: the measurement of section 12.4 from the journal; exit 0 when the gate holds. */
-function hardnessCommand(component: string, json: boolean, root: string, io: Io): number {
-  const { rows, problems } = readJournal(root, component);
+function hardnessCommand(
+  component: string,
+  json: boolean,
+  root: string,
+  io: Io,
+  evidenceComponent = component,
+): number {
+  const { rows, problems } = readJournal(root, evidenceComponent);
   if (problems.length > 0) {
-    io.err(`${journalFile(component)} holds invalid rows:\n`);
+    io.err(`${journalFile(evidenceComponent)} holds invalid rows:\n`);
     for (const problem of problems) io.err(`  ${problem}\n`);
     return USAGE_EXIT;
   }
   let hardness: ReturnType<typeof measureHardness>;
   try {
-    const auditPath = join(root, `${loopFolder(component)}/audit.md`);
-    const gatePath = join(root, `${loopFolder(component)}/GATE.md`);
+    const auditPath = join(root, `${loopFolder(evidenceComponent)}/audit.md`);
+    const gatePath = join(root, `${loopFolder(evidenceComponent)}/GATE.md`);
     hardness = measureHardness(rows, {
       ...(existsSync(auditPath) ? { audit: readFileSync(auditPath, 'utf8') } : {}),
       ...(existsSync(gatePath) ? { gate: readFileSync(gatePath, 'utf8') } : {}),
     });
   } catch (cause) {
-    io.err(`${journalFile(component)}: ${message(cause)}.\n`);
+    io.err(`${journalFile(evidenceComponent)}: ${message(cause)}.\n`);
     return USAGE_EXIT;
   }
   if (json) io.out(`${JSON.stringify({ component, ...hardness }, null, 2)}\n`);
@@ -235,7 +265,14 @@ function hardnessCommand(component: string, json: boolean, root: string, io: Io)
 }
 
 /** `validate <component> --journal <row.json>`: appends a validated row and rewrites the handover's level table. */
-function journalCommand(ladder: Ladder, path: string, floors: FloorsFile, root: string, io: Io, component = ladder.component): number {
+function journalCommand(
+  ladder: Ladder,
+  path: string,
+  floors: FloorsFile,
+  root: string,
+  io: Io,
+  component = ladder.component,
+): number {
   let value: unknown;
   try {
     value = JSON.parse(readFileSync(resolve(io.cwd, path), 'utf8'));
@@ -268,7 +305,12 @@ function journalCommand(ladder: Ladder, path: string, floors: FloorsFile, root: 
 }
 
 /** `validate <component|all> --check-handover`: every section present and the level table equal to the journal. */
-function handoverCheckCommand(ladders: Ladder[], root: string, io: Io, evidenceComponent = (ladder: Ladder) => ladder.component): number {
+function handoverCheckCommand(
+  ladders: Ladder[],
+  root: string,
+  io: Io,
+  evidenceComponent = (ladder: Ladder) => ladder.component,
+): number {
   let failed = false;
   for (const ladder of ladders) {
     const component = evidenceComponent(ladder);
@@ -278,9 +320,7 @@ function handoverCheckCommand(ladders: Ladder[], root: string, io: Io, evidenceC
     if (text === undefined) all.push(`${handoverFile(component)} is missing`);
     else all.push(...checkHandover(text, rows.filter((row) => executorOf(row) === 'builder').at(-1)));
     if (all.length === 0) {
-      io.out(
-        `${handoverFile(component)}: every section present, the level table matches the journal.\n`,
-      );
+      io.out(`${handoverFile(component)}: every section present, the level table matches the journal.\n`);
       continue;
     }
     failed = true;
@@ -309,19 +349,23 @@ function briefCommand(
   const { rows, problems } = readJournal(root, evidenceComponent);
   for (const problem of problems) io.err(`Warning: ${problem}\n`);
   const brief = composeBrief({
-      component: evidenceComponent,
-      executor: readFileSync(path, 'utf8'),
-      report,
-      floor: floorOf(floors, report.component, report.ladderVersion),
-      last: rows.at(-1),
-      handover: readHandover(root, evidenceComponent),
-      head: hidden?.head ?? headOf(root, deps),
-      fresh,
-    });
-  io.out(evidenceComponent === report.component ? brief : brief.replaceAll(
-    `driftbench validate ${evidenceComponent}`,
-    `driftbench validate ${report.component} --ladder-version ${report.ladderVersion}`,
-  ));
+    component: evidenceComponent,
+    executor: readFileSync(path, 'utf8'),
+    report,
+    floor: floorOf(floors, report.component, report.ladderVersion),
+    last: rows.at(-1),
+    handover: readHandover(root, evidenceComponent),
+    head: hidden?.head ?? headOf(root, deps),
+    fresh,
+  });
+  io.out(
+    evidenceComponent === report.component
+      ? brief
+      : brief.replaceAll(
+          `driftbench validate ${evidenceComponent}`,
+          `driftbench validate ${report.component} --ladder-version ${report.ladderVersion}`,
+        ),
+  );
   return 0;
 }
 
