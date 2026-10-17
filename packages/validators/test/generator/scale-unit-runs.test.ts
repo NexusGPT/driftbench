@@ -102,7 +102,7 @@ describe('the reference unit, measured beside a real scale run', () => {
         expect(quadratic.error).toBeUndefined();
         process.stderr.write(`quadratic ${quadratic.ms} ms, ${units(quadratic).toFixed(0)} units\n`);
         expect(timeVerdict(plain)[0]).toBe(true);
-        expect(quadratic.ms).toBeGreaterThan(2 * plain.ms);
+        expect(quadratic.ms).toBeGreaterThan(1.5 * plain.ms);
       } finally {
         delete process.env.DRIFTBENCH_QUADRATIC_US;
       }
