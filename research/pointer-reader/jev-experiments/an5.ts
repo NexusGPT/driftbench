@@ -1,0 +1,21 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { dir } from './src/arms';
+import { C6, loadRuns2, meanProb, pct, U } from './src/dec2';
+import { features, lofoDecs } from './src/stack';
+const runs = loadRuns2().filter((r) => r.variant);
+const H = [1, 2, 3].map((r) => (JSON.parse(readFileSync(join(dir, 'results2', `haiku-r${r}.json`), 'utf8')) as { labels: Record<number, string> }).labels);
+const votes = (g: number) => { const c = Object.fromEntries(C6.map((k) => [k, 0])) as Record<C6, number>; for (const h of H) c[h[g] as C6]++; return c; };
+const jh = lofoDecs((u) => [...features(runs, u, 'all'), ...C6.map((c) => votes(u.g)[c] / 3)]);
+const order = U.map((_, i) => i).sort((a, b) => jh[b]!.conf - jh[a]!.conf);
+const keep = new Set(order.slice(0, Math.round(U.length * 0.9)));
+const pairs: Record<string, number> = {};
+const rows: string[] = [];
+U.forEach((u, i) => { if (keep.has(i) && jh[i]!.pred !== u.label) { const k = `${u.label}->${jh[i]!.pred}`; pairs[k] = (pairs[k] ?? 0) + 1; rows.push(`${u.contested ? 'CONTESTED' : 'agreed   '} ${k.padEnd(24)} ${u.file}#${u.n} ${u.text.slice(0, 100)}`); } });
+console.log('errors among the 90% accepted:', rows.length, 'of', keep.size, '; contested share', pct(rows.filter((r) => r.startsWith('CONT')).length / rows.length));
+console.log(Object.entries(pairs).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join('\n'));
+console.log(rows.join('\n'));
+// abstained set: how many are contested
+const abst = U.filter((_, i) => !keep.has(i));
+console.log('abstained', abst.length, 'of which contested', abst.filter((u) => u.contested).length, '; contested overall', U.filter((u) => u.contested).length);
+void meanProb;

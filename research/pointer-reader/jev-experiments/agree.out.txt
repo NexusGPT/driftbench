@@ -1,0 +1,9 @@
+units 597 agree 540 (90.5%) kappa 0.870
+A\B rule	prohibition	gate	example	description	none
+rule 139	13	9	3	10	0
+prohibition 0	32	0	0	1	0
+gate 1	0	16	0	0	0
+example 0	0	0	23	0	0
+description 3	3	0	2	212	5
+none 0	0	0	1	6	118
+standing-instructions.md#1	A=description	B=none	Standing instructions for Quill, the booking assistant of the Tidewick Harbour Co-op.

@@ -1,0 +1,33 @@
+errors among the 90% accepted: 22 of 537 ; contested share 45.5
+description->rule 7
+rule->description 5
+rule->gate 2
+description->prohibition 2
+rule->prohibition 2
+description->none 1
+prohibition->rule 1
+gate->rule 1
+example->description 1
+CONTESTED description->none        standing-instructions.md#1 Standing instructions for Quill, the booking assistant of the Tidewick Harbour Co-op.
+CONTESTED prohibition->rule        standing-instructions.md#58 Give the harbour emergency number and ask nothing else.
+CONTESTED rule->gate               standing-instructions.md#60 When a customer says they feel unwell on a crossing, the answer is the same: call the number before 
+agreed    description->rule        refund-desk-skill.md#2 Prepare a refund hand-over for the Tidewick refund desk. Use when a customer asks for money back on 
+agreed    description->rule        tide-tables-skill.md#2 Answer questions about tides, slack water and which sailings are tide-limited at Tidewick.
+agreed    description->prohibition tide-tables-skill.md#28 Not within 90 minutes of low water
+agreed    description->prohibition tide-tables-skill.md#37 Not within 60 minutes of low water
+agreed    rule->description        dock-notice-helper.md#19 The date the notice was written and the initials of the clerk.
+agreed    rule->gate               memory-notes.md#32 Look at the seat count afterwards.
+CONTESTED rule->description        memory-notes.md#55 Remember that the harbour is dark by half past four in December.
+CONTESTED description->rule        scheduler-reference.md#3 Use the scheduler when you need the list of sailings for a day, or the free seats on one sailing.
+CONTESTED description->rule        scheduler-reference.md#4 Build a day view in one call by passing the date and no sailing id.
+agreed    rule->prohibition        scheduler-reference.md#48 Only call tide_flag for the Skarra and Holm boats.
+CONTESTED gate->rule               scheduler-reference.md#84 Call list_day with the date, filter by destination, and read the status of each sailing before you a
+agreed    example->description     scheduler-reference.md#91 Offering seats on a cancelled boat has happened twice, and both times the customer arrived at the qu
+CONTESTED rule->description        lost-property-skill.md#15 Item described in the customer's words
+CONTESTED rule->description        lost-property-skill.md#16 Place and sailing
+CONTESTED rule->description        lost-property-skill.md#19 Any marks, such as a name tag or a broken zip
+agreed    description->rule        lost-property-skill.md#29 The clerk signs the log line and the customer signs beside it.
+agreed    description->rule        lost-property-skill.md#30 For a customer who cannot come in, the office posts small items at the customer's cost.
+agreed    rule->prohibition        lost-property-skill.md#46 For rings, watches and anything with sentimental value, the office wants a phone call, never an emai
+agreed    description->rule        lost-property-skill.md#49 Items with no match after thirty days get a notice in the glass case.
+abstained 60 of which contested 20 ; contested overall 57

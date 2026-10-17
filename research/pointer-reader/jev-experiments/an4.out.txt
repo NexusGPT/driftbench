@@ -1,0 +1,78 @@
+
+== 0 baseline (phase 1 design) (t=0.4 chosen on dev)
+  no abstention                                | test 77.6 (abst 0.0) | dev 68.9 (abst 0.0) | all 74.4 (abst 0.0) | agreed 76.1 (abst 0.0)
+  abstain lowest-confidence 10%                | test 79.6 (abst 9.6) | dev 70.7 (abst 10.8) | all 76.4 (abst 10.1) | agreed 78.4 (abst 9.8)
+
+== a rules + contrastive examples (t=0.4 chosen on dev)
+  no abstention                                | test 76.3 (abst 0.0) | dev 74.8 (abst 0.0) | all 75.7 (abst 0.0) | agreed 77.2 (abst 0.0)
+  abstain lowest-confidence 10%                | test 79.9 (abst 9.9) | dev 78.9 (abst 10.4) | all 79.5 (abst 10.1) | agreed 80.8 (abst 9.4)
+
+== b decomposed sub-questions (t=0.7 chosen on dev)
+  no abstention                                | test 72.3 (abst 0.0) | dev 69.8 (abst 0.0) | all 71.4 (abst 0.0) | agreed 72.8 (abst 0.0)
+  abstain lowest-confidence 10%                | test 74.1 (abst 8.5) | dev 69.6 (abst 12.6) | all 72.4 (abst 10.1) | agreed 73.9 (abst 10.6)
+
+== c 3 paraphrases, mean (t=0.5 chosen on dev)
+  no abstention                                | test 80.8 (abst 0.0) | dev 75.2 (abst 0.0) | all 78.7 (abst 0.0) | agreed 80.4 (abst 0.0)
+  abstain lowest-confidence 10%                | test 83.1 (abst 10.1) | dev 80.0 (abst 9.9) | all 81.9 (abst 10.1) | agreed 83.7 (abst 10.0)
+
+== d0 no heading lines (t=0.5 chosen on dev)
+  no abstention                                | test 77.9 (abst 0.0) | dev 70.7 (abst 0.0) | all 75.2 (abst 0.0) | agreed 76.9 (abst 0.0)
+  abstain lowest-confidence 10%                | test 81.5 (abst 9.1) | dev 73.5 (abst 11.7) | all 78.6 (abst 10.1) | agreed 80.2 (abst 9.3)
+
+== d2 heading lines + file role (t=0.4 chosen on dev)
+  no abstention                                | test 76.5 (abst 0.0) | dev 70.3 (abst 0.0) | all 74.2 (abst 0.0) | agreed 75.6 (abst 0.0)
+  abstain lowest-confidence 10%                | test 80.6 (abst 9.1) | dev 74.0 (abst 11.7) | all 78.2 (abst 10.1) | agreed 79.5 (abst 9.8)
+
+== calibrated stacker (leave-one-file-out) over parts
+  stack base only                              | test 78.4 (abst 0.0) | dev 71.6 (abst 0.0) | all 75.9 (abst 0.0) | agreed 79.4 (abst 0.0)
+  stack a-rules only                           | test 78.4 (abst 0.0) | dev 80.2 (abst 0.0) | all 79.1 (abst 0.0) | agreed 82.2 (abst 0.0)
+  stack b-decomp only                          | test 80.5 (abst 0.0) | dev 82.9 (abst 0.0) | all 81.4 (abst 0.0) | agreed 84.4 (abst 0.0)
+  stack c paraphrases only                     | test 82.7 (abst 0.0) | dev 82.9 (abst 0.0) | all 82.7 (abst 0.0) | agreed 86.7 (abst 0.0)
+  stack d none+role                            | test 80.3 (abst 0.0) | dev 77.9 (abst 0.0) | all 79.4 (abst 0.0) | agreed 82.4 (abst 0.0)
+  stack all Jev designs                        | test 86.1 (abst 0.0) | dev 86.5 (abst 0.0) | all 86.3 (abst 0.0) | agreed 90.2 (abst 0.0)
+
+== selective prediction on the Jev stacker
+  abstain lowest 5%                            | test 89.3 (abst 5.1) | dev 87.7 (abst 5.0) | all 88.7 (abst 5.0) | agreed 92.4 (abst 4.6)
+  abstain lowest 10%                           | test 90.5 (abst 10.1) | dev 90.5 (abst 9.9) | all 90.5 (abst 10.1) | agreed 94.1 (abst 9.4)
+  abstain lowest 20%                           | test 94.4 (abst 18.7) | dev 93.1 (abst 22.1) | all 93.9 (abst 19.9) | agreed 96.1 (abst 18.3)
+  abstain lowest 30%                           | test 95.8 (abst 29.9) | dev 93.5 (abst 30.2) | all 95.0 (abst 30.0) | agreed 97.2 (abst 27.8)
+
+== Haiku (claude-haiku-5-5, GUIDE.md as system prompt, windows of 40)
+  one run                                      | test 90.4 (abst 0.0) | dev 93.2 (abst 0.0) | all 91.5 (abst 0.0) | agreed 94.3 (abst 0.0)
+  majority of 3                                | test 91.5 (abst 0.0) | dev 93.2 (abst 0.0) | all 92.1 (abst 0.0) | agreed 94.6 (abst 0.0)
+  unanimous of 3 else abstain                  | test 94.6 (abst 6.1) | dev 95.0 (abst 9.5) | all 94.8 (abst 7.4) | agreed 97.4 (abst 7.4)
+
+== (e) baseline Jev (t=0.5 from dev) as first labeller: margin below m goes to Haiku majority; abstain if Haiku is not unanimous
+  m=0.3 (to Haiku 43%)                         | test 89.8 (abst 3.7) | dev 87.0 (abst 6.3) | all 88.8 (abst 4.7) | agreed 90.9 (abst 4.8)
+  m=0.6 (to Haiku 74%)                         | test 93.8 (abst 5.9) | dev 94.1 (abst 9.0) | all 93.9 (abst 7.0) | agreed 96.4 (abst 7.0)
+  m=0.8 (to Haiku 95%)                         | test 94.3 (abst 6.1) | dev 94.5 (abst 9.5) | all 94.4 (abst 7.4) | agreed 97.0 (abst 7.4)
+  m=0.9 (to Haiku 99%)                         | test 94.6 (abst 6.1) | dev 95.0 (abst 9.5) | all 94.8 (abst 7.4) | agreed 97.4 (abst 7.4)
+  m=0.95 (to Haiku 100%)                       | test 94.6 (abst 6.1) | dev 95.0 (abst 9.5) | all 94.8 (abst 7.4) | agreed 97.4 (abst 7.4)
+  agreement: accept iff first labeller = Haiku majority
+    agree                                      | test 94.8 (abst 22.7) | dev 98.0 (abst 32.0) | all 95.9 (abst 26.1) | agreed 97.3 (abst 24.3)
+    agree and unanimous                        | test 96.4 (abst 26.4) | dev 99.3 (abst 36.0) | all 97.4 (abst 30.0) | agreed 99.0 (abst 28.3)
+
+== (e) f: calibrated stacker over all Jev designs as first labeller: margin below m goes to Haiku majority; abstain if Haiku is not unanimous
+  m=0.3 (to Haiku 10%)                         | test 90.3 (abst 0.8) | dev 90.4 (abst 1.4) | all 90.4 (abst 1.0) | agreed 93.8 (abst 1.1)
+  m=0.6 (to Haiku 26%)                         | test 93.7 (abst 2.9) | dev 93.4 (abst 5.0) | all 93.6 (abst 3.7) | agreed 96.2 (abst 3.5)
+  m=0.8 (to Haiku 43%)                         | test 94.4 (abst 4.5) | dev 94.2 (abst 6.8) | all 94.3 (abst 5.4) | agreed 96.9 (abst 5.2)
+  m=0.9 (to Haiku 60%)                         | test 94.7 (abst 5.1) | dev 94.7 (abst 7.2) | all 94.7 (abst 5.9) | agreed 97.2 (abst 5.7)
+  m=0.95 (to Haiku 75%)                        | test 95.2 (abst 5.6) | dev 95.0 (abst 9.0) | all 95.1 (abst 6.9) | agreed 97.8 (abst 6.9)
+  agreement: accept iff first labeller = Haiku majority
+    agree                                      | test 95.3 (abst 14.4) | dev 97.8 (abst 16.2) | all 96.3 (abst 15.1) | agreed 98.1 (abst 11.9)
+    agree and unanimous                        | test 96.4 (abst 17.6) | dev 98.3 (abst 20.7) | all 97.1 (abst 18.8) | agreed 99.1 (abst 15.9)
+
+== f2: stacker over Jev features + Haiku vote counts (leave-one-file-out)
+  no abstention                                | test 92.8 (abst 0.0) | dev 91.9 (abst 0.0) | all 92.5 (abst 0.0) | agreed 95.4 (abst 0.0)
+  abstain lowest 5%                            | test 94.6 (abst 5.3) | dev 94.3 (abst 4.5) | all 94.5 (abst 5.0) | agreed 96.9 (abst 3.9)
+  abstain lowest 10%                           | test 95.5 (abst 10.7) | dev 96.5 (abst 9.0) | all 95.9 (abst 10.1) | agreed 97.6 (abst 7.4)
+  abstain lowest 15%                           | test 96.6 (abst 14.9) | dev 96.3 (abst 15.3) | all 96.4 (abst 15.1) | agreed 98.1 (abst 11.9)
+  abstain lowest 20%                           | test 97.0 (abst 19.7) | dev 97.2 (abst 20.3) | all 97.1 (abst 19.9) | agreed 98.7 (abst 16.7)
+Jev stacker test: largest share accepted with accuracy >= 99%: 30%
+Jev stacker dev: largest share accepted with accuracy >= 99%: 34%
+Jev stacker all: largest share accepted with accuracy >= 99%: 28%
+Jev stacker agreed: largest share accepted with accuracy >= 99%: 31%
+Jev+Haiku stacker test: largest share accepted with accuracy >= 99%: 58%
+Jev+Haiku stacker dev: largest share accepted with accuracy >= 99%: 55%
+Jev+Haiku stacker all: largest share accepted with accuracy >= 99%: 56%
+Jev+Haiku stacker agreed: largest share accepted with accuracy >= 99%: 82%
