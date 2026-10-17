@@ -20,7 +20,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname } from 'node:path';
+import { basename, dirname } from 'node:path';
 import { deflateRawSync } from 'node:zlib';
 
 function readInstruction() {
@@ -49,7 +49,11 @@ function record(path, line) {
   if (path) appendFileSync(path, `${JSON.stringify(line)}\n`);
 }
 
-function write(file) {
+/** `{ROOT_NAME}` in a planned path is the workspace folder's own name, which only the run knows. */
+const named = (path) => String(path).replaceAll('{ROOT_NAME}', basename(process.cwd()));
+
+function write(planned) {
+  const file = { ...planned, path: named(planned.path) };
   mkdirSync(dirname(file.path), { recursive: true });
   const bytes = {
     txt: () => Buffer.from(String(file.data)),
@@ -279,8 +283,8 @@ function main() {
   for (const file of entry.files ?? []) write(file);
   for (const path of entry.deletes ?? []) rmSync(path, { force: true });
   for (const link of entry.links ?? []) {
-    mkdirSync(dirname(link.path), { recursive: true });
-    symlinkSync(link.target, link.path);
+    mkdirSync(dirname(named(link.path)), { recursive: true });
+    symlinkSync(named(link.target), named(link.path));
   }
   for (const command of entry.commands ?? []) record(process.env.DRIFTBENCH_COMMANDS_FILE, command);
   for (const event of entry.runtime ?? []) record(process.env.DRIFTBENCH_RUNTIME_FILE, event);

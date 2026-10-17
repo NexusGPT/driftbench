@@ -204,6 +204,7 @@ type Headline = {
   designEffect: number;
   degenerate: boolean;
   method: string;
+  detectableDrop?: number | null;
 };
 
 type Hierarchical = Interval & { treeMean: number; posteriorMean: number; trees: number; blocks: number };
@@ -287,7 +288,7 @@ function headlineItems(): BankItem[] {
     level: 9,
     component: HEADLINE,
     title:
-      'the documented six goldens (5 of 5, 5 of 5, 4 of 5, 0 of 5, 2 of 5, 2 of 2), in a seeded order, give 70.0% [35.4%, 88.2%], n_eff 7.0 and design effect 3.87',
+      'the documented six goldens (5 of 5, 5 of 5, 4 of 5, 0 of 5, 2 of 5, 2 of 2), in a seeded order, give 70.0% [35.4%, 88.2%], n_eff 7.3, design effect 3.69 and a detectable drop of 65.3 points',
     cause: 'The suite headline matches the example of docs/concepts/statistics.md.',
     check: async ({ seed, product }) => {
       const rng = rngFor(seed, 'documented');
@@ -314,8 +315,14 @@ function headlineItems(): BankItem[] {
           pct(got?.estimate) === '70.0' && pct(got?.lower) === '35.4' && pct(got?.upper) === '88.2',
           `headline ${pct(got?.estimate)}% [${pct(got?.lower)}%, ${pct(got?.upper)}%]`,
         ],
-        [got?.effectiveRuns?.toFixed(1) === '7.0', `n_eff ${got?.effectiveRuns}`],
-        [got?.designEffect?.toFixed(2) === '3.87', `design effect ${got?.designEffect}`],
+        [got?.effectiveRuns?.toFixed(1) === '7.3', `n_eff ${got?.effectiveRuns}`],
+        [got?.designEffect?.toFixed(2) === '3.69', `design effect ${got?.designEffect}`],
+        [
+          got?.detectableDrop !== null &&
+            got?.detectableDrop !== undefined &&
+            (100 * got.detectableDrop).toFixed(1) === '65.3',
+          `detectable drop ${got?.detectableDrop}`,
+        ],
       ]);
     },
   });

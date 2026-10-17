@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type BankEntry, bankMeasure, type Measure } from '../../ladder';
 import { blastItems } from './levels/blast';
+import { boundaryItems } from './levels/boundaries';
 import { carryBankItems } from './levels/carry';
 import { codeItems } from './levels/code';
 import { comboItems } from './levels/combos';
@@ -31,6 +32,7 @@ export function blocksBank(): BankItem[] {
     ...carryBankItems(),
     ...comboItems(),
     ...forestItems(),
+    ...boundaryItems(),
     ...historyItems(),
     ...intervalItems(),
     ...objectItems(),
