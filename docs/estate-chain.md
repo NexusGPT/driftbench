@@ -2,7 +2,7 @@
 
 The question is how the whole estate flow fits together. This page answers it with a test, not with prose.
 
-The test is [`packages/cli/test/estate-chain.test.ts`](../packages/cli/test/estate-chain.test.ts). It runs the chain on the fictional Northwind fixture. Ten steps run in order. Each step reads the file the step before wrote. No step calls a model.
+The test is [`packages/cli/test/estate-chain.test.ts`](../packages/cli/test/estate-chain.test.ts). It runs the chain on the fictional Northwind fixture. Eleven steps run in order. Each step reads the file the step before wrote. No step calls a model.
 
 Every hand-off is checked by an id or a hash that both steps must agree on. A hand-off that breaks fails the test and names the step.
 
@@ -14,7 +14,7 @@ When a step fails, read the table from the top. The first `NO` row is the broken
 pnpm exec vitest run packages/cli/test/estate-chain.test.ts --reporter=verbose
 ```
 
-The run calls no model and needs no key. Step 6 is the longest step. It makes 150 runs of the stand-in command. The test works in a temporary folder and removes it at the end. Step 10 prints a table with one row per step. Each row gives the input file, the output file, the id or hash that ties them, and whether the step is verified. A step that fails shows `NO` in that table.
+The run calls no model and needs no key. Step 6 makes 150 runs of the stand-in command. Step 11 runs the generated live suite once, then reruns only the tests selected by a real prompt edit. The test works in a temporary folder and removes it at the end. Step 10 prints the hand-off table for steps 1 through 9. Step 11 prints it again with its own result. Each row gives the input file, the output file, the id or hash that ties them, and whether the step is verified. A step that fails shows `NO` in that table.
 
 ## The chain
 
@@ -46,6 +46,7 @@ SPECS=$(grep -rl -- "^      - instruction.standing.tell-the-user-about-a-late$" 
 | 8. Impact | `pnpm -s driftbench estate impact $W/diff.json --tests $V2/tests --out $W/impact.json`. Then the same with `--tests $W/generated/specs --out $W/impact-generated.json`. | The atom ids in `metadata.estate.atoms`, and the two hashes of the diff. | On the version 1 tests: regenerate 4, re-approve 2, retire 1, new 2. The exit code is 1, since four items wait for a person. Each regenerated test names a changed atom in `metadata.estate.atoms`, for the reason given. On the generated specs, the regenerated and retired sets equal what a scan of `metadata.estate.atoms` predicts. The re-approval of the instruction lists the specs that name it (16 today). Specs that name only the respaced rule stay out. |
 | 9. Radius | `pnpm -s driftbench radius $W/generated/specs --change $W/change.yaml` | The atom id in the manifest and `metadata.estate.atoms` in each spec. | The radius is not the whole suite. If it were, the test would fail and print the reason the command gives. Every block of a spec that names the instruction is direct, with the reason `prompt:instruction.standing.tell-the-user-about-a-late`. Every other block is out (16 of 1355 blocks are in today). The specs in the radius are the specs that impact names in step 8. |
 | 10. Table | `pnpm exec vitest run packages/cli/test/estate-chain.test.ts --reporter=verbose` | The `yes` in each row. | The table has one row for each of steps 1 to 9. Every row says `yes`. One `NO` fails the test. |
+| 11. Edit, select and carry | `radius auto --prompt <old CLAUDE.md> <edited CLAUDE.md> --map $W/approved.yaml --source CLAUDE.md`, then `radius --change` and `campaign run --change --from`. | The actual prompt text, the approved atom id, the fixture plan, and the source run of every carried result. | R7 changes from two late days to one without a rename. The product derives the manifest and selects exactly the generated live tests assigned to R7 by the committed fixture plan. The invoice-routing control stays out. A baseline campaign runs the live suite. The changed campaign opens the stand-in only for the selected tests; every other cell has a reuse marker and preserves its source run, blocks, verdicts and end state. A separate LF-to-CRLF edit selects no test. |
 
 The change manifest of step 9 is this file. It names the instruction as a prompt change.
 
@@ -117,6 +118,6 @@ Not run: `estate lint`, `estate scan --no-model`, `estate impact --write` and `e
 * It does not show that a model follows the estate. The red result of step 6 comes from a recorded alternative in the stand-in's manifest. It shows that the chain picks the right specs and that the run notices the change. It does not show that a model reads the rule.
 * A person who played the model wrote the recorded scan answers.
 * It does not run `estate unit` or `estate static`. They have their own tests.
-* It stops at the radius. It does not rerun the cells in the radius after the change.
+* Step 11 uses the production campaign commands with an injected fixture adapter and recorded checks. It tests actual selective execution and carry, not a model's understanding of the edit.
 
 See also: [testing an estate](estate.md), [blast radius](concepts/blast-radius.md), [change manifest reference](reference/change.md), [estate files reference](reference/estate-files.md).

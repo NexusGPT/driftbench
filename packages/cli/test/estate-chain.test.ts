@@ -1113,14 +1113,15 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       'automatic change manifest, stored campaigns',
       async () => {
         const approved = must(chain.approved, '2');
-        const plan = must(chain.plan, '4');
+        const fixturePlan = await loadPlan(join(FIXTURE, 'plan.yaml'));
+        if (!fixturePlan.ok) throw new Error('the independent fixture plan does not load');
         const suite = must(chain.specs, '5').filter((entry) => entry.folder === 'specs/live');
         const paths = suite.map((entry) => entry.path);
-        // Independent oracle: the approved plan's rule/cell assignments, not the radius implementation
+        // Independent oracle: the committed fixture plan's rule/cell assignments, not the radius implementation
         // or the generated metadata that radius reads. Include the outside-trigger check: it tests R7's
         // boundary, even though its Then forbids "late". The invoice route is an explicit negative control.
         const reachingRows = new Set(
-          plan.rows.filter((row) => row.atomIds.includes(R7)).map((row) => row.id),
+          fixturePlan.plan.rows.filter((row) => row.atomIds.includes(R7)).map((row) => row.id),
         );
         const expected = sorted(
           suite
@@ -1130,7 +1131,10 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         const control = 'estate.route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1';
         expect(expected.length).toBeGreaterThan(0);
         expect(expected.length).toBeLessThan(suite.length);
-        expect(suite.some((entry) => entry.spec.id === control)).toBe(true);
+        const invoice = suite.find((entry) => entry.spec.id === control);
+        expect(invoice).toBeDefined();
+        // A shared workspace seed alone does not make an invoice-routing check depend on R7.
+        expect(JSON.stringify(invoice?.spec.given)).toContain('shipments/log.csv');
         expect(expected).not.toContain(control);
         expect(expected).toContain(`estate.obligation.${R7}`);
         expect(expected).toContain(`estate.outside_trigger.${R7}`);
@@ -1174,7 +1178,8 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         expect(selection).toMatchObject({ code: 0, err: '' });
         const radius = JSON.parse(selection.out) as RadiusJson;
         expect(radius.whole).toBeNull();
-        expect(radius.manifest.changes).toEqual([`prompt:${R7}`]);
+        // Separate character-edit regions can name the same rule more than once.
+        expect(new Set(radius.manifest.changes)).toEqual(new Set([`prompt:${R7}`]));
         const selected = sorted(
           radius.specs
             .filter((spec) => spec.blocks.some((block) => block.state.F !== 'out'))
@@ -1294,6 +1299,11 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
           for (const run of runs) {
             if (expected.includes(run.specId)) {
               expect(run.carried, run.specId).toBeUndefined();
+              if (run.specId === `estate.obligation.${R7}`) {
+                // The fixture actually observes the edited prompt: its late-shipment check flips.
+                expect(base.get(run.specId)?.blocks.every((block) => block.pass)).toBe(true);
+                expect(run.blocks.some((block) => !block.pass)).toBe(true);
+              }
               continue;
             }
             const source = base.get(run.specId);
@@ -1309,7 +1319,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
             expect(run.status, run.specId).toBe(source?.status);
           }
         } finally {
-          store.close();
+          await store.close();
         }
 
         // A separate whitespace-only edit, on the same prompt: line endings change, no rule does.
@@ -1348,5 +1358,5 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       },
     );
     console.log(`\n${table()}\n`);
-  });
+  }, 1_800_000);
 });
