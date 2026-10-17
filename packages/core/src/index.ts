@@ -434,6 +434,7 @@ export {
   RetentionExpect,
   Rules,
   SafetyExpect,
+  SharedFact,
   SimilarityExpect,
   SkillExpect,
   SPEC_SCHEMA_VERSION,
@@ -449,7 +450,7 @@ export { anyGlobMatches, globMatches } from './spec/glob';
 export { canonicalJson, cloneJson, contentHash } from './spec/hash';
 export { IDENTITY_EXCLUDED_METADATA, specHash, specIdentity } from './spec/identity';
 export { error, type Issue, type IssueCode, IssueCodes, warning } from './spec/issues';
-export { lintSpec } from './spec/lint';
+export { givenIssues, lintSpec } from './spec/lint';
 export {
   checkSpec,
   findSpecFiles,
@@ -464,6 +465,12 @@ export {
 } from './spec/load';
 export { isPlainObject, normalizeSpec } from './spec/normalize';
 export { checkSemantics, isZero, parseCriterionRef, patternError } from './spec/semantics';
+export {
+  type GivenFinding,
+  type VerifyGivenOptions,
+  valueInText,
+  verifyGiven,
+} from './spec/verify-given';
 export { type DenseEmbedderOptions, denseEmbedder, localEmbedder } from './text/embedder';
 export {
   charGrams,
