@@ -204,6 +204,13 @@ export async function judgeByUnits(
     };
   const after = unitRun(mutant, green);
   if (after.error) return { pass: false, detail: after.error };
+  // Exit 2 is an input error (a usage error, or a test with no recorded outcome): it decided nothing, so it kills
+  // nothing (docs/estate.md section 6).
+  if (after.code > 1)
+    return {
+      pass: false,
+      detail: `estate unit exited ${after.code} on the mutant: an input error is no kill`,
+    };
   const red = green.filter((spec) => after.verdicts.get(spec.id) === false);
   return red.length > 0
     ? {

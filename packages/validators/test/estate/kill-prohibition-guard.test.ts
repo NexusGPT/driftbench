@@ -3,10 +3,16 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
+import * as bench from '../../src/ladders/estate/bank/bench';
 import { cli } from '../../src/ladders/estate/bank/bench';
 import { nativeSpecsOf, type SuiteSpec } from '../../src/ladders/estate/bank/fixture-suite';
 import { type Cell, judgeCell, judgeLive, prohibitionGuard } from '../../src/ladders/estate/bank/kill';
+
+vi.mock('../../src/ladders/estate/bank/bench', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../src/ladders/estate/bank/bench')>();
+  return { ...actual, cli: vi.fn(actual.cli) };
+});
 
 /**
  * docs/estate.md section 6, estate mutants: a guard that enforces only prohibitions acts only after an act a standing
@@ -114,6 +120,8 @@ async function desk(polarity: 'prohibition' | 'obligation', guard = GUARD) {
 
 const cell: Cell = { kind: 'guard', index: 0, op: 'delete', tier: 3 };
 
+afterEach(() => vi.mocked(bench.cli).mockReset());
+
 describe('kill.fake judges a guard that enforces only prohibitions by its unit tests', {
   timeout: 600_000,
 }, () => {
@@ -181,5 +189,35 @@ describe('kill.fake judges a guard that enforces only prohibitions by its unit t
       pass: false,
       detail: expect.stringContaining('intervenes on the original'),
     });
+  });
+
+  it('gives no kill when the unit runner reports an input error on the mutant', async () => {
+    const { work, root, map, estate, natives } = await desk('prohibition');
+    const actual = await vi.importActual<typeof bench>('../../src/ladders/estate/bank/bench');
+    // The runner exits 2 on the mutant copy (as for a test with no recorded outcome), with every test red.
+    vi.mocked(bench.cli).mockImplementation((args, cwd) => {
+      const on = args[args.indexOf('--estate') + 1] ?? '';
+      if (args[0] !== 'estate' || args[1] !== 'unit' || args.includes('--record') || on === root)
+        return actual.cli(args, cwd);
+      const specs = args.slice(2, args.indexOf('--estate'));
+      const runs = specs.map((path) => ({
+        spec: path
+          .split('/')
+          .pop()
+          ?.replace(/\.json$/, ''),
+        pass: false,
+      }));
+      return { code: 2, out: JSON.stringify({ runs, guards: [], scripts: [] }) };
+    });
+    const verdict = await judgeCell(
+      cell,
+      estate,
+      { specs: [], natives },
+      map,
+      join(work, 'error'),
+      new Map(),
+      root,
+    );
+    expect(verdict).toMatchObject({ pass: false, detail: expect.stringContaining('input error is no kill') });
   });
 });

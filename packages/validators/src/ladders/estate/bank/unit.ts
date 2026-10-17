@@ -210,13 +210,14 @@ const wantsOriginal = (cell: Cell): boolean =>
 export function unitRun(
   estate: string,
   specs: readonly SuiteSpec[],
-): { verdicts: Map<string, boolean>; guards: Reported[]; error?: string } {
+): { verdicts: Map<string, boolean>; guards: Reported[]; code: number; error?: string } {
   const result = cli(['estate', 'unit', ...specs.map((spec) => spec.path), '--estate', estate, '--json']);
   const at = result.out.indexOf('{');
   if (at < 0)
     return {
       verdicts: new Map(),
       guards: [],
+      code: result.code,
       error: `estate unit printed no JSON (exit ${result.code}): ${result.out.trim().slice(0, 120)}`,
     };
   try {
@@ -227,9 +228,15 @@ export function unitRun(
     return {
       verdicts: new Map((json.runs ?? []).map((run) => [run.spec, run.pass === true])),
       guards: json.guards ?? [],
+      code: result.code,
     };
   } catch {
-    return { verdicts: new Map(), guards: [], error: `estate unit printed no JSON (exit ${result.code})` };
+    return {
+      verdicts: new Map(),
+      guards: [],
+      code: result.code,
+      error: `estate unit printed no JSON (exit ${result.code})`,
+    };
   }
 }
 
