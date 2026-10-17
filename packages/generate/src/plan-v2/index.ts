@@ -4,15 +4,14 @@
  * new rows ordered by traffic weight so a budget cuts the rarest first. Opt-in: the planner of the seeders is
  * unchanged.
  */
-export { LAYER_STRENGTH, LAYERS, type Layer } from './groups';
 export {
-  type LayerCoverage,
   type PlanSeedRow,
   type PlanV2,
+  type PlanV2Layer,
   type PlanV2Options,
   type PlanV2Row,
   type PlanV2Warning,
   planV2,
 } from './plan';
 export { renderPlanV2 } from './render';
-export { type RuleOptions, type StoreRule, storeRules } from './rules';
+export { type StoreRule, storeRules } from './rules';

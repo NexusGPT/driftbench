@@ -52,7 +52,7 @@ export type PlanV2Row = {
   logWeight: number;
 };
 
-export type LayerCoverage = {
+export type PlanV2Layer = {
   layer: Layer;
   /** The strength the layer asks for, at most. */
   strength: 3 | 2 | 1;
@@ -83,7 +83,7 @@ export type PlanV2 = {
   generated: number;
   /** New rows the budget cut. */
   cut: number;
-  layers: LayerCoverage[];
+  layers: PlanV2Layer[];
   rules: StoreRule[];
   /** The seeds, then the new rows from the most common to the rarest. */
   rows: PlanV2Row[];
@@ -113,7 +113,7 @@ function checkOptions(options: PlanV2Options): void {
   }
 }
 
-const emptyLayer = (layer: Layer): LayerCoverage => ({
+const emptyLayer = (layer: Layer): PlanV2Layer => ({
   layer,
   strength: LAYER_STRENGTH[layer],
   groups: 0,
@@ -305,14 +305,14 @@ function layerCoverage(
   baseline: readonly Uint8Array[],
   seeds: readonly Int16Array[],
   kept: readonly Int16Array[],
-): LayerCoverage[] {
+): PlanV2Layer[] {
   const bySeeds = baseline.map((state) => Uint8Array.from(state));
   for (const row of seeds) cover(groups, row, bySeeds);
   const byAll = bySeeds.map((state) => Uint8Array.from(state));
   for (const row of kept) cover(groups, row, byAll);
   const layers = LAYERS.map(emptyLayer);
   groups.forEach((group, at) => {
-    const layer = layers.find((entry) => entry.layer === group.layer) as LayerCoverage;
+    const layer = layers.find((entry) => entry.layer === group.layer) as PlanV2Layer;
     layer.groups += 1;
     const start = baseline[at] as Uint8Array;
     for (let code = 0; code < group.cells; code += 1) {

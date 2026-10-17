@@ -8,7 +8,8 @@ import type { View } from './view';
  * variables that some valid row can hold. Three layers set the strength:
  *
  * - own: every `min(3, n)` variables of a rule that names n variables, all their value combinations;
- * - shared: every pair of the axes that two or more rules name;
+ * - shared: every pair of the axes that two or more rules name, counting only the rules that name two variables
+ *   or more (a rule that names one variable relates it to nothing);
  * - single: every value of the variables no group names yet.
  *
  * A set of variables that several layers ask for is one group and keeps the first layer, in that order.
@@ -71,8 +72,9 @@ export function buildGroups(view: View, rules: readonly StoreRule[]): Group[] {
         pick.map((at) => variables[at] as number),
       );
   }
+  // A rule that names one variable relates it to nothing, so it does not make the variable shared.
   const named = new Map<number, number>();
-  for (const variables of members)
+  for (const variables of members.filter((entry) => entry.length >= 2))
     for (const variable of variables) named.set(variable, (named.get(variable) ?? 0) + 1);
   const sharedAxes = [...named]
     .filter(([variable, count]) => count >= 2 && view.variables[variable]?.role === 'axis')

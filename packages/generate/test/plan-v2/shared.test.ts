@@ -45,6 +45,17 @@ describe('strength 2 on the axes that several rules share', () => {
     expect(sharedLayer?.groups).toBe(1);
   });
 
+  it('does not count a rule that names one variable: it relates the variable to nothing', () => {
+    const store = makeStore([
+      { id: 'a', values: [{ id: 'a1', limit: 2 }, { id: 'a2', limit: 3 }, 'a3'] },
+      { id: 'b', values: [{ id: 'b1', limit: 2 }, { id: 'b2', limit: 3 }, 'b3'] },
+    ]);
+    const plan = planV2(store);
+    // a and b are each named by two rules, but each of those names one variable: nothing is shared.
+    expect(plan.layers.find((entry) => entry.layer === 'shared')).toMatchObject({ groups: 0, targets: 0 });
+    expect(plan.rows).toHaveLength(3);
+  });
+
   it('shares only axes: a detail named by two rules is not paired', () => {
     const store = makeStore([
       { id: 'a', values: [{ id: 'a1', when: { p: ['p1'] } }, { id: 'a2', when: { p: ['p2'] } }, 'a3'] },
