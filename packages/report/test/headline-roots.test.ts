@@ -95,11 +95,75 @@ describe('the suite headline groups a run that did not record its root under tha
     expect(suiteHeadline(plain, (entry) => entry.specId, { parentsOf: () => new Map() })).toEqual(without);
   });
 
-  it('still counts a run that failed before it recorded any block', () => {
-    // The first step threw: the run failed with no block, so its failure belongs to no one root.
+  it('counts a run that failed before it recorded any block as one failure of each root family', () => {
+    // The first step threw: the run failed with no block, so every family of the spec failed once.
     const dead = { ...bakeryRun(6, [], []), status: 'failed' as const };
     const headline = suiteHeadline([...runs, dead], (entry) => entry.specId, { parentsOf });
-    expect(headline).toMatchObject({ runs: 5, n: 9, trees: 3 });
-    expect(headline?.pooledRate).toBe(6 / 9);
+    expect(headline).toMatchObject({ runs: 5, n: 10, trees: 2 });
+    expect(headline?.pooledRate).toBe(6 / 10);
+  });
+
+  it('counts a failed run that recorded blocks but measured none the same way', () => {
+    const shape = bakeryRun(6, ['cart', 'refund'], []);
+    const unmeasured = {
+      ...shape,
+      status: 'failed' as const,
+      blocks: shape.blocks.map((block) => ({
+        ...block,
+        pass: false,
+        status: 'not_run' as const,
+        verdicts: [],
+        notRun: {
+          kind: 'unsupported' as const,
+          layer: '5 world',
+          check: 'capability',
+          expected: 'snapshot',
+          got: 'unavailable',
+        },
+      })),
+    };
+    const headline = suiteHeadline([...runs, unmeasured], (entry) => entry.specId, { parentsOf });
+    expect(headline).toMatchObject({ runs: 5, n: 10, trees: 2 });
+    expect(headline?.pooledRate).toBe(6 / 10);
+  });
+});
+
+describe('a dead run weighs as one failure per root family', () => {
+  // A hand-written greenhouse spec of 12 families: tray-i > seedling-i. One run passes every block; one run
+  // died before its first block. The headline reads about 0.5: 12 families passed once and failed once.
+  const FAMILIES = Array.from({ length: 12 }, (_, i) => i);
+  const authored = FAMILIES.flatMap((i) => [
+    { id: `tray-${i}` },
+    { id: `seedling-${i}`, parent: `tray-${i}` },
+  ]);
+  const greenhouse: Partial<Spec> = {
+    blocks: authored.map((entry) => ({ when: { user: `about ${entry.id}` }, ...entry })) as Spec['blocks'],
+  };
+  const passing = (() => {
+    const shape = run({ specId: 'greenhouse', repeat: 0, blocks: authored.map(() => ({})) });
+    return {
+      ...shape,
+      blocks: shape.blocks.map((block, index) => {
+        const entry = authored[index] as { id: string; parent?: string };
+        return {
+          ...block,
+          blockId: entry.id,
+          specIndex: index,
+          ...(entry.parent ? { parent: entry.parent } : {}),
+        };
+      }),
+    };
+  })();
+  const dead = {
+    ...run({ specId: 'greenhouse', repeat: 1, blocks: [] }),
+    status: 'failed' as const,
+    blocks: [],
+  };
+
+  it('in the scorecard, which reads the roots from the pinned spec', () => {
+    const card = buildScorecard(dataOf([passing, dead], { greenhouse }));
+    const headline = card.modes.find((mode) => mode.mode === 'F')?.headline;
+    expect(headline).toMatchObject({ trees: 12, n: 24, runs: 2, pooledRate: 0.5 });
+    expect(headline?.estimate).toBeCloseTo(0.5, 6);
   });
 });
