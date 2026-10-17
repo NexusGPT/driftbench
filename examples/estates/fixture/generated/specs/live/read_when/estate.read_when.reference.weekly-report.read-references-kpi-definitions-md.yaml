@@ -61,4 +61,18 @@ metadata:
     phrase: null
     ask: code
     askFrom: skill.weekly-report.skill-weekly-report (asks it names)
+    link:
+      span: reference.weekly-report.read-references-kpi-definitions-md
+      fp: ef351f290aa2a70a659c668ab6849cc0012d274d0a8b99a5686c24ed67eb4c87
+      relation: exercises
+      createdBy: generator
+    act:
+      kind: read
+      target: .claude/skills/weekly-report/references/kpi-definitions.md
+    from:
+      form: asks it names
+      field: skill.weekly-report.skill-weekly-report#asks it names
+      fp: ba980774df8de197cb05f447eeac78a1b8abbd592f480ab4126784a1cf35c368
+      pieces:
+        - help me with the weekly report or a summary of last week
     outcome: no-delete

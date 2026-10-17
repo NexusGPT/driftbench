@@ -50,4 +50,17 @@ metadata:
     phrase: null
     ask: code
     askFrom: instruction.standing.never-delete-a-ledger-file-archive (title)
+    link:
+      span: instruction.standing.never-delete-a-ledger-file-archive
+      fp: 57226b724d7133da3ae6b5a589c858c8a0f252f8b0169a86991575edb8ae9901
+      relation: exercises
+      createdBy: generator
+    act:
+      kind: reply
+    from:
+      form: title
+      field: instruction.standing.never-delete-a-ledger-file-archive#title
+      fp: 57226b724d7133da3ae6b5a589c858c8a0f252f8b0169a86991575edb8ae9901
+      pieces:
+        - delete a ledger file
     outcome: no-delete

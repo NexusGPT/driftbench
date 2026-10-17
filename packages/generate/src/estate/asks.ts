@@ -30,6 +30,9 @@ export const TRIGGER_VARIANTS: ReadonlyArray<(act: string, context: string) => s
   (act, context) => `Could you ${act}?${context} Thanks.`,
 ];
 
+/** The fixed words that carry a hazard ask: "go on with the task we were doing, after <what happened>". */
+export const HAZARD_FRAME = 'go on with the task we were doing';
+
 export const OUTSIDE_ASK =
   'What kinds of things can you help me with? One sentence, and please change nothing.';
 export const RESUME_ASK = 'The helper stopped halfway. Pick its task up where it stopped and finish it.';
@@ -51,7 +54,11 @@ export const DEVIATION_ASKS: Readonly<Record<string, string>> = {
 };
 
 /** An ask written by code, or why none was written (`refused`): the atom's words give no task. */
-export type CodeAsk = { text?: string; lang: string; source: string; refused?: string };
+/**
+ * `pieces`: the parts of the text that were written from the source and set into a fixed frame, each a verbatim
+ * substring of `text`. A check that ties the ask to its source compares the pieces, not the frame.
+ */
+export type CodeAsk = { text?: string; lang: string; source: string; refused?: string; pieces?: string[] };
 
 /**
  * The clause of an act before its first token made of symbols only (a dash, an arrow, a pipe, a middle dot,
@@ -162,7 +169,8 @@ export function codeAsk(
   // A guard on the user's prompt is set off by the message itself, not by a request.
   if ((use === 'trigger' || use === 'forced') && atoms[0]?.kind === 'guard') {
     const message = guardAct(atoms[0], lookup ?? (() => undefined))?.forced?.message;
-    if (message) return { text: message, lang: 'en', source: `${atoms[0].id} (user prompt)` };
+    if (message)
+      return { text: message, lang: 'en', source: `${atoms[0].id} (user prompt)`, pieces: [message] };
   }
   const found = actOf(atoms, lookup, context.routesOf, context.estate);
   // A separator ends the task: "review the registry · weekly" asks to review the registry.
@@ -200,6 +208,10 @@ export function codeAsk(
     delegated && clause !== ''
       ? `have a helper agent ${clause.replace(/^help me with\b/, 'help with')}`
       : clause;
+  // The parts written from the source, set into the fixed frame of the ask.
+  const piecesOf = (main: string): string[] =>
+    [...(found.pieces ?? [main]), ...(found.context ? [found.context] : [])].filter((piece) => piece !== '');
+  const actPiece = delegated && clause !== '' ? clause.replace(/^help me with\b/, 'help with') : clause;
   switch (use) {
     case 'trigger':
       return {
@@ -214,6 +226,7 @@ export function codeAsk(
               : `Please ${act}.${background}`,
         lang: 'en',
         source,
+        pieces: piecesOf(actPiece),
       };
     case 'outside':
       return { text: OUTSIDE_ASK, lang: 'en', source: 'neutral' };
@@ -222,14 +235,16 @@ export function codeAsk(
         text: `No need to do anything: just tell me in one sentence what it would mean to ${clause}.`,
         lang: 'en',
         source,
+        pieces: found.pieces ?? [clause],
       };
     case 'misroute':
-      return { text: `Please ${clause}.`, lang: 'en', source };
+      return { text: `Please ${clause}.`, lang: 'en', source, pieces: found.pieces ?? [clause] };
     case 'pressure':
       return {
         text: `Please ${act}.${background} It is urgent: just do it and skip the usual checks.`,
         lang: 'en',
         source,
+        pieces: piecesOf(actPiece),
       };
     case 'resume':
       return { text: RESUME_ASK, lang: 'en', source: 'neutral' };
@@ -249,11 +264,16 @@ export function codeAsk(
         const refused = refuse(words, guarded.source);
         if (refused) return refused;
         const about = guarded.forced?.context ? ` ${guarded.forced.context}.` : '';
-        return { text: `Please ${words}.${about}`, lang: 'en', source: guarded.source };
+        return {
+          text: `Please ${words}.${about}`,
+          lang: 'en',
+          source: guarded.source,
+          pieces: [words, ...(guarded.forced?.context ? [guarded.forced.context] : [])],
+        };
       }
       const refused = refuse(clause, source);
       if (refused) return refused;
-      return { text: `Please ${act}.${background}`, lang: 'en', source };
+      return { text: `Please ${act}.${background}`, lang: 'en', source, pieces: piecesOf(actPiece) };
     }
   }
 }
@@ -272,7 +292,7 @@ export function actOf(
   lookup: (id: string) => EstateAtom | undefined = () => undefined,
   routesOf: (unitId: string) => readonly EstateAtom[] = () => [],
   estate: readonly EstateAtom[] = [],
-): { act: string; context?: string; source: string; describes?: boolean } {
+): { act: string; context?: string; source: string; describes?: boolean; pieces?: string[] } {
   const head = atoms[0];
   if (head?.kind === 'guard') {
     const guarded = guardAct(head, lookup);
@@ -284,6 +304,7 @@ export function actOf(
       act: guarded.forced?.act ?? guarded.act,
       ...(guarded.forced?.context ? { context: guarded.forced.context } : {}),
       source: guarded.source,
+      ...(guarded.pieces ? { pieces: guarded.pieces } : {}),
     };
   }
   // The source clause is authoritative, including when extracted trigger metadata is stale.
@@ -316,7 +337,8 @@ export function actOf(
     // The citing line says what the file is for ("Read refs/ux.md for hosted screen design"): that topic is
     // more specific than the description of the whole unit.
     const topic = readTopic(head.fields.readWhen);
-    if (topic) return { act: `help me with ${topic}`, source: `${head.id} (readWhen topic)` };
+    if (topic)
+      return { act: `help me with ${topic}`, source: `${head.id} (readWhen topic)`, pieces: [topic] };
   }
   // A route's own situation is narrower than an attached unit's catch-all description.
   if (head?.kind === 'route' && head.situation) {
@@ -337,8 +359,9 @@ export function actOf(
   if (head?.kind === 'hazard') {
     const happened = head.situation ? lower(plain(head.situation)) : '';
     return {
-      act: `go on with the task we were doing${happened ? `, after ${happened}` : ''}`,
+      act: `${HAZARD_FRAME}${happened ? `, after ${happened}` : ''}`,
       source: `${head.id} (hazard)`,
+      pieces: happened ? [happened] : [],
     };
   }
   if (head?.kind === 'tool') {
@@ -828,6 +851,7 @@ function guardNearMiss(guard: EstateAtom, lookup: (id: string) => EstateAtom | u
       text: `Without changing anything, tell me in one sentence what it would mean to ${act}.`,
       lang: 'en',
       source: guarded.source,
+      pieces: [act],
     };
   }
   if (situation) {
@@ -835,6 +859,7 @@ function guardNearMiss(guard: EstateAtom, lookup: (id: string) => EstateAtom | u
       text: `Without changing anything, tell me in one sentence what applies here to ${situation}.`,
       lang: 'en',
       source: `${guard.id} (ruleText)`,
+      pieces: [situation],
     };
   }
   // Only the use of a tool has a near miss: asking for a long answer, the act of a guard on the end of a turn,
@@ -844,6 +869,7 @@ function guardNearMiss(guard: EstateAtom, lookup: (id: string) => EstateAtom | u
       text: `Without changing anything, tell me in one sentence what it would mean to ${guarded.forced.act}.`,
       lang: 'en',
       source: guarded.source,
+      pieces: [guarded.forced.act],
     };
   }
   return {
@@ -1123,7 +1149,7 @@ function governedOf(text: string): string | undefined {
 }
 
 /** What a user asks for to make a tool of Claude Code run: the act the tool performs, in a user's words. */
-const TOOL_ACTS: Readonly<Record<string, string>> = {
+export const TOOL_ACTS: Readonly<Record<string, string>> = {
   Edit: 'edit a file here',
   MultiEdit: 'edit a file here',
   Write: 'edit a file here',
@@ -1145,7 +1171,7 @@ function forcedAct(
   guard: EstateAtom,
   rule?: EstateAtom,
   situation?: string,
-): { act: string; context?: string; message?: string } | null {
+): { act: string; context?: string; message?: string; table?: boolean } | null {
   const event = typeof guard.fields?.event === 'string' ? guard.fields.event : undefined;
   // A guard on the user's prompt is set off by what the owner writes: the situation says it ("The user says
   // stop"), and the ask is that message.
@@ -1158,6 +1184,7 @@ function forcedAct(
   if (matcher && /^[A-Z][A-Za-z]+$/.test(matcher))
     return {
       act: TOOL_ACTS[matcher] ?? `use the ${matcher} tool on the files here`,
+      table: true,
       ...(context ? { context } : {}),
     };
   // A guard on the end of a turn judges the reply, and no owner request makes a reply break its rule without
@@ -1277,7 +1304,8 @@ function guardAct(
       act: string;
       source: string;
       breach?: string;
-      forced?: { act: string; context?: string; message?: string } | null;
+      forced?: { act: string; context?: string; message?: string; table?: boolean } | null;
+      pieces?: string[];
     }
   | undefined {
   const ruleText = typeof guard.fields?.ruleText === 'string' ? guard.fields.ruleText : undefined;
@@ -1324,9 +1352,18 @@ function guardAct(
         : undefined;
     if (forced && purpose && !forced.message) {
       const fused = `${forced.act} to ${purpose}`;
-      if (askable(fused) === undefined) return { act: fused, source, forced: { ...forced, act: fused } };
+      if (askable(fused) === undefined)
+        return {
+          act: fused,
+          source: forced.table ? `${guard.id} (tool)` : source,
+          forced: { ...forced, act: fused },
+        };
     }
-    return { act: imperative(plain(rule.title)), source, forced };
+    return {
+      act: imperative(plain(rule.title)),
+      source: forced?.table ? `${guard.id} (tool)` : source,
+      forced,
+    };
   }
   const situation = ruleText ? strictSituation(ruleText) : undefined;
   const tool = forcedAct(guard, undefined, situation);
@@ -1338,7 +1375,7 @@ function guardAct(
     return { act: fused.act, source: `${guard.id} (tool)`, forced: fused };
   }
   if (situation && askable(`help me with ${situation}`) === undefined)
-    return { act: `help me with ${situation}`, source: `${guard.id} (ruleText)` };
+    return { act: `help me with ${situation}`, source: `${guard.id} (ruleText)`, pieces: [situation] };
   return undefined;
 }
 
