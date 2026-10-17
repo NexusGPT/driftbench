@@ -153,6 +153,7 @@ export type CauseKey =
   | 'L26'
   | 'L27'
   | 'L29'
+  | 'L30'
   | 'LD1'
   | 'LD2'
   | 'LD3'
@@ -808,6 +809,10 @@ export const CAUSES: Readonly<Record<CauseKey, { text: string; contract: string 
   LD26: {
     text: 'The loader accepts the documented compare modes and refuses any other word.',
     contract: 'docs/reference/block-contracts.md#Value ladder',
+  },
+  L30: {
+    text: 'The loader refuses a pattern of a JSON schema that does not compile (REGEX_INVALID), in expect.json.schema and in metadata.tool_schemas.',
+    contract: 'docs/concepts/block.md#A spec is checked before it runs',
   },
   ST1: {
     text: 'A block the tailoring does not reach keeps the shipped stamp `check-set:default@hash8`, layer shipped.',
