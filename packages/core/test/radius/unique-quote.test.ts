@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sectionEntry } from '../../src/radius/sections';
+import { sectionEntry, sectionsFromHeadings } from '../../src/radius/sections';
 
 /** The search the section anchor used before it became linear, kept here as the reference for equal quotes. */
 function count(text: string, quote: string): number[] {
@@ -55,16 +55,19 @@ describe('the section anchor quote is the one the search found before', () => {
     expect(entry?.anchor.prefix, label).toBe(text.slice(Math.max(0, old.at - 32), old.at));
   }
 
-  it('on random texts of a few letters, lines and headings', () => {
+  it('on random texts of a few letters, lines and headings, many sections of one text', () => {
     const next = random(424242);
     const pieces = ['a', 'b', 'a', ' ', '\n', '\n', '## h\n', 'ab', 'line\n', '\t'];
-    for (let round = 0; round < 6000; round++) {
+    for (let round = 0; round < 1500; round++) {
       const parts = Math.floor(next() * 90);
       let text = '';
       for (let i = 0; i < parts; i++) text += pieces[Math.floor(next() * pieces.length)];
-      const a = Math.floor(next() * (text.length + 1));
-      const b = Math.floor(next() * (text.length + 1));
-      check(text, Math.min(a, b), Math.max(a, b));
+      // Twelve sections of one text: the first eight scan, the rest read the suffix index.
+      for (let section = 0; section < 12; section++) {
+        const a = Math.floor(next() * (text.length + 1));
+        const b = Math.floor(next() * (text.length + 1));
+        check(text, Math.min(a, b), Math.max(a, b));
+      }
     }
   });
 
@@ -105,5 +108,45 @@ describe('the section anchor takes linear CPU time on repeated lines', () => {
     const small = Math.max(make(10000), 1);
     const large = make(40000);
     expect(large / small).toBeLessThan(16);
+  });
+});
+
+describe('a registry of many sections takes CPU time near linear in the sections', () => {
+  const BUDGET_MS = 3000;
+  const distinct = (count: number) =>
+    Array.from(
+      { length: count },
+      (_, at) => `## Section ${at}\nThe rule for case ${at} says that item ${at * 7919} stays.\n`,
+    ).join('\n');
+  const identical = (count: number) =>
+    Array.from({ length: count }, () => '## Same\nThe same rule says that the same item stays.\n').join('\n');
+
+  it.each([2000, 8000])('%d distinct sections, each with a quote of its own', (count) => {
+    let ok = false;
+    const ms = cpuMs(() => {
+      ok = sectionsFromHeadings(distinct(count), { promptId: 'p', version: '1' }).ok;
+    });
+    expect(ok).toBe(true);
+    expect(ms).toBeLessThan(BUDGET_MS);
+  });
+
+  it.each([2000, 8000])('%d identical sections, which have no unique quote and are refused', (count) => {
+    let result: ReturnType<typeof sectionsFromHeadings> | undefined;
+    const ms = cpuMs(() => {
+      result = sectionsFromHeadings(identical(count), { promptId: 'p', version: '1' });
+    });
+    expect(result?.ok).toBe(false);
+    expect(ms).toBeLessThan(BUDGET_MS);
+  });
+
+  it('four times the distinct sections take about four times the time', () => {
+    const make = (count: number) => {
+      const text = distinct(count);
+      return cpuMs(() => sectionsFromHeadings(text, { promptId: 'p', version: '1' }));
+    };
+    make(500);
+    const small = Math.max(make(2000), 1);
+    const large = make(8000);
+    expect(large / small).toBeLessThan(10);
   });
 });
