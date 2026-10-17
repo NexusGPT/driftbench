@@ -30,7 +30,7 @@ function cap(
   aspect: string,
   component: string,
   cause: string,
-  tol: Tol,
+  tol: Spec['tol'],
   run: (s: Parameters<Spec['call']>[0], c: Row) => unknown,
   extra: Partial<Pick<Spec, 'fields'>> = {},
 ): Spec {
@@ -54,6 +54,14 @@ const HOLM = `${SRC}/multiple.ts`;
 const POWER = `${SRC}/power.ts`;
 const AGREE = `${SRC}/agreement.ts`;
 const PAIRED = `${SRC}/paired.ts`;
+
+/** Every sample-size item requires a positive integer before inspecting any floating fields or calling mde. */
+function checkedSampleSize(s: Parameters<Spec['call']>[0], input: Row): { n: number } {
+  const result = call(s, 'sampleSizeForEffect', input) as { n: number };
+  if (!Number.isInteger(result.n) || result.n < 1)
+    throw new Error('sampleSizeForEffect must return a positive integer n');
+  return result;
+}
 
 export function capabilityItems(): BankItem[] {
   const holm = (s: Parameters<Spec['call']>[0], c: Row) => call(s, 'holm', c.pvalues, c.alpha);
@@ -79,9 +87,9 @@ export function capabilityItems(): BankItem[] {
         aspect,
         POWER,
         'sampleSizeForEffect is missing from @agent-nexus/driftbench-stats',
-        { rel: 1e-9, abs: 1e-12 },
+        (path) => (path === 'n' ? { rel: 0, abs: 0 } : { rel: 1e-9, abs: 1e-12 }),
         (s, c) =>
-          call(s, 'sampleSizeForEffect', {
+          checkedSampleSize(s, {
             effect: c.effect,
             baselineRate: c.baselineRate,
             power: c.power,
@@ -158,7 +166,7 @@ function inverseOfMde(): BankItem {
       ];
       const misses: string[] = [];
       for (const c of cases) {
-        const got = attempt(() => call(s, 'sampleSizeForEffect', c) as { n: number });
+        const got = attempt(() => checkedSampleSize(s, c));
         if (got.error) {
           return fail(
             got.error.message.includes('is not exported')
