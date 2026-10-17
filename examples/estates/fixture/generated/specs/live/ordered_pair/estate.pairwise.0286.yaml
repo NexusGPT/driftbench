@@ -53,7 +53,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: In invoices/INV-1001.json set the note field to an empty string.
+      user: In the file invoices/INV-1001.json, edit the note field to an empty string.
     expect:
       references:
         - path: "**/.claude/skills/invoice-reconcile/references/matching-rules.md"

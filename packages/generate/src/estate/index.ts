@@ -1,6 +1,7 @@
 /** The estate test generator: plan rows to task specs, by code only. Owned by the estate-tests lane. */
 
 export {
+  ASK_FRAME_WORDS,
   actOf,
   askedTo,
   type CodeAsk,

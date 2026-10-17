@@ -483,7 +483,7 @@ describe('the committed suite', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1571);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1569);
     expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
       [],
     );
@@ -495,10 +495,10 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
-      specs: 1564,
-      blocks: 1559,
-      complete: 1540,
-      incomplete: 24,
+      specs: 1562,
+      blocks: 1557,
+      complete: 1544,
+      incomplete: 18,
       judged: 465,
     });
     expect(result.report.invalid).toEqual([]);
@@ -576,10 +576,12 @@ describe('a live guard_positive row forces the act', () => {
           record.id,
         ).toContain(MARKERS.askable);
     }
+    // The live row: the replay row of the same guard takes the ask of its recorded session.
     const ledger = result.specs.find(
       (record) =>
         record.testType === 'guard_positive' &&
-        record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py',
+        record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py' &&
+        estate(only(byId, record.id)).mode === 'live',
     );
     const when = ledger ? (only(byId, ledger.id).blocks[0]?.when as { user?: string }) : undefined;
     expect(when?.user).toBe('Please delete a file under ledger/.');

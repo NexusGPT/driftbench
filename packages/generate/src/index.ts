@@ -72,6 +72,7 @@ export {
   type ActRecord,
   ASK_FORMS,
   ASK_FRAMES,
+  ASK_FRAME_WORDS,
   type AskSource,
   actOf,
   anchorPair,
