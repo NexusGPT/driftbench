@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ksTest, mean, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
+import { ksTest, mean, wilcoxonSignedRank, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
 
 const bad = [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
 
@@ -61,5 +61,18 @@ describe('ksTest refuses input it cannot answer for', () => {
   });
   it('still answers on ordinary input', () => {
     expect(ksTest([1, 2, 3], [4, 5, 6]).statistic).toBe(1);
+  });
+});
+
+describe('wilcoxonSignedRank refuses a non-finite value', () => {
+  const x = [0.4, 0.2, 0.9, 0.5, 0.1, 0.7];
+  it('throws a RangeError on NaN, Infinity and -Infinity in either sample', () => {
+    for (const b of bad) {
+      expect(() => wilcoxonSignedRank([0.4, b, 0.9, 0.5, 0.1, 0.7], x.map((v) => v + 0.5))).toThrow(RangeError);
+      expect(() => wilcoxonSignedRank(x, [0.4, b, 0.9, 0.5, 0.1, 0.7])).toThrow(RangeError);
+    }
+  });
+  it('still answers on ordinary input', () => {
+    expect(wilcoxonSignedRank(x, x.map((v) => v + 0.5)).pValue).toBeLessThan(0.05);
   });
 });
