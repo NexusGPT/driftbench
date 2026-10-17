@@ -124,7 +124,7 @@ Then "Goldens that changed" (with the candidate's failing verdicts per block), "
 line `Verdict: <VERDICT>. Exit <n>.` and `Summary: <file>`.
 
 The JSON summary (`--out`, and standard output with `--json`) holds: `verdict`, `exitCode`, `reasons`,
-`aggregates`, `marginPoints`, `marginAuto` (`neededPoints`, `limitedBy`, `warning`), `minGoldens`,
+`aggregates`, `marginPoints`, `marginAuto` (`neededPoints`, `limitedBy`, `warning`), `marginDefaulted` (why `--margin auto` kept the 2 point default when the baseline holds no run of its own that passed or failed; `null` otherwise), `minGoldens`,
 `strict`, `underpowered`, `comparator`, `flags`, `baseline` (`campaignId`, `store`), `candidate`
 (`campaignId`, `store`, `target`, `cells`, `incompleteCells`), `pairs`, `table`, `effectPoints`
 (`estimate`, `lower`, `upper`), `smallestMarginPoints`, `criteriaNotShown`, `regressed`, `improved`,
@@ -292,6 +292,7 @@ $ driftbench ci --specs examples/acme/specs/conversations --target fault:control
   ],
   "marginPoints": 25,
   "marginAuto": null,
+  "marginDefaulted": null,
   "minGoldens": 30,
   "strict": false,
   "underpowered": [
