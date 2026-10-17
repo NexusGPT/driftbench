@@ -94,3 +94,19 @@ describe('designEffect and effectiveSampleSize refuse non-finite input', () => {
     expect(effectiveSampleSize(100, 5, 0.25)).toBe(50);
   });
 });
+
+describe('all-equal samples give the defined answer exactly (rule 3)', () => {
+  it('mean of ten copies of 0.6 is 0.6, and of 1000 copies of 0.1 is 0.1', () => {
+    expect(mean(new Array<number>(10).fill(0.6))).toBe(0.6);
+    expect(mean(new Array<number>(1000).fill(0.1))).toBe(0.1);
+    expect(mean(new Array<number>(7).fill(-3.3))).toBe(-3.3);
+  });
+  it('sample variance of an all-equal sample is exactly 0', () => {
+    expect(sampleVariance(new Array<number>(10).fill(0.6))).toBe(0);
+    expect(sampleVariance(new Array<number>(1000).fill(0.1))).toBe(0);
+  });
+  it('mean and variance of ordinary values are unchanged', () => {
+    expect(mean([1, 2, 3, 4])).toBe(2.5);
+    expect(sampleVariance([1, 2, 3, 4])).toBeCloseTo(5 / 3, 12);
+  });
+});

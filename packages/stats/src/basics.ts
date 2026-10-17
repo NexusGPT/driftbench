@@ -64,6 +64,8 @@ export function sum(values: readonly number[]): number {
 export function mean(values: readonly number[]): number {
   if (values.length === 0) throw new RangeError('mean of an empty sample');
   assertFiniteValues('mean', values);
+  const first = values[0] as number;
+  if (values.every((v) => v === first)) return first;
   return sum(values) / values.length;
 }
 
