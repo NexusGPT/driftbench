@@ -10,6 +10,19 @@ import ts from 'typescript';
  * string, template and regular-expression literals are not code, so a word in them is never a read, and an
  * optional chain (`?.`) is a read like any other. A type position (`Expect['skills']`) names the field and reads
  * nothing.
+ *
+ * What the census does not see, so a reader of this kind needs a review by eye, not a pin:
+ * - a key held in a variable or built in a template (`ctx.expect[key]`), because the tree does not know the value;
+ * - a receiver reached through an alias or a default (`const e = ctx.expect; e.skills`, `(ctx.expect ?? {}).skills`,
+ *   `const { skills } = ctx.expect ?? {}`), because only the name a receiver ends in is read, not what it was bound to;
+ * - a nested destructuring (`const { expect: { skills } } = ctx`), a parameter pattern (`({ skills }: Expect) => ...`),
+ *   a destructuring assignment (`({ skills } = ctx.expect)`) and a loop pattern, because only the declaration form
+ *   `const { skills } = <receiver>` is read;
+ * - a whole-object read (`{ ...ctx.expect }`, `Object.entries(ctx.expect)`, `'skills' in ctx.expect`), which takes
+ *   every field without naming one;
+ * - the `count` read of an entry reached by index, a call or a loop (`skills[0].count`, `pick(skills).count`,
+ *   `for (const { count } of skills)`), because the receiver must be a name in `receivers`.
+ * These shapes are not read by a text search either, so the census is no weaker than the one it replaces.
  */
 export type FieldReads = {
   /** The names a receiver may end in: `expect` for `expect`, `ctx.expect`, `(x as Spec).expect`. */
