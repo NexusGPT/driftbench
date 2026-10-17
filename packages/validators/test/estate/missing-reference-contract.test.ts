@@ -43,7 +43,7 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
     };
     const real = await one(suite);
     expect(real?.detail).not.toContain('not marked');
-    // Planted: the marker leaves the report, so the missing reference is neither marked nor covered.
+    // Planted: the marker leaves the report, so the missing reference is not marked.
     const unmarked = {
       ...suite,
       report: {
@@ -53,7 +53,7 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
     };
     expect(await one(unmarked)).toMatchObject({
       pass: false,
-      detail: expect.stringContaining('neither marked needs-existing-file'),
+      detail: expect.stringContaining('not marked needs-existing-file'),
     });
     // Planted: every complete spec of the references that exist is dropped; the item is red for them.
     const dropped = {
@@ -187,7 +187,7 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
     expect(await one((line) => line.replace('exists: false', 'exists: true'))).toEqual(real);
   });
 
-  it('accepts a missing reference judged by a complete spec instead of the marker, and still fails one judged by neither', async () => {
+  it('judges a reference to a missing file by its marker only: a complete spec that checks the Read is the product ignoring it', async () => {
     const suite = await fixture.fixtureSuite();
     const waiting = (suite.report.gaps ?? []).find((gap) => gap.marker === 'needs-existing-file');
     const missing = waiting?.atoms[0];
@@ -200,19 +200,6 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
         mock.mockRestore();
       }
     };
-    const noMarker = {
-      ...suite,
-      report: {
-        ...suite.report,
-        gaps: (suite.report.gaps ?? []).filter((gap) => gap.marker !== 'needs-existing-file'),
-      },
-    };
-    // Judged by neither: the item fails and names the reference.
-    expect(await one(noMarker)).toMatchObject({
-      pass: false,
-      detail: expect.stringContaining(missing),
-    });
-    // Judged by a complete spec that checks the attempted Read: no complaint about the missing reference.
     const path = String(
       (await loadEstateMap(suite.map).then((m) => (m.ok ? m.map.atoms : []))).find((a) => a.id === missing)
         ?.fields?.path,
@@ -227,20 +214,22 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
       spec.rules = rules;
       return { ...base, atoms: [missing], complete: true };
     };
-    // Names the path, checks nothing: still judged by neither.
-    const names = withChecks({}, { must: [path] });
-    expect(checksReadOf(names, path)).toBe(false);
-    expect((await one({ ...noMarker, specs: [...suite.specs, names] }))?.detail).toContain(missing);
-    // Checks a Read of another file, or a read counted zero times: judged by neither.
-    for (const other of [
-      withChecks({}, { tools: [{ label: 'Read', input: { file_path: { contains: 'other/file.md' } } }] }),
-      withChecks({}, { tools: [{ label: 'Read', input: { file_path: { contains: path } }, count: 0 }] }),
-      withChecks({}, { tools: [{ label: 'Edit', input: { file_path: { contains: path } } }] }),
-    ])
-      expect(checksReadOf(other, path)).toBe(false);
-    // Checks a Read of exactly the path, as a tool expectation, a references glob or a some_call entry.
-    for (const checked of [
-      withChecks({}, { tools: [{ label: 'Read', input: { file_path: { contains: path } } }] }),
+    // Unmarked: the item fails and names the reference, whatever else judges it.
+    const noMarker = {
+      ...suite,
+      report: {
+        ...suite.report,
+        gaps: (suite.report.gaps ?? []).filter((gap) => gap.marker !== 'needs-existing-file'),
+      },
+    };
+    const checked = withChecks({}, { tools: [{ label: 'Read', input: { file_path: { contains: path } } }] });
+    expect(await one({ ...noMarker, specs: [...suite.specs, checked] })).toMatchObject({
+      pass: false,
+      detail: expect.stringContaining('not marked needs-existing-file'),
+    });
+    // Marked, and a complete spec checks the Read as well: the item fails and names the reference.
+    for (const complete of [
+      checked,
       withChecks({}, { references: [{ path: `**/${path}`, count: { min: 1 } }] }),
       withChecks(
         {
@@ -252,10 +241,92 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
         },
         {},
       ),
-    ]) {
-      expect(checksReadOf(checked, path)).toBe(true);
-      const judged = await one({ ...noMarker, specs: [...suite.specs, checked] });
-      expect(judged?.detail ?? '').not.toContain(missing);
-    }
+    ])
+      expect(await one({ ...suite, specs: [...suite.specs, complete] })).toMatchObject({
+        pass: false,
+        detail: expect.stringContaining(missing),
+      });
+    // Marked, and the specs that name it only name it (or read another file): no complaint about the missing reference.
+    for (const harmless of [
+      withChecks({}, { must: [path] }),
+      withChecks({}, { tools: [{ label: 'Read', input: { file_path: { equals: `archive/${path}` } } }] }),
+    ])
+      expect((await one({ ...suite, specs: [...suite.specs, harmless] }))?.detail ?? '').not.toContain(
+        'have a complete spec that checks a Read',
+      );
+  });
+
+  describe('checksReadOf is a check of a Read of exactly the path', () => {
+    const REF = 'lighthouse/logbook.md';
+    const spec = (rules: Record<string, unknown>, expectation: Record<string, unknown>) =>
+      ({
+        path: 'p.yaml',
+        id: 'p',
+        atoms: [],
+        testType: 'read_when',
+        mode: 'task',
+        complete: true,
+        spec: { blocks: [{ expect: expectation }], rules },
+      }) as unknown as Parameters<typeof checksReadOf>[0];
+    const read = (input: Record<string, unknown>, count?: unknown) =>
+      spec({}, { tools: [{ label: 'Read', input, ...(count === undefined ? {} : { count }) }] });
+    const some = (input: Record<string, unknown>, count?: unknown) =>
+      spec(
+        {
+          custom: {
+            some_call: {
+              calls: [{ label: 'Read', input, block: 0, ...(count === undefined ? {} : { count }) }],
+            },
+          },
+        },
+        {},
+      );
+
+    it.each([
+      ['no count', undefined],
+      ['a count of 1', 1],
+      ['a minimum of 1', { min: 1 }],
+      ['a range from 1 to 3', { min: 1, max: 3 }],
+    ])('counts a Read asked for with %s', (_name, count) => {
+      expect(checksReadOf(read({ file_path: { contains: REF } }, count), REF)).toBe(true);
+      expect(checksReadOf(some({ file_path: REF }, count), REF)).toBe(true);
+    });
+
+    it.each([
+      ['a count of 0', 0],
+      ['a maximum of 0', { max: 0 }],
+      ['an empty range', {}],
+      ['a maximum of 3 (zero allowed)', { max: 3 }],
+      ['a minimum of 0', { min: 0 }],
+    ])('does not count a Read asked for with %s', (_name, count) => {
+      expect(checksReadOf(read({ file_path: { contains: REF } }, count), REF)).toBe(false);
+      expect(checksReadOf(some({ file_path: REF }, count), REF)).toBe(false);
+    });
+
+    it('compares the whole normalized path for equals and a bare path: another file that ends in it is not it', () => {
+      expect(checksReadOf(read({ file_path: { equals: REF } }), REF)).toBe(true);
+      expect(checksReadOf(read({ file_path: { equals: `./${REF}` } }), REF)).toBe(true);
+      expect(checksReadOf(read({ file_path: { equals: 'archive/lighthouse/logbook.md' } }), REF)).toBe(false);
+      expect(checksReadOf(read({ file_path: { equals: 'archive/logbook.md' } }), 'logbook.md')).toBe(false);
+      expect(checksReadOf(some({ file_path: 'old/lighthouse/logbook.md' }), REF)).toBe(false);
+      expect(checksReadOf(some({ file_path: REF }), REF)).toBe(true);
+    });
+
+    it('lets only a contains and a glob carry a prefix', () => {
+      expect(checksReadOf(read({ file_path: { contains: `/estate/${REF}` } }), REF)).toBe(true);
+      expect(checksReadOf(spec({}, { references: [{ path: `**/${REF}` }] }), REF)).toBe(true);
+      expect(checksReadOf(spec({}, { references: [{ path: `**/archive/${REF}x` }] }), REF)).toBe(false);
+      expect(checksReadOf(spec({}, { references: [{ path: 'archive/logbook.md' }] }), 'logbook.md')).toBe(
+        false,
+      );
+    });
+
+    it('counts nothing else: another tool, a pattern, a name only', () => {
+      expect(
+        checksReadOf(spec({}, { tools: [{ label: 'Edit', input: { file_path: { contains: REF } } }] }), REF),
+      ).toBe(false);
+      expect(checksReadOf(read({ file_path: { matches: 'logbook' } }), REF)).toBe(false);
+      expect(checksReadOf(spec({}, { must: [REF] }), REF)).toBe(false);
+    });
   });
 });
