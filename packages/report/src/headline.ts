@@ -151,6 +151,11 @@ export function suiteHeadline(
       const key = JSON.stringify([treeOf(run), root]);
       samples.set(key, [...(samples.get(key) ?? []), !(failed || whole)]);
     }
+    // A run that failed before it recorded any block measured no tree: its failure counts for the golden.
+    if (outcomes.length === 0 && run.blocks.length === 0 && !runPassed(run)) {
+      const key = treeOf(run);
+      samples.set(key, [...(samples.get(key) ?? []), false]);
+    }
   }
   const counts = [...samples.values()].map((group) => ({ n: group.length, k: group.filter(Boolean).length }));
   const measured = counts.reduce((sum, count) => sum + count.n, 0);
