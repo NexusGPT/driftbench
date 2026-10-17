@@ -67,8 +67,8 @@ metadata:
       field: skill.shipment-tracker.skill-shipment-tracker#asks it names
       fp: ef1bf02575dd862062412ec73a2b2428fa0ed65dfad4cc28f7b3f4e45abd3af5
       frame: trigger
-      shape: "{}, including the {}"
+      shape: help me with {}, including the {}
       pieces:
-        - help me with a delivery, a tracking number or a late shipment
+        - a delivery, a tracking number or a late shipment
         - shipments
     outcome: no-delete

@@ -66,9 +66,9 @@ metadata:
       field: skill.weekly-report.skill-weekly-report#asks it names
       fp: ba980774df8de197cb05f447eeac78a1b8abbd592f480ab4126784a1cf35c368
       frame: trigger
-      shape: "{}, including the {}"
+      shape: help me with {}, including the {}
       pieces:
-        - help me with the weekly report or a summary of last week
+        - the weekly report or a summary of last week
         - kpi definitions
     outcome: no-delete
     needs:
