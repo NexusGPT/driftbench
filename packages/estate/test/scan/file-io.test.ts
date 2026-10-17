@@ -65,7 +65,7 @@ describe('filesystem scheduling keeps the reader deterministic', () => {
     expect(io.stats.filter((entry) => entry === path)).toHaveLength(1);
   });
 
-  it('checks canonical file identity before reading ordinary child folders', async () => {
+  it('carries canonical directory identity through ordinary child folders', async () => {
     const root = await estate({
       'CLAUDE.md': '# Rules\n',
       '.claude/memory/a/b/c/d/e/notes.md': '# Notes\n',
@@ -77,7 +77,7 @@ describe('filesystem scheduling keeps the reader deterministic', () => {
       '.claude/memory/a/b/c/d/e/notes.md',
       'project/a/b/c/d/CLAUDE.md',
     ]);
-    for (const file of raw.files) expect(io.realpaths).toContain(join(root, file.path));
+    expect(io.realpaths.length).toBeLessThanOrEqual(2);
   });
 
   it('keeps sibling link aliases while stopping each alias cycle', async () => {

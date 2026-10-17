@@ -15,7 +15,8 @@ import {
 } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
-import { dirname, extname, join, relative } from 'node:path';
+import { dirname, extname, join, relative, sep } from 'node:path';
+import { Observed } from '@agent-nexus/driftbench-core';
 import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@agent-nexus/driftbench-generate';
 import {
   reapFolder,
@@ -25,7 +26,8 @@ import {
   untrackGroup,
 } from '@agent-nexus/driftbench-sandbox';
 import { parse as parseYaml } from 'yaml';
-import { estatePath } from '../paths';
+import { z } from 'zod';
+import { estatePath, estateSource } from '../paths';
 import { guardName } from '../scan/code';
 import type { EstateReader, GuardDecl } from '../scan/reader';
 
@@ -66,6 +68,8 @@ export type UnitCaseResult = {
   pass: boolean;
   ms: number;
   detail: string;
+  command?: string;
+  workspace?: WorkspaceDiff;
 };
 
 export type UnitResult = {
@@ -105,6 +109,8 @@ type Exec = {
   ms: number;
   timedOut: boolean;
   workspace?: WorkspaceDiff;
+  command?: string;
+  spawnError?: string;
 };
 
 const CREDENTIAL_FOLDERS = [
@@ -129,6 +135,7 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
     const results: UnitResult[] = new Array(tests.length);
     const runOne = async (test: UnitTest): Promise<UnitResult> => {
       if (test.target.kind === 'script') return runScriptTest(test, config, runner, options.record === true);
+      if (test.target.kind === 'subagent') return runHelperTest(test, options);
       const result = await runGuardTest(test, raw.guards, options.record === true, runner);
       const check = test.target.check;
       if (check === undefined) return result;
@@ -195,10 +202,12 @@ export type UnitObservation = {
     outcome: UnitOutcome;
     ms: number;
     timedOut: boolean;
+    command?: string;
     workspace?: WorkspaceDiff;
   }>;
   error?: string;
   declared?: boolean;
+  inputError?: string;
 };
 
 export async function observeUnitTests(
@@ -217,7 +226,7 @@ export async function observeUnitTests(
         }
         // Declared fixtures have their own independent oracle; use the normal script runner for them.
         const scripts = config.scripts as Record<string, unknown> | undefined;
-        if (Array.isArray(scripts?.[test.target.path])) {
+        if (scripts?.[test.target.path] !== undefined) {
           observed.declared = true;
           const result = await runScriptTest(test, config, runner, false);
           observed.cases = result.cases.map((entry) => ({
@@ -225,8 +234,11 @@ export async function observeUnitTests(
             outcome: entry.outcome,
             ms: entry.ms,
             timedOut: entry.outcome.message === 'timed out',
+            command: entry.command,
+            ...(entry.workspace ? { workspace: entry.workspace } : {}),
           }));
-          if (result.status !== 'pass') observed.error = result.detail;
+          if (result.status === 'unrecorded') observed.inputError = result.detail;
+          else if (result.status !== 'pass') observed.error = result.detail;
         } else {
           for (const fixture of test.cases) {
             const result = await runScript(test.target.path, fixture, runner);
@@ -236,9 +248,12 @@ export async function observeUnitTests(
               ms: result.ms,
               timedOut: result.timedOut,
               ...(result.workspace ? { workspace: result.workspace } : {}),
+              command: result.command,
             });
           }
         }
+      } else if (test.target.kind === 'subagent') {
+        observed.error = 'a helper unit test is run by runUnitTests, which records and compares its answers';
       } else {
         const target = test.target;
         const guard = raw.guards.find(
@@ -264,6 +279,7 @@ export async function observeUnitTests(
               ms: result.ms,
               timedOut: result.timedOut,
               ...(result.workspace ? { workspace: result.workspace } : {}),
+              command: result.command,
             });
           }
       }
@@ -424,6 +440,133 @@ async function runGuardTest(
   };
 }
 
+/**
+ * A helper run alone, by the executor the estate declares for it (`helpers:` in driftbench.estate.yaml). The case
+ * holds the task and the seeded files. `record` runs the helper `RECORD_RUNS` times on the original estate and keeps
+ * its answer when the runs agree (the case is flaky otherwise, and never compared); a later run must answer the same,
+ * so an agent file that lost its body or changed its meaning turns the test red. An executor that is not configured,
+ * or fails, is a failed run, never a pass.
+ */
+async function runHelperTest(test: UnitTest, options: UnitRunOptions): Promise<UnitResult> {
+  const base = { id: test.id, testType: test.testType, atom: test.atom };
+  const target = test.target;
+  if (target.kind !== 'subagent') throw new Error('not a helper test');
+  const record = options.record === true;
+  if (!record && test.recordedOn === undefined) {
+    return {
+      ...base,
+      status: 'unrecorded',
+      detail: 'no outcome recorded: run --record on the original first',
+      cases: [],
+    };
+  }
+  const outcomeOfRun = (observation: HelperObservation): UnitOutcome =>
+    observation.status === 'executed'
+      ? { decision: 'allow', exitCode: 0, output: observation.observed.text.trim() }
+      : {
+          decision: 'error',
+          exitCode: observation.status === 'failed' ? observation.exit : 1,
+          message: observation.error,
+        };
+  const cases: UnitCaseResult[] = [];
+  const recordedCases: GuardCase[] = [];
+  for (const unitCase of test.cases) {
+    const task = typeof unitCase.payload.task === 'string' ? unitCase.payload.task : '';
+    const files =
+      typeof unitCase.payload.files === 'object' && unitCase.payload.files !== null
+        ? (unitCase.payload.files as Record<string, string>)
+        : {};
+    const outcomes: UnitOutcome[] = [];
+    let ms = 0;
+    for (let index = 0; index < (record ? RECORD_RUNS : 1); index++) {
+      const observation = await observeHelper({ name: target.name, file: target.file }, task, files, options);
+      outcomes.push(outcomeOfRun(observation));
+      if (observation.status !== 'not-run') ms = Math.max(ms, observation.ms);
+    }
+    const first = outcomes[0] as UnitOutcome;
+    if (record) {
+      const flaky = varies(outcomes) || outcomes.some((outcome) => outcome.output !== first.output);
+      const failed = first.decision === 'error';
+      recordedCases.push({
+        ...unitCase,
+        expected: first,
+        ...(flaky ? { flaky: true } : failed ? { inert: true } : {}),
+      });
+      cases.push({
+        case: unitCase.id,
+        material: unitCase.material,
+        outcome: first,
+        ...(failed ? { inert: true } : {}),
+        pass: !failed,
+        ms,
+        detail: failed ? (first.message ?? 'the helper did not run') : 'recorded',
+      });
+      continue;
+    }
+    const expected = unitCase.expected;
+    if (unitCase.flaky) {
+      cases.push({
+        case: unitCase.id,
+        material: unitCase.material,
+        outcome: first,
+        flaky: true,
+        pass: true,
+        ms,
+        detail: 'flaky on the original: not compared',
+      });
+      continue;
+    }
+    if (expected === undefined || unitCase.inert) {
+      cases.push({
+        case: unitCase.id,
+        material: unitCase.material,
+        outcome: first,
+        inert: true,
+        pass: false,
+        ms,
+        detail: 'the helper did not run on the original, so nothing is recorded to compare',
+      });
+      continue;
+    }
+    const differences = differ(expected, first);
+    cases.push({
+      case: unitCase.id,
+      material: unitCase.material,
+      outcome: first,
+      expected,
+      pass: differences.length === 0,
+      ms,
+      detail: differences.length === 0 ? 'answered as recorded' : differences.join('; '),
+    });
+  }
+  if (record) {
+    const failed = cases.filter((entry) => !entry.pass);
+    return {
+      ...base,
+      status: failed.length === 0 ? 'pass' : 'fail',
+      detail:
+        failed.length === 0
+          ? `recorded ${recordedCases.length} helper runs`
+          : failed.map((entry) => `${entry.case} ${entry.detail}`).join(' | '),
+      cases,
+      recorded: { ...test, cases: recordedCases, recordedOn: test.mapHash },
+    };
+  }
+  const active = cases.filter((entry) => !entry.flaky);
+  const failed = active.filter((entry) => !entry.pass);
+  return {
+    ...base,
+    status: active.length === 0 ? 'inert' : failed.length === 0 ? 'pass' : 'fail',
+    detail:
+      active.length === 0
+        ? 'no recorded case shows the helper at work'
+        : failed.length === 0
+          ? `${active.length} of ${active.length} runs answered as recorded`
+          : `${failed.length} of ${active.length} runs changed: ${failed.map((entry) => `${entry.case} ${entry.detail}`).join(' | ')}`,
+    cases,
+  };
+}
+
 /** Record runs per case: an outcome that varies across them marks the case flaky. */
 export const RECORD_RUNS = 3;
 
@@ -555,8 +698,19 @@ async function runScriptTest(
     return { ...base, status: 'fail', detail: `the estate no longer holds ${path}`, cases: [] };
   }
   const scripts = config.scripts as Record<string, unknown> | undefined;
-  const declared = scripts?.[path];
-  if (!Array.isArray(declared) || declared.length === 0) return runRecordedScript(test, path, runner, record);
+  const declaration = scripts?.[path];
+  if (declaration === undefined) return runRecordedScript(test, path, runner, record);
+  const contract = ScriptFixtures.safeParse(
+    Array.isArray(declaration) ? declaration : (declaration as { fixtures?: unknown })?.fixtures,
+  );
+  if (!contract.success)
+    return {
+      ...base,
+      status: 'unrecorded',
+      detail: `invalid script contract for ${path}: ${contract.error.issues[0]?.message}`,
+      cases: [],
+    };
+  const declared = contract.data;
   const cases: UnitCaseResult[] = [];
   for (const [index, fixture] of declared.entries()) {
     const entry = (fixture ?? {}) as Record<string, unknown>;
@@ -565,18 +719,16 @@ async function runScriptTest(
     runner.counter += 1;
     const folder = join(runner.work, `case-${runner.counter}`);
     await writeFixtures(runner, folder, (entry.files ?? {}) as Record<string, unknown>);
-    const run = await execute(
-      [
-        ...(await interpreterFor(await estatePath(runner.copy, path))),
-        await estatePath(runner.copy, path),
-        ...args,
-      ],
-      typeof entry.stdin === 'string' ? entry.stdin : '',
-      runner,
-      folder,
-      60_000,
+    const argv = [
+      ...(await interpreterFor(await estatePath(runner.copy, path))),
+      await estatePath(runner.copy, path),
+      ...args,
+    ];
+    const run = await watched(runner, folder, () =>
+      execute(argv, typeof entry.stdin === 'string' ? entry.stdin : '', runner, folder, 60_000),
     );
     const problems: string[] = [];
+    if (run.timedOut) problems.push('timed out');
     const wantedExit = typeof expect.exitCode === 'number' ? expect.exitCode : 0;
     if (run.exitCode !== wantedExit) problems.push(`exit ${run.exitCode} where ${wantedExit} is declared`);
     if (typeof expect.stdout === 'string' && run.stdout.trim() !== expect.stdout.trim())
@@ -587,14 +739,17 @@ async function runScriptTest(
       decision: run.exitCode === 0 ? 'allow' : 'error',
       exitCode: run.exitCode,
       ...(run.stdout.trim() ? { output: run.stdout.trim() } : {}),
+      ...(run.timedOut ? { message: 'timed out' } : {}),
     };
     cases.push({
       case: `fixture-${index + 1}`,
       material: args.join(' '),
       outcome,
       pass: problems.length === 0,
+      command: run.command,
       ms: run.ms,
       detail: problems.length === 0 ? 'as declared' : problems.join('; '),
+      ...(run.workspace ? { workspace: run.workspace } : {}),
     });
   }
   const failed = cases.filter((entry) => !entry.pass);
@@ -945,8 +1100,10 @@ async function execute(
         exitCode: 127,
         stdout,
         stderr: `${stderr}${error.message}`,
+        spawnError: error.message,
         ms: performance.now() - started,
         timedOut,
+        command: argv.map(shellWord).join(' '),
       });
     });
     child.on('exit', killGroup);
@@ -959,6 +1116,7 @@ async function execute(
         stderr: neutral(stderr, runner.work),
         ms: Math.round(performance.now() - started),
         timedOut,
+        command: argv.map(shellWord).join(' '),
       });
     });
   });
@@ -979,9 +1137,16 @@ export function neutral(text: string, work: string): string {
     .replace(/\$RUN\/case-\d+/g, '$RUN/case');
 }
 
+/** Where the estate configuration lives: the root, else inside the runtime's own folder (the root file wins). */
+export const ESTATE_CONFIG_PLACES: readonly string[] = [ESTATE_CONFIG_FILE, `.claude/${ESTATE_CONFIG_FILE}`];
+
 /** The estate configuration, when the estate has one. */
 async function readConfig(root: string): Promise<Record<string, unknown>> {
-  const text = await readFile(await estatePath(root, ESTATE_CONFIG_FILE), 'utf8').catch(() => undefined);
+  let text: string | undefined;
+  for (const place of ESTATE_CONFIG_PLACES) {
+    text = await readFile(await estatePath(root, place), 'utf8').catch(() => undefined);
+    if (text !== undefined) break;
+  }
   if (text === undefined) return {};
   try {
     const parsed: unknown = parseYaml(text);
@@ -997,7 +1162,7 @@ async function copyListed(root: string, to: string, reader: EstateReader): Promi
   // Validate the entire copy before creating any destination.
   const paths = await Promise.all(
     files.map(async (file) => ({
-      source: await estatePath(root, file),
+      source: estateSource(root, file),
       target: await estatePath(to, file),
     })),
   );
@@ -1021,5 +1186,127 @@ async function writeFixtures(runner: Runner, folder: string, files: Record<strin
   for (const { path, text } of paths) {
     await mkdir(dirname(path), { recursive: true });
     await writeFile(path, text, { flag: 'wx' });
+  }
+}
+
+/** Declared script fixtures are independent oracles, not a guess from a successful process start. */
+const ScriptFixtures = z
+  .array(
+    z.object({
+      args: z.array(z.string()).optional(),
+      stdin: z.string().optional(),
+      files: z.record(z.string(), z.string()).optional(),
+      expect: z
+        .object({
+          exitCode: z.number().int().optional(),
+          stdout: z.string().optional(),
+          stdoutIncludes: z.array(z.string().min(1)).min(1).optional(),
+        })
+        .refine(
+          (e) => e.exitCode !== undefined || e.stdout !== undefined || e.stdoutIncludes !== undefined,
+          'declare an expected exitCode, stdout or stdoutIncludes',
+        ),
+    }),
+  )
+  .min(1);
+
+function shellWord(word: string): string {
+  return /^[\w./:=@+-]+$/.test(word) ? word : `'${word.replace(/'/g, "'\\''")}'`;
+}
+
+export type HelperObservation =
+  | { status: 'not-run'; error: string }
+  | { status: 'failed'; error: string; exit: number; ms: number; observed?: undefined }
+  | { status: 'executed'; observed: Observed; exit: number; ms: number; error?: undefined };
+
+/** Execute the helper's current body with the estate's explicitly declared local runtime. */
+export async function observeHelper(
+  target: { name: string; file: string },
+  task: string,
+  files: Record<string, string>,
+  options: UnitRunOptions,
+): Promise<HelperObservation> {
+  try {
+    const result = await withRunner(options, async (runner, _raw, config): Promise<HelperObservation> => {
+      const declaration = (config.helpers as Record<string, unknown> | undefined)?.[target.name];
+      const executor = z
+        .strictObject({
+          command: z.array(z.string().min(1)).min(1),
+          timeoutMs: z.number().int().positive().default(60000),
+        })
+        .safeParse(declaration);
+      if (!executor.success)
+        return {
+          status: 'not-run',
+          error: 'a helper needs a configured executor in driftbench.estate.yaml helpers',
+        };
+      const path = await estatePath(runner.copy, target.file);
+      const source = await readFile(path, 'utf8');
+      const header = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(source);
+      const frontmatter = header ? parseYaml(header[1] ?? '') : {};
+      const body = header ? source.slice(header[0].length) : source;
+      if (!task.trim()) return { status: 'not-run', error: 'the helper has no task' };
+      // Every fixture path is validated, links resolved, before the first one is written.
+      const fixtures = await Promise.all(
+        Object.entries(files).map(async ([name, text]) => ({
+          file: await estatePath(runner.copy, name),
+          text,
+        })),
+      );
+      const canonicalCopy = await estatePath(runner.copy, '.');
+      for (const { file } of fixtures)
+        if (
+          file.startsWith(join(canonicalCopy, '.claude') + sep) ||
+          file === join(canonicalCopy, ESTATE_CONFIG_FILE)
+        )
+          return { status: 'not-run', error: 'helper workspace fixtures cannot replace runtime files' };
+      for (const { file, text } of fixtures) {
+        await mkdir(dirname(file), { recursive: true });
+        await writeFile(file, text);
+      }
+      const before = await snapshot(runner.copy);
+      const execution = await execute(
+        executor.data.command,
+        `${JSON.stringify({ name: target.name, systemPrompt: body, frontmatter, task })}\n`,
+        runner,
+        runner.copy,
+        executor.data.timeoutMs,
+      );
+      const workspaceDiff = diffOf(before, await snapshot(runner.copy));
+      if (execution.spawnError)
+        return { status: 'not-run', error: `helper executor could not start: ${execution.spawnError}` };
+      const stamp = { exit: execution.exitCode, ms: execution.ms };
+      if (execution.timedOut || execution.exitCode !== 0)
+        return {
+          status: 'failed',
+          ...stamp,
+          error: execution.timedOut
+            ? 'helper executor timed out'
+            : `helper executor exited ${execution.exitCode}: ${execution.stderr}`,
+        };
+      let value: unknown;
+      try {
+        value = JSON.parse(execution.stdout);
+      } catch {
+        return { status: 'failed', ...stamp, error: 'helper executor returned invalid JSON' };
+      }
+      // The protocol requires actual reply and tool-call observations; metadata is supplied by this runner.
+      const observed = Observed.omit({ cost: true, latencyMs: true }).safeParse(value);
+      if (!observed.success)
+        return {
+          status: 'failed',
+          ...stamp,
+          error: `invalid helper observations: ${observed.error.issues[0]?.message}`,
+        };
+      return {
+        status: 'executed',
+        ...stamp,
+        // The runner watched the copy itself: a diff the executor did not report is the one it saw.
+        observed: { workspaceDiff, ...observed.data, cost: {}, latencyMs: execution.ms },
+      };
+    });
+    return result.value;
+  } catch (cause) {
+    return { status: 'not-run', error: cause instanceof Error ? cause.message : String(cause) };
   }
 }

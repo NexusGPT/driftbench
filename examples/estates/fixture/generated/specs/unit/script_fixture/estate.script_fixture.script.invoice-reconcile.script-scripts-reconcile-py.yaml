@@ -53,10 +53,6 @@ blocks:
     when:
       user: Match the Fjord Kitchenware invoice INV-1001 with its order.
     expect:
-      skills:
-        - name: invoice-reconcile
-          count:
-            min: 1
       execution:
         ran_code: true
       workspace:

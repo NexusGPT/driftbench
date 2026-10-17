@@ -52,6 +52,10 @@ blocks:
     when:
       user: Write up last week in the usual weekly report.
     expect:
+      skills:
+        - name: weekly-report
+          count:
+            min: 1
       workspace:
         created:
           - reports/2026-W42.md

@@ -54,11 +54,10 @@ blocks:
     expect:
       guards:
         - name: read-before-edit.py
+          verdict: deny
           count:
             min: 1
       workspace:
-        changed:
-          - invoices/INV-1001.json
         others_untouched: true
 metadata:
   estate:

@@ -1,9 +1,9 @@
 import { constants, existsSync } from 'node:fs';
-import { copyFile, lstat, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { copyFile, lstat, mkdir, readdir, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative } from 'node:path';
 import { mapHash } from '../map/build';
 import { quoteDrift } from '../map/file';
-import { estatePath } from '../paths';
+import { estatePath, estateSource } from '../paths';
 import { readerFor } from '../scan/index';
 import { provenanceHash, quoteAtSpan } from '../scan/text';
 import type { Atom, EstateMap } from '../schema';
@@ -51,6 +51,9 @@ export class MutantError extends Error {
 /** The estate's own files a copy holds by default: what the runtime reads, nothing the test harness wrote. */
 export const ESTATE_COPY_FILES = ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'] as const;
 
+/** Where an estate keeps the configuration the unit runner reads (`driftbench.estate.yaml`). */
+const ESTATE_CONFIG_NAMES = ['driftbench.estate.yaml', '.claude/driftbench.estate.yaml'] as const;
+
 /**
  * Copies the estate's own files, and every file an atom of the map quotes, from `root` into `to`. The files
  * are the ones the map's runtime reader lists (ignored folders such as node_modules and test runs left out,
@@ -71,22 +74,26 @@ export async function copyEstate(
   const copied: string[] = [];
   const files = new Set(listed ?? []);
   const collect = async (file: string, ancestors = new Set<string>()): Promise<void> => {
-    const source = await estatePath(root, file);
+    const source = estateSource(root, file);
     const info = await stat(source).catch(() => undefined);
     if (!info) return;
     if (info.isDirectory()) {
-      if (ancestors.has(source)) throw new MutantError(`cyclic copy source ${file}; refused`);
-      const parents = new Set([...ancestors, source]);
+      const real = await realpath(source);
+      if (ancestors.has(real)) throw new MutantError(`cyclic copy source ${file}; refused`);
+      const parents = new Set([...ancestors, real]);
       for (const entry of await readdir(source)) await collect(join(file, entry), parents);
     } else if (info.isFile()) files.add(file);
   };
   if (!listed) for (const name of names) await collect(name);
+  // The estate configuration (helper executors, script fixtures) is not an instruction the agent reads, yet a
+  // unit test on the copy needs it: without it the copy cannot run a helper or the script fixtures it declares.
+  for (const file of ESTATE_CONFIG_NAMES) await collect(file);
   for (const atom of map.atoms) await collect(atom.provenance.file);
   // Preflight every source and destination before the first mkdir or copy.
   const paths = await Promise.all(
     [...files].sort().map(async (file) => ({
       file,
-      source: await estatePath(root, file),
+      source: estateSource(root, file),
       target: await estatePath(to, file),
     })),
   );

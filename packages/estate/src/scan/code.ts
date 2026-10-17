@@ -837,7 +837,12 @@ export function positiveMention(
         .splitBefore('(and|or) (#Verb|#Negative)')
         .out('array')
         .find((part: string) => part.includes(marker)) ?? marked;
-    const parsed = nlp(clause.replace(/[‘’]/g, "'"));
+    // A negation does not reach across a word that reverses or restarts the clause: "never proceed without
+    // reading X" requires the read, "do not read X unless asked" forbids it.
+    const segment = clause
+      .split(/\b(?:without|unless|until|before|but|instead)\b/i)
+      .find((part: string) => part.includes(marker));
+    const parsed = nlp((segment ?? clause).replace(/[‘’]/g, "'"));
     const terms = parsed.termList();
     const hasAction = terms.some((term) => actions.has(term.normal));
     if (!hasAction && !bareNever) return true;

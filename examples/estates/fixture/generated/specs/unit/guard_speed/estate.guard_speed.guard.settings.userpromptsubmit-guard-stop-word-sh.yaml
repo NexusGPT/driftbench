@@ -54,6 +54,7 @@ blocks:
     expect:
       guards:
         - name: stop-word.sh
+          verdict: nudge
           count:
             min: 1
       workspace:

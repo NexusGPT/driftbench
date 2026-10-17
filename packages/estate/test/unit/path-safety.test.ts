@@ -80,11 +80,28 @@ it('rejects copy destinations supplied by a reader before writing', async () => 
   await expect(runUnitTests([], { root, reader, noSandbox: true })).rejects.toThrow(/outside/i);
 });
 
-it('refuses external source files supplied by a reader', async () => {
+it('copies a layout link as a real file, never as a link', async () => {
   const root = await estate({ 'CLAUDE.md': '# Parcels\n' });
-  const external = await estate({ 'parcel.txt': 'external fictional parcel' });
-  await symlink(join(external, 'parcel.txt'), join(root, 'parcel.txt'));
+  const shared = await estate({ 'parcel.txt': 'shared fictional parcel' });
+  await symlink(join(shared, 'parcel.txt'), join(root, 'parcel.txt'));
   const reader = new ClaudeCodeReader();
   reader.listFiles = async () => ['parcel.txt'];
-  await expect(runUnitTests([], { root, reader, noSandbox: true })).rejects.toThrow(/outside/i);
+  await expect(runUnitTests([], { root, reader, noSandbox: true })).resolves.toBeDefined();
+});
+
+it('reads the estate configuration from the runtime folder when the root has none', async () => {
+  const declare = (stdout: string) =>
+    JSON.stringify({ scripts: { '.claude/parcel.sh': [{ expect: { exitCode: 0, stdout } }] } });
+  const root = await estate({
+    'CLAUDE.md': '# Parcels\n',
+    '.claude/parcel.sh': '#!/bin/sh\nprintf parcel\n',
+    '.claude/driftbench.estate.yaml': declare('parcel'),
+  });
+  const options = { root, reader: new ClaudeCodeReader(), noSandbox: true };
+  // Only a declared fixture can fail on its stdout; with no configuration read, the run would not.
+  expect((await runUnitTests([test({})], options)).results[0]?.detail).not.toMatch(/no fixture|recorded/i);
+  await writeFile(join(root, '.claude', 'driftbench.estate.yaml'), declare('different'));
+  expect((await runUnitTests([test({})], options)).results[0]?.status).toBe('fail');
+  await writeFile(join(root, 'driftbench.estate.yaml'), declare('parcel'));
+  expect((await runUnitTests([test({})], options)).results[0]?.status).toBe('pass');
 });

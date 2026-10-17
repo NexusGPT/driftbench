@@ -173,6 +173,8 @@ export type RawEstate = {
    * from the naming file's folder or the root (for Claude Code, `.claude` and `.claude/skills`).
    */
   bases?: string[];
+  /** Links, relative to the root, that the reader read through to a real path outside the root. */
+  followedLinks?: string[];
   /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
   ignored?: {
     patterns: Array<{ pattern: string; files: number }>;

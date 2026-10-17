@@ -145,15 +145,15 @@ export function build(
     for (const atom of atoms) stageOrder(then, atom, ctx.stages);
   }
   if (row.testType === 'guard_hostile') {
-    // A malformed payload: the guard answers with some verdict instead of failing.
-    then.guards = then.guards.map(({ verdict: _verdict, ...guard }) => ({ ...guard, count: { min: 1 } }));
+    // Hostile inputs retain the guard's declared effect; another verdict is no substitute.
+    then.guards = then.guards.map((guard) => ({ ...guard, count: { min: 1 } }));
   }
   // The guard answered in time, and said why it blocked in words that keep the estate's output rules: read
   // from the hook output the runtime reports (the guard record's stdout, stderr, exit code and outcome).
   const guardName = typeof first.fields?.name === 'string' ? first.fields.name : undefined;
   if (row.testType === 'guard_speed') {
     if (guardName && ctx.customChecks.has('guard_finished')) {
-      then.guards = then.guards.map(({ verdict: _verdict, ...guard }) => ({ ...guard, count: { min: 1 } }));
+      then.guards = then.guards.map((guard) => ({ ...guard, count: { min: 1 } }));
       then.custom.guard_finished = { name: guardName, block: 0 };
     } else gap(then, MARKERS.guardTiming, first, 'the runner registers no guard_finished check');
   }
@@ -210,6 +210,7 @@ export function build(
         row.testType === 'twin',
         (id) => ctx.atoms.get(id),
         variant,
+        [...ctx.atoms.values()],
       );
       if (written.text === undefined) {
         // Never a nonsense ask: the row waits for an approved phrase, under its own gap.
@@ -276,6 +277,12 @@ export function build(
       expect: expectOf(then, false),
     });
   }
+  // A unit-mode spec tests one guard or script process, so it holds only what that process can do. What the
+  // agent does after an allow (files it changes, skills it loads) belongs to the live twin of the row.
+  const unit = row.mode === 'unit' ? specUnitOf(row, atoms, ctx.atoms) : undefined;
+  if (unit !== undefined && typeof unit !== 'string' && unit.target.kind !== 'subagent') {
+    for (const block of blocks) processOnly(block.expect as Record<string, unknown>, unit.target.kind);
+  }
   // A block left empty by other gaps is already named by them; an empty block with none is its own gap.
   const gapped = then.gaps.length > 0;
   for (const block of blocks) {
@@ -339,7 +346,6 @@ export function build(
   if (seed) vars.workspace_seed = seed.id;
 
   // A unit-mode spec carries the run that `estate unit` makes of it: no model, so the payloads are written here.
-  const unit = row.mode === 'unit' ? specUnitOf(row, atoms, ctx.atoms) : undefined;
   const usesStages = blocks.some((block) => (block.expect as Record<string, unknown>).stage !== undefined);
   const kinds = [...new Set(atoms.map((atom) => `kind:${atom.kind}`))];
   const expectRun = session
@@ -462,6 +468,25 @@ function expectOf(then: ThenParts, first: boolean): Record<string, unknown> {
     expect.criteria = then.criteria.map((criterion: CriterionDef) => criterion.name);
   }
   return expect;
+}
+
+/**
+ * The expectations a guard or script process can decide. A guard writes nothing: it keeps its verdicts and
+ * that it leaves the workspace alone. A script keeps its exit, its commands and the files it writes. The files
+ * an agent changes after an allow, and the skills it loads, describe the agent and stay with the live spec.
+ */
+function processOnly(expect: Record<string, unknown>, kind: 'guard' | 'script'): void {
+  const workspace = expect.workspace as { deleted?: unknown[] } | undefined;
+  const kept: Record<string, unknown> = {};
+  if (kind === 'script') {
+    if (expect.execution !== undefined) kept.execution = expect.execution;
+    if (workspace !== undefined) kept.workspace = workspace;
+  } else {
+    if (expect.guards !== undefined) kept.guards = expect.guards;
+    kept.workspace = workspace?.deleted?.length === 0 ? { deleted: [] } : { others_untouched: true };
+  }
+  for (const key of Object.keys(expect)) delete expect[key];
+  Object.assign(expect, kept);
 }
 
 /** A stage comes after its immediate dominator: the stage every path to it passes last. */

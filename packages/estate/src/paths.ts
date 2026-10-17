@@ -37,3 +37,15 @@ export async function estatePath(root: string, file: string): Promise<string> {
     );
   return canonical;
 }
+
+/**
+ * A file read from the estate and copied elsewhere: its name must stay inside the root as written (no
+ * absolute path, no `..` out of it), but a link in the layout is followed, as the reader follows it.
+ */
+export function estateSource(root: string, file: string): string {
+  const base = resolve(root);
+  const path = resolve(base, file);
+  if (isAbsolute(file) || !within(base, path))
+    throw new EstatePathError(`${file} is absolute or outside the estate root ${base}; refused`);
+  return path;
+}

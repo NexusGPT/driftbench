@@ -160,6 +160,7 @@ export async function estateUnitCommand(
     runs: [...legacyContract.runs, ...specContract.runs],
     guards: [...legacyContract.guards, ...specContract.guards],
     scripts: [...legacyContract.scripts, ...specContract.scripts],
+    ...(specContract.helpers ? { helpers: specContract.helpers } : {}),
   };
   if (options.json) {
     io.out(formatJson(combined));
@@ -189,6 +190,7 @@ export type UnitContract = {
     ms: number;
   }>;
   scripts: Array<{ script: string; exit: number; stdout: string }>;
+  helpers?: Array<{ helper: string; exit: number; ms: number; text: string }>;
 };
 
 export function contractOf(results: readonly UnitResult[], tests: readonly UnitTest[]): UnitContract {
@@ -219,6 +221,14 @@ export function contractOf(results: readonly UnitResult[], tests: readonly UnitT
           decision,
           ...(entry.outcome.message !== undefined ? { message: entry.outcome.message } : {}),
           ms: Math.round(entry.ms),
+        });
+      } else if (test.target.kind === 'subagent') {
+        contract.helpers ??= [];
+        contract.helpers.push({
+          helper: test.target.name,
+          exit: entry.outcome.exitCode,
+          ms: Math.round(entry.ms),
+          text: entry.outcome.output ?? '',
         });
       } else {
         contract.scripts.push({
