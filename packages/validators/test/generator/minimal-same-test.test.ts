@@ -1,3 +1,4 @@
+import { canonicalGiven } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { SeedData, sameTestKey } from '../../src/ladders/generator/bank';
 import { type BlockRun, givenOf, runAll } from '../../src/ladders/generator/measure';
@@ -46,6 +47,18 @@ describe('two blocks are the same test when Given, stage, cell and Then are equa
   it('does not read the user wording', () => {
     const block = last(cover.spec.id);
     expect(sameTestKey({ ...block, when: 'another way of saying it' })).toBe(sameTestKey(block));
+  });
+
+  it('is another test when only the stage it is said from differs', () => {
+    // Same world, same cell, same Then: the block before it ends the conversation at another stage.
+    const index = cover.spec.blocks.length - 1;
+    const other = structuredClone(cover.spec);
+    const before = other.blocks[index - 1];
+    if (!before?.expect) throw new Error('the block before has no Then');
+    const stage = before.expect.stage;
+    before.expect = { ...before.expect, stage: `${stage}-elsewhere` };
+    expect(canonicalGiven(other, index).state).toEqual(canonicalGiven(cover.spec, index).state);
+    expect(givenOf(other, index)).not.toBe(givenOf(cover.spec, index));
   });
 
   it('is another test when the stage it is said from, or its cell, differs', () => {
