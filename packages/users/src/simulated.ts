@@ -79,11 +79,6 @@ export type SimulatedUser = UserDriver & {
   revealed(): string[];
 };
 
-/** Where a message of the person is kept: the block's id, else the position the block has in the run. */
-function saidKey(id: string | undefined, position: number): string {
-  return id === undefined ? `#${position}` : `id:${id}`;
-}
-
 /** Families compare without case and surrounding space, as the judges package compares them. */
 function family(name: string): string {
   return name.trim().toLowerCase();
@@ -113,8 +108,11 @@ export function createSimulatedUser(options: SimulatedUserOptions): SimulatedUse
   if (!options.stopToken.trim()) throw new SimulatedUserError('the stop token is empty');
 
   const system = systemPrompt(persona, options.goal, options.stopToken);
-  /** What the person wrote, by block: a block's id, else its position in the run. A branch never reads another's. */
-  const said = new Map<string, string>();
+  /**
+   * What the person wrote, by the position the block has in the whole run (`BlockResult.index`), not by its
+   * place in its branch: a branch never reads another's message, and a block a perturbation injected is found too.
+   */
+  const said = new Map<number, string>();
   let revealed: string[] = [];
 
   return {
@@ -136,11 +134,11 @@ export function createSimulatedUser(options: SimulatedUserOptions): SimulatedUse
       const block = ctx.spec.blocks[ctx.blockIndex];
       const hint = options.script === 'none' || !block ? undefined : redact(wordsOf(block.when), hidden);
       const lines = branch.map((result) => [
-        `Customer: ${said.get(saidKey(result.blockId, result.index)) ?? '[a message of yours that is not shown]'}`,
+        `Customer: ${said.get(result.index) ?? '[a message of yours that is not shown]'}`,
         `Assistant: ${result.observed.text}`,
       ]);
       const user = [
-        `Turn ${branch.filter((result) => said.has(saidKey(result.blockId, result.index))).length + 1}.`,
+        `Turn ${branch.filter((result) => said.has(result.index)).length + 1}.`,
         '',
         'The conversation so far:',
         ...(lines.length > 0 ? lines.flat() : ['(nothing yet: you write first)']),
@@ -170,7 +168,7 @@ export function createSimulatedUser(options: SimulatedUserOptions): SimulatedUse
           `the simulated user gave ${leaked.join(', ')} at block ${ctx.blockIndex} before the agent asked for ${leaked.length === 1 ? 'it' : 'them'}`,
         );
       }
-      said.set(saidKey(block?.id, ctx.history.length), answer);
+      said.set(ctx.history.length, answer);
       const stimulus: Stimulus = { user: answer };
       return { kind: 'block', blockIndex: ctx.blockIndex, stimulus };
     },

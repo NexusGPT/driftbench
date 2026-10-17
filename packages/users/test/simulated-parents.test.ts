@@ -2,7 +2,7 @@ import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { runSpec } from '@agent-nexus/driftbench-core';
 import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
-import { createSimulatedUser, type SimulatedUserOptions } from '../src/index';
+import { createPerturbingDriver, createSimulatedUser, type SimulatedUserOptions } from '../src/index';
 import { block, spec } from './support';
 
 /**
@@ -164,5 +164,44 @@ describe('a simulated user on a spec with parent blocks', () => {
     });
     expect(step.kind).toBe('block');
     expect(driver.revealed()).toEqual(['email']);
+  });
+
+  it('counts the turns of a run with an injected block as it always did: the injected block holds its place', async () => {
+    const plain = spec({
+      id: 'three-steps',
+      stages: ['a', 'b', 'c'],
+      blocks: [
+        { user: 'I need a bicycle quote.', expect: { stage: 'a' } },
+        { user: 'Any size will do.', expect: { stage: 'b' } },
+        { user: 'Tuesday works.', expect: { stage: 'c' } },
+      ],
+      perturbations: [
+        {
+          id: 'down',
+          class: 'D8_tool_failure',
+          inject_at: 1,
+          world: { tools: { lookup: { error: 'down' } } },
+          recovery: { within_blocks: 1 },
+        },
+      ],
+    });
+    const { port, driver: base } = user(['I need a bicycle quote.', 'Any size will do.', 'Tuesday works.']);
+    const driver = createPerturbingDriver({ spec: plain, perturbation: 'down', base });
+    const result = await runSpec(driver.spec, {
+      adapter: adapter(),
+      driver,
+      checks: [],
+      mode: 'P',
+      repeat: 0,
+      perturbationId: 'down',
+    });
+    expect(result.status).toBe('completed');
+    expect(port.requests.map((request) => request.user.split('\n')[0])).toEqual([
+      'Turn 1.',
+      'Turn 2.',
+      'Turn 3.',
+    ]);
+    // The injected block 1 carries the message written for it; block 2 reads it back as the customer's line.
+    expect(port.requests[2]?.user).toContain('Customer: Any size will do.');
   });
 });
