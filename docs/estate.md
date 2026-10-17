@@ -978,6 +978,7 @@ The failing session that motivated a change is its fail-to-pass case: red before
 * `packages/adapters/src/claude-code`: the session reader, the replay adapter, the ordered-pair check, and the live runner in `live/`.
 * `packages/cli`: the `estate` commands and `replay`.
 * The estate validator, which checks this whole loop on an estate nobody wrote by hand: `driftbench validate estate`, designed on the [validators](validators.md) page.
+* The chain test, which runs the commands from scan to radius on the Northwind fixture with no model call and checks every hand-off by an id or a hash: [the estate chain proof](estate-chain.md).
 
 Built, in order: scan, lint and map; plan; the session reader and replay; generation; maintenance; the live runner with planted session states and hazards; estate mutants; the static and unit runners. Not built yet: the unit run of a helper alone, and a validation on a real estate against its native test battery.
 
