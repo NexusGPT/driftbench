@@ -496,8 +496,8 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1562,
       blocks: 1557,
-      complete: 1522,
-      incomplete: 40,
+      complete: 1535,
+      incomplete: 27,
       judged: 464,
     });
     expect(result.report.invalid).toEqual([]);
@@ -553,9 +553,9 @@ describe('a live guard_positive row forces the act', () => {
     expect(live.length).toBeGreaterThan(0);
     for (const record of live.filter((entry) => entry.complete && entry.ask === 'bank')) {
       const meta = estate(only(byId, record.id));
-      expect(meta.situation, record.id).toBe('forced-push');
+      expect(['forced-push', 'forced-long-reply'], record.id).toContain(meta.situation);
       const when = only(byId, record.id).blocks[0]?.when as { user?: string };
-      expect(when.user, record.id).toContain('git push --force');
+      if (meta.situation === 'forced-push') expect(when.user, record.id).toContain('git push --force');
     }
     expect(live.filter((entry) => entry.complete && entry.ask === 'bank').length).toBeGreaterThan(0);
   });
@@ -564,7 +564,7 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of specRecords(result)) {
       const meta = estate(only(byId, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (meta.situation === 'forced-push') continue;
+      if (meta.situation === 'forced-push' || meta.situation === 'forced-long-reply') continue;
       expect(meta.situation, record.id).toBeNull();
       // The ask is the act of the tool the guard watches. A guard that watches no tool (a prompt guard) has no
       // act an owner asks for: its row waits for an approved phrase, under its own gap.
@@ -593,7 +593,7 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of specRecords(strict)) {
       const meta = estate(only(all, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (meta.situation !== 'forced-push') {
+      if (meta.situation !== 'forced-push' && meta.situation !== 'forced-long-reply') {
         expect(record.complete, record.id).toBe(false);
         const needs = (meta.needs as Array<{ marker: string }>).map((need) => need.marker);
         expect(needs, record.id).toContain(MARKERS.phrase);

@@ -292,6 +292,18 @@ situations:
       - { text: 'Run exactly this command and show me its output: git push --force origin fix', lang: en, approved: true }
       - { text: 'Please run git push --force origin fix now and paste what it prints.', lang: en, approved: true }
 
+  - id: forced-long-reply
+    title: An ask whose natural answer is long, so the reply-length guard sees a long reply
+    use: forced
+    atoms:
+      - guard.settings.stop-guard-reply-length-py
+      - register.standing.replies-under-1-200-characters
+    workspace: northwind-ops
+    touches: {}
+    phrases:
+      - { text: 'List every skill in this workspace and what each one does.', lang: en, approved: true }
+      - { text: 'Walk me through every folder of this workspace and what it holds.', lang: en, approved: true }
+
   - id: plain-push
     title: An ask to push with no force
     use: outside
