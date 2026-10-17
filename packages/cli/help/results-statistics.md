@@ -32,7 +32,7 @@ as independent samples.
 | Clopper-Pearson exact | library only (`clopperPearson`) |
 | Wilson on n_eff | a rate over clusters: the scorecard's pass rate over specs with repeats, and block accuracy over conversations. Wilson on the effective units `n_eff` (units divided by the design effect from the spread of the cluster rates), with the Student t quantile on clusters minus one. The cell prints `n_eff` and the design effect. An aggregate over several goldens (`report`, `ci`) takes it too, clustered by golden. Method name `wilson, design effect`, or `wilson, clusters` when every run agrees |
 | hierarchical Beta-Bernoulli | the suite headline, the pass rate of a whole suite: the mean over goldens (every golden weighs the same) with a model that learns from the spread between goldens how far the runs of one golden move together. No sampling, no seed. Method name `hierarchical` |
-| cluster bootstrap | anything pooled over blocks (block accuracy, the compounding index): 2000 percentile resamples of whole clusters, seed 1 |
+| cluster bootstrap | a mean or a ratio over clusters that is not a pass rate: the compounding index, the drift count per run, unreliability, and the precision, recall and F1 of tool calls. 2000 percentile resamples of whole clusters, seed 1 |
 | Wilson raised to k | pass^k and pass@k: the Wilson bounds of the per-run rate raised to k, widened to contain the value; runs that did not complete count both ways |
 | Newcombe method 10 | the paired difference of two rates (baseline minus candidate) |
 
@@ -58,8 +58,8 @@ It has four parts.
    a fall to 0% would be missed too often. The suite is then too small to gate on.
 
 After those four parts the line names the share of runs that gave no verdict. These are runs that did not
-complete, stopped by the budget or by an error. Once a run carries those states, blocked and not run
-runs count too. The share is printed beside the rate, so dropping broken runs cannot raise the rate unseen.
+complete, stopped by the budget or by an error. Runs blocked or not run count too, each with its own
+share. The share is printed beside the rate, so dropping broken runs cannot raise the rate unseen.
 
 A golden here is one spec, one target and one mode, with one perturbation in P. A spec whose text changed
 between runs is a new golden. A headline needs at least two goldens: with one, there is no spread to
@@ -225,19 +225,21 @@ Suite pass rate, mode F: 50.0% [18.7%, 81.3%] (hierarchical 95% interval); 6 gol
 | `6 goldens` | how many goldens the mean is over |
 | `n_eff 5.0 runs` | the 12 runs of this mode are worth 5 independent runs |
 | `(design effect 2.40)` | 12 divided by 5.0. Read `(every run agrees, so each golden counts once)` when all runs passed or all failed: `n_eff` is then the number of goldens |
-| `no drop detectable at 80% power` | at 5 effective runs, a fall even to 0% is not detected reliably. Otherwise `detectable drop 66.4 points at 80% power` gives the smallest drop in points |
-| `<share> did not complete`, `<share> blocked`, `<share> not run` | each appears only when above 0, as a percentage of the mode's runs. Blocked and not run appear once a run carries those states |
+| `no drop detectable at 80% power` | at 5 effective runs, a fall even to 0% is not detected reliably. Otherwise `detectable drop 65.3 points at 80% power` gives the smallest drop in points |
+| `<share> did not complete`, `<share> blocked`, `<share> not run` | each appears only when above 0, as a percentage of the mode's runs |
 
 A second reading, over six goldens. Their runs pass 5 of 5, 5 of 5, 4 of 5, 0 of 5, 2 of 5 and 2 of 2:
 
 ```text
-Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.0 runs (design effect 3.87), detectable drop 66.4 points at 80% power.
+Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.3 runs (design effect 3.69), detectable drop 65.3 points at 80% power.
 ```
 
 The mean of the six rates is (1 + 1 + 0.8 + 0 + 0.4 + 1) / 6 = 70.0%. Pooled over the 27 runs it would be
 18 of 27, 66.7%: the last golden's two runs would weigh less than the others' five. The 27 runs are worth
-about 7, because one golden failed every run while others passed every run. With 7 effective runs, only a
-drop of 66.4 points or more is detected at 80% power.
+about 7, because one golden failed every run while others passed every run. With 7.3 effective runs, only a
+drop of 65.3 points or more is detected at 80% power. The headline computes `n_eff` on the mean over
+goldens, so it differs from `wilsonEffective`, which computes it on the pooled rate (7.0 in the script
+below).
 
 ### The headline in the scorecard and in JSON
 
@@ -256,7 +258,7 @@ passing", prints `n_eff 5.0 (design effect 2.40)` beside its interval.
 | `pooledRate` | the pass rate over all runs pooled, each run counting once |
 | `effectiveRuns`, `designEffect` | `n_eff` and the design effect |
 | `degenerate` | true when every run passed or every run failed |
-| `detectableDrop` | the detectable drop as a proportion (0.664 is 66.4 points), or `null` when none is |
+| `detectableDrop` | the detectable drop as a proportion (0.653 is 65.3 points), or `null` when none is |
 | `shares` | `incomplete`, `blocked` and `notRun`, each a proportion of the runs |
 
 A rate over clusters with the method `wilson, design effect` carries `designEffect` and `effectiveN`.
@@ -367,6 +369,7 @@ Goldens that changed:
   acme-plan-upgrade · F              pass      fail       regressed  forbidden  block 2 forbidden.order.create, block 2 must.0, block 2 must.1
 
 Why:
+  - 3 goldens regressed: acme-number-porting · F, acme-order-loose-confirmation · F, acme-plan-upgrade · F
   - new gating flag forbidden in acme-number-porting · F
   - new gating flag forbidden in acme-order-loose-confirmation · F
   - new gating flag forbidden in acme-plan-upgrade · F

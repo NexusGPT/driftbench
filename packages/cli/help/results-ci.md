@@ -225,6 +225,7 @@ Goldens that changed:
   acme-plan-upgrade · P · loose-ok                        pass      fail       regressed  forbidden  block 2 forbidden.order.create, block 2 must.0, block 2 must.1
 
 Why:
+  - 13 goldens regressed: acme-number-porting · T, acme-number-porting · F, acme-number-porting · P · spanish-line, acme-number-porting · P · are-you-there, acme-order-loose-confirmation · T, acme-order-loose-confirmation · F, acme-order-loose-confirmation · P · second-loose-yes, acme-order-loose-confirmation · P · order-service-down, acme-plan-upgrade · T, acme-plan-upgrade · F, acme-plan-upgrade · P · billing-aside, acme-plan-upgrade · P · order-service-down, acme-plan-upgrade · P · loose-ok
   - all-pass dropped: McNemar exact p = 0.0002 below 0.05, 13 goldens regressed and 0 improved
   - forbidden regressed: 13 goldens regressed and 0 improved, adjusted p = 0.0011 under the false discovery rate 0.05
   - must regressed: 13 goldens regressed and 0 improved, adjusted p = 0.0011 under the false discovery rate 0.05

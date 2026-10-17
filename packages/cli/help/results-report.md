@@ -208,7 +208,8 @@ The pass rate counts the one scored run. The JUnit file skips the other:
   </testsuite>
 ```
 
-`report` exits 0: it writes, it never gates. `driftbench ci` fails on blocks not run (topic running-not-run).
+`report` exits 0: it writes, it never gates. `driftbench ci` fails on blocks not run (topic results-ci).
+
 ## Common errors
 
 | Message | Cause and fix |

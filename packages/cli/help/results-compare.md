@@ -80,15 +80,21 @@ driftbench compare --baseline <campaign> --candidate <campaign> --store <file> [
 | `--pairwise-preference <preference>` | none | `long-structured`: a declared preference for the longer structured reply, applied after the ledger verdict. Needs `--pairwise-contract ledger` |
 | `--rank <campaigns...>` | none | rank three or more campaigns instead: wins per shared run, the Bradley-Terry order and every three-campaign cycle. `--baseline` and `--candidate` are then not needed |
 
-The judged criteria of the stored runs can be judged again during the comparison, with the same judge options as `campaign run` (topic judging-council):
+`compare` never judges the stored runs again. The judge options below choose and shape the judge of
+`--pairwise` (topic judging-pairwise):
+
+* Without `--pairwise`, `--judge`, `--judges` and `--judge-route` are refused with exit 2. The other options
+  of this table are accepted and change nothing.
+* With `--pairwise` and none of those three, the pairwise judge is the one `--pairwise-judge` names,
+  `openai` by default.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `--judge <kind:model>` | none | judge the judged criteria with this judge, such as `claude:haiku`. Kinds: claude, openai, anthropic, google, openai-decisions, jev, http. Repeat it for a council. Paid calls |
+| `--judge <kind:model>` | none | with `--pairwise`: the pairwise judge, such as `claude:haiku`. Kinds: claude, openai, anthropic, google, openai-decisions, jev, http. Repeat it for a council. Paid calls |
 | `--judge-command <path>` | `claude` | the claude command a claude judge runs |
 | `--judge-budget <usd>` | none | stop judging once the judges have spent this much |
-| `--judges <cassette>` | none | add every judge of this recording as a player: no call |
-| `--judge-route <route>` | none | `escalation`: route each call through a label-blind router |
+| `--judges <cassette>` | none | with `--pairwise`: add every judge of this recording as a player: no call |
+| `--judge-route <route>` | none | with `--pairwise`: `escalation`, route each call through a label-blind router |
 | `--route-first <judge>` | none | with `--judge-route escalation`: the judge that answers first |
 | `--route-then <judge>` | none | with `--judge-route escalation`: a judge asked when a trigger fires; repeatable |
 | `--route-on <triggers>` | `order-split,inconclusive,reference-disagreement,low-confidence` | the escalation triggers, comma separated |
@@ -322,6 +328,7 @@ Verdict: NON-INFERIOR.
 
 The one paired golden passes on both sides, so the verdict is non-inferior and `compare` exits 0. The golden
 not run is listed, not counted.
+
 ## Common errors
 
 | Message | Cause and fix |
@@ -334,6 +341,7 @@ not run is listed, not counted.
 | `Unknown mode "X"` (exit 2) | modes are `T`, `F`, `P`, separated by commas |
 | `ENOENT ... criterion.yaml` (exit 2) | the `--pairwise` criterion file does not exist |
 | `pairwise judge gave no answer: ...` (exit 2) | the provider failed or its key is missing from the environment |
+| `--judge, --judges and --judge-route choose the pairwise judge: they go with --pairwise <criterion.yaml>.` (exit 2) | a judge option was given without `--pairwise`. `compare` judges nothing else: add `--pairwise <criterion.yaml>`, or drop the option |
 | exit 1 with every golden passing on both sides | the verdict is not shown non-inferior: the margin is below what these goldens can show. Read the floor in the planning line; raise the margin or add goldens |
 | goldens listed as not paired | the two campaigns ran different spec versions or modes, or the candidate carried them from a baseline |
 | a golden not paired with `not measured in the candidate: block <i> not run` | the candidate's target cannot apply a layer of that spec's Given. It never changes the verdict; run the spec on a target that applies the layer |
