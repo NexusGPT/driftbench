@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type BankEntry, bankMeasure, type Measure } from '../../ladder';
 import { CONTRACTS } from './contracts';
+import { breakerItems } from '../blocks-breaker/index';
 import { releaseAgents } from './kinds';
 import { adversarialItems } from './levels/adversarial';
 import { blastItems } from './levels/blast';
@@ -54,6 +55,7 @@ export function blocksBank(): BankItem[] {
     ...linkItems(),
     ...blastItems(),
     ...personaItems(),
+    ...breakerItems(),
   ];
   return items
     .map((item) => ({ ...item, ...(CONTRACTS[item.cause] ? { contract: CONTRACTS[item.cause] } : {}) }))
