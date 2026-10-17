@@ -227,9 +227,85 @@ export function sectionEntry(
   };
 }
 
+const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})(.*)$/;
+const ATX = /^ {0,3}(#{1,6})(?:[ \t]+(.*))?$/;
+const SETEXT_UNDERLINE = /^ {0,3}(=+|-+)[ \t]*$/;
+const THEMATIC_BREAK = /^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$/;
+const CONTAINER = /^ {0,3}(?:>|[-+*](?:[ \t]|$)|\d{1,9}[.)](?:[ \t]|$))/;
+
 /**
- * A first registry for a markdown prompt: one section per heading of level 1 to `level`, from the
- * heading to the next one, the text before the first heading as `preamble`. Ids are the slugged titles.
+ * The headings of a markdown text as CommonMark reads them, of level 1 to `level`: ATX headings indented up to
+ * three spaces with their closing # sequence dropped, and setext headings (a paragraph underlined with = or -).
+ * A # line inside a fenced code block is code, not a heading. `at` is where the heading starts, after its
+ * indentation; for a setext heading, where the first line of its paragraph starts.
+ */
+function markdownHeadings(text: string, level: number): { at: number; title: string }[] {
+  const found: { at: number; title: string }[] = [];
+  let fence: { char: string; length: number } | undefined;
+  let paragraph: { at: number; lines: string[] } | undefined;
+  // After a quote or a list item, a line without a blank before it continues that container (lazily).
+  let container = false;
+  let offset = 0;
+  for (const line of text.split('\n')) {
+    const lineStart = offset;
+    offset += line.length + 1;
+    if (fence) {
+      const close = /^ {0,3}(`+|~+)[ \t]*$/.exec(line);
+      if (close?.[1]?.[0] === fence.char && close[1].length >= fence.length) fence = undefined;
+      continue;
+    }
+    if (line.trim() === '') {
+      paragraph = undefined;
+      container = false;
+      continue;
+    }
+    const indent = line.length - line.trimStart().length;
+    const open = FENCE_OPEN.exec(line);
+    if (open?.[1] && !(open[1][0] === '`' && (open[2] ?? '').includes('`'))) {
+      paragraph = undefined;
+      fence = { char: open[1][0] ?? '`', length: open[1].length };
+      continue;
+    }
+    const atx = ATX.exec(line);
+    if (atx?.[1]) {
+      paragraph = undefined;
+      container = false;
+      if (atx[1].length <= level) {
+        const title = (atx[2] ?? '').replace(/(?:^|[ \t]+)#+[ \t]*$/, '').trim();
+        found.push({ at: lineStart + indent, title });
+      }
+      continue;
+    }
+    const underline = SETEXT_UNDERLINE.exec(line);
+    if (underline?.[1] && paragraph && !container) {
+      if (underline[1][0] === '=' ? 1 <= level : 2 <= level)
+        found.push({ at: paragraph.at, title: paragraph.lines.join(' ') });
+      paragraph = undefined;
+      continue;
+    }
+    if (THEMATIC_BREAK.test(line)) {
+      paragraph = undefined;
+      container = false;
+      continue;
+    }
+    if (CONTAINER.test(line)) {
+      paragraph = undefined;
+      container = true;
+      continue;
+    }
+    if (container) continue;
+    // Indented code cannot start a paragraph; inside one, an indented line is a continuation.
+    if (indent >= 4 && !paragraph) continue;
+    if (paragraph) paragraph.lines.push(line.trim());
+    else paragraph = { at: lineStart + indent, lines: [line.trim()] };
+  }
+  return found;
+}
+
+/**
+ * A first registry for a markdown prompt: one section per CommonMark heading of level 1 to `level` (ATX or
+ * setext, never one inside a fenced code block), from the heading to the next one, the text before the first
+ * heading as `preamble`. Ids are the slugged titles; a repeated slug takes the next free `_2`, `_3`, ...
  * Every section starts global, the safe reading: the author marks local the sections that reach only
  * the blocks linked to them, and adds references and overrides.
  */
@@ -239,24 +315,21 @@ export function sectionsFromHeadings(
 ): RegistryResult {
   const text = normalizePrompt(prompt);
   const level = options.level ?? 2;
-  const heading = new RegExp(`^#{1,${level}}[ \\t]+(.+)$`, 'gm');
-  const starts: { at: number; title: string }[] = [];
-  for (const match of text.matchAll(heading))
-    starts.push({ at: match.index, title: (match[1] ?? '').trim() });
+  const starts = markdownHeadings(text, level);
   if (starts.length === 0 || (starts[0]?.at ?? 0) > 0) {
     const firstAt = starts[0]?.at ?? text.length;
     if (text.slice(0, firstAt).trim() !== '') starts.unshift({ at: 0, title: 'preamble' });
   }
   const errors: string[] = [];
   const sections: PromptSection[] = [];
-  const used = new Map<string, number>();
+  const taken = new Set<string>();
   starts.forEach((each, index) => {
     let end = starts[index + 1]?.at ?? text.length;
     while (end > each.at + 1 && /\s/.test(text[end - 1] ?? '')) end--;
     const base = slug(each.title);
-    const seen = (used.get(base) ?? 0) + 1;
-    used.set(base, seen);
-    const id = seen === 1 ? base : `${base}_${seen}`;
+    let id = base;
+    for (let next = 2; taken.has(id); next++) id = `${base}_${next}`;
+    taken.add(id);
     const entry = sectionEntry(text, each.at, end, { id, title: each.title, scope: 'global' });
     if (entry) sections.push(entry);
     else errors.push(`${id}: no quote inside the section is unique in the prompt`);
