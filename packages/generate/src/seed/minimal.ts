@@ -173,14 +173,11 @@ export class TerminalSubsumption {
     const block = spec.blocks[index];
     const { criteria: _criteria, ...machine } = block?.expect ?? {};
     const from = index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage;
+    // EXPERIMENT: a block is its Then, in the language and under the rules it is said in.
     return contentHash({
       kind: spec.kind,
       lang: spec.lang,
       rules: spec.rules,
-      state: canonicalGiven(spec, index).state,
-      from,
-      when: block?.when,
-      given: block?.given,
       expect: machine,
     });
   }
