@@ -1,6 +1,7 @@
 import {
   type AgentLog,
   between,
+  canonical,
   code,
   list,
   load,
@@ -89,7 +90,7 @@ function history(
 function callsOf(messages: readonly Seen[]): string[] {
   return messages.flatMap((message) =>
     (message.tool_calls ?? []).map((call) =>
-      JSON.stringify([message.role, call.label, call.input ?? null, call.output ?? null, call.error ?? null]),
+      canonical([message.role, call.label, call.input ?? null, call.output ?? null, call.error ?? null]),
     ),
   );
 }
@@ -156,10 +157,10 @@ function recordItems(): BankItem[] {
             if (!turn) return fail(`the agent never received block ${at}`);
             const want = prefix.flatMap((message) =>
               (message.tool_calls ?? []).map((call) =>
-                JSON.stringify([
+                canonical([
                   message.role,
                   call.label,
-                  call.input,
+                  call.input ?? null,
                   call.output ?? null,
                   call.error ?? null,
                 ]),
@@ -558,7 +559,7 @@ function worldItems(): BankItem[] {
                 for (const key of wantKeys) {
                   const a = got[key] as Record<string, unknown>;
                   const b = want[key] as Record<string, unknown>;
-                  if (JSON.stringify(a[kind]) !== JSON.stringify(b[kind]))
+                  if (canonical(a[kind]) !== canonical(b[kind]))
                     return fail(
                       `block ${index} saw ${key} ${JSON.stringify(a)}, expected ${JSON.stringify(b)}`,
                     );
