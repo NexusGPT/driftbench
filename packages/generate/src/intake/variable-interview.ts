@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
-import { SpaceId, type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
+import { DeviationClass } from '@agent-nexus/driftbench-core';
+import { NONE, SpaceId, type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 
@@ -138,6 +139,8 @@ export async function interviewVariables(
           }
           if (seen.has(value.id)) return no(`"${value.id}" is already a value of "${variable.id}"`);
           if (value.title.trim() === '') return no(`the value "${value.id}" has no title`);
+          const clash = clashOf(draft, variable, value.id);
+          if (clash) return no(clash);
           seen.add(value.id);
         }
         return { ok: true, value: shape.data.values };
@@ -272,6 +275,36 @@ function constraintOf(forbid: Record<string, string>, reason: string, provenance
     produced_by: 'owner' as const,
     provenance: [provenance],
   };
+}
+
+/** Kinds a spec places on through one field: one axis each, so their value ids cannot clash. */
+const SINGLE_KINDS = new Set(['stage', 'deviation', 'channel']);
+
+/**
+ * The rules of the store that a new value of an axis can break, asked for now instead of at the end: a
+ * deviation axis holds `none` and the deviation classes; and no other axis of a kind a spec names by value
+ * may hold the same id, because a spec names such a value without its variable. A detail is exempt.
+ */
+function clashOf(
+  store: VariableStore,
+  variable: VariableStore['variables'][number],
+  id: string,
+): string | undefined {
+  if (variable.role !== 'axis') return undefined;
+  if (variable.kind === 'deviation' && id !== NONE && !DeviationClass.safeParse(id).success) {
+    return `"${id}" is not a deviation class: use D1_off_topic to D12_prompt_extraction, or ${NONE}`;
+  }
+  if (id === NONE || SINGLE_KINDS.has(variable.kind)) return undefined;
+  const other = store.variables.find(
+    (candidate) =>
+      candidate !== variable &&
+      candidate.role === 'axis' &&
+      candidate.kind === variable.kind &&
+      candidate.values.some((value) => value.id === id),
+  );
+  return other
+    ? `"${id}" is already a value of "${other.id}", an axis of the same kind: a spec names such a value without its variable, so give it another id`
+    : undefined;
 }
 
 function no(reason: string): { ok: false; reason: string } {
