@@ -405,7 +405,7 @@ The default plan crosses each situation of the event axes (`session_state`, `own
 | helper | a dead helper, helpers running | helpers, and the routes to them |
 | tool | a tool failure | tool rules, scripts, guards, units that declare tools, and the routes to those units |
 | stage | a stale tracker | steps of the step list |
-| output | a language switch of the deviation or of the owner; frustration; a leak of personal data; an extraction of the instructions | output rules, and instructions with a text predicate or the language predicate `same_language_as_user` |
+| output | a language switch of the deviation or of the owner; frustration; a leak of personal data; an extraction of the instructions | output rules, and instructions with a text predicate or a custom predicate that the generator compiles to a reply check (`no_secret_in_reply`, `max_characters`, `json_only`, `same_language_as_user`, ...; the compile table of the Then section is the one list) |
 | data | an instruction in the data | instructions and gates that call Read, Grep, Glob, WebFetch or WebSearch; guards on `PostToolUse` |
 | confirmation | a loose confirmation, no questions, keep going, a contradiction | gates |
 | rate | a wave of rate limits | scripts, helpers, tool rules for Agent, Task, WebFetch, WebSearch or Bash, instructions that call those tools |

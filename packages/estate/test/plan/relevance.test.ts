@@ -165,6 +165,47 @@ describe('review cases', () => {
     expect([...targetsOf('restart', map)]).toEqual([]);
   });
 
+  it('places an instruction checked by any predicate the generator lowers to a reply check on the output relation', () => {
+    const custom = (name: string, options?: Record<string, unknown>, id = name) =>
+      atom(id, {
+        kind: 'instruction',
+        evidence: [{ type: 'custom', name, ...(options ? { options } : {}) }],
+      });
+    const map = estate([
+      custom('no_secret_in_reply'),
+      custom('max_characters', { max: 800 }),
+      custom('json_only'),
+      custom('same_language_as_user'),
+      custom('asks_for', { value: 'the vessel name' }),
+      // Lowered to no reply check, or too thin to lower: not a rule about the reply.
+      custom('command_not_run', { contains: 'git push --force' }),
+      custom('max_characters', undefined, 'thin'),
+      custom('lab_ledger'),
+    ]);
+    expect([...targetsOf('output', map)].sort()).toEqual(
+      ['asks_for', 'json_only', 'max_characters', 'no_secret_in_reply', 'same_language_as_user'].sort(),
+    );
+    // The leak and extraction deviations cross the secret rule, and without that relation they would cross none.
+    for (const value of ['D11_pii_leak', 'D12_prompt_extraction'])
+      expect(crossed(map, 'deviation', value).has('no_secret_in_reply'), value).toBe(true);
+    expect(crossed(map, 'deviation', 'D11_pii_leak').has('lab_ledger')).toBe(false);
+  });
+
+  it('places a read-before gate on instruction-in-data only by the Read it calls, never by its order alone', () => {
+    const map = estate([
+      atom('ordered-only', { kind: 'gate', evidence: [{ type: 'ordered', before: 'Read', after: 'Edit' }] }),
+      atom('reads', {
+        kind: 'gate',
+        evidence: [
+          { type: 'ordered', before: 'Read', after: 'Edit' },
+          { type: 'tool_called', label: 'Read', input: { file_path: { contains: 'rules.md' } } },
+        ],
+      }),
+    ]);
+    expect([...targetsOf('data', map)]).toEqual(['reads']);
+    expect(crossed(map, 'deviation', 'D6_instruction_in_data').has('ordered-only')).toBe(false);
+  });
+
   it('places a reply-language rule checked by the documented language predicate on a language switch', () => {
     const map = estate([
       atom('spoken', { kind: 'instruction', evidence: [{ type: 'custom', name: 'same_language_as_user' }] }),

@@ -1,3 +1,4 @@
+import { compilePredicate } from '@agent-nexus/driftbench-generate';
 import type { SpaceMap } from '@agent-nexus/driftbench-space';
 import type { Atom, AtomKind, EstateMap } from '../schema';
 
@@ -70,8 +71,24 @@ const DATA_TOOLS: ReadonlySet<string> = new Set(['Read', 'Grep', 'Glob', 'WebFet
 /** The tools that call a service or a helper, where a rate limit or a retry contract applies. */
 const RATE_TOOLS: ReadonlySet<string> = new Set(['Agent', 'Task', 'WebFetch', 'WebSearch', 'Bash']);
 
-/** The custom predicates the estate documents as a check of the language of the reply. */
-const LANGUAGE_PREDICATES: ReadonlySet<string> = new Set(['same_language_as_user']);
+/**
+ * Whether a custom predicate is a check of the reply: the generator lowers it (from its name and its options) to words
+ * the reply must or must not hold, or to the language of the ask. The generator's compile table is the one list of
+ * these predicates; a name it does not compile, or options too thin to compile it, is no reply check.
+ */
+function checksReply(name: string, options: Record<string, unknown> | undefined): boolean {
+  try {
+    const compiled = compilePredicate(name, options);
+    return (
+      compiled !== undefined &&
+      ((compiled.must?.length ?? 0) > 0 ||
+        (compiled.mustNot?.length ?? 0) > 0 ||
+        compiled.langFromAsk === true)
+    );
+  } catch {
+    return false;
+  }
+}
 
 /** The kinds that hold a relation by what they are, whatever their evidence and fields. */
 const IDENTITY: Readonly<Record<Relation, readonly AtomKind[]>> = {
@@ -141,11 +158,11 @@ function holds(relation: Relation, atom: Atom, context: Context): boolean {
         (field('tools') as unknown[]).length > 0
       );
     case 'output':
-      // A rule about the reply: a text predicate, or the predicate the estate documents for the language of the reply.
+      // A rule about the reply: a text predicate, or a custom predicate the generator lowers to a reply check.
       return (
         atom.kind === 'instruction' &&
         atom.evidence.some(
-          (item) => item.type === 'text' || (item.type === 'custom' && LANGUAGE_PREDICATES.has(item.name)),
+          (item) => item.type === 'text' || (item.type === 'custom' && checksReply(item.name, item.options)),
         )
       );
     case 'data':
