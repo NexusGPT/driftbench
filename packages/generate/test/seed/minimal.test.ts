@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { PathRelation } from '../../src/extract/proposal';
 import type { SpecDraft } from '../../src/seed/assemble';
-import { TerminalSubsumption } from '../../src/seed/minimal';
+import { moveUp, TerminalSubsumption } from '../../src/seed/minimal';
 import { type SeedContext, scenarioDraft } from '../../src/seed/seed-drafts';
 import { fixture, split, twoChannels } from './desk';
 
@@ -156,37 +156,63 @@ describe('terminal subsumption keeps walks apart', () => {
     expect(first.blocks).toHaveLength(length);
     expect(second.blocks).toHaveLength(length);
   });
+});
 
-  it('undoes a cut that would leave the walk ending on a block another walk already ends on', () => {
+describe('terminal subsumption and the perturbations a block carries', () => {
+  const perturbedAt = (
+    prepared: ReturnType<typeof fixture>,
+    path: PathRelation,
+    id: string,
+    stage: string,
+  ) => {
+    const context: SeedContext = { seed: 1031, t: 2, max: 100 };
+    const built = scenarioDraft(
+      prepared,
+      context,
+      id,
+      'twise',
+      id,
+      [],
+      { preferred: [path], others: [] },
+      { perturb: { classId: 'D5_language_switch', stage } },
+    );
+    if (!('draft' in built)) throw new Error(`${id} did not build`);
+    return built.draft;
+  };
+
+  it('drops the perturbation a removed block carries with it, when the suite keeps the class elsewhere', () => {
     const prepared = fixture();
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
-    const context: SeedContext = { seed: 1031, t: 2, max: 100 };
-    const perturbed = (id: string) => {
-      const built = scenarioDraft(
-        prepared,
-        context,
-        id,
-        'twise',
-        id,
-        [],
-        { preferred: [path], others: [] },
-        { perturb: { classId: 'D5_language_switch', stage: 'address' } },
-      );
-      if (!('draft' in built)) throw new Error(`${id} did not build`);
-      return built.draft;
-    };
     const minimal = new TerminalSubsumption(prepared, run, 2);
-    const first = perturbed('first');
-    const second = perturbed('second');
+    // The first walk places the class at the last stage; the second says the same walk with the same declaration.
+    const first = perturbedAt(prepared, path, 'first', 'packing');
+    const second = perturbedAt(prepared, path, 'second', 'packing');
     const length = first.blocks.length;
-    // Both walks declare the same perturbation at the same place: the cut stops at that block, which both walks
-    // would then end on. The second walk keeps its tail instead.
-    expect(second.perturbations?.[0]?.inject_at).toBe(first.perturbations?.[0]?.inject_at);
+    expect(first.perturbations?.[0]?.inject_at).toBe(length - 1);
+    expect(second.perturbations?.[0]?.inject_at).toBe(length - 1);
     minimal.reduce(first);
     minimal.reduce(second);
     expect(first.blocks).toHaveLength(length);
-    expect(second.blocks).toHaveLength(length);
+    expect(second.blocks.length).toBeLessThan(length);
+    // No declaration is left on a block the walk no longer has.
+    for (const entry of second.perturbations ?? [])
+      expect(entry.inject_at).toBeLessThan(second.blocks.length);
+  });
+
+  it('keeps the block when no other written walk places the class it declares', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const plain = walk(prepared, 'plain', path);
+    plain.perturbations = undefined;
+    const declared = perturbedAt(prepared, path, 'declared', 'packing');
+    const length = declared.blocks.length;
+    minimal.reduce(plain);
+    minimal.reduce(declared);
+    expect(declared.blocks).toHaveLength(length);
+    expect(declared.perturbations).toHaveLength(1);
   });
 });
 
@@ -255,5 +281,13 @@ describe('terminal subsumption and the context a walk is written in', () => {
     for (const draft of [holder, counter, twin]) minimal.reduce(draft);
     expect(counter.blocks).toHaveLength(length);
     expect(twin.blocks).toHaveLength(length);
+  });
+});
+
+describe('the declarations left when a block is removed', () => {
+  it('drops the ones on the block and moves the ones after it up by one', () => {
+    const left = moveUp([{ inject_at: 0 }, { inject_at: 2 }, { inject_at: 3 }, { inject_at: 4 }], 2);
+    expect(left.map((entry) => entry.inject_at)).toEqual([0, 2, 3]);
+    expect(moveUp(undefined, 1)).toEqual([]);
   });
 });

@@ -12,6 +12,16 @@ import type { Allocation } from './allocation';
 import { type RunIdentity, renderDraft, type SpecDraft } from './assemble';
 import type { PreparedMap } from './map';
 
+/** The declarations left when block `index` is removed: those on it go, the ones after it move up by one. */
+export function moveUp<T extends { inject_at: number }>(
+  entries: readonly T[] | undefined,
+  index: number,
+): T[] {
+  return (entries ?? [])
+    .filter((entry) => entry.inject_at !== index)
+    .map((entry) => (entry.inject_at > index ? { ...entry, inject_at: entry.inject_at - 1 } : entry));
+}
+
 /** A tool failure is followed by the turn that gets the tool answering again: the walk never ends on it. */
 function failsAtEnd(spec: Spec): boolean {
   const tools = spec.blocks.at(-1)?.given?.world?.tools ?? {};
@@ -23,8 +33,7 @@ function failsAtEnd(spec: Spec): boolean {
  * block already written says the same turn, expects the same and is said from the same stage in the same
  * language and under the same rules, and when the suite keeps every obligation without it: each coverage tuple the walk placed is
  * placed by a spec already written, each ordered pair of consecutive moves it walked is walked by one, the
- * stage and class allocation is no further from balance, and the walk still reaches every position its
- * declared perturbations name or precede. The first block written stays; later repeats go. A cut that would leave
+ * stage and class allocation is no further from balance. A perturbation declared on the block goes with it. The first block written stays; later repeats go. A cut that would leave
  * the walk ending, with more than one block, on a block another walk already says is undone. A block is the same
  * test on any channel and for any persona; the first twin of a written walk, per path and context axis, stays whole. A block that injects
  * a class stays. A walk with an end state,
@@ -76,7 +85,7 @@ export class TerminalSubsumption {
     let spec = parsed.spec;
     // A metamorphic family keeps its variants identical but for the phrasing: its walks are never cut.
     if (spec.kind === 'conversation' && spec.end_state === undefined && draft.seeder !== 'metamorphic') {
-      const whole = { draft: draft.blocks, spec };
+      const whole = { draft: draft.blocks, perturbations: draft.perturbations, spec };
       // The Then must hold across channels and across personas, and that is read off a pair of whole walks that
       // differ only there (a twin). Each path keeps one such pair per axis; a twin beyond it is a repeat.
       const twin = this.keepsPair(spec);
@@ -85,14 +94,21 @@ export class TerminalSubsumption {
         if (!this.blocks.has(this.key(spec, last))) break;
         // A block that injects a class is that class's test, and the deviation of its row: it stays.
         if ('injection' in (spec.blocks[last]?.when ?? {})) break;
-        // A perturbed run injects a declaration at its position and checks its recovery there: a block that a
-        // declaration names, or that comes before one, is part of that test and stays.
-        if (spec.perturbations?.some((entry) => entry.inject_at >= last)) break;
-        const reduced = validateSpec({ ...spec, blocks: spec.blocks.slice(0, last) });
+        // A declaration names a block and goes with it when the block is removed: the declarations on it are
+        // dropped and the later ones move up. The class they placed must be placed by a spec already written,
+        // which the tuples below check; a declaration before the block is untouched.
+        const kept = moveUp(spec.perturbations, last);
+        const { perturbations: _gone, ...bare } = spec;
+        const reduced = validateSpec({
+          ...bare,
+          blocks: spec.blocks.slice(0, last),
+          ...(kept.length > 0 ? { perturbations: kept } : {}),
+        });
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
         if (!this.tuplesHold(spec, reduced.spec) || !this.pairsHold(spec, reduced.spec)) break;
         if (!this.allocationHolds(draft, last)) break;
         draft.blocks = draft.blocks.slice(0, last);
+        if (draft.perturbations) draft.perturbations = moveUp(draft.perturbations, last);
         spec = reduced.spec;
       }
       // A cut that stops, with more than one block left, on a block another walk already says leaves the two walks
@@ -103,6 +119,7 @@ export class TerminalSubsumption {
         this.blocks.has(this.key(spec, spec.blocks.length - 1))
       ) {
         draft.blocks = whole.draft;
+        draft.perturbations = whole.perturbations;
         spec = whole.spec;
       }
     }
@@ -219,7 +236,7 @@ export class TerminalSubsumption {
     if (!this.allocation) return true;
     const reduced = {
       blocks: draft.blocks.slice(0, last),
-      perturbations: draft.perturbations,
+      perturbations: moveUp(draft.perturbations, last),
     };
     return this.allocation.imbalanceWith(reduced) <= this.allocation.imbalanceWith(draft);
   }
