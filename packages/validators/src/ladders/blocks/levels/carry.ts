@@ -3,6 +3,7 @@ import { between, list, loadIssues, type RawSpec, type Rng, rngFor, run } from '
 import { type Action, type FileAction, plantedAgent, token } from '../kinds';
 import type { BlocksProduct } from '../product';
 import { type BankItem, fail, PASS, type Tier, thrownText } from '../types';
+import { NOT_BASE64 } from './twins';
 
 /**
  * Files that are not plain UTF-8 text. A code agent's workspace holds xlsx, docx and pdf files, and text files
@@ -39,6 +40,30 @@ function bomBytes(rng: Rng, kind: string): Buffer {
 }
 
 type Turn = { marker: string; digests: Record<string, string> };
+
+/**
+ * The rest of the documented contract of a seed that reached the agent byte for byte: the loader reads the entry
+ * as base64, so the same spec with the entry not base64 is refused (block-contracts.md, workspace.binary).
+ */
+function refusesNotBase64(product: BlocksProduct, raw: RawSpec, path: string, rng: Rng) {
+  const bad = structuredClone(raw) as RawSpec & { workspace_seed?: { binary?: Record<string, string> } };
+  const text = NOT_BASE64[Math.floor(rng() * NOT_BASE64.length)] as string;
+  const seeded = [
+    bad.workspace_seed,
+    ...bad.blocks.map(
+      (block) =>
+        (block.given as { world?: { workspace?: { binary?: Record<string, string> } } } | undefined)?.world
+          ?.workspace,
+    ),
+  ];
+  for (const workspace of seeded) if (workspace?.binary?.[path] !== undefined) workspace.binary[path] = text;
+  const result = loadIssues(product, bad);
+  return result.ok
+    ? fail(
+        `the bytes arrived, but the same seed with ${JSON.stringify(text)} in place of the base64 loaded: workspace.binary is read as base64 and such an entry is refused`,
+      )
+    : PASS;
+}
 
 async function playSpec(product: BlocksProduct, scratch: string, raw: RawSpec, actions: Map<string, Action>) {
   const agent = plantedAgent(product, 'code', actions, { scratch, keep: true });
@@ -99,7 +124,7 @@ function seedItems(): BankItem[] {
           }
           const got = turns.find((turn) => turn.marker === marker)?.digests[path];
           return got === sha(bytes)
-            ? PASS
+            ? refusesNotBase64(product, raw, path, rng)
             : fail(
                 `${path} should reach the agent with the ${bytes.length} planted bytes (sha256 ${sha(bytes).slice(0, 12)}); ${got ? `it held other bytes (${got.slice(0, 12)})` : 'the agent never saw it'}`,
               );
@@ -203,7 +228,7 @@ function seedItems(): BankItem[] {
           }
           const got = turns.find((turn) => turn.marker === marker)?.digests[path];
           return got === sha(bytes)
-            ? PASS
+            ? refusesNotBase64(product, raw, path, rng)
             : fail(
                 `${path} should reach the agent with its byte-order mark (sha256 ${sha(bytes).slice(0, 12)}); ${got ? `it held other bytes (${got.slice(0, 12)})` : 'the agent never saw it'}`,
               );

@@ -84,7 +84,7 @@ function unknownKeyItems(): BankItem[] {
   );
 }
 
-const NOT_BASE64 = ['not base64!', '%%%%', 'abc*def', 'ü-ä'] as const;
+export const NOT_BASE64 = ['not base64!', '%%%%', 'abc*def', 'ü-ä'] as const;
 
 function base64Items(): BankItem[] {
   return (['spec', 'block'] as const).flatMap((where) =>

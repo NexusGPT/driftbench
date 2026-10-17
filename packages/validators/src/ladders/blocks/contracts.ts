@@ -98,7 +98,7 @@ export const CONTRACTS: Readonly<Record<string, string>> = {
   "A workspace seed keeps a text file's byte-order mark: the bytes the agent reads are the bytes planted.":
     'docs/reference/block-contracts.md#workspace',
   'A workspace seed writes workspace.binary files byte for byte from their base64.':
-    'origin/feat/block-parents:docs/reference/spec.md#WorldState workspace',
+    'docs/reference/block-contracts.md#workspace',
   "A world layer set on a block reaches its descendants and never a sibling's tree or another root.":
     'docs/reference/block-contracts.md#What a child starts from',
   'An adapter with a sandbox and no export hook leaves the children of a parent not_run (unsupported), never seeded from old files.':
