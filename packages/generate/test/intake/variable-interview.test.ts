@@ -1,17 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import {
-  loadVariableStore,
-  type VariableStore,
-  validateVariableStore,
-} from '@agent-nexus/driftbench-space';
+import { loadVariableStore, type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
-  type Asker,
-  type InterviewQuestion,
   interviewVariables,
   parseVariableRecording,
   replayAsker,
+  type VariableAsker,
+  type VariableQuestion,
 } from '../../src/intake';
 
 const FOLDER = fileURLToPath(new URL('../../../../examples/variables/interview/', import.meta.url));
@@ -33,7 +29,7 @@ type Call = { key: string; refusal: string | undefined; attempt: number };
 function scripted(answers: Record<string, unknown[]>) {
   const calls: Call[] = [];
   const queues = new Map(Object.entries(answers).map(([key, list]) => [key, [...list]]));
-  const asker: Asker = (question: InterviewQuestion, refusal, attempt) => {
+  const asker: VariableAsker = (question: VariableQuestion, refusal, attempt) => {
     calls.push({ key: question.key, refusal, attempt });
     const next = queues.get(question.key)?.shift();
     if (next !== undefined) return next;
@@ -89,7 +85,11 @@ describe('the replayed interview', () => {
         approved: true,
         produced_by: 'owner',
         provenance: [
-          { kind: 'owner', words: 'The kiosk is only in the shop and the shop closes at six.', date: '2026-10-18' },
+          {
+            kind: 'owner',
+            words: 'The kiosk is only in the shop and the shop closes at six.',
+            date: '2026-10-18',
+          },
         ],
       },
     ]);
@@ -101,7 +101,9 @@ describe('the replayed interview', () => {
     const parsed = parseVariableRecording(await readFile(`${FOLDER}answers.yaml`, 'utf8'));
     if (!parsed.ok) throw new Error(parsed.error);
     const result = await interviewVariables(start, replayAsker(parsed.recording), { now: NOW });
-    expect(result.transcript.filter((e) => e.outcome === 'refused').map((e) => [e.question, e.attempt])).toEqual([
+    expect(
+      result.transcript.filter((e) => e.outcome === 'refused').map((e) => [e.question, e.attempt]),
+    ).toEqual([
       ['values:channel', 1],
       ['pair:1', 1],
       ['pair:2', 1],
@@ -146,7 +148,9 @@ describe('the replayed interview', () => {
 
 describe('the values question', () => {
   const VALUES = 'values:channel';
-  const one = (id: string, title = 'A title') => ({ values: [{ id, title, ...words('Said by the owner.') }] });
+  const one = (id: string, title = 'A title') => ({
+    values: [{ id, title, ...words('Said by the owner.') }],
+  });
 
   it('asks again for a value the variable already has', async () => {
     const { refusals } = await refusalsOf(VALUES, [one('web'), one('kiosk')]);
@@ -170,25 +174,27 @@ describe('the values question', () => {
       { values: [{ id: 'kiosk', title: 'Kiosk', words: ' ' }] },
       one('kiosk'),
     ]);
-    expect(refusals.map((e) => e.reason?.slice(0, 40))).toEqual([
+    expect(refusals.map((e) => e.reason)).toEqual([
       'the value "kiosk" has no title',
-      'the answer does not have the shape aske',
+      "the answer does not have the shape asked for (values.0.words): the owner's words are missing",
     ]);
   });
 
   it('asks again for an empty list and for an answer of another shape', async () => {
     const { refusals } = await refusalsOf(VALUES, [{ values: [] }, { value: 'kiosk' }, { none: true }]);
     expect(refusals).toHaveLength(2);
-    expect(refusals.every((e) => e.reason?.startsWith('the answer does not have the shape asked for'))).toBe(true);
+    expect(refusals.every((e) => e.reason?.startsWith('the answer does not have the shape asked for'))).toBe(
+      true,
+    );
   });
 
   it('gives a value the owner’s words, the owner as author, and the day', async () => {
-    const { asker } = scripted({ [VALUES]: [one('kiosk', 'At the kiosk')] });
+    const { asker } = scripted({ 'values:garment': [one('parka', 'Parkas')] });
     const result = await interviewVariables(start, asker, { now: NOW });
-    const added = result.ok ? result.store.variables[0]?.values.at(-1) : undefined;
+    const added = result.ok ? result.store.variables[1]?.values.at(-1) : undefined;
     expect(added).toEqual({
-      id: 'kiosk',
-      title: 'At the kiosk',
+      id: 'parka',
+      title: 'Parkas',
       approved: true,
       produced_by: 'owner',
       provenance: [{ kind: 'owner', words: 'Said by the owner.', date: '2026-10-18' }],
@@ -203,11 +209,15 @@ describe('the pair question', () => {
     (await refusalsOf(PAIR, [...answers, good], from)).refusals.map((e) => e.reason);
 
   it('asks again for a variable the store lacks', async () => {
-    expect(await reasons([pair({ channel: 'phone', mood: 'calm' })])).toEqual(['the store has no variable "mood"']);
+    expect(await reasons([pair({ channel: 'phone', mood: 'calm' })])).toEqual([
+      'the store has no variable "mood"',
+    ]);
   });
 
   it('asks again for a value the variable lacks', async () => {
-    expect(await reasons([pair({ channel: 'phone', garment: 'parka' })])).toEqual(['"garment" has no value "parka"']);
+    expect(await reasons([pair({ channel: 'phone', garment: 'parka' })])).toEqual([
+      '"garment" has no value "parka"',
+    ]);
   });
 
   it('accepts a value the interview added a moment ago', async () => {
@@ -243,7 +253,9 @@ describe('the pair question', () => {
       reason: 'Nobody phones in the evening.',
       approved: true,
     });
-    expect(await reasons([good, pair({ pickup_slot: 'evening', channel: 'phone' })], ruled)).toEqual([
+    const same = [good, pair({ pickup_slot: 'evening', channel: 'phone' }), { done: true }];
+    const { refusals } = await refusalsOf(PAIR, same, ruled);
+    expect(refusals.map((e) => e.reason)).toEqual([
       'already ruled impossible by constraint 0 (Nobody phones in the evening.)',
       'already ruled impossible by constraint 0 (Nobody phones in the evening.)',
     ]);
@@ -261,7 +273,11 @@ describe('the pair question', () => {
 
   it('asks again for a combination that only repeats a pair already ruled out', async () => {
     const ruled = structuredClone(start);
-    ruled.constraints.push({ forbid: { channel: 'phone', pickup_slot: 'evening' }, reason: 'No.', approved: true });
+    ruled.constraints.push({
+      forbid: { channel: 'phone', pickup_slot: 'evening' },
+      reason: 'No.',
+      approved: true,
+    });
     const three = pair({ channel: 'phone', pickup_slot: 'evening', garment: 'coat' });
     expect((await reasons([three], ruled))[0]).toContain('already ruled impossible by constraint 0');
   });
@@ -272,8 +288,22 @@ describe('the pair question', () => {
       agent: 'x',
       version: '1',
       variables: [
-        { id: 'a', title: 'A', kind: 'data', role: 'axis', approved: true, values: [{ id: 'a1', title: 'A1' }] },
-        { id: 'b', title: 'B', kind: 'persona', role: 'axis', approved: true, values: [{ id: 'b1', title: 'B1' }] },
+        {
+          id: 'a',
+          title: 'A',
+          kind: 'data',
+          role: 'axis',
+          approved: true,
+          values: [{ id: 'a1', title: 'A1' }],
+        },
+        {
+          id: 'b',
+          title: 'B',
+          kind: 'persona',
+          role: 'axis',
+          approved: true,
+          values: [{ id: 'b1', title: 'B1' }],
+        },
       ],
     });
     const { refusals } = await refusalsOf(PAIR, [pair({ a: 'a1', b: 'b1' }), { done: true }], small);
@@ -347,14 +377,19 @@ describe('the weights question', () => {
 
   it('lets the owner skip a variable that has no weights', async () => {
     const { result } = await refusalsOf(WEIGHTS, [{ skip: true }]);
-    expect(result.ok && result.transcript.find((e) => e.outcome === 'skipped')?.question).toBe(WEIGHTS);
+    expect(result.transcript.filter((e) => e.outcome === 'skipped').map((e) => e.question)).toContain(
+      WEIGHTS,
+    );
     expect(result.ok && result.store.variables[1]?.values.every((v) => v.weight === undefined)).toBe(true);
   });
 
   it('does not let the owner skip a variable that has weights and got a new value', async () => {
     const { asker } = scripted({
       'values:channel': [{ values: [{ id: 'kiosk', title: 'Kiosk', ...words('Kiosk.') }] }],
-      'weights:channel': [{ skip: true }, { weights: { web: 0.6, phone: 0.3, kiosk: 0.1 }, ...words('Kiosk is small.') }],
+      'weights:channel': [
+        { skip: true },
+        { weights: { web: 0.6, phone: 0.3, kiosk: 0.1 }, ...words('Kiosk is small.') },
+      ],
     });
     const result = await interviewVariables(start, asker, { now: NOW });
     expect(result.transcript.filter((e) => e.reason).map((e) => e.reason)).toEqual([
@@ -401,7 +436,9 @@ describe('every question', () => {
 
   it('asks an answer of the wrong shape again, naming where', async () => {
     const { refusals } = await refusalsOf('pair:1', [{ forbid: 'channel' }, { done: true }]);
-    expect(refusals[0]?.reason).toMatch(/^the answer does not have the shape asked for \(/);
+    expect(refusals[0]?.reason).toBe(
+      'the answer does not have the shape asked for (forbid): Invalid input: expected record, received string',
+    );
   });
 
   it('asks the questions in order: values, pairs, weights', async () => {
