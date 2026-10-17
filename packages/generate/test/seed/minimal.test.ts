@@ -3,7 +3,7 @@ import type { PathRelation } from '../../src/extract/proposal';
 import type { SpecDraft } from '../../src/seed/assemble';
 import { TerminalSubsumption } from '../../src/seed/minimal';
 import { type SeedContext, scenarioDraft } from '../../src/seed/seed-drafts';
-import { fixture, split, twoChannels } from './desk';
+import { fixture, split, twoChannels, twoPersonas } from './desk';
 
 const run = { seed: 1031, mapPath: '../desk.yaml' };
 
@@ -20,6 +20,25 @@ function walk(
   if (cell.length > 0) built.draft.perturbations = undefined;
   return built.draft;
 }
+
+// The same walk with its first message worded another way: not a twin of any other walk, same end.
+const reworded = (draft: ReturnType<typeof walk>) => {
+  const first = draft.blocks[0];
+  if (first?.stimulus.kind !== 'phrase') throw new Error('the first block says no phrase');
+  first.stimulus = {
+    ...first.stimulus,
+    phrase: { ...first.stimulus.phrase, text: 'Hello, I have a parcel.' },
+  };
+  return draft;
+};
+
+// The same walk with its last message worded another way: it ends on a block no other walk ends on.
+const endsElsewhere = (draft: ReturnType<typeof walk>) => {
+  const last = draft.blocks.at(-1);
+  if (last?.stimulus.kind !== 'phrase') throw new Error('the last block says no phrase');
+  last.stimulus = { ...last.stimulus, phrase: { ...last.stimulus.phrase, text: 'Pack it now, thank you.' } };
+  return draft;
+};
 
 describe('terminal subsumption', () => {
   it('drops the repeated end of a walk another written walk already says, and keeps the first walk whole', () => {
@@ -200,6 +219,25 @@ describe('terminal subsumption and the perturbations a block carries', () => {
       expect(entry.inject_at).toBeLessThan(second.blocks.length);
   });
 
+  it('reads a block as the same test whatever perturbations its walk declares before it', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const plain = walk(prepared, 'plain', path);
+    plain.perturbations = undefined;
+    // The same walk declares a class at its second stage, well before its end: the end is the same test.
+    const declared = perturbedAt(prepared, path, 'declared', 'address');
+    const length = declared.blocks.length;
+    expect(declared.perturbations?.[0]?.inject_at).toBeLessThan(length - 1);
+    minimal.reduce(plain);
+    minimal.reduce(declared);
+    expect(plain.blocks).toHaveLength(length);
+    expect(declared.blocks.length).toBeLessThan(length);
+    for (const entry of declared.perturbations ?? [])
+      expect(entry.inject_at).toBeLessThan(declared.blocks.length);
+  });
+
   it('keeps the block when no other written walk places the class it declares', () => {
     const prepared = fixture();
     const path = prepared.relations.paths[0];
@@ -242,29 +280,18 @@ describe('terminal subsumption and the context a walk is written in', () => {
     expect(third.blocks.length).toBeLessThan(length);
   });
 
-  // The same walk with its first message worded another way: not a twin of any other walk, same end.
-  const reworded = (draft: ReturnType<typeof walk>) => {
-    const first = draft.blocks[0];
-    if (first?.stimulus.kind !== 'phrase') throw new Error('the first block says no phrase');
-    first.stimulus = {
-      ...first.stimulus,
-      phrase: { ...first.stimulus.phrase, text: 'Hello, I have a parcel.' },
-    };
-    return draft;
-  };
-
-  it('reads a walk on another channel as saying the same end, so the channel alone keeps no repeat', () => {
+  it('reads a block as the same test on any channel: the end a walk on the counter says is a repeat on the phone', () => {
     const prepared = twoChannels();
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
     const minimal = new TerminalSubsumption(prepared, run, 2);
+    // Only the counter walk says this end. The phone tuples are held by a phone walk that ends on another block,
+    // so the phone walk below is a repeat of the counter walk's end and of nothing written on the phone.
     const written = walk(prepared, 'written', path, 'twise', [channelPick(prepared, 'counter')]);
-    const other = reworded(walk(prepared, 'other', path, 'twise', [channelPick(prepared, 'counter')]));
-    const phone = reworded(walk(prepared, 'phone', path, 'twise', [channelPick(prepared, 'phone')]));
+    const holder = endsElsewhere(walk(prepared, 'holder', path, 'twise', [channelPick(prepared, 'phone')]));
     const again = reworded(walk(prepared, 'again', path, 'twise', [channelPick(prepared, 'phone')]));
     const length = again.blocks.length;
-    for (const draft of [written, other, phone, again]) minimal.reduce(draft);
-    // `again` says its end on the phone, and `written` said it on the counter: the end is a repeat all the same.
+    for (const draft of [written, holder, again]) minimal.reduce(draft);
     expect(again.blocks.length).toBeLessThan(length);
   });
 
@@ -281,5 +308,57 @@ describe('terminal subsumption and the context a walk is written in', () => {
     for (const draft of [holder, counter, twin]) minimal.reduce(draft);
     expect(counter.blocks).toHaveLength(length);
     expect(twin.blocks).toHaveLength(length);
+  });
+});
+
+describe('terminal subsumption and the persona a walk is written for', () => {
+  const personaPick = (prepared: ReturnType<typeof twoPersonas>, value: string): [number, number] => {
+    const dimension = prepared.space.dimensions.findIndex((entry) => entry.kind === 'persona');
+    const at = prepared.space.dimensions[dimension]?.index.get(value);
+    if (at === undefined) throw new Error(`no persona ${value}`);
+    return [dimension, at];
+  };
+
+  it('cuts the end of a third walk once the path keeps a pair of whole walks per persona', () => {
+    const prepared = twoPersonas();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const first = walk(prepared, 'first', path, 'twise', [personaPick(prepared, 'novice')]);
+    const second = walk(prepared, 'second', path, 'twise', [personaPick(prepared, 'expert')]);
+    const third = walk(prepared, 'third', path, 'twise', [personaPick(prepared, 'expert')]);
+    const length = first.blocks.length;
+    for (const draft of [first, second, third]) minimal.reduce(draft);
+    expect(first.blocks).toHaveLength(length);
+    expect(second.blocks).toHaveLength(length);
+    expect(third.blocks.length).toBeLessThan(length);
+  });
+
+  it('keeps one pair of whole twins per path even when other walks already hold their tuples', () => {
+    const prepared = twoPersonas();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    // A reworded expert walk holds the expert tuples; then a novice walk and its expert twin arrive.
+    const holder = reworded(walk(prepared, 'holder', path, 'twise', [personaPick(prepared, 'expert')]));
+    const novice = walk(prepared, 'novice', path, 'twise', [personaPick(prepared, 'novice')]);
+    const twin = walk(prepared, 'twin', path, 'twise', [personaPick(prepared, 'expert')]);
+    const length = twin.blocks.length;
+    for (const draft of [holder, novice, twin]) minimal.reduce(draft);
+    expect(novice.blocks).toHaveLength(length);
+    expect(twin.blocks).toHaveLength(length);
+  });
+
+  it('reads a block as the same test for any persona: the end a novice walk says is a repeat for an expert', () => {
+    const prepared = twoPersonas();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = walk(prepared, 'written', path, 'twise', [personaPick(prepared, 'novice')]);
+    const holder = endsElsewhere(walk(prepared, 'holder', path, 'twise', [personaPick(prepared, 'expert')]));
+    const again = reworded(walk(prepared, 'again', path, 'twise', [personaPick(prepared, 'expert')]));
+    const length = again.blocks.length;
+    for (const draft of [written, holder, again]) minimal.reduce(draft);
+    expect(again.blocks.length).toBeLessThan(length);
   });
 });
