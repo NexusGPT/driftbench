@@ -44,6 +44,18 @@ const flag = (name) => {
 };
 const streamInput = flag('--input-format') === 'stream-json';
 const resume = flag('--resume');
+// The run's permissions, as the runtime takes them: a mode, and rules that each argument after the flag names.
+const permissionMode = flag('--permission-mode');
+const allowedTools = (() => {
+  const at = args.findIndex((arg) => arg === '--allowed-tools' || arg === '--allowedTools');
+  if (at < 0) return [];
+  const rules = [];
+  for (const arg of args.slice(at + 1)) {
+    if (arg.startsWith('-')) break;
+    rules.push(...arg.split(/[,\s]+(?![^(]*\))/).filter(Boolean));
+  }
+  return rules;
+})();
 
 let ask = '';
 const queued = [];
@@ -176,6 +188,8 @@ const records = manifestPath
       sessionId,
       env,
       compacted: previous.some((record) => record.type === 'system' && record.subtype === 'compact_boundary'),
+      permissionMode,
+      allowedTools,
     }).records;
 for (const record of records) {
   if (record.fake === 'decision') {
