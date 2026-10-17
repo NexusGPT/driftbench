@@ -29,9 +29,9 @@ for (const item of items.filter((item) => !item.id.startsWith('exact.source.')))
   byFunction.set(name, [...(byFunction.get(name) ?? []), item]);
 }
 
-/** Multiplies every non-integer number in a result by 1.002. */
+/** Multiplies every numeric result by 1.002, including integer-valued custom statistics. */
 function nudge(value: unknown): unknown {
-  if (typeof value === 'number') return Number.isInteger(value) ? value : value * 1.002;
+  if (typeof value === 'number') return value * 1.002;
   if (Array.isArray(value)) return value.map(nudge);
   if (value !== null && typeof value === 'object')
     return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, nudge(v)]));
@@ -46,7 +46,7 @@ const FAULTS: Record<string, (real: Fn) => Fn> = {
     () =>
     (...a) =>
       (a[0] as number[]).reduce((sum, x) => sum + x, 0) / (a[0] as number[]).length,
-  // Boundary probabilities 0 and 1 do not move under the generic nudge.
+  // Zero boundary probabilities do not move under multiplication.
   incompleteBeta:
     (f) =>
     (...a) =>
@@ -266,7 +266,7 @@ describe('the exact-value items of the report', { timeout: 180_000 }, () => {
     [
       'every run its own tree',
       'headline.ts',
-      (t) => t.replace('groupBy(runs, treeOf)', 'groupBy(runs, (run) => run.runId)'),
+      (t) => t.replace('const key = treeOf(run);', 'const key = run.runId;'),
       'exact.suiteHeadline.tree-key',
     ],
     [
