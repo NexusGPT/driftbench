@@ -3,25 +3,25 @@
   "map": {
     "path": "../approved.yaml",
     "runtime": "claude-code",
-    "hash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10",
-    "atoms": 125
+    "hash": "e48ea73788c2fb36e8def0b10b39a3551139beb107f54959237f272c2aa7ba41",
+    "atoms": 126
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1569,
-    "approved": 1569,
+    "rows": 1571,
+    "approved": 1571,
     "proposed": 0,
     "struck": 0
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 26,
-    "phrases": 50,
+    "situations": 31,
+    "phrases": 60,
     "workspaces": 5
   },
   "sessions": {
     "path": "../sessions/index.yaml",
-    "sessions": 3
+    "sessions": 9
   },
   "options": {
     "seed": 1,
@@ -42,11 +42,11 @@
     "judge": true
   },
   "summary": {
-    "specs": 1562,
-    "blocks": 1557,
-    "complete": 1535,
-    "incomplete": 27,
-    "judged": 464
+    "specs": 1564,
+    "blocks": 1559,
+    "complete": 1543,
+    "incomplete": 21,
+    "judged": 465
   },
   "incomplete": [
     {
@@ -122,54 +122,6 @@
       ]
     },
     {
-      "spec": "estate.guard_positive.guard.settings.pretooluse-bash-guard-block-force-push",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.settings.pretooluse-bash-guard-block-force-push.yaml",
-      "row": "guard_positive.guard.settings.pretooluse-bash-guard-block-force-push",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.settings.pretooluse-bash-guard-block-force-push",
-          "detail": "no recorded session of force-push"
-        }
-      ]
-    },
-    {
-      "spec": "estate.guard_positive.guard.settings.pretooluse-edit-write-guard-read-before",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.settings.pretooluse-edit-write-guard-read-before.yaml",
-      "row": "guard_positive.guard.settings.pretooluse-edit-write-guard-read-before",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.settings.pretooluse-edit-write-guard-read-before",
-          "detail": "no recorded session of invoice-file-edit"
-        }
-      ]
-    },
-    {
-      "spec": "estate.guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py.yaml",
-      "row": "guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-          "detail": "no recorded session of this situation"
-        }
-      ]
-    },
-    {
-      "spec": "estate.guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml",
-      "row": "guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no recorded session of stop-word"
-        }
-      ]
-    },
-    {
       "spec": "estate.guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh",
       "path": "incomplete/unit/guard_negative/estate.guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml",
       "row": "guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh",
@@ -182,18 +134,6 @@
       ]
     },
     {
-      "spec": "estate.guard_positive.guard.settings.stop-guard-reply-length-py",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.settings.stop-guard-reply-length-py.yaml",
-      "row": "guard_positive.guard.settings.stop-guard-reply-length-py",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.settings.stop-guard-reply-length-py",
-          "detail": "no recorded session of open-items"
-        }
-      ]
-    },
-    {
       "spec": "estate.guard_negative.guard.settings.stop-guard-reply-length-py",
       "path": "incomplete/unit/guard_negative/estate.guard_negative.guard.settings.stop-guard-reply-length-py.yaml",
       "row": "guard_negative.guard.settings.stop-guard-reply-length-py",
@@ -202,18 +142,6 @@
           "marker": "needs-askable-act",
           "atom": "guard.settings.stop-guard-reply-length-py",
           "detail": "no task in the atom's words (guard.settings.stop-guard-reply-length-py (rule)): the guard documents no rule or watched act to come near"
-        }
-      ]
-    },
-    {
-      "spec": "estate.guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
-      "path": "incomplete/replay/guard_positive/estate.guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh.yaml",
-      "row": "guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
-      "reasons": [
-        {
-          "marker": "needs-recorded-session",
-          "atom": "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
-          "detail": "no recorded session of shipment-late"
         }
       ]
     },
@@ -458,10 +386,10 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9827144686299616,
-    "askedTests": 1527,
-    "distinctAsks": 128,
-    "distinctAsksPer100": 8.382449246889326
+    "completeShare": 0.9865728900255755,
+    "askedTests": 1535,
+    "distinctAsks": 132,
+    "distinctAsksPer100": 8.599348534201955
   },
   "unit": {
     "tests": 29,
@@ -478,20 +406,20 @@
   },
   "sources": {
     "asks": {
-      "bank": 443,
-      "code": 1084,
-      "session": 0,
+      "bank": 462,
+      "code": 1067,
+      "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 992,
+      "bank": 1044,
       "no-change:guard": 26,
       "no-change:negative": 56,
       "no-change:read-only": 83,
-      "no-delete": 370,
+      "no-delete": 326,
       "static": 8
     },
-    "judged": 304
+    "judged": 305
   },
   "focus": null,
   "perTestType": {
@@ -544,9 +472,9 @@
       "incomplete": 0
     },
     "read_when": {
-      "rows": 9,
-      "specs": 9,
-      "complete": 6,
+      "rows": 10,
+      "specs": 10,
+      "complete": 7,
       "incomplete": 3
     },
     "script_fixture": {
@@ -576,8 +504,8 @@
     "guard_positive": {
       "rows": 84,
       "specs": 84,
-      "complete": 78,
-      "incomplete": 6
+      "complete": 84,
+      "incomplete": 0
     },
     "guard_negative": {
       "rows": 6,
@@ -658,9 +586,9 @@
       "incomplete": 0
     },
     "journey": {
-      "rows": 11,
-      "specs": 11,
-      "complete": 11,
+      "rows": 12,
+      "specs": 12,
+      "complete": 12,
       "incomplete": 0
     }
   },
@@ -668,8 +596,8 @@
     "replay": {
       "rows": 6,
       "specs": 6,
-      "complete": 0,
-      "incomplete": 6
+      "complete": 6,
+      "incomplete": 0
     },
     "unit": {
       "rows": 37,
@@ -678,9 +606,9 @@
       "incomplete": 2
     },
     "live": {
-      "rows": 1526,
-      "specs": 1519,
-      "complete": 1500,
+      "rows": 1528,
+      "specs": 1521,
+      "complete": 1502,
       "incomplete": 19
     }
   },
@@ -706,29 +634,46 @@
         "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (reference.standing.read-claude-steps-json (title)): the act does not start with a verb: \"\""
       ]
-    },
-    {
-      "marker": "needs-recorded-session",
-      "specs": 6,
-      "atoms": [
-        "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-        "guard.settings.pretooluse-bash-guard-block-force-push",
-        "guard.settings.pretooluse-edit-write-guard-read-before",
-        "guard.settings.stop-guard-reply-length-py",
-        "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh"
-      ],
-      "details": [
-        "no recorded session of force-push",
-        "no recorded session of invoice-file-edit",
-        "no recorded session of open-items",
-        "no recorded session of shipment-late",
-        "no recorded session of stop-word",
-        "no recorded session of this situation"
-      ]
     }
   ],
-  "replay": [],
+  "replay": [
+    {
+      "spec": "estate.guard_positive.guard.settings.pretooluse-bash-guard-block-force-push.force-push-blocked",
+      "session": "force-push-blocked",
+      "planRow": "guard_positive.guard.settings.pretooluse-bash-guard-block-force-push",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.pretooluse-edit-write-guard-read-before.invoice-edit-gated",
+      "session": "invoice-edit-gated",
+      "planRow": "guard_positive.guard.settings.pretooluse-edit-write-guard-read-before",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py.ledger-file-removed",
+      "session": "ledger-file-removed",
+      "planRow": "guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh.stop-word-nudged",
+      "session": "stop-word-nudged",
+      "planRow": "guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.stop-guard-reply-length-py.long-reply-trimmed",
+      "session": "long-reply-trimmed",
+      "planRow": "guard_positive.guard.settings.stop-guard-reply-length-py",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh.carrier-code-required",
+      "session": "carrier-code-required",
+      "planRow": "guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
+      "expect": "pass"
+    }
+  ],
   "waiting": [],
   "struck": [],
   "invalid": [],
