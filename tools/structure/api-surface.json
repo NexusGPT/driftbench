@@ -2528,6 +2528,7 @@
       "setLevelTable": "value",
       "showNumber": "value",
       "statsBankChild": "value",
+      "statsBankHash": "value",
       "statsLadder": "value",
       "stripCauseTag": "value",
       "stripHint": "value",
