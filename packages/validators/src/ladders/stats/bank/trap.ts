@@ -37,11 +37,12 @@ export function installTrap(dirs: readonly string[]): void {
     const real = fs.existsSync(given) ? fs.realpathSync(given) : given;
     return [...new Set([given, real])].flatMap((path) => [path + sep, `${pathToFileURL(path).href}/`]);
   });
-  // The caller is the first frame outside this file: a call made by the package itself. A call made by node's own
-  // module loader (it reads the package's files to load them) has the loader as its caller and is let through.
-  const guarded = (): boolean => {
-    const frames = (new Error().stack ?? '').split('\n').slice(1);
-    const caller = frames.find((frame) => !frame.includes('trap.ts') && !frame.includes('trap.js')) ?? '';
+  // Omit the wrapper by function identity: bundles rename this file and may share it with unrelated code.
+  // Node's module loader remains the caller for its own reads, so loading package siblings is permitted.
+  const guarded = (wrapper: (...args: unknown[]) => unknown): boolean => {
+    const error = new Error();
+    Error.captureStackTrace(error, wrapper);
+    const caller = (error.stack ?? '').split('\n')[1] ?? '';
     return marks.some((mark) => caller.includes(mark));
   };
   const wrap = (target: Record<string, unknown>, names: readonly string[]): void => {
@@ -49,10 +50,11 @@ export function installTrap(dirs: readonly string[]): void {
       const original = target[name];
       if (typeof original !== 'function') continue;
       try {
-        target[name] = function (this: unknown, ...args: unknown[]) {
-          if (guarded()) throw new Error(TRAP_MESSAGE);
+        const wrapper = function (this: unknown, ...args: unknown[]) {
+          if (guarded(wrapper)) throw new Error(TRAP_MESSAGE);
           return (original as (...a: unknown[]) => unknown).apply(this, args);
         };
+        target[name] = wrapper;
       } catch {
         // a frozen export stays as it is; the source scan still covers it
       }

@@ -1,7 +1,7 @@
 /**
  * What the bank's child process runs: the items of the statistics bank on one seed, in bank order, from a start
  * index, with one JSON line before and after each item. `child.ts` calls it from source; a built package calls
- * it through its own entry point (see isolate.ts). `args` is <seed> <root> <start>, and the item ids to run come
+ * it through the separately built child entry (see isolate.ts). `args` is <seed> <root> <start>, and the item ids to run come
  * as a JSON array on stdin.
  */
 import { dirname, join } from 'node:path';
