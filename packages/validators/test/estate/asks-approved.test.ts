@@ -195,12 +195,11 @@ describe('a disclosed code-written ask is made of the words of its source', { ti
     return { run, specs };
   }
 
-  it('holds on the generated estates', async () => {
-    for (const seed of [1, 2, 4, 5])
-      expect(await verdict(seed, await pipeline.estateRun(seed)), `seed ${seed}`).toEqual({
-        pass: true,
-        detail: 'holds',
-      });
+  it.each([1, 2, 4, 5, 659085678])('holds on the generated estates (seed %i)', async (seed) => {
+    expect(await verdict(seed, await pipeline.estateRun(seed)), `seed ${seed}`).toEqual({
+      pass: true,
+      detail: 'holds',
+    });
   });
 
   it('fails every true disclosure whose text is replaced by an invented phrase, tags and metadata kept', async () => {
@@ -251,6 +250,25 @@ describe('a disclosed code-written ask is made of the words of its source', { ti
       atom('g.a', 'Label every parcel before it leaves the dock', { kind: 'gate' }),
     ],
   };
+
+  it('accepts the documented Bash act without borrowing its words from the guard', () => {
+    const guard = atom('guard.push', 'Blocks a forced push on any branch.', { kind: 'guard' });
+    expect(
+      inventedWord(
+        'Please run a command in the shell here for a forced push on any branch.',
+        guard.id,
+        [guard.id],
+        { atoms: [guard] },
+      ),
+    ).toBeUndefined();
+  });
+
+  it('still rejects an invented act absent from the guard and the fixed words', () => {
+    const guard = atom('guard.push', 'Blocks a forced push on any branch.', { kind: 'guard' });
+    expect(
+      inventedWord('Please frobnicate the branch', guard.id, [guard.id], { atoms: [guard] }),
+    ).toBe('frobnicat');
+  });
 
   it('accepts an ask made of the words of its source and the documented frames', () => {
     expect(
