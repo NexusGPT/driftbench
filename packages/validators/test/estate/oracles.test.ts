@@ -3,14 +3,12 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defaultRegistry, ESTATE_CHECKS } from '@agent-nexus/driftbench-checks';
 import { type Check, machineVerdict, parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
-import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it, vi } from 'vitest';
 import { parse } from 'yaml';
 import { context, observed } from '../../../checks/test/support/context';
 import * as fixture from '../../src/ladders/estate/bank/fixture-suite';
+import { holdsTask, taskFamily } from '../../src/ladders/estate/bank/genquality';
 import { genCompleteFamily, roleOf } from '../../src/ladders/estate/bank/loop';
-import { actOfAtom } from '../../src/ladders/estate/bank/task-act';
-import { taskFamilyV2 } from '../../src/ladders/estate/bank/taskv2';
 import { estateMeta } from '../../src/ladders/estate/levels';
 import * as pipeline from '../../src/ladders/estate/pipeline';
 
@@ -160,41 +158,27 @@ describe('the affected gen.complete items', { timeout: 120_000 }, () => {
 
 describe('approved task asks are judged by the task oracle', () => {
   const bank = parse(readFileSync(join(fixture.FIXTURE, 'phrases.yaml'), 'utf8')) as {
-    situations: Array<{ id: string; atoms: string[]; phrases: Array<{ text: string; approved: boolean }> }>;
+    situations: Array<{ phrases: Array<{ text: string; approved: boolean }> }>;
   };
+  const approved = bank.situations.flatMap((situation) =>
+    situation.phrases.filter((phrase) => phrase.approved).map((phrase) => phrase.text),
+  );
 
   for (const phrase of APPROVED_TASKS) {
-    it(`keeps gen.task.${phrase.type} green for the approved ask and red for a rule restatement: ${phrase.text}`, async () => {
-      const situation = bank.situations.find((entry) =>
-        entry.phrases.some((candidate) => candidate.approved && candidate.text === phrase.text),
-      );
-      expect(situation, 'a situation of the bank holds the approved ask').toBeDefined();
-      const index = situation?.phrases.findIndex((candidate) => candidate.text === phrase.text) ?? -1;
-      const map = await loadEstateMap(join(fixture.FIXTURE, 'approved.yaml'));
-      if (!map.ok) throw new Error('the fixture map does not load');
-      const unit = map.map.atoms.find((atom) => atom.id === situation?.atoms[0]);
-      if (!unit) throw new Error('the situation lists no atom of the map');
-      // The record the generator writes beside the ask: the unit, its act and the bank phrase it came from.
-      const withRecord = (ask: string): Spec => {
-        const spec = task(ask);
-        spec.metadata = {
-          estate: {
-            atoms: [unit.id],
-            link: { span: unit.id, fp: unit.provenance.hash, relation: 'exercises', createdBy: 'generator' },
-            act: actOfAtom(unit, map.map.atoms),
-            from: { bank: situation?.id, phrase: index },
-          },
-        };
-        return spec;
-      };
+    it(`accepts the approved ask: ${phrase.text}`, () => {
+      expect(approved).toContain(phrase.text);
+      expect(holdsTask(phrase.text)).toBe(true);
+    });
+
+    it(`keeps gen.task.${phrase.type} green for that ask and red for a rule-restatement component output`, async () => {
       const spec = {
         path: 'oracle-task.yaml',
         id: 'oracle-task',
-        atoms: [unit.id],
+        atoms: [],
         testType: phrase.type,
         mode: 'task',
         complete: true,
-        spec: withRecord(phrase.text),
+        spec: task(phrase.text),
       };
       const suite: fixture.FixtureSuite = {
         work: ROOT,
@@ -205,15 +189,15 @@ describe('approved task asks are judged by the task oracle', () => {
       };
       const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(suite);
       try {
-        expect((await taskFamilyV2().evaluate(1)).get(`gen.task.${phrase.type}`)).toEqual({
+        expect((await taskFamily().evaluate(1)).get(`gen.task.${phrase.type}`)).toEqual({
           pass: true,
           detail: 'holds (1)',
         });
         mock.mockResolvedValue({
           ...suite,
-          specs: [{ ...spec, spec: withRecord('Please do this: never guess a status.') }],
+          specs: [{ ...spec, spec: task('Please do this: never guess a status.') }],
         });
-        expect((await taskFamilyV2().evaluate(1)).get(`gen.task.${phrase.type}`)).toMatchObject({
+        expect((await taskFamily().evaluate(1)).get(`gen.task.${phrase.type}`)).toMatchObject({
           pass: false,
           detail: expect.stringContaining('asks hold no task'),
         });
@@ -222,4 +206,19 @@ describe('approved task asks are judged by the task oracle', () => {
       }
     });
   }
+
+  it('accepts say followed by an explicit object', () => {
+    expect(holdsTask('Say which folder this message belongs in.')).toBe(true);
+  });
+
+  it.each([
+    'Fill',
+    'Fill in',
+    'Go',
+    'Go through',
+    'Say',
+    'Never fill the report.',
+    "Don't go through inbox/.",
+    'Please handle this for me: the invoice is not in EUR.',
+  ])('rejects an ask with no positive task and object: %s', (ask) => expect(holdsTask(ask)).toBe(false));
 });
