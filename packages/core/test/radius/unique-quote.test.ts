@@ -130,12 +130,22 @@ describe('a registry of many sections takes CPU time near linear in the sections
     expect(ms).toBeLessThan(BUDGET_MS);
   });
 
-  it.each([2000, 8000])('%d identical sections, which have no unique quote and are refused', (count) => {
+  // A heading whose section holds no unique quote is folded into the section before it (docs/concepts/blast-radius.md,
+  // radius sections init), so identical sections fold, one by one, into the single section the whole prompt is.
+  it.each([2000, 8000])('%d identical sections, which have no unique quote and fold into one', (count) => {
+    const text = identical(count);
     let result: ReturnType<typeof sectionsFromHeadings> | undefined;
     const ms = cpuMs(() => {
-      result = sectionsFromHeadings(identical(count), { promptId: 'p', version: '1' });
+      result = sectionsFromHeadings(text, { promptId: 'p', version: '1' });
     });
-    expect(result?.ok).toBe(false);
+    if (!result?.ok) throw new Error(`refused: ${result?.errors.join('; ')}`);
+    const sections = result.registry.sections;
+    expect(sections).toHaveLength(1);
+    const [only] = sections;
+    expect(only?.span.start).toBe(0);
+    expect(text.slice(only?.span.end).trim()).toBe('');
+    const quote = only?.anchor.quote ?? '';
+    expect(text.indexOf(quote)).toBe(text.lastIndexOf(quote));
     expect(ms).toBeLessThan(BUDGET_MS);
   });
 
