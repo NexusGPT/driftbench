@@ -83,3 +83,42 @@ describe('shares from decisions', () => {
     ).toThrow(/holds no conversation/);
   });
 });
+
+describe('the interval at a rare share and at a count of zero', () => {
+  // Two values, a perfect reader measured on 100 conversations of each value. Each trial draws 100 conversations
+  // from a population with a true share of 0.99 / 0.01 and a fresh seed, so the same input is never reused.
+  const calibration = [
+    [100, 0, 0, 0],
+    [0, 100, 0, 0],
+  ];
+  const rng = (start: number) => {
+    let seed = start;
+    return () => {
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+      return seed / 2 ** 32;
+    };
+  };
+
+  it('holds the true rare share in at least 90% of 300 trials', () => {
+    let covered = 0;
+    for (let trial = 0; trial < 300; trial++) {
+      const random = rng(41417 + trial * 293);
+      let first = 0;
+      for (let i = 0; i < 100; i++) first += Number(random() < 0.99);
+      const e = estimateShares({ values: [first, 100 - first], unsure: 0, absent: 0 }, calibration, {
+        resamples: 300,
+        seed: 19007 + trial,
+      });
+      covered += Number((e.lower[0] ?? 1) <= 0.99 && (e.upper[0] ?? 0) >= 0.99);
+    }
+    expect(covered / 300).toBeGreaterThanOrEqual(0.9);
+  });
+
+  it('does not close the interval of a value no conversation showed', () => {
+    const e = estimateShares({ values: [100, 0], unsure: 0, absent: 0 }, calibration, { seed: 19007 });
+    expect(e.upper[1]).toBeGreaterThan(0.01);
+    expect(e.lower[1]).toBe(0);
+    expect(e.lower[0]).toBeLessThan(1);
+    expect(e.upper[0]).toBe(1);
+  });
+});
