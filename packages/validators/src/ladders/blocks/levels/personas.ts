@@ -271,10 +271,27 @@ function loaderItems(): BankItem[] {
           const spec = project(dir, built.personas, built.scenarios, built.blocks);
           const result = await product.cli(['spec', 'validate', spec], dir);
           const text = `${result.out}\n${result.err}`;
-          if (!loadCase.refuses)
-            return result.code === 0
+          if (!loadCase.refuses) {
+            if (result.code !== 0)
+              return fail(`spec validate exited ${result.code}: ${text.trim().slice(0, 240)}`);
+            // Loading is not enough: the personas must play, one cell per persona (simulated-user.md).
+            const planned = await product.cli(
+              ['campaign', 'plan', spec, '--target', 'function:acme', '--json'],
+              dir,
+            );
+            let cells: unknown[] = [];
+            try {
+              cells = (JSON.parse(planned.out) as { cells?: unknown[] }).cells ?? [];
+            } catch {
+              return fail(`campaign plan --json printed no JSON: ${planned.out.slice(0, 120)}`);
+            }
+            const playing = ids.filter((pid) => cells.some((cell) => JSON.stringify(cell).includes(pid)));
+            return playing.length === ids.length
               ? PASS
-              : fail(`spec validate exited ${result.code}: ${text.trim().slice(0, 240)}`);
+              : fail(
+                  `the plan should give each of ${list(ids)} a cell; ${playing.length === 0 ? 'no cell names a persona' : `only ${list(playing)} play`}`,
+                );
+          }
           return expectAll([
             [result.code !== 0, 'spec validate accepted the spec'],
             [

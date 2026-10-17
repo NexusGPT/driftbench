@@ -288,7 +288,7 @@ function loaderItems(): BankItem[] {
             sample.code === undefined
               ? 'The loader resolves spec and block uses against the shipped objects.'
               : `The loader's resolve pass refuses ${override.id.replace(/-/g, ' ')} with ${sample.code}.`,
-          check: async ({ seed, product }) => {
+          check: async ({ seed, scratch, product }) => {
             const rng = rngFor(seed, id);
             const { ref, code } = override.build(
               (xs) => pick(rng, xs),
@@ -296,12 +296,50 @@ function loaderItems(): BankItem[] {
               override.id.startsWith('order') ? shippedOrder(product) : [],
               KIND_ITEMS[kind],
             );
-            const { raw } = objectSpec(seed, id, kind, place === 'spec' ? { spec: ref } : { block: ref });
+            const { raw, r } = objectSpec(seed, id, kind, place === 'spec' ? { spec: ref } : { block: ref });
             const result = loadIssues(product, raw);
-            if (code === undefined)
-              return result.ok
-                ? PASS
-                : fail(`the loader refused ${JSON.stringify(ref)}: ${list(result.codes)}`);
+            if (code === undefined) {
+              if (!result.ok) return fail(`the loader refused ${JSON.stringify(ref)}: ${list(result.codes)}`);
+              // Loading is not enough: the override must act on the blocks it reaches (block-contracts.md, Items).
+              const record = await run(
+                product,
+                raw,
+                plantedAgent(product, kind, r.actions, { scratch: '' }).adapter,
+              );
+              const reached = place === 'spec' ? record.blocks : record.blocks.slice(-1);
+              const checkOf = (verdictId: string) => verdictId.split('.')[0] as string;
+              const tailored = ref as {
+                items?: { id: string; enabled?: boolean; before?: string }[];
+                order?: string[];
+              };
+              for (const block of reached) {
+                const names = [...new Set(block.verdicts.map((v) => checkOf(v.id)))];
+                for (const item of tailored.items ?? []) {
+                  if (item.enabled === false && names.includes(item.id))
+                    return fail(
+                      `${item.id} is disabled by ${JSON.stringify(ref)}, yet block ${block.index} still has its verdicts`,
+                    );
+                  if (
+                    item.before &&
+                    names.includes(item.id) &&
+                    names.includes(item.before) &&
+                    names.indexOf(item.id) > names.indexOf(item.before)
+                  )
+                    return fail(
+                      `${item.id} moves before ${item.before}, yet block ${block.index} judges it after (${list(names)})`,
+                    );
+                }
+                if (tailored.order) {
+                  const seen = names.filter((name) => tailored.order?.includes(name));
+                  const want = tailored.order.filter((name) => seen.includes(name));
+                  if (seen.join(',') !== want.join(','))
+                    return fail(
+                      `the order ${list(tailored.order)} should set the order of the checks of block ${block.index}; they ran ${list(seen)}`,
+                    );
+                }
+              }
+              return PASS;
+            }
             if (result.ok || !result.codes.includes(code))
               return fail(
                 `the override ${JSON.stringify(ref)} should be refused with ${code}; the loader answered ${result.ok ? 'ok' : list(result.codes)}`,

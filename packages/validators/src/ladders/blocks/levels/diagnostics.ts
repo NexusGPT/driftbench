@@ -480,6 +480,12 @@ function invarianceItems(): BankItem[] {
             return fail('the diagnostics changed a verdict or a pass');
           for (const block of diagnosed.blocks) {
             const failing = new Set(failingIds(block));
+            // The diagnostics write a diagnosis on every failing block: a spec whose uses is kept and ignored writes none.
+            const written = (block as { diagnoses?: unknown[] }).diagnoses ?? [];
+            if (failing.size > 0 && written.length === 0)
+              return fail(
+                `block ${block.index} fails ${list([...failing])} and the diagnostics ${set.join(', ')} wrote no diagnosis on it`,
+              );
             for (const diagnosis of (block as { diagnoses?: Record<string, unknown>[] }).diagnoses ?? []) {
               const d = diagnosis as {
                 diagnostic?: string;
