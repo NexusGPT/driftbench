@@ -3,32 +3,42 @@ import { fileURLToPath } from 'node:url';
 import { findRoot } from '../../../root';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 import { realBudgetMs } from './scale-real';
+import type { ShapeClass } from './scale-shared-estate';
 import type { SharedFacts } from './scale-shared-facts';
 
 /**
  * scale-shared: a sibling of the real-size tier for the shape that flattened a reference graph. Every skill and
  * helper of an estate (57 at full size) cites one shared index, the index cites thousands of files (3,500 at full
- * size) and a few of those cite further documents (scale-shared-estate.ts). Four items:
+ * size) and a few of those cite further documents (scale-shared-estate.ts). The estate also plants the shapes a graph
+ * walk gets wrong, so each failure has a cause of its own:
  *
- * - shared-edges-direct: a unit stores one reference edge for each citation in its own file and no other; a unit
- *   linked to what the index cites turns 57 units and 3,500 files into some 200,000 edges.
- * - shared-reach-exact: the files a unit reaches by following the citations of the map are exactly the planted ones,
- *   through the index and through the documents that cite on: not fewer (a citation left unread) and not more.
- * - shared-console: the real plan command prints a summary, not a line per edge.
- * - shared-time-scan: the scan within the per-atom budget of the 5,000-atom tier.
+ * - edges: a unit stores exactly the citations of its own file (never the ones its files cite), none to an atom that
+ *   is not there, none twice, and the unit that shares a citation with the index keeps both.
+ * - reach: the files a unit reaches by following the citations of the map are exactly the planted ones, judged for
+ *   the whole estate and for each shape alone: the entries, a chain two and three documents deep, a cycle, a document
+ *   that cites itself, a document two entries cite, a relative form of a citation, a document cited twice by one
+ *   file, a citation of a file the estate does not hold, and a unit's own references leaking into another unit.
+ * - atoms: one reference atom for each citation, and a count of atoms that grows with the files.
+ * - orphans: the two planted documents nothing names are listed, and no document that is named is.
+ * - console and time: the real plan command prints a summary, and the scan and the plan stay within the per-atom
+ *   budget of the 5,000-atom tier.
  */
 
 const COMPONENTS = {
   scan: 'packages/estate/src/scan/claude-code.ts',
   graph: 'packages/estate/src/graph/edges.ts',
   plan: 'packages/estate/src/plan/build.ts',
+  analyze: 'packages/estate/src/graph/analyze.ts',
 } as const;
 const MAX_CONSOLE_LINES = 200;
+/** Atoms the scan may hold for each file and each citation: a bound that grows with the estate, not with its square. */
+const ATOMS_PER_UNIT_OF_ESTATE = 3;
 
 export type SharedMeasured = {
   files: number;
   units: number;
   scanMs: number;
+  planMs: number;
   planConsoleLines: number;
   facts: SharedFacts;
 };
@@ -40,6 +50,30 @@ type Result = {
   component: string;
   judge(measured: SharedMeasured): string | undefined;
 };
+
+/** An item about the files of one shape that a unit reaches: none missed, none that should not be there. */
+function reachOf(
+  key: string,
+  kinds: readonly ShapeClass[],
+  title: string,
+  tier: Tier,
+  component: string = COMPONENTS.scan,
+): Result {
+  return {
+    key: `shared-reach-${key}`,
+    tier,
+    title,
+    component,
+    judge: (m) => {
+      const slots = kinds.map((kind) => m.facts.reach.byClass[kind] ?? { missing: 0, extra: 0 });
+      const missing = slots.reduce((sum, slot) => sum + slot.missing, 0);
+      const extra = slots.reduce((sum, slot) => sum + slot.extra, 0);
+      return missing === 0 && extra === 0
+        ? undefined
+        : `${missing} ${kinds.join('/')} files missed and ${extra} reached that should not be, over ${m.facts.reach.units} units`;
+    },
+  };
+}
 
 const RESULTS: Result[] = [
   {
@@ -54,15 +88,61 @@ const RESULTS: Result[] = [
     },
   },
   {
+    key: 'shared-time-plan',
+    tier: 4,
+    title:
+      'the scan and the plan commands of a shared-index estate within the per-atom rate of the 5,000-atom tier applied to its files',
+    component: COMPONENTS.plan,
+    judge: (m) => {
+      const budget = realBudgetMs('plan', m.files) + realBudgetMs('scan', m.files);
+      return m.planMs <= budget ? undefined : `took ${m.planMs} ms, over the budget of ${budget} ms`;
+    },
+  },
+  {
     key: 'shared-edges-direct',
     tier: 4,
     title:
-      'a skill or helper stores one reference edge for each citation in its own file, never one for what the files it cites cite',
+      'a skill or helper stores one reference edge for each citation in its own file and no other, never one for what the files it cites cite',
     component: COMPONENTS.graph,
     judge: (m) =>
-      m.facts.edges.foreign === 0 && m.facts.edges.stored <= m.facts.edges.allowed
+      m.facts.edges.foreign === 0 && m.facts.edges.stored === m.facts.edges.allowed
         ? undefined
         : `${m.facts.edges.stored} reference edges stored from the units, ${m.facts.edges.allowed} citations planted in their files, ${m.facts.edges.foreign} to citations of other files; ${m.facts.edges.examples.join('; ')}`,
+  },
+  {
+    key: 'shared-edges-per-unit',
+    tier: 4,
+    title: 'no skill or helper stores more reference edges than the citations of its own file',
+    component: COMPONENTS.graph,
+    judge: (m) =>
+      m.facts.edges.overOwn <= 0
+        ? undefined
+        : `one unit stores ${m.facts.edges.overOwn} more edges than it cites`,
+  },
+  {
+    key: 'shared-edges-resolved',
+    tier: 3,
+    title: 'every reference edge of a skill or helper ends at an atom of the map',
+    component: COMPONENTS.graph,
+    judge: (m) =>
+      m.facts.edges.dangling === 0 ? undefined : `${m.facts.edges.dangling} reference edges end at no atom`,
+  },
+  {
+    key: 'shared-edges-once',
+    tier: 3,
+    title: 'a reference edge between the same two atoms is stored once',
+    component: COMPONENTS.graph,
+    judge: (m) =>
+      m.facts.edges.repeated === 0 ? undefined : `${m.facts.edges.repeated} reference edges stored twice`,
+  },
+  {
+    key: 'shared-edges-mixed-owner',
+    tier: 3,
+    title:
+      'a skill that cites a file the shared index also cites keeps its own edge to that file beside its edge to the index',
+    component: COMPONENTS.graph,
+    judge: (m) =>
+      m.facts.edges.mixedKept ? undefined : 'the skill that cites a file the index also cites lost an edge',
   },
   {
     key: 'shared-reach-exact',
@@ -74,6 +154,111 @@ const RESULTS: Result[] = [
       m.facts.reach.wrong === 0
         ? undefined
         : `${m.facts.reach.wrong} of ${m.facts.reach.units} units reach the wrong files (${m.facts.reach.missing} planted files missed, ${m.facts.reach.extra} not planted): ${m.facts.reach.examples.join('; ')}`,
+  },
+  reachOf(
+    'entries',
+    ['index', 'entry'],
+    'a skill or helper reaches the shared index and every entry the index cites, none missed',
+    3,
+  ),
+  reachOf(
+    'chain-two',
+    ['chain-two'],
+    'a skill or helper reaches the document an entry cites, one step past the index',
+    3,
+  ),
+  reachOf(
+    'chain-three',
+    ['chain-three'],
+    'a skill or helper reaches the document a document cites, two steps past the index',
+    4,
+  ),
+  reachOf(
+    'own',
+    ['own'],
+    'a skill reaches the references of its own folder and no skill reaches the references of another',
+    3,
+  ),
+  reachOf(
+    'cycle',
+    ['cycle'],
+    'two documents that cite each other are each reached once, and the walk ends',
+    4,
+  ),
+  reachOf('self-citation', ['self'], 'a document that cites itself is reached once, and the walk ends', 4),
+  reachOf(
+    'fan-in',
+    ['fan-in'],
+    'a document that two entries cite is reached, whichever entry the walk comes through',
+    4,
+  ),
+  reachOf(
+    'relative-forms',
+    ['relative'],
+    'a citation written as a path relative to its file, with ./ or ../, reaches the file it names',
+    4,
+    COMPONENTS.graph,
+  ),
+  reachOf(
+    'duplicate-citation',
+    ['duplicate'],
+    'a document that one file cites twice is reached once',
+    3,
+    COMPONENTS.graph,
+  ),
+  {
+    key: 'shared-reach-missing-target',
+    tier: 4,
+    title:
+      'a citation of a file the estate does not hold reaches nothing, and its reference atom says the file is missing',
+    component: COMPONENTS.scan,
+    judge: (m) =>
+      m.facts.reach.phantom === 0 && m.facts.missing.marked && m.facts.missing.wronglyMarked === 0
+        ? undefined
+        : `${m.facts.reach.phantom} files reached that the estate does not hold; the missing file ${m.facts.missing.marked ? 'is' : 'is not'} marked, ${m.facts.missing.wronglyMarked} held files are marked missing`,
+  },
+  {
+    key: 'shared-atoms-per-citation',
+    tier: 4,
+    title:
+      'the scan keeps one reference atom for each citation of a file, never one for each unit that reaches it',
+    component: COMPONENTS.scan,
+    judge: (m) =>
+      m.facts.atoms.references <= m.facts.atoms.planted
+        ? undefined
+        : `${m.facts.atoms.references} reference atoms for ${m.facts.atoms.planted} citations planted`,
+  },
+  {
+    key: 'shared-atoms-linear',
+    tier: 4,
+    title: `the atoms of a shared-index estate number at most ${ATOMS_PER_UNIT_OF_ESTATE} for each file and each citation`,
+    component: COMPONENTS.scan,
+    judge: (m) => {
+      const limit = ATOMS_PER_UNIT_OF_ESTATE * (m.facts.atoms.files + m.facts.atoms.planted);
+      return m.facts.atoms.total <= limit
+        ? undefined
+        : `${m.facts.atoms.total} atoms for ${m.facts.atoms.files} files and ${m.facts.atoms.planted} citations (the limit is ${limit})`;
+    },
+  },
+  {
+    key: 'shared-orphans-found',
+    tier: 3,
+    title: 'the two documents nothing names are listed as orphans',
+    component: COMPONENTS.analyze,
+    judge: (m) =>
+      m.facts.orphans.found === m.facts.orphans.planted
+        ? undefined
+        : `${m.facts.orphans.found} of ${m.facts.orphans.planted} planted orphans listed`,
+  },
+  {
+    key: 'shared-orphans-none-named',
+    tier: 3,
+    title: 'no document that another file cites is listed as an orphan',
+    component: COMPONENTS.analyze,
+    judge: (m) =>
+      m.facts.orphans.surplus.length === 0
+        ? undefined
+        : `${m.facts.orphans.surplus.length} named documents listed as orphans, such as ${m.facts.orphans.surplus[0]}`,
   },
   {
     key: 'shared-console',
