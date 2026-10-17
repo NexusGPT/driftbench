@@ -36,10 +36,14 @@ export type FromRecord =
       shape: string;
       context?: string;
       pieces: string[];
+      /** Exact tool matcher selecting the fixed rendering template. */
+      tool?: string;
     };
 
 /** The forms of the generator that write an ask from a field of an atom: the closed set a `from` may name. */
 export const ASK_FORMS = [
+  'structured ask',
+  'structured act',
   'asks it names',
   'description',
   'enforced by',
@@ -143,7 +147,15 @@ export function fromRecord(input: {
   session?: string;
   askFrom?: string;
   /** What a code-written ask was built from: the frame, the act put into it and the context sentence. */
-  built?: { frame: string; act: string; context?: string };
+  built?: {
+    frame: string;
+    act: string;
+    context?: string;
+    shape?: string;
+    pieces?: string[];
+    contextShape?: string;
+    tool?: string;
+  };
   /** For a neutral ask: which fixed ask it is. */
   neutral?: 'outside' | 'resume' | 'guard-event';
   atoms: ReadonlyMap<string, EstateAtom>;
@@ -163,7 +175,15 @@ export function fromRecord(input: {
     field: `${atom.id}#${label}`,
     fp: fingerprintOf(atom),
     ...(input.built
-      ? decompose(input.built.frame, input.built.act, input.built.context)
+      ? input.built.shape !== undefined && input.built.pieces !== undefined
+        ? {
+            frame: input.built.frame,
+            shape: input.built.shape,
+            pieces: [...input.built.pieces],
+            ...(input.built.contextShape !== undefined ? { context: input.built.contextShape } : {}),
+            ...(input.built.tool !== undefined ? { tool: input.built.tool } : {}),
+          }
+        : decompose(input.built.frame, input.built.act, input.built.context)
       : { frame: '', shape: '', pieces: [] }),
   };
 }

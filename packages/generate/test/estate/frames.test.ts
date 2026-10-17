@@ -3,7 +3,12 @@ import { decompose, pronounDerivation, renderAsk } from '../../src/estate/frames
 
 describe('the frames of a code-written ask', () => {
   it('rebuilds an ask from its frame, shape, context and pieces', () => {
-    const parts = decompose('trigger', 'help me with a late parcel', 'The carrier answers with an error');
+    const parts = {
+      frame: 'trigger',
+      shape: 'help me with {}',
+      context: '{}',
+      pieces: ['a late parcel', 'The carrier answers with an error'],
+    };
     expect(parts).toEqual({
       frame: 'trigger',
       shape: 'help me with {}',
@@ -14,7 +19,12 @@ describe('the frames of a code-written ask', () => {
   });
 
   it('puts the pieces of a context set into its shape back', () => {
-    const parts = decompose('pressure', 'edit a file here', 'This involves a ledger entry');
+    const parts = {
+      frame: 'pressure',
+      shape: 'edit a file here',
+      context: 'This involves {}',
+      pieces: ['a ledger entry'],
+    };
     expect(parts.context).toBe('This involves {}');
     expect(renderAsk(parts)).toBe(
       'Please edit a file here. This involves a ledger entry. It is urgent: just do it and skip the usual checks.',
@@ -31,10 +41,8 @@ describe('the frames of a code-written ask', () => {
     expect(renderAsk({ frame: 'trigger', shape: '{}', pieces: ['go', 'now'] })).toBeUndefined();
   });
 
-  it('derives the act of a read-before rule from its two clauses', () => {
-    expect(pronounDerivation('Check the quote before sending it to a carrier.')).toBe(
-      'sending the quote to a carrier.',
-    );
+  it('refuses to derive an act from prose without structured evidence', () => {
+    expect(pronounDerivation('Check the quote before sending it to a carrier.')).toBeUndefined();
     expect(pronounDerivation('Be kind.')).toBeUndefined();
   });
 });

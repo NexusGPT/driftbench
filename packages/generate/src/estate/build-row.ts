@@ -241,7 +241,17 @@ export function build(
   let phraseIndex: number | undefined;
   let ask: AskSource = use === 'none' ? 'none' : 'bank';
   let askFrom: string | undefined;
-  let askBuilt: { frame: string; act: string; context?: string } | undefined;
+  let askBuilt:
+    | {
+        frame: string;
+        act: string;
+        context?: string;
+        shape?: string;
+        pieces?: string[];
+        contextShape?: string;
+        tool?: string;
+      }
+    | undefined;
   if (use !== 'none') {
     let missing: { marker: Marker; detail: string } | undefined;
     if (!situation) {
@@ -281,7 +291,11 @@ export function build(
             ? {
                 frame: written.frame,
                 act: written.act,
-                ...(written.context ? { context: written.context } : {}),
+                ...(written.context !== undefined ? { context: written.context } : {}),
+                ...(written.shape !== undefined ? { shape: written.shape } : {}),
+                ...(written.pieces !== undefined ? { pieces: written.pieces } : {}),
+                ...(written.contextShape !== undefined ? { contextShape: written.contextShape } : {}),
+                ...(written.tool !== undefined ? { tool: written.tool } : {}),
               }
             : undefined;
       }
@@ -688,7 +702,7 @@ function derivedOutcome(row: EstatePlanRow, atoms: readonly EstateAtom[], then: 
 }
 
 function denies(evidence: EstateAtom['evidence'][number]): boolean {
-  return evidence.type === 'guard' && /^(deny|block|blocked|denied)$/i.test(evidence.verdict ?? '');
+  return evidence.type === 'guard' && evidence.verdict !== 'allow';
 }
 
 /** A spec id from a plan row id: the characters a spec id allows, a session name after a dot. */

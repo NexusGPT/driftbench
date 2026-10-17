@@ -53,7 +53,7 @@ export async function envOfSuite(suite: FixtureSuite): Promise<AskEnv> {
 
 export type SpecVerdict = { id: string; testType: string; reasons: string[] };
 
-/** The verdict of every complete spec: its static reasons, then its trace for an explicit live ask. */
+/** The verdict of every complete spec: its static reasons, then its recorded trace for every ask. */
 export async function judgeSpecs(
   specs: readonly SuiteSpec[],
   env: AskEnv,
@@ -76,9 +76,9 @@ export async function judgeSpecs(
   });
 }
 
-export function taskFamilyV2(): Family {
+export function taskFamilyV2(id = 'gen.task.v2'): Family {
   const items = itemsOf(
-    'gen.task.v2',
+    id,
     4,
     GENERATE,
     TASK_TYPES.map((type) => ({
@@ -89,7 +89,7 @@ export function taskFamilyV2(): Family {
     })),
   );
   return {
-    id: 'gen.task.v2',
+    id,
     level: 4,
     component: GENERATE,
     items,
@@ -116,7 +116,7 @@ export function taskFamilyV2(): Family {
         const own = verdicts.filter((entry) => entry.testType === type);
         const bad = own.filter((entry) => entry.reasons.length > 0);
         out.set(
-          `gen.task.v2.${type}`,
+          `${id}.${type}`,
           own.length === 0
             ? { pass: false, detail: `no complete ${type} spec` }
             : bad.length === 0

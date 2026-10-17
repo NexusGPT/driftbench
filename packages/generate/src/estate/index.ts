@@ -1,18 +1,22 @@
 /** The estate test generator: plan rows to task specs, by code only. Owned by the estate-tests lane. */
 
 export {
-  ASK_FRAME_WORDS,
   actOf,
+  askClausesOf,
   askedTo,
   type CodeAsk,
   clauseOf,
   codeAsk,
   DEVIATION_ASKS,
+  type DeclaredAsk,
+  declaredAskOf,
   imperative,
   OUTSIDE_ASK,
   plain,
   RESUME_ASK,
+  sameAskAct,
   situationProblem,
+  structuredAskOf,
   TOOL_ACTS,
 } from './asks';
 export {
@@ -34,6 +38,7 @@ export {
   pronounDerivation,
   renderAsk,
   SLOT,
+  STRUCTURED_ACT_SHAPES,
   VERBATIM,
 } from './frames';
 export {

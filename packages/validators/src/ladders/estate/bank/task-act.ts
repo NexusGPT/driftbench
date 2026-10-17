@@ -25,12 +25,14 @@ const folderOf = (file: string): string => (file.includes('/') ? file.slice(0, f
 /** The skill or helper whose folder or file holds the atom's passage. */
 function carrierOf(atom: Atom, atoms: readonly Atom[]): Atom | undefined {
   const file = atom.provenance.file;
-  const skill = atoms.find((other) => {
-    if (other.kind !== 'skill') return false;
-    const folder = folderOf(other.provenance.file);
-    return folder !== '' && file.startsWith(`${folder}/`);
-  });
-  return skill ?? atoms.find((other) => other.kind === 'subagent' && other.provenance.file === file);
+  return atoms
+    .filter((other) => {
+      if (other.kind === 'subagent') return other.provenance.file === file;
+      if (other.kind !== 'skill') return false;
+      const folder = folderOf(other.provenance.file);
+      return other.provenance.file === file || (folder !== '' && file.startsWith(`${folder}/`));
+    })
+    .sort((a, b) => b.provenance.file.length - a.provenance.file.length)[0];
 }
 
 export function actOfAtom(atom: Atom, atoms: readonly Atom[]): Act {

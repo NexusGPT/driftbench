@@ -2,10 +2,13 @@ import type { Observed } from '@agent-nexus/driftbench-core';
 import type { Atom } from '@agent-nexus/driftbench-estate';
 import {
   ASK_FORMS,
+  declaredAskOf,
+  HAZARD_FRAME,
   OUTSIDE_ASK,
   RESUME_ASK,
   renderAsk,
   SLOT,
+  STRUCTURED_ACT_SHAPES,
   TOOL_ACTS,
   VERBATIM,
 } from '@agent-nexus/driftbench-generate';
@@ -14,28 +17,9 @@ import { type Act, actOfAtom, sameTarget, targetsOf } from './task-act';
 import { type Field, fieldsOf, isClauseOf, orderedShare } from './task-span';
 
 /**
- * gen.task, read from ids and structure. An ask is judged by what the spec says about it
- * (`metadata.estate.link`, `act`, `from`) against the map, the approved bank and, for an ask that names its act
- * in an explicit form, the trace of the fake agent. No word of any estate is read:
- *
- * - C1 the link names the unit the plan row tests, with the fingerprint the map holds;
- * - C2 the act is the one this validator derives from that unit (`task-act.ts`);
- * - C3 the ask has a source: an approved phrase of a bank situation that lists the unit, a recorded session
- *   of such a situation, a fixed neutral ask, or a named form of the generator over an atom of the map; and it
- *   does not hold the text of a rule of the estate;
- * - C4 when the ask names its act with a code span, every span names a target of the act, and the trace of the
- *   fake shows the act (a control shows none).
- *
- * Limits, stated:
- * - An ask written by the generator is rebuilt from the names of its frame and shapes and its pieces, and each
- *   piece must be a whole clause of the text it cites (`task-span.ts`). That proves provenance, not that the
- *   clause is a task: a whole clause of an atom that is not a request (a statement, a heading) passes, as does
- *   a clause with a declared leading operator removed.
- * - A spec that cites a true source and prints other text is a forged spec; only the trace of an explicit ask
- *   reaches it.
- * - A unit whose act no trace shows (a reply rule) rests on C1 to C3.
- * - A guard act gets no trace requirement: an obedient fake refuses an explicit prohibited command, so a
- *   correct ask leaves no call. Its code spans must still name a span of the rules the guard enforces.
+ * Every ask is pinned to a map atom and a declared source. Code asks are re-rendered from their recorded
+ * frame and pieces. Every accepted ask also requires a recorded observation of the map-derived act,
+ * including guards and replies. Unsupported evidence fails closed; a nonempty reply is not an act proof.
  */
 
 export type BankLike = {
@@ -99,7 +83,13 @@ const UNREAD_TYPES: ReadonlySet<string> = new Set(['guard_hostile', 'guard_speed
 const RULE_KINDS: ReadonlySet<string> = new Set(['instruction', 'gate', 'register', 'invariant']);
 const NEUTRAL: Readonly<Record<string, string>> = { outside: OUTSIDE_ASK, resume: RESUME_ASK };
 
-export type TraceNeed = { act: Act; control: boolean; spans: string[] };
+export type TraceNeed = {
+  act: Act;
+  control: boolean;
+  spans: string[];
+  unit: string;
+  evidence: Atom['evidence'];
+};
 export type AskVerdict = { reasons: string[]; trace?: TraceNeed };
 
 const record = (value: unknown): Record<string, unknown> | undefined =>
@@ -121,6 +111,18 @@ export function firstAskOf(spec: SuiteSpec): string {
 
 const sameAct = (a: Act, b: Act): boolean =>
   a.kind === b.kind && a.name === b.name && a.target === b.target && a.verdict === b.verdict;
+
+function replyEvidenceSupported(evidence: Atom['evidence']): boolean {
+  return (
+    evidence.some((entry) => entry.type === 'text' && entry.must?.some((part) => part.trim() !== '')) &&
+    evidence.every(
+      (entry) =>
+        entry.type === 'text' &&
+        entry.lang === undefined &&
+        [...(entry.must ?? []), ...(entry.mustNot ?? [])].every((part) => part.trim() !== ''),
+    )
+  );
+}
 
 export function spansOf(ask: string): string[] {
   return [...ask.matchAll(/`([^`\n]+)`/g)]
@@ -154,21 +156,53 @@ function pieceReasons(
   if (rebuilt === undefined) return [`the frame ${frame} and the shape ${shape} are not the generator's`];
   if (rebuilt !== ask) return ['the ask is not what its frame, shapes and pieces give'];
   const reasons: string[] = [];
-  const tools =
-    typeof cited.fields?.matcher === 'string'
-      ? cited.fields.matcher
-          .split('|')
-          .map((tool) => TOOL_ACTS[tool] ?? `use the ${tool} tool on the files here`)
-      : [];
-  const phrase = [...new Set(Object.values(TOOL_ACTS))].find((candidate) => shape.startsWith(candidate));
-  if (phrase !== undefined && (from.form !== 'tool' || !tools.includes(phrase)))
-    reasons.push(`the act ${phrase} is no act of a tool the cited unit watches`);
+  if (from.form === 'structured act') {
+    const act = actOfAtom(cited, env.atoms);
+    let canonical: { shape: string; pieces: string[] } | undefined;
+    if ((act.kind === 'skill' || act.kind === 'helper' || act.kind === 'owned') && act.name) {
+      const helper = act.kind === 'helper' || (act.kind === 'owned' && act.target === 'helper');
+      canonical = {
+        shape: helper ? STRUCTURED_ACT_SHAPES.helper : STRUCTURED_ACT_SHAPES.skill,
+        pieces: [act.name],
+      };
+    } else if (act.kind === 'read' && act.target) {
+      canonical = { shape: STRUCTURED_ACT_SHAPES.read, pieces: [act.target] };
+    } else if (act.kind === 'call' && act.name) {
+      canonical =
+        act.name === 'Bash' && act.target
+          ? { shape: STRUCTURED_ACT_SHAPES.command, pieces: [act.target] }
+          : act.target
+            ? { shape: STRUCTURED_ACT_SHAPES.callTarget, pieces: [act.name, act.target] }
+            : { shape: STRUCTURED_ACT_SHAPES.call, pieces: [act.name] };
+    }
+    if (
+      !canonical ||
+      context !== undefined ||
+      shape !== canonical.shape ||
+      list.length !== canonical.pieces.length ||
+      list.some((piece, index) => piece !== canonical.pieces[index])
+    )
+      reasons.push('the structured act pieces differ from the map identifiers');
+    return reasons;
+  }
+  // Tool ids select a write-only template. No phrase matching interprets the ask or its shape.
+  const tool = typeof from.tool === 'string' ? from.tool : undefined;
   const bare = shape.split(SLOT).length === 1 && context === undefined;
-  if (bare && phrase === undefined && !(from.form === 'hazard' && shape.startsWith('go on with')))
+  if (tool !== undefined) {
+    if (
+      from.form !== 'tool' ||
+      cited.kind !== 'guard' ||
+      cited.fields?.matcher !== tool ||
+      TOOL_ACTS[tool] !== shape
+    )
+      reasons.push('the tool template does not belong to the cited guard');
+  } else if (bare && !(from.form === 'hazard' && shape === HAZARD_FRAME)) {
     reasons.push('a code-written ask holds nothing written from its source');
-  if (frame === VERBATIM && from.form !== 'user prompt') reasons.push('only a user prompt is its own act');
-  if (from.form === 'hazard' && !shape.startsWith('go on with'))
-    reasons.push('a hazard ask without the fixed words of one');
+  }
+  if (frame === VERBATIM && !(cited.fields?.event === 'UserPromptSubmit' && declaredAskOf(cited, env.atoms)))
+    reasons.push('only a declared user prompt is its own act');
+  if (from.form === 'hazard' && shape !== HAZARD_FRAME && shape !== `${HAZARD_FRAME}, after ${SLOT}`)
+    reasons.push('a hazard ask without its declared frame');
   const fields: Field[] = [];
   const actFields: Field[] = [];
   // Acts owe their text to the cited source (or a rule its guard enforces); row atoms also supply context.
@@ -229,6 +263,9 @@ export function checkAsk(spec: SuiteSpec, env: AskEnv): AskVerdict {
       `the act of ${unit.id} is ${JSON.stringify(expected)}, the spec says ${JSON.stringify(written)}`,
     );
 
+  if (expected.kind === 'reply' && !replyEvidenceSupported(unit.evidence))
+    reasons.push('the map supplies no supported positive reply witness');
+
   // C3: the source of the ask.
   const from = record(meta.from);
   const listing = (id: string) => env.bank.situations.find((situation) => situation.id === id);
@@ -264,7 +301,11 @@ export function checkAsk(spec: SuiteSpec, env: AskEnv): AskVerdict {
       reasons.push(`the field ${String(from.field)} is no field of the form ${from.form}`);
     else if (from.fp !== cited.provenance.hash)
       reasons.push(`the fingerprint of ${cited.id} is not the map's`);
-    else reasons.push(...pieceReasons(from, cited, ask, atomIds, env));
+    else {
+      if (from.form === 'structured ask' && !declaredAskOf(cited, env.atoms))
+        reasons.push('the source declares no ask with the map act');
+      reasons.push(...pieceReasons(from, cited, ask, atomIds, env));
+    }
   } else reasons.push('the source of the ask is none of bank, session, neutral or form');
 
   // C3, last part: an ask never restates a rule of the estate.
@@ -278,26 +319,32 @@ export function checkAsk(spec: SuiteSpec, env: AskEnv): AskVerdict {
     }
   }
 
-  // C4: an explicit ask names a target of the act, and the trace shows the act.
+  // Explicit target spans are additional evidence, never a condition for requiring a trace.
   const spans = spansOf(ask);
-  let trace: TraceNeed | undefined;
   if (spans.length > 0 && expected.kind !== 'reply') {
     const targets = targetsOf(expected, unit, env.atoms);
-    if (targets !== undefined) {
+    if (targets !== undefined)
       for (const span of spans)
         if (!targets.some((target) => sameTarget(span, target)))
           reasons.push(`the ask names \`${span}\`, which is no target of the act`);
-      if (reasons.length === 0 && spec.mode === 'live' && expected.kind !== 'guard')
-        trace = { act: expected, control: CONTROL_TYPES.has(spec.testType), spans };
-    }
   }
+  const trace: TraceNeed | undefined =
+    reasons.length === 0
+      ? {
+          act: expected,
+          control: CONTROL_TYPES.has(spec.testType),
+          spans,
+          unit: unit.id,
+          evidence: unit.evidence,
+        }
+      : undefined;
   return { reasons, ...(trace ? { trace } : {}) };
 }
 
 const normalPath = (path: string): string => path.replace(/^\.\//, '').replaceAll('\\', '/');
 
 /** Whether the trace of a run shows the act. */
-export function shows(act: Act, observed: Observed): boolean {
+export function shows(act: Act, observed: Observed, evidence: Atom['evidence'] = []): boolean {
   const calls = observed.toolCalls ?? [];
   const runtime = observed.runtime;
   const inputText = (input: unknown): string => JSON.stringify(input ?? {});
@@ -315,7 +362,10 @@ export function shows(act: Act, observed: Observed): boolean {
           .map((call) => String(record(call.input)?.file_path ?? '')),
         ...(runtime?.references ?? []).map((entry) => entry.path),
       ];
-      return target !== '' && reads.some((path) => normalPath(path).endsWith(target));
+      return (
+        target !== '' &&
+        reads.some((path) => normalPath(path) === target || normalPath(path).endsWith(`/${target}`))
+      );
     }
     case 'skill':
     case 'helper':
@@ -331,6 +381,34 @@ export function shows(act: Act, observed: Observed): boolean {
         calls.some((call) => call.label === 'Skill' && record(call.input)?.skill === act.name)
       );
     }
+    case 'guard': {
+      const minimum = Math.max(
+        1,
+        ...evidence.flatMap((entry) => (entry.type === 'guard' ? [entry.min ?? 1] : [])),
+      );
+      return (
+        (runtime?.guards ?? []).filter((entry) => entry.name === act.name && entry.verdict === act.verdict)
+          .length >= minimum
+      );
+    }
+    case 'reply': {
+      // The map supplies reply evidence. Absence-only rules or an unregistered custom check cannot prove
+      // which reply act happened; their missing witness is a failure, not a generic text-presence pass.
+      const positive = evidence.some(
+        (entry) => entry.type === 'text' && entry.must?.some((part) => part.trim() !== ''),
+      );
+      if (!positive || evidence.length === 0) return false;
+      const text = observed.text.toLocaleLowerCase();
+      return evidence.every(
+        (entry) =>
+          entry.type === 'text' &&
+          entry.lang === undefined &&
+          (entry.must ?? []).every((part) => part.trim() !== '' && text.includes(part.toLocaleLowerCase())) &&
+          (entry.mustNot ?? []).every(
+            (part) => part.trim() !== '' && !text.includes(part.toLocaleLowerCase()),
+          ),
+      );
+    }
     default:
       return false;
   }
@@ -338,7 +416,9 @@ export function shows(act: Act, observed: Observed): boolean {
 
 export function checkTrace(need: TraceNeed, observed: Observed | undefined): string | undefined {
   if (!observed) return 'the fake did not run the ask';
-  const shown = shows(need.act, observed);
+  if (need.act.kind === 'reply' && !replyEvidenceSupported(need.evidence))
+    return 'the map supplies no supported positive reply witness';
+  const shown = shows(need.act, observed, need.evidence);
   if (need.control) return shown ? 'a control shows the act' : undefined;
   return shown ? undefined : `the trace of the fake does not show the act ${JSON.stringify(need.act)}`;
 }

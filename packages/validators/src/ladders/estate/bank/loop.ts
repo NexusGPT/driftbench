@@ -19,8 +19,10 @@ import {
   scanRendered,
 } from '../pipeline';
 import { renderEstate } from '../render';
-import { inventedWord } from './askfrom';
+import { disclosedAskReasons } from './askfrom';
+import type { SuiteSpec } from './fixture-suite';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
+import { checkAsk, checkTrace, envOf } from './task-check';
 
 /**
  * The families of the rest of the loop, on the generated estate of each seed: generation (every class of
@@ -437,14 +439,30 @@ const ASKS: AskCheck[] = [
     key: 'misroute-names-another',
     tier: 2,
     title: 'a misroute names a skill or helper other than its target',
-    check: (run, all) => {
+    check: async (run, all) => {
       const atoms = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
-      const bad = all.filter((v) => {
-        if (v.spec.record.testType !== 'misroute' || !v.complete) return false;
+      const checks = replayChecks();
+      let bad = 0;
+      for (const v of all) {
+        if (v.spec.record.testType !== 'misroute' || !v.complete) continue;
         const target = String(atoms.get(estateMeta(v.spec).atoms?.[0] ?? '')?.fields?.target ?? '');
-        return asksOfSpec(v).some((ask) => ask.includes(target) || !/\b(skill|agent|helper)\b/.test(ask));
-      });
-      return bad.length === 0 ? undefined : `${bad.length} misroutes name their own target or no primitive`;
+        if (!v.spec.loaded || target === '') {
+          bad += 1;
+          continue;
+        }
+        const replay = await replayOnFollower(run, v.spec.loaded, checks);
+        const runtime = replay.run.blocks[0]?.observed?.runtime;
+        const named = [...(runtime?.skills ?? []), ...(runtime?.subagents ?? [])].map((entry) => entry.name);
+        if (
+          replay.run.status !== 'completed' ||
+          named.includes(target) ||
+          !named.some((name) => name !== target)
+        )
+          bad += 1;
+      }
+      return bad === 0
+        ? undefined
+        : `${bad} misroutes show their own target or no other primitive in the trace`;
     },
   },
   {
@@ -691,46 +709,64 @@ const ASKS: AskCheck[] = [
     // the ask from the atoms, and the spec says so (tag `ask:code`, `metadata.estate.ask: code`, the field the
     // words came from in `askFrom`). Whether the bank holds one is derived here, from the plan row and its atoms
     // and the bank: never from the situation the generated spec reports about itself.
-    check: (run, all) => {
+    check: async (run, all) => {
       const approved = new Set(
         run.bank.situations.flatMap((s) => s.phrases.filter((p) => p.approved).map((p) => p.text)),
       );
       const rows = new Map(run.plan.plan.rows.map((row) => [row.id, row]));
-      const disclosed = (v: SpecVerdict): boolean => {
-        const spec = v.spec.loaded?.spec as { tags?: unknown } | undefined;
-        const meta = estateMeta(v.spec) as { ask?: unknown; askFrom?: unknown };
-        const tagged = Array.isArray(spec?.tags) && spec.tags.includes('ask:code');
-        if (!tagged || meta.ask !== 'code' || typeof meta.askFrom !== 'string' || meta.askFrom === '')
-          return false;
-        const row = rows.get(v.spec.record.row) ?? rows.get(v.spec.record.row.replace(/\.\d+$/, ''));
-        if (!row) return false;
-        // The row the generator reports is bookkeeping it writes itself: the spec must say the same about itself
-        // (its plan row, its atoms, its test type and the test tag), else the allowance does not apply.
-        const own = estateMeta(v.spec) as { planRow?: unknown; atoms?: unknown; testType?: unknown };
-        const atoms = Array.isArray(own.atoms) ? (own.atoms as unknown[]) : [];
+      const env = envOf(run.scanned.map.atoms, run.bank, run.sessions);
+      const checks = replayChecks();
+      let bad = 0;
+      for (const v of all) {
+        if (!v.complete || asksOfSpec(v).every((ask) => ask === '')) continue;
+        const loaded = v.spec.loaded;
+        if (!loaded) {
+          bad += 1;
+          continue;
+        }
+        const candidate: SuiteSpec = { ...v.spec.record, path: v.spec.record.path, spec: loaded.spec };
+        const verdict = checkAsk(candidate, env);
+        const coded = asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask));
+        let disclosure = true;
+        if (coded) {
+          const meta = estateMeta(v.spec) as ReturnType<typeof estateMeta> & {
+            ask?: string;
+            planRow?: string;
+            testType?: string;
+          };
+          const row = rows.get(v.spec.record.row) ?? rows.get(v.spec.record.row.replace(/\.\d+$/, ''));
+          const tags = loaded.spec.tags ?? [];
+          const atoms = Array.isArray(meta.atoms) ? meta.atoms : [];
+          disclosure =
+            !!row &&
+            tags.includes('ask:code') &&
+            meta.ask === 'code' &&
+            meta.planRow === row.id &&
+            meta.testType === row.testType &&
+            atoms.length === row.atomIds.length &&
+            row.atomIds.every((id) => atoms.includes(id)) &&
+            tags.includes(`test:${row.testType}`) &&
+            bankIsShort(run, row) &&
+            disclosedAskReasons(candidate, env).length === 0;
+          // A source record describes the first ask only. Later asks require an exact approved source.
+          disclosure &&= asksOfSpec(v)
+            .slice(1)
+            .every((ask) => ask === '' || approved.has(ask));
+        }
+        if (!disclosure || verdict.reasons.length > 0 || !verdict.trace) {
+          bad += 1;
+          continue;
+        }
+        const replay = await replayOnFollower(run, loaded, checks);
         if (
-          own.planRow !== row.id ||
-          own.testType !== row.testType ||
-          atoms.length !== row.atomIds.length ||
-          !row.atomIds.every((id) => atoms.includes(id)) ||
-          !(Array.isArray(spec?.tags) && spec.tags.includes(`test:${row.testType}`))
+          replay.run.status !== 'completed' ||
+          checkTrace(verdict.trace, replay.run.blocks[0]?.observed) !== undefined
         )
-          return false;
-        if (!bankIsShort(run, row)) return false;
-        // The words of a code-written ask come from the source it names: an invented phrase has words no source holds.
-        return asksOfSpec(v).every(
-          (ask) =>
-            ask === '' ||
-            approved.has(ask) ||
-            inventedWord(ask, meta.askFrom as string, row.atomIds, run.scanned.map) === undefined,
-        );
-      };
-      const bad = all.filter(
-        (v) => v.complete && asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask)) && !disclosed(v),
-      );
-      return bad.length === 0
+          bad += 1;
+      }
+      return bad === 0
         ? undefined
-        : `${bad.length} complete specs ask an unapproved phrase that is not a disclosed code-written ask`;
+        : `${bad} complete specs ask an unapproved phrase or lack a disclosed source and recorded map act`;
     },
   },
   {

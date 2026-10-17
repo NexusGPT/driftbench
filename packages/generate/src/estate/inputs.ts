@@ -63,8 +63,10 @@ export type EstateAtom = {
   approved: boolean;
   situation?: string;
   evidence: EstateEvidence[];
+  /** Approved map guard IDs that enforce this atom. */
+  enforcement?: string[];
   fields?: Record<string, unknown>;
-  /** The passage the atom is read from; the generator reads the paths a hazard passage names from it. */
+  /** Source citation retained verbatim; operational evidence comes from typed predicates and fields. */
   provenance?: { quote: string; file?: string; startLine?: number; endLine?: number };
 };
 

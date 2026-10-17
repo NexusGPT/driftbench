@@ -17,7 +17,7 @@ const BATCH = 20;
 export async function observeOnFake(paths: readonly string[]): Promise<Map<string, Observed>> {
   const out = new Map<string, Observed>();
   if (paths.length === 0) return out;
-  const work = await mkdtemp(join(tmpdir(), 'estate-observe-'));
+  const work = await mkdtemp(join(tmpdir(), 'astra-askwords-observe-'));
   try {
     for (let at = 0; at < paths.length; at += BATCH) {
       const db = join(work, `observe-${at}.db`);
@@ -50,9 +50,11 @@ export async function observeOnFake(paths: readonly string[]): Promise<Map<strin
         { cwd: REPO, encoding: 'utf8', timeout: 900_000, maxBuffer: 200_000_000 },
       );
       if (ran.error) throw ran.error;
+      if (ran.status !== 0 && ran.status !== 1)
+        throw new Error(`fake run failed (${ran.status}): ${ran.stderr || ran.stdout}`);
       const store = openStore(db);
       for (const run of await store.listRuns()) {
-        const observed = run.blocks[0]?.observed;
+        const observed = run.status === 'completed' ? run.blocks[0]?.observed : undefined;
         if (observed) out.set(run.specId, observed);
       }
     }

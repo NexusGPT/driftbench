@@ -1,286 +1,326 @@
+import type { Observed, Spec } from '@agent-nexus/driftbench-core';
 import type { Atom } from '@agent-nexus/driftbench-estate';
-import { codeAsk } from '@agent-nexus/driftbench-generate';
+import { codeAsk, OUTSIDE_ASK } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it, vi } from 'vitest';
-import { contentWords, inventedWord } from '../../src/ladders/estate/bank/askfrom';
+import { fromRecord, linkOf } from '../../../generate/src/estate/record';
+import { disclosedAskReasons } from '../../src/ladders/estate/bank/askfrom';
+import type { SuiteSpec } from '../../src/ladders/estate/bank/fixture-suite';
 import { genAsksFamily } from '../../src/ladders/estate/bank/loop';
+import { actOfAtom } from '../../src/ladders/estate/bank/task-act';
+import { envOf } from '../../src/ladders/estate/bank/task-check';
+import * as levels from '../../src/ladders/estate/levels';
 import * as pipeline from '../../src/ladders/estate/pipeline';
 
-type Loaded = {
-  tags?: string[];
-  blocks: Array<{ when?: { user?: string } }>;
-  metadata?: { estate?: Record<string, unknown> };
-};
+const UNAPPROVED = 'Please run the inventory report.';
+const DECLARED = 'berthify the vessel';
+const atom = (): Atom =>
+  ({
+    id: 'guard.harbour',
+    kind: 'guard',
+    title: 'Harbour guard',
+    provenance: { file: 'CLAUDE.md', startLine: 1, endLine: 1, quote: 'Harbour guard', hash: 'harbour' },
+    producedBy: 'code',
+    role: 'axis',
+    approved: true,
+    fields: {
+      name: 'harbour-check',
+      matcher: 'Bash',
+      ask: { text: DECLARED, act: { kind: 'guard', name: 'harbour-check', verdict: 'deny' } },
+    },
+    evidence: [{ type: 'guard', name: 'harbour-check', verdict: 'deny' }],
+    enforcement: [],
+  }) as Atom;
+const observed = (name = 'harbour-check'): Observed =>
+  ({
+    text: '',
+    segments: [],
+    toolCalls: [],
+    cost: { total: 0 },
+    latencyMs: 0,
+    runtime: { guards: [{ name, verdict: 'deny' }] },
+  }) as Observed;
 
-const UNAPPROVED = 'Kindly sort out the pending supplier matters.';
-
-/** The run of a seed with the first complete spec of a test type, asked with a bank phrase, changed by `edit`. */
-async function changed(
-  seed: number,
-  testType: string,
-  edit: (spec: Loaded) => void,
-): Promise<pipeline.EstateRun> {
-  const run = await pipeline.estateRun(seed);
-  const specs = structuredClone(run.specs);
-  const target = specs.find(
-    (spec) =>
-      spec.record.complete &&
-      spec.record.testType === testType &&
-      (spec.loaded?.spec.metadata?.estate as { ask?: string } | undefined)?.ask === 'bank',
-  );
-  if (!target?.loaded) throw new Error(`no complete ${testType} spec asked with a bank phrase`);
-  edit(target.loaded.spec as unknown as Loaded);
-  return { ...run, specs };
+/** Small fictional input; the source/row checks are real and the recorded-run boundary is mocked. */
+function fixture() {
+  const guard = atom();
+  const built = codeAsk('forced', [guard], []);
+  if (!built.text || !built.frame || !built.act) throw new Error('declared guard ask did not render');
+  const from = fromRecord({
+    askFrom: built.source,
+    built: { ...built, frame: built.frame, act: built.act },
+    atoms: new Map([[guard.id, guard]]),
+  });
+  const row = {
+    id: 'guard_positive.harbour',
+    atomIds: [guard.id],
+    cell: {},
+    testType: 'guard_positive',
+    mode: 'live',
+    status: 'approved',
+  };
+  const spec = {
+    id: 'harbour-ask',
+    tags: ['ask:code', 'test:guard_positive'],
+    blocks: [{ id: 'ask', when: { user: built.text } }],
+    metadata: {
+      estate: {
+        atoms: [guard.id],
+        planRow: row.id,
+        testType: row.testType,
+        ask: 'code',
+        askFrom: built.source,
+        link: linkOf(guard),
+        act: actOfAtom(guard, [guard]),
+        from,
+      },
+    },
+  } as unknown as Spec;
+  const generated: pipeline.GeneratedSpec = {
+    record: {
+      id: spec.id,
+      path: 'fictional.yaml',
+      row: row.id,
+      atoms: [guard.id],
+      mode: 'live',
+      testType: row.testType,
+      complete: true,
+      markers: [],
+      ask: 'code',
+      outcome: 'The harbour guard denies the operation.',
+      judged: [],
+    },
+    loaded: { ok: true, path: 'fictional.yaml', spec, hash: 'fictional', warnings: [] },
+    text: '',
+    errors: [],
+    warnings: [],
+  };
+  const run = {
+    estate: { seed: 1 },
+    scanned: {
+      map: { atoms: [guard], runtime: 'claude-code', hash: 'fictional' },
+      match: { hidOf: new Map() },
+    },
+    plan: { plan: { rows: [row], mapHash: 'fictional' } },
+    bank: { situations: [] },
+    sessions: { sessions: [] },
+    suite: { files: [] },
+    specs: [generated],
+  } as unknown as pipeline.EstateRun;
+  return { run, guard, generated, spec, meta: spec.metadata?.estate as Record<string, unknown> };
 }
 
-async function verdict(seed: number, run: pipeline.EstateRun) {
-  const mock = vi.spyOn(pipeline, 'estateRun').mockResolvedValue(run);
+async function verdict(run: pipeline.EstateRun, trace: Observed | null = observed(), status = 'completed') {
+  const mocks = [
+    vi.spyOn(pipeline, 'estateRun').mockResolvedValue(run),
+    vi
+      .spyOn(levels, 'specVerdicts')
+      .mockResolvedValue(run.specs.map((spec) => ({ spec, valid: true, complete: true, distinct: true }))),
+    vi.spyOn(pipeline, 'replayChecks').mockReturnValue({} as ReturnType<typeof pipeline.replayChecks>),
+    vi
+      .spyOn(pipeline, 'replayOnFollower')
+      .mockResolvedValue({ run: { status, blocks: [{ observed: trace ?? undefined }] } } as Awaited<
+        ReturnType<typeof pipeline.replayOnFollower>
+      >),
+  ];
   try {
-    return (await genAsksFamily().evaluate(seed)).get('gen.asks.asks-approved');
+    return (await genAsksFamily().evaluate(1)).get('gen.asks.asks-approved');
   } finally {
-    mock.mockRestore();
+    for (const mock of mocks) mock.mockRestore();
   }
 }
+function ask(spec: Spec, value: string) {
+  const first = spec.blocks[0];
+  if (!first) throw new Error('no ask block');
+  first.when = { user: value };
+}
+function candidate(generated: pipeline.GeneratedSpec): SuiteSpec {
+  if (!generated.loaded) throw new Error('no loaded spec');
+  return { ...generated.record, spec: generated.loaded.spec };
+}
+function disclosed(f: ReturnType<typeof fixture>) {
+  return disclosedAskReasons(candidate(f.generated), envOf([f.guard], f.run.bank, f.run.sessions));
+}
+function forcedPhrase(f: ReturnType<typeof fixture>, approved = true) {
+  f.run.bank.situations.push({
+    id: 'forced-planted',
+    title: 'Fictional forced situation',
+    use: 'forced',
+    atoms: [f.guard.id],
+    touches: { created: [], changed: [], deleted: [] },
+    phrases: [{ text: 'Please run the harbour task.', lang: 'en', approved }],
+  });
+}
 
-/** A generator that swaps an approved ask for an unapproved one and covers it up with metadata. */
-const forge = (extra: Record<string, unknown>) => (spec: Loaded) => {
-  if (spec.blocks[0]?.when) spec.blocks[0].when.user = UNAPPROVED;
-  spec.tags = [...(spec.tags ?? []), 'ask:code'];
-  if (spec.metadata?.estate)
-    Object.assign(spec.metadata.estate, { ask: 'code', askFrom: 'a description', ...extra });
-};
-
-describe('gen.asks.asks-approved', { timeout: 300_000 }, () => {
-  it('holds on the generated estate: approved phrases, and code-written asks that say so', async () => {
-    for (const seed of [1, 4, 5])
-      expect(await verdict(seed, await pipeline.estateRun(seed))).toEqual({ pass: true, detail: 'holds' });
+describe('gen.asks.asks-approved uses structured disclosure and recorded map acts', () => {
+  it('accepts an unlisted verb with a declared source and the matching recorded guard act', async () => {
+    const f = fixture();
+    expect(await verdict(f.run)).toEqual({ pass: true, detail: 'holds' });
   });
 
-  it('fails an invented ask that does not say it was written by code', async () => {
-    const run = await changed(1, 'route_positive', (spec) => {
-      if (spec.blocks[0]?.when) spec.blocks[0].when.user = UNAPPROVED;
-    });
-    expect(await verdict(1, run)).toMatchObject({
+  it('rejects an allowed verb whose recorded guard act is wrong', async () => {
+    const f = fixture();
+    forcedPhrase(f);
+    ask(f.spec, 'Please run the harbour task.');
+    f.meta.ask = 'bank';
+    f.meta.from = { bank: 'forced-planted', phrase: 0 };
+    expect(await verdict(f.run)).toEqual({ pass: true, detail: 'holds' });
+    expect((await verdict(f.run, observed('other-guard')))?.pass).toBe(false);
+  });
+
+  it('rejects missing and unfinished runs even with correct source and act ids', async () => {
+    const f = fixture();
+    expect((await verdict(f.run, null))?.pass).toBe(false);
+    expect((await verdict(f.run, observed(), 'failed'))?.pass).toBe(false);
+  });
+
+  it.each([
+    [
+      'code tag',
+      (f: ReturnType<typeof fixture>) => {
+        f.spec.tags = ['test:guard_positive'];
+      },
+    ],
+    [
+      'code declaration',
+      (f: ReturnType<typeof fixture>) => {
+        f.meta.ask = 'bank';
+      },
+    ],
+    [
+      'source',
+      (f: ReturnType<typeof fixture>) => {
+        delete f.meta.askFrom;
+      },
+    ],
+    [
+      'test tag',
+      (f: ReturnType<typeof fixture>) => {
+        f.spec.tags = ['ask:code'];
+      },
+    ],
+    [
+      'test type',
+      (f: ReturnType<typeof fixture>) => {
+        f.meta.testType = 'route_positive';
+      },
+    ],
+    [
+      'row atoms',
+      (f: ReturnType<typeof fixture>) => {
+        f.meta.atoms = [f.guard.id, 'other'];
+      },
+    ],
+    [
+      'plan row',
+      (f: ReturnType<typeof fixture>) => {
+        f.meta.planRow = 'donor-row';
+      },
+    ],
+    [
+      'map act',
+      (f: ReturnType<typeof fixture>) => {
+        f.meta.act = { kind: 'guard', name: 'other', verdict: 'deny' };
+      },
+    ],
+  ])('rejects an invalid %s on an otherwise valid disclosure', async (_label, edit) => {
+    const f = fixture();
+    expect((await verdict(f.run))?.pass).toBe(true);
+    edit(f);
+    expect((await verdict(f.run))?.pass).toBe(false);
+  });
+
+  it.each([undefined, null, 'no-such-situation'])(
+    'rejects invented text regardless of its self-reported situation (%s)',
+    async (situation) => {
+      const f = fixture();
+      ask(f.spec, UNAPPROVED);
+      Object.assign(f.meta, { askFrom: 'a description', situation });
+      expect(await verdict(f.run)).toMatchObject({
+        pass: false,
+        detail: expect.stringContaining('1 complete specs ask an unapproved phrase'),
+      });
+    },
+  );
+
+  it('rejects a forged disclosure borrowing another existing plan row', async () => {
+    const f = fixture();
+    f.run.plan.plan.rows.push({
+      ...f.run.plan.plan.rows[0],
+      id: 'donor-row',
+    } as (typeof f.run.plan.plan.rows)[number]);
+    f.generated.record.row = 'donor-row';
+    expect((await verdict(f.run))?.pass).toBe(false);
+  });
+
+  it('rejects an extra cloned spec carrying an invented ask and donor row', async () => {
+    const f = fixture();
+    f.run.plan.plan.rows.push({
+      ...f.run.plan.plan.rows[0],
+      id: 'donor-row',
+    } as (typeof f.run.plan.plan.rows)[number]);
+    const clone = structuredClone(f.generated);
+    clone.record.id += '.clone';
+    clone.record.row = 'donor-row';
+    if (!clone.loaded) throw new Error('missing clone');
+    ask(clone.loaded.spec, UNAPPROVED);
+    f.run.specs.push(clone);
+    expect(await verdict(f.run)).toMatchObject({
       pass: false,
       detail: expect.stringContaining('1 complete specs ask an unapproved phrase'),
     });
   });
 
-  it('fails a code-written ask that names no source of its words', async () => {
-    const run = await changed(1, 'route_positive', (spec) => {
-      if (spec.blocks[0]?.when) spec.blocks[0].when.user = UNAPPROVED;
-      spec.tags = [...(spec.tags ?? []), 'ask:code'];
-      if (spec.metadata?.estate) spec.metadata.estate.ask = 'code';
-    });
-    expect((await verdict(1, run))?.pass).toBe(false);
+  it('permits a code ask only while the live guard bank lacks an approved forced phrase', async () => {
+    const f = fixture();
+    expect((await verdict(f.run))?.pass).toBe(true);
+    forcedPhrase(f);
+    expect((await verdict(f.run))?.pass).toBe(false);
+    const phrase = f.run.bank.situations[0]?.phrases[0];
+    if (!phrase) throw new Error('missing phrase');
+    phrase.approved = false;
+    expect((await verdict(f.run))?.pass).toBe(true);
   });
 
-  it('fails a forged code-written ask whatever the generated spec says about its own situation', async () => {
-    for (const seed of [1, 4, 5]) {
-      const keeps = await changed(seed, 'route_positive', forge({}));
-      expect((await verdict(seed, keeps))?.pass, `true situation, seed ${seed}`).toBe(false);
-      const erased = await changed(seed, 'route_positive', forge({ situation: null }));
-      expect((await verdict(seed, erased))?.pass, `erased situation, seed ${seed}`).toBe(false);
-      const forged = await changed(seed, 'route_positive', forge({ situation: 'no-such-situation' }));
-      expect((await verdict(seed, forged))?.pass, `forged situation, seed ${seed}`).toBe(false);
-    }
-  });
-
-  /** A complete spec whose ask the generator wrote from the atoms because the bank is short: a true disclosure. */
-  async function donorOf(seed: number) {
-    const run = await pipeline.estateRun(seed);
-    const donor = run.specs.find(
-      (spec) =>
-        spec.record.complete &&
-        (spec.loaded?.spec.metadata?.estate as { ask?: string } | undefined)?.ask === 'code',
-    );
-    if (!donor) throw new Error('no complete spec with a code-written ask');
-    return { run, row: donor.record.row };
-  }
-
-  it('fails a forged code-written ask that claims the plan row of a true disclosure', async () => {
-    for (const seed of [1, 2]) {
-      const { run, row } = await donorOf(seed);
-      expect(await verdict(seed, run), `control, seed ${seed}`).toEqual({ pass: true, detail: 'holds' });
-      const specs = structuredClone(run.specs);
-      const target = specs.find(
-        (spec) =>
-          spec.record.complete &&
-          spec.record.testType === 'route_positive' &&
-          (spec.loaded?.spec.metadata?.estate as { ask?: string } | undefined)?.ask === 'bank',
-      );
-      if (!target?.loaded) throw new Error('no route_positive spec asked with a bank phrase');
-      forge({})(target.loaded.spec as unknown as Loaded);
-      // The generator reports another row than the one the spec says it is.
-      target.record.row = row;
-      expect((await verdict(seed, { ...run, specs }))?.pass, `row of a donor, seed ${seed}`).toBe(false);
-    }
-  });
-
-  it('fails an extra cloned spec that carries an invented ask and the row of a true disclosure', async () => {
-    for (const seed of [1, 2]) {
-      const { run, row } = await donorOf(seed);
-      const specs = structuredClone(run.specs);
-      const source = specs.find(
-        (spec) =>
-          spec.record.complete &&
-          spec.record.testType === 'route_positive' &&
-          (spec.loaded?.spec.metadata?.estate as { ask?: string } | undefined)?.ask === 'bank',
-      );
-      if (!source?.loaded) throw new Error('no route_positive spec asked with a bank phrase');
-      const clone = structuredClone(source);
-      clone.record = { ...clone.record, id: `${clone.record.id}.clone`, row };
-      forge({})(clone.loaded?.spec as unknown as Loaded);
-      expect((await verdict(seed, { ...run, specs: [...specs, clone] }))?.pass, `clone, seed ${seed}`).toBe(
-        false,
-      );
-    }
-  });
-
-  it('accepts a disclosed code-written ask for a live guard test only where the bank holds no approved forced phrase', async () => {
-    const run = await pipeline.estateRun(1);
-    const guarded = run.specs.filter(
-      (spec) =>
-        spec.record.complete && spec.record.testType === 'guard_positive' && spec.record.mode === 'live',
-    );
-    expect(guarded.length).toBeGreaterThan(0);
-    // Control: the bank holds no forced situation, so the generator's own instructed asks pass.
-    expect(await verdict(1, run)).toEqual({ pass: true, detail: 'holds' });
-    // Planted: the bank holds an approved forced phrase for the guard of the row. The code-written ask must fail.
-    const row = run.plan.plan.rows.find((r) => r.id === guarded[0]?.record.row);
-    if (!row) throw new Error('no plan row');
-    const withPhrase = {
-      ...run,
-      bank: {
-        ...run.bank,
-        situations: [
-          ...run.bank.situations,
-          {
-            id: 'forced-planted',
-            title: 'planted',
-            use: 'forced' as const,
-            atoms: row.atomIds,
-            touches: { created: [], changed: [], deleted: [] },
-            phrases: [{ text: 'Please push the branch with force.', lang: 'en', approved: true }],
-          },
-        ],
-      },
-    };
-    expect((await verdict(1, withPhrase))?.pass).toBe(false);
-    // Control: the same situation with no approved phrase leaves the bank short, and the code ask passes again.
-    const unapproved = {
-      ...withPhrase,
-      bank: {
-        ...withPhrase.bank,
-        situations: withPhrase.bank.situations.map((s) =>
-          s.id === 'forced-planted'
-            ? { ...s, phrases: s.phrases.map((p) => ({ ...p, approved: false })) }
-            : s,
-        ),
-      },
-    };
-    expect(await verdict(1, unapproved)).toEqual({ pass: true, detail: 'holds' });
+  it('rejects a bank phrase approved for another atom', async () => {
+    const f = fixture();
+    forcedPhrase(f);
+    const situation = f.run.bank.situations[0];
+    if (!situation) throw new Error('missing situation');
+    situation.atoms = ['other-guard'];
+    ask(f.spec, situation.phrases[0]?.text ?? '');
+    f.meta.from = { bank: situation.id, phrase: 0 };
+    expect((await verdict(f.run))?.pass).toBe(false);
   });
 });
 
-describe('a disclosed code-written ask is made of the words of its source', { timeout: 900_000 }, () => {
-  const INVENTED = 'Please wire the quarterly bonus to the treasury account.';
-
-  /** Every complete spec whose ask the generator wrote from the atoms, with a true disclosure. */
-  async function disclosed(seed: number) {
-    const run = await pipeline.estateRun(seed);
-    const specs = run.specs.filter((spec) => {
-      const meta = spec.loaded?.spec.metadata?.estate as { ask?: string; askFrom?: string } | undefined;
-      return spec.record.complete && meta?.ask === 'code' && typeof meta.askFrom === 'string';
-    });
-    if (specs.length === 0) throw new Error('no complete spec with a disclosed code-written ask');
-    return { run, specs };
-  }
-
-  it.each([1, 2, 4, 5, 659085678])('holds on the generated estates (seed %i)', async (seed) => {
-    expect(await verdict(seed, await pipeline.estateRun(seed)), `seed ${seed}`).toEqual({
-      pass: true,
-      detail: 'holds',
-    });
+describe('disclosed asks are re-rendered from source and act identities', () => {
+  it('accepts the complete explicit clause without a verb dictionary', () => {
+    const f = fixture();
+    expect(disclosed(f)).toEqual([]);
   });
 
-  it('fails every true disclosure whose text is replaced by an invented phrase, tags and metadata kept', async () => {
-    for (const seed of [1, 2]) {
-      const { run, specs: donors } = await disclosed(seed);
-      const ids = new Set(donors.map((donor) => donor.record.id));
-      const specs = structuredClone(run.specs);
-      let replaced = 0;
-      for (const spec of specs) {
-        const block = (spec.loaded?.spec as unknown as Loaded | undefined)?.blocks[0];
-        if (!ids.has(spec.record.id) || !block?.when) continue;
-        block.when.user = INVENTED;
-        replaced += 1;
-      }
-      expect(replaced, `seed ${seed}`).toBeGreaterThan(0);
-      const out = await verdict(seed, { ...run, specs });
-      expect(out, `seed ${seed}`).toMatchObject({ pass: false });
-      expect(out?.detail, `seed ${seed}`).toContain(`${replaced} complete specs ask an unapproved phrase`);
+  it('rejects changed text even when its words occur in the source', () => {
+    const f = fixture();
+    ask(f.spec, 'Please the vessel berthify.');
+    expect(disclosed(f)).toContain('the ask is not what its frame, shapes and pieces give');
+  });
+
+  it('rejects a disclosure naming no atom, a different atom, or a stale source fingerprint', () => {
+    for (const source of ['a description', 'guard.other (structured ask)']) {
+      const f = fixture();
+      f.meta.askFrom = source;
+      expect(disclosed(f)).not.toEqual([]);
     }
+    const f = fixture();
+    (f.meta.from as Record<string, unknown>).fp = 'stale';
+    expect(disclosed(f)).not.toEqual([]);
   });
 
-  it('fails a disclosure that names no atom as its source, such as "a description"', async () => {
-    const { run, specs: donors } = await disclosed(1);
-    const specs = structuredClone(run.specs);
-    const target = specs.find((spec) => spec.record.id === donors[0]?.record.id);
-    const meta = (target?.loaded?.spec as unknown as Loaded | undefined)?.metadata?.estate;
-    if (!meta) throw new Error('the donor has no estate metadata');
-    Object.assign(meta, { askFrom: 'a description' });
-    expect((await verdict(1, { ...run, specs }))?.pass).toBe(false);
-  });
-
-  const atom = (id: string, title: string, extra: Partial<Atom> = {}): Atom =>
-    ({
-      id,
-      kind: 'instruction',
-      title,
-      provenance: { file: 'CLAUDE.md', startLine: 1, endLine: 1, quote: title, hash: id },
-      producedBy: 'code',
-      role: 'axis',
-      approved: true,
-      evidence: [{ type: 'custom', name: 'x' }],
-      enforcement: [],
-      ...extra,
-    }) as Atom;
-  const map = {
-    atoms: [
-      atom('i.a', 'Reorder low stock when the shelf count falls under ten'),
-      atom('g.a', 'Label every parcel before it leaves the dock', { kind: 'gate' }),
-    ],
-  };
-
-  it('accepts the documented Bash act without borrowing its words from the guard', () => {
-    const guard = atom('guard.push', 'Blocks a forced push on any branch.', { kind: 'guard' });
-    expect(
-      inventedWord(
-        'Please run a command in the shell here for a forced push on any branch.',
-        guard.id,
-        [guard.id],
-        { atoms: [guard] },
-      ),
-    ).toBeUndefined();
-  });
-
-  it('still rejects an invented act absent from the guard and the fixed words', () => {
-    const guard = atom('guard.push', 'Blocks a forced push on any branch.', { kind: 'guard' });
-    expect(inventedWord('Please frobnicate the branch', guard.id, [guard.id], { atoms: [guard] })).toBe(
-      'frobnicat',
-    );
-  });
-
-  it('reads the documented rule text of the cited guard, not just its hook title', () => {
-    const guard = atom('guard.push', 'PreToolUse Bash guard block-force-push.sh', {
-      kind: 'guard',
-      fields: { ruleText: 'Blocks a forced push on any branch.' },
-    });
-    const ask = 'Please run a command in the shell here for a forced push on any branch.';
-    const source = { atoms: [guard] };
-    expect(inventedWord(ask, `${guard.id} (tool)`, [guard.id], source)).toBeUndefined();
-    expect(inventedWord(`${ask} frobnicate`, `${guard.id} (tool)`, [guard.id], source)).toBe('frobnicat');
-    expect(inventedWord(ask, guard.id, [guard.id], { atoms: [{ ...guard, fields: {} }] })).toBe('branch');
+  it('rejects a source declaration carrying the wrong act even if the generated metadata is correct', () => {
+    const f = fixture();
+    if (!f.guard.fields) throw new Error('missing fields');
+    f.guard.fields.ask = { text: DECLARED, act: { kind: 'guard', name: 'other', verdict: 'deny' } };
+    expect(disclosed(f)).toContain('the source declares no ask with the map act');
   });
 
   it.each([
@@ -294,54 +334,32 @@ describe('a disclosed code-written ask is made of the words of its source', { ti
     'Grep',
     'WebFetch',
     'WebSearch',
-  ])('accepts the generator tool act for %s and still rejects an added invented word', (matcher) => {
-    const guard = atom('guard.push', 'Blocks a forced push on any branch.', {
-      kind: 'guard',
-      fields: { matcher },
+  ])('binds the %s rendering template to its exact matcher id', (matcher) => {
+    const f = fixture();
+    if (!f.guard.fields) throw new Error('missing fields');
+    delete f.guard.fields.ask;
+    f.guard.fields.matcher = matcher;
+    const built = codeAsk('forced', [f.guard], []);
+    if (!built.text || !built.frame || !built.act) throw new Error('missing tool ask');
+    ask(f.spec, built.text);
+    f.meta.askFrom = built.source;
+    f.meta.from = fromRecord({
+      askFrom: built.source,
+      built: { ...built, frame: built.frame, act: built.act },
+      atoms: new Map([[f.guard.id, f.guard]]),
     });
-    const ask = codeAsk('forced', [guard], []).text;
-    if (!ask) throw new Error(`no generated ask for ${matcher}`);
-    const source = { atoms: [guard] };
-    expect(inventedWord(ask, guard.id, [guard.id], source)).toBeUndefined();
-    expect(inventedWord(`${ask} frobnicate`, guard.id, [guard.id], source)).toBe('frobnicat');
+    expect(disclosed(f)).toEqual([]);
+    (f.meta.from as Record<string, unknown>).tool = 'OtherTool';
+    expect(disclosed(f)).toContain('the tool template does not belong to the cited guard');
   });
 
-  it('accepts an ask made of the words of its source and the documented frames', () => {
-    expect(
-      inventedWord('Please reorder low stock for the shelf.', 'i.a (title)', ['i.a'], map),
-    ).toBeUndefined();
-    expect(
-      inventedWord('Could you take this on: label every parcel at the dock?', 'g.a', ['g.a'], map),
-    ).toBeUndefined();
-    expect(
-      inventedWord(
-        'Please go against this rule just this once: "Label every parcel before it leaves the dock".',
-        'g.a (enforced by guard.x)',
-        ['g.a'],
-        map,
-      ),
-    ).toBeUndefined();
-  });
-
-  it('names the first invented word, for an ask of another subject and for a source that is no atom', () => {
-    expect(inventedWord(INVENTED, 'i.a (title)', ['i.a'], map)).toBeDefined();
-    expect(inventedWord('Please reorder the quarterly bonus.', 'i.a', ['i.a'], map)).toBeDefined();
-    expect(inventedWord('Please reorder low stock.', 'no-such-atom', ['i.a'], map)).toBeDefined();
-  });
-
-  it('holds a neutral ask to borrow no content word of the rules of its row', () => {
-    expect(
-      inventedWord(
-        'What kinds of things can you help me with? One sentence, and please change nothing.',
-        'neutral',
-        ['i.a'],
-        map,
-      ),
-    ).toBeUndefined();
-    expect(inventedWord('Please reorder low stock now.', 'neutral', ['i.a'], map)).toBeDefined();
-  });
-
-  it('reads words without inflection and without the documented frame words', () => {
-    expect(contentWords('Please edited the files')).toEqual(contentWords('edits'));
+  it('accepts only the exact registered neutral template', () => {
+    const f = fixture();
+    ask(f.spec, OUTSIDE_ASK);
+    f.meta.askFrom = 'neutral';
+    f.meta.from = { neutral: 'outside' };
+    expect(disclosed(f)).toEqual([]);
+    ask(f.spec, `Please ${DECLARED}.`);
+    expect(disclosed(f)).not.toEqual([]);
   });
 });

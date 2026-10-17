@@ -1,3 +1,4 @@
+import { type Assertion, matchAssertion } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 import type { EstateAtom, EstatePlanRow } from './inputs';
 
@@ -8,8 +9,10 @@ import type { EstateAtom, EstatePlanRow } from './inputs';
  * (script_fixture), as JSON in `unit/<test type>/<id>.json`.
  *
  * A guard test holds hook payloads in the runtime's input shape, built by code from the map: the event and
- * the matcher of the guard, and the material of the rules it enforces (the commands, paths and phrases their
- * quotes hold). The generator knows no verdict: `estate unit --record` runs every case on the original estate
+ * the matcher of the guard, and declared evidence or `fields.unitCases` on each rule it enforces.
+ * A unit case declares `effect: forbid | allow`, `material`, and, for tool events, `tool` plus optional
+ * exact `input`. Source quotes are never interpreted as permission or prohibition. Missing declarations
+ * produce a fixture gap. The generator knows no verdict: `estate unit --record` runs every case on the original estate
  * and writes what the guard decided into the test (the oracle), and a run on a mutant compares with it.
  *
  * - guard_positive: payloads the rules forbid. Recorded allowed with nothing printed, a case is inert (it
@@ -125,80 +128,20 @@ export function matcherTools(matcher: string | undefined): string[] {
   return tools.length > 0 ? tools : ['Bash'];
 }
 
-/** Words and marks that make a clause forbid what it names. */
-const FORBIDS =
-  /\b(never|no|not|don't|do not|must not|mustn't|forbid|forbidden|banned|refuse[sd]?|block(?:s|ed)?|den(?:y|ies|ied)|avoid|stop)\b|✗|\bWRONG\b/i;
-
-/**
- * The material of a rule quote: the backticked spans and quoted phrases of the clauses that forbid them
- * ("Never use `sed -i`", "✗ `2>/dev/null`"), never a name or path the rule only mentions. A quote with no
- * span at all is its own material.
- */
+/** Quoted spans are structural source material only; this function assigns no polarity or act. */
 export function materialOf(quote: string): string[] {
-  const spans: string[] = [];
-  const masked = quote.replace(
-    /`([^`]+)`|"([^"]{3,})"/g,
-    (_, code: string | undefined, phrase: string | undefined) => {
-      spans.push(code ?? phrase ?? '');
-      return `\uE000${spans.length - 1}\uE000`;
-    },
-  );
-  if (spans.length === 0) return [quote.trim()];
-  const found: string[] = [];
-  for (const clause of masked.split(/(?<=[.!?])\s+|\n|;|·|(?=✓)/)) {
-    if (!FORBIDS.test(clause.replace(/\uE000\d+\uE000/g, ' '))) continue;
-    for (const match of clause.matchAll(/\uE000(\d+)\uE000/g)) {
-      const span = spans[Number(match[1])] ?? '';
-      if (span.trim() !== '') found.push(span);
-    }
-  }
-  return [...new Set(found)];
+  return [
+    ...new Set(
+      [...quote.matchAll(/`([^`]+)`|"([^"]+)"/g)]
+        .map((match) => match[1] ?? match[2] ?? '')
+        .filter((span) => span.trim() !== ''),
+    ),
+  ];
 }
 
-/** Words and marks that make a clause show the right way to act: its spans are the form the rule asks for. */
-const OBLIGES = /\b(always|must|should|as in|e\.g\.|for example)\b|✓|\bRIGHT\b/i;
-
-/** The shell command of an act on a path, by the verb a rule names it with. */
-const ACT_COMMANDS: Record<string, string> = {
-  delete: 'rm',
-  remove: 'rm',
-  erase: 'rm',
-  move: 'mv',
-  rename: 'mv',
-  copy: 'cp',
-  read: 'cat',
-  open: 'cat',
-  list: 'ls',
-};
-
-/** One clause of a rule quote: whether it forbids or asks for a form, its act verb and its spans. */
-type Clause = { forbids: boolean; obliges: boolean; act?: string; spans: string[] };
-
-/** The clauses of a rule quote, split as `materialOf` splits them, with the spans each holds. */
-export function clausesOf(quote: string): Clause[] {
-  const spans: string[] = [];
-  const masked = quote.replace(
-    /`([^`]+)`|"([^"]{3,})"/g,
-    (_, code: string | undefined, phrase: string | undefined) => {
-      spans.push(code ?? phrase ?? '');
-      return `${spans.length - 1}`;
-    },
-  );
-  return masked.split(/(?<=[.!?])\s+|\n|;|·|(?=✓)/).map((clause) => {
-    const words = clause.replace(/\d+/g, ' ');
-    const act = words
-      .toLowerCase()
-      .split(/[^a-z]+/)
-      .find((word) => ACT_COMMANDS[word] !== undefined);
-    return {
-      forbids: FORBIDS.test(words),
-      obliges: OBLIGES.test(words),
-      ...(act !== undefined ? { act } : {}),
-      spans: [...clause.matchAll(/(\d+)/g)]
-        .map((match) => spans[Number(match[1])] ?? '')
-        .filter((span) => span.trim() !== ''),
-    };
-  });
+/** Clause boundaries and quoted spans carry no inferred prohibition, obligation or act. */
+export function clausesOf(quote: string): Array<{ spans: string[] }> {
+  return quote.split(/(?<=[.!?])\s+|\n|;/).map((clause) => ({ spans: materialOf(clause) }));
 }
 
 /**
@@ -210,20 +153,6 @@ export function brokenForms(example: string): string[] {
   const tokens = example.trim().split(/\s+/);
   if (tokens.length < 2) return [];
   return tokens.slice(1).map((_, index) => tokens.filter((__, at) => at !== index + 1).join(' '));
-}
-
-/**
- * A path a Bash guard watches is no command: the act the rule forbids on it is. `ledger/` in "never delete a
- * file under `ledger/`" gives `rm ledger/`. A span that already reads as a command line, or a clause with no
- * act verb, is sent as it is.
- */
-function bashForm(span: string, act: string | undefined): string {
-  const command = act === undefined ? undefined : ACT_COMMANDS[act];
-  const path = /^[\w.~/-]+$/.test(span) && (span.includes('/') || /\.[A-Za-z0-9]+$/.test(span));
-  if (command === undefined || !path) return span;
-  return command === 'mv' || command === 'cp'
-    ? `${command} ${span} ${span.replace(/\/$/, '')}.bak`
-    : `${command} ${span}`;
 }
 
 /** The tool input a tool takes, carrying one piece of material. */
@@ -451,20 +380,17 @@ function guardRunOf(
     ...(matcher !== undefined ? { matcher } : {}),
     ...(timeout !== undefined ? { timeout } : {}),
   };
-  const tools = TOOL_EVENTS.has(event) ? matcherTools(matcher) : [undefined];
-  // A rule linked by a registry row or an id the guard cites is what the guard checks; a rule linked only
-  // because the guard's source repeats some of its words is a weaker link, used when there is no other.
+  const tools: Array<string | undefined> = TOOL_EVENTS.has(event) ? matcherTools(matcher) : [undefined];
+  // Declared ID relations authorize unit payloads; textual similarity is not evidence.
   const links = Array.isArray(fields.enforces)
     ? (fields.enforces as Array<{ atom?: unknown; by?: unknown }>).flatMap((entry) =>
-        typeof entry.atom === 'string' ? [{ atom: entry.atom, by: entry.by }] : [],
+        typeof entry.atom === 'string' && (entry.by === 'registry' || entry.by === 'id') ? [entry.atom] : [],
       )
     : [];
-  const strong = links.filter((link) => link.by === 'registry' || link.by === 'id');
-  const enforced = (strong.length > 0 ? strong : links).map((link) => link.atom);
-  // A rule the guard cites (registry or id) gives every concrete span of its source lines; a rule linked by
-  // a repeated quote gives only the spans its words forbid. A rule with no span gives its sentence, which
-  // only a text event (a prompt, a reply) can carry: a tool never gets a sentence as its input.
-  const cites = strong.length > 0;
+  const reverse = [...atoms.values()]
+    .filter((rule) => rule.approved && rule.enforcement?.includes(atom.id))
+    .map((rule) => rule.id);
+  const enforced = [...new Set([...links, ...reverse])];
   let replyLimit: number | undefined;
   if (!TOOL_EVENTS.has(event)) {
     for (const ruleId of enforced) {
@@ -481,59 +407,103 @@ function guardRunOf(
     }
   }
   const textEvent = !TOOL_EVENTS.has(event);
-  // Material: what the rule forbids. A cited rule's spans in the clauses that forbid them, each with the act
-  // its clause names; a cited rule that only shows the right form (an obligation) gives that form as allowed
-  // material and the form with each argument left out as forbidden; a cited rule with neither gives every span
-  // of its source lines.
-  type Piece = { text: string; act?: string };
-  const allowed: string[] = [];
+  type Piece = { text: string; tool?: string; input?: Record<string, unknown> };
+  const allowed: Piece[] = [];
+  const missing: string[] = [];
   const pieces = enforced.flatMap((ruleId): Piece[] => {
     const rule = atoms.get(ruleId);
-    const quote = rule?.provenance?.quote ?? '';
-    // A declared numeric output constraint supplies its boundary independently of the hook source.
-    const bound = textEvent
-      ? rule?.evidence.find((entry) => entry.type === 'custom' && entry.name === 'max_characters')
-      : undefined;
-    const max = bound?.type === 'custom' ? bound.options?.max : undefined;
-    if (typeof max === 'number' && Number.isSafeInteger(max) && max >= 0 && max < MAX_BOUNDARY_CHARACTERS) {
-      return [{ text: 'x'.repeat(max + 1) }];
+    const out: Piece[] = [];
+    const declared = Array.isArray(rule?.fields?.unitCases) ? rule.fields.unitCases : [];
+    for (const value of declared) {
+      if (typeof value !== 'object' || value === null) continue;
+      const entry = value as Record<string, unknown>;
+      if (typeof entry.material !== 'string' || entry.material.trim() === '') continue;
+      if (entry.effect !== 'forbid' && entry.effect !== 'allow') continue;
+      if (!textEvent && (typeof entry.tool !== 'string' || !tools.includes(entry.tool))) continue;
+      const piece: Piece = {
+        text: entry.material,
+        ...(typeof entry.tool === 'string' ? { tool: entry.tool } : {}),
+        ...(typeof entry.input === 'object' && entry.input !== null && !Array.isArray(entry.input)
+          ? { input: entry.input as Record<string, unknown> }
+          : {}),
+      };
+      (entry.effect === 'forbid' ? out : allowed).push(piece);
     }
-    if (cites) {
-      const clauses = clausesOf(quote);
-      const forbidden = clauses
-        .filter((clause) => clause.forbids)
-        .flatMap((clause) =>
-          clause.spans.map((text) => ({ text, ...(clause.act !== undefined ? { act: clause.act } : {}) })),
-        );
-      if (forbidden.length > 0) return forbidden;
-      const shown = clauses.filter((clause) => clause.obliges).flatMap((clause) => clause.spans);
-      const broken = shown.flatMap(brokenForms);
-      if (broken.length > 0) {
-        allowed.push(...shown);
-        return broken.map((text) => ({ text }));
+    for (const evidence of rule?.evidence ?? []) {
+      if (textEvent && evidence.type === 'custom' && evidence.name === 'max_characters') {
+        const max = evidence.options?.max;
+        if (typeof max === 'number' && Number.isSafeInteger(max) && max >= 0 && max < MAX_BOUNDARY_CHARACTERS)
+          out.push({ text: 'x'.repeat(max + 1) });
       }
-      const lineSpans = Array.isArray(rule?.fields?.spans)
-        ? (rule.fields.spans as unknown[]).filter((item): item is string => typeof item === 'string')
-        : [];
-      const quoteSpans = [...quote.matchAll(/`([^`]+)`/g)].map((match) => match[1] ?? '');
-      const spans = [...lineSpans, ...quoteSpans];
-      if (spans.length > 0) return spans.map((text) => ({ text }));
-    } else {
-      const spans = materialOf(quote).filter((item) => item !== quote.trim());
-      if (spans.length > 0) return spans.map((text) => ({ text }));
+      if (textEvent && evidence.type === 'text')
+        for (const text of evidence.mustNot ?? []) if (text.trim() !== '') out.push({ text });
+      if (!textEvent && evidence.type === 'custom' && tools.includes('Bash')) {
+        const options = evidence.options ?? {};
+        if (evidence.name === 'command_not_run' || evidence.name === 'command_absent') {
+          const command =
+            typeof options.contains === 'string'
+              ? options.contains
+              : typeof options.command === 'string'
+                ? options.command
+                : undefined;
+          if (command?.trim()) out.push({ text: command, tool: 'Bash', input: toolInput('Bash', command) });
+        }
+        if (
+          evidence.name === 'no_delete_under' &&
+          typeof options.path === 'string' &&
+          options.path.trim() !== ''
+        ) {
+          // A typed delete predicate selects a write-only shell template; no source verb is interpreted.
+          const command = `rm ${JSON.stringify(options.path)}`;
+          out.push({ text: command, tool: 'Bash', input: toolInput('Bash', command) });
+        }
+      }
+      if (
+        !textEvent &&
+        evidence.type === 'tool_called' &&
+        evidence.label === 'Bash' &&
+        tools.includes('Bash') &&
+        Object.keys(evidence.input ?? {}).length === 1 &&
+        evidence.input?.command !== undefined
+      ) {
+        const spans = Array.isArray(rule?.fields?.spans) ? rule.fields.spans : [];
+        for (const span of spans) {
+          if (typeof span !== 'string') continue;
+          try {
+            if (!matchAssertion(span, evidence.input.command as Assertion)) continue;
+            allowed.push({ text: span, tool: 'Bash', input: toolInput('Bash', span) });
+            for (const command of brokenForms(span)) {
+              if (!matchAssertion(command, evidence.input.command as Assertion))
+                out.push({ text: command, tool: 'Bash', input: toolInput('Bash', command) });
+            }
+          } catch {
+            // Invalid declared assertions supply no payload; the row retains its fixture gap.
+          }
+        }
+      }
+      if (!textEvent && evidence.type === 'tool_not_called' && tools.includes(evidence.label)) {
+        const input = concreteInput(evidence.input);
+        if (input !== undefined) out.push({ text: JSON.stringify(input), tool: evidence.label, input });
+      }
     }
-    return textEvent && quote.trim() !== '' ? materialOf(quote).map((text) => ({ text })) : [];
+    if (out.length === 0) missing.push(ruleId);
+    return out;
   });
-  const formOf = (tool: string | undefined, piece: Piece) =>
-    tool === 'Bash' ? bashForm(piece.text, piece.act) : piece.text;
+  if (enforced.length === 0 || missing.length > 0)
+    return `${atom.id} requires structured unit payload evidence for ${missing.join(', ') || 'its enforced rules'}`;
   const cases: GuardCase[] = [];
   const seen = new Set<string>();
-  const add = (tool: string | undefined, text: string, allowEmpty = false) => {
+  const add = (
+    tool: string | undefined,
+    text: string,
+    allowEmpty = false,
+    input?: Record<string, unknown>,
+  ) => {
     if ((!allowEmpty && text.trim() === '') || seen.has(`${tool}\u0000${text}`)) return;
     seen.add(`${tool}\u0000${text}`);
     cases.push({
       id: `case-${String(cases.length + 1).padStart(2, '0')}`,
-      payload: payloadOf(event, tool, text),
+      payload: { ...payloadOf(event, tool, text), ...(input === undefined ? {} : { tool_input: input }) },
       material: text,
     });
   };
@@ -545,25 +515,59 @@ function guardRunOf(
         replyLimit === 0,
       );
       // The right form an obligation shows is let through as well.
-      for (const text of allowed) add(tool, text);
+      for (const piece of allowed)
+        if (piece.tool === undefined || piece.tool === tool) add(tool, piece.text, false, piece.input);
     }
   } else {
-    if (pieces.length === 0) return `${atom.id} enforces no rule whose quote gives material for a payload`;
+    if (pieces.length === 0) return `${atom.id} has no structured forbidden payload evidence`;
     for (const tool of tools) {
       for (const piece of pieces) {
-        const text = formOf(tool, piece);
+        if (piece.tool !== undefined && piece.tool !== tool) continue;
+        const text = piece.text;
         if (testType === 'guard_hostile') {
-          if (withPlain) add(tool, text);
-          for (const form of hostileForms(text)) add(tool, form);
-        } else add(tool, text);
+          if (withPlain) add(tool, text, false, piece.input);
+          if (piece.input === undefined) {
+            for (const form of hostileForms(text)) add(tool, form);
+          } else {
+            for (const [key, value] of Object.entries(piece.input)) {
+              if (typeof value !== 'string') continue;
+              for (const form of hostileForms(value))
+                add(tool, JSON.stringify({ ...piece.input, [key]: form }), false, {
+                  ...piece.input,
+                  [key]: form,
+                });
+            }
+          }
+        } else add(tool, text, false, piece.input);
       }
     }
   }
+  if (cases.length === 0) return `${atom.id} has no executable structured unit payloads`;
   return {
     target,
     cases: testType === 'guard_speed' ? spreadOf(cases, SPEED_CASES) : cases,
     ...(testType === 'guard_speed' ? { budgetMs: Math.round((timeout ?? 60) * 1000) } : {}),
   };
+}
+
+/** Instantiate exact or contained input assertions; unsupported predicates remain a fixture gap. */
+function concreteInput(input: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
+  if (input === undefined || Object.keys(input).length === 0) return undefined;
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      result[key] = value;
+      continue;
+    }
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return undefined;
+    const assertion = Object.entries(value);
+    if (assertion.length !== 1) return undefined;
+    const [operator, operand] = assertion[0] as [string, unknown];
+    if (operator === 'equals') result[key] = operand;
+    else if (operator === 'contains' && typeof operand === 'string') result[key] = operand;
+    else return undefined;
+  }
+  return result;
 }
 
 /** Reasons a catalogue check gets no unit test; the report counts them as gaps. */

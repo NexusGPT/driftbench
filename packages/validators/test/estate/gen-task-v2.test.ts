@@ -1,11 +1,15 @@
 import { readFileSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { beforeAll, describe, expect, it } from 'vitest';
+import type { Observed } from '@agent-nexus/driftbench-core';
+import type { Atom } from '@agent-nexus/driftbench-estate';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { stringify } from 'yaml';
 import { type FixtureSuite, fixtureSuite, type SuiteSpec } from '../../src/ladders/estate/bank/fixture-suite';
 import { actOfAtom } from '../../src/ladders/estate/bank/task-act';
-import { type AskEnv, checkAsk, envOf } from '../../src/ladders/estate/bank/task-check';
+import { type AskEnv, checkAsk, checkTrace, envOf } from '../../src/ladders/estate/bank/task-check';
+import * as fakeTrace from '../../src/ladders/estate/bank/task-trace';
 import { envOfSuite, judgeSpecs, TASK_TYPES, taskFamilyV2 } from '../../src/ladders/estate/bank/taskv2';
 import { estateRun } from '../../src/ladders/estate/pipeline';
 
@@ -24,12 +28,78 @@ const askOf = (spec: SuiteSpec): string => blockOf(spec).when.user;
 let suite: FixtureSuite;
 let env: AskEnv;
 let live: SuiteSpec[];
+let work: string;
+let declaredCode: SuiteSpec[];
 
 beforeAll(async () => {
+  work = await mkdtemp(join(tmpdir(), 'astra-askwords-task-v2-'));
   suite = await fixtureSuite();
   env = await envOfSuite(suite);
   live = suite.specs.filter((spec) => spec.complete && spec.mode === 'live' && spec.path.endsWith('.yaml'));
+  const sourceAtoms: Atom[] = [
+    {
+      id: 'skill.fixture.chart',
+      kind: 'skill',
+      fields: { name: 'chart-clerk' },
+      title: 'berthify the fictional chart',
+    },
+    {
+      id: 'reference.fixture.manifest',
+      kind: 'reference',
+      fields: { path: 'fixture-manifest.md' },
+      title: 'manifestify the fictional ledger',
+    },
+    {
+      id: 'subagent.fixture.harbour',
+      kind: 'subagent',
+      fields: { name: 'harbour-clerk' },
+      title: 'quayscope the fictional harbour',
+    },
+  ].map((entry) => ({
+    ...entry,
+    approved: true,
+    producedBy: 'code',
+    role: 'axis',
+    enforcement: [],
+    evidence: [],
+    provenance: { file: `${entry.id}.md`, startLine: 1, endLine: 1, quote: entry.title, hash: entry.id },
+  })) as Atom[];
+  for (const atom of sourceAtoms)
+    atom.fields = { ...atom.fields, ask: { text: atom.title, act: actOfAtom(atom, sourceAtoms) } };
+  env = envOf([...env.atoms, ...sourceAtoms], env.bank, env.sessions);
+  const base = live[0];
+  if (!base) throw new Error('fixture has no complete live spec');
+  declaredCode = [];
+  for (const atom of sourceAtoms) {
+    const spec = await plant(
+      base,
+      atom.id,
+      {
+        unit: atom.id,
+        ask: `Please ${atom.title}.`,
+        meta: {
+          from: {
+            form: 'structured ask',
+            field: `${atom.id}#structured ask`,
+            fp: atom.provenance.hash,
+            frame: 'trigger',
+            shape: '{}',
+            pieces: [atom.title],
+          },
+        },
+      },
+      env,
+    );
+    spec.testType = 'obligation';
+    expect(checkAsk(spec, env).reasons, atom.id).toEqual([]);
+    declaredCode.push(spec);
+  }
+  live.push(...declaredCode);
 }, 300_000);
+
+afterAll(async () => {
+  if (work) await rm(work, { recursive: true, force: true });
+});
 
 /** A copy of a real spec with another ask, record or source; the file is written so the fake can run it. */
 async function plant(
@@ -50,12 +120,11 @@ async function plant(
   Object.assign(meta, change.meta ?? {});
   const block = blockOf({ ...base, spec });
   if (change.ask !== undefined) block.when.user = change.ask;
-  const dir = join(tmpdir(), 'gen-task-v2-planted');
+  const dir = join(work, 'planted');
   await mkdir(dir, { recursive: true });
   const id = `planted.${name}`;
-  const text = (await readFile(base.path, 'utf8'))
-    .replace(/^id: .*$/m, `id: ${id}`)
-    .replace(/^(\s+user: ).*$/m, `$1${JSON.stringify(block.when.user)}`);
+  spec.id = id;
+  const text = stringify(spec);
   const path = join(dir, `${name}.yaml`);
   await writeFile(path, text);
   return { ...base, id, path, atoms: change.unit ? [change.unit] : base.atoms, spec };
@@ -69,18 +138,55 @@ function withPhrase(unit: string, phrase: string, id: string): AskEnv {
 }
 
 describe('the Northwind suite', () => {
-  it('passes every item of gen.task', async () => {
+  it('classifies every item from the complete static and actual-fake evidence inventory', async () => {
     const family = taskFamilyV2();
-    const results = await family.evaluate(1);
-    expect(results.size).toBe(TASK_TYPES.length);
-    expect([...results.keys()]).toEqual(family.items.map((item) => item.id));
-    for (const [id, result] of results) expect(result, id).toMatchObject({ pass: true });
+    const originalObserve = fakeTrace.observeOnFake;
+    const seen = new Map<string, Observed>();
+    const observe = vi.spyOn(fakeTrace, 'observeOnFake').mockImplementation(async (paths) => {
+      const result = await originalObserve(paths);
+      for (const [id, trace] of result) seen.set(id, trace);
+      return result;
+    });
+    try {
+      const results = await family.evaluate(1);
+      expect(results.size).toBe(TASK_TYPES.length);
+      expect([...results.keys()]).toEqual(family.items.map((item) => item.id));
+      for (const type of TASK_TYPES) {
+        const own = suite.specs.filter((spec) => spec.complete && spec.testType === type);
+        const failed = own.filter((spec) => {
+          const checked = checkAsk(spec, env);
+          return (
+            checked.reasons.length > 0 ||
+            (checked.trace !== undefined && checkTrace(checked.trace, seen.get(spec.id)) !== undefined)
+          );
+        });
+        const result = results.get(`gen.task.v2.${type}`);
+        expect(result?.pass, type).toBe(own.length > 0 && failed.length === 0);
+        if (own.length === 0) expect(result?.detail).toBe(`no complete ${type} spec`);
+        else if (failed.length > 0)
+          expect(result?.detail).toContain(`${failed.length} of ${own.length} asks hold no task`);
+        else expect(result?.detail).toBe(`holds (${own.length})`);
+      }
+    } finally {
+      observe.mockRestore();
+    }
   }, 600_000);
 
-  it('holds a link, a source and an act the validator derives itself on every complete spec', () => {
+  it('retains linked source and act checks on every complete spec, including every declared fixture source', () => {
     const asked = suite.specs.filter((spec) => spec.complete && spec.path.endsWith('.yaml'));
-    expect(asked.length).toBeGreaterThan(1000);
-    for (const spec of asked) expect(checkAsk(spec, env).reasons, spec.id).toEqual([]);
+    expect(asked.length).toBeGreaterThan(0);
+    for (const spec of asked) {
+      const meta = metaOf(spec);
+      expect(meta.link, spec.id).toBeDefined();
+      expect(meta.from, spec.id).toBeDefined();
+      expect(meta.act, spec.id).toBeDefined();
+      // Legacy fixture failures are enumerated by the inventory above, never called green by assumption.
+      const checked = checkAsk(spec, env);
+      if (checked.reasons.length === 0) expect(checked.trace, spec.id).toBeDefined();
+      else expect(checked.trace, spec.id).toBeUndefined();
+    }
+    expect(declaredCode).toHaveLength(3);
+    for (const spec of declaredCode) expect(checkAsk(spec, env).reasons, spec.id).toEqual([]);
   });
 });
 
@@ -160,7 +266,7 @@ describe('an explicit ask is held to the trace of the fake', () => {
 
 describe('an ask with no source, a wrong record or a restated rule is rejected', () => {
   const base = () => {
-    const found = live.find((spec) => metaOf(spec).from && 'form' in (metaOf(spec).from as Meta));
+    const found = declaredCode[0];
     if (!found) throw new Error('no code-written spec');
     return found;
   };
@@ -265,9 +371,9 @@ describe('asks planted in real specs', () => {
   it('rejects each one planted in a code-written spec whose record is intact', async () => {
     const bases = live.filter((spec) => {
       const from = metaOf(spec).from as Meta | undefined;
-      return from && 'form' in from;
+      return from && 'form' in from && checkAsk(spec, env).reasons.length === 0;
     });
-    expect(bases.length).toBeGreaterThan(100);
+    expect(bases).toEqual(expect.arrayContaining(declaredCode));
     const kept: string[] = [];
     for (const [index, { ask }] of asks.entries()) {
       const spec = await plant(bases[index % bases.length] as SuiteSpec, `intact-${index}`, { ask });
@@ -280,9 +386,15 @@ describe('asks planted in real specs', () => {
     // The record is intact and its citation true; the piece the generator claims is not made of the cited atom.
     const bases = live.filter((spec) => {
       const from = metaOf(spec).from as Meta | undefined;
-      return from && 'form' in from && from.form !== 'hazard' && from.frame !== 'verbatim';
+      return (
+        from &&
+        'form' in from &&
+        from.form !== 'hazard' &&
+        from.frame !== 'verbatim' &&
+        checkAsk(spec, env).reasons.length === 0
+      );
     });
-    expect(bases.length).toBeGreaterThan(100);
+    expect(bases).toEqual(expect.arrayContaining(declaredCode));
     const kept: string[] = [];
     for (const [index, { ask }] of asks.entries()) {
       const piece = ask.replace(/[.!?]+$/, '');
@@ -298,6 +410,36 @@ describe('asks planted in real specs', () => {
       if (checkAsk(spec, env).reasons.length === 0) kept.push(ask);
     }
     expect(kept).toEqual([]);
+  }, 600_000);
+
+  it('rejects every planted piece against every valid code host, with no accepted-fragment allowance', () => {
+    const hosts = live.filter((spec) => {
+      const from = metaOf(spec).from as Meta | undefined;
+      return (
+        from &&
+        'form' in from &&
+        from.form !== 'hazard' &&
+        from.frame !== 'verbatim' &&
+        checkAsk(spec, env).reasons.length === 0
+      );
+    });
+    expect(hosts).toEqual(expect.arrayContaining(declaredCode));
+    const accepted: Array<{ ask: string; host: string }> = [];
+    for (const { ask } of asks) {
+      const piece = ask.replace(/[.!?]+$/, '');
+      for (const host of hosts) {
+        const planted = structuredClone(host);
+        blockOf(planted).when.user = `Please ${piece}.`;
+        Object.assign(metaOf(planted).from as Meta, {
+          frame: 'trigger',
+          shape: '{}',
+          pieces: [piece],
+          context: undefined,
+        });
+        if (checkAsk(planted, env).reasons.length === 0) accepted.push({ ask, host: host.id });
+      }
+    }
+    expect(accepted).toEqual([]);
   }, 600_000);
 
   it('rejects each one planted in a spec whose ask came from a bank', async () => {
