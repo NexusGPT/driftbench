@@ -307,6 +307,20 @@ The merge commit of `origin/feat/block-phase-6-links` names PRs 423, 429, 433 an
 * `check` also exits 2 when the registry file or the prompt file cannot be read.
 * The references are the `references`, `overrides` and `duplicates` lists of a section.
 
+### Headings and ids
+
+Not built on `origin/main` yet: the shipped `init` departs from these rules (the blocks validator, family `hostile`, measures each one).
+
+* A heading is a CommonMark heading.
+* An ATX heading is a line of 1 to 6 `#`, indented by at most three spaces. Four spaces make it code.
+* The closing `#` sequence of an ATX heading is not part of its title.
+* A setext heading is a line of text over a line of `=` (level 1) or `-` (level 2).
+* A line inside a fenced code block is code. It never starts a section.
+* Every section id is unique. A repeat suffix such as `_2` never takes the slug of another heading: the next free suffix is used.
+* `init` finds a unique anchor quote in time linear in the section. A body that repeats one line costs no more than other text of its length.
+
+Source: `docs/concepts/blast-radius.md`, "Prompt sections and block links" (one section per heading, slug ids with repeat suffixes); the CommonMark specification, sections 4.2 (ATX headings), 4.3 (setext headings) and 4.5 (fenced code blocks).
+
 ### Reanchor
 
 * `radius sections reanchor <registry> --prompt <old> <new> --to-version <version>` finds every section again in the new prompt.
