@@ -1,0 +1,28 @@
+@fm description | description | How loaves, rolls and cakes are placed on the front shelves of Crumbwick Bakery.
+# Shelf display
+s description | The front shelves have five levels and each level has a colour tag.
+s description | Customers read the shelves from the top down, so the best sellers go at eye height.
+## Levels
+t none | Level | none | Tag colour | none | Goes here
+t description | One | description | Red | description | Rye loaves and heavy loaves
+t description | Two | description | Blue | description | Pinnock loaves
+t description | Three | description | Green | description | Rolls and buns
+t description | Four | description | Yellow | description | Cream cakes
+## Rules of the shelf
+s rule{shelf_oldfirst} | Put the oldest loaves at the front of each level.
+s gate | Wipe each level with a damp cloth before you refill it.
+s prohibition{shelf_cream} | Never place cream cakes on level one, because the rye loaves press into them.
+s prohibition | Do not cover the price tags with paper sacks.
+s gate{shelf_label} | Check the price tag before you put any new kind of loaf on a level.
+s example | For example, a new walnut loaf needs a fresh tag in the pinnock colour before it goes on level two.
+## Gaps
+l rule{shelf_gap} | Fill any gap on levels one to three within ten minutes
+l rule | Move a loaf forward when the one behind it sells
+l prohibition | Do not leave a half empty level at the lunch rush
+l description | The lunch rush runs from noon to half past one
+## Sales signs
+s rule | Place the chalk board by the door each morning and write the loaf of the day.
+s gate | Wipe the old chalk board clean before you write on it.
+s description | The loaf of the day is chosen by the head baker.
+s example | Case: on a rainy Tuesday the loaf of the day was a large oat loaf and it sold out by ten.
+s rule | Smile at the first customer.

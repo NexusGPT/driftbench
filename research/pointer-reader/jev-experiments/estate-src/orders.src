@@ -1,0 +1,27 @@
+@fm description | description | How phone orders and party orders are taken and recorded at Crumbwick Bakery.
+# Taking orders
+s description | Orders come in by phone, by the paper form or at the counter.
+s description | Every order goes into the order book with a number.
+## Phone orders
+s gate{ord_name} | Ask the caller for a name and a phone number before you take any details.
+s rule | Repeat the order back to the caller in full.
+s gate{ord_deposit} | Take a deposit before you write a party order in the book.
+s prohibition{ord_nocake} | Never promise a decorated cake with less than two days of notice.
+s description | A party order is any order of more than twenty loaves or rolls.
+s example | For example, forty rolls for a school visit counts as a party order.
+## The order book
+l rule | Write the pickup date at the top of the page
+l rule{ord_number} | Give each order the next number in the book
+l prohibition | Do not use pencil in the order book
+l description | The order book is kept on the shelf under the till
+## Changes
+s rule | Cross out a cancelled order with one straight line and write the reason beside it.
+s prohibition | Do not tear a page out of the order book.
+s gate | Phone the customer before you change the size of a party order.
+s example | Case: a party order of thirty loaves was cut to twenty without a call, and the customer arrived to a short count.
+## Pickup
+s gate{ord_pickup} | Check the order number against the sack before you hand it over.
+s rule | Ask the customer to sign the book for any party order.
+s description | Unclaimed orders are kept until the next morning and then go to the food bank.
+s description | The pickup shelf is the narrow shelf beside the street door.
+s rule | Be kind to customers who are in a hurry.

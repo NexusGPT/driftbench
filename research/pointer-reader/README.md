@@ -8,3 +8,5 @@ Throwaway code for the offline experiments of `docs/estate-pointer-reader.md` (c
 - `exp5.ts` sentence cutting, `exp6.ts` cut digest per Node build, `exp9.ts` ladder, `exp10.ts` fingerprint, `exp12.ts` cassette, label-set edit and prompt genericity (experiments 12, 14, 15), `cost.ts` fixture size.
 
 The results are in section 10a of the design doc.
+
+- `jev-experiments/`: Jev id and batching experiments on a planted estate (scripts, estate, recorded cassette, `RESULTS.md`).

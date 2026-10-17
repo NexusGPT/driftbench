@@ -1,0 +1,1 @@
+{"runId":"capshort-q1350-r1","arm":"cap","variant":"1350 questions in one call, short names","cfg":{"perCall":270,"questions":1350,"shortNames":true},"calls":[{"i":0,"first":1,"last":270,"units":270,"nq":1350,"ms":485,"ok":false,"status":400,"error":"{\"detail\":{\"error_type\":\"max_tokens_exceeded\"}}","tokIn":0,"tokOut":0}],"probs":{},"asked":1350,"missing":1350,"wallMs":1095}

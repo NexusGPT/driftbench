@@ -1,0 +1,1 @@
+{"runId":"cap-q2500-r1","arm":"cap","variant":"2500 questions in one call","cfg":{"perCall":500,"questions":2500},"calls":[{"i":0,"first":1,"last":500,"units":500,"nq":2500,"ms":368,"ok":false,"status":400,"error":"{\"detail\":{\"error_type\":\"max_tokens_exceeded\"}}","tokIn":0,"tokOut":0}],"probs":{},"asked":2500,"missing":2500,"wallMs":1033}

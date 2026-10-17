@@ -1,0 +1,28 @@
+@fm description | description | How the crew of Crumbwick Bakery opens the shop before the first customer arrives.
+# Opening the shop
+s description | The opening crew arrives at half past five and works until the doors open at seven.
+s description | Every morning follows the same order, and the order matters more than the speed.
+## Lamps and doors
+s gate{open_lamps} | Switch on the front lamps before you unlock the street door.
+s rule{open_key} | Unlock the street door with the brass key that hangs in the sconce room.
+s prohibition{open_back} | Never prop the back door open with a crate while the ovens are warm.
+s description | The sconce room is the small cupboard behind the till, and it holds every key.
+s gate | Check that the alarm panel shows a green light, then write the time in the opening book.
+s example | For example, if the panel shows an amber light, the night crew left a window open.
+## Ovens
+s gate{open_ovens} | Light the big oven first and the small oven ten minutes later.
+s gate{open_preheat} | Wait until the big oven reads two hundred and twenty degrees before the first tray goes in.
+s description | The big oven holds twelve trays and the small oven holds four.
+s prohibition | Do not load a cold tray into a hot oven, because the glaze will crack.
+s example | Case: a tray of pinnocks went in cold on a Monday and came out with split tops.
+## The dough loft
+l rule{open_loft} | Carry the proved dough down from the dough loft in the wheeled bin
+l gate | Weigh each pinnock on the brass scale before it is shaped
+l prohibition | Do not stack more than three bins on the lift
+l description | The loft is warmest near the east window
+## Final checks
+s gate | Count the float in the till before you open the street door.
+s rule | Fill the front shelves from left to right, oldest loaves first.
+s description | Customers usually form a line by ten past seven.
+s none | Thank you for opening well.
+s none | Good luck today.

@@ -1,0 +1,26 @@
+@fm description | description | The allergen rules for every product sold at Crumbwick Bakery.
+# Allergens
+s description | Nuts, milk, egg, sesame and gluten are the five allergens that appear in our products.
+s description | Gluten appears in every loaf, so the gluten line is printed on every label.
+## Labels
+s gate{all_label} | Print the allergen label for every new product before it goes on a shelf.
+s gate{all_check} | Read the recipe card to the head baker before you print a new label.
+s prohibition{all_guess} | Never guess an allergen from the name of a product.
+s example | For example, a poppy roll can still carry sesame if it shares a tray with sesame buns.
+s rule | Put the label on the front of the sack, not on the back.
+## Answering customers
+l rule{all_answer} | Say plainly which allergens a product contains
+l rule | Offer the allergen folder if the customer asks for more detail
+l prohibition{all_free} | Do not say that anything is free of nuts
+l description | The allergen folder sits on the counter by the till
+## Cross contact
+s description | The walnut loaf is baked on its own tray in the small oven.
+s rule | Wash the walnut tray in its own sink with its own cloth.
+s prohibition | Do not bake a walnut loaf and a sesame bun in the same oven load.
+s gate{all_walnut} | Wipe the small oven deck clean before the walnut loaf goes in.
+s example | Case: a nut free customer reacted to a bun that was baked after the walnut loaf on a dirty deck.
+## Emergencies
+s gate{all_ambulance} | Call the emergency number first if a customer reacts to food.
+s gate | Tell the shop manager after the call.
+s description | The emergency number is written on the wall beside the sconce room door.
+s rule | Stay calm and speak clearly.

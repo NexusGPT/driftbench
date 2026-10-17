@@ -1,0 +1,27 @@
+@fm description | description | How the two tills at Crumbwick Bakery are opened, used and counted.
+# Tills
+s description | There are two tills, one at the street door and one at the pickup shelf.
+s description | Each till has its own drawer key, and the keys live in the sconce room.
+## Opening a till
+s gate{till_float} | Count the float in the drawer before you log in.
+s rule | Log in with your own crew number.
+s prohibition{till_share} | Never share a crew number with another person.
+s example | For example, a shared number made it impossible to find who had given a wrong change on a Saturday.
+s description | The float is eighty pounds in coins and notes.
+## Taking payment
+l gate | Say the total aloud before the customer pays
+l rule{till_receipt} | Offer a receipt with every sale
+l prohibition | Do not open the drawer without a sale
+l prohibition{till_card} | Do not write a card number on paper
+l description | The card reader sits on the left of each till
+## Mistakes
+s rule{till_void} | Call the shop manager to void a sale, and wait for the manager to key the void.
+s gate | Keep the receipt of the wrong sale before the manager voids it.
+s prohibition{till_ownvoid} | Never void your own sale.
+s example | Case: a crew member voided a sale of two loaves and kept the cash, and the count was short by that amount.
+s description | The shop manager holds the void key on a red cord.
+## Counting
+s rule | Count the drawer twice at closing and write both counts in the book.
+s gate | Ask a second person to count it if the two counts differ.
+s description | A difference of more than two pounds is reported to the shop manager.
+s rule | Take your time with the count.

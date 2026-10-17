@@ -1,0 +1,1 @@
+{"runId":"capshort-q2000-r1","arm":"cap","variant":"2000 questions in one call, short names","cfg":{"perCall":400,"questions":2000,"shortNames":true},"calls":[{"i":0,"first":1,"last":400,"units":400,"nq":2000,"ms":819,"ok":false,"status":400,"error":"{\"detail\":{\"error_type\":\"max_tokens_exceeded\"}}","tokIn":0,"tokOut":0}],"probs":{},"asked":2000,"missing":2000,"wallMs":1308}

@@ -1,0 +1,28 @@
+@fm description | description | How to run, clean and report faults on the two ovens at Crumbwick Bakery.
+# Ovens
+s description | The big oven is a deck oven with three decks, and the small oven is a single deck.
+s description | Both ovens run on gas, and the gas tap sits behind the flour store.
+## Lighting
+s gate | Open the gas tap before you press the spark button.
+s prohibition{oven_nospark} | Never press the spark button more than three times in a row.
+s rule | If the flame does not catch after three tries, close the tap and wait five minutes.
+s example | Example: on a windy morning the pilot flame often blows out twice before it holds.
+s rule{oven_fault_call} | Call the gas engineer if the flame turns yellow instead of blue.
+## Daily care
+l gate{oven_brush} | Brush the oven floor with the long brass brush after the last tray
+l rule | Wipe the oven door glass with the dry grey cloth
+l prohibition{oven_water} | Do not spray water on a hot deck
+l prohibition | Do not use the steel scraper on the door glass
+l description | The grey cloth hangs on the hook beside the big oven
+## Weekly care
+s rule | Soak the racks in the sink with warm water and the green soap every Sunday.
+s gate | Let the ovens cool completely before you soak the racks.
+s description | A full soak takes about an hour and needs two people.
+s example | Case: one crew soaked a hot rack and the steel warped so badly that it had to be replaced.
+## Faults
+t none | Sign | none | What it means | none | What to do
+t description | Yellow flame | description | The gas mix is wrong | rule | Close the tap and call the engineer
+t description | Clicking with no flame | description | The spark button is damp | rule | Dry the button with the grey cloth
+t description | Smell of gas | description | A leak somewhere in the line | rule | Open the doors and leave the shop
+s prohibition{oven_leak} | Never switch on a lamp or the till if you smell gas.
+s rule | Ask the opening crew if a fault looks new.

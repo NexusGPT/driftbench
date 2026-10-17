@@ -1,0 +1,26 @@
+@fm description | description | The seasonal baking plan and special loaves of Crumbwick Bakery.
+# Seasonal baking
+s description | Crumbwick bakes four seasonal loaves each year: spring dill, summer fig, autumn oat and winter spice.
+s description | Seasonal loaves go on level two beside the pinnock loaves.
+## Winter spice loaf
+s rule{sea_spice} | Bake the winter spice loaf in the big oven only.
+s gate | Do not add the spice mix until the dough has risen once.
+s gate{sea_rise} | Let the dough rise once before you add the spice mix.
+s example | For example, a spice mix added at the start made the dough sticky and the crumb grey.
+s description | The spice mix has cinnamon, clove and a pinch of orrel seed.
+## Summer fig loaf
+l rule | Soak the figs in warm water for ten minutes
+l rule | Dry the figs on a clean cloth
+l prohibition{sea_figs} | Do not add wet figs to the dough
+l description | Figs come in a box of sixty and arrive on Thursday
+l example | A fig loaf with wet figs split along the top in the oven
+## Orders for the season
+s rule | Take Christmas orders from the first of November.
+s gate{sea_plan} | Check the oven plan for the week before you accept a big Christmas order.
+s prohibition{sea_nolate} | Never accept a Christmas order after the twentieth of December.
+s description | The oven plan hangs on the wall of the dough loft.
+s example | Case: a late order for sixty winter spice loaves took the whole oven for a night and the daily bread came late.
+## Decorations
+s rule | Hang the paper stars in the window on the first of December.
+s prohibition | Do not tape anything to the glass of the oven door.
+s none | The shop looks lovely in the snow.

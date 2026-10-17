@@ -1,0 +1,30 @@
+@fm description | description | The cleaning schedule for the shop, the loft and the back rooms of Crumbwick Bakery.
+# Cleaning
+s description | The shop is cleaned every day and the loft and back rooms are cleaned every week.
+s description | The cleaning cupboard is the tall green cupboard in the back corridor.
+## Daily
+l rule{cln_floor} | Sweep the shop floor from the walls toward the door
+l rule | Mop the floor with the blue bucket
+l rule | Empty the crumb tray under each shelf
+l prohibition{cln_blue} | Do not use the blue bucket in the loft
+l description | The blue bucket is marked with a blue strip of tape
+## Surfaces
+s rule | Wipe the counter and the till with the yellow cloth.
+s gate{cln_wipe} | Wipe the counter before you wipe the till.
+s prohibition | Never use the yellow cloth on the floor.
+s example | For example, a yellow cloth used on the floor was found on the counter the next morning, grey with grit.
+## Weekly
+t none | Day | none | Area | none | Who
+t description | Monday | description | The loft | description | Opening crew
+t description | Wednesday | description | The cold room | description | Closing crew
+t description | Friday | description | The back corridor | description | Head baker
+s gate{cln_cold} | Clear the cold room shelves completely before you wash them on Wednesday.
+s prohibition | Do not wash the cold room shelves with hot water.
+s gate | Unplug the cold room fan before you wipe its cover.
+## Waste
+s rule | Tie the waste bags with a double knot.
+s rule{cln_bins} | Put the bags in the grey bins by the back door.
+s prohibition{cln_glass} | Never put broken glass in a waste bag.
+s description | Broken glass goes in the red tin beside the cleaning cupboard.
+s example | Case: a bag with broken glass cut the hand of a collector last year.
+s none | Cleaning is everyone's job.

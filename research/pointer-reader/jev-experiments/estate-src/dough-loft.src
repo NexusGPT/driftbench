@@ -1,0 +1,27 @@
+@fm description | description | The dough loft routine at Crumbwick Bakery, covering mixing, proving and shaping pinnocks.
+# The dough loft
+s description | A pinnock is the small round dough ball that every loaf at Crumbwick starts from.
+s description | The loft has a proving drawer, a mixing trough and a brass scale.
+## Mixing
+s rule | Mix the tarn flour with cold water and let it rest for twenty minutes.
+s gate{loft_salt} | Add the salt only after the flour has rested.
+s prohibition{loft_hotwater} | Never use hot water in the trough, because it kills the starter.
+s example | For example, a trough mixed with hot water on a summer day produced flat loaves for a whole week.
+s description | The starter is called Wobbin and it lives in the green crock on the top shelf.
+s rule{loft_feed} | Feed Wobbin with a spoon of flour and a spoon of water every evening.
+## Proving
+l rule | Place the shaped pinnocks on the linen in the proving drawer
+l gate{loft_drawer} | Close the proving drawer before you start the heater
+l prohibition | Do not open the proving drawer more than once an hour
+l description | The proving drawer holds a steady warmth of twenty six degrees
+l example | A pinnock that has doubled in size after ninety minutes is ready for the oven
+## Shaping
+s rule | Shape each pinnock with two hands and a light dusting of flour.
+s prohibition | Do not press the dough flat, because the crumb will turn dense.
+s gate{loft_scale} | Weigh each pinnock again after shaping and put any that are light back on the scale.
+s description | A standard pinnock weighs four hundred and fifty grams.
+s example | Case: a light pinnock of four hundred grams baked into a loaf that the shop could not sell as standard.
+## Cleaning the loft
+s rule | Scrape the trough with the plastic scraper and rinse it with cold water.
+s prohibition | Do not wash the linen with soap, because the smell passes into the crumb.
+s rule | Ask Marek if the starter smells odd.

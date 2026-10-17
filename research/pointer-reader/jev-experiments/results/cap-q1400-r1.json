@@ -1,0 +1,1 @@
+{"runId":"cap-q1400-r1","arm":"cap","variant":"1400 questions in one call","cfg":{"perCall":280,"questions":1400},"calls":[{"i":0,"first":1,"last":280,"units":280,"nq":1400,"ms":428,"ok":false,"status":400,"error":"{\"detail\":{\"error_type\":\"max_tokens_exceeded\"}}","tokIn":0,"tokOut":0}],"probs":{},"asked":1400,"missing":1400,"wallMs":849}

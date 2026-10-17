@@ -1,0 +1,27 @@
+@fm description | description | The closing routine of Crumbwick Bakery, from the last sale to the locked door.
+# Closing the shop
+s description | Closing takes about forty minutes and starts when the last customer has left.
+s rule | Turn the street door sign to closed as soon as the last customer leaves.
+## The ovens and lamps
+s gate{close_ovens} | Switch off both ovens before you switch off the lamps.
+s prohibition{close_overnight} | Never leave an oven on overnight, even at the lowest setting.
+s rule | Pull the oven racks out and stand them upright on the cooling plinth.
+s description | The cooling plinth is the long steel bench under the east window.
+s gate{close_lamps} | Switch off the front lamps only after the oven check is written in the closing book.
+s example | For instance, a warm oven at closing means the check goes in the book with a note.
+## The shelves
+l rule{close_unsold} | Move unsold loaves into the paper sacks on the left shelf
+l rule | Label each sack with the day and the kind of loaf
+l prohibition{close_sacks} | Do not put cream cakes in the sacks, because they spoil by morning
+l description | Unsold sacks go to the food bank on Tuesday and Friday
+l example | A sack of six rye loaves marked Thursday goes out on Friday
+## The tills
+s gate{close_till_count} | Count the till drawer twice before you lock it in the sconce room.
+s rule | Write the total in the closing book and sign it.
+s prohibition | Do not carry the cash bag out of the shop at night.
+s description | The closing book lives on the hook beside the sconce room door.
+## The door
+s gate{close_key} | Return every key to the sconce room before you lock the street door.
+s rule | Lock the street door with two turns of the brass key.
+s description | The alarm panel gives you ninety seconds to leave once it is set.
+s none | Thank you for closing carefully.

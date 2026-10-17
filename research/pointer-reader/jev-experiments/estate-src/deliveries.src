@@ -1,0 +1,26 @@
+@fm description | description | How flour, butter and sacks are received at the back door of Crumbwick Bakery.
+# Deliveries
+s description | Deliveries arrive between six and eight on Tuesday, Thursday and Saturday.
+s description | The flour driver is called Odalys and the butter driver is called Fenn.
+## Receiving
+s gate{del_count} | Count the sacks at the back door before you sign the driver's sheet.
+s rule | Check the date on each butter block.
+s gate{del_sign} | Sign the driver's sheet only after the count matches the sheet.
+s prohibition{del_leave} | Never let a driver leave sacks outside the back door.
+s example | For example, a sack of tarn flour left in the rain on a Saturday had to be thrown away.
+## Storing
+l rule{del_flour} | Put new flour sacks behind the old ones in the flour store
+l rule | Stand butter blocks in the cold room on the middle shelf
+l prohibition | Do not stack flour sacks higher than four
+l description | The flour store is the dry room next to the back door
+l example | A stack of five sacks on the left wall tipped over last winter and split three of them
+## Problems
+s rule | Phone the supplier if a sack is torn or a butter block is soft.
+s gate | Take a photo of a damaged sack before you move it.
+s prohibition{del_torn} | Do not use flour from a torn sack in the dough.
+s description | A torn sack may let in damp and insects.
+s example | Case: flour from a torn sack went into a batch on a Thursday and the whole batch was binned.
+## Paperwork
+s rule | Hand the signed sheet to the shop manager by noon.
+s description | The shop manager files each sheet in the grey box.
+s rule | Greet the drivers with a smile.

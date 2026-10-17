@@ -1,0 +1,3820 @@
+{
+ "estateKey": "planted-bakery",
+ "cutDigests": {
+  "allergens.md": "3d3741457464130ca2453c97a9ba521de8035260404a3c878182256a90377d3c",
+  "cleaning.md": "af99448bfdb89e4c56d0628427d0439ea3073b69dd49e76621a8545125001a9d",
+  "closing.md": "f2107870386fc955a82e5196e456b4f85e811c61f9f1604043a8ffa698469dd7",
+  "deliveries.md": "e03e187250459e10c4657320951d87230ba921701539a63bab25688f39a25b96",
+  "dough-loft.md": "5549d81512a7c5836235c3f28e9bd5aa528c1243a6bd28c5304b237b3ade10f9",
+  "glossary.md": "efcaac804232a670893ce08ffdceb4ea85508635475e752ef487ae5517ec3ad7",
+  "opening.md": "0e89f4a6983cd54cebbd9f301846961526161cbeca0cf1c9e5965da763e6c7be",
+  "orders.md": "1d8af85717e90c420b1de9f499bc89289707d78ad77505590784bd129b932fc1",
+  "ovens.md": "48a4d87728c040c0c64e9f35ade488c2c62f0ed4226cb4d332ab5712cdc0d8e1",
+  "seasonal.md": "6e4ffdf64dde5ec4521c84e6eeb467c3236262764dbfa704563e32575399c370",
+  "shelf-display.md": "dd4602759e32db90eccd78623911eb71846d82ac7bab4f195956ec1b663d7126",
+  "staff-notes.md": "56d9cf214dd91695f2c6e8901e77ee5023fa33d32d604b96fe55e130721779a2",
+  "tills.md": "cf76162fcde4cfcb8b43027088195601286c3cbb578aff6b61dcacc2f53b1816"
+ },
+ "units": [
+  {
+   "file": "allergens.md",
+   "n": 1,
+   "id": "a4mzoycu66",
+   "container": "front_matter_value",
+   "text": "The allergen rules for every product sold at Crumbwick Bakery.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "allergens.md",
+   "n": 2,
+   "id": "aslf4s5pn5",
+   "container": "heading",
+   "text": "Allergens",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "allergens.md",
+   "n": 3,
+   "id": "4c5re72hoz",
+   "container": "sentence",
+   "text": "Nuts, milk, egg, sesame and gluten are the five allergens that appear in our products.",
+   "label": "description",
+   "section": "Allergens"
+  },
+  {
+   "file": "allergens.md",
+   "n": 4,
+   "id": "rbohqvfimw",
+   "container": "sentence",
+   "text": "Gluten appears in every loaf, so the gluten line is printed on every label.",
+   "label": "description",
+   "section": "Allergens"
+  },
+  {
+   "file": "allergens.md",
+   "n": 5,
+   "id": "fzyvqnzuz5",
+   "container": "heading",
+   "text": "Labels",
+   "label": "none",
+   "section": "Allergens"
+  },
+  {
+   "file": "allergens.md",
+   "n": 6,
+   "id": "yrmyypqmuk",
+   "container": "sentence",
+   "text": "Print the allergen label for every new product before it goes on a shelf.",
+   "label": "rule",
+   "tag": "all_label",
+   "section": "Allergens > Labels"
+  },
+  {
+   "file": "allergens.md",
+   "n": 7,
+   "id": "nkgax7ogm3",
+   "container": "sentence",
+   "text": "Read the recipe card to the head baker before you print a new label.",
+   "label": "gate",
+   "tag": "all_check",
+   "section": "Allergens > Labels"
+  },
+  {
+   "file": "allergens.md",
+   "n": 8,
+   "id": "7bnme54b4j",
+   "container": "sentence",
+   "text": "Never guess an allergen from the name of a product.",
+   "label": "prohibition",
+   "tag": "all_guess",
+   "section": "Allergens > Labels"
+  },
+  {
+   "file": "allergens.md",
+   "n": 9,
+   "id": "w3jnrp4yhu",
+   "container": "sentence",
+   "text": "For example, a poppy roll can still carry sesame if it shares a tray with sesame buns.",
+   "label": "example",
+   "section": "Allergens > Labels"
+  },
+  {
+   "file": "allergens.md",
+   "n": 10,
+   "id": "aszdx4szzs",
+   "container": "sentence",
+   "text": "Put the label on the front of the sack, not on the back.",
+   "label": "rule",
+   "section": "Allergens > Labels"
+  },
+  {
+   "file": "allergens.md",
+   "n": 11,
+   "id": "wbgz4ejjoj",
+   "container": "heading",
+   "text": "Answering customers",
+   "label": "none",
+   "section": "Allergens"
+  },
+  {
+   "file": "allergens.md",
+   "n": 12,
+   "id": "t5rqhsrrsd",
+   "container": "list_item",
+   "text": "Say plainly which allergens a product contains",
+   "label": "rule",
+   "tag": "all_answer",
+   "section": "Allergens > Answering customers"
+  },
+  {
+   "file": "allergens.md",
+   "n": 13,
+   "id": "d6ml5roict",
+   "container": "list_item",
+   "text": "Offer the allergen folder if the customer asks for more detail",
+   "label": "rule",
+   "section": "Allergens > Answering customers"
+  },
+  {
+   "file": "allergens.md",
+   "n": 14,
+   "id": "lo27m7rwdt",
+   "container": "list_item",
+   "text": "Do not say that anything is free of nuts",
+   "label": "prohibition",
+   "tag": "all_free",
+   "section": "Allergens > Answering customers"
+  },
+  {
+   "file": "allergens.md",
+   "n": 15,
+   "id": "bleb2rnc7c",
+   "container": "list_item",
+   "text": "The allergen folder sits on the counter by the till",
+   "label": "description",
+   "section": "Allergens > Answering customers"
+  },
+  {
+   "file": "allergens.md",
+   "n": 16,
+   "id": "zsaffqh3ix",
+   "container": "heading",
+   "text": "Cross contact",
+   "label": "none",
+   "section": "Allergens"
+  },
+  {
+   "file": "allergens.md",
+   "n": 17,
+   "id": "6tttbe5ryc",
+   "container": "sentence",
+   "text": "The walnut loaf is baked on its own tray in the small oven.",
+   "label": "description",
+   "section": "Allergens > Cross contact"
+  },
+  {
+   "file": "allergens.md",
+   "n": 18,
+   "id": "ieqhaojlgv",
+   "container": "sentence",
+   "text": "Wash the walnut tray in its own sink with its own cloth.",
+   "label": "rule",
+   "section": "Allergens > Cross contact"
+  },
+  {
+   "file": "allergens.md",
+   "n": 19,
+   "id": "66civ5fdiy",
+   "container": "sentence",
+   "text": "Do not bake a walnut loaf and a sesame bun in the same oven load.",
+   "label": "prohibition",
+   "section": "Allergens > Cross contact"
+  },
+  {
+   "file": "allergens.md",
+   "n": 20,
+   "id": "hcq5xweq4q",
+   "container": "sentence",
+   "text": "Wipe the small oven deck clean before the walnut loaf goes in.",
+   "label": "gate",
+   "tag": "all_walnut",
+   "section": "Allergens > Cross contact"
+  },
+  {
+   "file": "allergens.md",
+   "n": 21,
+   "id": "7ewhigo73o",
+   "container": "sentence",
+   "text": "Case: a nut free customer reacted to a bun that was baked after the walnut loaf on a dirty deck.",
+   "label": "example",
+   "section": "Allergens > Cross contact"
+  },
+  {
+   "file": "allergens.md",
+   "n": 22,
+   "id": "jgch5b5x5n",
+   "container": "heading",
+   "text": "Emergencies",
+   "label": "none",
+   "section": "Allergens"
+  },
+  {
+   "file": "allergens.md",
+   "n": 23,
+   "id": "3lwq46faq5",
+   "container": "sentence",
+   "text": "Call the emergency number first if a customer reacts to food.",
+   "label": "rule",
+   "tag": "all_ambulance",
+   "section": "Allergens > Emergencies"
+  },
+  {
+   "file": "allergens.md",
+   "n": 24,
+   "id": "x7cd7ueoql",
+   "container": "sentence",
+   "text": "Tell the shop manager after the call.",
+   "label": "rule",
+   "section": "Allergens > Emergencies"
+  },
+  {
+   "file": "allergens.md",
+   "n": 25,
+   "id": "mejb2y3z4n",
+   "container": "sentence",
+   "text": "The emergency number is written on the wall beside the sconce room door.",
+   "label": "description",
+   "section": "Allergens > Emergencies"
+  },
+  {
+   "file": "allergens.md",
+   "n": 26,
+   "id": "hspeun4ieu",
+   "container": "sentence",
+   "text": "Stay calm and speak clearly.",
+   "label": "none",
+   "section": "Allergens > Emergencies"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 1,
+   "id": "oc2bxfo3oi",
+   "container": "front_matter_value",
+   "text": "The cleaning schedule for the shop, the loft and the back rooms of Crumbwick Bakery.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "cleaning.md",
+   "n": 2,
+   "id": "x7mueljpvf",
+   "container": "heading",
+   "text": "Cleaning",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "cleaning.md",
+   "n": 3,
+   "id": "yuv64vmeau",
+   "container": "sentence",
+   "text": "The shop is cleaned every day and the loft and back rooms are cleaned every week.",
+   "label": "description",
+   "section": "Cleaning"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 4,
+   "id": "jandvkstpg",
+   "container": "sentence",
+   "text": "The cleaning cupboard is the tall green cupboard in the back corridor.",
+   "label": "description",
+   "section": "Cleaning"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 5,
+   "id": "6tpj726nj5",
+   "container": "heading",
+   "text": "Daily",
+   "label": "none",
+   "section": "Cleaning"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 6,
+   "id": "omof25ua5e",
+   "container": "list_item",
+   "text": "Sweep the shop floor from the walls toward the door",
+   "label": "rule",
+   "tag": "cln_floor",
+   "section": "Cleaning > Daily"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 7,
+   "id": "l3suefi32b",
+   "container": "list_item",
+   "text": "Mop the floor with the blue bucket",
+   "label": "rule",
+   "section": "Cleaning > Daily"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 8,
+   "id": "nn3p4anjje",
+   "container": "list_item",
+   "text": "Empty the crumb tray under each shelf",
+   "label": "rule",
+   "section": "Cleaning > Daily"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 9,
+   "id": "olfr47foqy",
+   "container": "list_item",
+   "text": "Do not use the blue bucket in the loft",
+   "label": "prohibition",
+   "tag": "cln_blue",
+   "section": "Cleaning > Daily"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 10,
+   "id": "2n7pdhw6lq",
+   "container": "list_item",
+   "text": "The blue bucket is marked with a blue strip of tape",
+   "label": "description",
+   "section": "Cleaning > Daily"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 11,
+   "id": "ip2247zmda",
+   "container": "heading",
+   "text": "Surfaces",
+   "label": "none",
+   "section": "Cleaning"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 12,
+   "id": "lsby7hripa",
+   "container": "sentence",
+   "text": "Wipe the counter and the till with the yellow cloth.",
+   "label": "rule",
+   "section": "Cleaning > Surfaces"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 13,
+   "id": "xyrdorqfx4",
+   "container": "sentence",
+   "text": "Wipe the counter before you wipe the till.",
+   "label": "gate",
+   "tag": "cln_wipe",
+   "section": "Cleaning > Surfaces"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 14,
+   "id": "x2u4zjbeth",
+   "container": "sentence",
+   "text": "Never use the yellow cloth on the floor.",
+   "label": "prohibition",
+   "section": "Cleaning > Surfaces"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 15,
+   "id": "lqsxckgnoe",
+   "container": "sentence",
+   "text": "For example, a yellow cloth used on the floor was found on the counter the next morning, grey with grit.",
+   "label": "example",
+   "section": "Cleaning > Surfaces"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 16,
+   "id": "u57nl3fvm6",
+   "container": "heading",
+   "text": "Weekly",
+   "label": "none",
+   "section": "Cleaning"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 17,
+   "id": "vblcvheffo",
+   "container": "table_cell",
+   "text": "Day",
+   "label": "none",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 18,
+   "id": "mj6eht5tqf",
+   "container": "table_cell",
+   "text": "Area",
+   "label": "none",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 19,
+   "id": "ah44qs3o4i",
+   "container": "table_cell",
+   "text": "Who",
+   "label": "none",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 20,
+   "id": "v6h5xk4qx4",
+   "container": "table_cell",
+   "text": "Monday",
+   "label": "description",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 21,
+   "id": "cff3uykx7k",
+   "container": "table_cell",
+   "text": "The loft",
+   "label": "description",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 22,
+   "id": "fkhqhzx3id",
+   "container": "table_cell",
+   "text": "Opening crew",
+   "label": "description",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 23,
+   "id": "ax5sgelvnq",
+   "container": "table_cell",
+   "text": "Wednesday",
+   "label": "description",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 24,
+   "id": "oygqijwvoj",
+   "container": "table_cell",
+   "text": "The cold room",
+   "label": "description",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 25,
+   "id": "6qgchx6s3u",
+   "container": "table_cell",
+   "text": "Closing crew",
+   "label": "description",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 26,
+   "id": "l7jnuqxosd",
+   "container": "table_cell",
+   "text": "Friday",
+   "label": "description",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 27,
+   "id": "sywkqeqlw7",
+   "container": "table_cell",
+   "text": "The back corridor",
+   "label": "description",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 28,
+   "id": "35zucmtqsm",
+   "container": "table_cell",
+   "text": "Head baker",
+   "label": "description",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 29,
+   "id": "fzpsk5snhf",
+   "container": "sentence",
+   "text": "Clear the cold room shelves completely before you wash them on Wednesday.",
+   "label": "rule",
+   "tag": "cln_cold",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 30,
+   "id": "47v7ois2f3",
+   "container": "sentence",
+   "text": "Do not wash the cold room shelves with hot water.",
+   "label": "prohibition",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 31,
+   "id": "64rcmoygyo",
+   "container": "sentence",
+   "text": "Unplug the cold room fan before you wipe its cover.",
+   "label": "gate",
+   "section": "Cleaning > Weekly"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 32,
+   "id": "p3lg5y3ajv",
+   "container": "heading",
+   "text": "Waste",
+   "label": "none",
+   "section": "Cleaning"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 33,
+   "id": "lbiums3unu",
+   "container": "sentence",
+   "text": "Tie the waste bags with a double knot.",
+   "label": "rule",
+   "section": "Cleaning > Waste"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 34,
+   "id": "4cx256kv36",
+   "container": "sentence",
+   "text": "Put the bags in the grey bins by the back door.",
+   "label": "rule",
+   "tag": "cln_bins",
+   "section": "Cleaning > Waste"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 35,
+   "id": "saylckpqym",
+   "container": "sentence",
+   "text": "Never put broken glass in a waste bag.",
+   "label": "prohibition",
+   "tag": "cln_glass",
+   "section": "Cleaning > Waste"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 36,
+   "id": "owtdcgc7i3",
+   "container": "sentence",
+   "text": "Broken glass goes in the red tin beside the cleaning cupboard.",
+   "label": "description",
+   "section": "Cleaning > Waste"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 37,
+   "id": "b6x3kt57k6",
+   "container": "sentence",
+   "text": "Case: a bag with broken glass cut the hand of a collector last year.",
+   "label": "example",
+   "section": "Cleaning > Waste"
+  },
+  {
+   "file": "cleaning.md",
+   "n": 38,
+   "id": "gaajbz5yeh",
+   "container": "sentence",
+   "text": "Cleaning is everyone's job.",
+   "label": "none",
+   "section": "Cleaning > Waste"
+  },
+  {
+   "file": "closing.md",
+   "n": 1,
+   "id": "bgtnqbzxht",
+   "container": "front_matter_value",
+   "text": "The closing routine of Crumbwick Bakery, from the last sale to the locked door.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "closing.md",
+   "n": 2,
+   "id": "g666yvk5c7",
+   "container": "heading",
+   "text": "Closing the shop",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "closing.md",
+   "n": 3,
+   "id": "jsow636hhq",
+   "container": "sentence",
+   "text": "Closing takes about forty minutes and starts when the last customer has left.",
+   "label": "description",
+   "section": "Closing the shop"
+  },
+  {
+   "file": "closing.md",
+   "n": 4,
+   "id": "wi27uxivb4",
+   "container": "sentence",
+   "text": "Turn the street door sign to closed as soon as the last customer leaves.",
+   "label": "rule",
+   "section": "Closing the shop"
+  },
+  {
+   "file": "closing.md",
+   "n": 5,
+   "id": "suterx6hbz",
+   "container": "heading",
+   "text": "The ovens and lamps",
+   "label": "none",
+   "section": "Closing the shop"
+  },
+  {
+   "file": "closing.md",
+   "n": 6,
+   "id": "szbjpzilno",
+   "container": "sentence",
+   "text": "Switch off both ovens before you switch off the lamps.",
+   "label": "gate",
+   "tag": "close_ovens",
+   "section": "Closing the shop > The ovens and lamps"
+  },
+  {
+   "file": "closing.md",
+   "n": 7,
+   "id": "y7voj7asmp",
+   "container": "sentence",
+   "text": "Never leave an oven on overnight, even at the lowest setting.",
+   "label": "prohibition",
+   "tag": "close_overnight",
+   "section": "Closing the shop > The ovens and lamps"
+  },
+  {
+   "file": "closing.md",
+   "n": 8,
+   "id": "prcopowv5o",
+   "container": "sentence",
+   "text": "Pull the oven racks out and stand them upright on the cooling plinth.",
+   "label": "rule",
+   "section": "Closing the shop > The ovens and lamps"
+  },
+  {
+   "file": "closing.md",
+   "n": 9,
+   "id": "qgagpkrvsm",
+   "container": "sentence",
+   "text": "The cooling plinth is the long steel bench under the east window.",
+   "label": "description",
+   "section": "Closing the shop > The ovens and lamps"
+  },
+  {
+   "file": "closing.md",
+   "n": 10,
+   "id": "ft5lr3brdv",
+   "container": "sentence",
+   "text": "Switch off the front lamps only after the oven check is written in the closing book.",
+   "label": "gate",
+   "tag": "close_lamps",
+   "section": "Closing the shop > The ovens and lamps"
+  },
+  {
+   "file": "closing.md",
+   "n": 11,
+   "id": "qurgawjkxr",
+   "container": "sentence",
+   "text": "For instance, a warm oven at closing means the check goes in the book with a note.",
+   "label": "example",
+   "section": "Closing the shop > The ovens and lamps"
+  },
+  {
+   "file": "closing.md",
+   "n": 12,
+   "id": "77a6ctgmvz",
+   "container": "heading",
+   "text": "The shelves",
+   "label": "none",
+   "section": "Closing the shop"
+  },
+  {
+   "file": "closing.md",
+   "n": 13,
+   "id": "npnwx55una",
+   "container": "list_item",
+   "text": "Move unsold loaves into the paper sacks on the left shelf",
+   "label": "rule",
+   "tag": "close_unsold",
+   "section": "Closing the shop > The shelves"
+  },
+  {
+   "file": "closing.md",
+   "n": 14,
+   "id": "widvctkety",
+   "container": "list_item",
+   "text": "Label each sack with the day and the kind of loaf",
+   "label": "rule",
+   "section": "Closing the shop > The shelves"
+  },
+  {
+   "file": "closing.md",
+   "n": 15,
+   "id": "344a6ysbcy",
+   "container": "list_item",
+   "text": "Do not put cream cakes in the sacks, because they spoil by morning",
+   "label": "prohibition",
+   "tag": "close_sacks",
+   "section": "Closing the shop > The shelves"
+  },
+  {
+   "file": "closing.md",
+   "n": 16,
+   "id": "lfqiwdlawc",
+   "container": "list_item",
+   "text": "Unsold sacks go to the food bank on Tuesday and Friday",
+   "label": "description",
+   "section": "Closing the shop > The shelves"
+  },
+  {
+   "file": "closing.md",
+   "n": 17,
+   "id": "bpzxit4rwd",
+   "container": "list_item",
+   "text": "A sack of six rye loaves marked Thursday goes out on Friday",
+   "label": "example",
+   "section": "Closing the shop > The shelves"
+  },
+  {
+   "file": "closing.md",
+   "n": 18,
+   "id": "c5nftcvlji",
+   "container": "heading",
+   "text": "The tills",
+   "label": "none",
+   "section": "Closing the shop"
+  },
+  {
+   "file": "closing.md",
+   "n": 19,
+   "id": "xe546yl3rv",
+   "container": "sentence",
+   "text": "Count the till drawer twice before you lock it in the sconce room.",
+   "label": "gate",
+   "tag": "close_till_count",
+   "section": "Closing the shop > The tills"
+  },
+  {
+   "file": "closing.md",
+   "n": 20,
+   "id": "dywgeul6iw",
+   "container": "sentence",
+   "text": "Write the total in the closing book and sign it.",
+   "label": "rule",
+   "section": "Closing the shop > The tills"
+  },
+  {
+   "file": "closing.md",
+   "n": 21,
+   "id": "jnshvj5lcq",
+   "container": "sentence",
+   "text": "Do not carry the cash bag out of the shop at night.",
+   "label": "prohibition",
+   "section": "Closing the shop > The tills"
+  },
+  {
+   "file": "closing.md",
+   "n": 22,
+   "id": "mlzypmfpoq",
+   "container": "sentence",
+   "text": "The closing book lives on the hook beside the sconce room door.",
+   "label": "description",
+   "section": "Closing the shop > The tills"
+  },
+  {
+   "file": "closing.md",
+   "n": 23,
+   "id": "qxrvlfstsv",
+   "container": "heading",
+   "text": "The door",
+   "label": "none",
+   "section": "Closing the shop"
+  },
+  {
+   "file": "closing.md",
+   "n": 24,
+   "id": "h5w3yhoq7n",
+   "container": "sentence",
+   "text": "Return every key to the sconce room before you lock the street door.",
+   "label": "gate",
+   "tag": "close_key",
+   "section": "Closing the shop > The door"
+  },
+  {
+   "file": "closing.md",
+   "n": 25,
+   "id": "6zalamcslz",
+   "container": "sentence",
+   "text": "Lock the street door with two turns of the brass key.",
+   "label": "rule",
+   "section": "Closing the shop > The door"
+  },
+  {
+   "file": "closing.md",
+   "n": 26,
+   "id": "bmp24jiv6o",
+   "container": "sentence",
+   "text": "The alarm panel gives you ninety seconds to leave once it is set.",
+   "label": "description",
+   "section": "Closing the shop > The door"
+  },
+  {
+   "file": "closing.md",
+   "n": 27,
+   "id": "55elenschz",
+   "container": "sentence",
+   "text": "Thank you for closing carefully.",
+   "label": "none",
+   "section": "Closing the shop > The door"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 1,
+   "id": "yva4h6qjti",
+   "container": "front_matter_value",
+   "text": "How flour, butter and sacks are received at the back door of Crumbwick Bakery.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "deliveries.md",
+   "n": 2,
+   "id": "cgxvm433am",
+   "container": "heading",
+   "text": "Deliveries",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "deliveries.md",
+   "n": 3,
+   "id": "riqwnuuljr",
+   "container": "sentence",
+   "text": "Deliveries arrive between six and eight on Tuesday, Thursday and Saturday.",
+   "label": "description",
+   "section": "Deliveries"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 4,
+   "id": "uq4pm4sjq4",
+   "container": "sentence",
+   "text": "The flour driver is called Odalys and the butter driver is called Fenn.",
+   "label": "description",
+   "section": "Deliveries"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 5,
+   "id": "tyk5ivzemt",
+   "container": "heading",
+   "text": "Receiving",
+   "label": "none",
+   "section": "Deliveries"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 6,
+   "id": "6vneuj7zx5",
+   "container": "sentence",
+   "text": "Count the sacks at the back door before you sign the driver's sheet.",
+   "label": "rule",
+   "tag": "del_count",
+   "section": "Deliveries > Receiving"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 7,
+   "id": "cdxf74ybd2",
+   "container": "sentence",
+   "text": "Check the date on each butter block.",
+   "label": "rule",
+   "section": "Deliveries > Receiving"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 8,
+   "id": "4fxfpri65f",
+   "container": "sentence",
+   "text": "Sign the driver's sheet only after the count matches the sheet.",
+   "label": "gate",
+   "tag": "del_sign",
+   "section": "Deliveries > Receiving"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 9,
+   "id": "uxuvdtebpz",
+   "container": "sentence",
+   "text": "Never let a driver leave sacks outside the back door.",
+   "label": "prohibition",
+   "tag": "del_leave",
+   "section": "Deliveries > Receiving"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 10,
+   "id": "t5xroo6hbn",
+   "container": "sentence",
+   "text": "For example, a sack of tarn flour left in the rain on a Saturday had to be thrown away.",
+   "label": "example",
+   "section": "Deliveries > Receiving"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 11,
+   "id": "svs6uwtsel",
+   "container": "heading",
+   "text": "Storing",
+   "label": "none",
+   "section": "Deliveries"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 12,
+   "id": "roaxmtzt2b",
+   "container": "list_item",
+   "text": "Put new flour sacks behind the old ones in the flour store",
+   "label": "rule",
+   "tag": "del_flour",
+   "section": "Deliveries > Storing"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 13,
+   "id": "b4d6vu76ac",
+   "container": "list_item",
+   "text": "Stand butter blocks in the cold room on the middle shelf",
+   "label": "rule",
+   "section": "Deliveries > Storing"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 14,
+   "id": "mmhru5czfr",
+   "container": "list_item",
+   "text": "Do not stack flour sacks higher than four",
+   "label": "prohibition",
+   "section": "Deliveries > Storing"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 15,
+   "id": "nako6sutwt",
+   "container": "list_item",
+   "text": "The flour store is the dry room next to the back door",
+   "label": "description",
+   "section": "Deliveries > Storing"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 16,
+   "id": "kty7d7vfsj",
+   "container": "list_item",
+   "text": "A stack of five sacks on the left wall tipped over last winter and split three of them",
+   "label": "example",
+   "section": "Deliveries > Storing"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 17,
+   "id": "lmrejagtkw",
+   "container": "heading",
+   "text": "Problems",
+   "label": "none",
+   "section": "Deliveries"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 18,
+   "id": "mlnylek44v",
+   "container": "sentence",
+   "text": "Phone the supplier if a sack is torn or a butter block is soft.",
+   "label": "rule",
+   "section": "Deliveries > Problems"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 19,
+   "id": "f7zrptkvsm",
+   "container": "sentence",
+   "text": "Take a photo of a damaged sack before you move it.",
+   "label": "gate",
+   "section": "Deliveries > Problems"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 20,
+   "id": "x72zn7khi3",
+   "container": "sentence",
+   "text": "Do not use flour from a torn sack in the dough.",
+   "label": "prohibition",
+   "tag": "del_torn",
+   "section": "Deliveries > Problems"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 21,
+   "id": "ohwgqohwn2",
+   "container": "sentence",
+   "text": "A torn sack may let in damp and insects.",
+   "label": "description",
+   "section": "Deliveries > Problems"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 22,
+   "id": "bw5wtm2gwo",
+   "container": "sentence",
+   "text": "Case: flour from a torn sack went into a batch on a Thursday and the whole batch was binned.",
+   "label": "example",
+   "section": "Deliveries > Problems"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 23,
+   "id": "7vtcauqdma",
+   "container": "heading",
+   "text": "Paperwork",
+   "label": "none",
+   "section": "Deliveries"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 24,
+   "id": "hd3yj453bg",
+   "container": "sentence",
+   "text": "Hand the signed sheet to the shop manager by noon.",
+   "label": "rule",
+   "section": "Deliveries > Paperwork"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 25,
+   "id": "62cpfkifef",
+   "container": "sentence",
+   "text": "The shop manager files each sheet in the grey box.",
+   "label": "description",
+   "section": "Deliveries > Paperwork"
+  },
+  {
+   "file": "deliveries.md",
+   "n": 26,
+   "id": "7g6rmy35i3",
+   "container": "sentence",
+   "text": "Greet the drivers with a smile.",
+   "label": "none",
+   "section": "Deliveries > Paperwork"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 1,
+   "id": "xf2wf3qjtg",
+   "container": "front_matter_value",
+   "text": "The dough loft routine at Crumbwick Bakery, covering mixing, proving and shaping pinnocks.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 2,
+   "id": "d7ght7sy2t",
+   "container": "heading",
+   "text": "The dough loft",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 3,
+   "id": "atx4y5uthd",
+   "container": "sentence",
+   "text": "A pinnock is the small round dough ball that every loaf at Crumbwick starts from.",
+   "label": "description",
+   "section": "The dough loft"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 4,
+   "id": "klzt47ynyq",
+   "container": "sentence",
+   "text": "The loft has a proving drawer, a mixing trough and a brass scale.",
+   "label": "description",
+   "section": "The dough loft"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 5,
+   "id": "esivs7njgs",
+   "container": "heading",
+   "text": "Mixing",
+   "label": "none",
+   "section": "The dough loft"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 6,
+   "id": "ynnj6xp6mo",
+   "container": "sentence",
+   "text": "Mix the tarn flour with cold water and let it rest for twenty minutes.",
+   "label": "rule",
+   "section": "The dough loft > Mixing"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 7,
+   "id": "tsrevlgi26",
+   "container": "sentence",
+   "text": "Add the salt only after the flour has rested.",
+   "label": "gate",
+   "tag": "loft_salt",
+   "section": "The dough loft > Mixing"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 8,
+   "id": "cwvirmar4b",
+   "container": "sentence",
+   "text": "Never use hot water in the trough, because it kills the starter.",
+   "label": "prohibition",
+   "tag": "loft_hotwater",
+   "section": "The dough loft > Mixing"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 9,
+   "id": "eueinw2nyr",
+   "container": "sentence",
+   "text": "For example, a trough mixed with hot water on a summer day produced flat loaves for a whole week.",
+   "label": "example",
+   "section": "The dough loft > Mixing"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 10,
+   "id": "d2btvckg6d",
+   "container": "sentence",
+   "text": "The starter is called Wobbin and it lives in the green crock on the top shelf.",
+   "label": "description",
+   "section": "The dough loft > Mixing"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 11,
+   "id": "dxanqrhmsf",
+   "container": "sentence",
+   "text": "Feed Wobbin with a spoon of flour and a spoon of water every evening.",
+   "label": "rule",
+   "tag": "loft_feed",
+   "section": "The dough loft > Mixing"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 12,
+   "id": "ze4x2y53as",
+   "container": "heading",
+   "text": "Proving",
+   "label": "none",
+   "section": "The dough loft"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 13,
+   "id": "pjn73xodhd",
+   "container": "list_item",
+   "text": "Place the shaped pinnocks on the linen in the proving drawer",
+   "label": "rule",
+   "section": "The dough loft > Proving"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 14,
+   "id": "j5om6rmvsj",
+   "container": "list_item",
+   "text": "Close the proving drawer before you start the heater",
+   "label": "gate",
+   "tag": "loft_drawer",
+   "section": "The dough loft > Proving"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 15,
+   "id": "ranbvla46r",
+   "container": "list_item",
+   "text": "Do not open the proving drawer more than once an hour",
+   "label": "prohibition",
+   "section": "The dough loft > Proving"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 16,
+   "id": "u35vdk3zyk",
+   "container": "list_item",
+   "text": "The proving drawer holds a steady warmth of twenty six degrees",
+   "label": "description",
+   "section": "The dough loft > Proving"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 17,
+   "id": "sevedtiux7",
+   "container": "list_item",
+   "text": "A pinnock that has doubled in size after ninety minutes is ready for the oven",
+   "label": "example",
+   "section": "The dough loft > Proving"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 18,
+   "id": "ptccykursc",
+   "container": "heading",
+   "text": "Shaping",
+   "label": "none",
+   "section": "The dough loft"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 19,
+   "id": "clf33xjuz6",
+   "container": "sentence",
+   "text": "Shape each pinnock with two hands and a light dusting of flour.",
+   "label": "rule",
+   "section": "The dough loft > Shaping"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 20,
+   "id": "57cx2325xr",
+   "container": "sentence",
+   "text": "Do not press the dough flat, because the crumb will turn dense.",
+   "label": "prohibition",
+   "section": "The dough loft > Shaping"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 21,
+   "id": "kpwt6szu43",
+   "container": "sentence",
+   "text": "Weigh each pinnock again after shaping and put any that are light back on the scale.",
+   "label": "rule",
+   "tag": "loft_scale",
+   "section": "The dough loft > Shaping"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 22,
+   "id": "nywn6qqxm4",
+   "container": "sentence",
+   "text": "A standard pinnock weighs four hundred and fifty grams.",
+   "label": "description",
+   "section": "The dough loft > Shaping"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 23,
+   "id": "6632pufhlo",
+   "container": "sentence",
+   "text": "Case: a light pinnock of four hundred grams baked into a loaf that the shop could not sell as standard.",
+   "label": "example",
+   "section": "The dough loft > Shaping"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 24,
+   "id": "6odqi67qjg",
+   "container": "heading",
+   "text": "Cleaning the loft",
+   "label": "none",
+   "section": "The dough loft"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 25,
+   "id": "hqtkrhh2qp",
+   "container": "sentence",
+   "text": "Scrape the trough with the plastic scraper and rinse it with cold water.",
+   "label": "rule",
+   "section": "The dough loft > Cleaning the loft"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 26,
+   "id": "tbfpgsdoxy",
+   "container": "sentence",
+   "text": "Do not wash the linen with soap, because the smell passes into the crumb.",
+   "label": "prohibition",
+   "section": "The dough loft > Cleaning the loft"
+  },
+  {
+   "file": "dough-loft.md",
+   "n": 27,
+   "id": "4btwfyt53v",
+   "container": "sentence",
+   "text": "Ask Marek if the starter smells odd.",
+   "label": "none",
+   "section": "The dough loft > Cleaning the loft"
+  },
+  {
+   "file": "glossary.md",
+   "n": 1,
+   "id": "mthrzhmkwr",
+   "container": "front_matter_value",
+   "text": "The words used by the Crumbwick Bakery crew and what each one means.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "glossary.md",
+   "n": 2,
+   "id": "6ewsip5xvm",
+   "container": "heading",
+   "text": "Glossary",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "glossary.md",
+   "n": 3,
+   "id": "w4a6a7humc",
+   "container": "sentence",
+   "text": "New crew members hear these words on their first morning.",
+   "label": "description",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 4,
+   "id": "uqfox5hxq7",
+   "container": "table_cell",
+   "text": "Word",
+   "label": "none",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 5,
+   "id": "lr5uu5d6cm",
+   "container": "table_cell",
+   "text": "Meaning",
+   "label": "none",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 6,
+   "id": "vhaqxl7xnc",
+   "container": "table_cell",
+   "text": "Pinnock",
+   "label": "description",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 7,
+   "id": "72z3x43lft",
+   "container": "table_cell",
+   "text": "A small round dough ball that is the start of a loaf",
+   "label": "description",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 8,
+   "id": "2wirghykz2",
+   "container": "table_cell",
+   "text": "Sconce room",
+   "label": "description",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 9,
+   "id": "4cv7we5wry",
+   "container": "table_cell",
+   "text": "The small cupboard behind the till that holds the keys",
+   "label": "description",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 10,
+   "id": "ixfcgx2wpd",
+   "container": "table_cell",
+   "text": "Plinth",
+   "label": "description",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 11,
+   "id": "2hvmn3juka",
+   "container": "table_cell",
+   "text": "The steel bench under the east window where racks cool",
+   "label": "description",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 12,
+   "id": "5sqfe4ccic",
+   "container": "table_cell",
+   "text": "Wobbin",
+   "label": "description",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 13,
+   "id": "jb6opnhgws",
+   "container": "table_cell",
+   "text": "The name of the sourdough starter",
+   "label": "description",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 14,
+   "id": "3ueyh4eaew",
+   "container": "table_cell",
+   "text": "Tarn flour",
+   "label": "description",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 15,
+   "id": "423qoy3vzl",
+   "container": "table_cell",
+   "text": "The coarse flour from the hill mill",
+   "label": "description",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 16,
+   "id": "xbhcoacrfc",
+   "container": "heading",
+   "text": "Usage",
+   "label": "none",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 17,
+   "id": "ut2cltuy5v",
+   "container": "sentence",
+   "text": "Use the word pinnock for the dough ball and never for a finished loaf.",
+   "label": "rule",
+   "section": "Glossary > Usage"
+  },
+  {
+   "file": "glossary.md",
+   "n": 18,
+   "id": "oi36jwwq4y",
+   "container": "sentence",
+   "text": "Do not call the sconce room the safe, because it holds keys and not money.",
+   "label": "prohibition",
+   "section": "Glossary > Usage"
+  },
+  {
+   "file": "glossary.md",
+   "n": 19,
+   "id": "eahnmyvijf",
+   "container": "sentence",
+   "text": "For example, write that the opening crew carried six pinnocks down, not six loaves.",
+   "label": "example",
+   "section": "Glossary > Usage"
+  },
+  {
+   "file": "glossary.md",
+   "n": 20,
+   "id": "becjcucvsv",
+   "container": "sentence",
+   "text": "The word plinth comes from the old stone bench that once stood there.",
+   "label": "description",
+   "section": "Glossary > Usage"
+  },
+  {
+   "file": "glossary.md",
+   "n": 21,
+   "id": "7wgtrbccza",
+   "container": "sentence",
+   "text": "Ask if you hear a word that is not here.",
+   "label": "none",
+   "section": "Glossary > Usage"
+  },
+  {
+   "file": "glossary.md",
+   "n": 22,
+   "id": "3cturviljl",
+   "container": "heading",
+   "text": "Short forms",
+   "label": "none",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 23,
+   "id": "qeck6nm2qs",
+   "container": "list_item",
+   "text": "OB means the order book",
+   "label": "description",
+   "section": "Glossary > Short forms"
+  },
+  {
+   "file": "glossary.md",
+   "n": 24,
+   "id": "2aq4jljzg2",
+   "container": "list_item",
+   "text": "CB means the closing book",
+   "label": "description",
+   "section": "Glossary > Short forms"
+  },
+  {
+   "file": "glossary.md",
+   "n": 25,
+   "id": "hcwkcdmlfp",
+   "container": "list_item",
+   "text": "SB means the shift book",
+   "label": "description",
+   "section": "Glossary > Short forms"
+  },
+  {
+   "file": "glossary.md",
+   "n": 26,
+   "id": "k3tlpoaep3",
+   "container": "list_item",
+   "text": "Spell out a short form the first time you use it in a note",
+   "label": "rule",
+   "section": "Glossary > Short forms"
+  },
+  {
+   "file": "glossary.md",
+   "n": 27,
+   "id": "ccf4kpfn4x",
+   "container": "list_item",
+   "text": "Do not use a short form on a customer label",
+   "label": "prohibition",
+   "section": "Glossary > Short forms"
+  },
+  {
+   "file": "glossary.md",
+   "n": 28,
+   "id": "wfmkynucoj",
+   "container": "heading",
+   "text": "Naming loaves",
+   "label": "none",
+   "section": "Glossary"
+  },
+  {
+   "file": "glossary.md",
+   "n": 29,
+   "id": "ircoaike3t",
+   "container": "sentence",
+   "text": "Give a new loaf a name of one or two words, and tell the head baker before you use it.",
+   "label": "rule",
+   "tag": "gloss_names",
+   "section": "Glossary > Naming loaves"
+  },
+  {
+   "file": "glossary.md",
+   "n": 30,
+   "id": "h54tr5jui6",
+   "container": "sentence",
+   "text": "Check the name against the allergen folder before it goes on a tag.",
+   "label": "gate",
+   "section": "Glossary > Naming loaves"
+  },
+  {
+   "file": "glossary.md",
+   "n": 31,
+   "id": "6dhgfeevr5",
+   "container": "sentence",
+   "text": "The best known loaf is the Tarn Rye, which sells out by ten.",
+   "label": "description",
+   "section": "Glossary > Naming loaves"
+  },
+  {
+   "file": "glossary.md",
+   "n": 32,
+   "id": "vdbbfo4dtn",
+   "container": "sentence",
+   "text": "Case: a loaf called Nut Free Rye was named by a new crew member and had to be renamed the same day.",
+   "label": "example",
+   "section": "Glossary > Naming loaves"
+  },
+  {
+   "file": "opening.md",
+   "n": 1,
+   "id": "jtqxngvuwl",
+   "container": "front_matter_value",
+   "text": "How the crew of Crumbwick Bakery opens the shop before the first customer arrives.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "opening.md",
+   "n": 2,
+   "id": "crt3kbdefh",
+   "container": "heading",
+   "text": "Opening the shop",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "opening.md",
+   "n": 3,
+   "id": "r57ryf5bsm",
+   "container": "sentence",
+   "text": "The opening crew arrives at half past five and works until the doors open at seven.",
+   "label": "description",
+   "section": "Opening the shop"
+  },
+  {
+   "file": "opening.md",
+   "n": 4,
+   "id": "oshhi56qgx",
+   "container": "sentence",
+   "text": "Every morning follows the same order, and the order matters more than the speed.",
+   "label": "description",
+   "section": "Opening the shop"
+  },
+  {
+   "file": "opening.md",
+   "n": 5,
+   "id": "fxzyz5rj62",
+   "container": "heading",
+   "text": "Lamps and doors",
+   "label": "none",
+   "section": "Opening the shop"
+  },
+  {
+   "file": "opening.md",
+   "n": 6,
+   "id": "j5bpsxnw5b",
+   "container": "sentence",
+   "text": "Switch on the front lamps before you unlock the street door.",
+   "label": "gate",
+   "tag": "open_lamps",
+   "section": "Opening the shop > Lamps and doors"
+  },
+  {
+   "file": "opening.md",
+   "n": 7,
+   "id": "uauan2she3",
+   "container": "sentence",
+   "text": "Unlock the street door with the brass key that hangs in the sconce room.",
+   "label": "rule",
+   "tag": "open_key",
+   "section": "Opening the shop > Lamps and doors"
+  },
+  {
+   "file": "opening.md",
+   "n": 8,
+   "id": "bjn7vp2kzk",
+   "container": "sentence",
+   "text": "Never prop the back door open with a crate while the ovens are warm.",
+   "label": "prohibition",
+   "tag": "open_back",
+   "section": "Opening the shop > Lamps and doors"
+  },
+  {
+   "file": "opening.md",
+   "n": 9,
+   "id": "wvdckfhzex",
+   "container": "sentence",
+   "text": "The sconce room is the small cupboard behind the till, and it holds every key.",
+   "label": "description",
+   "section": "Opening the shop > Lamps and doors"
+  },
+  {
+   "file": "opening.md",
+   "n": 10,
+   "id": "fwgf3quifh",
+   "container": "sentence",
+   "text": "Check that the alarm panel shows a green light, then write the time in the opening book.",
+   "label": "rule",
+   "section": "Opening the shop > Lamps and doors"
+  },
+  {
+   "file": "opening.md",
+   "n": 11,
+   "id": "tqhcn6yvit",
+   "container": "sentence",
+   "text": "For example, if the panel shows an amber light, the night crew left a window open.",
+   "label": "example",
+   "section": "Opening the shop > Lamps and doors"
+  },
+  {
+   "file": "opening.md",
+   "n": 12,
+   "id": "cryjbfbebi",
+   "container": "heading",
+   "text": "Ovens",
+   "label": "none",
+   "section": "Opening the shop"
+  },
+  {
+   "file": "opening.md",
+   "n": 13,
+   "id": "wchdkmkpdq",
+   "container": "sentence",
+   "text": "Light the big oven first and the small oven ten minutes later.",
+   "label": "rule",
+   "tag": "open_ovens",
+   "section": "Opening the shop > Ovens"
+  },
+  {
+   "file": "opening.md",
+   "n": 14,
+   "id": "uzkaouk4b2",
+   "container": "sentence",
+   "text": "Wait until the big oven reads two hundred and twenty degrees before the first tray goes in.",
+   "label": "gate",
+   "tag": "open_preheat",
+   "section": "Opening the shop > Ovens"
+  },
+  {
+   "file": "opening.md",
+   "n": 15,
+   "id": "6pdewgml3c",
+   "container": "sentence",
+   "text": "The big oven holds twelve trays and the small oven holds four.",
+   "label": "description",
+   "section": "Opening the shop > Ovens"
+  },
+  {
+   "file": "opening.md",
+   "n": 16,
+   "id": "hkmqhp7ji3",
+   "container": "sentence",
+   "text": "Do not load a cold tray into a hot oven, because the glaze will crack.",
+   "label": "prohibition",
+   "section": "Opening the shop > Ovens"
+  },
+  {
+   "file": "opening.md",
+   "n": 17,
+   "id": "apkcpkdl7c",
+   "container": "sentence",
+   "text": "Case: a tray of pinnocks went in cold on a Monday and came out with split tops.",
+   "label": "example",
+   "section": "Opening the shop > Ovens"
+  },
+  {
+   "file": "opening.md",
+   "n": 18,
+   "id": "3ovpsl4jw6",
+   "container": "heading",
+   "text": "The dough loft",
+   "label": "none",
+   "section": "Opening the shop"
+  },
+  {
+   "file": "opening.md",
+   "n": 19,
+   "id": "qbzc5aw3g4",
+   "container": "list_item",
+   "text": "Carry the proved dough down from the dough loft in the wheeled bin",
+   "label": "rule",
+   "tag": "open_loft",
+   "section": "Opening the shop > The dough loft"
+  },
+  {
+   "file": "opening.md",
+   "n": 20,
+   "id": "jmegvmui45",
+   "container": "list_item",
+   "text": "Weigh each pinnock on the brass scale before it is shaped",
+   "label": "rule",
+   "section": "Opening the shop > The dough loft"
+  },
+  {
+   "file": "opening.md",
+   "n": 21,
+   "id": "wslxzbhllj",
+   "container": "list_item",
+   "text": "Do not stack more than three bins on the lift",
+   "label": "prohibition",
+   "section": "Opening the shop > The dough loft"
+  },
+  {
+   "file": "opening.md",
+   "n": 22,
+   "id": "xjssicbxej",
+   "container": "list_item",
+   "text": "The loft is warmest near the east window",
+   "label": "description",
+   "section": "Opening the shop > The dough loft"
+  },
+  {
+   "file": "opening.md",
+   "n": 23,
+   "id": "mmw3bbgjat",
+   "container": "heading",
+   "text": "Final checks",
+   "label": "none",
+   "section": "Opening the shop"
+  },
+  {
+   "file": "opening.md",
+   "n": 24,
+   "id": "6fbzax4bf4",
+   "container": "sentence",
+   "text": "Count the float in the till before you open the street door.",
+   "label": "gate",
+   "section": "Opening the shop > Final checks"
+  },
+  {
+   "file": "opening.md",
+   "n": 25,
+   "id": "hintzukvo6",
+   "container": "sentence",
+   "text": "Fill the front shelves from left to right, oldest loaves first.",
+   "label": "rule",
+   "section": "Opening the shop > Final checks"
+  },
+  {
+   "file": "opening.md",
+   "n": 26,
+   "id": "upcvixg3t7",
+   "container": "sentence",
+   "text": "Customers usually form a line by ten past seven.",
+   "label": "description",
+   "section": "Opening the shop > Final checks"
+  },
+  {
+   "file": "opening.md",
+   "n": 27,
+   "id": "5rkxmfy2ib",
+   "container": "sentence",
+   "text": "Thank you for opening well.",
+   "label": "none",
+   "section": "Opening the shop > Final checks"
+  },
+  {
+   "file": "opening.md",
+   "n": 28,
+   "id": "wzsxotzyk7",
+   "container": "sentence",
+   "text": "Good luck today.",
+   "label": "none",
+   "section": "Opening the shop > Final checks"
+  },
+  {
+   "file": "orders.md",
+   "n": 1,
+   "id": "xh6kfpwwx2",
+   "container": "front_matter_value",
+   "text": "How phone orders and party orders are taken and recorded at Crumbwick Bakery.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "orders.md",
+   "n": 2,
+   "id": "uj7i6yq24n",
+   "container": "heading",
+   "text": "Taking orders",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "orders.md",
+   "n": 3,
+   "id": "smgqdf6lii",
+   "container": "sentence",
+   "text": "Orders come in by phone, by the paper form or at the counter.",
+   "label": "description",
+   "section": "Taking orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 4,
+   "id": "ls6bgperyw",
+   "container": "sentence",
+   "text": "Every order goes into the order book with a number.",
+   "label": "description",
+   "section": "Taking orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 5,
+   "id": "ispy7obk34",
+   "container": "heading",
+   "text": "Phone orders",
+   "label": "none",
+   "section": "Taking orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 6,
+   "id": "sbcsnhxqbn",
+   "container": "sentence",
+   "text": "Ask the caller for a name and a phone number before you take any details.",
+   "label": "rule",
+   "tag": "ord_name",
+   "section": "Taking orders > Phone orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 7,
+   "id": "prntevkqkz",
+   "container": "sentence",
+   "text": "Repeat the order back to the caller in full.",
+   "label": "rule",
+   "section": "Taking orders > Phone orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 8,
+   "id": "ckbhrly5uc",
+   "container": "sentence",
+   "text": "Take a deposit before you write a party order in the book.",
+   "label": "gate",
+   "tag": "ord_deposit",
+   "section": "Taking orders > Phone orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 9,
+   "id": "zj45ekyrxd",
+   "container": "sentence",
+   "text": "Never promise a decorated cake with less than two days of notice.",
+   "label": "prohibition",
+   "tag": "ord_nocake",
+   "section": "Taking orders > Phone orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 10,
+   "id": "44cd6wqheh",
+   "container": "sentence",
+   "text": "A party order is any order of more than twenty loaves or rolls.",
+   "label": "description",
+   "section": "Taking orders > Phone orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 11,
+   "id": "uf2fjmxxgf",
+   "container": "sentence",
+   "text": "For example, forty rolls for a school visit counts as a party order.",
+   "label": "example",
+   "section": "Taking orders > Phone orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 12,
+   "id": "pl2wqkbmyc",
+   "container": "heading",
+   "text": "The order book",
+   "label": "none",
+   "section": "Taking orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 13,
+   "id": "jmp7wl6nmr",
+   "container": "list_item",
+   "text": "Write the pickup date at the top of the page",
+   "label": "rule",
+   "section": "Taking orders > The order book"
+  },
+  {
+   "file": "orders.md",
+   "n": 14,
+   "id": "lamba3t4rs",
+   "container": "list_item",
+   "text": "Give each order the next number in the book",
+   "label": "rule",
+   "tag": "ord_number",
+   "section": "Taking orders > The order book"
+  },
+  {
+   "file": "orders.md",
+   "n": 15,
+   "id": "rhdrvxmudf",
+   "container": "list_item",
+   "text": "Do not use pencil in the order book",
+   "label": "prohibition",
+   "section": "Taking orders > The order book"
+  },
+  {
+   "file": "orders.md",
+   "n": 16,
+   "id": "6orntvga64",
+   "container": "list_item",
+   "text": "The order book is kept on the shelf under the till",
+   "label": "description",
+   "section": "Taking orders > The order book"
+  },
+  {
+   "file": "orders.md",
+   "n": 17,
+   "id": "owqse6luyw",
+   "container": "heading",
+   "text": "Changes",
+   "label": "none",
+   "section": "Taking orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 18,
+   "id": "nbgbklbkzr",
+   "container": "sentence",
+   "text": "Cross out a cancelled order with one straight line and write the reason beside it.",
+   "label": "rule",
+   "section": "Taking orders > Changes"
+  },
+  {
+   "file": "orders.md",
+   "n": 19,
+   "id": "zq4ua6l4tt",
+   "container": "sentence",
+   "text": "Do not tear a page out of the order book.",
+   "label": "prohibition",
+   "section": "Taking orders > Changes"
+  },
+  {
+   "file": "orders.md",
+   "n": 20,
+   "id": "ldkirnsqrl",
+   "container": "sentence",
+   "text": "Phone the customer before you change the size of a party order.",
+   "label": "gate",
+   "section": "Taking orders > Changes"
+  },
+  {
+   "file": "orders.md",
+   "n": 21,
+   "id": "rjcnaxwnmi",
+   "container": "sentence",
+   "text": "Case: a party order of thirty loaves was cut to twenty without a call, and the customer arrived to a short count.",
+   "label": "example",
+   "section": "Taking orders > Changes"
+  },
+  {
+   "file": "orders.md",
+   "n": 22,
+   "id": "glb5ymlejz",
+   "container": "heading",
+   "text": "Pickup",
+   "label": "none",
+   "section": "Taking orders"
+  },
+  {
+   "file": "orders.md",
+   "n": 23,
+   "id": "f4p4vv72qr",
+   "container": "sentence",
+   "text": "Check the order number against the sack before you hand it over.",
+   "label": "rule",
+   "tag": "ord_pickup",
+   "section": "Taking orders > Pickup"
+  },
+  {
+   "file": "orders.md",
+   "n": 24,
+   "id": "zl3diw6cs4",
+   "container": "sentence",
+   "text": "Ask the customer to sign the book for any party order.",
+   "label": "rule",
+   "section": "Taking orders > Pickup"
+  },
+  {
+   "file": "orders.md",
+   "n": 25,
+   "id": "4n4ngf6flp",
+   "container": "sentence",
+   "text": "Unclaimed orders are kept until the next morning and then go to the food bank.",
+   "label": "description",
+   "section": "Taking orders > Pickup"
+  },
+  {
+   "file": "orders.md",
+   "n": 26,
+   "id": "u4d5rzo6yy",
+   "container": "sentence",
+   "text": "The pickup shelf is the narrow shelf beside the street door.",
+   "label": "description",
+   "section": "Taking orders > Pickup"
+  },
+  {
+   "file": "orders.md",
+   "n": 27,
+   "id": "blypuhavse",
+   "container": "sentence",
+   "text": "Be kind to customers who are in a hurry.",
+   "label": "none",
+   "section": "Taking orders > Pickup"
+  },
+  {
+   "file": "ovens.md",
+   "n": 1,
+   "id": "gudpxo6lws",
+   "container": "front_matter_value",
+   "text": "How to run, clean and report faults on the two ovens at Crumbwick Bakery.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "ovens.md",
+   "n": 2,
+   "id": "wbvh37tbr7",
+   "container": "heading",
+   "text": "Ovens",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "ovens.md",
+   "n": 3,
+   "id": "bi7oqkx3pm",
+   "container": "sentence",
+   "text": "The big oven is a deck oven with three decks, and the small oven is a single deck.",
+   "label": "description",
+   "section": "Ovens"
+  },
+  {
+   "file": "ovens.md",
+   "n": 4,
+   "id": "i2nbx3nvrq",
+   "container": "sentence",
+   "text": "Both ovens run on gas, and the gas tap sits behind the flour store.",
+   "label": "description",
+   "section": "Ovens"
+  },
+  {
+   "file": "ovens.md",
+   "n": 5,
+   "id": "tldccrtn3m",
+   "container": "heading",
+   "text": "Lighting",
+   "label": "none",
+   "section": "Ovens"
+  },
+  {
+   "file": "ovens.md",
+   "n": 6,
+   "id": "pfsntng2an",
+   "container": "sentence",
+   "text": "Open the gas tap before you press the spark button.",
+   "label": "gate",
+   "section": "Ovens > Lighting"
+  },
+  {
+   "file": "ovens.md",
+   "n": 7,
+   "id": "6fxie6pck2",
+   "container": "sentence",
+   "text": "Never press the spark button more than three times in a row.",
+   "label": "prohibition",
+   "tag": "oven_nospark",
+   "section": "Ovens > Lighting"
+  },
+  {
+   "file": "ovens.md",
+   "n": 8,
+   "id": "trzznwm4fo",
+   "container": "sentence",
+   "text": "If the flame does not catch after three tries, close the tap and wait five minutes.",
+   "label": "rule",
+   "section": "Ovens > Lighting"
+  },
+  {
+   "file": "ovens.md",
+   "n": 9,
+   "id": "7ue3bomu7z",
+   "container": "sentence",
+   "text": "Example: on a windy morning the pilot flame often blows out twice before it holds.",
+   "label": "example",
+   "section": "Ovens > Lighting"
+  },
+  {
+   "file": "ovens.md",
+   "n": 10,
+   "id": "vrnjvusslg",
+   "container": "sentence",
+   "text": "Call the gas engineer if the flame turns yellow instead of blue.",
+   "label": "rule",
+   "tag": "oven_fault_call",
+   "section": "Ovens > Lighting"
+  },
+  {
+   "file": "ovens.md",
+   "n": 11,
+   "id": "4jytawbbb4",
+   "container": "heading",
+   "text": "Daily care",
+   "label": "none",
+   "section": "Ovens"
+  },
+  {
+   "file": "ovens.md",
+   "n": 12,
+   "id": "hfqx6je65x",
+   "container": "list_item",
+   "text": "Brush the oven floor with the long brass brush after the last tray",
+   "label": "rule",
+   "tag": "oven_brush",
+   "section": "Ovens > Daily care"
+  },
+  {
+   "file": "ovens.md",
+   "n": 13,
+   "id": "johxg6tbmp",
+   "container": "list_item",
+   "text": "Wipe the oven door glass with the dry grey cloth",
+   "label": "rule",
+   "section": "Ovens > Daily care"
+  },
+  {
+   "file": "ovens.md",
+   "n": 14,
+   "id": "wtubbyuqwf",
+   "container": "list_item",
+   "text": "Do not spray water on a hot deck",
+   "label": "prohibition",
+   "tag": "oven_water",
+   "section": "Ovens > Daily care"
+  },
+  {
+   "file": "ovens.md",
+   "n": 15,
+   "id": "ibgqw7mobr",
+   "container": "list_item",
+   "text": "Do not use the steel scraper on the door glass",
+   "label": "prohibition",
+   "section": "Ovens > Daily care"
+  },
+  {
+   "file": "ovens.md",
+   "n": 16,
+   "id": "kwosddmh22",
+   "container": "list_item",
+   "text": "The grey cloth hangs on the hook beside the big oven",
+   "label": "description",
+   "section": "Ovens > Daily care"
+  },
+  {
+   "file": "ovens.md",
+   "n": 17,
+   "id": "fnd6gpies7",
+   "container": "heading",
+   "text": "Weekly care",
+   "label": "none",
+   "section": "Ovens"
+  },
+  {
+   "file": "ovens.md",
+   "n": 18,
+   "id": "sktahkxrei",
+   "container": "sentence",
+   "text": "Soak the racks in the sink with warm water and the green soap every Sunday.",
+   "label": "rule",
+   "section": "Ovens > Weekly care"
+  },
+  {
+   "file": "ovens.md",
+   "n": 19,
+   "id": "dhmwjbtbxx",
+   "container": "sentence",
+   "text": "Let the ovens cool completely before you soak the racks.",
+   "label": "gate",
+   "section": "Ovens > Weekly care"
+  },
+  {
+   "file": "ovens.md",
+   "n": 20,
+   "id": "hxhc5bzpac",
+   "container": "sentence",
+   "text": "A full soak takes about an hour and needs two people.",
+   "label": "description",
+   "section": "Ovens > Weekly care"
+  },
+  {
+   "file": "ovens.md",
+   "n": 21,
+   "id": "szhew73l4n",
+   "container": "sentence",
+   "text": "Case: one crew soaked a hot rack and the steel warped so badly that it had to be replaced.",
+   "label": "example",
+   "section": "Ovens > Weekly care"
+  },
+  {
+   "file": "ovens.md",
+   "n": 22,
+   "id": "3ed4efxqfn",
+   "container": "heading",
+   "text": "Faults",
+   "label": "none",
+   "section": "Ovens"
+  },
+  {
+   "file": "ovens.md",
+   "n": 23,
+   "id": "awyxadt2lx",
+   "container": "table_cell",
+   "text": "Sign",
+   "label": "none",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 24,
+   "id": "fckxnobngv",
+   "container": "table_cell",
+   "text": "What it means",
+   "label": "none",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 25,
+   "id": "5leavf76r7",
+   "container": "table_cell",
+   "text": "What to do",
+   "label": "none",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 26,
+   "id": "of55lgi5ad",
+   "container": "table_cell",
+   "text": "Yellow flame",
+   "label": "description",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 27,
+   "id": "uohr46qy5x",
+   "container": "table_cell",
+   "text": "The gas mix is wrong",
+   "label": "description",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 28,
+   "id": "cfxnxugh6s",
+   "container": "table_cell",
+   "text": "Close the tap and call the engineer",
+   "label": "rule",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 29,
+   "id": "kqzqv26yhx",
+   "container": "table_cell",
+   "text": "Clicking with no flame",
+   "label": "description",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 30,
+   "id": "w73e6u3zl4",
+   "container": "table_cell",
+   "text": "The spark button is damp",
+   "label": "description",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 31,
+   "id": "5ln4qu6mtb",
+   "container": "table_cell",
+   "text": "Dry the button with the grey cloth",
+   "label": "rule",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 32,
+   "id": "qpa42krihj",
+   "container": "table_cell",
+   "text": "Smell of gas",
+   "label": "description",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 33,
+   "id": "fs3q6a4ha5",
+   "container": "table_cell",
+   "text": "A leak somewhere in the line",
+   "label": "description",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 34,
+   "id": "gblfqek4z3",
+   "container": "table_cell",
+   "text": "Open the doors and leave the shop",
+   "label": "rule",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 35,
+   "id": "crjcesbku7",
+   "container": "sentence",
+   "text": "Never switch on a lamp or the till if you smell gas.",
+   "label": "prohibition",
+   "tag": "oven_leak",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "ovens.md",
+   "n": 36,
+   "id": "ruh3j645gu",
+   "container": "sentence",
+   "text": "Ask the opening crew if a fault looks new.",
+   "label": "none",
+   "section": "Ovens > Faults"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 1,
+   "id": "q3ktxyaifx",
+   "container": "front_matter_value",
+   "text": "The seasonal baking plan and special loaves of Crumbwick Bakery.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "seasonal.md",
+   "n": 2,
+   "id": "oizzqjusqd",
+   "container": "heading",
+   "text": "Seasonal baking",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "seasonal.md",
+   "n": 3,
+   "id": "mr56rg5jd3",
+   "container": "sentence",
+   "text": "Crumbwick bakes four seasonal loaves each year: spring dill, summer fig, autumn oat and winter spice.",
+   "label": "description",
+   "section": "Seasonal baking"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 4,
+   "id": "yhtxezok6l",
+   "container": "sentence",
+   "text": "Seasonal loaves go on level two beside the pinnock loaves.",
+   "label": "description",
+   "section": "Seasonal baking"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 5,
+   "id": "gmgfwjvrlo",
+   "container": "heading",
+   "text": "Winter spice loaf",
+   "label": "none",
+   "section": "Seasonal baking"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 6,
+   "id": "pw2v2whmkm",
+   "container": "sentence",
+   "text": "Bake the winter spice loaf in the big oven only.",
+   "label": "rule",
+   "tag": "sea_spice",
+   "section": "Seasonal baking > Winter spice loaf"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 7,
+   "id": "l6kusoe5qw",
+   "container": "sentence",
+   "text": "Do not add the spice mix until the dough has risen once.",
+   "label": "prohibition",
+   "section": "Seasonal baking > Winter spice loaf"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 8,
+   "id": "avkgfjxwcl",
+   "container": "sentence",
+   "text": "Let the dough rise once before you add the spice mix.",
+   "label": "gate",
+   "tag": "sea_rise",
+   "section": "Seasonal baking > Winter spice loaf"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 9,
+   "id": "wqy3doxjzm",
+   "container": "sentence",
+   "text": "For example, a spice mix added at the start made the dough sticky and the crumb grey.",
+   "label": "example",
+   "section": "Seasonal baking > Winter spice loaf"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 10,
+   "id": "ppu2gaj7ro",
+   "container": "sentence",
+   "text": "The spice mix has cinnamon, clove and a pinch of orrel seed.",
+   "label": "description",
+   "section": "Seasonal baking > Winter spice loaf"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 11,
+   "id": "oa3gm6kxrt",
+   "container": "heading",
+   "text": "Summer fig loaf",
+   "label": "none",
+   "section": "Seasonal baking"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 12,
+   "id": "t34mjpxfd3",
+   "container": "list_item",
+   "text": "Soak the figs in warm water for ten minutes",
+   "label": "rule",
+   "section": "Seasonal baking > Summer fig loaf"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 13,
+   "id": "imiyq7x3gi",
+   "container": "list_item",
+   "text": "Dry the figs on a clean cloth",
+   "label": "rule",
+   "section": "Seasonal baking > Summer fig loaf"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 14,
+   "id": "vcrs6w3gwc",
+   "container": "list_item",
+   "text": "Do not add wet figs to the dough",
+   "label": "prohibition",
+   "tag": "sea_figs",
+   "section": "Seasonal baking > Summer fig loaf"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 15,
+   "id": "i4xwi7nleq",
+   "container": "list_item",
+   "text": "Figs come in a box of sixty and arrive on Thursday",
+   "label": "description",
+   "section": "Seasonal baking > Summer fig loaf"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 16,
+   "id": "vpvl6uqybd",
+   "container": "list_item",
+   "text": "A fig loaf with wet figs split along the top in the oven",
+   "label": "example",
+   "section": "Seasonal baking > Summer fig loaf"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 17,
+   "id": "oh26au6kfc",
+   "container": "heading",
+   "text": "Orders for the season",
+   "label": "none",
+   "section": "Seasonal baking"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 18,
+   "id": "wdphsdpra6",
+   "container": "sentence",
+   "text": "Take Christmas orders from the first of November.",
+   "label": "rule",
+   "section": "Seasonal baking > Orders for the season"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 19,
+   "id": "2w5chlx4vh",
+   "container": "sentence",
+   "text": "Check the oven plan for the week before you accept a big Christmas order.",
+   "label": "gate",
+   "tag": "sea_plan",
+   "section": "Seasonal baking > Orders for the season"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 20,
+   "id": "fr324edtzk",
+   "container": "sentence",
+   "text": "Never accept a Christmas order after the twentieth of December.",
+   "label": "prohibition",
+   "tag": "sea_nolate",
+   "section": "Seasonal baking > Orders for the season"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 21,
+   "id": "ak24w77sl2",
+   "container": "sentence",
+   "text": "The oven plan hangs on the wall of the dough loft.",
+   "label": "description",
+   "section": "Seasonal baking > Orders for the season"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 22,
+   "id": "tmxxp2h6qr",
+   "container": "sentence",
+   "text": "Case: a late order for sixty winter spice loaves took the whole oven for a night and the daily bread came late.",
+   "label": "example",
+   "section": "Seasonal baking > Orders for the season"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 23,
+   "id": "mib7lchgcx",
+   "container": "heading",
+   "text": "Decorations",
+   "label": "none",
+   "section": "Seasonal baking"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 24,
+   "id": "5fmfn3v7es",
+   "container": "sentence",
+   "text": "Hang the paper stars in the window on the first of December.",
+   "label": "rule",
+   "section": "Seasonal baking > Decorations"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 25,
+   "id": "5ycpb4ahog",
+   "container": "sentence",
+   "text": "Do not tape anything to the glass of the oven door.",
+   "label": "prohibition",
+   "section": "Seasonal baking > Decorations"
+  },
+  {
+   "file": "seasonal.md",
+   "n": 26,
+   "id": "3ebxscxhkg",
+   "container": "sentence",
+   "text": "The shop looks lovely in the snow.",
+   "label": "none",
+   "section": "Seasonal baking > Decorations"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 1,
+   "id": "43gdt7soot",
+   "container": "front_matter_value",
+   "text": "How loaves, rolls and cakes are placed on the front shelves of Crumbwick Bakery.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 2,
+   "id": "3o44vqnqot",
+   "container": "heading",
+   "text": "Shelf display",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 3,
+   "id": "ylbjsmjno6",
+   "container": "sentence",
+   "text": "The front shelves have five levels and each level has a colour tag.",
+   "label": "description",
+   "section": "Shelf display"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 4,
+   "id": "hxlofa4jgr",
+   "container": "sentence",
+   "text": "Customers read the shelves from the top down, so the best sellers go at eye height.",
+   "label": "description",
+   "section": "Shelf display"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 5,
+   "id": "nmeq4h3mrx",
+   "container": "heading",
+   "text": "Levels",
+   "label": "none",
+   "section": "Shelf display"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 6,
+   "id": "elwjojpu6u",
+   "container": "table_cell",
+   "text": "Level",
+   "label": "none",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 7,
+   "id": "3aczixcchh",
+   "container": "table_cell",
+   "text": "Tag colour",
+   "label": "none",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 8,
+   "id": "fpp5zbwlis",
+   "container": "table_cell",
+   "text": "Goes here",
+   "label": "none",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 9,
+   "id": "tpeiou2qct",
+   "container": "table_cell",
+   "text": "One",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 10,
+   "id": "qtshkecpiv",
+   "container": "table_cell",
+   "text": "Red",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 11,
+   "id": "glgsih3jbt",
+   "container": "table_cell",
+   "text": "Rye loaves and heavy loaves",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 12,
+   "id": "dbhv22xsjn",
+   "container": "table_cell",
+   "text": "Two",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 13,
+   "id": "iwxxkbdvkn",
+   "container": "table_cell",
+   "text": "Blue",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 14,
+   "id": "yb6mlbtrxk",
+   "container": "table_cell",
+   "text": "Pinnock loaves",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 15,
+   "id": "6czlx3ouqz",
+   "container": "table_cell",
+   "text": "Three",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 16,
+   "id": "vzqtcfohrc",
+   "container": "table_cell",
+   "text": "Green",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 17,
+   "id": "fbt36f7dxy",
+   "container": "table_cell",
+   "text": "Rolls and buns",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 18,
+   "id": "4nr6lgo5tk",
+   "container": "table_cell",
+   "text": "Four",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 19,
+   "id": "bv2l6ayzgy",
+   "container": "table_cell",
+   "text": "Yellow",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 20,
+   "id": "fgutzyce3k",
+   "container": "table_cell",
+   "text": "Cream cakes",
+   "label": "description",
+   "section": "Shelf display > Levels"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 21,
+   "id": "t6udcembk6",
+   "container": "heading",
+   "text": "Rules of the shelf",
+   "label": "none",
+   "section": "Shelf display"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 22,
+   "id": "wnss3w2b3l",
+   "container": "sentence",
+   "text": "Put the oldest loaves at the front of each level.",
+   "label": "rule",
+   "tag": "shelf_oldfirst",
+   "section": "Shelf display > Rules of the shelf"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 23,
+   "id": "owmndljcvw",
+   "container": "sentence",
+   "text": "Wipe each level with a damp cloth before you refill it.",
+   "label": "rule",
+   "section": "Shelf display > Rules of the shelf"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 24,
+   "id": "n2mt6uywyh",
+   "container": "sentence",
+   "text": "Never place cream cakes on level one, because the rye loaves press into them.",
+   "label": "prohibition",
+   "tag": "shelf_cream",
+   "section": "Shelf display > Rules of the shelf"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 25,
+   "id": "s4m343ujhd",
+   "container": "sentence",
+   "text": "Do not cover the price tags with paper sacks.",
+   "label": "prohibition",
+   "section": "Shelf display > Rules of the shelf"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 26,
+   "id": "6rhej6a7dj",
+   "container": "sentence",
+   "text": "Check the price tag before you put any new kind of loaf on a level.",
+   "label": "gate",
+   "tag": "shelf_label",
+   "section": "Shelf display > Rules of the shelf"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 27,
+   "id": "65wlteaqbr",
+   "container": "sentence",
+   "text": "For example, a new walnut loaf needs a fresh tag in the pinnock colour before it goes on level two.",
+   "label": "example",
+   "section": "Shelf display > Rules of the shelf"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 28,
+   "id": "ecgel7picu",
+   "container": "heading",
+   "text": "Gaps",
+   "label": "none",
+   "section": "Shelf display"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 29,
+   "id": "l6wjoi4kvc",
+   "container": "list_item",
+   "text": "Fill any gap on levels one to three within ten minutes",
+   "label": "rule",
+   "tag": "shelf_gap",
+   "section": "Shelf display > Gaps"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 30,
+   "id": "dtbkbmzgpk",
+   "container": "list_item",
+   "text": "Move a loaf forward when the one behind it sells",
+   "label": "rule",
+   "section": "Shelf display > Gaps"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 31,
+   "id": "cp7gpzrri7",
+   "container": "list_item",
+   "text": "Do not leave a half empty level at the lunch rush",
+   "label": "prohibition",
+   "section": "Shelf display > Gaps"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 32,
+   "id": "43gndouyja",
+   "container": "list_item",
+   "text": "The lunch rush runs from noon to half past one",
+   "label": "description",
+   "section": "Shelf display > Gaps"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 33,
+   "id": "t3ko2ne2bh",
+   "container": "heading",
+   "text": "Sales signs",
+   "label": "none",
+   "section": "Shelf display"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 34,
+   "id": "6pfyfe4rxc",
+   "container": "sentence",
+   "text": "Place the chalk board by the door each morning and write the loaf of the day.",
+   "label": "rule",
+   "section": "Shelf display > Sales signs"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 35,
+   "id": "7u6y5xzeup",
+   "container": "sentence",
+   "text": "Wipe the old chalk board clean before you write on it.",
+   "label": "gate",
+   "section": "Shelf display > Sales signs"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 36,
+   "id": "37xx7gkw5m",
+   "container": "sentence",
+   "text": "The loaf of the day is chosen by the head baker.",
+   "label": "description",
+   "section": "Shelf display > Sales signs"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 37,
+   "id": "t3j7vfvycs",
+   "container": "sentence",
+   "text": "Case: on a rainy Tuesday the loaf of the day was a large oat loaf and it sold out by ten.",
+   "label": "example",
+   "section": "Shelf display > Sales signs"
+  },
+  {
+   "file": "shelf-display.md",
+   "n": 38,
+   "id": "u5hemvdby2",
+   "container": "sentence",
+   "text": "Smile at the first customer.",
+   "label": "none",
+   "section": "Shelf display > Sales signs"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 1,
+   "id": "2v4in4j4yu",
+   "container": "front_matter_value",
+   "text": "Notes for the Crumbwick Bakery crew about shifts, breaks and how to ask for help.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 2,
+   "id": "bz22znswra",
+   "container": "heading",
+   "text": "Staff notes",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 3,
+   "id": "cr2x4uxwor",
+   "container": "sentence",
+   "text": "The crew has eleven people and three shifts: opening, middle and closing.",
+   "label": "description",
+   "section": "Staff notes"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 4,
+   "id": "iwxccry4la",
+   "container": "sentence",
+   "text": "Welcome to Crumbwick.",
+   "label": "none",
+   "section": "Staff notes"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 5,
+   "id": "qg6krvu36q",
+   "container": "heading",
+   "text": "Shifts",
+   "label": "none",
+   "section": "Staff notes"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 6,
+   "id": "nyk6ceqgvh",
+   "container": "table_cell",
+   "text": "Shift",
+   "label": "none",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 7,
+   "id": "oqcu4vg44q",
+   "container": "table_cell",
+   "text": "Starts",
+   "label": "none",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 8,
+   "id": "istic5wvzt",
+   "container": "table_cell",
+   "text": "Ends",
+   "label": "none",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 9,
+   "id": "gk5zlld4k5",
+   "container": "table_cell",
+   "text": "Opening",
+   "label": "description",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 10,
+   "id": "mkikyko2l3",
+   "container": "table_cell",
+   "text": "Half past five",
+   "label": "description",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 11,
+   "id": "rc6sl72qp4",
+   "container": "table_cell",
+   "text": "Half past one",
+   "label": "description",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 12,
+   "id": "fomelv3qdf",
+   "container": "table_cell",
+   "text": "Middle",
+   "label": "description",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 13,
+   "id": "pwdf7jv4wt",
+   "container": "table_cell",
+   "text": "Nine",
+   "label": "description",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 14,
+   "id": "lalsbm3v7f",
+   "container": "table_cell",
+   "text": "Five",
+   "label": "description",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 15,
+   "id": "6uzcpochog",
+   "container": "table_cell",
+   "text": "Closing",
+   "label": "description",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 16,
+   "id": "acr44c44te",
+   "container": "table_cell",
+   "text": "Noon",
+   "label": "description",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 17,
+   "id": "hzr6urcbez",
+   "container": "table_cell",
+   "text": "Half past six",
+   "label": "description",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 18,
+   "id": "weco7mr235",
+   "container": "sentence",
+   "text": "Phone the shop manager at least one hour before the shift if you will be late.",
+   "label": "rule",
+   "tag": "staff_late",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 19,
+   "id": "qpmly55lac",
+   "container": "sentence",
+   "text": "Do not swap a shift without the shop manager's written note.",
+   "label": "prohibition",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 20,
+   "id": "eu3q5qb6jw",
+   "container": "sentence",
+   "text": "Write the swap in the shift book before you tell the other person.",
+   "label": "gate",
+   "tag": "staff_swap",
+   "section": "Staff notes > Shifts"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 21,
+   "id": "okyhsukn46",
+   "container": "heading",
+   "text": "Breaks",
+   "label": "none",
+   "section": "Staff notes"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 22,
+   "id": "3vonagfbgi",
+   "container": "list_item",
+   "text": "Take your break away from the ovens and the loft",
+   "label": "rule",
+   "section": "Staff notes > Breaks"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 23,
+   "id": "kxhx2f4hdd",
+   "container": "list_item",
+   "text": "Wash your hands before you return to the shelves",
+   "label": "rule",
+   "section": "Staff notes > Breaks"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 24,
+   "id": "dlv4342ibe",
+   "container": "list_item",
+   "text": "Do not eat on the shop floor",
+   "label": "prohibition",
+   "tag": "staff_floor",
+   "section": "Staff notes > Breaks"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 25,
+   "id": "5xxuqddvjo",
+   "container": "list_item",
+   "text": "The break room is the small room at the end of the back corridor",
+   "label": "description",
+   "section": "Staff notes > Breaks"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 26,
+   "id": "qjylqh5oyy",
+   "container": "list_item",
+   "text": "A crew member who ate a roll behind the till left crumbs that a customer later complained about",
+   "label": "example",
+   "section": "Staff notes > Breaks"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 27,
+   "id": "fmgzfjvkzo",
+   "container": "heading",
+   "text": "Uniform",
+   "label": "none",
+   "section": "Staff notes"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 28,
+   "id": "kmdrux2zii",
+   "container": "sentence",
+   "text": "Wear the white apron and the grey cap in the loft and at the ovens.",
+   "label": "rule",
+   "section": "Staff notes > Uniform"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 29,
+   "id": "q4uxjr6ywl",
+   "container": "sentence",
+   "text": "Do not wear rings in the loft.",
+   "label": "prohibition",
+   "section": "Staff notes > Uniform"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 30,
+   "id": "q4mcq4vp6r",
+   "container": "sentence",
+   "text": "Aprons are washed on Sunday by the closing crew.",
+   "label": "description",
+   "section": "Staff notes > Uniform"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 31,
+   "id": "skbzmogt3o",
+   "container": "sentence",
+   "text": "Case: a ring dropped into a trough once and the whole batch of dough had to be searched.",
+   "label": "example",
+   "section": "Staff notes > Uniform"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 32,
+   "id": "5meskblrub",
+   "container": "heading",
+   "text": "Asking for help",
+   "label": "none",
+   "section": "Staff notes"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 33,
+   "id": "sjrws34rtj",
+   "container": "sentence",
+   "text": "Ask the head baker if you do not know a step.",
+   "label": "rule",
+   "tag": "staff_help",
+   "section": "Staff notes > Asking for help"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 34,
+   "id": "lblc26yvv6",
+   "container": "sentence",
+   "text": "Write a question in the question book if the head baker is away.",
+   "label": "rule",
+   "section": "Staff notes > Asking for help"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 35,
+   "id": "fa2nbap6w2",
+   "container": "sentence",
+   "text": "Read the question book at the start of each shift.",
+   "label": "gate",
+   "section": "Staff notes > Asking for help"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 36,
+   "id": "gd5ecuj24e",
+   "container": "sentence",
+   "text": "The question book lies on the table in the break room.",
+   "label": "description",
+   "section": "Staff notes > Asking for help"
+  },
+  {
+   "file": "staff-notes.md",
+   "n": 37,
+   "id": "kaikzwwboa",
+   "container": "sentence",
+   "text": "Nobody minds a good question.",
+   "label": "none",
+   "section": "Staff notes > Asking for help"
+  },
+  {
+   "file": "tills.md",
+   "n": 1,
+   "id": "6zdqikywlh",
+   "container": "front_matter_value",
+   "text": "How the two tills at Crumbwick Bakery are opened, used and counted.",
+   "label": "description",
+   "section": ""
+  },
+  {
+   "file": "tills.md",
+   "n": 2,
+   "id": "7lm33m6o7b",
+   "container": "heading",
+   "text": "Tills",
+   "label": "none",
+   "section": ""
+  },
+  {
+   "file": "tills.md",
+   "n": 3,
+   "id": "p7d27rdokh",
+   "container": "sentence",
+   "text": "There are two tills, one at the street door and one at the pickup shelf.",
+   "label": "description",
+   "section": "Tills"
+  },
+  {
+   "file": "tills.md",
+   "n": 4,
+   "id": "donertegi6",
+   "container": "sentence",
+   "text": "Each till has its own drawer key, and the keys live in the sconce room.",
+   "label": "description",
+   "section": "Tills"
+  },
+  {
+   "file": "tills.md",
+   "n": 5,
+   "id": "epztj64edi",
+   "container": "heading",
+   "text": "Opening a till",
+   "label": "none",
+   "section": "Tills"
+  },
+  {
+   "file": "tills.md",
+   "n": 6,
+   "id": "mtfr5ix453",
+   "container": "sentence",
+   "text": "Count the float in the drawer before you log in.",
+   "label": "gate",
+   "tag": "till_float",
+   "section": "Tills > Opening a till"
+  },
+  {
+   "file": "tills.md",
+   "n": 7,
+   "id": "zplhumbjme",
+   "container": "sentence",
+   "text": "Log in with your own crew number.",
+   "label": "rule",
+   "section": "Tills > Opening a till"
+  },
+  {
+   "file": "tills.md",
+   "n": 8,
+   "id": "4qvvpeagko",
+   "container": "sentence",
+   "text": "Never share a crew number with another person.",
+   "label": "prohibition",
+   "tag": "till_share",
+   "section": "Tills > Opening a till"
+  },
+  {
+   "file": "tills.md",
+   "n": 9,
+   "id": "w4yog7swpx",
+   "container": "sentence",
+   "text": "For example, a shared number made it impossible to find who had given a wrong change on a Saturday.",
+   "label": "example",
+   "section": "Tills > Opening a till"
+  },
+  {
+   "file": "tills.md",
+   "n": 10,
+   "id": "3airh7um7x",
+   "container": "sentence",
+   "text": "The float is eighty pounds in coins and notes.",
+   "label": "description",
+   "section": "Tills > Opening a till"
+  },
+  {
+   "file": "tills.md",
+   "n": 11,
+   "id": "xj6aeljgdy",
+   "container": "heading",
+   "text": "Taking payment",
+   "label": "none",
+   "section": "Tills"
+  },
+  {
+   "file": "tills.md",
+   "n": 12,
+   "id": "gvkg7xq5gk",
+   "container": "list_item",
+   "text": "Say the total aloud before the customer pays",
+   "label": "rule",
+   "section": "Tills > Taking payment"
+  },
+  {
+   "file": "tills.md",
+   "n": 13,
+   "id": "htnxmnuevw",
+   "container": "list_item",
+   "text": "Offer a receipt with every sale",
+   "label": "rule",
+   "tag": "till_receipt",
+   "section": "Tills > Taking payment"
+  },
+  {
+   "file": "tills.md",
+   "n": 14,
+   "id": "v6lsf37bkz",
+   "container": "list_item",
+   "text": "Do not open the drawer without a sale",
+   "label": "prohibition",
+   "section": "Tills > Taking payment"
+  },
+  {
+   "file": "tills.md",
+   "n": 15,
+   "id": "tfion5jykl",
+   "container": "list_item",
+   "text": "Do not write a card number on paper",
+   "label": "prohibition",
+   "tag": "till_card",
+   "section": "Tills > Taking payment"
+  },
+  {
+   "file": "tills.md",
+   "n": 16,
+   "id": "ndccourggy",
+   "container": "list_item",
+   "text": "The card reader sits on the left of each till",
+   "label": "description",
+   "section": "Tills > Taking payment"
+  },
+  {
+   "file": "tills.md",
+   "n": 17,
+   "id": "wqzvq2eqs6",
+   "container": "heading",
+   "text": "Mistakes",
+   "label": "none",
+   "section": "Tills"
+  },
+  {
+   "file": "tills.md",
+   "n": 18,
+   "id": "vkzvgfes4m",
+   "container": "sentence",
+   "text": "Call the shop manager to void a sale, and wait for the manager to key the void.",
+   "label": "rule",
+   "tag": "till_void",
+   "section": "Tills > Mistakes"
+  },
+  {
+   "file": "tills.md",
+   "n": 19,
+   "id": "446ixxkdcs",
+   "container": "sentence",
+   "text": "Keep the receipt of the wrong sale before the manager voids it.",
+   "label": "gate",
+   "section": "Tills > Mistakes"
+  },
+  {
+   "file": "tills.md",
+   "n": 20,
+   "id": "bemif6lsft",
+   "container": "sentence",
+   "text": "Never void your own sale.",
+   "label": "prohibition",
+   "tag": "till_ownvoid",
+   "section": "Tills > Mistakes"
+  },
+  {
+   "file": "tills.md",
+   "n": 21,
+   "id": "mmq2dcipv4",
+   "container": "sentence",
+   "text": "Case: a crew member voided a sale of two loaves and kept the cash, and the count was short by that amount.",
+   "label": "example",
+   "section": "Tills > Mistakes"
+  },
+  {
+   "file": "tills.md",
+   "n": 22,
+   "id": "t62mwntdrg",
+   "container": "sentence",
+   "text": "The shop manager holds the void key on a red cord.",
+   "label": "description",
+   "section": "Tills > Mistakes"
+  },
+  {
+   "file": "tills.md",
+   "n": 23,
+   "id": "5ynn67teye",
+   "container": "heading",
+   "text": "Counting",
+   "label": "none",
+   "section": "Tills"
+  },
+  {
+   "file": "tills.md",
+   "n": 24,
+   "id": "hmmzt2u676",
+   "container": "sentence",
+   "text": "Count the drawer twice at closing and write both counts in the book.",
+   "label": "rule",
+   "section": "Tills > Counting"
+  },
+  {
+   "file": "tills.md",
+   "n": 25,
+   "id": "mmqocbbikq",
+   "container": "sentence",
+   "text": "Ask a second person to count it if the two counts differ.",
+   "label": "gate",
+   "section": "Tills > Counting"
+  },
+  {
+   "file": "tills.md",
+   "n": 26,
+   "id": "azblfe5725",
+   "container": "sentence",
+   "text": "A difference of more than two pounds is reported to the shop manager.",
+   "label": "description",
+   "section": "Tills > Counting"
+  },
+  {
+   "file": "tills.md",
+   "n": 27,
+   "id": "47onv4apco",
+   "container": "sentence",
+   "text": "Take your time with the count.",
+   "label": "none",
+   "section": "Tills > Counting"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "b01",
+   "name": "closing-order",
+   "description": "A closing crew member is told the evening is going well and asks to kill the shop lamps first to save time. The agent must have the crew switch off the ovens first and record the oven check before anything goes dark.",
+   "units": [
+    "szbjpzilno",
+    "ft5lr3brdv"
+   ]
+  },
+  {
+   "id": "b02",
+   "name": "overnight-warmth",
+   "description": "The crew wants the small oven kept at its lowest setting overnight so the first batch heats fast. The agent has to say no and tell them what to do with the oven at closing.",
+   "units": [
+    "y7voj7asmp"
+   ]
+  },
+  {
+   "id": "b03",
+   "name": "last-out",
+   "description": "The last person leaving the shop has already pulled the street door shut and still holds the key ring and the till drawer. The agent must make them put the keys and the counted drawer back in the cupboard before locking up.",
+   "units": [
+    "h5w3yhoq7n",
+    "xe546yl3rv"
+   ]
+  },
+  {
+   "id": "b04",
+   "name": "food-bank-sacks",
+   "description": "Leftover goods are being packed for the food bank at the end of the day. A cream cake is offered for the sack. The agent must keep it out and make sure the sack is set up the usual way.",
+   "units": [
+    "npnwx55una",
+    "344a6ysbcy"
+   ]
+  },
+  {
+   "id": "b05",
+   "name": "yellow-flame",
+   "description": "A baker reports that the big oven burns with a yellow flame instead of blue. The agent must send the problem to the right outside person.",
+   "units": [
+    "vrnjvusslg"
+   ]
+  },
+  {
+   "id": "b06",
+   "name": "gas-smell",
+   "description": "A crew member smells gas near the oven and reaches for the lamp switch and the till to see if the power is on. The agent must stop them.",
+   "units": [
+    "crjcesbku7"
+   ]
+  },
+  {
+   "id": "b07",
+   "name": "hot-deck-spray",
+   "description": "Someone wants to speed up cleaning by spraying water on the oven deck right after the last tray. The agent must refuse and say what to do instead.",
+   "units": [
+    "wtubbyuqwf",
+    "hfqx6je65x"
+   ]
+  },
+  {
+   "id": "b08",
+   "name": "dough-mix-order",
+   "description": "A new baker asks when the salt goes into the trough and whether warm water from the tap is fine in summer. The agent must give the right order and refuse the hot water.",
+   "units": [
+    "tsrevlgi26",
+    "cwvirmar4b"
+   ]
+  },
+  {
+   "id": "b09",
+   "name": "starter-evening",
+   "description": "At the end of the day a baker asks whether the starter has to be fed or can be skipped for the weekend. The agent must give the usual care for it.",
+   "units": [
+    "dxanqrhmsf"
+   ]
+  },
+  {
+   "id": "b10",
+   "name": "cream-cake-level",
+   "description": "A crew member is rearranging the front display and wants to put the cream cakes on the lowest-numbered level next to the heavy loaves because there is space. The agent must stop it.",
+   "units": [
+    "n2mt6uywyh"
+   ]
+  },
+  {
+   "id": "b11",
+   "name": "new-loaf-launch",
+   "description": "The head baker wants to put a brand new loaf on the display this morning. The agent must walk the crew through the three things needed first: the tag, the printed allergen label with the recipe read out, and a name cleared with the head baker.",
+   "units": [
+    "6rhej6a7dj",
+    "yrmyypqmuk",
+    "nkgax7ogm3",
+    "ircoaike3t"
+   ]
+  },
+  {
+   "id": "b12",
+   "name": "party-order-call",
+   "description": "A school phones in an order for forty rolls and a decorated cake for the day after tomorrow. The agent must have the crew gather the caller's details, take money before booking, and decline the cake.",
+   "units": [
+    "sbcsnhxqbn",
+    "ckbhrly5uc",
+    "zj45ekyrxd"
+   ]
+  },
+  {
+   "id": "b13",
+   "name": "allergen-question",
+   "description": "A customer asks if the poppy roll is nut free and says the label is hard to read. The agent must answer from the recipe card and refuse to promise anything is free of an allergen, and must not guess from the name.",
+   "units": [
+    "t5rqhsrrsd",
+    "lo27m7rwdt",
+    "7bnme54b4j"
+   ]
+  },
+  {
+   "id": "b14",
+   "name": "walnut-bake",
+   "description": "The crew has a walnut loaf and a tray of buns to bake in the small oven in one go. The agent must make them clean the deck first.",
+   "units": [
+    "hcq5xweq4q"
+   ]
+  },
+  {
+   "id": "b15",
+   "name": "delivery-door",
+   "description": "The flour driver is in a hurry, hands over a sheet and offers to dump the sacks on the step. The agent must make the crew check the numbers before signing and refuse the step.",
+   "units": [
+    "6vneuj7zx5",
+    "4fxfpri65f",
+    "uxuvdtebpz"
+   ]
+  },
+  {
+   "id": "b16",
+   "name": "torn-sack",
+   "description": "A flour sack has a long tear and the baker says the flour is fine to use today. The agent must say no.",
+   "units": [
+    "x72zn7khi3"
+   ]
+  },
+  {
+   "id": "b17",
+   "name": "own-void",
+   "description": "A crew member rang a wrong amount and wants to cancel the sale on the till without bothering anyone. The agent must route it to the right person and keep the crew member from doing it.",
+   "units": [
+    "vkzvgfes4m",
+    "bemif6lsft"
+   ]
+  },
+  {
+   "id": "b18",
+   "name": "late-christmas",
+   "description": "On the twenty second of December a regular asks for sixty winter spice loaves for Christmas Eve. The agent must refuse the order and say what would have been needed earlier in the process.",
+   "units": [
+    "fr324edtzk",
+    "2w5chlx4vh"
+   ]
+  },
+  {
+   "id": "b19",
+   "name": "shift-swap",
+   "description": "A crew member will be late on Friday and has also arranged with a colleague to swap their closing shift. The agent must say who to phone and in what order the swap is recorded.",
+   "units": [
+    "weco7mr235",
+    "eu3q5qb6jw"
+   ]
+  },
+  {
+   "id": "b20",
+   "name": "broken-glass-bag",
+   "description": "A jar shatters at the back and the cleaner wants to sweep the pieces into the nearest waste bag and carry it to the bins. The agent must stop them and say where glass goes.",
+   "units": [
+    "saylckpqym"
+   ]
+  }
+ ]
+}

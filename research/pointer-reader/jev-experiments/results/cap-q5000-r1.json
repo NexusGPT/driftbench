@@ -1,0 +1,1 @@
+{"runId":"cap-q5000-r1","arm":"cap","variant":"5000 questions in one call","cfg":{"perCall":1000,"questions":5000},"calls":[{"i":0,"first":1,"last":1000,"units":1000,"nq":5000,"ms":643,"ok":false,"status":400,"error":"{\"detail\":{\"error_type\":\"max_tokens_exceeded\"}}","tokIn":0,"tokOut":0}],"probs":{},"asked":5000,"missing":5000,"wallMs":1450}

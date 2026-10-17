@@ -1,0 +1,26 @@
+@fm description | description | The words used by the Crumbwick Bakery crew and what each one means.
+# Glossary
+s description | New crew members hear these words on their first morning.
+t none | Word | none | Meaning
+t description | Pinnock | description | A small round dough ball that is the start of a loaf
+t description | Sconce room | description | The small cupboard behind the till that holds the keys
+t description | Plinth | description | The steel bench under the east window where racks cool
+t description | Wobbin | description | The name of the sourdough starter
+t description | Tarn flour | description | The coarse flour from the hill mill
+## Usage
+s rule | Use the word pinnock for the dough ball and never for a finished loaf.
+s prohibition | Do not call the sconce room the safe, because it holds keys and not money.
+s example | For example, write that the opening crew carried six pinnocks down, not six loaves.
+s description | The word plinth comes from the old stone bench that once stood there.
+s rule | Ask if you hear a word that is not here.
+## Short forms
+l description | OB means the order book
+l description | CB means the closing book
+l description | SB means the shift book
+l rule | Spell out a short form the first time you use it in a note
+l prohibition | Do not use a short form on a customer label
+## Naming loaves
+s gate{gloss_names} | Give a new loaf a name of one or two words, and tell the head baker before you use it.
+s gate | Check the name against the allergen folder before it goes on a tag.
+s description | The best known loaf is the Tarn Rye, which sells out by ten.
+s example | Case: a loaf called Nut Free Rye was named by a new crew member and had to be renamed the same day.
