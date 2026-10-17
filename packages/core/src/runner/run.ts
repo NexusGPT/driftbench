@@ -12,6 +12,7 @@ import {
   type BlockResult,
   type NotRun,
   Observed,
+  type ResolvedGiven,
   type RetryEvent,
   type RunEvent,
   type RunMode,
@@ -22,6 +23,7 @@ import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from 
 import { cloneJson, contentHash } from '../spec/hash';
 import { specHash as specHashOf, specIdentity } from '../spec/identity';
 import { parentOrder } from '../spec/parents';
+import { type GivenFinding, verifyGiven } from '../spec/verify-given';
 import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
 import { capabilityGap } from './capability';
@@ -273,6 +275,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     endState,
     sources: endStateSources(endState),
     signatures: stageSignatures(spec),
+    givenGaps: givenGaps(spec),
     recovery: {
       ...(options.reference ? { reference: options.reference } : {}),
       ...(options.consequential ? { consequential: options.consequential } : {}),
@@ -339,6 +342,8 @@ type RunContext = {
   sources: string[];
   /** The tools each stage of the spec's catalogue expects, for the step classifier. */
   signatures: Map<string, Set<string>>;
+  /** The Given error each spec block starts from, by the static verifier; absent for a block with none. */
+  givenGaps: Map<number, NotRun>;
   recovery: RecoveryOptions;
 };
 
@@ -395,6 +400,72 @@ type Channel = {
 
 class RunnerError extends Error {
   override name = 'RunnerError';
+}
+
+/** The setup of a new session does not hold the Given: the block is not run, kind setup_failed. */
+class SetupCheckFailed extends Error {
+  override name = 'SetupCheckFailed';
+  constructor(readonly notRun: NotRun) {
+    super(`${notRun.check}: expected ${notRun.expected}; got ${notRun.got}`);
+  }
+}
+
+/**
+ * The Given error each spec block starts from, by the static verifier. A finding on a block's prefix or shared
+ * facts holds for that block and the later ones that keep its history (no prefix of their own); a finding
+ * on the world holds from its block on, as the world merges forward; one on the spec's own Given holds for
+ * every block.
+ */
+function givenGaps(spec: Spec): Map<number, NotRun> {
+  const findings = verifyGiven(spec).filter((finding) => finding.level === 'not_run');
+  const gaps = new Map<number, NotRun>();
+  const strip = ({ kind, layer, check, expected, got }: GivenFinding): NotRun => ({
+    kind,
+    layer,
+    check,
+    expected,
+    got,
+  });
+  const whole = findings.find((finding) => finding.block === undefined);
+  let history: NotRun | undefined;
+  let world: NotRun | undefined;
+  spec.blocks.forEach((block, index) => {
+    if (block.given?.prefix !== undefined) history = undefined;
+    for (const finding of findings.filter((found) => found.block === index)) {
+      if (finding.layer === '5 world') world ??= strip(finding);
+      else history ??= strip(finding);
+    }
+    const gap = (whole ? strip(whole) : undefined) ?? history ?? world;
+    if (gap) gaps.set(index, gap);
+  });
+  return gaps;
+}
+
+/**
+ * The dynamic check after setup (`world_digest`): on a new session of an adapter that owns a sandbox, every
+ * file the Given writes inline reads back with the content written. Throws SetupCheckFailed otherwise.
+ */
+async function checkSetup(adapter: AgentAdapter, session: Session, given: ResolvedGiven): Promise<void> {
+  const files = given.world.workspace?.files;
+  const read = adapter.readArtifact;
+  if (!files || !read) return;
+  const differ: string[] = [];
+  for (const [path, content] of Object.entries(files)) {
+    try {
+      const back = Buffer.from(await read.call(adapter, session, path.replace(/^\.\//, ''))).toString('utf8');
+      if (back !== content) differ.push(`${path} differs`);
+    } catch (cause) {
+      differ.push(`${path} cannot be read: ${describeError(cause)}`);
+    }
+  }
+  if (differ.length === 0) return;
+  throw new SetupCheckFailed({
+    kind: 'setup_failed',
+    layer: '5 world',
+    check: 'world_digest',
+    expected: `the ${Object.keys(files).length} files of world.workspace read back as written`,
+    got: differ.slice(0, 5).join('; '),
+  });
 }
 
 /** Runs the loop over one channel. Returns undefined when a replay misses, so the run goes live instead. */
@@ -599,31 +670,16 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
                 got: startUnexported,
               }
             : undefined;
-      const notRun =
-        missingSnapshot ??
-        capabilityGap(run.adapter.id, run.capabilities, {
-          // In mode T the block starts from the canonical history: the latest written prefix, then the blocks
-          // after it; in F and P from the prefix the spec wrote, the session holding the agent's own turns.
-          ...(run.mode === 'T'
-            ? history.length === 0
-              ? {}
-              : {
-                  prefix:
-                    run.parentOrder ||
-                    latestPrefixWritten(spec, step.kind === 'block' ? step.blockIndex : position)
-                      ? ('authored' as const)
-                      : ('canonical' as const),
-                }
-            : prefixWritten
-              ? { prefix: 'authored' as const }
-              : {}),
-          world: state.world,
-        });
-      if (notRun) {
+      // A block whose Given cannot be applied is not_run, never a silent drop and never a verdict on the agent.
+      // In mode T the block alone; in a parent-linked run the block is recorded like any block, so its
+      // children are blocked and the other trees run on; in F and P without parents the free conversation cannot
+      // go past it, so every later spec block is not run either and the driver is not asked for more steps.
+      // Returns true to end the loop.
+      const stopAt = (notRun: NotRun, started: boolean): boolean => {
         const specIndex = step.kind === 'block' ? step.blockIndex : step.beforeBlock;
         const ledger = addFacts(state.ledger, planned.expect.ledger_add).ledger;
         blocks.push(
-          notRunBlock(run, position, planned, { givenHash: given.hash, specIndex, ledger }, notRun),
+          notRunBlock(run, position, planned, { givenHash: given.hash, specIndex, ledger }, notRun, started),
         );
         if (run.parentOrder) {
           const result = blocks.at(-1) as BlockResult;
@@ -635,11 +691,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
               history: copyHistory(history),
               result,
             });
-          continue;
+          return false;
         }
-        if (run.mode === 'T') continue;
-        // In F and P the free conversation cannot go past a block it did not run: every later spec block is
-        // not run either, and the driver is not asked for more steps.
+        if (run.mode === 'T') return false;
         // Each later block is stamped as a run reconstructs it (a re-judge checks the stamps): the blocks before
         // it with their user messages and an empty reply, and the facts their ledger_add establishes.
         const from = step.kind === 'block' ? step.blockIndex + 1 : nextBlock;
@@ -676,7 +730,34 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
             ),
           );
         }
-        break;
+        return true;
+      };
+      // The static Given verifier first (a Given error of the spec), then the capability check (a layer the
+      // adapter cannot apply).
+      const unmet =
+        (specIndex !== undefined ? run.givenGaps.get(specIndex) : undefined) ??
+        missingSnapshot ??
+        capabilityGap(run.adapter.id, run.capabilities, {
+          // In mode T the block starts from the canonical history: the latest written prefix, then the blocks
+          // after it; in F and P from the prefix the spec wrote, the session holding the agent's own turns.
+          ...(run.mode === 'T'
+            ? history.length === 0
+              ? {}
+              : {
+                  prefix:
+                    run.parentOrder ||
+                    latestPrefixWritten(spec, step.kind === 'block' ? step.blockIndex : position)
+                      ? ('authored' as const)
+                      : ('canonical' as const),
+                }
+            : prefixWritten
+              ? { prefix: 'authored' as const }
+              : {}),
+          world: state.world,
+        });
+      if (unmet) {
+        if (stopAt(unmet, false)) break;
+        continue;
       }
       const user = stimulusMessages(planned.stimulus).map(freezeMessage);
       const turn: Turn = {
@@ -706,6 +787,12 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       try {
         raw = await channel.observe(turn, user, key);
       } catch (cause) {
+        // The dynamic check after setup: the session's workspace does not read back as the Given wrote it.
+        if (cause instanceof SetupCheckFailed) {
+          await channel.restart();
+          if (stopAt(cause.notRun, true)) break;
+          continue;
+        }
         if (!run.parentOrder || channel.replay) throw cause;
         status = 'failed';
         error = cause instanceof CallFailure ? cause.message : describeError(cause);
@@ -1040,8 +1127,9 @@ function notRunBlock(
   planned: PlannedStep,
   stamp: { givenHash: string; specIndex: number; ledger: Record<string, unknown> },
   notRun: NotRun,
+  started = false,
 ): BlockResult {
-  run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
+  if (!started) run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
   run.onEvent?.({
     type: 'block_end',
     index: position,
@@ -1236,7 +1324,11 @@ function liveChannel(run: RunContext): Channel {
     async observe(turn, user, key) {
       // Every retry of the block, the adapter's own model calls and the runner's, lands in its Observed.
       const { value: answer, retries } = await collectRetries(async () => {
-        if (!session) session = await call(`open on block ${turn.index}`, () => adapter.open(turn.given));
+        if (!session) {
+          const opened = await call(`open on block ${turn.index}`, () => adapter.open(turn.given));
+          session = opened;
+          if (run.capabilities.sandbox) await checkSetup(adapter, opened, turn.given);
+        }
         const current = session;
         current.history.push(...user);
         let sent: unknown = await call(`send on block ${turn.index}`, () => adapter.send(current, turn));
