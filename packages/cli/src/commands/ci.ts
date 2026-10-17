@@ -38,7 +38,7 @@ import {
 } from '../judge-options';
 import { optionNumber } from '../number';
 import { type CampaignDeps, campaignRunCommand, defaultDeps, parseTarget } from './campaign';
-import { parseGate } from './compare';
+import { hasScoredRun, parseGate } from './compare';
 
 /**
  * The verdict families whose failing gating verdict is a gating FLAG, as `compare` counts them: an act that
@@ -330,7 +330,11 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   const shared = { flagFamilies: flags, minGoldens: gate.minGoldens, strict: gate.strict };
   let margin: number;
   let marginAuto: CiSummary['marginAuto'] = null;
-  if (gate.margin === 'auto') {
+  if (gate.margin === 'auto' && !hasScoredRun(baseline.data)) {
+    // A baseline whose every run is not run or blocked pairs no golden with itself: the 2 point default stands,
+    // and the comparison below says that no golden is shared.
+    margin = 0.02;
+  } else if (gate.margin === 'auto') {
     const auto = autoMargin(baseline.data, shared);
     margin = auto.margin;
     marginAuto = {
