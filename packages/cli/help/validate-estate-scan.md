@@ -68,9 +68,9 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--cassette <file>` | required with `--pointer` | the recorded labeler answers, JSON lines. With `--record` each answer is appended as it arrives, and the file is rewritten sorted at the end |
 | `--record` | off | on a cassette miss, call the labelers and write the answer to the cassette (a paid call; the keys come from the environment) |
 | `--labeler <spec>` | the default stack, below | `<class>:<client>[:<model>]`, class `system1` or `system2`; repeat it for one labeler of each class. Clients below |
-| `--labeler-threshold <p>` | `0.4` | a system 1 labeler takes the label with the highest probability of yes at or above this, else `none`; the cassette keeps every probability, so a new value needs no new call |
-| `--labeler-margin-cut <m>` | off | in a stack, decide by margin instead: system 1 decides a unit alone when its likeliest answer leads the second by this much (over the asked labels and an implicit `none`); system 2 decides the rest |
-| `--labeler-pass-at <p>`, `--labeler-fail-at <p>` | `0.9`, `0.1` | in a stack, system 1 decides a unit alone from the first probability for a label, or under the second for every label; in between, system 2 decides |
+| `--labeler-threshold <p>` | `0.4` | a yes or no system 1 labeler takes the label with the highest probability of yes at or above this, else `none`; the cassette keeps every probability, so a new value needs no new call |
+| `--labeler-margin-cut <m>` | `0.65` | in a stack with a system 1 labeler that gives a probability per label, system 1 decides a unit alone when its likeliest label leads the second by this much; system 2 decides the rest |
+| `--labeler-pass-at <p>`, `--labeler-fail-at <p>` | `0.9`, `0.1` | in a stack, setting either decides by probability bounds instead of by margin (the default of a yes or no system 1 labeler): system 1 decides a unit alone from the first probability for a label, or under the second for every label; in between, system 2 decides |
 | `--labeler-key <variable>` | none | the environment variable that holds the bearer token of an `http` labeler |
 | `--jobs <n>` | `4` | requests in flight at once; the labels, the ledger and the cassette bytes do not depend on it |
 | `--labels <file>` | the shipped `agent-rules` set | the label sets, a YAML file |
@@ -114,12 +114,12 @@ The labelers are named by the class the judges use (topic `judging-default-judge
 
 | Class | What it is | Clients |
 |---|---|---|
-| `system1` | a yes or no model: one question per unit and label, batched in one request per window, answered with a probability of yes | `openai-decisions[:model]`, the public example; the Nexus platform client, on the [Nexus adapter page](../adapters/nexus.md); `http:<url>`; `module:<path>` |
+| `system1` | a model that answers with probabilities: a choice among the labels for each unit, or a yes or no question per label, batched in one request per window | `openai-decisions[:model]`, the public example; the Nexus platform client, on the [Nexus adapter page](../adapters/nexus.md); `http:<url>`; `module:<path>` |
 | `system2` | a chat model that reads the numbered window and answers one label per unit | `anthropic[:model]`, default model `claude-haiku-5-5`; `http:<url>`; `module:<path>` |
 
-The default is a stack of both, a system 1 labeler and a system 2 labeler. System 1 decides a unit alone only
-at an extreme: from `--labeler-pass-at` for a label, or under `--labeler-fail-at` for every label. System 2
-decides every unit in between. Either class runs alone with one `--labeler`. The ledger records which class
+The default is a stack of both, a system 1 labeler and a system 2 labeler. System 1 decides a unit alone when its
+likeliest label leads the second by `--labeler-margin-cut`. System 2 decides the rest. Either class runs alone
+with one `--labeler`. The ledger records which class
 decided each unit, and the report counts them.
 
 The environment holds the keys of a `--record` run: `ANTHROPIC_API_KEY` for `anthropic`, `OPENAI_API_KEY`,
