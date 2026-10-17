@@ -162,19 +162,56 @@ describe('terminal subsumption', () => {
   });
 });
 
-describe('terminal subsumption keeps walks apart', () => {
-  it('never cuts a metamorphic variant, so a family differs only in its phrasing', () => {
+describe('terminal subsumption and metamorphic families', () => {
+  const member = (draft: ReturnType<typeof walk>, family: string, variant: number) => {
+    draft.metamorphic = { family, variant, of: 2, relation: 'same observed outcome' };
+    draft.perturbations = undefined;
+    return draft;
+  };
+
+  it('cuts the first variant of a family like any walk, and the other variants to the same length', () => {
     const prepared = fixture();
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
     const minimal = new TerminalSubsumption(prepared, run, 2);
-    const first = walk(prepared, 'first', path, 'metamorphic');
-    const second = walk(prepared, 'second', path, 'metamorphic');
+    const written = walk(prepared, 'written', path);
+    written.perturbations = undefined;
+    const first = member(walk(prepared, 'f-1', path, 'metamorphic'), 'f', 1);
+    const second = member(walk(prepared, 'f-2', path, 'metamorphic'), 'f', 2);
+    const length = written.blocks.length;
+    for (const draft of [written, first, second]) minimal.reduce(draft);
+    expect(written.blocks).toHaveLength(length);
+    expect(first.blocks.length).toBeLessThan(length);
+    // The family differs only in its phrasing: its variants have the same number of blocks.
+    expect(second.blocks).toHaveLength(first.blocks.length);
+  });
+
+  it('keeps a family whole when its first variant ends on a block no written walk says', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const first = member(walk(prepared, 'f-1', path, 'metamorphic'), 'f', 1);
+    const second = member(walk(prepared, 'f-2', path, 'metamorphic'), 'f', 2);
     const length = first.blocks.length;
     minimal.reduce(first);
     minimal.reduce(second);
     expect(first.blocks).toHaveLength(length);
     expect(second.blocks).toHaveLength(length);
+  });
+
+  it('cuts a second family that ends on the same block as the first: two families are not two tests', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const one = [1, 2].map((v) => member(walk(prepared, `a-${v}`, path, 'metamorphic'), 'a', v));
+    const two = [1, 2].map((v) => member(walk(prepared, `b-${v}`, path, 'metamorphic'), 'b', v));
+    const length = one[0]?.blocks.length ?? 0;
+    for (const draft of [...one, ...two]) minimal.reduce(draft);
+    expect(one.map((draft) => draft.blocks.length)).toEqual([length, length]);
+    expect(two.map((draft) => draft.blocks.length)[0]).toBeLessThan(length);
+    expect(two[1]?.blocks).toHaveLength(two[0]?.blocks.length ?? -1);
   });
 });
 

@@ -44,6 +44,8 @@ export class TerminalSubsumption {
   private readonly ends = new Set<string>();
   /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
   private readonly walks = new Map<string, Set<string>>();
+  /** The length each metamorphic family was cut to by its first variant: every variant follows it. */
+  private readonly familyLength = new Map<string, number>();
   /** The context axes a pair of whole twins is kept for, per path: the Then must hold across them. */
   private readonly paired = new Map<string, Set<string>>();
   /** Ordered pairs of consecutive moves some written spec walks. */
@@ -76,8 +78,17 @@ export class TerminalSubsumption {
     const parsed = validateSpec(rendered.spec);
     if (!parsed.ok) return;
     let spec = parsed.spec;
-    // A metamorphic family keeps its variants identical but for the phrasing: its walks are never cut.
-    if (spec.kind === 'conversation' && spec.end_state === undefined && draft.seeder !== 'metamorphic') {
+    // A metamorphic family keeps its variants identical but for the phrasing, so its first variant decides how
+    // far the family is cut and the others follow it to the same length (their wording is not part of a test, so
+    // a variant judged alone would be a repeat of the first).
+    const family = draft.seeder === 'metamorphic' ? draft.metamorphic : undefined;
+    const followed = family && family.variant > 1 ? this.familyLength.get(family.family) : undefined;
+    if (followed !== undefined && followed < draft.blocks.length) {
+      draft.blocks = draft.blocks.slice(0, followed);
+      const shorter = renderDraft(this.prepared, draft, this.run);
+      const again = validateSpec(shorter.spec);
+      if (again.ok) spec = again.spec;
+    } else if (followed === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
       const states = [{ blocks: draft.blocks, perturbations: draft.perturbations, spec }];
       // The Then must hold across channels and across personas, and that is read off a pair of whole walks that
       // differ only there (a twin). Each path keeps one such pair per axis; a twin beyond it is a repeat.
@@ -116,6 +127,7 @@ export class TerminalSubsumption {
       draft.perturbations = chosen.perturbations;
       spec = chosen.spec;
     }
+    if (family?.variant === 1) this.familyLength.set(family.family, spec.blocks.length);
     this.observeSpec(spec);
   }
 
