@@ -242,7 +242,7 @@ Cheapest first, on units:
 
 1. A histogram diff of the old and new unit sequences fixes the unchanged anchors (`unchanged`).
 2. Exact text elsewhere in the file or estate, above a length floor: `moved`; several matches: `ambiguous` (all kept, as the W3C model says).
-3. The residue is scored pairwise: 0.6 × normalised Levenshtein on text plus 0.4 × context similarity (prefix, suffix, heading path, position hint). Above the accept threshold: `changed`, with the score. A starting threshold of 0.45 is calibrated in experiment 9.
+3. The residue is scored pairwise: 0.6 × normalised Levenshtein on text plus 0.4 × context similarity (prefix, suffix, heading path). A pair is accepted as `changed`, with its score, only when the score is above the threshold (starting value 0.45) **and** the text similarity alone is above a floor (starting value 0.4). Without the floor, context alone carries a fully rewritten unit over the threshold: the offline run mapped 47 of 50 large rewrites to the old unit (experiment 9 results).
 4. A new unit whose neighbours' concatenation scores higher than either alone: `split`; the reverse: `merged`.
 5. Nothing clears the threshold: `deleted`; the quote is kept and the link falls back to the section.
 
@@ -329,6 +329,28 @@ All use one gold set: 40 prompt and agent files from several estates, with span-
 | 15 | The labeler prompt generated from a set is generic: the same prompt text builds for an agent set and a bakery style set. | Offline: build prompts for both sets and check no estate word is in the template. | A fixed word in the template. | Offline |
 
 Order: offline first (3, 4, 5, 6, 9, 10, 12, 14, 15), then the pointing experiments (1, 2, 7, 8, 13) before the schema is frozen, then 11. No paid run starts without approval.
+
+## 10a. Offline results so far (prototype in `research/pointer-reader/`)
+
+Run on a throwaway prototype, no model call. Nothing here is the gold-set study: experiments 3 and 4 wait for the two-annotator gold set, and the gold in 5 and 9 is built by construction from hand-written sentences and synthetic edits, so the numbers show what the machinery can do on cases the author thought of.
+
+| # | Result |
+|---|---|
+| 5 | 200 paragraphs, 629 gold sentence boundaries (half hard-wrapped at 50 columns). Raw `Intl.Segmenter`: recall 95.9%, precision 77.4% (176 wrong splits, 22.6%). Masked plus shape merge: recall 95.7%, precision 97.4%, wrong splits 16 (2.6%), all of them "Prof. Ito" (a four-letter title; a shape rule cannot tell it from an ordinary word before a full stop). The falsifier (wrong splits under 2%) is missed by that one case. Missed boundaries (4.3%) are sentences that start in lower case ("iOS ..."), which the merge rule joins to the previous sentence. |
+| 6 | 108 markdown files, 25,195 units, cut under Node 24.18 (ICU 78.3, Unicode 17.0) and Node 22.18 (ICU 77.1, Unicode 16.0): 0 files differ in cut digest. Only these two builds exist on this machine; Node 20 and a small-icu build are untested. |
+| 9 | 9 edit classes x 50 synthetic edits on 11 real files (450 edits). As written (0.6 text + 0.4 context, threshold 0.45): accuracy 89.6%, **47 wrong anchors**, all large rewrites mapped to the old unit by context. With a text-similarity floor of 0.4: accuracy 100%, 0 wrong anchors, 0 false deletes. Diff-only baseline (unchanged plus exact moves): 66.7%, 150 false deletes (small rewords, splits, merges). Threshold sweep with the floor: 0.3 and 0.6 give 100%; 0.7 gives 94.9% with 19 false deletes and 4 wrong anchors. Floor sweep at 0.45: 0.3 leaves 4 wrong anchors, 0.5 gives 100%. The small reword here is one or two words; a meaning-preserving rewrite with many changed words is not in the set. |
+| 10 | 200 rules (sentences and list items holding must, never, always, should, only, before, after, every) x 5 cosmetic edits and 8 semantic edits. Fingerprint as designed (NFC, white space, container markers stripped, case and emphasis kept): 2 of 1,000 cosmetic edits flagged (both a CRLF rewrap that put "- " or "1. " at a line start, which marker stripping erases), 0 of 663 semantic edits missed. Case-folded: 0 flagged, **82 of 663 missed** (all capitalisation flips). Case-folded and emphasis stripped: 97 of 663 missed (82 capitalisation, 15 removed emphasis). Bullet swap and renumbering through the cutter: 0 of 200 flagged. |
+| 12 | Recording the fixture (5 files, 2 sets, 20 windows) and replaying it twice in CI mode gives the same 43,303-byte ledger as the recording run; a second independent recording dumps a byte-identical cassette. Six perturbations (a label description, a renamed label, an added example, a changed unit, a new file, a tampered cut digest) all missed, and the miss named the differing field (`setHash`, `part.user`, `part.output`, `cutDigest`). |
+| 14 | Editing one label of the `agent-rules` set: 10 labeler calls (one per `agent-rules` window), 0 for `house-voice`; every unit id and every `house-voice` label unchanged. |
+| 15 | The system text and the user text outside set-derived lines are identical for the `agent-rules` and the `house-voice` set, and contain none of the words estate, agent, skill, nexus, claude, driftbench, helper, prompt, rule, gate, instruction, bakery, email. |
+
+Findings that change the design:
+
+- The ladder needs the text-similarity floor above (section 4).
+- The cutter must stop recursing into HTML blocks: an `<role>` line that is not a tag-only line re-parses as the same HTML block. The prototype cuts nested HTML at depth 2 as opaque.
+- The fingerprint's container-marker stripping erases a real "- " or "1. " that a hard wrap puts at a line start. It is rare (0.2%) and errs towards a suspect link, not a missed change.
+
+Cost on the fixture (13 files that go to the model today): 8,384 characters of prose, 149 units (14 headings, 37 sentences, 40 list items, 30 table cells, 28 front-matter values), 18 windows, 22,450 request characters for one set. That is about 5,600 input tokens by the characters-divided-by-four rule, so about $0.0006 on the Haiku 5.5 input price the research report gives ($0.10 per million tokens, not re-checked). The provider's own token count replaces the estimate before any run.
 
 ## 11. Model, key and cost
 
