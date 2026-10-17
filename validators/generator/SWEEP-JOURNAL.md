@@ -163,3 +163,13 @@ The generator's disk parity test imports the validator's mutable seed-5 hidden c
 The test now constructs its intended imbalance by adding approved off-topic phrases before generation, on public seeds 1 and 5 and fresh seed 1009. It keeps the assertion requiring balance files, summary/file-count equality and every non-report file's byte equality. No generator product source changes. The separate merge commit preserves both sides of the records. See [integration evidence](evidence/ownership-stream-fixture.json). Historical ladder measurements stay unchanged.
 
 Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabling the balancing iterator through a temporary test spy makes all three explicit-imbalance cases fail. The spy is removed; product source is unchanged.
+
+## 2026-10-15: maintainer ruling on feasibility and impossible pairs
+
+- Base: `d1567480b`, origin/main. Contract sources: `possible.ts` and `render.ts#hiddenSpaceMap` in the validator, and the generator's own `packages/generate/src/seed/possible.ts`, which uses the same event rule.
+- Ruling: `diff.feasible.<seeder>` reads the hidden space map (written constraints plus impossible pairs). Every seeder is checked: `cover`, `task`, and `unlisted` for any seeder no item names. Written-constraint reasons still win when both forbid a cell.
+- Red first: 3 failed, 11 passed across the new and existing feasibility test files. On base, seed 2's cover block passes, and a graph block in an impossible-only cell passes.
+- Green: 28 tests pass across four files. Covered seeds: visible 1 to 20, base hidden seed 513104064 and fresh 1001 to 1020. Every named seeder and an unknown one are planted per seed; allowed cells pass; each item reads only its own seeder.
+- Product measurement, main's real generation: `diff.feasible.cover` fails on all 31 measured seeds, and `diff.feasible.twise` fails on seeds 10 and 15. Cause 1: a cover spec's behaviour is not in its flow, 6787 blocks in total. Cause 2: the first move is recorded at the start stage, 25 blocks. No block sits in a written-constraint cell. These items are level 2, so the product stops there until the generator is fixed.
+- The baseline goal detour feeds only the replay cheater, which reads `expect.tools`. The detour lists no tool, so it feeds no verdict and stays unchanged.
+- Evidence: [feasible-impossible-pairs.json](evidence/feasible-impossible-pairs.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
