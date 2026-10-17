@@ -34,6 +34,15 @@ export type SharedFacts = {
   atoms: { references: number; total: number; planted: number; files: number };
   /** The citation of a file the estate does not hold: a reference atom marked missing, and none marked present. */
   missing: { marked: boolean; wronglyMarked: number };
+  /** What each document that cites in a shape of its own holds: the citation atoms it keeps, against the plant. */
+  citing: {
+    /** Citation atoms of the two documents that cite each other, each to the other: planted 1 and 1. */
+    cycle: [number, number];
+    /** Citation atoms of the document that cites itself, to itself: planted 1. */
+    self: number;
+    /** Citation atoms of the file that cites one document twice, to that document: planted 2. */
+    twice: number;
+  };
   /** The orphans the map lists, against the planted ones. */
   orphans: { listed: string[]; found: number; planted: number; surplus: string[] };
 };
@@ -155,6 +164,15 @@ export function sharedFacts(map: EstateMap, truth: SharedTruth): SharedFacts {
     return Array.isArray(list) ? list.map(String) : [];
   });
   const planted = new Set(truth.orphans);
+  // The citations a document keeps: the reference atoms of its file that name `to`.
+  const kept = (from: string, to: string) =>
+    map.atoms.filter(
+      (atom) =>
+        atom.kind === 'reference' &&
+        atom.provenance.file === from &&
+        resolve(String(atom.fields?.path ?? ''), from, known) === to,
+    ).length;
+  const [cycleA, cycleB] = truth.citing.cycle;
   return {
     edges: {
       stored,
@@ -174,6 +192,11 @@ export function sharedFacts(map: EstateMap, truth: SharedTruth): SharedFacts {
       files: truth.files.length,
     },
     missing: { marked, wronglyMarked },
+    citing: {
+      cycle: [kept(cycleA, cycleB), kept(cycleB, cycleA)],
+      self: kept(truth.citing.self, truth.citing.self),
+      twice: kept(truth.citing.twice.from, truth.citing.twice.doc),
+    },
     orphans: {
       listed,
       found: [...planted].filter((path) => listed.includes(path)).length,

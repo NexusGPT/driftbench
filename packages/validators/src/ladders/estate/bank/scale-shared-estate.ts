@@ -49,6 +49,13 @@ export type SharedTruth = {
   missing: { from: string; written: string };
   /** The unit that cites a file the index also cites, and that file. */
   mixed: { unit: string; file: string };
+  /** The documents whose own citations the scan could drop: the two that cite each other, the one that cites itself,
+   * and the file that cites one document twice. */
+  citing: {
+    cycle: [string, string];
+    self: string;
+    twice: { from: string; doc: string };
+  };
 };
 
 const WORDS = ['ledger', 'depot', 'pallet', 'tariff', 'roster', 'carrier', 'invoice', 'permit', 'manifest'];
@@ -272,6 +279,11 @@ export function sharedEstate(
       orphans,
       missing: { from: entryPath(shapes.gone), written: goneDoc },
       mixed: { unit: units[0]?.file ?? '', file: mixedFile },
+      citing: {
+        cycle: [cycleA, cycleB],
+        self: selfDoc,
+        twice: { from: entryPath(shapes.duplicate), doc: dupDoc },
+      },
     },
   };
 }

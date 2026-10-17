@@ -15,9 +15,12 @@ import type { SharedFacts } from './scale-shared-facts';
  * - edges: a unit stores exactly the citations of its own file (never the ones its files cite), none to an atom that
  *   is not there, none twice, and the unit that shares a citation with the index keeps both.
  * - reach: the files a unit reaches by following the citations of the map are exactly the planted ones, judged for
- *   the whole estate and for each shape alone: the entries, a chain two and three documents deep, a cycle, a document
- *   that cites itself, a document two entries cite, a relative form of a citation, a document cited twice by one
- *   file, a citation of a file the estate does not hold, and a unit's own references leaking into another unit.
+ *   the whole estate and for each shape alone: the entries, a chain two and three documents deep, a document two
+ *   entries cite, a relative form of a citation, a citation of a file the estate does not hold, and a unit's own
+ *   references leaking into another unit.
+ * - citations: the documents that cite in a shape of their own keep every citation: two documents that cite each
+ *   other, a document that cites itself, a file that cites one document twice. A walk that drops an edge to a
+ *   document it already met shows here and nowhere else.
  * - atoms: one reference atom for each citation, and a count of atoms that grows with the files.
  * - orphans: the two planted documents nothing names are listed, and no document that is named is.
  * - console and time: the real plan command prints a summary, and the scan and the plan stay within the per-atom
@@ -180,13 +183,6 @@ const RESULTS: Result[] = [
     3,
   ),
   reachOf(
-    'cycle',
-    ['cycle'],
-    'two documents that cite each other are each reached once, and the walk ends',
-    4,
-  ),
-  reachOf('self-citation', ['self'], 'a document that cites itself is reached once, and the walk ends', 4),
-  reachOf(
     'fan-in',
     ['fan-in'],
     'a document that two entries cite is reached, whichever entry the walk comes through',
@@ -199,13 +195,37 @@ const RESULTS: Result[] = [
     4,
     COMPONENTS.graph,
   ),
-  reachOf(
-    'duplicate-citation',
-    ['duplicate'],
-    'a document that one file cites twice is reached once',
-    3,
-    COMPONENTS.graph,
-  ),
+  {
+    key: 'shared-citation-cycle',
+    tier: 4,
+    title:
+      'two documents that cite each other each keep their citation of the other, whichever of them the scan meets first',
+    component: COMPONENTS.scan,
+    judge: (m) =>
+      m.facts.citing.cycle[0] === 1 && m.facts.citing.cycle[1] === 1
+        ? undefined
+        : `the two documents keep ${m.facts.citing.cycle[0]} and ${m.facts.citing.cycle[1]} citations of each other, planted 1 and 1`,
+  },
+  {
+    key: 'shared-citation-self',
+    tier: 4,
+    title: 'a document that cites itself keeps that citation',
+    component: COMPONENTS.scan,
+    judge: (m) =>
+      m.facts.citing.self === 1
+        ? undefined
+        : `the document keeps ${m.facts.citing.self} citations of itself, planted 1`,
+  },
+  {
+    key: 'shared-citation-twice',
+    tier: 3,
+    title: 'a file that cites one document twice keeps both citations, one reference atom for each line',
+    component: COMPONENTS.scan,
+    judge: (m) =>
+      m.facts.citing.twice === 2
+        ? undefined
+        : `the file keeps ${m.facts.citing.twice} citations of the document it cites twice, planted 2`,
+  },
   {
     key: 'shared-reach-missing-target',
     tier: 4,

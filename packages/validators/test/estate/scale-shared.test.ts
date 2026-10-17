@@ -269,11 +269,8 @@ describe('each item of the family fails for its own cause', { timeout: 120_000 }
     ['entries', 'index', 'shared-reach-entries'],
     ['chain-two', 'chain-two', 'shared-reach-chain-two'],
     ['chain-three', 'chain-three', 'shared-reach-chain-three'],
-    ['cycle', 'cycle', 'shared-reach-cycle'],
-    ['self', 'self', 'shared-reach-self-citation'],
     ['fan-in', 'fan-in', 'shared-reach-fan-in'],
     ['relative', 'relative', 'shared-reach-relative-forms'],
-    ['duplicate', 'duplicate', 'shared-reach-duplicate-citation'],
   ] as const)('fails a map that leaves unread the citations that reach the %s files', (_name, kind, item) => {
     // The files that cite a file of the shape, and for the shapes reached only through the index, the index itself.
     const citers =
@@ -284,6 +281,28 @@ describe('each item of the family fails for its own cause', { timeout: 120_000 }
     const out = failing(measuredOf(withoutCitationsOf(citers)));
     expect(out, kind).toContain(item);
     expect(out, kind).toContain('shared-reach-exact');
+  });
+
+  it('fails a scan that drops the back edge of a cycle, a self-citation, or one of two lines citing a document, each by its own item', () => {
+    const [cycleA, cycleB] = truth.citing.cycle;
+    const without = (file: string, keep = 0) => {
+      let seen = 0;
+      return {
+        ...map,
+        atoms: map.atoms.filter((atom) => {
+          if (atom.kind !== 'reference' || atom.provenance.file !== file) return true;
+          seen += 1;
+          return seen <= keep;
+        }),
+      };
+    };
+    // The walk from a unit reaches every document either way, so the reach items cannot tell these apart.
+    expect(failing(measuredOf(without(cycleB)))).toEqual(['shared-citation-cycle']);
+    // The forward edge is also how the second document is reached, so its loss shows in the reach as well.
+    expect(failing(measuredOf(without(cycleA)))).toEqual(['shared-reach-exact', 'shared-citation-cycle']);
+    expect(failing(measuredOf(without(truth.citing.self)))).toEqual(['shared-citation-self']);
+    // A scan that merges the two lines into one atom keeps the reach and has fewer atoms than citations.
+    expect(failing(measuredOf(without(truth.citing.twice.from, 1)))).toEqual(['shared-citation-twice']);
   });
 
   it('fails a reference of one skill that reaches another skill', () => {
@@ -320,7 +339,10 @@ describe('each item of the family fails for its own cause', { timeout: 120_000 }
       ...map,
       atoms: [
         ...map.atoms,
-        ...map.atoms.filter((a) => a.kind === 'reference').map((a) => ({ ...a, id: `${a.id}.again` })),
+        // The citations of the index, once more each: reference atoms for a unit's reach, not for a citation.
+        ...map.atoms
+          .filter((a) => a.kind === 'reference' && a.provenance.file.endsWith('INDEX.md'))
+          .map((a) => ({ ...a, id: `${a.id}.again` })),
       ],
     };
     expect(failing(measuredOf(doubled))).toEqual(['shared-atoms-per-citation']);
