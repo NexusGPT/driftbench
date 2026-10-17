@@ -1,10 +1,10 @@
 import {
   createLabellerReplay,
-  labelSetHash,
-  labellerRequestKey,
-  scoreLabeller,
-  type LabelSet,
   type LabellerRequest,
+  type LabelSet,
+  labellerRequestKey,
+  labelSetHash,
+  scoreLabeller,
 } from '@agent-nexus/driftbench-judges';
 import { describe, expect, it } from 'vitest';
 
@@ -30,33 +30,66 @@ function request(): LabellerRequest {
 describe('blind adversarial labeller scoring', () => {
   it('keeps abstentions in the denominator and chance marginals', () => {
     const score = scoreLabeller(['a', 'b', 'a', 'b'], ['a', 'b', null, null], SET);
-    expect(score).toMatchObject({ total: 4, correct: 2, agreement: 0.5, abstentions: 2, invalid: 0, coverage: 0.5 });
+    expect(score).toMatchObject({
+      total: 4,
+      correct: 2,
+      agreement: 0.5,
+      abstentions: 2,
+      invalid: 0,
+      coverage: 0.5,
+    });
     // p_o = 1/2; p_e = (2*1 + 2*1)/16 = 1/4.
     expect(score.kappa).toBeCloseTo(1 / 3, 12);
   });
 
   it('counts empty and unsupported answers as invalid disagreements', () => {
     const score = scoreLabeller(['a', 'b', 'a', 'b'], ['a', 'b', '', 'outside'], SET);
-    expect(score).toMatchObject({ total: 4, correct: 2, agreement: 0.5, abstentions: 0, invalid: 2, coverage: 0.5 });
+    expect(score).toMatchObject({
+      total: 4,
+      correct: 2,
+      agreement: 0.5,
+      abstentions: 0,
+      invalid: 2,
+      coverage: 0.5,
+    });
     expect(score.kappa).toBeCloseTo(1 / 3, 12);
   });
 
   it('does not turn null into the legitimate none label', () => {
     const score = scoreLabeller(['none', 'none', 'a', 'b'], [null, 'none', 'a', 'b'], SET);
-    expect(score).toMatchObject({ total: 4, correct: 3, agreement: 0.75, abstentions: 1, invalid: 0, coverage: 0.75 });
+    expect(score).toMatchObject({
+      total: 4,
+      correct: 3,
+      agreement: 0.75,
+      abstentions: 1,
+      invalid: 0,
+      coverage: 0.75,
+    });
     // p_e = (2*1 + 1*1 + 1*1)/16 = 1/4.
     expect(score.kappa).toBeCloseTo(2 / 3, 12);
   });
 
   it('returns zero agreement, coverage, and kappa when every answer abstains', () => {
     expect(scoreLabeller(['a', 'a', 'b'], [null, null, null], SET)).toMatchObject({
-      total: 3, correct: 0, agreement: 0, kappa: 0, abstentions: 3, invalid: 0, coverage: 0,
+      total: 3,
+      correct: 0,
+      agreement: 0,
+      kappa: 0,
+      abstentions: 3,
+      invalid: 0,
+      coverage: 0,
     });
   });
 
   it('does not drop an entirely invalid run', () => {
     expect(scoreLabeller(['a', 'a', 'b'], ['', 'outside', ' '], SET)).toMatchObject({
-      total: 3, correct: 0, agreement: 0, kappa: 0, abstentions: 0, invalid: 3, coverage: 0,
+      total: 3,
+      correct: 0,
+      agreement: 0,
+      kappa: 0,
+      abstentions: 0,
+      invalid: 3,
+      coverage: 0,
     });
   });
 
@@ -88,10 +121,13 @@ describe('blind adversarial labeller scoring', () => {
   });
 
   it('rejects duplicate label names with conflicting descriptions', () => {
-    const set: LabelSet = { name: 'duplicates', labels: [
-      { name: 'a', description: 'First meaning.' },
-      { name: 'a', description: 'Conflicting meaning.' },
-    ] };
+    const set: LabelSet = {
+      name: 'duplicates',
+      labels: [
+        { name: 'a', description: 'First meaning.' },
+        { name: 'a', description: 'Conflicting meaning.' },
+      ],
+    };
     expect(() => scoreLabeller(['a'], ['a'], set)).toThrow();
     expect(() => labelSetHash(set)).toThrow();
   });
@@ -104,7 +140,11 @@ describe('blind adversarial labeller scoring', () => {
 
   it('uses the declared perfect single-class kappa convention', () => {
     expect(scoreLabeller(['a', 'a', 'a'], ['a', 'a', 'a'], SET)).toMatchObject({
-      total: 3, correct: 3, agreement: 1, kappa: 1, coverage: 1,
+      total: 3,
+      correct: 3,
+      agreement: 1,
+      kappa: 1,
+      coverage: 1,
     });
   });
 
@@ -137,7 +177,9 @@ describe('blind adversarial labeller scoring', () => {
 
   it('preserves negative kappa under complete binary reversal', () => {
     expect(scoreLabeller(['a', 'b', 'a', 'b'], ['b', 'a', 'b', 'a'], SET)).toMatchObject({
-      agreement: 0, kappa: -1, coverage: 1,
+      agreement: 0,
+      kappa: -1,
+      coverage: 1,
     });
   });
 
@@ -157,22 +199,41 @@ describe('blind adversarial labeller scoring', () => {
   it.each(['__abstain__', '__invalid__', 'null', 'undefined', '__proto__', 'constructor'])(
     'keeps a real label named %s separate from missing-answer sentinels and object internals',
     (name) => {
-      const set: LabelSet = { name: 'sentinel-probe', labels: [{ name, description: 'A legitimate synthetic category.' }] };
+      const set: LabelSet = {
+        name: 'sentinel-probe',
+        labels: [{ name, description: 'A legitimate synthetic category.' }],
+      };
       expect(scoreLabeller([name], [name], set)).toMatchObject({ correct: 1, kappa: 1, coverage: 1 });
-      expect(scoreLabeller([name], [null], set)).toMatchObject({ correct: 0, kappa: 0, abstentions: 1, coverage: 0 });
-      expect(scoreLabeller([name], ['outside'], set)).toMatchObject({ correct: 0, kappa: 0, invalid: 1, coverage: 0 });
+      expect(scoreLabeller([name], [null], set)).toMatchObject({
+        correct: 0,
+        kappa: 0,
+        abstentions: 1,
+        coverage: 0,
+      });
+      expect(scoreLabeller([name], ['outside'], set)).toMatchObject({
+        correct: 0,
+        kappa: 0,
+        invalid: 1,
+        coverage: 0,
+      });
     },
   );
 
   it('keeps canonically equivalent Unicode labels distinct', () => {
     const composed = '\u00e9';
     const decomposed = 'e\u0301';
-    const set: LabelSet = { name: 'unicode', labels: [
-      { name: composed, description: 'Composed token.' },
-      { name: decomposed, description: 'Decomposed token.' },
-    ] };
+    const set: LabelSet = {
+      name: 'unicode',
+      labels: [
+        { name: composed, description: 'Composed token.' },
+        { name: decomposed, description: 'Decomposed token.' },
+      ],
+    };
     expect(scoreLabeller([composed, decomposed], [decomposed, composed], set)).toMatchObject({
-      correct: 0, kappa: -1, invalid: 0, coverage: 1,
+      correct: 0,
+      kappa: -1,
+      invalid: 0,
+      coverage: 1,
     });
   });
 });
@@ -182,7 +243,10 @@ describe('blind adversarial label identity and replay', () => {
     const original = request();
     const reordered: LabellerRequest = {
       context: original.context,
-      labelSet: { labels: original.labelSet.labels.map(({ name, description }) => ({ description, name })), name: original.labelSet.name },
+      labelSet: {
+        labels: original.labelSet.labels.map(({ name, description }) => ({ description, name })),
+        name: original.labelSet.name,
+      },
       text: original.text,
     };
     expect(labelSetHash(structuredClone(SET))).toBe(labelSetHash(SET));
@@ -192,15 +256,21 @@ describe('blind adversarial label identity and replay', () => {
   it('hashes label descriptions, names, set names, and label order', () => {
     const variants: LabelSet[] = [
       { ...SET, name: `${SET.name}-other` },
-      { ...SET, labels: SET.labels.map((label, i) => i === 0 ? { ...label, name: 'different' } : label) },
-      { ...SET, labels: SET.labels.map((label, i) => i === 0 ? { ...label, description: 'Changed meaning.' } : label) },
+      { ...SET, labels: SET.labels.map((label, i) => (i === 0 ? { ...label, name: 'different' } : label)) },
+      {
+        ...SET,
+        labels: SET.labels.map((label, i) =>
+          i === 0 ? { ...label, description: 'Changed meaning.' } : label,
+        ),
+      },
       { ...SET, labels: [...SET.labels].reverse() },
     ];
     const base = labelSetHash(SET);
     expect(new Set([base, ...variants.map(labelSetHash)]).size).toBe(5);
     const original = request();
     const key = labellerRequestKey(original, 'reader');
-    for (const labelSet of variants) expect(labellerRequestKey({ ...original, labelSet }, 'reader')).not.toBe(key);
+    for (const labelSet of variants)
+      expect(labellerRequestKey({ ...original, labelSet }, 'reader')).not.toBe(key);
   });
 
   it('keys text, context, and labeller identity independently', () => {
@@ -216,7 +286,9 @@ describe('blind adversarial label identity and replay', () => {
 
   it('does not collapse Unicode normalization or whitespace in request text', () => {
     const original = request();
-    const keys = ['\u00e9', 'e\u0301', '\u00e9 ', ' \u00e9'].map((text) => labellerRequestKey({ ...original, text }, 'reader'));
+    const keys = ['\u00e9', 'e\u0301', '\u00e9 ', ' \u00e9'].map((text) =>
+      labellerRequestKey({ ...original, text }, 'reader'),
+    );
     expect(new Set(keys).size).toBe(4);
   });
 
@@ -234,20 +306,26 @@ describe('blind adversarial label identity and replay', () => {
   it('replays a recorded null separately from a recorded none label', async () => {
     const one = request();
     const two = { ...request(), text: 'Another synthetic sample.' };
-    const replay = createLabellerReplay([
-      { request: one, labellerId: 'reader', answer: null },
-      { request: two, labellerId: 'reader', answer: 'none' },
-    ], 'reader');
+    const replay = createLabellerReplay(
+      [
+        { request: one, labellerId: 'reader', answer: null },
+        { request: two, labellerId: 'reader', answer: 'none' },
+      ],
+      'reader',
+    );
     expect(await replay.label(structuredClone(one))).toBeNull();
     expect(await replay.label(structuredClone(two))).toBe('none');
   });
 
   it('does not let another labeller overwrite the same request recording', async () => {
     const original = request();
-    const replay = createLabellerReplay([
-      { request: original, labellerId: 'reader', answer: 'a' },
-      { request: original, labellerId: 'other-reader', answer: 'b' },
-    ], 'reader');
+    const replay = createLabellerReplay(
+      [
+        { request: original, labellerId: 'reader', answer: 'a' },
+        { request: original, labellerId: 'other-reader', answer: 'b' },
+      ],
+      'reader',
+    );
     expect(await replay.label(original)).toBe('a');
   });
 
@@ -265,7 +343,9 @@ describe('blind adversarial label identity and replay', () => {
     const replay = createLabellerReplay([{ request: original, labellerId: 'reader', answer: 'a' }], 'reader');
     original.text = 'Changed after construction.';
     original.context = 'Changed after construction.';
-    original.labelSet.labels[0]!.description = 'Changed after construction.';
+    const firstLabel = original.labelSet.labels[0];
+    if (!firstLabel) throw new Error('missing test label');
+    firstLabel.description = 'Changed after construction.';
     expect(await replay.label(snapshot)).toBe('a');
     await expect(async () => replay.label(original)).rejects.toThrow();
   });

@@ -72,3 +72,29 @@ The owner's task clarification permits a normal PR with a **provisional**
 per-version lower bar when the measured bank does not meet the original gate.
 The evidence and rationale belong in `GATE.md`; a provisional exception does
 not turn an unmeasured check into a passing one.
+
+## Bank inventory
+
+Each row below contributes six structural variants in each of five tiers:
+30 items per family, 60 per tier, 300 total. Higher tiers increase the number
+of labels and batch size. The author declares ten shared cause groups; this
+inventory does not claim 300 independent fixes.
+
+| Family | Structural variants |
+|---|---|
+| agreement | direct, boundary, negation, correction, conjunction, skew |
+| abstain | missing value, contradiction, truncation, unknown unit, missing context, erased value |
+| none | below domain, above domain, excluded boundary, unrelated field, negated membership, missing predicate |
+| label-set-change | rename, definition, add, remove, swap definitions, Unicode name |
+| near-miss | prefix, suffix, case, Unicode, space, punctuation |
+| order-bias | reverse labels, rotate labels, evidence first/last/middle, reverse units |
+| length-bias | prefix/suffix/sandwich padding, unequal labels, long definition, repeated decoy |
+| adversarial-label | imperative, quoted label, fake system, JSON answer, XML answer, repeated command |
+| replay | same object, cloned object, interleaved, fifth repeat, reverse batch, context round trip |
+| cache-key | text, context, label name, definition, label order, labeller identity |
+
+The optional `JudgesV3Options.labellerFactory` receives only copied requests.
+Neither fixture gold, pair identifiers, item identifiers nor the seed crosses
+that boundary. Arbitrary JavaScript still shares the process and filesystem;
+this is an evaluation interface, not a security sandbox. The built-in scripted
+recording is trusted fixture machinery, not a claim of model understanding.

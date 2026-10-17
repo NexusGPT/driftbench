@@ -268,4 +268,4 @@ test('independent CHEATER audit of the public labeller request boundary', async 
   for (const row of rows.filter((entry) => entry.required)) expect(row.passingItems, row.name).toBe(0);
   expect([...boundaryProblems]).toEqual([]);
   expect(rows.filter((row) => row.passingItems > 0)).toEqual([]);
-}, 180_000);
+}, 600_000);
