@@ -52,6 +52,31 @@ describe('an owner column is not a trigger column, whatever its letter case', ()
     expect(await routesOf(text)).toEqual([]);
   });
 
+  // The tagger reads a capitalised first word as a verb ("Harbour" in "Harbour Master"). Both rows below
+  // carry that misreading, so the table gives no route only if the grammar is read from lowercased text.
+  it.each([
+    ['Title Case', ['Harbour Master', 'Dock Master']],
+    ['sentence case', ['Harbour master', 'Dock master']],
+  ] as const)('reads %s roles from lowercased text', async (_label, [first, second]) => {
+    const text = table('Owner | Skill they maintain', [
+      [first, '`dock-schedule`'],
+      [second, '`tide-report`'],
+    ]);
+    expect(await routesOf(text)).toEqual([]);
+  });
+
+  // A name of three words is longer than a two-word label: only the run of person names keeps it a label.
+  it.each([
+    ['Title Case', ['Anna Maria Lopez', 'Maria Elena Ortiz']],
+    ['lowercase', ['anna maria lopez', 'maria elena ortiz']],
+  ] as const)('gives no route for %s names of three words', async (_label, [first, second]) => {
+    const text = table('Owner | Skill they maintain', [
+      [first, '`dock-schedule`'],
+      [second, '`tide-report`'],
+    ]);
+    expect(await routesOf(text)).toEqual([]);
+  });
+
   it('still reads a table whose first column holds real triggers', async () => {
     const text = table('Ask | Skill', [
       ['schedule a dock slot', '`dock-schedule`'],
