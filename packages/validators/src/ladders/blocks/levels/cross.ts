@@ -35,7 +35,8 @@ import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from
  *
  * Heads (keep rule 6, one head per pair, merging the two owning heads when they differ):
  * - personas x parents: train/sol-f7-personas-parents, feat/block-parents (PR 562) merged with main (main owns
- *   the simulated user); the merge is clean.
+ *   the simulated user); the merge is clean. CI run 39001372611 at ab4cb3912: all 27 items fail on seeds 1 to 3
+ *   and hidden, each for its own cause.
  * - parents x objects, parents x values: dropped; feat/block-parents and feat/block-b4-report conflict in
  *   packages/core/src/runner/run.ts, so no merged head can be measured without editing the product.
  * - parents x radius in T: dropped; all 18 candidates pass on PR 562 (forest roots, mode T block subsets).
