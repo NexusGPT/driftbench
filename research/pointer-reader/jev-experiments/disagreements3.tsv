@@ -1,0 +1,113 @@
+standing-instructions.md#15	A=rule	B=prohibition	Anything else, such as a price or a promise about the result, is for the volunteers to answer.
+standing-instructions.md#57	A=description	B=prohibition	The word "clinic" belongs to the surgery down the road.
+repair-ticket-skill.md#2	A=description	B=rule	Create a repair ticket for a visitor and give them the ticket number. Use when a visitor has booked 
+repair-ticket-skill.md#5	A=description	B=prohibition	It does not book a bench and it does not promise a repair.
+repair-ticket-skill.md#13	A=rule	B=prohibition	Number every ticket from the book, not from memory.
+repair-ticket-skill.md#14	A=rule	B=prohibition	The book holds the next number on the first line of the open page.
+repair-ticket-skill.md#15	A=rule	B=prohibition	Take that number, write it on the ticket, and cross it out of the book before you do anything else.
+repair-ticket-skill.md#23	A=rule	B=gate	Battery item
+repair-ticket-skill.md#24	A=rule	B=gate	A charger or a cell
+repair-ticket-skill.md#25	A=rule	B=gate	Ask for the battery to be taken out before the session
+repair-ticket-skill.md#32	A=rule	B=gate	Photograph the item before anyone touches it.
+repair-ticket-skill.md#33	A=rule	B=gate	Take one picture of the whole item and one of the fault, and attach both to the ticket.
+repair-ticket-skill.md#51	A=description	B=gate	You can read the outcome once the ticket is closed.
+repair-ticket-skill.md#55	A=rule	B=prohibition	Write the fault in the visitor's words, not in yours.
+mains-safety-skill.md#2	A=description	B=gate	Check that a mains item is safe to open before a volunteer touches it. Use when a ticket is for an i
+mains-safety-skill.md#12	A=rule	B=prohibition	If any check fails, the item does not go on a bench.
+mains-safety-skill.md#13	A=rule	B=prohibition	Give the visitor a note to take to a qualified electrician.
+mains-safety-skill.md#37	A=rule	B=prohibition	Call the emergency number yourself if the person is not breathing.
+mains-safety-skill.md#41	A=rule	B=prohibition	If it trips again, leave it alone and call the session lead.
+mains-safety-skill.md#45	A=prohibition	B=rule	Fit a fuse of the same rating as the one you take out.
+tool-loans-skill.md#2	A=description	B=rule	Lend the café's tools to members and take them back. Use when a member asks to borrow a tool or brin
+tool-loans-skill.md#21	A=rule	B=gate	Check each tool when it comes back.
+tool-loans-skill.md#22	A=rule	B=gate	Test the switch, wipe the blade and count the pieces against the list on the lid, then write checked
+tool-loans-skill.md#31	A=description	B=rule	The session lead reads the list out at the start of the session.
+tool-loans-skill.md#46	A=description	B=rule	The session lead decides the sum and writes it in the loan book.
+tool-loans-skill.md#58	A=description	B=rule	The tool cupboard is checked by the session lead on the last Saturday of the month.
+tool-loans-skill.md#59	A=description	B=rule	Any tool missing from the list is written up and the member list is searched.
+rota-writer-helper.md#4	A=description	B=rule	You write the volunteer rota for a single session of the Hollin Vale Repair Café.
+rota-writer-helper.md#9	A=rule	B=prohibition	If a name is missing from the list, ask for it in your reply rather than inventing a plausible one.
+rota-writer-helper.md#14	A=description	B=rule	Bench volunteer
+rota-writer-helper.md#15	A=description	B=rule	One per bench
+rota-writer-helper.md#16	A=description	B=rule	Any volunteer
+rota-writer-helper.md#17	A=description	B=prohibition	Mains bench
+rota-writer-helper.md#18	A=description	B=prohibition	One per mains bench
+rota-writer-helper.md#19	A=description	B=prohibition	Mains badge holders only
+rota-writer-helper.md#20	A=description	B=rule	First aider
+rota-writer-helper.md#21	A=description	B=rule	One in every slot
+rota-writer-helper.md#22	A=description	B=rule	Anyone on the first aid list
+rota-writer-helper.md#23	A=description	B=rule	Session lead
+rota-writer-helper.md#24	A=description	B=rule	One for the whole session
+rota-writer-helper.md#25	A=description	B=rule	A trustee or a senior volunteer
+rota-writer-helper.md#32	A=rule	B=description	The sign-up list has fewer names than posts.
+rota-writer-helper.md#33	A=rule	B=gate	Fill the mains benches and the first aider first, and leave the rest marked open.
+rota-writer-helper.md#34	A=description	B=prohibition	The rota has three slots.
+rota-writer-helper.md#38	A=rule	B=prohibition	Two volunteers ask to swap places.
+rota-writer-helper.md#39	A=rule	B=prohibition	Do not change the rota yourself: tell the caller who asked, what they asked for and which slots are 
+rota-writer-helper.md#51	A=description	B=rule	A volunteer who prefers a nickname puts it in brackets on the list.
+rota-writer-helper.md#55	A=rule	B=gate	After the table add one line starting with Check: that lists anything you were unsure of.
+rota-writer-helper.md#56	A=rule	B=gate	If you were sure of everything, write Check: none.
+parts-and-donations-notes.md#9	A=rule	B=gate	A visitor asks for a part we may have.
+parts-and-donations-notes.md#10	A=rule	B=gate	Describe it to a volunteer in one line, with the item it came from, and wait for the volunteer to lo
+parts-and-donations-notes.md#18	A=prohibition	B=gate	Accept a donation only if a trustee has agreed to it.
+parts-and-donations-notes.md#19	A=prohibition	B=rule	If a visitor offers something at the door, take their name and number and say that a trustee will ca
+parts-and-donations-notes.md#20	A=description	B=prohibition	Items we do not take: anything with a swollen battery, gas appliances, mattresses and chemicals.
+parts-and-donations-notes.md#21	A=rule	B=prohibition	Say this kindly and early, so the visitor does not carry a heavy box for nothing.
+parts-and-donations-notes.md#28	A=rule	B=gate	Offer the earliest slot first
+parts-and-donations-notes.md#55	A=rule	B=description	Remember that the porch is dark by four in December.
+booking-tool-reference.md#3	A=description	B=rule	Use the booking tool when you need the free slots of a session or the benches in use.
+booking-tool-reference.md#4	A=description	B=rule	Build a calendar view in one call by passing the month and no session date.
+booking-tool-reference.md#6	A=description	B=prohibition	Only the trustees edit it.
+booking-tool-reference.md#11	A=description	B=none	list_month
+booking-tool-reference.md#13	A=description	B=rule	The month must be inside the printed year
+booking-tool-reference.md#14	A=description	B=none	slots_free
+booking-tool-reference.md#17	A=description	B=none	next_session
+booking-tool-reference.md#20	A=description	B=none	bench_state
+booking-tool-reference.md#24	A=none	B=description	**The booking tool never retries a failed read.**
+booking-tool-reference.md#29	A=description	B=rule	Dates are written year, month, day, with dashes.
+booking-tool-reference.md#31	A=description	B=rule	The tool **does not** accept a range of dates; each session is a separate call.
+booking-tool-reference.md#46	A=rule	B=prohibition	Call bench_state only for mains tickets.
+booking-tool-reference.md#52	A=description	B=rule	**5** Read within a minute
+booking-tool-reference.md#53	A=description	B=rule	Safe to quote
+booking-tool-reference.md#54	A=description	B=rule	**3 to 4** Read within the hour
+booking-tool-reference.md#56	A=description	B=gate	**1 to 2** Older than an hour
+booking-tool-reference.md#58	A=description	B=prohibition	The audit line is written by the tool and never by you.
+booking-tool-reference.md#69	A=description	B=rule	The id is wrong or the session has been removed.
+booking-tool-reference.md#72	A=description	B=rule	The date is outside the printed year.
+booking-tool-reference.md#75	A=description	B=rule	You tried to write.
+booking-tool-reference.md#78	A=description	B=rule	The date was in the wrong form.
+booking-tool-reference.md#81	A=description	B=example	A visitor wants a Saturday in October with a free mains bench.
+booking-tool-reference.md#82	A=gate	B=example	Call list_month with the month, keep the sessions with a free slot, and call bench_state for each be
+booking-tool-reference.md#84	A=rule	B=example	On that month the 5th is the only session that fits, and only just, so say that plainly.
+booking-tool-reference.md#85	A=rule	B=example	Offer the 5th first, and the waiting list for the 19th.
+session-lead-handbook.md#4	A=description	B=prohibition	Tinker does not give orders to the lead, but it passes things to the lead and must know what to expe
+session-lead-handbook.md#10	A=gate	B=prohibition	The lead has not signed in.
+session-lead-handbook.md#11	A=gate	B=prohibition	Do not open the session, and tell the trustee on call at once.
+session-lead-handbook.md#17	A=description	B=rule	Visitors without a booking join the queue at the door and are seen in the order they arrive.
+session-lead-handbook.md#18	A=description	B=rule	The lead keeps the queue list on a clipboard and calls names aloud.
+session-lead-handbook.md#24	A=rule	B=prohibition	A visitor reports a problem with a volunteer.
+session-lead-handbook.md#25	A=rule	B=prohibition	Do not try to settle it by message: take the name of the volunteer and the nature of the problem, an
+session-lead-handbook.md#26	A=rule	B=prohibition	A volunteer asks for a tool that Tinker does not hold.
+session-lead-handbook.md#27	A=rule	B=prohibition	Refer them to the loan desk and do not offer a substitute from the shelf.
+session-lead-handbook.md#29	A=description	B=rule	The lead empties it at the end of each session and counts it with a second person.
+session-lead-handbook.md#36	A=rule	B=gate	Power cut
+session-lead-handbook.md#37	A=rule	B=gate	Stop all bench work
+session-lead-handbook.md#38	A=rule	B=gate	Wait for the lead to check the breaker board
+session-lead-handbook.md#39	A=rule	B=prohibition	Fire alarm
+session-lead-handbook.md#40	A=rule	B=prohibition	Leave by the porch
+session-lead-handbook.md#41	A=rule	B=prohibition	Meet at the library car park and do not go back in
+session-lead-handbook.md#42	A=rule	B=gate	Visitor faints
+session-lead-handbook.md#43	A=rule	B=gate	Call the first aider
+session-lead-handbook.md#44	A=rule	B=gate	Keep the area clear until the first aider arrives
+session-lead-handbook.md#50	A=description	B=rule	An incident is logged in the incident book by the lead.
+session-lead-handbook.md#52	A=prohibition	B=rule	The first aider writes the log line for any injury.
+session-lead-handbook.md#55	A=gate	B=rule	The lead counts the benches, the tools and the tin, in that order.
+visitor-replies-guide.md#6	A=rule	B=prohibition	Answer with what the café usually does, not with a promise.
+visitor-replies-guide.md#7	A=rule	B=prohibition	Say that the volunteers try, that they succeed with about half of what they open, and that they cann
+visitor-replies-guide.md#30	A=prohibition	B=gate	Not mendable
+visitor-replies-guide.md#31	A=prohibition	B=gate	Nothing until a volunteer has spoken to them
+visitor-replies-guide.md#39	A=description	B=rule	Items not collected within sixty days go to the shelf for parts or the recycling box.
+visitor-replies-guide.md#49	A=rule	B=prohibition	Say mend, not fix
+visitor-replies-guide.md#50	A=rule	B=prohibition	Say volunteer, not engineer
+visitor-replies-guide.md#52	A=rule	B=prohibition	Say the café, not the shop
+visitor-replies-guide.md#62	A=rule	B=prohibition	Open with what can be done.

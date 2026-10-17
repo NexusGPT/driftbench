@@ -1,0 +1,10 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { buildTree } from './src/tree';
+const f = process.argv[2]!;
+const src = readFileSync(join(new URL('.', import.meta.url).pathname, 'prose3-src', f), 'utf8');
+const parts = src.split(/\{\{[a-z](?:#\w+)?\}\}/);
+const tags = [...src.matchAll(/\{\{([a-z])(?:#(\w+))?\}\}/g)].map((m) => m[0]);
+const t = buildTree(src.replace(/\{\{[a-z](?:#\w+)?\}\}/g, ''), f, 'x');
+const n = Math.max(t.units.length, tags.length);
+for (let i = 0; i < n; i++) console.log(String(i + 1).padStart(3), (t.units[i]?.text ?? '<none>').replace(/\s+/g, ' ').slice(0, 60).padEnd(62), '|', (parts[i] ?? '').replace(/\s+/g, ' ').trim().slice(-50), tags[i] ?? '');

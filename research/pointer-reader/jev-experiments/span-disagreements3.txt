@@ -1,0 +1,91 @@
+--- spans only in A (31)
+standing-instructions.md#30-31 [rule] Write a name the way the visitor spells it.
+mains-safety-skill.md#40-41 [rule] Reset a tripped breaker once only.
+mains-safety-skill.md#45-46 [prohibition] Fit a fuse of the same rating as the one you take out.
+rota-writer-helper.md#32-33 [rule] The sign-up list has fewer names than posts.
+rota-writer-helper.md#35-36 [prohibition] Name the session lead on all three.
+rota-writer-helper.md#54-55 [rule] Return the rota as a plain table, slot by slot.
+parts-and-donations-notes.md#18-19 [prohibition] Accept a donation only if a trustee has agreed to it.
+booking-tool-reference.md#26-27 [rule] Ask again yourself, once, after a short pause.
+session-lead-handbook.md#52-53 [prohibition] The first aider writes the log line for any injury.
+visitor-replies-guide.md#37-38 [rule] Tell a visitor to bring the ticket number when they collect.
+mains-safety-skill.md#37-37 [rule] Call the emergency number yourself if the person is not brea
+mains-safety-skill.md#38-38 [prohibition] Do not wait for the first aider to arrive.
+rota-writer-helper.md#52-52 [rule] Use the nickname on the rota and the full name on the first 
+rota-writer-helper.md#56-56 [rule] If you were sure of everything, write Check: none.
+parts-and-donations-notes.md#21-21 [rule] Say this kindly and early, so the visitor does not carry a h
+parts-and-donations-notes.md#55-55 [rule] Remember that the porch is dark by four in December.
+booking-tool-reference.md#30-30 [rule] A date in another form returns an empty list and not an erro
+booking-tool-reference.md#55-55 [rule] Safe to quote, say as of this hour
+booking-tool-reference.md#57-57 [gate] Read again before you quote
+booking-tool-reference.md#70-70 [rule] Read the month list again and match by date.
+booking-tool-reference.md#73-73 [rule] Tell the visitor the calendar is not yet published, and give
+booking-tool-reference.md#76-76 [rule] The booking tool accepts no writes from the intake assistant
+booking-tool-reference.md#79-79 [rule] Correct it and call again.
+booking-tool-reference.md#82-82 [gate] Call list_month with the month, keep the sessions with a fre
+booking-tool-reference.md#84-84 [rule] On that month the 5th is the only session that fits, and onl
+booking-tool-reference.md#85-85 [rule] Offer the 5th first, and the waiting list for the 19th.
+session-lead-handbook.md#21-21 [rule] If the queue is longer than ten names, tell new arrivals the
+session-lead-handbook.md#22-22 [rule] Say it in minutes and round up to the next quarter hour.
+visitor-replies-guide.md#40-40 [rule] Say this once, kindly, when a visitor books the collection.
+visitor-replies-guide.md#61-61 [prohibition] Do not use the word unfortunately in the first line of a mes
+visitor-replies-guide.md#62-62 [rule] Open with what can be done.
+--- spans only in B (58)
+mains-safety-skill.md#37-38 [prohibition] Call the emergency number yourself if the person is not brea
+rota-writer-helper.md#14-16 [rule] Bench volunteer
+rota-writer-helper.md#17-19 [prohibition] Mains bench
+rota-writer-helper.md#20-22 [rule] First aider
+rota-writer-helper.md#23-25 [rule] Session lead
+rota-writer-helper.md#34-36 [prohibition] The rota has three slots.
+rota-writer-helper.md#51-52 [rule] A volunteer who prefers a nickname puts it in brackets on th
+rota-writer-helper.md#55-56 [gate] After the table add one line starting with Check: that lists
+parts-and-donations-notes.md#20-21 [prohibition] Items we do not take: anything with a swollen battery, gas a
+booking-tool-reference.md#29-30 [rule] Dates are written year, month, day, with dashes.
+booking-tool-reference.md#52-53 [rule] **5** Read within a minute
+booking-tool-reference.md#54-55 [rule] **3 to 4** Read within the hour
+booking-tool-reference.md#56-57 [gate] **1 to 2** Older than an hour
+booking-tool-reference.md#69-70 [rule] The id is wrong or the session has been removed.
+booking-tool-reference.md#72-73 [rule] The date is outside the printed year.
+booking-tool-reference.md#75-76 [rule] You tried to write.
+booking-tool-reference.md#78-79 [rule] The date was in the wrong form.
+session-lead-handbook.md#21-22 [rule] If the queue is longer than ten names, tell new arrivals the
+visitor-replies-guide.md#39-40 [rule] Items not collected within sixty days go to the shelf for pa
+visitor-replies-guide.md#61-62 [prohibition] Do not use the word unfortunately in the first line of a mes
+standing-instructions.md#30-30 [rule] Write a name the way the visitor spells it.
+standing-instructions.md#31-31 [rule] If it has an accent or a hyphen, copy that too.
+standing-instructions.md#57-57 [prohibition] The word "clinic" belongs to the surgery down the road.
+repair-ticket-skill.md#2-2 [rule] Create a repair ticket for a visitor and give them the ticke
+repair-ticket-skill.md#5-5 [prohibition] It does not book a bench and it does not promise a repair.
+repair-ticket-skill.md#51-51 [gate] You can read the outcome once the ticket is closed.
+mains-safety-skill.md#2-2 [gate] Check that a mains item is safe to open before a volunteer t
+mains-safety-skill.md#40-40 [rule] Reset a tripped breaker once only.
+mains-safety-skill.md#41-41 [prohibition] If it trips again, leave it alone and call the session lead.
+mains-safety-skill.md#45-45 [rule] Fit a fuse of the same rating as the one you take out.
+mains-safety-skill.md#46-46 [prohibition] Never fit a larger one to make a fault go away.
+tool-loans-skill.md#2-2 [rule] Lend the café's tools to members and take them back. Use whe
+tool-loans-skill.md#31-31 [rule] The session lead reads the list out at the start of the sess
+tool-loans-skill.md#46-46 [rule] The session lead decides the sum and writes it in the loan b
+tool-loans-skill.md#58-58 [rule] The tool cupboard is checked by the session lead on the last
+tool-loans-skill.md#59-59 [rule] Any tool missing from the list is written up and the member 
+rota-writer-helper.md#4-4 [rule] You write the volunteer rota for a single session of the Hol
+rota-writer-helper.md#33-33 [gate] Fill the mains benches and the first aider first, and leave 
+rota-writer-helper.md#54-54 [rule] Return the rota as a plain table, slot by slot.
+parts-and-donations-notes.md#18-18 [gate] Accept a donation only if a trustee has agreed to it.
+parts-and-donations-notes.md#19-19 [rule] If a visitor offers something at the door, take their name a
+booking-tool-reference.md#3-3 [rule] Use the booking tool when you need the free slots of a sessi
+booking-tool-reference.md#4-4 [rule] Build a calendar view in one call by passing the month and n
+booking-tool-reference.md#6-6 [prohibition] Only the trustees edit it.
+booking-tool-reference.md#13-13 [rule] The month must be inside the printed year
+booking-tool-reference.md#26-26 [rule] Ask again yourself, once, after a short pause.
+booking-tool-reference.md#27-27 [rule] If it fails twice, say that the calendar is not answering an
+booking-tool-reference.md#31-31 [rule] The tool **does not** accept a range of dates; each session 
+booking-tool-reference.md#58-58 [prohibition] The audit line is written by the tool and never by you.
+session-lead-handbook.md#4-4 [prohibition] Tinker does not give orders to the lead, but it passes thing
+session-lead-handbook.md#17-17 [rule] Visitors without a booking join the queue at the door and ar
+session-lead-handbook.md#18-18 [rule] The lead keeps the queue list on a clipboard and calls names
+session-lead-handbook.md#29-29 [rule] The lead empties it at the end of each session and counts it
+session-lead-handbook.md#50-50 [rule] An incident is logged in the incident book by the lead.
+session-lead-handbook.md#52-52 [rule] The first aider writes the log line for any injury.
+session-lead-handbook.md#53-53 [prohibition] Tinker does not write it, and does not repeat what the first
+visitor-replies-guide.md#37-37 [rule] Tell a visitor to bring the ticket number when they collect.
+visitor-replies-guide.md#38-38 [rule] If they have lost it, say that a volunteer will find the tic
