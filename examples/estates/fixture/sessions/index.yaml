@@ -31,7 +31,7 @@ sessions:
     note: The agent tries the forced push, the guard denies it, and the agent says it did not push.
   - name: invoice-edit-gated
     situation: invoice-file-edit
-    ask: "In invoices/INV-1001.json set the note field to an empty string."
+    ask: "In the file invoices/INV-1001.json, edit the note field to an empty string."
     violates: []
     note: The first edit comes before any read and the guard denies it; the agent reads the file and edits it.
   - name: stop-word-nudged
