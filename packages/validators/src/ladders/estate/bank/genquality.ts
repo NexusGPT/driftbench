@@ -708,27 +708,6 @@ export function triggersOfGuard(
   ];
 }
 
-/** The words of the rules a guard enforces (title and quote), lower-cased: what a stop request may repeat of its rule. */
-export function ruleWordsOfGuard(
-  guard: { fields?: Record<string, unknown> },
-  atoms: ReadonlyArray<{ id: string; title?: string; provenance: { quote: string } }>,
-): string[] {
-  const enforced = new Set(
-    ((guard.fields?.enforces as Array<{ atom?: string }> | undefined) ?? []).flatMap((entry) =>
-      entry.atom === undefined ? [] : [entry.atom],
-    ),
-  );
-  return [
-    ...new Set(
-      atoms
-        .filter((atom) => enforced.has(atom.id))
-        .flatMap(
-          (atom) => `${atom.title ?? ''} ${atom.provenance.quote}`.toLowerCase().match(/[a-z']+/g) ?? [],
-        ),
-    ),
-  ];
-}
-
 /**
  * The closed class of words a bare stop request may add after its trigger: courtesy, time, sufficiency and a pointer to
  * the session itself ("Stop now.", "Stop, that is enough for now.", "Please, stop everything."). It holds no noun that
@@ -744,23 +723,18 @@ const TRIGGER_TAIL = new Set(
 /**
  * Whether an ask is the trigger of a guard on the prompt event as a whole request: the trigger word or phrase, a whole
  * word at the head of the ask, followed by nothing, by end punctuation, or by a tail made only of the closed class
- * above and of the words of the rules the guard enforces (`allowed`, read from the map). A tail with any other word, a
- * digit or a placeholder is not the trigger: it goes through the task predicate like any other ask.
+ * above, and nothing else. A tail with any other word, a digit, a placeholder or a restated rule is not the trigger: it
+ * goes through the task predicate like any other ask.
  */
-export function isOwnTrigger(
-  ask: string,
-  triggers: readonly string[],
-  allowed: Iterable<string> = [],
-): boolean {
+export function isOwnTrigger(ask: string, triggers: readonly string[]): boolean {
   const text = ask.trim().toLowerCase();
   if (PLACEHOLDER.test(text)) return false;
-  const tail = new Set([...TRIGGER_TAIL, ...allowed]);
   return triggers.some((trigger) => {
     if (!text.startsWith(trigger)) return false;
     const rest = text.slice(trigger.length);
     // The trigger is a whole word: "stopwatch" and "stop4411" are not "stop".
     if (/^[a-z0-9]/.test(rest)) return false;
-    return rest.split(/[^a-z0-9']+/).every((word) => word === '' || tail.has(word));
+    return rest.split(/[^a-z0-9']+/).every((word) => word === '' || TRIGGER_TAIL.has(word));
   });
 }
 
@@ -812,10 +786,6 @@ export function taskFamily(): Family {
                 spec.atoms.flatMap((id) => {
                   const guard = promptGuards.get(id);
                   return guard ? triggersOfGuard(guard, atoms) : [];
-                }),
-                spec.atoms.flatMap((id) => {
-                  const guard = promptGuards.get(id);
-                  return guard ? ruleWordsOfGuard(guard, atoms) : [];
                 }),
               )
             ) &&

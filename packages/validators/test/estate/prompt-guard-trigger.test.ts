@@ -96,11 +96,9 @@ describe('the trigger of a guard on the prompt event', () => {
     expect(isOwnTrigger(ask, ['stop', 'hold on'])).toBe(expected),
   );
 
-  it('lets the rule of the guard supply tail words, and no others', () => {
-    expect(isOwnTrigger('Stop, confirm it in one line.', ['stop'], ['confirm', 'one', 'line', 'in'])).toBe(
-      true,
-    );
+  it('takes no tail word from the rule the guard enforces', () => {
     expect(isOwnTrigger('Stop, confirm it in one line.', ['stop'])).toBe(false);
+    expect(isOwnTrigger('Stop all work and confirm in one line.', ['stop'])).toBe(false);
   });
 });
 
@@ -122,6 +120,9 @@ describe('gen.task exempts only the own trigger of a guard on the prompt event',
       'Stop! asdf qwerty zxcv',
       'stop: 4411',
       'Stop, Supplier orders arrive late.',
+      'Stop: when the user says stop, stop all work and confirm in one line.',
+      'Stop. Stop all work and confirm in one line.',
+      'Stop, when the user says "stop", stop all work and confirm in one line.',
     ])
       expect(await verdict(type, ask), ask).toBe(false);
   });
@@ -144,6 +145,15 @@ describe('a session command is a task only as a whole request', () => {
     'stop: 4411',
     'Stop, Supplier orders arrive late.',
   ])('holds none after a junk tail: %s', (ask) => expect(holdsTask(ask)).toBe(false));
+
+  it.each([
+    'Stop: when the user says stop, stop all work and confirm in one line.',
+    'Stop. Stop all work and confirm in one line.',
+  ])('holds none after a tail that restates the rule, as without the stop word: %s', (ask) => {
+    const rules = ['On stop, stop all work and confirm in one line'];
+    expect(holdsTask(ask.replace(/^Stop[:.] /, ''), { rules })).toBe(false);
+    expect(holdsTask(ask, { rules })).toBe(false);
+  });
 
   it('keeps a real task that follows a session command', () => {
     expect(holdsTask('Stop, then rename the March report to final.md.')).toBe(true);
