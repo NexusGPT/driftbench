@@ -167,3 +167,42 @@ describe('a dead run weighs as one failure per root family', () => {
     expect(headline?.estimate).toBeCloseTo(0.5, 6);
   });
 });
+
+describe('a root with no id is keyed by its place in the spec', () => {
+  // A hand-written kiosk spec: menu > order, and an independent greeting block with no id at spec index 2.
+  const kiosk: Partial<Spec> = {
+    blocks: [
+      { id: 'menu', when: { user: 'the menu' } },
+      { id: 'order', parent: 'menu', when: { user: 'one coffee' } },
+      { when: { user: 'hello' } },
+    ] as Spec['blocks'],
+  };
+  const recorded = (repeat: number, specIndexes: number[]): RunResult => {
+    const shape = run({ specId: 'kiosk', repeat, blocks: specIndexes.map(() => ({})) });
+    return {
+      ...shape,
+      blocks: shape.blocks.map((block, position) => {
+        const at = specIndexes[position] as number;
+        const ids = ['menu', 'order', undefined];
+        return {
+          ...block,
+          specIndex: at,
+          ...(ids[at] === undefined ? { blockId: undefined } : { blockId: ids[at] }),
+          ...(at === 1 ? { parent: 'menu' } : {}),
+        };
+      }),
+    };
+  };
+
+  it('joins a subset run of that root and a dead run in one tree', () => {
+    const dead = {
+      ...run({ specId: 'kiosk', repeat: 2, blocks: [] }),
+      status: 'failed' as const,
+      blocks: [],
+    };
+    const card = buildScorecard(dataOf([recorded(0, [0, 1, 2]), recorded(1, [2]), dead], { kiosk }));
+    const headline = card.modes.find((mode) => mode.mode === 'F')?.headline;
+    // Trees: menu (passed, died) and the greeting (passed, passed, died).
+    expect(headline).toMatchObject({ trees: 2, n: 5, runs: 3 });
+  });
+});
