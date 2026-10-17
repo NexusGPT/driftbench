@@ -178,7 +178,8 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
         scope: 'block',
       },
     ]);
-    expect(result.report.summary.judged).toBe(2);
+    // Two criteria as before, plus the one of p31: a re-read of the open tracker note, which names no file.
+    expect(result.report.summary.judged).toBe(3);
   });
 
   it('injects the deviation of the cell before the ask, with its approved phrase', () => {
@@ -498,7 +499,7 @@ describe('the committed suite', () => {
       blocks: 1559,
       complete: 1537,
       incomplete: 27,
-      judged: 464,
+      judged: 465,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
