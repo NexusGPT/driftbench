@@ -85,4 +85,12 @@ describe('the suite headline groups a run that did not record its root under tha
     expect(headline?.lower).toBe(expected.lower);
     expect(headline?.upper).toBe(expected.upper);
   });
+
+  it('still counts a run that failed before it recorded any block', () => {
+    // The first step threw: the run failed with no block, so its failure belongs to no one root.
+    const dead = { ...bakeryRun(6, [], []), status: 'failed' as const };
+    const headline = suiteHeadline([...runs, dead], (entry) => entry.specId, { parentsOf });
+    expect(headline).toMatchObject({ runs: 5, n: 9, trees: 3 });
+    expect(headline?.pooledRate).toBe(6 / 9);
+  });
 });
