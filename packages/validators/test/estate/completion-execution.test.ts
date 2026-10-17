@@ -176,6 +176,36 @@ describe('the completion oracle derives components for custom.some_call', () => 
     );
   });
 
+  it.each([
+    ['one_of', { one_of: ['python3 scripts/list-parts.py --ticket 0', 'other.sh'] }],
+    ['nonempty', { nonempty: true }],
+    ['exact', { exact: 'python3 scripts/list-parts.py --ticket 0' }],
+    ['contains', { contains: 'list-parts.py' }],
+    ['regex', { regex: 'list-parts\\.py --ticket [0-9]+' }],
+  ])('derives the %s assertion without a gap', (_form, assertion) => {
+    expect(
+      completionComponents(specOf(undefined, [{ ...PARTS, input: { command: assertion } }])).gaps,
+    ).toEqual([]);
+  });
+
+  it('adds the empty string as a selector of a nonempty assertion, and no foreign value (it satisfies the assertion)', () => {
+    const ids = completionComponents(
+      specOf(undefined, [{ ...PARTS, input: { command: { nonempty: true } } }]),
+    ).components.map((c) => c.id);
+    expect(ids).toContain('0.custom.some_call.0.selector.input.command.empty');
+    expect(ids).not.toContain('0.custom.some_call.0.selector.input.command.foreign');
+  });
+
+  it('keeps an unknown option of the some_call check itself a named gap', () => {
+    const spec = specOf(undefined, [PARTS]) as unknown as {
+      rules: { custom: { some_call: Record<string, unknown> } };
+    };
+    spec.rules.custom.some_call.speed = 'fast';
+    expect(completionComponents(spec as unknown as Spec).gaps).toContain(
+      '0.custom.some_call.unsupported-option:speed',
+    );
+  });
+
   it('keeps an unknown entry option a named gap', () => {
     const inventory = completionComponents(specOf(undefined, [{ ...PARTS, retry: true }]));
     expect(inventory.gaps).toEqual(['0.custom.some_call.0.unsupported-clause:retry']);
