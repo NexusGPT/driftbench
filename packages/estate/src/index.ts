@@ -269,7 +269,9 @@ export { runStaticTests, type StaticInput, type StaticResult } from './static';
 export {
   casesFromSource,
   ESTATE_CONFIG_FILE,
+  type HelperObservation,
   neutral,
+  observeHelper,
   observeUnitTests,
   outcomeOf,
   runUnitTests,

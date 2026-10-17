@@ -21,11 +21,29 @@ const HEADING_ROLE: ReadonlyArray<[RegExp, DocumentRole]> = [
   [/^(?:history|revision history|change history|audit log)(?:\s*[:(].*)?$/i, 'history'],
   [/^(?:journal|diary|work log|session log)(?:\b|$)/i, 'journal'],
   [/^(?:examples?|samples?|demonstrations?)(?:\b|$)/i, 'example'],
+  [
+    /^(?:anti-?patterns?|counter-?examples?|(?:wrong|bad|incorrect)\s+(?:examples?|patterns?|usage|practices?))(?:\b|$)/i,
+    'example',
+  ],
   [/^(?:templates?|skeletons?)(?:\b|$)/i, 'template'],
 ];
 function headingRole(title: string): DocumentRole | undefined {
   return HEADING_ROLE.find(([pattern]) => pattern.test(title))?.[1];
 }
+
+/**
+ * A counter-example is shown so that it is not followed. A marker (a cross, or a label such as wrong, bad or
+ * incorrect) opens it only where a line or a list item or a table cell begins; the same words inside a
+ * sentence ("if the total is wrong: read ...") or a multiplication sign between numbers are ordinary text. A
+ * check mark or a label such as right, good or correct closes it on the same line.
+ */
+const WRONG_MARK = String.raw`(?:[✗✘❌]|×|\b(?:wrong|bad|incorrect|anti-?pattern|counter-?example)\b\s*[:：])`;
+const RIGHT_MARK = String.raw`(?:[✓✔✅]|\b(?:right|good|correct|fixed|better)\b\s*[:：])`;
+/** What may precede a marker at the start of a line: a quote, a list bullet or number, a table cell, bold. */
+const LEAD = String.raw`\s*(?:>\s*)*(?:[-*+]\s+|\d+[.)]\s+)?(?:\|\s*)?(?:\*\*|__)?`;
+const WRONG_AT_START = new RegExp(`^(${LEAD})${WRONG_MARK}`, 'iu');
+/** A line holding only the marker: the counter-example is the block that follows. */
+const WRONG_STANDALONE = new RegExp(String.raw`^${LEAD}${WRONG_MARK}(?:\*\*|__)?\s*$`, 'iu');
 
 /** Classify before reading declarations. One incidental date or placeholder never changes authority. */
 export function classifyDocument(file: Pick<EstateFile, 'path' | 'text'>, unitFolder?: string): DocumentInfo {
@@ -112,11 +130,13 @@ export function classifyDocument(file: Pick<EstateFile, 'path' | 'text'>, unitFo
     if (
       !active &&
       !line.includes(';') &&
-      /^\s*(?:>\s*)?(?:[-*+]\s+)?(?:for example\b|e\.g\.(?:[\s,:]|$)|example\s*:)/i.test(line)
+      (/^\s*(?:>\s*)?(?:[-*+]\s+)?(?:for example\b|e\.g\.(?:[\s,:]|$)|example\s*:)/i.test(line) ||
+        WRONG_STANDALONE.test(line))
     ) {
-      const endLine = /^\s*(?:for example|e\.g\.|example)\s*[:,]?\s*$/i.test(line)
-        ? exampleBlockEnd(lines, index)
-        : index + 1;
+      const endLine =
+        /^\s*(?:for example|e\.g\.|example)\s*[:,]?\s*$/i.test(line) || WRONG_STANDALONE.test(line)
+          ? exampleBlockEnd(lines, index)
+          : index + 1;
       sections.push({ startLine: index + 1, endLine, role: 'example' });
       index = endLine - 1;
     }
@@ -220,10 +240,22 @@ export function normativeRanges(
   return ranges;
 }
 
+/** A counter-example that opens a line is blanked up to its right marker, or to the end of the line. */
+function maskCounterExamples(line: string): string {
+  const opaque = line.replace(/`[^`]*`/g, (part) => ' '.repeat(part.length));
+  const found = WRONG_AT_START.exec(opaque);
+  if (!found) return line;
+  const start = found[1]?.length ?? 0;
+  const right = new RegExp(RIGHT_MARK, 'iu').exec(opaque.slice(found[0].length));
+  const end = right ? found[0].length + right.index : line.length;
+  return line.slice(0, start) + ' '.repeat(end - start) + line.slice(end);
+}
+
 /** An illustrative prefix ends at an unquoted semicolon; the independent live clause stays visible. */
 export function maskIllustrativePrefixes(text: string): string {
   return text
     .split('\n')
+    .map((line) => maskCounterExamples(line))
     .map((line) => {
       if (!/^\s*(?:[-*+]\s+)?(?:for example\b|e\.g\.(?:[\s,:]|$)|example\s*:)/i.test(line)) return line;
       const opaque = line.replace(/`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, (part) =>

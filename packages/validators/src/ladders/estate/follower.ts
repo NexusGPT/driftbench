@@ -12,6 +12,10 @@ import type { HiddenSituation } from './situations';
  * helper with the brief fields, reads a file before editing it, walks the step list in order, keeps the
  * output rules in its reply, and the guards it runs into give the verdicts the estate declares.
  *
+ * A session opens with the init record a runtime writes: the tools it offers, which are its standard tools
+ * less every tool a bare deny rule of the settings names (a rule with a pattern, as in `Bash(rm -rf:*)`,
+ * keeps the tool offered). Deleting a deny rule offers the tool again.
+ *
  * An agent mutant is the follower with one atom deleted: every act that atom asks for is dropped (an act
  * several atoms ask for is dropped with any of them), an order the atom imposes is reversed, and what the
  * atom forbids happens. The follower knows the asks of its situations and nothing of any test.
@@ -20,6 +24,20 @@ import type { HiddenSituation } from './situations';
 const BASE = Date.parse('2026-10-12T09:00:00.000Z');
 const BLOCK_MS = 600_000;
 const SESSION = '00000000-0000-4000-8000-00000000e57a';
+
+/** The tools a runtime offers before any setting denies one. */
+const RUNTIME_TOOLS = [
+  'Agent',
+  'Bash',
+  'Edit',
+  'Glob',
+  'Grep',
+  'Read',
+  'Skill',
+  'Write',
+  'WebFetch',
+  'WebSearch',
+];
 
 type Call = {
   label: string;
@@ -58,6 +76,20 @@ export function follow(
     uuid += 1;
     return `follower-${String(uuid).padStart(4, '0')}`;
   };
+  const denied = estate.permissions.deny.filter((rule) => !rule.includes('(') && !cut(`tool:deny:${rule}`));
+  records.push({
+    parentUuid: null,
+    isSidechain: false,
+    userType: 'external',
+    cwd,
+    sessionId: SESSION,
+    version: '2.0.0',
+    type: 'system',
+    subtype: 'init',
+    uuid: 'follower-init',
+    timestamp: new Date(BASE).toISOString(),
+    tools: RUNTIME_TOOLS.filter((tool) => !denied.includes(tool)),
+  });
   asks.forEach((ask, blockIndex) => {
     const situation = situations.find((candidate) => candidate.phrases.includes(ask));
     let clock = BASE + blockIndex * BLOCK_MS;
@@ -352,27 +384,29 @@ function taskSteps(
       call: { label: 'Skill', input: { skill: name }, result: `Launching skill: ${name}` },
     });
   }
-  if (!cut(refHid(topic.lookup.file))) opening.push({ call: read(cwd, ref(topic.lookup.file)) });
-  if (skill.missing && !cut(refHid(topic.missing.file))) {
-    opening.push({ call: read(cwd, ref(topic.missing.file), false) });
-  }
+  // One read per file. A file several atoms ask for (the lookup, the skill's gate reference and a standing line
+  // naming the same path) is one act: dropped with any reference atom that asks for it, read after the edit it
+  // guards when any gate atom that orders it is the mutant.
+  const reads = new Map<string, { path: string; exists: boolean; refs: string[]; gates: string[] }>();
+  const asks = (path: string, exists: boolean, refAtom: string, gate?: string) => {
+    const key = `${exists}:${path}`;
+    const act = reads.get(key) ?? { path, exists, refs: [], gates: [] };
+    act.refs.push(refAtom);
+    if (gate !== undefined) act.gates.push(gate);
+    reads.set(key, act);
+  };
+  asks(ref(topic.lookup.file), true, refHid(topic.lookup.file));
+  if (skill.missing) asks(ref(topic.missing.file), false, refHid(topic.missing.file));
   // Gate reads: before the edit, or after it when the gate is the mutant.
-  const gateReads: Array<{ read: string; ref: string; gate: string }> = [
-    { read: ref(topic.gate.file), ref: refHid(topic.gate.file), gate: `gate:${name}` },
-    ...(skill.comma
-      ? [{ read: ref(topic.comma.file), ref: refHid(topic.comma.file), gate: `gate:${name}:comma` }]
-      : []),
-    ...estate.rules
-      .filter((rule) => rule.fixedGate?.skill === name)
-      .map((rule) => ({
-        read: rule.fixedGate?.path as string,
-        ref: `ref:${STANDING}:${rule.fixedGate?.path}`,
-        gate: rule.hid,
-      })),
-  ];
-  for (const gate of gateReads) {
-    if (cut(gate.ref)) continue;
-    (cut(gate.gate) ? late : opening).push({ call: read(cwd, gate.read) });
+  asks(ref(topic.gate.file), true, refHid(topic.gate.file), `gate:${name}`);
+  if (skill.comma) asks(ref(topic.comma.file), true, refHid(topic.comma.file), `gate:${name}:comma`);
+  for (const rule of estate.rules.filter((candidate) => candidate.fixedGate?.skill === name)) {
+    const path = rule.fixedGate?.path as string;
+    asks(path, true, `ref:${STANDING}:${path}`, rule.hid);
+  }
+  for (const act of reads.values()) {
+    if (act.refs.some(cut)) continue;
+    (act.gates.some(cut) ? late : opening).push({ call: read(cwd, act.path, act.exists) });
   }
   const script = skillPath(skill, `scripts/${topic.script.file}`);
   if (!cut(fileHid('script', skill, `scripts/${topic.script.file}`)) && !cut(`rule:${name}:script`)) {

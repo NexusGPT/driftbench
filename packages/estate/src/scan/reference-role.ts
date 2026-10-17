@@ -16,9 +16,14 @@ export function ignoredReference(raw: RawEstate, path: string): boolean {
   return rules.some((rule) => rule.test(posix.normalize(path)));
 }
 
-/** A variable binding denotes a family of paths, never a concrete file whose absence is known. */
+/** A variable binding or a fill-in value denotes a family of paths, never a concrete file whose absence is known. */
 export function placeholderPath(path: string): boolean {
-  return /<[^<>\n]+>|\{\{[^{}\n]+\}\}|\$\{[^{}\n]+\}/.test(path);
+  return (
+    /<[^<>\n]+>|\{\{[^{}\n]+\}\}|\$\{[^{}\n]+\}|\{[A-Za-z_][\w-]*\}|%[sdi]|\$[A-Z_]\w*/.test(path) ||
+    // A bracketed word, a doubled date letter or a run of fill-in letters stands for a value, not a name.
+    /\[[A-Za-z_][\w -]*\]/.test(path) ||
+    /(?:^|[^A-Za-z])(?:Y{2,4}|M{2}|D{2}|H{2}|N{3,}|X{3,})(?![A-Za-z])/.test(path)
+  );
 }
 
 /**

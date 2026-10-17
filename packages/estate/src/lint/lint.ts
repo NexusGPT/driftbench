@@ -1,6 +1,7 @@
 import { analyzeGraph } from '../graph/analyze';
 import { quoteDrift } from '../map/file';
 import { navigationNames } from '../scan/code';
+import { codeNames, runtimeProduct } from '../scan/code-names';
 import { normativeEstate, normativeRanges, unloadedByDesign } from '../scan/document-roles';
 import { DEFAULT_STANDING_CEILING, measureInvariants, standingFiles } from '../scan/invariants';
 import type { RawEstate, RegistryRow } from '../scan/reader';
@@ -76,7 +77,7 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     findings.push({ code: 'QUOTE_DRIFT', subject: drift.path, message: drift.message });
   }
 
-  const analysis = analyzeGraph(atoms, map.edges, raw.files, navigationNames(raw));
+  const analysis = analyzeGraph(atoms, map.edges, raw.files, navigationNames(raw), codeNames(raw).links);
   // Findings look atoms up by id: the first atom of each id, as a search from the start would find it.
   const byId = new Map<string, Atom>();
   for (const atom of atoms) if (!byId.has(atom.id)) byId.set(atom.id, atom);
@@ -102,6 +103,9 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     const atom = byId.get(id);
     const path = String(atom?.fields?.path ?? '');
     if (atom?.fields?.ignored === true || ignoredReference(raw, path) || placeholderPath(path)) continue;
+    // A script writes or creates the path: the runtime makes it, so a sentence about it is no broken link.
+    if (atom && atom.fields?.external !== true && !atom.fields?.candidates && runtimeProduct(raw, path))
+      continue;
     if (atom?.fields?.external === true) {
       findings.push({
         code: 'EXTERNAL',

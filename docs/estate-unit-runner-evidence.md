@@ -29,7 +29,7 @@ The bank declares `unit.runner` seed-free: one evaluation is reused across seeds
 
 ## Causes
 
-- G: Guard task specs provide asks and assertions but no executable hook payload metadata. The old command rejects their YAML before executing a case. There are 31 items.
+- G: Guard task specs provide asks and assertions but no executable guard payload metadata. The old command rejects their YAML before executing a case. There are 31 items.
 - S: Script task specs have the same format mismatch. Their task assertions only require code to run, with no independent exit/output oracle. There are 4 items.
 - H: Helper task specs have the same format mismatch and no configured helper executor. A nonempty prompt is not execution. There are 6 items.
 
@@ -80,7 +80,7 @@ The bank declares `unit.runner` seed-free: one evaluation is reused across seeds
 ## General product changes
 
 - Task specs declare concrete operations in `metadata.estate.unit`. JSON recorded-unit behavior remains supported.
-- Hook payloads execute the current configured hook, from the copied project working folder. Firings are classified from actual runtime results.
+- Guard payloads execute the current configured guard, from the copied project working folder. Firings are classified from actual runtime results.
 - Guard counts, messages, completion budgets and exact case outcomes are asserted without mining source literals or changing expected labels to fit the result.
 - Script processes honor the declared shebang and fixture stdin. Script assertions need a declared fixture, an expected case outcome, or an explicit expected exit code.
 - Unavailable operations and oracles produce input errors. Their absence cannot count as a successful mutant kill.
@@ -89,7 +89,7 @@ The bank declares `unit.runner` seed-free: one evaluation is reused across seeds
 
 Command: `pnpm exec vitest run packages/cli/test/estate-unit-spec.test.ts packages/estate/test/unit/declared-runtime.test.ts packages/cli/test/estate-unit.test.ts packages/estate/test/unit/run.test.ts`. Result: 26 tests pass.
 
-New hand-written estates exercise YAML/JSON task loading; real hook message and elapsed-time reporting; allow-all mutation detection; runtime warn/nudge/deny semantics; shebang selection; script stdin and exact outputs; project-relative hook commands; and refusal of absent script oracles and helper executors. The original JSON runner tests also pass, including recording, mutants, jobs and process cleanup.
+New hand-written estates exercise YAML/JSON task loading; real guard message and elapsed-time reporting; allow-all mutation detection; runtime warn/nudge/deny semantics; shebang selection; script stdin and exact outputs; project-relative guard commands; and refusal of absent script oracles and helper executors. The original JSON runner tests also pass, including recording, mutants, jobs and process cleanup.
 
 The two new low-level execution tests fail before the shebang/stdin/working-folder fix and pass afterward. The YAML regression fails against the original command with a not-JSON error and passes after task-spec dispatch is restored.
 
@@ -105,7 +105,7 @@ The generator owner must emit the explicit operation metadata. Script tests need
 
 ## Explicit payload fidelity follow-up
 
-A further hand-written Stop hook reads both the explicitly supplied `last_reply` and the canonical `last_assistant_message`. Before the fix, the task run loses the supplied key and raises `KeyError`. Explicit task operations now retain supplied keys and empty values, while recorded JSON tests keep their existing shorthand conversion. The new regression and the existing runner set pass: 27 tests.
+A further hand-written Stop guard reads both the explicitly supplied `last_reply` and the canonical `last_assistant_message`. Before the fix, the task run loses the supplied key and raises `KeyError`. Explicit task operations now retain supplied keys and empty values, while recorded JSON tests keep their existing shorthand conversion. The new regression and the existing runner set pass: 27 tests.
 
 A separate compatibility probe consumes the generator owner's actual pending operation metadata from temporary suite `hFkCXt`, without changing that owner's files. Of 18 guard-negative, speed and register task specs on the original estate, 16 pass. The two reply-length speed/register payloads contain a short rule sentence, which does not exceed the guard's length condition. This is compatibility evidence on uncommitted generator output, not bank credit.
 

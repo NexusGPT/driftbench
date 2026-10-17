@@ -1306,6 +1306,90 @@ relations:
       quote: "- lookup_record: Looks up the record of an item."
     produced_by: code
     approved: true
+  - kind: uses_tool
+    subject: { dimension: behaviour, value: B-005 }
+    tool: lookup_record
+    stage: opening
+    to: opening
+    evidence:
+      source: ./inventory.yaml
+      quote: |-
+        id: B-005
+            title: Look up the record with lookup_record before stating its status
+    produced_by: code
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: behaviour, value: B-005 }
+    tool: lookup_record
+    stage: intake
+    to: intake
+    evidence:
+      source: ./inventory.yaml
+      quote: |-
+        id: B-005
+            title: Look up the record with lookup_record before stating its status
+    produced_by: code
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: behaviour, value: B-005 }
+    tool: lookup_record
+    stage: check
+    to: check
+    evidence:
+      source: ./inventory.yaml
+      quote: |-
+        id: B-005
+            title: Look up the record with lookup_record before stating its status
+    produced_by: code
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: behaviour, value: B-005 }
+    tool: lookup_record
+    stage: choice
+    to: choice
+    evidence:
+      source: ./inventory.yaml
+      quote: |-
+        id: B-005
+            title: Look up the record with lookup_record before stating its status
+    produced_by: code
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: behaviour, value: B-005 }
+    tool: lookup_record
+    stage: details
+    to: details
+    evidence:
+      source: ./inventory.yaml
+      quote: |-
+        id: B-005
+            title: Look up the record with lookup_record before stating its status
+    produced_by: code
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: behaviour, value: B-005 }
+    tool: lookup_record
+    stage: recap
+    to: recap
+    evidence:
+      source: ./inventory.yaml
+      quote: |-
+        id: B-005
+            title: Look up the record with lookup_record before stating its status
+    produced_by: code
+    approved: true
+  - kind: uses_tool
+    subject: { dimension: behaviour, value: B-005 }
+    tool: lookup_record
+    stage: done
+    to: done
+    evidence:
+      source: ./inventory.yaml
+      quote: |-
+        id: B-005
+            title: Look up the record with lookup_record before stating its status
+    produced_by: code
+    approved: true
   - kind: states
     subject: { dimension: flow, value: new-request }
     stage: opening
@@ -1741,8 +1825,7 @@ relations:
     must: [ not answering ]
     tools:
       - tool: lookup_record
-        count:
-          max: 2
+        count: 2
     evidence:
       source: ./prompt.md
       quote: A failed read-only tool gets one retry; a side-effecting tool none; report the failure honestly and stay on the step.

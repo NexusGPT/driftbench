@@ -90,6 +90,9 @@ export const UnitTest = z.strictObject({
 });
 export type UnitTest = z.infer<typeof UnitTest>;
 
+/** Bound generated boundary payloads so an untrusted declaration cannot exhaust memory. */
+export const MAX_BOUNDARY_CHARACTERS = 1_000_000;
+
 /** Events whose payload names a tool. */
 const TOOL_EVENTS = new Set(['PreToolUse', 'PostToolUse', 'PermissionRequest']);
 const NEUTRAL: Record<string, string> = {
@@ -423,6 +426,21 @@ function guardRunOf(
   // a repeated quote gives only the spans its words forbid. A rule with no span gives its sentence, which
   // only a text event (a prompt, a reply) can carry: a tool never gets a sentence as its input.
   const cites = strong.length > 0;
+  let replyLimit: number | undefined;
+  if (!TOOL_EVENTS.has(event)) {
+    for (const ruleId of enforced) {
+      const constraint = atoms
+        .get(ruleId)
+        ?.evidence.find((entry) => entry.type === 'custom' && entry.name === 'max_characters');
+      const max = constraint?.type === 'custom' ? constraint.options?.max : undefined;
+      if (
+        max !== undefined &&
+        (typeof max !== 'number' || !Number.isSafeInteger(max) || max < 0 || max >= MAX_BOUNDARY_CHARACTERS)
+      )
+        return `${atom.id} declares a reply boundary outside the supported payload size`;
+      if (typeof max === 'number') replyLimit = Math.min(replyLimit ?? max, max);
+    }
+  }
   const textEvent = !TOOL_EVENTS.has(event);
   // Material: what the rule forbids. A cited rule's spans in the clauses that forbid them, each with the act
   // its clause names; a cited rule that only shows the right form (an obligation) gives that form as allowed
@@ -433,6 +451,14 @@ function guardRunOf(
   const pieces = enforced.flatMap((ruleId): Piece[] => {
     const rule = atoms.get(ruleId);
     const quote = rule?.provenance?.quote ?? '';
+    // A declared numeric output constraint supplies its boundary independently of the hook source.
+    const bound = textEvent
+      ? rule?.evidence.find((entry) => entry.type === 'custom' && entry.name === 'max_characters')
+      : undefined;
+    const max = bound?.type === 'custom' ? bound.options?.max : undefined;
+    if (typeof max === 'number' && Number.isSafeInteger(max) && max >= 0 && max < MAX_BOUNDARY_CHARACTERS) {
+      return [{ text: 'x'.repeat(max + 1) }];
+    }
     if (cites) {
       const clauses = clausesOf(quote);
       const forbidden = clauses
@@ -463,8 +489,8 @@ function guardRunOf(
     tool === 'Bash' ? bashForm(piece.text, piece.act) : piece.text;
   const cases: GuardCase[] = [];
   const seen = new Set<string>();
-  const add = (tool: string | undefined, text: string) => {
-    if (text.trim() === '' || seen.has(`${tool}\u0000${text}`)) return;
+  const add = (tool: string | undefined, text: string, allowEmpty = false) => {
+    if ((!allowEmpty && text.trim() === '') || seen.has(`${tool}\u0000${text}`)) return;
     seen.add(`${tool}\u0000${text}`);
     cases.push({
       id: `case-${String(cases.length + 1).padStart(2, '0')}`,
@@ -474,7 +500,11 @@ function guardRunOf(
   };
   if (testType === 'guard_negative') {
     for (const tool of tools) {
-      add(tool, tool === undefined ? 'Done.' : (NEUTRAL[tool] ?? 'hello'));
+      add(
+        tool,
+        tool === undefined ? 'Done.'.slice(0, replyLimit) : (NEUTRAL[tool] ?? 'hello'),
+        replyLimit === 0,
+      );
       // The right form an obligation shows is let through as well.
       for (const text of allowed) add(tool, text);
     }

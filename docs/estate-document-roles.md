@@ -36,6 +36,13 @@ A changelog, history, journal, archive or fixture is a record or a store: nothin
 - A file the runtime loads by its place (standing instructions, memory, settings, a skill or helper definition, the check registry) is never exempt: its own text cannot hide it.
 - A navigation document (a changelog, a history, an example) still documents the files it points at: such a file counts as named, not as an orphan. The link never makes the file reachable and creates no atom, rule or missing-file finding.
 
+## Counter-examples, fill-in values and runtime products
+
+- A counter-example is shown so that it is not followed. A cross mark, or a wrong, bad, incorrect, anti-pattern or counter-example label with a colon, opens one only where a line, a list item or a table cell begins. The same words inside a sentence ("if the total is wrong: read `a.md` first") and a multiplication sign ("by 2 × 3") are ordinary text, and the rule stays live. A check mark or a right, good or correct label on the same line closes the counter-example; the span between is not read. A line holding only the marker makes the block that follows an example. An anti-pattern or wrong-example heading makes its section an example.
+- A bracketed word, a doubled date or fill-in letter (`YYYY`, `XXX`), a format specifier and a `{name}` or `$NAME` binding stand for a value. They are not files whose absence is known.
+- A path that a script writes or creates (an open for writing, a redirect, `touch`, `mkdir`, a copy or move to it, directly or through a constant assigned the path) is a file the runtime makes: a marker, a state file, a log. A sentence that names it does not describe a broken link. A script that only reads a path proves nothing about it, so a missing file it reads stays a finding, and a registry or settings literal counts as nothing. Separately, a file that a named script holds as a literal counts as named and reached with the script. A script nothing names legitimises nothing, and a lone file name matches only as a whole path.
+- A sentence read as a path (a quoted run of words, or a segment longer than a file name can be) names no file.
+
 ## Reproducible synthetic measurement
 
 The hand-written estate in `packages/estate/test/scan/document-role-estate.ts` contains each navigation role, mixed example and operational sections, placeholder paths, an ignored fixture path, three concrete missing live references, and one real recovery hazard. It contains no private estate text or validator fixture strings.

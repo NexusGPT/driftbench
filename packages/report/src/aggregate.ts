@@ -1,4 +1,4 @@
-import { type CampaignData, runPassed } from './data';
+import { type CampaignData, runPassed, scoredRuns } from './data';
 import { rate } from './estimate';
 
 /**
@@ -106,7 +106,11 @@ export function evaluateAggregates(
 
 /** The counts of the built-in criteria: successes and total runs. */
 const COUNTS: Record<string, (data: CampaignData) => { k: number; n: number }> = {
-  'pass-rate': (data) => ({ k: data.runs.filter((run) => runPassed(run)).length, n: data.runs.length }),
+  // A run neither passed nor failed (a block not run or blocked) is left out of the rate.
+  'pass-rate': (data) => {
+    const scored = scoredRuns(data.runs);
+    return { k: scored.filter((run) => runPassed(run)).length, n: scored.length };
+  },
   'broken-share': (data) => ({
     k: data.runs.filter((run) => run.status !== 'completed').length,
     n: data.runs.length,
@@ -128,7 +132,10 @@ function criterionOf(name: string, direction: 'at-least' | 'at-most', threshold:
 }
 
 export const BUILT_IN_AGGREGATES = {
-  /** Share of all runs that pass (completed, every block passing, end state matched). Default threshold 0.5. */
+  /**
+   * Share of the runs that pass (completed, every block passing, end state matched), over the runs that passed
+   * or failed: a run with a block not run or blocked, and no failure, is left out. Default threshold 0.5.
+   */
   passRate: (threshold = 0.5): AggregateCriterion => criterionOf('pass-rate', 'at-least', threshold),
   /** Share of runs that did not complete (failed or stopped). Passes at or below the threshold. */
   brokenShare: (threshold: number): AggregateCriterion => criterionOf('broken-share', 'at-most', threshold),

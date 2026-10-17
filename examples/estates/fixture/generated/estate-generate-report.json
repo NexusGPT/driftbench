@@ -44,15 +44,15 @@
   "summary": {
     "specs": 1569,
     "blocks": 1564,
-    "complete": 1378,
-    "incomplete": 191,
-    "judged": 363
+    "complete": 1555,
+    "incomplete": 14,
+    "judged": 464
   },
   "unit": {
     "tests": 26,
     "guards": 6,
     "scripts": 2,
-    "cases": 57,
+    "cases": 56,
     "checks": {
       "tested": 0,
       "needsTrigger": 0,
@@ -63,27 +63,27 @@
   "sources": {
     "asks": {
       "bank": 455,
-      "code": 915,
+      "code": 1092,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 1012,
+      "bank": 1013,
       "no-change:guard": 26,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 257,
+      "no-delete": 433,
       "static": 8
     },
-    "judged": 216
+    "judged": 304
   },
   "focus": null,
   "perTestType": {
     "obligation": {
       "rows": 603,
       "specs": 603,
-      "complete": 447,
-      "incomplete": 156
+      "complete": 603,
+      "incomplete": 0
     },
     "outside_trigger": {
       "rows": 43,
@@ -94,8 +94,8 @@
     "twin": {
       "rows": 43,
       "specs": 43,
-      "complete": 36,
-      "incomplete": 7
+      "complete": 43,
+      "incomplete": 0
     },
     "ordered_pair": {
       "rows": 112,
@@ -106,8 +106,8 @@
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 7,
-      "incomplete": 1
+      "complete": 8,
+      "incomplete": 0
     },
     "route_positive": {
       "rows": 260,
@@ -220,8 +220,8 @@
     "register_sample": {
       "rows": 200,
       "specs": 200,
-      "complete": 187,
-      "incomplete": 13
+      "complete": 200,
+      "incomplete": 0
     },
     "hazard_recovery": {
       "rows": 2,
@@ -264,28 +264,15 @@
     "live": {
       "rows": 1526,
       "specs": 1526,
-      "complete": 1341,
-      "incomplete": 185
+      "complete": 1518,
+      "incomplete": 8
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 185,
+      "specs": 8,
       "atoms": [
-        "gate.standing.read-claude-skills-invoice-reconcile-references",
-        "instruction.invoice-reconcile.a-line-matches-on-article-code",
-        "instruction.invoice-reconcile.an-invoice-line-with-no-order",
-        "instruction.ledger-auditor.a-brief-missing-a-number-gets",
-        "instruction.memory-memory.no-delivery-on-a-public-holiday",
-        "instruction.memory-memory.the-weekly-report-is-due-monday",
-        "instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and",
-        "instruction.shipment-tracker.on-a-carrier-error-say-so",
-        "instruction.standing.after-a-compaction-re-read-the",
-        "instruction.standing.after-two-failures-of-a-tool",
-        "instruction.standing.on-stop-stop-all-work-and",
-        "instruction.supplier-email.a-loose-yes-is-not-a",
-        "instruction.supplier-email.no-price-or-date-in-a",
         "reference.invoice-reconcile.read-references-currency-table-md",
         "reference.invoice-reconcile.read-references-matching-rules-md",
         "reference.memory-memory.read-supplier-languages-md",
@@ -293,28 +280,13 @@
         "reference.standing.read-claude-skills-invoice-reconcile-references",
         "reference.standing.read-claude-steps-json",
         "reference.supplier-email.read-claude-memory-supplier-languages-md",
-        "reference.weekly-report.read-references-kpi-definitions-md",
-        "register.route-planner.the-plan-is-a-table-of"
+        "reference.weekly-report.read-references-kpi-definitions-md"
       ],
       "details": [
-        "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\"",
-        "no task in the atom's words (instruction.invoice-reconcile.a-line-matches-on-article-code (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.ledger-auditor.a-brief-missing-a-number-gets (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.memory-memory.no-delivery-on-a-public-holiday (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.memory-memory.the-weekly-report-is-due-monday (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.shipment-tracker.on-a-carrier-error-say-so (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.standing.after-a-compaction-re-read-the (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.standing.after-two-failures-of-a-tool (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.standing.on-stop-stop-all-work-and (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.supplier-email.a-loose-yes-is-not-a (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (instruction.supplier-email.no-price-or-date-in-a (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (title)): the act names the file supplier-languages.md: \"read supplier-languages.md\"",
         "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act names the file .claude/memory/MEMORY.md: \"read .claude/memory/MEMORY.md\"",
         "no task in the atom's words (reference.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md\"",
         "no task in the atom's words (reference.standing.read-claude-steps-json (title)): the act names the file .claude/steps.json: \"read .claude/steps.json\"",
-        "no task in the atom's words (register.route-planner.the-plan-is-a-table-of (title)): the act does not start with a verb: \"\"",
         "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/currency-table.md: \"When the invoice is not in EUR, read references/currency-table.md to convert every amount\"",
         "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/matching-rules.md: \"Read references/matching-rules.md before matching any line\"",
         "no usable situation (skill.supplier-email.skill-supplier-email (asks it names)): the situation names the file .claude/memory/supplier-languages.md: \"Write in the supplier's language, as listed in .claude/memory/supplier-languages.md\"",

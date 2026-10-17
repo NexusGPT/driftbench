@@ -119,6 +119,9 @@ export type RegistryRow = {
   verdict?: string;
   /** Its rollout or enforcement state, when the registry writes one. */
   state?: string;
+  /** What the registry says this check means, verbatim, independent of rule-label links. */
+  description?: string;
+  descriptionAt?: Located;
   /** `catalogue` for a row the reader made from a catalogue entry; absent for a registry row. */
   origin?: 'catalogue';
   at: Located;
@@ -177,6 +180,8 @@ export type RawEstate = {
    * from the naming file's folder or the root (for Claude Code, `.claude` and `.claude/skills`).
    */
   bases?: string[];
+  /** Links, relative to the root, that the reader read through to a real path outside the root. */
+  followedLinks?: string[];
   /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
   ignored?: {
     patterns: Array<{ pattern: string; files: number }>;

@@ -36,9 +36,8 @@ describe('agent mutants the rule follower cannot show (level 5)', { timeout: 300
 
   it('keeps failing the classes whose deletion shows and that no test catches', async () => {
     const results = await mutantFamily().evaluate(1);
-    // With the product on main: the keyless gate and the bare deny rule are seen by the follower and live.
+    // With the product on main: the keyless gate is seen by the follower and live.
     expect(results.get('mutant.agent.gate-read-before-edit')).toMatchObject({ pass: false });
-    expect(results.get('mutant.agent.tool-deny-bare')).toMatchObject({ pass: false });
     expect(results.get('mutant.agent.register-reply-length')?.detail).toMatch(
       /no atom of the class changes the follower's session on this seed \(1 of 1 not judged/,
     );

@@ -80,7 +80,7 @@ svg .hl{fill:var(--card-2);opacity:0}svg .row:hover .hl{opacity:1}
 .count{margin-left:auto;font:500 12.5px/1 var(--mono);color:var(--ink-2)}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font:500 13px/1.3 var(--sans);white-space:nowrap}
 .chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
-.chip.ok{background:var(--ok-bg);color:var(--ok-ink)}.chip.fail{background:var(--fail-bg);color:var(--fail-ink)}
+.chip.ok{background:var(--ok-bg);color:var(--ok-ink)}.chip.fail{background:var(--fail-bg);color:var(--fail-ink)}.chip.skip{background:var(--wait-bg);color:var(--wait-ink)}
 .move{display:block;font:500 12.5px/1.3 var(--mono);white-space:nowrap}
 .move.down{color:var(--fail-ink)}.move.up{color:var(--ok-ink)}.move.same{color:var(--ink-3)}
 td .move{display:inline}
@@ -119,7 +119,7 @@ td .move{display:inline}
 .runs td.t small{display:block;font:400 12.5px/1.3 var(--mono);color:var(--ink-2)}
 .sq{display:inline-flex;gap:3px;vertical-align:middle}
 .sq i{display:block;width:12px;height:12px;border-radius:3px;background:var(--ok)}
-.sq i.f{background:var(--fail)}.sq i.inj{box-shadow:inset 0 0 0 2px var(--card)}
+.sq i.f{background:var(--fail)}.sq i.s{background:var(--wait)}.sq i.inj{box-shadow:inset 0 0 0 2px var(--card)}
 .firstfail{font:400 12.5px/1.35 var(--mono);color:var(--ink-2)}.firstfail b{font-weight:500;color:var(--fail-ink)}
 .scrim{display:none;position:fixed;inset:0;z-index:40;background:rgba(14,17,22,.4)}
 #drilldown:has(.drawer:target) .scrim{display:block}
@@ -199,9 +199,9 @@ details.run{border:1px solid var(--line);border-radius:12px;padding:6px 10px;mar
 details.run>summary{cursor:pointer}
 .run-facts{color:var(--ink-2);margin:6px 0}
 .badge{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;font-weight:500}
-.badge.ok{background:var(--ok-bg);color:var(--ok-ink)}.badge.bad{background:var(--fail-bg);color:var(--fail-ink)}
+.badge.ok{background:var(--ok-bg);color:var(--ok-ink)}.badge.bad{background:var(--fail-bg);color:var(--fail-ink)}.badge.skip{background:var(--wait-bg);color:var(--wait-ink)}
 .block{border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:10px 0}
-.block-fail{border-left-color:var(--fail)}.block-pass{border-left-color:var(--ok)}
+.block-fail{border-left-color:var(--fail)}.block-pass{border-left-color:var(--ok)}.block-skip{border-left-color:var(--wait)}
 .block-head{margin:0 0 4px}.label{margin:6px 0 2px;color:var(--ink-2);font-size:12.5px}.passed{margin:6px 0;font-size:12.5px;word-break:break-word}
 .call{margin:4px 0}.call p{margin:0 0 2px}
 nav.top{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;max-width:1176px;margin:0 auto;padding:16px var(--gutter)}nav.top a{text-decoration:none}

@@ -58,8 +58,6 @@ blocks:
           count:
             min: 1
       workspace:
-        changed:
-          - invoices/INV-1001.json
         others_untouched: true
 rules:
   custom:

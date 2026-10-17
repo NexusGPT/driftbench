@@ -1,9 +1,22 @@
 import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { constants, existsSync } from 'node:fs';
-import { copyFile, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
+import {
+  copyFile,
+  lstat,
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  readlink,
+  realpath,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
-import { dirname, extname, join } from 'node:path';
+import { dirname, extname, join, relative, sep } from 'node:path';
+import { Observed } from '@agent-nexus/driftbench-core';
 import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@agent-nexus/driftbench-generate';
 import {
   reapFolder,
@@ -13,6 +26,8 @@ import {
   untrackGroup,
 } from '@agent-nexus/driftbench-sandbox';
 import { parse as parseYaml } from 'yaml';
+import { z } from 'zod';
+import { estatePath, estateSource } from '../paths';
 import { guardName } from '../scan/code';
 import type { EstateReader, GuardDecl } from '../scan/reader';
 
@@ -53,6 +68,8 @@ export type UnitCaseResult = {
   pass: boolean;
   ms: number;
   detail: string;
+  command?: string;
+  workspace?: WorkspaceDiff;
 };
 
 export type UnitResult = {
@@ -76,11 +93,25 @@ export type UnitRunOptions = {
   noSandbox?: boolean;
   /** How many tests run at once (1 by default). The results keep the order of the tests. */
   jobs?: number;
+  /** Report, for each observed case, the files its working folder gained, changed or lost. */
+  observeWorkspace?: boolean;
 };
 
 export type UnitRun = { results: UnitResult[]; sandbox: 'sandbox-exec' | 'none'; notes: string[] };
 
-type Exec = { exitCode: number; stdout: string; stderr: string; ms: number; timedOut: boolean };
+/** The files a case created, changed or deleted in its working folder, as paths relative to that folder. */
+export type WorkspaceDiff = { created: string[]; changed: string[]; deleted: string[] };
+
+type Exec = {
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  ms: number;
+  timedOut: boolean;
+  workspace?: WorkspaceDiff;
+  command?: string;
+  spawnError?: string;
+};
 
 const CREDENTIAL_FOLDERS = [
   '.ssh',
@@ -148,7 +179,7 @@ async function withRunner<T>(
       !options.noSandbox && process.platform === 'darwin' && existsSync('/usr/bin/sandbox-exec');
     if (!sandbox)
       notes.push('no sandbox: the guards and scripts ran with the network and the home folder open');
-    const runner = { work, copy, sandbox, counter: 0 };
+    const runner = { work, copy, sandbox, counter: 0, workspace: options.observeWorkspace === true };
     const config = await readConfig(options.root);
     const value = await action(runner, raw, config);
     return { value, sandbox: sandbox ? 'sandbox-exec' : 'none', notes };
@@ -165,9 +196,17 @@ async function withRunner<T>(
 export type UnitObservation = {
   id: string;
   target: UnitTest['target'];
-  cases: Array<{ id: string; outcome: UnitOutcome; ms: number; timedOut: boolean }>;
+  cases: Array<{
+    id: string;
+    outcome: UnitOutcome;
+    ms: number;
+    timedOut: boolean;
+    command?: string;
+    workspace?: WorkspaceDiff;
+  }>;
   error?: string;
   declared?: boolean;
+  inputError?: string;
 };
 
 export async function observeUnitTests(
@@ -179,14 +218,14 @@ export async function observeUnitTests(
     for (const test of tests) {
       const observed: UnitObservation = { id: test.id, target: test.target, cases: [] };
       if (test.target.kind === 'script') {
-        if (!existsSync(join(runner.copy, test.target.path))) {
+        if (!existsSync(await estatePath(runner.copy, test.target.path))) {
           observed.error = `the estate no longer holds ${test.target.path}`;
           observations.push(observed);
           continue;
         }
         // Declared fixtures have their own independent oracle; use the normal script runner for them.
         const scripts = config.scripts as Record<string, unknown> | undefined;
-        if (Array.isArray(scripts?.[test.target.path])) {
+        if (scripts?.[test.target.path] !== undefined) {
           observed.declared = true;
           const result = await runScriptTest(test, config, runner, false);
           observed.cases = result.cases.map((entry) => ({
@@ -194,8 +233,11 @@ export async function observeUnitTests(
             outcome: entry.outcome,
             ms: entry.ms,
             timedOut: entry.outcome.message === 'timed out',
+            command: entry.command,
+            ...(entry.workspace ? { workspace: entry.workspace } : {}),
           }));
-          if (result.status !== 'pass') observed.error = result.detail;
+          if (result.status === 'unrecorded') observed.inputError = result.detail;
+          else if (result.status !== 'pass') observed.error = result.detail;
         } else {
           for (const fixture of test.cases) {
             const result = await runScript(test.target.path, fixture, runner);
@@ -204,6 +246,8 @@ export async function observeUnitTests(
               outcome: scriptOutcome(result),
               ms: result.ms,
               timedOut: result.timedOut,
+              ...(result.workspace ? { workspace: result.workspace } : {}),
+              command: result.command,
             });
           }
         }
@@ -231,6 +275,8 @@ export async function observeUnitTests(
               outcome: outcomeOf(result),
               ms: result.ms,
               timedOut: result.timedOut,
+              ...(result.workspace ? { workspace: result.workspace } : {}),
+              command: result.command,
             });
           }
       }
@@ -241,7 +287,7 @@ export async function observeUnitTests(
   return { observations: run.value, sandbox: run.sandbox, notes: run.notes };
 }
 
-type Runner = { work: string; copy: string; sandbox: boolean; counter: number };
+type Runner = { work: string; copy: string; sandbox: boolean; counter: number; workspace?: boolean };
 
 async function runGuardTest(
   test: UnitTest,
@@ -462,8 +508,9 @@ async function runGuard(
   runner.counter += 1;
   const number = runner.counter;
   const folder = join(runner.work, `case-${number}`);
+  await estatePath(runner.work, `case-${number}`);
   await mkdir(folder, { recursive: true });
-  const transcript = join(folder, 'transcript.jsonl');
+  const transcript = await estatePath(folder, 'transcript.jsonl');
   const reply =
     literalPayload && typeof unitCase.payload.last_assistant_message === 'string'
       ? unitCase.payload.last_assistant_message
@@ -503,12 +550,8 @@ async function runGuard(
       payload.last_assistant_message = literalPayload ? reply : reply || 'ok';
     if (!literalPayload) delete payload.last_reply;
   }
-  return execute(
-    ['/bin/sh', '-c', guard.command],
-    `${JSON.stringify(payload)}\n`,
-    runner,
-    runner.copy,
-    timeoutMs,
+  return watched(runner, runner.copy, () =>
+    execute(['/bin/sh', '-c', guard.command], `${JSON.stringify(payload)}\n`, runner, runner.copy, timeoutMs),
   );
 }
 
@@ -521,12 +564,23 @@ async function runScriptTest(
   const base = { id: test.id, testType: test.testType, atom: test.atom };
   if (test.target.kind !== 'script') throw new Error('not a script test');
   const path = test.target.path;
-  if (!existsSync(join(runner.copy, path))) {
+  if (!existsSync(await estatePath(runner.copy, path))) {
     return { ...base, status: 'fail', detail: `the estate no longer holds ${path}`, cases: [] };
   }
   const scripts = config.scripts as Record<string, unknown> | undefined;
-  const declared = scripts?.[path];
-  if (!Array.isArray(declared) || declared.length === 0) return runRecordedScript(test, path, runner, record);
+  const declaration = scripts?.[path];
+  if (declaration === undefined) return runRecordedScript(test, path, runner, record);
+  const contract = ScriptFixtures.safeParse(
+    Array.isArray(declaration) ? declaration : (declaration as { fixtures?: unknown })?.fixtures,
+  );
+  if (!contract.success)
+    return {
+      ...base,
+      status: 'unrecorded',
+      detail: `invalid script contract for ${path}: ${contract.error.issues[0]?.message}`,
+      cases: [],
+    };
+  const declared = contract.data;
   const cases: UnitCaseResult[] = [];
   for (const [index, fixture] of declared.entries()) {
     const entry = (fixture ?? {}) as Record<string, unknown>;
@@ -534,20 +588,17 @@ async function runScriptTest(
     const expect = (entry.expect ?? {}) as Record<string, unknown>;
     runner.counter += 1;
     const folder = join(runner.work, `case-${runner.counter}`);
-    await mkdir(folder, { recursive: true });
-    const files = (entry.files ?? {}) as Record<string, unknown>;
-    for (const [name, text] of Object.entries(files)) {
-      await mkdir(dirname(join(folder, name)), { recursive: true });
-      await writeFile(join(folder, name), String(text));
-    }
-    const run = await execute(
-      [...(await interpreterFor(join(runner.copy, path))), join(runner.copy, path), ...args],
-      typeof entry.stdin === 'string' ? entry.stdin : '',
-      runner,
-      folder,
-      60_000,
+    await writeFixtures(runner, folder, (entry.files ?? {}) as Record<string, unknown>);
+    const argv = [
+      ...(await interpreterFor(await estatePath(runner.copy, path))),
+      await estatePath(runner.copy, path),
+      ...args,
+    ];
+    const run = await watched(runner, folder, () =>
+      execute(argv, typeof entry.stdin === 'string' ? entry.stdin : '', runner, folder, 60_000),
     );
     const problems: string[] = [];
+    if (run.timedOut) problems.push('timed out');
     const wantedExit = typeof expect.exitCode === 'number' ? expect.exitCode : 0;
     if (run.exitCode !== wantedExit) problems.push(`exit ${run.exitCode} where ${wantedExit} is declared`);
     if (typeof expect.stdout === 'string' && run.stdout.trim() !== expect.stdout.trim())
@@ -558,14 +609,17 @@ async function runScriptTest(
       decision: run.exitCode === 0 ? 'allow' : 'error',
       exitCode: run.exitCode,
       ...(run.stdout.trim() ? { output: run.stdout.trim() } : {}),
+      ...(run.timedOut ? { message: 'timed out' } : {}),
     };
     cases.push({
       case: `fixture-${index + 1}`,
       material: args.join(' '),
       outcome,
       pass: problems.length === 0,
+      command: run.command,
       ms: run.ms,
       detail: problems.length === 0 ? 'as declared' : problems.join('; '),
+      ...(run.workspace ? { workspace: run.workspace } : {}),
     });
   }
   const failed = cases.filter((entry) => !entry.pass);
@@ -601,7 +655,7 @@ async function runRecordedScript(
         cases: [],
       };
     }
-    fixtures = casesFromSource(await readFile(join(runner.copy, path), 'utf8'));
+    fixtures = casesFromSource(await readFile(await estatePath(runner.copy, path), 'utf8'));
   }
   if (!record && test.recordedOn === undefined) {
     return {
@@ -718,20 +772,65 @@ function scriptOutcome(run: Exec): UnitOutcome {
 async function runScript(path: string, fixture: GuardCase, runner: Runner): Promise<Exec> {
   runner.counter += 1;
   const folder = join(runner.work, `case-${runner.counter}`);
-  await mkdir(folder, { recursive: true });
-  const files = (fixture.payload.files ?? {}) as Record<string, unknown>;
-  for (const [name, text] of Object.entries(files)) {
-    await mkdir(dirname(join(folder, name)), { recursive: true });
-    await writeFile(join(folder, name), String(text));
-  }
+  await writeFixtures(runner, folder, (fixture.payload.files ?? {}) as Record<string, unknown>);
   const args = Array.isArray(fixture.payload.args) ? fixture.payload.args.map(String) : [];
-  return execute(
-    [...(await interpreterFor(join(runner.copy, path))), join(runner.copy, path), ...args],
-    typeof fixture.payload.stdin === 'string' ? fixture.payload.stdin : '',
-    runner,
-    folder,
-    60_000,
+  const argv = [
+    ...(await interpreterFor(await estatePath(runner.copy, path))),
+    await estatePath(runner.copy, path),
+    ...args,
+  ];
+  return watched(runner, folder, () =>
+    execute(
+      argv,
+      typeof fixture.payload.stdin === 'string' ? fixture.payload.stdin : '',
+      runner,
+      folder,
+      60_000,
+    ),
   );
+}
+
+/** A run with the working folder compared before and after, when the caller asked to observe it. */
+async function watched(runner: Runner, folder: string, run: () => Promise<Exec>): Promise<Exec> {
+  if (!runner.workspace) return run();
+  const before = await snapshot(folder);
+  const result = await run();
+  return { ...result, workspace: diffOf(before, await snapshot(folder)) };
+}
+
+/** Every file below a folder with a digest of its content; a link is its target, never followed. */
+async function snapshot(folder: string): Promise<Map<string, string>> {
+  const files = new Map<string, string>();
+  const visit = async (dir: string): Promise<void> => {
+    for (const entry of await readdir(dir, { withFileTypes: true }).catch(() => [])) {
+      const path = join(dir, entry.name);
+      const info = await lstat(path).catch(() => undefined);
+      if (!info) continue;
+      const name = relative(folder, path).split('\\').join('/');
+      if (info.isSymbolicLink()) files.set(name, `link:${await readlink(path).catch(() => '')}`);
+      else if (info.isDirectory()) await visit(path);
+      else if (info.isFile())
+        files.set(
+          name,
+          info.size > 1_000_000
+            ? `big:${info.size}:${info.mtimeMs}`
+            : createHash('sha256')
+                .update(await readFile(path).catch(() => ''))
+                .digest('hex'),
+        );
+    }
+  };
+  await visit(folder);
+  return files;
+}
+
+function diffOf(before: Map<string, string>, after: Map<string, string>): WorkspaceDiff {
+  const created = [...after.keys()].filter((name) => !before.has(name));
+  const changed = [...after.keys()].filter(
+    (name) => before.has(name) && before.get(name) !== after.get(name),
+  );
+  const deleted = [...before.keys()].filter((name) => !after.has(name));
+  return { created: created.sort(), changed: changed.sort(), deleted: deleted.sort() };
 }
 
 /**
@@ -820,7 +919,7 @@ async function execute(
   cwd: string,
   timeoutMs: number,
 ): Promise<Exec> {
-  const home = join(runner.work, 'home');
+  const home = await estatePath(runner.work, 'home');
   await mkdir(home, { recursive: true });
   const env: Record<string, string> = {
     PATH: process.env.PATH ?? '/usr/bin:/bin',
@@ -871,8 +970,10 @@ async function execute(
         exitCode: 127,
         stdout,
         stderr: `${stderr}${error.message}`,
+        spawnError: error.message,
         ms: performance.now() - started,
         timedOut,
+        command: argv.map(shellWord).join(' '),
       });
     });
     child.on('exit', killGroup);
@@ -885,6 +986,7 @@ async function execute(
         stderr: neutral(stderr, runner.work),
         ms: Math.round(performance.now() - started),
         timedOut,
+        command: argv.map(shellWord).join(' '),
       });
     });
   });
@@ -905,9 +1007,16 @@ export function neutral(text: string, work: string): string {
     .replace(/\$RUN\/case-\d+/g, '$RUN/case');
 }
 
+/** Where the estate configuration lives: the root, else inside the runtime's own folder (the root file wins). */
+export const ESTATE_CONFIG_PLACES: readonly string[] = [ESTATE_CONFIG_FILE, `.claude/${ESTATE_CONFIG_FILE}`];
+
 /** The estate configuration, when the estate has one. */
 async function readConfig(root: string): Promise<Record<string, unknown>> {
-  const text = await readFile(join(root, ESTATE_CONFIG_FILE), 'utf8').catch(() => undefined);
+  let text: string | undefined;
+  for (const place of ESTATE_CONFIG_PLACES) {
+    text = await readFile(await estatePath(root, place), 'utf8').catch(() => undefined);
+    if (text !== undefined) break;
+  }
   if (text === undefined) return {};
   try {
     const parsed: unknown = parseYaml(text);
@@ -920,15 +1029,154 @@ async function readConfig(root: string): Promise<Record<string, unknown>> {
 /** A copy of the files the reader lists, cloned where the file system can, never linked to the source. */
 async function copyListed(root: string, to: string, reader: EstateReader): Promise<void> {
   const files = reader.listFiles ? await reader.listFiles(root) : [];
-  let next = 0;
-  await Promise.all(
-    Array.from({ length: Math.min(16, files.length) }, async () => {
-      while (next < files.length) {
-        const file = files[next++] as string;
-        await mkdir(dirname(join(to, file)), { recursive: true });
-        await copyFile(join(root, file), join(to, file), constants.COPYFILE_FICLONE);
-      }
-    }),
+  // Validate the entire copy before creating any destination.
+  const paths = await Promise.all(
+    files.map(async (file) => ({
+      source: estateSource(root, file),
+      target: await estatePath(to, file),
+    })),
   );
+  for (const { source, target } of paths) {
+    await mkdir(dirname(target), { recursive: true });
+    await copyFile(source, target, constants.COPYFILE_FICLONE);
+  }
   await mkdir(to, { recursive: true });
+}
+
+/** No fixture content is written until every name and existing symlink has passed validation. */
+async function writeFixtures(runner: Runner, folder: string, files: Record<string, unknown>): Promise<void> {
+  await estatePath(runner.work, folder.slice(runner.work.length + 1));
+  const paths = await Promise.all(
+    Object.entries(files).map(async ([name, text]) => ({
+      path: await estatePath(folder, name),
+      text: String(text),
+    })),
+  );
+  await mkdir(folder, { recursive: true });
+  for (const { path, text } of paths) {
+    await mkdir(dirname(path), { recursive: true });
+    await writeFile(path, text, { flag: 'wx' });
+  }
+}
+
+/** Declared script fixtures are independent oracles, not a guess from a successful process start. */
+const ScriptFixtures = z
+  .array(
+    z.object({
+      args: z.array(z.string()).optional(),
+      stdin: z.string().optional(),
+      files: z.record(z.string(), z.string()).optional(),
+      expect: z
+        .object({
+          exitCode: z.number().int().optional(),
+          stdout: z.string().optional(),
+          stdoutIncludes: z.array(z.string().min(1)).min(1).optional(),
+        })
+        .refine(
+          (e) => e.exitCode !== undefined || e.stdout !== undefined || e.stdoutIncludes !== undefined,
+          'declare an expected exitCode, stdout or stdoutIncludes',
+        ),
+    }),
+  )
+  .min(1);
+
+function shellWord(word: string): string {
+  return /^[\w./:=@+-]+$/.test(word) ? word : `'${word.replace(/'/g, "'\\''")}'`;
+}
+
+export type HelperObservation =
+  | { status: 'not-run'; error: string }
+  | { status: 'failed'; error: string; exit: number; ms: number; observed?: undefined }
+  | { status: 'executed'; observed: Observed; exit: number; ms: number; error?: undefined };
+
+/** Execute the helper's current body with the estate's explicitly declared local runtime. */
+export async function observeHelper(
+  target: { name: string; file: string },
+  task: string,
+  files: Record<string, string>,
+  options: UnitRunOptions,
+): Promise<HelperObservation> {
+  try {
+    const result = await withRunner(options, async (runner, _raw, config): Promise<HelperObservation> => {
+      const declaration = (config.helpers as Record<string, unknown> | undefined)?.[target.name];
+      const executor = z
+        .strictObject({
+          command: z.array(z.string().min(1)).min(1),
+          timeoutMs: z.number().int().positive().default(60000),
+        })
+        .safeParse(declaration);
+      if (!executor.success)
+        return {
+          status: 'not-run',
+          error: 'a helper needs a configured executor in driftbench.estate.yaml helpers',
+        };
+      const path = await estatePath(runner.copy, target.file);
+      const source = await readFile(path, 'utf8');
+      const header = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(source);
+      const frontmatter = header ? parseYaml(header[1] ?? '') : {};
+      const body = header ? source.slice(header[0].length) : source;
+      if (!task.trim()) return { status: 'not-run', error: 'the helper has no task' };
+      // Every fixture path is validated, links resolved, before the first one is written.
+      const fixtures = await Promise.all(
+        Object.entries(files).map(async ([name, text]) => ({
+          file: await estatePath(runner.copy, name),
+          text,
+        })),
+      );
+      const canonicalCopy = await estatePath(runner.copy, '.');
+      for (const { file } of fixtures)
+        if (
+          file.startsWith(join(canonicalCopy, '.claude') + sep) ||
+          file === join(canonicalCopy, ESTATE_CONFIG_FILE)
+        )
+          return { status: 'not-run', error: 'helper workspace fixtures cannot replace runtime files' };
+      for (const { file, text } of fixtures) {
+        await mkdir(dirname(file), { recursive: true });
+        await writeFile(file, text);
+      }
+      const before = await snapshot(runner.copy);
+      const execution = await execute(
+        executor.data.command,
+        `${JSON.stringify({ name: target.name, systemPrompt: body, frontmatter, task })}\n`,
+        runner,
+        runner.copy,
+        executor.data.timeoutMs,
+      );
+      const workspaceDiff = diffOf(before, await snapshot(runner.copy));
+      if (execution.spawnError)
+        return { status: 'not-run', error: `helper executor could not start: ${execution.spawnError}` };
+      const stamp = { exit: execution.exitCode, ms: execution.ms };
+      if (execution.timedOut || execution.exitCode !== 0)
+        return {
+          status: 'failed',
+          ...stamp,
+          error: execution.timedOut
+            ? 'helper executor timed out'
+            : `helper executor exited ${execution.exitCode}: ${execution.stderr}`,
+        };
+      let value: unknown;
+      try {
+        value = JSON.parse(execution.stdout);
+      } catch {
+        return { status: 'failed', ...stamp, error: 'helper executor returned invalid JSON' };
+      }
+      // The protocol requires actual reply and tool-call observations; metadata is supplied by this runner.
+      const observed = Observed.omit({ cost: true, latencyMs: true }).safeParse(value);
+      if (!observed.success)
+        return {
+          status: 'failed',
+          ...stamp,
+          error: `invalid helper observations: ${observed.error.issues[0]?.message}`,
+        };
+      return {
+        status: 'executed',
+        ...stamp,
+        // The runner watched the copy itself: a diff the executor did not report is the one it saw.
+        observed: { workspaceDiff, ...observed.data, cost: {}, latencyMs: execution.ms },
+      };
+    });
+    return result.value;
+  } catch (cause) {
+    return { status: 'not-run', error: cause instanceof Error ? cause.message : String(cause) };
+  }
 }

@@ -97,6 +97,6 @@ The folder `stores` was created. The store now holds two campaigns, each with a 
 * `No store at missing.db: this command reads a store and does not make one.` (exit 2) `status`, `resume` or `export` was given a path with no file. Check the path; these commands never create a store, so a typo cannot leave an empty one behind.
 * `Cannot open the store at <path>: store: cannot open the store at <path>: ...` (exit 2) The file is not a SQLite database, or the folder is not writable.
 * `the store needs Node.js 22.13 or newer for node:sqlite; this is Node.js <version>` Upgrade Node.js.
-* `the store at <path> has schema version <n>; this version of driftbench reads 2 and older` The store was written by a newer driftbench. Upgrade driftbench.
+* `the store at <path> has schema version <n>; this version of driftbench reads 3 and older` The store was written by a newer driftbench. Upgrade driftbench.
 * `The store at <path> holds no campaign. Run one with: driftbench campaign run <paths...>` (exit 2) The file exists but holds no campaign; `campaign plan --store` creates such empty files.
 * Results from an earlier agent version replayed into a new campaign: the cache lives in the store. Use `--agent-version`, `--cache-suite` or `--no-cache` (topic running-cache).

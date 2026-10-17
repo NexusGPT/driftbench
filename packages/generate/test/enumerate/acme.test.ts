@@ -217,7 +217,8 @@ describe('generate on the approved Acme map', () => {
   });
 
   it('lists the values with no approved phrase: the tool schema values and the data cases no path says', () => {
-    const gaps = new Set(result.report.no_phrase.map((gap) => gap.dimension));
+    const placeholders = result.report.no_phrase.filter((gap) => gap.blocks > 0);
+    const gaps = new Set(placeholders.map((gap) => gap.dimension));
     expect(gaps.has('stage_transition')).toBe(false);
     expect(gaps.has('coverage.check.out.found')).toBe(true);
     expect([...gaps].filter((dimension) => !/\.(in|out)\./.test(dimension)).sort()).toEqual([
@@ -227,7 +228,24 @@ describe('generate on the approved Acme map', () => {
       'retry_outcome',
       'tool_answer',
     ]);
-    expect(result.report.no_phrase).toHaveLength(72);
+    expect(placeholders).toHaveLength(72);
+  });
+
+  it('lists the approved phrase of the flow no path walks, which no conversation can say', () => {
+    expect(result.report.no_phrase.filter((gap) => gap.unsaid)).toEqual([
+      {
+        dimension: 'flow',
+        value: 'price-sheet',
+        blocks: 0,
+        specs: [],
+        unsaid: [
+          {
+            text: 'Build the price sheet from catalog.csv, one sheet per category.',
+            reasons: ['no approved path walks the flow price-sheet'],
+          },
+        ],
+      },
+    ]);
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {

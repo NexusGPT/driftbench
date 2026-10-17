@@ -83,15 +83,15 @@ export const EvidencePredicate = z.discriminatedUnion('type', [
   }),
   z.strictObject({
     type: z.literal('reference_not_read').describe('No successful read of this path or glob in the block.'),
-    path: z.string().min(1),
+    path: z.string().min(1).describe('The path or glob of the reference that must not be read.'),
   }),
   z.strictObject({
     type: z.literal('subagent_not_dispatched').describe('No dispatch of this helper in the block.'),
-    name: z.string().min(1),
+    name: z.string().min(1).describe('The name of the helper that must not be dispatched.'),
   }),
   z.strictObject({
     type: z.literal('guard_not_fired').describe('No firing of this guard in the block.'),
-    name: z.string().min(1),
+    name: z.string().min(1).describe('The name of the guard that must not fire.'),
     verdict: z
       .string()
       .min(1)
@@ -100,19 +100,19 @@ export const EvidencePredicate = z.discriminatedUnion('type', [
   }),
   z.strictObject({
     type: z.literal('stage_not_reached').describe('This stage never appears in the block.'),
-    name: z.string().min(1),
+    name: z.string().min(1).describe('The name of the stage that must not be reached.'),
   }),
   z.strictObject({
     type: z
       .literal('artifact_not_created')
       .describe('The workspace diff lists no creation of this path or glob.'),
-    path: z.string().min(1),
+    path: z.string().min(1).describe('The path or glob that must not be created.'),
   }),
   z.strictObject({
     type: z
       .literal('file_not_written')
       .describe('The workspace diff lists no creation or change of this path or glob.'),
-    path: z.string().min(1),
+    path: z.string().min(1).describe('The path or glob that must not be created or changed.'),
   }),
   z.strictObject({
     type: z
@@ -268,6 +268,12 @@ export const EstateMap = z.strictObject({
     .array(z.string().min(1))
     .optional()
     .describe('Globs the scan skipped beside the runtime defaults; lint reads the estate with them again'),
+  followedLinks: z
+    .array(z.string().min(1))
+    .optional()
+    .describe(
+      'Links, relative to the estate root, that the scan read through to a real path outside the root',
+    ),
   producedBy: z
     .strictObject({
       family: z.string().min(1).describe('The model family that split the prose, `code` when no model ran'),

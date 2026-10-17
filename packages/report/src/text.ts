@@ -105,6 +105,12 @@ export function compareText(result: CompareResult): string {
     lines.push('', 'Not paired:');
     lines.push(...textTable(result.unpaired.map((entry) => [entry.unit, entry.reason])));
   }
+  if (result.excluded) {
+    lines.push('', 'Runs left out of a pair (a block not run or blocked, no failure):');
+    lines.push(
+      ...textTable(result.excluded.map((entry) => [entry.unit, entry.side, count(entry.runs, 'run')])),
+    );
+  }
   lines.push('', `Verdict: ${VERDICT[result.verdict]}.`);
   for (const reason of result.reasons) lines.push(`  ${reason}`);
   return `${lines.join('\n')}\n`;

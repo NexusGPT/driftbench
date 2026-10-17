@@ -3942,6 +3942,18 @@
       "value": "not-given",
       "blocks": 1,
       "specs": ["gen-boundary-085"]
+    },
+    {
+      "dimension": "flow",
+      "value": "price-sheet",
+      "blocks": 0,
+      "specs": [],
+      "unsaid": [
+        {
+          "text": "Build the price sheet from catalog.csv, one sheet per category.",
+          "reasons": ["no approved path walks the flow price-sheet"]
+        }
+      ]
     }
   ],
   "no_then": [

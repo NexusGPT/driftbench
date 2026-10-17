@@ -152,7 +152,7 @@ describe('a label that names something other than a rule', () => {
   it('cites no rule after a noun it designates, and cites after a verb, a function word or a rule noun', async () => {
     const rules = [
       'Read a file before you edit it.',
-      'Keep tax form R1 in the archive for ten years.',
+      'Shelve customs form R1 in the cabinet for five years.',
       'Print the Form R1 cover sheet on blue paper.',
       'File the return on form R1 every quarter.',
       'Always follow R1 when you edit a notebook.',
@@ -171,15 +171,15 @@ describe('a label that names something other than a rule', () => {
 describe('a guard message that quotes part of a rule', () => {
   it("enforces the rule when it repeats the directive, never when it repeats only the rule's condition", async () => {
     const rules = [
-      'When the user asks to stop, stop all work and confirm in one line.',
+      'When the owner asks to pause, halt every running task and confirm in one line.',
       'Before you deploy on a Friday, ask the lead for an explicit yes.',
     ];
     const map = await scan(
       {
         'CLAUDE.md': standing(rules),
         '.claude/settings.json': SETTINGS(['condition.sh', 'directive.sh', 'friday.sh', 'ask.sh']),
-        '.claude/guards/condition.sh': '#!/bin/sh\necho "the user asks to stop"\n',
-        '.claude/guards/directive.sh': '#!/bin/sh\necho "stop all work and confirm in one line"\n',
+        '.claude/guards/condition.sh': '#!/bin/sh\necho "the owner asks to pause"\n',
+        '.claude/guards/directive.sh': '#!/bin/sh\necho "halt every running task and confirm in one line"\n',
         '.claude/guards/friday.sh': '#!/bin/sh\necho "before you deploy on a friday"\n',
         '.claude/guards/ask.sh': '#!/bin/sh\necho "ask the lead for an explicit yes"\n',
       },
