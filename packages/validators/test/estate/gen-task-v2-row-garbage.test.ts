@@ -205,7 +205,7 @@ const ATTACKS: Record<string, Attack> = {
 
 describe('the independent primary-row attack classes', () => {
   it('accepts every committed code-written ask, including both hazards', () => {
-    expect(coded).toHaveLength(467);
+    expect(coded).toHaveLength(451);
     expect(coded.filter((spec) => metaOf(spec).from.form === 'hazard')).toHaveLength(2);
     const rejected = coded.filter((spec) => checkAsk(spec, env).reasons.length > 0).map((spec) => spec.id);
     counts.real = { tried: coded.length, accepted: coded.length - rejected.length };
