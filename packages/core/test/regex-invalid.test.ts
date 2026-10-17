@@ -13,7 +13,7 @@ const OK = '^ok$';
 
 const errors = (raw: unknown) => {
   const result = validateSpec({ id: 'x', ...(raw as object) });
-  return result.ok ? [] : result.errors.map((issue) => `${issue.code}@${issue.path}`);
+  return result.ok ? [] : result.errors.map((issue) => `${issue.code} ${issue.path}`);
 };
 
 const jsonPaths = (assert: unknown) => ({ json: { paths: [{ path: 'a', assert }] } });
@@ -51,7 +51,7 @@ describe('the loader refuses a pattern that does not compile, in every place a s
       'perturbations.0.expect.json.paths.0.assert.regex',
     ],
   ])('%s', (_name, raw, path) => {
-    expect(errors(raw)).toEqual([`REGEX_INVALID@${path}`]);
+    expect(errors(raw)).toEqual([`REGEX_INVALID ${path}`]);
   });
 
   it.each([
@@ -72,16 +72,16 @@ describe('the loader refuses a pattern that does not compile, in every place a s
 
   it('keeps refusing the places it already read: must, must_not, a tool input regex, an end state regex', () => {
     expect(errors({ blocks: [{ user: 'hi', expect: { must: [BAD] } }] })).toEqual([
-      'REGEX_INVALID@blocks.0.expect.must.0',
+      'REGEX_INVALID blocks.0.expect.must.0',
     ]);
     expect(errors({ blocks: [{ user: 'hi', expect: { must_not: [BAD] } }] })).toEqual([
-      'REGEX_INVALID@blocks.0.expect.must_not.0',
+      'REGEX_INVALID blocks.0.expect.must_not.0',
     ]);
     expect(
       errors({ blocks: [{ user: 'hi', expect: { tools: [{ label: 't', input: { a: { regex: BAD } } }] } }] }),
-    ).toEqual(['REGEX_INVALID@blocks.0.expect.tools.0.input.a.regex']);
+    ).toEqual(['REGEX_INVALID blocks.0.expect.tools.0.input.a.regex']);
     expect(
       errors({ blocks: [{ user: 'hi' }], end_state: { source: 'tool:t', expect: { a: { regex: BAD } } } }),
-    ).toEqual(['REGEX_INVALID@end_state.expect.a.regex']);
+    ).toEqual(['REGEX_INVALID end_state.expect.a.regex']);
   });
 });
