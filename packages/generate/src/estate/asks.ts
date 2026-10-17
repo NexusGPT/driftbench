@@ -1,8 +1,10 @@
 import {
   ASK_FRAMES,
   ASKED_PATTERNS,
+  fillShape,
   HAZARD_FRAME,
   pronounDerivation,
+  SUBJECT_SHAPE,
   TOOL_ACTS,
   VERBATIM,
   variantFrame,
@@ -291,15 +293,15 @@ export function actOf(
   // A file that states no moment of its own is read at the work of the unit that cites it, which every file of
   // that unit shares. What tells them apart is what each file is about: its own name.
   if (head?.kind !== 'reference' || found.act === '' || found.source.startsWith(`${head.id} (`)) return found;
-  const subject = fileSubject(head.fields?.path);
+  const subject = fileSubjectDerivation(head.fields?.path);
   if (subject === undefined) return found;
   // A subject whose words the task already holds is not repeated ("weave a panel" holds "weave panel").
   const taskWords = new Set(lower(found.act).match(/\p{L}+|\d+/gu) ?? []);
   if (subject.split(' ').every((word) => taskWords.has(word))) return found;
   return {
     ...found,
-    act: `${found.act}, including the ${subject}`,
-    source: `${found.source}, file ${subject}`,
+    act: fillShape(SUBJECT_SHAPE, [found.act, subject]) ?? found.act,
+    source: found.source,
   };
 }
 
@@ -310,7 +312,7 @@ const GENERIC_FILE_NAMES = new Set(['skill', 'readme', 'index', 'agents', 'claud
  * What a file is about, from its own name: "references/api-limits.md" gives "api limits", "data-3.json" gives
  * "data 3". Undefined when the name is generic, has no letters, or is not a file name.
  */
-function fileSubject(path: unknown): string | undefined {
+export function fileSubjectDerivation(path: unknown): string | undefined {
   if (typeof path !== 'string') return undefined;
   const stem =
     path

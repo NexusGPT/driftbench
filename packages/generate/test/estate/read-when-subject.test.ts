@@ -93,8 +93,8 @@ describe('the ask that names the subject of a file records where it came from', 
     const from = fromRecord({
       askFrom: written.source,
       built: {
-        frame: written.frame,
-        act: written.act,
+        frame: written.frame as string,
+        act: written.act as string,
         ...(written.context ? { context: written.context } : {}),
       },
       atoms: new Map([[owner.id, owner]]),

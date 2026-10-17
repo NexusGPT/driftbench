@@ -7,6 +7,7 @@ export {
   clauseOf,
   codeAsk,
   DEVIATION_ASKS,
+  fileSubjectDerivation,
   imperative,
   OUTSIDE_ASK,
   plain,
@@ -35,6 +36,7 @@ export {
   pronounDerivation,
   renderAsk,
   SLOT,
+  SUBJECT_SHAPE,
   VERBATIM,
 } from './frames';
 export {

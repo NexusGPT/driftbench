@@ -58,8 +58,11 @@ export const variantFrame = (n: number): string => `variant_${((n - 1) % TRIGGER
 
 /** The shapes of an act: how the pieces join into what is asked, each piece shown as a slot. */
 const TOOL_PHRASES = [...new Set(Object.values(TOOL_ACTS))];
+/** The shape of a task that also names the subject of the file read: the task, then the subject the path gives. */
+export const SUBJECT_SHAPE = `${SLOT}, including the ${SLOT}`;
 export const ACT_SHAPES: readonly string[] = [
   SLOT,
+  SUBJECT_SHAPE,
   `help me with ${SLOT}`,
   `help with ${SLOT}`,
   `have a helper agent ${SLOT}`,
