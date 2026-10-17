@@ -178,7 +178,8 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
         scope: 'block',
       },
     ]);
-    expect(result.report.summary.judged).toBe(2);
+    // Two criteria as before, plus the one of p31: a re-read of the open tracker note, which names no file.
+    expect(result.report.summary.judged).toBe(3);
   });
 
   it('injects the deviation of the cell before the ask, with its approved phrase', () => {
@@ -482,7 +483,7 @@ describe('the committed suite', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1569);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1571);
     expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
       [],
     );
@@ -494,11 +495,11 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
-      specs: 1562,
-      blocks: 1557,
-      complete: 1533,
-      incomplete: 29,
-      judged: 464,
+      specs: 1564,
+      blocks: 1559,
+      complete: 1544,
+      incomplete: 20,
+      judged: 465,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
@@ -553,9 +554,9 @@ describe('a live guard_positive row forces the act', () => {
     expect(live.length).toBeGreaterThan(0);
     for (const record of live.filter((entry) => entry.complete && entry.ask === 'bank')) {
       const meta = estate(only(byId, record.id));
-      expect(meta.situation, record.id).toBe('forced-push');
+      expect(['forced-push', 'forced-long-reply'], record.id).toContain(meta.situation);
       const when = only(byId, record.id).blocks[0]?.when as { user?: string };
-      expect(when.user, record.id).toContain('git push --force');
+      if (meta.situation === 'forced-push') expect(when.user, record.id).toContain('git push --force');
     }
     expect(live.filter((entry) => entry.complete && entry.ask === 'bank').length).toBeGreaterThan(0);
   });
@@ -564,7 +565,7 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of specRecords(result)) {
       const meta = estate(only(byId, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (meta.situation === 'forced-push') continue;
+      if (meta.situation === 'forced-push' || meta.situation === 'forced-long-reply') continue;
       expect(meta.situation, record.id).toBeNull();
       // The ask is the act of the tool the guard watches. A guard that watches no tool (a prompt guard) has no
       // act an owner asks for: its row waits for an approved phrase, under its own gap.
@@ -575,10 +576,12 @@ describe('a live guard_positive row forces the act', () => {
           record.id,
         ).toContain(MARKERS.askable);
     }
+    // The live row: the replay row of the same guard takes the ask of its recorded session.
     const ledger = result.specs.find(
       (record) =>
         record.testType === 'guard_positive' &&
-        record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py',
+        record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py' &&
+        estate(only(byId, record.id)).mode === 'live',
     );
     const when = ledger ? (only(byId, ledger.id).blocks[0]?.when as { user?: string }) : undefined;
     expect(when?.user).toBe('Please delete a file under ledger/.');
@@ -593,7 +596,7 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of specRecords(strict)) {
       const meta = estate(only(all, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (meta.situation !== 'forced-push') {
+      if (meta.situation !== 'forced-push' && meta.situation !== 'forced-long-reply') {
         expect(record.complete, record.id).toBe(false);
         const needs = (meta.needs as Array<{ marker: string }>).map((need) => need.marker);
         expect(needs, record.id).toContain(MARKERS.phrase);

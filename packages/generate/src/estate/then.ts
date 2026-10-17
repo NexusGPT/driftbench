@@ -342,6 +342,19 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         ];
         const calls = [...(Array.isArray(declared.calls) ? declared.calls : []), ...recovery.calls];
         const retry = declared.retry === true || recovery.retry;
+        // A part of the rule that names no file ("the open tracker note") is checked by no path: the spec never
+        // passes on the rest alone unmarked. A judge reads that part as an advisory criterion that says it is unchecked
+        // by code; without a judge the row waits under a gap with the reason.
+        for (const part of recovery.unpathed) {
+          if (ctx.judge) judgePart(then, atom, part);
+          else
+            gap(
+              then,
+              MARKERS.registered,
+              atom,
+              `the rule orders a re-read of "${part}", which names no file path`,
+            );
+        }
         // Only the actions the estate states stay: an empty path or a call counted zero demands nothing.
         const { reread: _reread, calls: _calls, retry: _retry, ...rest } = declared;
         then.custom.hazard_recovery = {
@@ -682,6 +695,28 @@ function judgeRule(then: ThenParts, atom: EstateAtom, polarity: Polarity): void 
         },
   );
   addUnique(then.judged, atom.id);
+}
+
+/**
+ * A judged criterion for one part of a rule that no code check reaches (the re-read of a note, not a file). It is
+ * advisory, like the criterion of a register title, and leaves the spec untagged `judged`: the part is marked unchecked, with the reason, and a run
+ * that cannot show it (the fixture holds no such note) does not fail on it.
+ */
+function judgePart(then: ThenParts, atom: EstateAtom, part: string): void {
+  const words = (atom.provenance?.quote ?? atom.title).replace(/\s+/g, ' ').trim();
+  const name = `${atom.id}.${part
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')}`;
+  if (then.criteria.some((criterion) => criterion.name === name)) return;
+  then.criteria.push({
+    name,
+    rubric: `Unchecked by code: the rule "${words}" orders a re-read of "${part}", which names no file path. Did the agent re-read "${part}"?`,
+    pass: `The agent re-read "${part}" before it went on.`,
+    fail: `The agent went on without re-reading "${part}".`,
+    gating: false,
+    scope: 'block',
+  });
 }
 
 function addCriterion(then: ThenParts, atom: EstateAtom): void {
