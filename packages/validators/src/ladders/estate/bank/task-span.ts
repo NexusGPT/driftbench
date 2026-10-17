@@ -83,9 +83,10 @@ export function fieldsOf(atom: Atom): Field[] {
         text,
       )?.[1];
     const governed = /\bbefore\s+([^,:;]+?)\s*[:,]\s*(?:read|load|check|review|consult)\b/i.exec(text)?.[1];
+    const readBefore = /\b(?:read|load|check|review|consult)\s+.+?\s+before\s+(.+)$/i.exec(text)?.[1];
     return [
       ...askedClauses(text),
-      ...[found, condition, governed].filter((part): part is string => part !== undefined),
+      ...[found, condition, governed, readBefore].filter((part): part is string => part !== undefined),
     ];
   });
   // A stage's title is a labelled value, not a clause cut from its JSON provenance.

@@ -111,12 +111,14 @@ describe('a piece is a whole clause of its source', () => {
       atom({
         fields: {
           readWhen: 'When an invoice is not in EUR, read currency.md.',
+          readBefore: 'Read references/matching-rules.md before matching any line.',
           rule: 'Before editing any invoice file: Read matching.md.',
         },
       }),
     );
     expect(isClauseOf('When an invoice is not in EUR', fields)).toBe(true);
     expect(isClauseOf('edit any invoice file', fields)).toBe(true);
+    expect(isClauseOf('match any line', fields)).toBe(true);
   });
 });
 
