@@ -1712,7 +1712,34 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 
 `driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved evidence quotes. It exits 0 when the manifest is written or printed, including a conservative whole-suite manifest, and 2 on invalid input. The separate `radius <specs> --change ...` command exits 1 when its computed radius is the whole suite. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
 
-`driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--change-out <manifest>] [--json]` finds every section again in the new prompt, writes the `prompt_section` manifest with `--change-out`, and exits 1 when a section is stale, a change lies outside every section or sections changed order. `driftbench radius <specs> --change <manifest> --sections <registries...>` prints, after the radius, which blocks selection by section links would run; a `prompt_section` change keeps the radius the whole suite. `driftbench radius localize <specs> --store <file> --campaign <id> --sections <registries...> [--prompt <id>] [--mode <mode>] [--counting grouped|flat] [--top <n>] [--json]` ranks the local sections of a prompt by Ochiai suspiciousness from the campaign's block verdicts; it exits 0 with a ranking, 1 when nothing failed outside inherited failures, 2 on bad input. See [prompt sections and block links](../concepts/blast-radius.md#prompt-sections-and-block-links).
+`driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--change-out <manifest>] [--json]` finds every section again in the new prompt, writes the `prompt_section` manifest with `--change-out`, and exits 1 when a section is stale, a change lies outside every section or sections changed order. `driftbench radius <specs> --change <manifest> --sections <registries...>` prints, after the radius, which blocks selection by section links would run; a `prompt_section` change keeps the radius the whole suite. `driftbench radius localize <specs> --store <file> --campaign <id> --sections <registries...> [--prompt <id>] [--mode <mode>] [--counting grouped|flat] [--top <n>] [--json]` ranks the local sections of a prompt by Ochiai suspiciousness from the campaign's block verdicts; it exits 0 with a ranking, 1 when nothing failed outside inherited failures, 2 on bad input. Defaults and exits of the section registry commands:
+
+* `radius sections init` makes one section for each heading of level 1 up to `--level` (a whole number from 1 to 6, default 2); a deeper heading belongs to the section above it. The text before the first heading is the section `preamble` when it is not empty. An id is the slugged title (lower case, letters and digits, other runs as `_`; a second section with the same slug gets `_2`). Every section is `global`. It prints the registry, or writes it with `--out`, and exits 0. It exits 2, writing nothing, for a `--level` outside 1 to 6, a prompt it cannot read, a prompt with no section, or a section in which no quote is unique in the prompt.
+* `radius sections check` exits 0 when every live section matches the prompt (the whole-text hash, each section's hash, span and anchor, no overlap; stale sections are not checked and are listed), 1 when the registry no longer describes the prompt, and 2 when the registry or the prompt cannot be read or the registry is invalid: it is not YAML or JSON, a field is missing or unknown, an id is used twice, or `references`, `overrides` or `duplicates` names a section that does not exist.
+* `radius sections reanchor` exits 0 when every section was found again in order and no text changed outside the sections, 1 otherwise (a stale section, text outside every section, or sections that changed order), and 2 when the registry is invalid, `--prompt` does not name exactly two files, or the registry does not describe the old prompt (its `text_sha256` differs from the old text). The statuses `kept`, `moved` and `stale` are in [re-anchoring a registry](../concepts/blast-radius.md#re-anchoring-a-registry).
+
+Example of a registry written by `radius sections init`, for a prompt with a preamble and the sections Tone, Refunds and Escalation:
+
+```text
+prompt_id: support
+version: v1
+normalisation: NFC; CRLF/CR->LF; offsets in UTF-16 code units; end exclusive
+text_sha256: 5a168ea21558287f0480ec217b789ad7925ff056bbf91a01bd3723d45ab8c344
+sections:
+  - id: preamble
+    title: preamble
+    scope: global
+    span: { start: 0, end: 45 }
+    sha256: db68cd6020275ff4d59ed333e3611bdcc32d044b8732e9f1f84badacd80d3675
+    anchor: { quote: "You are the support agen", prefix: "", suffix: "t of Harbour Freight.\n\n## Tone\nA" }
+  - id: tone
+    title: Tone
+    scope: global
+    span: { start: 47, end: 97 }
+    # sha256 and anchor as above
+```
+
+See [prompt sections and block links](../concepts/blast-radius.md#prompt-sections-and-block-links).
 
 ### `campaign rejudge`
 
