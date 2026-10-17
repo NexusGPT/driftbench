@@ -77,6 +77,18 @@ describe('sections init keeps identical sections apart', () => {
     }
   });
 
+  it('extends the quote past a look-alike section, so it is found only in the copies', () => {
+    const lookAlike = '## Dusk\nKeep the chart dry and the lamp trimmed at dusk, when the fog rolls in.\n';
+    const text = [CHART, lookAlike, CHART].join('\n');
+    const registry = register(text);
+    expect(registry.sections.map((each) => each.id)).toEqual(['chart_room', 'dusk', 'chart_room_2']);
+    for (const id of ['chart_room', 'chart_room_2']) {
+      const { quote } = section(registry, id).anchor;
+      expect(text.split(quote).length - 1, id).toBe(2);
+    }
+    expect(section(registry, 'dusk').anchor.occurrence).toBeUndefined();
+  });
+
   it('numbers three copies 1, 2 and 3 and ids them by occurrence', () => {
     const text = `${CHART}\n${CHART}\n${CHART}`;
     const registry = register(text);
@@ -229,6 +241,55 @@ describe('sections reanchor keeps identical sections apart', () => {
       status: 'stale',
       reason: expect.stringContaining('occurs 2 times in the old prompt and 1 in the new one'),
     });
+    expect(checkSectionRegistry(made.registry, next)).toEqual([]);
+  });
+
+  it('keeps the first copy and marks the second stale when the second copy is removed', () => {
+    const registry = register(PROMPT);
+    const next = PROMPT.slice(0, PROMPT.lastIndexOf(CHART));
+    const made = reanchor(registry, PROMPT, next);
+    expect(made.sections.find((each) => each.id === 'chart_room')).toMatchObject({
+      status: 'kept',
+      method: 'window',
+    });
+    expect(made.sections.find((each) => each.id === 'chart_room_2')).toMatchObject({ status: 'stale' });
+    expect(checkSectionRegistry(made.registry, next)).toEqual([]);
+  });
+
+  it('moves the second copy and marks the first stale when the first copy is removed', () => {
+    const registry = register(PROMPT);
+    const next = PROMPT.replace(CHART, '');
+    const made = reanchor(registry, PROMPT, next);
+    expect(made.sections.find((each) => each.id === 'chart_room')).toMatchObject({ status: 'stale' });
+    const second = made.sections.find((each) => each.id === 'chart_room_2');
+    expect(second).toMatchObject({ status: 'moved', method: 'window' });
+    expect(second?.to?.start).toBe(next.indexOf(CHART));
+    expect(checkSectionRegistry(made.registry, next)).toEqual([]);
+  });
+
+  it('keeps the copies in order when the sections above them are deleted', () => {
+    const registry = register(PROMPT);
+    const next = PROMPT.replace(MOORINGS, '');
+    const made = reanchor(registry, PROMPT, next);
+    expect(made.sections.map((each) => [each.id, each.status, each.method])).toEqual([
+      ['moorings', 'stale', undefined],
+      ['chart_room', 'moved', 'occurrence'],
+      ['signals', 'moved', 'same_hash'],
+      ['chart_room_2', 'moved', 'occurrence'],
+    ]);
+    expect(checkSectionRegistry(made.registry, next)).toEqual([]);
+  });
+
+  it('never gives two sections one place when their surroundings both fit the same copy', () => {
+    // Old: copy, other section, copy. New: one copy between two other sections. Each old copy's window fits it.
+    const registry = register(`${CHART}\n${SIGNALS}\n${CHART}`);
+    const next = `${SIGNALS}\n${CHART}\n${SIGNALS}`;
+    const made = reanchor(registry, `${CHART}\n${SIGNALS}\n${CHART}`, next);
+    const claimed = made.sections.flatMap((each) => (each.to ? [each.to.start] : []));
+    expect(new Set(claimed).size).toBe(claimed.length);
+    expect(
+      made.sections.filter((each) => each.id.startsWith('chart_room')).map((each) => each.status),
+    ).toEqual(['stale', 'stale']);
     expect(checkSectionRegistry(made.registry, next)).toEqual([]);
   });
 

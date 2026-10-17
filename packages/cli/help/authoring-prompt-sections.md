@@ -189,7 +189,7 @@ sections:
 
 `radius sections check` prints `<prompt> <version>: <n> sections match the prompt.`, with `; <k> stale: <ids>` when some are stale, or one line per problem.
 
-`radius sections reanchor` prints `<prompt> <old version> to <new version>: <k> kept, <m> moved, <s> stale.` Then it prints one line per stale section with its reason, and the sections that changed order. It prints one line per change outside every section: `changed outside every section, between <a> and <b>: can reach any block`. A stale reason is `the anchor is found but the section text changed: edited inside`, or `neither the text nor the anchor is found once: edited or removed`, or, for repeated text, `its text occurs <k> times in the old prompt and <m> in the new one, and its surroundings do not tell which copy it is`.
+`radius sections reanchor` prints `<prompt> <old version> to <new version>: <k> kept, <m> moved, <s> stale.` Then it prints one line per stale section with its reason, and the sections that changed order. It prints one line per change outside every section: `changed outside every section, between <a> and <b>: can reach any block`. A stale reason is `the anchor is found but the section text changed: edited inside`, or `neither the text nor the anchor is found once: edited or removed`, or, for repeated text, `its text occurs <k> times in the old prompt and <m> in the new one, and its surroundings do not tell which copy it is`, or `its text is repeated and its surroundings fit the same copy as <ids>: nothing tells which section it is`.
 
 ## Worked example
 

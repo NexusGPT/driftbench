@@ -709,6 +709,30 @@ export function reanchorRegistry(
     });
   }
 
+  // Two sections of repeated text can both find their surroundings at one copy (a copy was removed, another added).
+  // Nothing tells which of them it is, so none of them keeps the place: a place belongs to one section or to none.
+  const claimed = new Map<number, number[]>();
+  sections.forEach((each, index) => {
+    if (each.to && where(inOld, old, old.slice(each.from.start, each.from.end)).length > 1)
+      claimed.set(each.to.start, [...(claimed.get(each.to.start) ?? []), index]);
+  });
+  for (const indexes of claimed.values()) {
+    if (indexes.length < 2) continue;
+    for (const index of indexes) {
+      const each = sections[index];
+      const original = registry.sections[index];
+      if (!each || !original) continue;
+      const others = indexes.filter((other) => other !== index).map((other) => sections[other]?.id);
+      sections[index] = {
+        id: each.id,
+        status: 'stale',
+        from: each.from,
+        reason: `its text is repeated and its surroundings fit the same copy as ${others.join(', ')}: nothing tells which section it is`,
+      };
+      entries[index] = { ...original, stale: true };
+    }
+  }
+
   // Order: the found sections must keep their relative order.
   const found = sections.filter((each) => each.to !== undefined);
   const reordered: string[] = [];
