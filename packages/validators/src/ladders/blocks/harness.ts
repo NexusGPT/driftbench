@@ -205,6 +205,25 @@ export function shuffleKeys<T>(value: T, rng: Rng): T {
   return Object.fromEntries(entries.map(([key, each]) => [key, shuffleKeys(each, rng)])) as T;
 }
 
+/**
+ * JSON with the keys of every object sorted, arrays in order: two values that hold the same keys and values
+ * compare equal, whatever order their keys came in. The bank shuffles spec keys, so a check of a value the
+ * product hands on compares it this way (no doc fixes the key order of what reaches the agent).
+ */
+export function canonical(value: unknown): string {
+  const sort = (each: unknown): unknown =>
+    Array.isArray(each)
+      ? each.map(sort)
+      : each !== null && typeof each === 'object'
+        ? Object.fromEntries(
+            Object.keys(each as Record<string, unknown>)
+              .sort()
+              .map((key) => [key, sort((each as Record<string, unknown>)[key])]),
+          )
+        : each;
+  return JSON.stringify(sort(value)) ?? 'undefined';
+}
+
 const shaken = <T>(raw: T): T =>
   shuffleKeys(raw, rngFor(0, `keys#${String((raw as { id?: unknown })?.id ?? '')}`));
 

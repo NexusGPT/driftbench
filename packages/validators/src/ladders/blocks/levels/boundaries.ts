@@ -1,5 +1,6 @@
 import {
   between,
+  canonical,
   list,
   observed,
   type RawSpec,
@@ -659,7 +660,7 @@ const GROUPS: Group[] = [
           { workspace: earlier, ...(variant === 1 ? { fixtures: { x: 1 } } : {}) },
           { workspace: later },
         );
-        return JSON.stringify(got.workspace) === JSON.stringify(later)
+        return canonical(got.workspace) === canonical(later)
           ? PASS
           : fail(
               `the merged workspace should be the later one ${JSON.stringify(later)}; got ${JSON.stringify(got.workspace)}`,
