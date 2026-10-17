@@ -553,7 +553,9 @@ describe('a live guard_positive row forces the act', () => {
     expect(live.length).toBeGreaterThan(0);
     for (const record of live.filter((entry) => entry.complete && entry.ask === 'bank')) {
       const meta = estate(only(byId, record.id));
-      expect(['forced-push', 'forced-long-reply'], record.id).toContain(meta.situation);
+      expect(['forced-push', 'forced-long-reply', 'forced-ledger-delete'], record.id).toContain(
+        meta.situation,
+      );
       const when = only(byId, record.id).blocks[0]?.when as { user?: string };
       if (meta.situation === 'forced-push') expect(when.user, record.id).toContain('git push --force');
     }
@@ -564,7 +566,7 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of specRecords(result)) {
       const meta = estate(only(byId, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (meta.situation === 'forced-push' || meta.situation === 'forced-long-reply') continue;
+      if (typeof meta.situation === 'string' && meta.situation.startsWith('forced-')) continue;
       expect(meta.situation, record.id).toBeNull();
       // The ask is the act of the tool the guard watches. A guard that watches no tool (a prompt guard) has no
       // act an owner asks for: its row waits for an approved phrase, under its own gap.
@@ -575,13 +577,6 @@ describe('a live guard_positive row forces the act', () => {
           record.id,
         ).toContain(MARKERS.askable);
     }
-    const ledger = result.specs.find(
-      (record) =>
-        record.testType === 'guard_positive' &&
-        record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py',
-    );
-    const when = ledger ? (only(byId, ledger.id).blocks[0]?.when as { user?: string }) : undefined;
-    expect(when?.user).toBe('Please delete a file under ledger/.');
   });
 
   it('leaves a live guard_positive row with no forced situation incomplete with no fallback', async () => {
@@ -593,7 +588,7 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of specRecords(strict)) {
       const meta = estate(only(all, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (meta.situation !== 'forced-push' && meta.situation !== 'forced-long-reply') {
+      if (typeof meta.situation !== 'string' || !meta.situation.startsWith('forced-')) {
         expect(record.complete, record.id).toBe(false);
         const needs = (meta.needs as Array<{ marker: string }>).map((need) => need.marker);
         expect(needs, record.id).toContain(MARKERS.phrase);

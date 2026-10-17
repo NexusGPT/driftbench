@@ -15,8 +15,8 @@
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 28,
-    "phrases": 54,
+    "situations": 29,
+    "phrases": 56,
     "workspaces": 5
   },
   "sessions": {
@@ -442,17 +442,17 @@
   },
   "sources": {
     "asks": {
-      "bank": 456,
-      "code": 1076,
+      "bank": 460,
+      "code": 1072,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 1023,
+      "bank": 1036,
       "no-change:guard": 26,
       "no-change:negative": 56,
       "no-change:read-only": 83,
-      "no-delete": 344,
+      "no-delete": 331,
       "static": 8
     },
     "judged": 304
