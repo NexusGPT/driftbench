@@ -695,8 +695,8 @@ export const CAUSES: Readonly<Record<CauseKey, { text: string; contract: string 
   L24: { text: '`retry.max_attempts` is from 1 to 20.', contract: 'docs/reference/spec.md#RetrySettings' },
   L25: { text: "A criterion's `threshold` is from 0 to 1.", contract: 'docs/reference/spec.md#CriterionDef' },
   L26: {
-    text: 'The loader checks the patterns of the regex list of expect (REGEX_INVALID), as it does those of must and must_not.',
-    contract: 'docs/reference/cli.md#Issue codes',
+    text: 'The loader checks every regular expression of a spec, the regex list of expect included (block.md: spec validate checks the regular expressions; checks.md: regex takes a list of regular expressions).',
+    contract: 'docs/concepts/block.md#A spec is checked before it runs',
   },
   L27: {
     text: 'The loader checks the regex assertion of a json path (REGEX_INVALID).',
@@ -708,7 +708,7 @@ export const CAUSES: Readonly<Record<CauseKey, { text: string; contract: string 
   },
   L29: {
     text: 'The loader checks the patterns in the expectations of a perturbation (REGEX_INVALID).',
-    contract: 'docs/reference/cli.md#Issue codes',
+    contract: 'docs/concepts/block.md#A spec is checked before it runs',
   },
   LD1: {
     text: 'The as-given rung reads the expected writing as a whole token when a punctuation mark follows it.',
