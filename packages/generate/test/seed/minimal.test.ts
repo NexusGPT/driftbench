@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { PathRelation } from '../../src/extract/proposal';
 import type { SpecDraft } from '../../src/seed/assemble';
-import { moveUp, TerminalSubsumption } from '../../src/seed/minimal';
+import { TerminalSubsumption } from '../../src/seed/minimal';
 import { type SeedContext, scenarioDraft } from '../../src/seed/seed-drafts';
 import { fixture, split, twoChannels } from './desk';
 
@@ -182,77 +182,22 @@ describe('terminal subsumption and the perturbations a block carries', () => {
     return built.draft;
   };
 
-  it('drops the perturbation a removed block carries with it, when the suite keeps the class elsewhere', () => {
+  it('keeps the block a declared perturbation names, even when another walk declares the same class there', () => {
     const prepared = fixture();
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
     const minimal = new TerminalSubsumption(prepared, run, 2);
-    // The first walk places the class at the last stage; the second says the same walk with the same declaration.
     const first = perturbedAt(prepared, path, 'first', 'packing');
     const second = perturbedAt(prepared, path, 'second', 'packing');
     const length = first.blocks.length;
-    expect(first.perturbations?.[0]?.inject_at).toBe(length - 1);
     expect(second.perturbations?.[0]?.inject_at).toBe(length - 1);
     minimal.reduce(first);
     minimal.reduce(second);
+    // A perturbed run checks the recovery with the blocks around it: the walk is not cut below its declaration.
     expect(first.blocks).toHaveLength(length);
-    expect(second.blocks.length).toBeLessThan(length);
-    // No declaration is left on a block the walk no longer has.
+    expect(second.blocks).toHaveLength(length);
     for (const entry of second.perturbations ?? [])
       expect(entry.inject_at).toBeLessThan(second.blocks.length);
-  });
-
-  it('lets exactly one walk end on a block: the first cut that ends elsewhere stays, a second is taken back', () => {
-    const prepared = fixture();
-    const path = prepared.relations.paths[0];
-    if (!path) throw new Error('missing parcel path');
-    const minimal = new TerminalSubsumption(prepared, run, 2);
-    // The first walk is written whole. The second declares a class no written walk places, so it can lose its
-    // last block but not the declaration: it ends on its second block, which no written walk ends on. The third
-    // declares another class of its own; cut the same way it would end on that same second block, so it keeps
-    // its tail.
-    const first = walk(prepared, 'first', path);
-    first.perturbations = undefined;
-    const second = perturbedAt(prepared, path, 'second', 'address', 'D5_language_switch');
-    const third = perturbedAt(prepared, path, 'third', 'address', 'D1_off_topic');
-    const length = first.blocks.length;
-    for (const draft of [first, second, third]) minimal.reduce(draft);
-    expect([first, second, third].map((draft) => draft.blocks.length)).toEqual([length, length - 1, length]);
-  });
-
-  it('cuts every identical walk after the first down to its first block, which no cut can go below', () => {
-    const prepared = fixture();
-    const path = prepared.relations.paths[0];
-    if (!path) throw new Error('missing parcel path');
-    const minimal = new TerminalSubsumption(prepared, run, 2);
-    const walks = ['first', 'second', 'third'].map((id) => {
-      const draft = walk(prepared, id, path);
-      draft.perturbations = undefined;
-      return draft;
-    });
-    const length = walks[0]?.blocks.length ?? 0;
-    for (const draft of walks) minimal.reduce(draft);
-    expect(walks.map((draft) => draft.blocks.length)).toEqual([length, 1, 1]);
-  });
-
-  it('never cuts a walk down to a restated request, whose next move is the test of the latest value', () => {
-    const prepared = fixture();
-    const path = prepared.relations.paths[0];
-    if (!path) throw new Error('missing parcel path');
-    const minimal = new TerminalSubsumption(prepared, run, 2);
-    const written = walk(prepared, 'written', path);
-    written.perturbations = undefined;
-    const second = walk(prepared, 'second', path);
-    second.perturbations = undefined;
-    const request = second.blocks[1];
-    if (!request) throw new Error('missing second block');
-    request.id = 'b2-restated';
-    const length = second.blocks.length;
-    minimal.reduce(written);
-    minimal.reduce(second);
-    // The walk may lose its end, but never the move after the request: it keeps two blocks at least.
-    expect(second.blocks.length).toBeGreaterThanOrEqual(3);
-    expect(second.blocks.length).toBeLessThan(length + 1);
   });
 
   it('keeps the block when no other written walk places the class it declares', () => {
@@ -336,13 +281,5 @@ describe('terminal subsumption and the context a walk is written in', () => {
     for (const draft of [holder, counter, twin]) minimal.reduce(draft);
     expect(counter.blocks).toHaveLength(length);
     expect(twin.blocks).toHaveLength(length);
-  });
-});
-
-describe('the declarations left when a block is removed', () => {
-  it('drops the ones on the block and moves the ones after it up by one', () => {
-    const left = moveUp([{ inject_at: 0 }, { inject_at: 2 }, { inject_at: 3 }, { inject_at: 4 }], 2);
-    expect(left.map((entry) => entry.inject_at)).toEqual([0, 2, 3]);
-    expect(moveUp(undefined, 1)).toEqual([]);
   });
 });

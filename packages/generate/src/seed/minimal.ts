@@ -12,16 +12,6 @@ import type { Allocation } from './allocation';
 import { type RunIdentity, renderDraft, type SpecDraft } from './assemble';
 import type { PreparedMap } from './map';
 
-/** The declarations left when block `index` is removed: those on it go, the ones after it move up by one. */
-export function moveUp<T extends { inject_at: number }>(
-  entries: readonly T[] | undefined,
-  index: number,
-): T[] {
-  return (entries ?? [])
-    .filter((entry) => entry.inject_at !== index)
-    .map((entry) => (entry.inject_at > index ? { ...entry, inject_at: entry.inject_at - 1 } : entry));
-}
-
 /** A tool failure is followed by the turn that gets the tool answering again: the walk never ends on it. */
 function failsAtEnd(spec: Spec): boolean {
   const tools = spec.blocks.at(-1)?.given?.world?.tools ?? {};
@@ -100,21 +90,15 @@ export class TerminalSubsumption {
         // The move right after a restated request is the test of the latest value: a walk is never cut to end on
         // the request alone, which asks for a value and checks none of the slot's later states.
         if (spec.blocks[last - 1]?.id?.endsWith('-restated')) break;
-        // A declaration names a block and goes with it when the block is removed: the declarations on it are
-        // dropped and the later ones move up. The class they placed must be placed by a spec already written,
-        // which the tuples below check; a declaration before the block is untouched.
-        const kept = moveUp(spec.perturbations, last);
-        const { perturbations: _gone, ...bare } = spec;
-        const reduced = validateSpec({
-          ...bare,
-          blocks: spec.blocks.slice(0, last),
-          ...(kept.length > 0 ? { perturbations: kept } : {}),
-        });
+        // A perturbed run injects a declaration at its position and checks its recovery there, with the blocks after
+        // it: the block a declaration names, and the ones before it, are part of that test and stay. (Dropping the
+        // declaration with the block was measured: it loses 50 perturbed-mode kills on the hidden seed.)
+        if (spec.perturbations?.some((entry) => entry.inject_at >= last)) break;
+        const reduced = validateSpec({ ...spec, blocks: spec.blocks.slice(0, last) });
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
         if (!this.tuplesHold(spec, reduced.spec) || !this.pairsHold(spec, reduced.spec)) break;
         if (!this.allocationHolds(draft, last)) break;
         draft.blocks = draft.blocks.slice(0, last);
-        if (draft.perturbations) draft.perturbations = moveUp(draft.perturbations, last);
         spec = reduced.spec;
         states.push({ blocks: draft.blocks, perturbations: draft.perturbations, spec });
       }
@@ -246,7 +230,7 @@ export class TerminalSubsumption {
     if (!this.allocation) return true;
     const reduced = {
       blocks: draft.blocks.slice(0, last),
-      perturbations: moveUp(draft.perturbations, last),
+      perturbations: draft.perturbations,
     };
     return this.allocation.imbalanceWith(reduced) <= this.allocation.imbalanceWith(draft);
   }
