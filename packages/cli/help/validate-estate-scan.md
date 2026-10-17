@@ -45,7 +45,7 @@ span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) m
 ## Commands and every option
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--ledger-check]]]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider anthropic|openai] [--ceiling <characters>] [--ignore <glob>]... [--force] [--pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--labeler-key <variable>] [--jobs <n>] [--labels <file>] [--ledger <file> [--ledger-check]]]
 driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
@@ -69,6 +69,7 @@ driftbench estate map <map> --to <file> [--all] [--agent <name>]
 | `--record` | off | on a cassette miss, call the labelers and write the answer to the cassette (a paid call; the keys come from the environment) |
 | `--labeler <spec>` | the default stack, below | `<class>:<client>[:<model>]`, class `system1` or `system2`; repeat it for one labeler of each class. Clients below |
 | `--labeler-threshold <p>` | `0.4` | a system 1 labeler takes the label with the highest probability of yes at or above this, else `none`; the cassette keeps every probability, so a new value needs no new call |
+| `--labeler-margin-cut <m>` | off | in a stack, decide by margin instead: system 1 decides a unit alone when its likeliest answer leads the second by this much (over the asked labels and an implicit `none`); system 2 decides the rest |
 | `--labeler-pass-at <p>`, `--labeler-fail-at <p>` | `0.9`, `0.1` | in a stack, system 1 decides a unit alone from the first probability for a label, or under the second for every label; in between, system 2 decides |
 | `--labeler-key <variable>` | none | the environment variable that holds the bearer token of an `http` labeler |
 | `--jobs <n>` | `4` | requests in flight at once; the labels, the ledger and the cassette bytes do not depend on it |
