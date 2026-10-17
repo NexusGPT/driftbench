@@ -3,7 +3,7 @@ import type { PathRelation } from '../../src/extract/proposal';
 import type { SpecDraft } from '../../src/seed/assemble';
 import { TerminalSubsumption } from '../../src/seed/minimal';
 import { type SeedContext, scenarioDraft } from '../../src/seed/seed-drafts';
-import { fixture, split } from './desk';
+import { fixture, split, twoChannels } from './desk';
 
 const run = { seed: 1031, mapPath: '../desk.yaml' };
 
@@ -12,10 +12,12 @@ function walk(
   id: string,
   path: PathRelation,
   seeder: SpecDraft['seeder'] = 'twise',
+  cell: Array<[number, number]> = [],
 ) {
   const context: SeedContext = { seed: 1031, t: 2, max: 100 };
-  const built = scenarioDraft(prepared, context, id, seeder, id, [], { preferred: [path], others: [] });
+  const built = scenarioDraft(prepared, context, id, seeder, id, cell, { preferred: [path], others: [] });
   if (!('draft' in built)) throw new Error(`${id} did not build`);
+  if (cell.length > 0) built.draft.perturbations = undefined;
   return built.draft;
 }
 
@@ -185,5 +187,73 @@ describe('terminal subsumption keeps walks apart', () => {
     minimal.reduce(second);
     expect(first.blocks).toHaveLength(length);
     expect(second.blocks).toHaveLength(length);
+  });
+});
+
+describe('terminal subsumption and the context a walk is written in', () => {
+  const channelPick = (prepared: ReturnType<typeof twoChannels>, value: string): [number, number] => {
+    const dimension = prepared.space.dimensions.findIndex((entry) => entry.kind === 'channel');
+    const at = prepared.space.dimensions[dimension]?.index.get(value);
+    if (at === undefined) throw new Error(`no channel ${value}`);
+    return [dimension, at];
+  };
+
+  it('cuts the end of a walk another channel writes, once the path keeps a pair of whole walks per channel', () => {
+    const prepared = twoChannels();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const first = walk(prepared, 'first', path, 'twise', [channelPick(prepared, 'counter')]);
+    const second = walk(prepared, 'second', path, 'twise', [channelPick(prepared, 'phone')]);
+    const third = walk(prepared, 'third', path, 'twise', [channelPick(prepared, 'phone')]);
+    const length = first.blocks.length;
+    minimal.reduce(first);
+    minimal.reduce(second);
+    minimal.reduce(third);
+    // The Then must hold across channels: the pair first/second stays whole. A third walk adds nothing.
+    expect(first.blocks).toHaveLength(length);
+    expect(second.blocks).toHaveLength(length);
+    expect(third.blocks.length).toBeLessThan(length);
+  });
+
+  // The same walk with its first message worded another way: not a twin of any other walk, same end.
+  const reworded = (draft: ReturnType<typeof walk>) => {
+    const first = draft.blocks[0];
+    if (first?.stimulus.kind !== 'phrase') throw new Error('the first block says no phrase');
+    first.stimulus = {
+      ...first.stimulus,
+      phrase: { ...first.stimulus.phrase, text: 'Hello, I have a parcel.' },
+    };
+    return draft;
+  };
+
+  it('reads a walk on another channel as saying the same end, so the channel alone keeps no repeat', () => {
+    const prepared = twoChannels();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const written = walk(prepared, 'written', path, 'twise', [channelPick(prepared, 'counter')]);
+    const other = reworded(walk(prepared, 'other', path, 'twise', [channelPick(prepared, 'counter')]));
+    const phone = reworded(walk(prepared, 'phone', path, 'twise', [channelPick(prepared, 'phone')]));
+    const again = reworded(walk(prepared, 'again', path, 'twise', [channelPick(prepared, 'phone')]));
+    const length = again.blocks.length;
+    for (const draft of [written, other, phone, again]) minimal.reduce(draft);
+    // `again` says its end on the phone, and `written` said it on the counter: the end is a repeat all the same.
+    expect(again.blocks.length).toBeLessThan(length);
+  });
+
+  it('keeps one pair of whole twins per path even when other walks already hold their tuples', () => {
+    const prepared = twoChannels();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    // A reworded phone walk holds the phone tuples; then a counter walk and its phone twin arrive.
+    const holder = reworded(walk(prepared, 'holder', path, 'twise', [channelPick(prepared, 'phone')]));
+    const counter = walk(prepared, 'counter', path, 'twise', [channelPick(prepared, 'counter')]);
+    const twin = walk(prepared, 'twin', path, 'twise', [channelPick(prepared, 'phone')]);
+    const length = twin.blocks.length;
+    for (const draft of [holder, counter, twin]) minimal.reduce(draft);
+    expect(counter.blocks).toHaveLength(length);
+    expect(twin.blocks).toHaveLength(length);
   });
 });
