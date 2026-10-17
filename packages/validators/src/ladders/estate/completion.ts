@@ -1,8 +1,6 @@
 import {
-  type Assertion,
   type ExecutionRecord,
   globMatches,
-  matchAssertion,
   type Observed,
   type Spec,
   type ToolCall,
@@ -262,6 +260,256 @@ export function completionComponents(spec: Spec): ComponentInventory {
               o.runtime ??= {};
               o.runtime.offered = [...(o.runtime.offered ?? []), variant.value];
             });
+        }
+      } else if (channel === 'expect' && check === 'execution') {
+        keys(['ran_code', 'exit_code', 'max_commands']);
+        const isAgent = (r: ExecutionRecord) => r.role === 'agent';
+        const commandsOf = (o: Observed) => (o.executions ?? []).filter((r) => !isAgent(r));
+        const agentsOf = (o: Observed) => (o.executions ?? []).filter(isAgent);
+        const command = (exitCode: number): ExecutionRecord => ({ command: '__fixture_command__', exitCode });
+        const resizeCommands = (o: Observed, n: number) => {
+          const commands = commandsOf(o);
+          const exemplar = commands.at(-1) ?? command(0);
+          o.executions = [
+            ...commands.slice(0, n),
+            ...Array.from({ length: Math.max(0, n - commands.length) }, () => structuredClone(exemplar)),
+            ...agentsOf(o),
+          ];
+        };
+        add('evidence.executions', (o) => {
+          delete o.executions;
+        });
+        required(inventory.components.at(-1)).violationOutcome = 'inconclusive';
+        if (typeof opts.ran_code === 'boolean') {
+          if (opts.ran_code) {
+            add('ran_code.commands', (o) => {
+              o.executions = agentsOf(o);
+            });
+            // The agent's own process is never a command it ran.
+            add('ran_code.agent-process', (o) => {
+              o.executions = [{ command: '__fixture_agent__', role: 'agent', exitCode: 0 }];
+            });
+          } else
+            add('ran_code.forbidden', (o) => {
+              o.executions = [...(o.executions ?? []), command(0)];
+            });
+        }
+        if (typeof opts.exit_code === 'number') {
+          const want = opts.exit_code;
+          const other = want + 1;
+          const lastOnly = (o: Observed) => {
+            o.executions = [...(commandsOf(o).length > 0 ? commandsOf(o) : [command(want)])];
+          };
+          add(
+            'exit_code.last-command',
+            (o) => {
+              const last = commandsOf(o).at(-1);
+              if (last) last.exitCode = other;
+            },
+            lastOnly,
+          );
+          // The last command decides, not the first: the same two exit codes in the other order.
+          add(
+            'exit_code.last-of-many',
+            (o) => {
+              o.executions = [command(want), command(other)];
+            },
+            (o) => {
+              o.executions = [command(other), command(want)];
+            },
+          );
+          // An agent process that crashed fails the block even after a clean last command.
+          add(
+            'exit_code.agent-crash',
+            (o) => {
+              o.executions = [
+                ...commandsOf(o),
+                { command: '__fixture_agent__', role: 'agent', exitCode: want === 1 ? 2 : 1 },
+              ];
+            },
+            lastOnly,
+          );
+        }
+        if (typeof opts.max_commands === 'number') {
+          const limit = opts.max_commands;
+          add(
+            'max_commands.boundary',
+            (o) => resizeCommands(o, limit + 1),
+            (o) => resizeCommands(o, limit),
+          );
+        }
+      } else if (channel === 'custom' && check === 'some_call') {
+        if (Array.isArray(opts.calls)) keys(['calls']);
+        for (const [at, entry] of (Array.isArray(opts.calls) ? rows(opts.calls) : [opts]).entries()) {
+          if (typeof entry.block === 'number' && entry.block !== index) continue;
+          for (const key of Object.keys(entry))
+            if (!['label', 'input', 'count', 'block'].includes(key) && !(key === 'calls' && at === 0))
+              gap(`${at}.unsupported-clause:${key}`);
+          const label = entry.label;
+          if (typeof label !== 'string' || label === '') {
+            gap(`${at}.label`);
+            continue;
+          }
+          // One assertion per input field: an equal value, a substring or a pattern. Others are named gaps.
+          type Field = { name: string; holds: (value: unknown) => boolean; witness?: string; text?: string };
+          const fields: Field[] = [];
+          for (const [name, assertion] of Object.entries(record(entry.input))) {
+            const a = record(assertion);
+            if (
+              typeof assertion === 'string' ||
+              typeof assertion === 'number' ||
+              typeof a.exact !== 'undefined'
+            ) {
+              const want = typeof assertion === 'object' ? a.exact : assertion;
+              fields.push({
+                name,
+                holds: (value) => value === want,
+                ...(typeof want === 'string' ? { witness: want, text: want } : {}),
+              });
+            } else if (typeof a.contains === 'string') {
+              const text = a.contains;
+              fields.push({
+                name,
+                holds: (value) => typeof value === 'string' && value.includes(text),
+                witness: text,
+                text,
+              });
+            } else if (Array.isArray(a.one_of) && typeof a.one_of[0] === 'string') {
+              const choices = a.one_of;
+              fields.push({
+                name,
+                holds: (value) => choices.includes(value),
+                witness: choices[0],
+                text: choices[0],
+              });
+            } else if (a.nonempty === true) {
+              fields.push({
+                name,
+                holds: (value) => typeof value === 'string' && value !== '',
+                witness: 'fixture',
+              });
+            } else if (typeof a.regex === 'string') {
+              const pattern = a.regex;
+              const witness = patternSample(pattern);
+              // A pattern with no sample (a group, an alternation) leaves the entry unwitnessed: a named gap, not a crash.
+              if (witness === undefined) gap(`${at}.input.${name}.assertion-witness`);
+              fields.push({
+                name,
+                holds: (value) => typeof value === 'string' && new RegExp(pattern).test(value),
+                ...(witness !== undefined ? { witness } : {}),
+              });
+            } else gap(`${at}.input.${name}.unsupported-assertion`);
+          }
+          const matches = (c: ToolCall) =>
+            c.label === label && fields.every((f) => f.holds(record(c.input)[f.name]));
+          const witnessInput = (): RecordValue | undefined =>
+            fields.every((f) => f.witness !== undefined)
+              ? Object.fromEntries(fields.map((f) => [f.name, f.witness]))
+              : undefined;
+          const count = entry.count ?? { min: 1 };
+          const min = typeof count === 'number' ? count : Number(record(count).min ?? 0);
+          const max = typeof count === 'number' ? count : Number(record(count).max ?? Infinity);
+          const sampleCall = (o: Observed): ToolCall | undefined => {
+            const found = o.toolCalls.find(matches);
+            if (found) return found;
+            const input = witnessInput();
+            return input ? { label, input } : undefined;
+          };
+          let serial = 0;
+          const resize = (o: Observed, n: number) => {
+            const exemplar = sampleCall(o);
+            const kept = o.toolCalls.filter(matches).slice(0, n);
+            while (kept.length < n) {
+              if (!exemplar) throw new Error('No input that satisfies the some_call entry');
+              const copy = structuredClone(exemplar);
+              copy.id = `${exemplar.id ?? 'call'}-oracle-${serial++}`;
+              kept.push(copy);
+            }
+            o.toolCalls = [...o.toolCalls.filter((c) => !matches(c)), ...kept];
+          };
+          const unmatched = (o: Observed, edit: (c: ToolCall) => void): ToolCall | undefined => {
+            const base = sampleCall(o);
+            if (!base) return undefined;
+            const copy = structuredClone(base);
+            copy.id = `${base.id ?? 'call'}-oracle-${serial++}`;
+            edit(copy);
+            return matches(copy) ? undefined : copy;
+          };
+          if (min > 0) {
+            add(`${at}.count.min`, (o) => resize(o, min - 1));
+            for (const n of new Set([min, Number.isFinite(max) ? max : min + 1]))
+              add(
+                `${at}.count.boundary.${n}`,
+                (o) => resize(o, min - 1),
+                (o) => resize(o, n),
+              );
+            add(
+              `${at}.selection.all-entries`,
+              (o) => resize(o, min - 1),
+              (o) => {
+                resize(o, min);
+                const irrelevant: ToolCall = { id: '__oracle_other__', label: foreign, input: {} };
+                o.toolCalls = [irrelevant, ...o.toolCalls, structuredClone(irrelevant)];
+              },
+            );
+          }
+          if (Number.isFinite(max)) add(`${at}.count.max`, (o) => resize(o, max + 1));
+          // Every way a call can stop matching: a variant of the label, of each input value, or a missing field.
+          const variants: Array<{ name: string; edit: (c: ToolCall) => void }> = [
+            ...comparisonWitnesses(label).map((v) => ({
+              name: `label.${v.name}`,
+              edit: (c: ToolCall) => {
+                c.label = v.value;
+              },
+            })),
+            ...fields.flatMap((f) => [
+              {
+                name: `input.${f.name}.missing`,
+                edit: (c: ToolCall) => {
+                  const input = { ...record(c.input) };
+                  delete input[f.name];
+                  c.input = input;
+                },
+              },
+              ...(f.text !== undefined
+                ? comparisonWitnesses(f.text)
+                    .filter((v) => !f.holds(v.value))
+                    .map((v) => ({
+                      name: `input.${f.name}.${v.name}`,
+                      edit: (c: ToolCall) => {
+                        c.input = { ...record(c.input), [f.name]: v.value };
+                      },
+                    }))
+                : [
+                    { name: 'foreign', value: foreign },
+                    { name: 'empty', value: '' },
+                  ]
+                    .filter((v) => !f.holds(v.value))
+                    .map((v) => ({
+                      name: `input.${f.name}.${v.name}`,
+                      edit: (c: ToolCall) => {
+                        c.input = { ...record(c.input), [f.name]: v.value };
+                      },
+                    }))),
+            ]),
+          ];
+          for (const variant of variants) {
+            if (min > 0)
+              add(`${at}.selector.${variant.name}`, (o) => {
+                resize(o, min);
+                for (const c of o.toolCalls.filter(matches)) variant.edit(c);
+              });
+            else if (Number.isFinite(max))
+              add(
+                `${at}.negative.selector.${variant.name}`,
+                (o) => resize(o, max + 1),
+                (o) => {
+                  resize(o, max);
+                  const candidate = unmatched(o, variant.edit);
+                  if (candidate) o.toolCalls = [...o.toolCalls, candidate];
+                },
+              );
+          }
         }
       } else if (channel === 'custom' && check === 'stage_seen') {
         keys(['name', 'block']);
@@ -933,199 +1181,6 @@ export function completionComponents(spec: Spec): ComponentInventory {
           });
           if (!after) gap(`${at}.after`);
         }
-      } else if (channel === 'expect' && check === 'execution') {
-        keys(['ran_code', 'exit_code', 'max_commands']);
-        const command = (exitCode = 0): ExecutionRecord => ({ command: 'fixture-command', exitCode });
-        const agentOnly: ExecutionRecord = { command: 'fixture-agent', role: 'agent', exitCode: 0 };
-        // The commands that satisfy every asked clause at once: the evidence clause is judged against them.
-        const satisfying = (): ExecutionRecord[] =>
-          opts.ran_code === false
-            ? []
-            : typeof opts.max_commands === 'number' && opts.max_commands < 1
-              ? []
-              : [command(typeof opts.exit_code === 'number' ? opts.exit_code : 0)];
-        add(
-          'evidence.executions',
-          (o) => {
-            delete o.executions;
-          },
-          (o) => {
-            o.executions = satisfying();
-          },
-        );
-        required(inventory.components.at(-1)).violationOutcome = 'inconclusive';
-        if (opts.ran_code === true) {
-          add(
-            'ran_code.none',
-            (o) => {
-              o.executions = [];
-            },
-            (o) => {
-              o.executions = [command()];
-            },
-          );
-          // The agent's own process is not a command it ran.
-          add(
-            'ran_code.agent-process',
-            (o) => {
-              o.executions = [agentOnly];
-            },
-            (o) => {
-              o.executions = [agentOnly, command()];
-            },
-          );
-        }
-        if (opts.ran_code === false)
-          add(
-            'ran_code.some',
-            (o) => {
-              o.executions = [command()];
-            },
-            (o) => {
-              o.executions = [];
-            },
-          );
-        if (typeof opts.exit_code === 'number') {
-          const want = opts.exit_code;
-          add(
-            'exit_code.value',
-            (o) => {
-              o.executions = [command(want + 1)];
-            },
-            (o) => {
-              o.executions = [command(want)];
-            },
-          );
-          // The last command decides, not an earlier one.
-          add(
-            'exit_code.last',
-            (o) => {
-              o.executions = [command(want), command(want + 1)];
-            },
-            (o) => {
-              o.executions = [command(want + 1), command(want)];
-            },
-          );
-        }
-        if (typeof opts.max_commands === 'number') {
-          const max = opts.max_commands;
-          add(
-            'max_commands.over',
-            (o) => {
-              o.executions = Array.from({ length: max + 1 }, () => command());
-            },
-            (o) => {
-              o.executions = Array.from({ length: max }, () => command());
-            },
-          );
-          add(
-            'max_commands.agent-process',
-            (o) => {
-              o.executions = [agentOnly, ...Array.from({ length: max + 1 }, () => command())];
-            },
-            (o) => {
-              o.executions = [agentOnly, ...Array.from({ length: max }, () => command())];
-            },
-          );
-        }
-      } else if (channel === 'custom' && check === 'some_call') {
-        keys(['calls', 'label', 'input', 'count', 'block']);
-        for (const [at, entry] of (Array.isArray(opts.calls) ? rows(opts.calls) : [opts]).entries()) {
-          if (entry.block !== undefined && entry.block !== index) continue;
-          const label = typeof entry.label === 'string' ? entry.label : undefined;
-          const assertions = record(entry.input) as Record<string, Assertion>;
-          if (label === undefined) {
-            gap(`${at}.label`);
-            continue;
-          }
-          const input: RecordValue = {};
-          let witnessed = true;
-          for (const [field, assertion] of Object.entries(assertions)) {
-            const value = assertionWitness(assertion);
-            if (value === undefined) {
-              gap(`${at}.input.${field}.assertion-witness`);
-              witnessed = false;
-            } else input[field] = value;
-          }
-          if (!witnessed) continue;
-          const matches = (c: ToolCall) =>
-            c.label === label &&
-            Object.entries(assertions).every(([field, assertion]) => {
-              try {
-                return matchAssertion(record(c.input)[field], assertion);
-              } catch {
-                return false;
-              }
-            });
-          const sample = (): ToolCall =>
-            ({ id: `witness-${at}`, label, input: structuredClone(input) }) as unknown as ToolCall;
-          const resize = (o: Observed, n: number) => {
-            const exemplar = o.toolCalls.find(matches) ?? sample();
-            o.toolCalls = [
-              ...o.toolCalls.filter((c) => !matches(c)),
-              ...Array.from({ length: n }, (_, k) => ({
-                ...structuredClone(exemplar),
-                id: `${exemplar.id}-${k}`,
-              })),
-            ];
-          };
-          const count = entry.count ?? { min: 1 };
-          const min = typeof count === 'number' ? count : Number(record(count).min ?? 0);
-          const max = typeof count === 'number' ? count : Number(record(count).max ?? Infinity);
-          if (min > 0) {
-            add(
-              `${at}.count.min`,
-              (o) => resize(o, min - 1),
-              (o) => resize(o, min),
-            );
-            // The calls that count are the ones of the label and the input, wherever they sit among others.
-            add(
-              `${at}.selection.all-entries`,
-              (o) => resize(o, min - 1),
-              (o) => {
-                resize(o, min);
-                const other = { ...sample(), label: foreign, id: 'witness-other' } as unknown as ToolCall;
-                o.toolCalls = [other, ...o.toolCalls, structuredClone(other)];
-              },
-            );
-            for (const variant of comparisonWitnesses(label)) {
-              if (variant.value === label) continue;
-              add(
-                `${at}.label.${variant.name}`,
-                (o) => {
-                  resize(o, min);
-                  for (const c of o.toolCalls.filter(matches)) c.label = variant.value;
-                },
-                (o) => resize(o, min),
-              );
-            }
-            for (const [field, assertion] of Object.entries(assertions)) {
-              const current = input[field];
-              if (typeof current !== 'string') continue;
-              for (const variant of comparisonWitnesses(current)) {
-                try {
-                  if (matchAssertion(variant.value, assertion)) continue;
-                } catch {
-                  continue;
-                }
-                add(
-                  `${at}.input.${field}.${variant.name}`,
-                  (o) => {
-                    resize(o, min);
-                    for (const c of o.toolCalls.filter(matches)) record(c.input)[field] = variant.value;
-                  },
-                  (o) => resize(o, min),
-                );
-              }
-            }
-          }
-          if (Number.isFinite(max))
-            add(
-              `${at}.count.max`,
-              (o) => resize(o, max + 1),
-              (o) => resize(o, max),
-            );
-        }
       } else {
         gap('unsupported-check-structure');
       }
@@ -1138,70 +1193,63 @@ export function completionComponents(spec: Spec): ComponentInventory {
   if (spec.blocks.length > 1) inventory.gaps.push('history:multi-block-component-isolation');
   return inventory;
 }
-/** An input value that satisfies an assertion, or undefined when the assertion has no witness this derives. */
-function assertionWitness(assertion: Assertion): string | undefined {
-  if (typeof assertion === 'string') return assertion;
-  if (assertion === null || typeof assertion !== 'object' || Array.isArray(assertion)) return undefined;
-  const a = assertion as Record<string, unknown>;
-  if (typeof a.exact === 'string') return a.exact;
-  if (typeof a.contains === 'string') return a.contains;
-  if (Array.isArray(a.one_of) && typeof a.one_of[0] === 'string') return a.one_of[0];
-  if (a.nonempty === true) return 'fixture';
-  if (typeof a.regex === 'string') return regexWitness(a.regex);
-  return undefined;
-}
-
 /**
- * A string a simple pattern matches: literals and escapes, character classes, counted and optional repeats. Anything
- * else (groups, alternation, lookarounds, negated classes) has no witness here and is a named gap.
+ * A string that a simple pattern accepts, built from the pattern's own parts: literals, escaped literals, character
+ * classes with a repeat count, `+`, `*`, `?` and anchors. A pattern with a group, an alternation or a lookaround has no
+ * sample: the caller names that a gap. The sample is checked against the pattern before it is returned.
  */
-function regexWitness(pattern: string): string | undefined {
+export function patternSample(pattern: string): string | undefined {
   let out = '';
-  let at = 0;
-  const atom = (): string | undefined => {
-    const c = pattern[at] as string;
-    if (c === '\\') {
-      const next = pattern[at + 1] ?? '';
-      at += 2;
-      if (next === 'd') return '1';
-      if (next === 'w') return 'a';
-      if (next === 's') return ' ';
-      if (next === 'b') return '';
-      if (/[a-zA-Z]/.test(next)) return undefined;
-      return next;
-    }
-    if (c === '[') {
-      const end = pattern.indexOf(']', at + 1);
-      const body = end < 0 ? '' : pattern.slice(at + 1, end);
-      if (end < 0 || body.startsWith('^') || body === '') return undefined;
-      at = end + 1;
-      return body[0] === '\\' ? body[1] : body[0];
-    }
-    if (c === '(' || c === ')' || c === '|' || c === '*' || c === '+' || c === '?' || c === '{')
-      return undefined;
-    at += 1;
-    return c === '.' ? 'a' : c;
+  let i = 0;
+  const escapes: Record<string, string> = {
+    s: ' ',
+    d: '0',
+    w: 'a',
+    '.': '.',
+    '-': '-',
+    '/': '/',
+    '\\': '\\',
   };
-  while (at < pattern.length) {
-    if (pattern[at] === '^' || pattern[at] === '$') {
-      at += 1;
-      continue;
+  const repeat = (piece: string): string | undefined => {
+    const next = pattern[i];
+    if (next === '{') {
+      const close = pattern.indexOf('}', i);
+      const bounds = /^\{(\d+)(?:,(\d*))?\}$/.exec(pattern.slice(i, close + 1));
+      if (close < 0 || !bounds) return undefined;
+      i = close + 1;
+      return piece.repeat(Number(bounds[1]));
     }
-    const piece = atom();
+    if (next === '+') {
+      i += 1;
+      return piece;
+    }
+    if (next === '*' || next === '?') {
+      i += 1;
+      return '';
+    }
+    return piece;
+  };
+  while (i < pattern.length) {
+    const c = pattern[i] as string;
+    i += 1;
+    if (c === '^' || c === '$') continue;
+    let piece: string | undefined;
+    if (c === '\\') {
+      const e = pattern[i];
+      i += 1;
+      if (e === 'b' || e === 'B') continue;
+      piece = e === undefined ? undefined : (escapes[e] ?? (/[A-Za-z0-9]/.test(e) ? undefined : e));
+    } else if (c === '[') {
+      const close = pattern.indexOf(']', i);
+      const body = close < 0 ? '' : pattern.slice(i, close);
+      i = close + 1;
+      piece = body === '' || body.startsWith('^') ? undefined : body.replace(/\\/g, '').charAt(0);
+    } else if (/[()|{}+*?]/.test(c)) return undefined;
+    else piece = c === '.' ? 'a' : c;
     if (piece === undefined) return undefined;
-    let times = 1;
-    const rest = pattern.slice(at);
-    const counted = /^\{(\d+)(?:,(\d*))?\}/.exec(rest);
-    if (counted) {
-      times = Number(counted[1]);
-      at += counted[0].length;
-    } else if (rest[0] === '+') {
-      at += 1;
-    } else if (rest[0] === '*' || rest[0] === '?') {
-      times = 0;
-      at += 1;
-    }
-    out += piece.repeat(times);
+    const repeated = repeat(piece);
+    if (repeated === undefined) return undefined;
+    out += repeated;
   }
   try {
     return new RegExp(pattern).test(out) ? out : undefined;
@@ -1270,6 +1318,13 @@ function verdictIds(check: string, value: unknown, clause: string): string[] {
     );
     return indexed ? [required(ids[entry])] : ids;
   }
+  if (check === 'execution') {
+    const asked = ['ran_code', 'exit_code', 'max_commands'].filter((key) => opts[key] !== undefined);
+    return clause.startsWith('evidence.')
+      ? asked.map((key) => `execution.${key}`)
+      : [`execution.${clause.split('.')[0]}`];
+  }
+  if (check === 'some_call') return [`custom.some_call.${entry}`];
   if (check === 'workspace')
     return clause.startsWith('evidence.')
       ? Object.keys(opts).map((key) => `workspace.${key}`)
@@ -1293,13 +1348,6 @@ function verdictIds(check: string, value: unknown, clause: string): string[] {
     const entries = Array.isArray(opts.rules) ? rows(opts.rules) : [opts];
     return [`custom.permission.${entries[entry]?.effect}`];
   }
-  if (check === 'execution')
-    return clause.startsWith('evidence.')
-      ? ['ran_code', 'exit_code', 'max_commands']
-          .filter((key) => opts[key] !== undefined)
-          .map((key) => `execution.${key}`)
-      : [`execution.${clause.split('.')[0]}`];
-  if (check === 'some_call') return [`custom.some_call.${clause.split('.')[0]}`];
   if (check === 'ordered') {
     const pairs = Array.isArray(opts.pairs) ? rows(opts.pairs) : [opts];
     const pair = required(pairs[entry]);
