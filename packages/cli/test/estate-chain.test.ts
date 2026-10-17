@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto';
-import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { claudeCodeLiveAdapter, loadStateLibrary } from '@agent-nexus/driftbench-adapters';
 import { contentHash } from '@agent-nexus/driftbench-core';
 import {
   type EstateMap,
@@ -13,10 +14,15 @@ import {
   quoteAtSpan,
   toEstateSpaceMap,
 } from '@agent-nexus/driftbench-estate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { loadSpaceMap, type SpaceMap } from '@agent-nexus/driftbench-space';
+import { openStore } from '@agent-nexus/driftbench-store';
+import { Command } from 'commander';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { parse as parseYaml } from 'yaml';
+import { defaultDeps, registerCampaignCommands } from '../src/commands/campaign';
 import { isStandIn } from '../src/commands/estate-live';
+import { replayChecks } from '../src/commands/replay';
 import { type Io, main } from '../src/index';
 
 /**
@@ -222,7 +228,7 @@ function withoutRootAndTime(map: EstateMap) {
 const atomsOf = (entry: Generated) => entry.spec.metadata.estate.atoms;
 
 beforeAll(async () => {
-  work = await mkdtemp(join(tmpdir(), 'driftbench-estate-chain-'));
+  work = await mkdtemp(join(tmpdir(), 'astra-chain11-estate-'));
   // The parsed-map cache of the estate commands lives in the work folder, not in the shared temporary one.
   vi.stubEnv('DRIFTBENCH_MAP_CACHE', join(work, 'map-cache'));
   // No provider key: a command that tried to reach a model would stop with an error instead.
@@ -1098,5 +1104,249 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
     console.log(`\n${table()}\n`);
     expect(rows.map((row) => row.step.slice(0, 1))).toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9']);
     expect(rows.filter((row) => row.verified !== 'yes')).toEqual([]);
+  });
+
+  it('step 11: a prompt edit selects its generated tests, runs only them and carries every other result', async () => {
+    await prove(
+      '11 edit, select, carry',
+      'CLAUDE.md, approved.yaml, generated live suite',
+      'automatic change manifest, stored campaigns',
+      async () => {
+        const approved = must(chain.approved, '2');
+        const plan = must(chain.plan, '4');
+        const suite = must(chain.specs, '5').filter((entry) => entry.folder === 'specs/live');
+        const paths = suite.map((entry) => entry.path);
+        // Independent oracle: the approved plan's rule/cell assignments, not the radius implementation
+        // or the generated metadata that radius reads. Include the outside-trigger check: it tests R7's
+        // boundary, even though its Then forbids "late". The invoice route is an explicit negative control.
+        const reachingRows = new Set(
+          plan.rows.filter((row) => row.atomIds.includes(R7)).map((row) => row.id),
+        );
+        const expected = sorted(
+          suite
+            .filter((entry) => reachingRows.has(entry.spec.metadata.estate.planRow))
+            .map((entry) => entry.spec.id),
+        );
+        const control = 'estate.route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1';
+        expect(expected.length).toBeGreaterThan(0);
+        expect(expected.length).toBeLessThan(suite.length);
+        expect(suite.some((entry) => entry.spec.id === control)).toBe(true);
+        expect(expected).not.toContain(control);
+        expect(expected).toContain(`estate.obligation.${R7}`);
+        expect(expected).toContain(`estate.outside_trigger.${R7}`);
+        const obligation = suite.find((entry) => entry.spec.id === `estate.obligation.${R7}`);
+        expect(obligation?.spec.metadata.estate.cell['atoms.instruction']).toBe(R7);
+        expect(JSON.stringify(obligation?.spec.given)).toContain('shipments/log.csv');
+        expect(JSON.stringify(obligation?.spec.blocks)).toContain('"must":["late"]');
+
+        const candidate = join(work, 'edited-estate');
+        await cp(FIXTURE, candidate, { recursive: true });
+        const oldPrompt = join(FIXTURE, 'CLAUDE.md');
+        const newPrompt = join(candidate, 'CLAUDE.md');
+        const before = await readFile(oldPrompt, 'utf8');
+        const after = before.replace('more than two days', 'more than one day');
+        expect(after).not.toBe(before);
+        expect(after).toContain('**R7.**'); // The rule's identity is not renamed.
+        await writeFile(newPrompt, after);
+        const manifest = join(work, 'edited-change.yaml');
+        const automatic = await cli([
+          'radius',
+          'auto',
+          '--prompt',
+          oldPrompt,
+          newPrompt,
+          '--map',
+          join(work, 'approved.yaml'),
+          '--source',
+          'CLAUDE.md',
+          '--from-version',
+          'northwind-before',
+          '--to-version',
+          'northwind-after',
+          '--out',
+          manifest,
+        ]);
+        expect(
+          automatic,
+          'the product maps the actual prompt edit, without a hand-written manifest',
+        ).toMatchObject({ code: 0, err: '' });
+        const selection = await cli(['radius', ...paths, '--change', manifest, '--json']);
+        expect(selection).toMatchObject({ code: 0, err: '' });
+        const radius = JSON.parse(selection.out) as RadiusJson;
+        expect(radius.whole).toBeNull();
+        expect(radius.manifest.changes).toEqual([`prompt:${R7}`]);
+        const selected = sorted(
+          radius.specs
+            .filter((spec) => spec.blocks.some((block) => block.state.F !== 'out'))
+            .map((spec) => spec.specId),
+        );
+        expect(selected).toEqual(expected);
+        expect(selected).not.toContain(control);
+
+        const storePath = join(work, 'step11.db');
+        const library = await loadStateLibrary(STATES);
+        async function campaign(id: string, version: string, estateRoot: string, extra: string[] = []) {
+          let out = '',
+            err = '',
+            code = 0,
+            opens = 0;
+          const io: Io = {
+            cwd: work,
+            out: (text) => {
+              out += text;
+            },
+            err: (text) => {
+              err += text;
+            },
+          };
+          const program = new Command()
+            .exitOverride()
+            .configureOutput({ writeOut: io.out, writeErr: io.err });
+          registerCampaignCommands(
+            program,
+            io,
+            (value) => {
+              code = value;
+            },
+            {
+              ...defaultDeps,
+              checks: replayChecks(),
+              adapterFor: async () => {
+                const adapter = claudeCodeLiveAdapter({
+                  command: FAKE,
+                  estateRoot,
+                  provider: localProvider(),
+                  pins: [approved.hash],
+                  library,
+                  config: 'isolated',
+                  env: { FAKE_MANIFEST: MANIFEST },
+                  retries: { backoffMs: 0 },
+                });
+                const open = adapter.open.bind(adapter);
+                adapter.open = async (given) => {
+                  opens++;
+                  return open(given);
+                };
+                return adapter;
+              },
+            },
+          );
+          await program.parseAsync(
+            [
+              'campaign',
+              'run',
+              ...paths,
+              '--agent-version',
+              version,
+              '--campaign',
+              id,
+              '--store',
+              storePath,
+              '--mode',
+              'F',
+              '--repeats',
+              '1',
+              '--concurrency',
+              '2',
+              '--no-cache',
+              '--json',
+              ...extra,
+            ],
+            { from: 'user' },
+          );
+          expect(err).toBe('');
+          expect([0, 1, 3]).toContain(code); // Recorded fixture faults are allowed; execution errors are not.
+          const report = JSON.parse(out) as {
+            cells: Array<{ specId: string; reused: boolean }>;
+            summary: { failed: number; pending: number };
+            radius?: { fresh: number; carried: number };
+          };
+          expect(report.summary.failed).toBe(0);
+          expect(report.summary.pending).toBe(0);
+          expect(sorted(report.cells.map((cell) => cell.specId))).toEqual(
+            sorted(suite.map((entry) => entry.spec.id)),
+          );
+          return { opens, report };
+        }
+        const baseline = await campaign('step11-base', 'northwind-before', FIXTURE);
+        expect(baseline.opens).toBe(suite.length);
+        expect(baseline.report.cells.every((cell) => !cell.reused)).toBe(true);
+        const rerun = await campaign('step11-next', 'northwind-after', candidate, [
+          '--change',
+          manifest,
+          '--from',
+          'step11-base',
+        ]);
+        expect(rerun.opens).toBe(expected.length);
+        expect(rerun.report.radius).toMatchObject({
+          fresh: expected.length,
+          carried: suite.length - expected.length,
+        });
+        for (const cell of rerun.report.cells)
+          expect(cell.reused, cell.specId).toBe(!expected.includes(cell.specId));
+        const store = openStore(storePath);
+        try {
+          const base = new Map(
+            (await store.listRuns({ campaignId: 'step11-base' })).map((run) => [run.specId, run]),
+          );
+          const runs = await store.listRuns({ campaignId: 'step11-next' });
+          expect(runs).toHaveLength(suite.length);
+          for (const run of runs) {
+            if (expected.includes(run.specId)) {
+              expect(run.carried, run.specId).toBeUndefined();
+              continue;
+            }
+            const source = base.get(run.specId);
+            expect(source, run.specId).toBeDefined();
+            expect(run.carried, run.specId).toMatchObject({
+              fromCampaign: 'step11-base',
+              fromRun: source?.runId,
+              agentVersion: 'northwind-before',
+              age: { campaigns: 1 },
+            });
+            expect(run.blocks, run.specId).toEqual(source?.blocks);
+            expect(run.endState, run.specId).toEqual(source?.endState);
+            expect(run.status, run.specId).toBe(source?.status);
+          }
+        } finally {
+          store.close();
+        }
+
+        // A separate whitespace-only edit, on the same prompt: line endings change, no rule does.
+        const respaced = join(work, 'respaced-CLAUDE.md');
+        await writeFile(respaced, before.replace(/\n/g, '\r\n'));
+        const noChange = join(work, 'no-rule-change.yaml');
+        expect(
+          await cli([
+            'radius',
+            'auto',
+            '--prompt',
+            oldPrompt,
+            respaced,
+            '--map',
+            join(work, 'approved.yaml'),
+            '--source',
+            'CLAUDE.md',
+            '--from-version',
+            'northwind-before',
+            '--to-version',
+            'northwind-before',
+            '--out',
+            noChange,
+          ]),
+        ).toMatchObject({ code: 0, err: '' });
+        const empty = await cli(['radius', ...paths, '--change', noChange, '--json']);
+        expect(empty).toMatchObject({ code: 0, err: '' });
+        const none = JSON.parse(empty.out) as RadiusJson;
+        expect(none.manifest.changes).toEqual([]);
+        expect(none.whole).toBeNull();
+        expect(none.specs.flatMap((spec) => spec.blocks).every((block) => block.state.F === 'out')).toBe(
+          true,
+        );
+        expect(none.totals.F?.in).toBe(0);
+        return `${expected.length} fresh, ${suite.length - expected.length} carried with matching source runs; whitespace selects zero`;
+      },
+    );
+    console.log(`\n${table()}\n`);
   });
 });
