@@ -31,6 +31,57 @@ export function logChoose(n: number, k: number): number {
 
 const EPS = 1e-15;
 const TINY = 1e-300;
+const HALF_LOG_2PI = 0.5 * Math.log(2 * Math.PI);
+
+/**
+ * The Stirling remainder logGamma(z) - ((z - 1/2) log z - z + log sqrt(2 pi)): about 1 / (12 z), and small where
+ * logGamma itself is large. Series from z = 30 (the next term is below 1e-19); below that, from logGamma.
+ */
+function stirlingRemainder(z: number): number {
+  if (z < 30) return logGamma(z) - ((z - 0.5) * Math.log(z) - z + HALF_LOG_2PI);
+  const w = 1 / (z * z);
+  return (1 / 12 - w * (1 / 360 - w * (1 / 1260 - w * (1 / 1680 - w / 1188)))) / z;
+}
+
+/**
+ * The deviance term x log(x / np) + np - x (Loader 2000, as in R's bd0), which is small when x is near np. Its
+ * series for |x - np| below a tenth of x + np keeps the digits that the direct form loses to cancellation.
+ */
+function bd0(x: number, np: number): number {
+  if (Math.abs(x - np) >= 0.1 * (x + np)) return x * Math.log(x / np) + np - x;
+  let v = (x - np) / (x + np);
+  let s = (x - np) * v;
+  let ej = 2 * x * v;
+  v *= v;
+  for (let j = 1; j < 1000; j += 1) {
+    ej *= v;
+    const next = s + ej / (2 * j + 1);
+    if (next === s) return next;
+    s = next;
+  }
+  return s;
+}
+
+/**
+ * x^a (1 - x)^b / B(a, b) with y = 1 - x, for the incomplete beta function. Written as
+ * sqrt(a b / (2 pi (a + b))) exp(d(a + b) - d(a) - d(b) - bd0(a, (a + b) x) - bd0(b, (a + b) y)), d the Stirling
+ * remainder, so that no two large logarithms are subtracted. The direct form
+ * logGamma(a + b) - logGamma(a) - logGamma(b) + a log x + b log y loses about log10(a + b) digits to cancellation.
+ */
+function betaFront(x: number, y: number, a: number, b: number): number {
+  const n = a + b;
+  return (
+    Math.sqrt((a * b) / (2 * Math.PI * n)) *
+    Math.exp(
+      stirlingRemainder(n) - stirlingRemainder(a) - stirlingRemainder(b) - bd0(a, n * x) - bd0(b, n * y),
+    )
+  );
+}
+
+/** x^a exp(-x) / Gamma(a), by the same device: sqrt(a / (2 pi)) exp(-bd0(a, x) - d(a)). */
+function gammaFront(a: number, x: number): number {
+  return Math.sqrt(a / (2 * Math.PI)) * Math.exp(-bd0(a, x) - stirlingRemainder(a));
+}
 
 /** Continued fraction for the incomplete beta function (modified Lentz). */
 function betaContinuedFraction(a: number, b: number, x: number): number {
@@ -69,7 +120,7 @@ export function incompleteBeta(x: number, a: number, b: number): number {
   if (x < 0 || x > 1) return Number.NaN;
   if (x <= 0) return 0;
   if (x >= 1) return 1;
-  const front = Math.exp(logGamma(a + b) - logGamma(a) - logGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+  const front = betaFront(x, 1 - x, a, b);
   if (x < (a + 1) / (a + b + 2)) return (front * betaContinuedFraction(a, b, x)) / a;
   return 1 - (front * betaContinuedFraction(b, a, 1 - x)) / b;
 }
@@ -95,13 +146,15 @@ function gammaSeries(a: number, x: number): number {
   let ap = a;
   let sum = 1 / a;
   let del = sum;
-  for (let n = 1; n <= 10000; n += 1) {
+  // The terms near x = a fall off over about 8 sqrt(a) steps: 10000 steps stop short for a above 1e6.
+  const steps = 10000 + Math.ceil(20 * Math.sqrt(a));
+  for (let n = 1; n <= steps; n += 1) {
     ap += 1;
     del *= x / ap;
     sum += del;
     if (Math.abs(del) < Math.abs(sum) * EPS) break;
   }
-  return sum * Math.exp(-x + a * Math.log(x) - logGamma(a));
+  return sum * gammaFront(a, x);
 }
 
 /** Regularized upper incomplete gamma Q(a, x), continued fraction (x >= a + 1). */
@@ -110,7 +163,8 @@ function gammaContinuedFraction(a: number, x: number): number {
   let c = 1 / TINY;
   let d = 1 / b;
   let h = d;
-  for (let i = 1; i <= 10000; i += 1) {
+  const steps = 10000 + Math.ceil(20 * Math.sqrt(a));
+  for (let i = 1; i <= steps; i += 1) {
     const an = -i * (i - a);
     b += 2;
     d = an * d + b;
@@ -122,7 +176,7 @@ function gammaContinuedFraction(a: number, x: number): number {
     h *= del;
     if (Math.abs(del - 1) < EPS) break;
   }
-  return Math.exp(-x + a * Math.log(x) - logGamma(a)) * h;
+  return gammaFront(a, x) * h;
 }
 
 /** Regularized upper incomplete gamma Q(a, x). */
@@ -214,10 +268,18 @@ export function binomialPmf(k: number, n: number, p: number): number {
   return Math.exp(logChoose(n, k) + k * Math.log(p) + (n - k) * Math.log(1 - p));
 }
 
+/** Up to this n the binomial cumulative distribution is summed term by term; above it, the incomplete beta function. */
+const BINOMIAL_SUM_LIMIT = 50;
+
 /** Binomial cumulative distribution P(X <= k). */
 export function binomialCdf(k: number, n: number, p: number): number {
   if (k < 0) return 0;
   if (k >= n) return 1;
+  if (n > BINOMIAL_SUM_LIMIT && p > 0 && p < 1) {
+    // P(X <= k) = I_{1-p}(n - k, k + 1): O(sqrt(n)) work, and no sum of n pmf terms each carrying a logGamma error.
+    const j = Math.floor(k);
+    return Math.min(1, incompleteBeta(1 - p, n - j, j + 1));
+  }
   let sum = 0;
   for (let i = 0; i <= k; i += 1) sum += binomialPmf(i, n, p);
   return Math.min(1, sum);
