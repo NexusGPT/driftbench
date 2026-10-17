@@ -134,11 +134,8 @@ describe('a registry of many sections takes CPU time near linear in the sections
   // radius sections init), so identical sections fold, one by one, into the single section the whole prompt is.
   it.each([2000, 8000])('%d identical sections, which have no unique quote and fold into one', (count) => {
     const text = identical(count);
-    let result: ReturnType<typeof sectionsFromHeadings> | undefined;
-    const ms = cpuMs(() => {
-      result = sectionsFromHeadings(text, { promptId: 'p', version: '1' });
-    });
-    if (!result?.ok) throw new Error(`refused: ${result?.errors.join('; ')}`);
+    const result = sectionsFromHeadings(text, { promptId: 'p', version: '1' });
+    if (!result.ok) throw new Error(`refused: ${result.errors.join('; ')}`);
     const sections = result.registry.sections;
     expect(sections).toHaveLength(1);
     const [only] = sections;
@@ -146,7 +143,21 @@ describe('a registry of many sections takes CPU time near linear in the sections
     expect(text.slice(only?.span.end).trim()).toBe('');
     const quote = only?.anchor.quote ?? '';
     expect(text.indexOf(quote)).toBe(text.lastIndexOf(quote));
-    expect(ms).toBeLessThan(BUDGET_MS);
+  });
+
+  // Folding re-anchors a neighbour after every fold. The time is compared, not budgeted: the best of three CPU runs at
+  // each size, so a loaded machine slows both sides of the ratio alike.
+  it('four times the identical sections take about four times the time to fold', () => {
+    const best = (count: number) => {
+      const text = identical(count);
+      return Math.min(
+        ...[0, 1, 2].map(() => cpuMs(() => sectionsFromHeadings(text, { promptId: 'p', version: '1' }))),
+      );
+    };
+    best(500);
+    const small = Math.max(best(2000), 1);
+    const large = best(8000);
+    expect(large / small).toBeLessThan(10);
   });
 
   it('four times the distinct sections take about four times the time', () => {
