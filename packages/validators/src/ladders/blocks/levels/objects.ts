@@ -292,6 +292,12 @@ function loaderItems(): BankItem[] {
             const rng = rngFor(seed, id);
             const checkOfId = (verdictId: string) => verdictId.split('.')[0] as string;
             let pool: readonly string[] = KIND_ITEMS[kind];
+            const shipped = shippedOrder(product);
+            let order: readonly string[] = shipped;
+            if (override.id.startsWith('order') && !KIND_ITEMS[kind].every((item) => shipped.includes(item)))
+              return fail(
+                `the shipped check set exports the order ${list(shipped)}, which lacks the items ${list(KIND_ITEMS[kind])}`,
+              );
             if (sample.code === undefined) {
               // The override draws from the checks the reached blocks produce without it, so its effect shows.
               const plain = objectSpec(seed, id, kind, {});
@@ -308,8 +314,11 @@ function loaderItems(): BankItem[] {
                 return fail(
                   `without the override, the reached blocks give verdicts of ${list(pool)} only, out of ${list(KIND_ITEMS[kind])}: the override has nothing to change`,
                 );
+              // A move is drawn against the order the checks ran in; an order must list the whole shipped set.
+              const ran = [...new Set((reachedBefore[0]?.verdicts ?? []).map((v) => checkOfId(v.id)))];
+              if (override.id === 'move-before') order = ran;
             }
-            const { ref, code } = override.build((xs) => pick(rng, xs), rng, shippedOrder(product), pool);
+            const { ref, code } = override.build((xs) => pick(rng, xs), rng, order, pool);
             const { raw, r } = objectSpec(seed, id, kind, place === 'spec' ? { spec: ref } : { block: ref });
             const result = loadIssues(product, raw);
             if (code === undefined) {
