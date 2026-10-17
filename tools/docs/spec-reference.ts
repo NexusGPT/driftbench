@@ -752,6 +752,16 @@ export const FILE_PAGES: readonly FilePage[] = [
         invariant:
           'A static property of the estate files, such as the size ceiling of the standing instructions.',
       },
+      DocumentRole: {
+        normative: 'The file states live rules of the agent. References to it get tests.',
+        changelog: 'A record of changes. Navigation only: a place to look, never a rule.',
+        history: 'A record of what happened earlier. Navigation only.',
+        template: 'A blank form or pattern to copy. Navigation only.',
+        example: 'A worked example. Navigation only.',
+        journal: 'A running log of work. Navigation only.',
+        fixture: 'Data kept for tests. Navigation only.',
+        archive: 'Material kept but no longer in use. Navigation only.',
+      },
       EdgeKind: {
         route: 'A route atom to the skill or helper it loads.',
         reference: 'A skill or helper to a file its body names.',

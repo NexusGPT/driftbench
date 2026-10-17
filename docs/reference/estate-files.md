@@ -56,31 +56,31 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `path` | string, not empty | yes |  |  |
-| `role` | [DocumentRole](#documentrole) | yes |  |  |
-| `reasons` | list of strings, each not empty, at least 1 item | yes |  |  |
-| `sections` | list of [DocumentInfo sections](#documentinfo-sections) | no |  |  |
+| `path` | string, not empty | yes |  | Path of the file, relative to the estate root. |
+| `role` | [DocumentRole](#documentrole) | yes |  | The authority of the file: normative, or a navigation role. |
+| `reasons` | list of strings, each not empty, at least 1 item | yes |  | Why the file has this role, in words. |
+| `sections` | list of [DocumentInfo sections](#documentinfo-sections) | no |  | Line spans of the file that have a role of their own. |
 
 ## DocumentRole
 
 | Value | Meaning |
 |---|---|
-| `normative` |  |
-| `changelog` |  |
-| `history` |  |
-| `template` |  |
-| `example` |  |
-| `journal` |  |
-| `fixture` |  |
-| `archive` |  |
+| `normative` | The file states live rules of the agent. References to it get tests. |
+| `changelog` | A record of changes. Navigation only: a place to look, never a rule. |
+| `history` | A record of what happened earlier. Navigation only. |
+| `template` | A blank form or pattern to copy. Navigation only. |
+| `example` | A worked example. Navigation only. |
+| `journal` | A running log of work. Navigation only. |
+| `fixture` | Data kept for tests. Navigation only. |
+| `archive` | Material kept but no longer in use. Navigation only. |
 
 ## DocumentInfo sections
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `startLine` | integer, at least 1 | yes |  |  |
-| `endLine` | integer, at least 1 | yes |  |  |
-| `role` | [DocumentRole](#documentrole) | yes |  |  |
+| `startLine` | integer, at least 1 | yes |  | First line of the span, counted from 1. |
+| `endLine` | integer, at least 1 | yes |  | Last line of the span, counted from 1. |
+| `role` | [DocumentRole](#documentrole) | yes |  | The role of the span. |
 
 ## Atom
 

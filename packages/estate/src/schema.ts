@@ -234,18 +234,19 @@ export const DocumentRole = z.enum([
 ]);
 export type DocumentRole = z.infer<typeof DocumentRole>;
 export const DocumentInfo = z.strictObject({
-  path: z.string().min(1),
-  role: DocumentRole,
-  reasons: z.array(z.string().min(1)).min(1),
+  path: z.string().min(1).describe('Path of the file, relative to the estate root.'),
+  role: DocumentRole.describe('The authority of the file: normative, or a navigation role.'),
+  reasons: z.array(z.string().min(1)).min(1).describe('Why the file has this role, in words.'),
   sections: z
     .array(
       z.strictObject({
-        startLine: z.number().int().min(1),
-        endLine: z.number().int().min(1),
-        role: DocumentRole,
+        startLine: z.number().int().min(1).describe('First line of the span, counted from 1.'),
+        endLine: z.number().int().min(1).describe('Last line of the span, counted from 1.'),
+        role: DocumentRole.describe('The role of the span.'),
       }),
     )
-    .optional(),
+    .optional()
+    .describe('Line spans of the file that have a role of their own.'),
 });
 export type DocumentInfo = z.infer<typeof DocumentInfo>;
 
