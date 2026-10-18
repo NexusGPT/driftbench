@@ -431,6 +431,7 @@ Counts and lists that describe the plan.
 | `atoms` | list of strings, each not empty, at least 1 item | yes |  | The atoms this situation exercises |
 | `cell` | map of string to string | no |  | Situation axis values the phrases express; a plan row must agree with each of them |
 | `workspace` | string matching `^[a-z0-9][a-z0-9._-]*$` | no |  | The workspace seed the ask starts from |
+| `names` | string, not empty | no |  | For a misroute: the skill or helper the phrases name in place of the target, written as the phrases write it. |
 | `touches` | [Touches](#touches) | no |  | The workspace paths the ask may touch; every other path stays untouched |
 | `phrases` | list of [BankPhrase](#bankphrase), at least 1 item | yes |  | The asks that put the agent in the situation, each approved or not. |
 
