@@ -260,7 +260,8 @@ describe('the exact-value items of the report', { timeout: 180_000 }, () => {
     [
       'every run its own tree',
       'headline.ts',
-      (t) => t.replace('groupBy(runs, treeOf)', 'groupBy(runs, (run) => run.runId)'),
+      // The key of a run read as a whole is its tree; here each run is its own tree.
+      (t) => t.replace('const key = treeOf(run);', 'const key = run.runId;'),
       'exact.suiteHeadline.tree-key',
     ],
     [
