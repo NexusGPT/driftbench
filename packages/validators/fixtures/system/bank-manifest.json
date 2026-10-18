@@ -23219,7 +23219,7 @@
       "level": 12,
       "source": "contract",
       "component": "packages/cli/src/commands/radius-localize.ts",
-      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+      "cause": "radius localize reads the mode of a campaign that holds one mode, not the F default of radius --mode"
     },
     {
       "id": "links/chain-localize/x5-tool/T/grouped",
@@ -23228,7 +23228,7 @@
       "level": 12,
       "source": "contract",
       "component": "packages/cli/src/commands/radius-localize.ts",
-      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+      "cause": "radius localize reads the mode of a campaign that holds one mode, not the F default of radius --mode"
     },
     {
       "id": "links/chain-localize/x2-contradiction/F/flat",
