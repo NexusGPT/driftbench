@@ -292,6 +292,7 @@ export {
   withRetry,
   wrapEndState,
 } from './runner';
+export { type IsolationEdge, type IsolationReport, parentIsolation } from './runner/isolation';
 export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
   Assertion,

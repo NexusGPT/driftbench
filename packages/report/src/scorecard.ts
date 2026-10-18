@@ -18,7 +18,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import { type AggregateCriterion, type AggregateResult, evaluateAggregates } from './aggregate';
-import { parentCauses } from './causes';
+import { type ParentCause, parentCauses } from './causes';
 import { type CompareResult, compareCampaigns } from './compare';
 import {
   blocksWithSpec,
@@ -117,7 +117,7 @@ export type BlockDetail = {
 };
 
 export type RunDetail = {
-  causes?: ReturnType<typeof parentCauses>;
+  causes?: ParentCause[];
   runId: string;
   specId: string;
   title?: string;
@@ -342,7 +342,14 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
   const perturbation = spec?.perturbations?.find((entry) => entry.id === run.perturbationId);
   return {
     runId: run.runId,
-    ...(run.blocks.some((block) => block.parent !== undefined) ? { causes: parentCauses(run) } : {}),
+    ...(run.blocks.some((block) => block.parent !== undefined)
+      ? {
+          causes: parentCauses(
+            run,
+            data.runs.filter((other) => lineKey(other) === lineKey(run)),
+          ),
+        }
+      : {}),
     specId: run.specId,
     ...optional('title', spec?.title),
     target: showTarget(run.target),
