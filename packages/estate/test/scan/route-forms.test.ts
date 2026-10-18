@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, readTables, scanEstate } from '../../src/index';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 
 const skill = '.claude/skills/parcel-plan/SKILL.md';
 const declaration = '---\nname: parcel-plan\ndescription: Plan parcel pickups.\n---\n';
@@ -39,7 +39,12 @@ describe('routing follows the role of the source text', () => {
     ],
   ])('reads %s with the source line and ask', async (_label, text, line) => {
     const root = await estate({ [skill]: declaration, 'CLAUDE.md': `${text}\n` });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     const routes = map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md');
     expect(routes).toHaveLength(1);
     expect(routes[0]).toMatchObject({
@@ -47,7 +52,6 @@ describe('routing follows the role of the source text', () => {
       provenance: { startLine: line, quote: text.split('\n')[Number(line) - 1] },
       evidence: [{ type: 'skill_loaded', name: 'parcel-plan' }],
     });
-    expect(map.atoms.filter((atom) => atom.kind === 'reference')).toEqual([]);
   });
 
   it('ignores names in owner and notes columns', async () => {
@@ -63,7 +67,12 @@ describe('routing follows the role of the source text', () => {
         '| schedule a meeting | no skill | `parcel-plan` is maintained separately |',
       ].join('\n'),
     });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')).toEqual(
       [],
     );
@@ -85,7 +94,12 @@ describe('routing follows the role of the source text', () => {
     ],
   ])('ignores %s', async (_label, text) => {
     const root = await estate({ [skill]: declaration, 'CLAUDE.md': text });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')).toEqual(
       [],
     );
@@ -99,7 +113,12 @@ describe('routing follows the role of the source text', () => {
       'CLAUDE.md':
         '| Request | Skill you load | Who wrote it |\n|---|---|---|\n| arrange a pickup | `parcel-plan` | `receipt-check` |',
     });
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')).toEqual(
       [],
     );
@@ -111,7 +130,12 @@ describe('routing follows the role of the source text', () => {
       [skill]: declaration,
       'CLAUDE.md': `Read [the definition](${skill}) before editing it.\n`,
     });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.filter((atom) => atom.kind === 'reference')).toMatchObject([
       { fields: { path: skill } },
     ]);
@@ -123,7 +147,12 @@ describe('routing follows the role of the source text', () => {
       'CLAUDE.md':
         '## Skills\n### `parcel-plan`\nA historical note.\n\nTo arrange a pickup: never load `parcel-plan`.\n',
     });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')).toEqual(
       [],
     );

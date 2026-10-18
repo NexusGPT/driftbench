@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 
 describe('standing imports', () => {
   it('treats standalone standing imports as standing files and follows finite chains exactly once', async () => {
@@ -32,7 +32,12 @@ describe('standing imports', () => {
       '.claude/docs/extra.md': 'Never refund twice.\n',
     });
     try {
-      const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      const { map } = await scanEstate({
+        root,
+        reader: new ClaudeCodeReader(),
+        now: NOW,
+        pointer: structurePointer(),
+      });
       const references = map.atoms
         .filter((atom) => atom.kind === 'reference')
         .map((atom) => atom.fields?.path);

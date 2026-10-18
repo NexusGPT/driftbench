@@ -4,7 +4,7 @@ import type { Atom, AtomKind, EvidencePredicate } from '../schema';
 import { isNormative, maskIllustrativePrefixes, normativeEstate } from './document-roles';
 import { guardRuleSources } from './guard-rules';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
-import { documentFileType, ignoredReference, pathReference } from './reference-role';
+import { ignoredReference, pathReference } from './reference-role';
 import {
   blankFences,
   type Located,
@@ -40,39 +40,6 @@ export const DEFAULT_ROLE: Record<AtomKind, 'axis' | 'detail'> = {
   invariant: 'detail',
 };
 
-/** Event words propose a hazard; the local subject/object decides whether the agent undergoes it. */
-// A compound adjective or identifier is not an event verb or noun.
-const RESTART_EVENT = /(?<![\w-])(?:restart|reboot)(?:s|ed|ing)?(?![\w-])/i;
-const RESUMPTION_EVENT =
-  /\bresum(?:e[sd]?|ing)\b|\bpick(?:s|ed)? up where (?:you|we|it|the agent) left off\b/i;
-const SESSION_START_EVENT = /\b(start of (every|each|a) session|new session|session start)/i;
-const RATE_LIMIT_EVENT =
-  /\brate[- ]limit(?:s|ed|ing)?\b|\bthrottl(?:e|es|ed|ing)\b|\btoo many requests\b|\b429s?\b/i;
-
-/** Hazards of a long-running agent, resolved against the event's participants below. */
-export const HAZARDS = [
-  // The noun and the participle; "compact" alone is an adjective (a compact table) far more often.
-  {
-    id: 'compaction',
-    title: 'A compaction of the context',
-    pattern:
-      /\b(compactions?|compacted|auto-?compact)\b|\b(?:conversation|context) is summari[sz]ed\b|\bcontext window (?:fills? up|is full)\b/i,
-  },
-  { id: 'restart', title: 'A process restart', pattern: RESTART_EVENT },
-  {
-    id: 'rate_wave',
-    title: 'A wave of rate limits',
-    pattern: RATE_LIMIT_EVENT,
-  },
-  {
-    id: 'session_boundary',
-    title: 'A new session',
-    pattern: new RegExp(`${SESSION_START_EVENT.source}|${RESUMPTION_EVENT.source}`, 'i'),
-  },
-  { id: 'notification', title: 'A helper notification', pattern: /\bnotification/i },
-  { id: 'nudge_storm', title: 'Repeated guard nudges', pattern: /\bnudges?\b/i },
-] as const;
-
 const SCRIPT = /\.(sh|bash|py|js|mjs|cjs|ts|rb|pl)$/i;
 
 /** Builds atoms with stable, unique ids: kind, scope and a slug of the title, then -2, -3 on a repeat. */
@@ -87,13 +54,49 @@ export class AtomBuilder {
 
   /** The file of the estate that a path written in `from` leads to; the path as resolved when none is found. */
   locate(path: string, from: string): string {
-    return locateNamed(path, from, this.files).path;
+    return this.resolve(path, from).path;
+  }
+
+  /** The estate the scan reads: its aliases, base folders, skipped files and external folders resolve a path. */
+  private estate: RawEstate | undefined;
+  configure(raw: RawEstate): void {
+    this.estate = raw;
   }
 
   /** Where a path written in `from` leads, how it was found, and whether the file is one of the estate. */
-  resolve(path: string, from: string): NamedTarget & { exists: boolean } {
-    const target = locateNamed(path, from, this.files);
-    return { ...target, exists: this.files.has(target.path) };
+  resolve(
+    path: string,
+    from: string,
+    bare = false,
+  ): NamedTarget & { exists: boolean; ignored: boolean; unresolved: boolean; concrete: boolean } {
+    const raw = this.estate;
+    const skipped = raw ? skippedOf(raw) : new Set<string>();
+    const target = locateNamed(path, from, this.files, {
+      bases: raw?.bases ?? [],
+      skipped,
+      aliases: raw?.aliases ?? {},
+      byName: raw ? names(raw, this.files) : fileNames(this.files),
+      externals: raw?.externals ?? [],
+    });
+    const present = this.files.has(target.path);
+    // A name with no separator that resolves nowhere has no place. Quoted, backticked or linked with an
+    // extension, it designates a file beside its source and is concrete; a loose word, or a name with no
+    // extension, is information only.
+    const lacksPlace = target.via === 'none' && !target.candidates && !/[/\\]/.test(path);
+    const unresolved = lacksPlace && (bare || !pathReference(path));
+    return {
+      ...target,
+      unresolved,
+      concrete: lacksPlace && !unresolved,
+      exists: present || skipped.has(target.path),
+      ignored:
+        !present && raw !== undefined && (skipped.has(target.path) || ignoredReference(raw, target.path)),
+    };
+  }
+
+  /** The kind of a file of the estate, when it is one. */
+  kindOf(path: string): string | undefined {
+    return this.files.get(path)?.kind;
   }
 
   scopeOf(path: string): string {
@@ -214,6 +217,7 @@ export function registryRowOf(guard: GuardDecl, registry: readonly RegistryRow[]
 /** Every atom code reads, in a fixed order, so ids are the same on every run. */
 export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
   raw = normativeEstate(raw);
+  builder.configure(raw);
   const files = new Map(raw.files.map((file) => [file.path, file]));
   const { labels } = raw;
   const dispatch = (name: string): EvidencePredicate => ({
@@ -454,10 +458,7 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     subagents: new Set(raw.subagents.map((helper) => helper.name)),
   };
   for (const chunk of raw.prose) {
-    referenceAtoms(chunk, files, raw, builder);
     routeAtoms(chunk, files, names, raw, builder);
-    gateAtoms(chunk, files, raw, builder);
-    hazardAtoms(chunk, files, builder);
   }
 }
 
@@ -563,7 +564,7 @@ function scriptAtoms(
 }
 
 /** A path and its spelling in the source, before notation is normalized. */
-type NamedReference = {
+export type NamedReference = {
   path: string;
   spelling: string;
   start: number;
@@ -577,7 +578,7 @@ export function namedPaths(line: string, identifiers = false): string[] {
   return namedReferences(line, identifiers).map(({ path }) => path);
 }
 
-function namedReferences(line: string, identifiers = false): NamedReference[] {
+export function namedReferences(line: string, identifiers = false): NamedReference[] {
   const found: NamedReference[] = [];
   const claimed: Array<[number, number]> = [];
   const take = (
@@ -654,221 +655,6 @@ function namedReferences(line: string, identifiers = false): NamedReference[] {
     take(match, token, false, token.length, false, true);
   }
   return found;
-}
-
-type ReferenceToken = { word: string; references?: NamedReference[] };
-type ReferenceClause = { tokens: ReferenceToken[]; coordinated: boolean };
-const HISTORY_VERB = /^(?:removed|deleted|dropped|retired|deprecated|renamed|moved|replaced|superseded)$/;
-const HISTORY_AUX = /^(?:was|were|is|are|be|been|being|has|have|had|got|gets?|getting)$/;
-const PASSIVE_AUX = /^(?:was|were|is|are|be|been|being|got|gets?|getting)$/;
-const HISTORY_ADVERB = /^(?:already|just|still|[a-z]+ly)$/;
-const REFERENCE_ACT = /^(?:read|reading|open|opening|load|loading|see|seeing|consult|consulting|use|using)$/;
-const HISTORY_UNCERTAIN = /^(?:not|never|no|cannot|can't|could|may|might|must|should|will|would|if|unless)$/;
-const PHRASE_BOUNDARY =
-  /^(?:with|by|to|into|onto|from|in|on|at|for|as|after|before|about|of|over|under|through|during|until|since|while|whereas|and|or|but|then)$/;
-
-/** Predicate evidence used only to separate clauses, never to classify an unknown noun as a verb. */
-function referencePredicate(token: ReferenceToken | undefined): boolean {
-  return (
-    token !== undefined &&
-    !token.references &&
-    (HISTORY_VERB.test(token.word) ||
-      HISTORY_AUX.test(token.word) ||
-      REFERENCE_ACT.test(token.word) ||
-      /^(?:[a-z]+ed|[a-z]+ing|kept)$/.test(token.word))
-  );
-}
-
-/**
- * Tokenize reference occurrences before punctuation: dots in filenames and words inside quotations never
- * delimit a clause. Overlapping markup (a code span in a link) shares the enclosing mention's role.
- */
-function referenceClauses(text: string, references: readonly NamedReference[]): ReferenceClause[] {
-  const groups: Array<{ start: number; end: number; references: NamedReference[] }> = [];
-  for (const reference of [...references].sort((a, b) => a.start - b.start || b.end - a.end)) {
-    const previous = groups.at(-1);
-    if (previous && reference.start < previous.end) {
-      previous.end = Math.max(previous.end, reference.end);
-      previous.references.push(reference);
-    } else groups.push({ start: reference.start, end: reference.end, references: [reference] });
-  }
-  let masked = '';
-  let end = 0;
-  for (const [index, group] of groups.entries()) {
-    masked += `${text.slice(end, group.start)}\uE100${index}\uE101`;
-    end = group.end;
-  }
-  masked += text.slice(end);
-  const protectedText = maskLine(masked).text;
-  const clauses: ReferenceClause[] = [];
-  let tokens: ReferenceToken[] = [];
-  let coordinated = false;
-  const flush = (nextCoordinated: boolean) => {
-    if (tokens.length) clauses.push({ tokens, coordinated });
-    tokens = [];
-    coordinated = nextCoordinated;
-  };
-  const lexed = [...protectedText.matchAll(/\uE100(\d+)\uE101|[A-Za-z]+(?:['’][A-Za-z]+)?|[,;.!?:]|\n/g)].map(
-    (match) =>
-      match[1] === undefined
-        ? { word: match[0].toLowerCase() }
-        : { word: match[0], references: groups[Number(match[1])]?.references },
-  );
-  for (const [index, token] of lexed.entries()) {
-    if (/^[;.!?\n]$/.test(token.word)) {
-      flush(false);
-      continue;
-    }
-    if (
-      token.word === ':' &&
-      tokens.every((part) => !part.references && /^(?:version|v|changelog|changes)$/.test(part.word))
-    ) {
-      flush(false);
-      continue;
-    }
-    if (!tokens.length && /^(?:and|or|but|then|while|whereas)$/.test(token.word)) continue;
-    if (/^(?:,|and|or|but|then|while|whereas)$/.test(token.word)) {
-      let next = index + 1;
-      if (/^(?:and|or|but|then)$/.test(lexed[next]?.word ?? '')) next++;
-      const rest = lexed.slice(next);
-      const predicate = referencePredicate(rest[0]);
-      const newSubject = rest.some(
-        (part, at) =>
-          (HISTORY_AUX.test(part.word) || HISTORY_VERB.test(part.word)) &&
-          filePhrase(rest.slice(0, at), true).length > 0,
-      );
-      const pronounSubject = /^(?:we|you|they|he|she|it|i)$/.test(rest[0]?.word ?? '');
-      // A comma/and between file nouns is an enumeration until a preceding predicate establishes a
-      // separate clause: "a, b and c were removed", versus "read a, b was removed".
-      if (
-        predicate ||
-        pronounSubject ||
-        (newSubject && (tokens.some(referencePredicate) || !filePhrase(tokens, true).length))
-      ) {
-        flush(true);
-        continue;
-      }
-    }
-    tokens.push(token);
-  }
-  flush(false);
-  return clauses;
-}
-
-/** A direct file noun phrase, optionally enumerated; a prepositional complement is a different role. */
-function filePhrase(tokens: readonly ReferenceToken[], whole: boolean): ReferenceToken[] {
-  const first = tokens.findIndex((token) => token.references);
-  if (first < 0) return [];
-  const nominal = (prefix: readonly ReferenceToken[]) =>
-    prefix.every(
-      (token) =>
-        !token.references &&
-        /^[a-z]+$/.test(token.word) &&
-        !PHRASE_BOUNDARY.test(token.word) &&
-        !HISTORY_AUX.test(token.word) &&
-        !REFERENCE_ACT.test(token.word) &&
-        !/^(?:we|you|they|he|she|it|i|kept)$/.test(token.word),
-    );
-  if (!nominal(tokens.slice(0, first))) return [];
-  const initial = tokens[first];
-  if (!initial) return [];
-  const found: ReferenceToken[] = [initial];
-  let end = first + 1;
-  while (end < tokens.length) {
-    let next = end;
-    while (/^(?:,|and|or)$/.test(tokens[next]?.word ?? '')) next++;
-    if (next === end) break;
-    let file = next;
-    while (
-      file < tokens.length &&
-      !tokens[file]?.references &&
-      /^[a-z]+$/.test(tokens[file]?.word ?? '') &&
-      !referencePredicate(tokens[file]) &&
-      !PHRASE_BOUNDARY.test(tokens[file]?.word ?? '')
-    )
-      file++;
-    if (!tokens[file]?.references || !nominal(tokens.slice(next, file))) break;
-    const nextFile = tokens[file];
-    if (!nextFile) break;
-    found.push(nextFile);
-    end = file + 1;
-  }
-  return whole && tokens.slice(end).some((token) => !/^(?:,|and|or)$/.test(token.word)) ? [] : found;
-}
-
-/** A stated actor, or the omitted actor of a changelog entry; unknown predicates stay references. */
-function historyActor(tokens: readonly ReferenceToken[]): boolean {
-  let end = tokens.length;
-  while (HISTORY_AUX.test(tokens[end - 1]?.word ?? '') || HISTORY_ADVERB.test(tokens[end - 1]?.word ?? ''))
-    end--;
-  const subject = tokens.slice(0, end);
-  if (!subject.length || filePhrase(subject, true).length) return true;
-  const words = subject.map((token) => token.word);
-  if (words.length === 1 && /^(?:we|you|they|he|she|it|i|version|v)$/.test(words[0] ?? '')) return true;
-  if (
-    subject.some((token) => token.references || referencePredicate(token) || PHRASE_BOUNDARY.test(token.word))
-  )
-    return false;
-  return (
-    /s$/.test(words.at(-1) ?? '') ||
-    (words.length > 1 &&
-      /^(?:the|a|an|our|your|their|his|her|my|this|that|these|those|each|every)$/.test(words[0] ?? ''))
-  );
-}
-
-/**
- * Completed transitive history marks an active object's occurrence or a passive subject's occurrence.
- * Replacement subjects and by/with/to complements stay current. Unknown roles stay references. An
- * auxiliary may be shared across coordinated passive clauses, but not across sentence boundaries.
- */
-function pastFile(clauses: readonly ReferenceClause[]): Set<NamedReference> {
-  const past = new Set<NamedReference>();
-  let passiveBefore = false;
-  for (const clause of clauses) {
-    if (!clause.coordinated) passiveBefore = false;
-    const tokens = clause.tokens;
-    const passive = tokens.some((token) => !token.references && PASSIVE_AUX.test(token.word));
-    for (let verb = 0; verb < tokens.length; verb++) {
-      if (tokens[verb]?.references || !HISTORY_VERB.test(tokens[verb]?.word ?? '')) continue;
-      if (
-        !tokens
-          .slice(0, verb)
-          .some(
-            (token) =>
-              !token.references && (HISTORY_UNCERTAIN.test(token.word) || /n['’]t$/.test(token.word)),
-          )
-      ) {
-        const before = tokens.slice(0, verb);
-        let subjectEnd = before.length;
-        while (HISTORY_ADVERB.test(before[subjectEnd - 1]?.word ?? '')) subjectEnd--;
-        const hasAuxiliary = PASSIVE_AUX.test(before[subjectEnd - 1]?.word ?? '');
-        if (hasAuxiliary) {
-          while (
-            HISTORY_AUX.test(before[subjectEnd - 1]?.word ?? '') ||
-            HISTORY_ADVERB.test(before[subjectEnd - 1]?.word ?? '')
-          )
-            subjectEnd--;
-        }
-        const objects = filePhrase(tokens.slice(verb + 1), false);
-        const subjects = filePhrase(before.slice(0, subjectEnd), true);
-        const adjectival =
-          !hasAuxiliary &&
-          /^(?:a|an|the|this|that|these|those|its|their|our|your|my|his|her)$/.test(
-            before[subjectEnd - 1]?.word ?? '',
-          );
-        const affected = hasAuxiliary
-          ? subjects
-          : passiveBefore && subjects.length && !objects.length
-            ? subjects
-            : adjectival || !historyActor(before)
-              ? []
-              : objects;
-        for (const token of affected) for (const reference of token.references ?? []) past.add(reference);
-      }
-    }
-    passiveBefore = passive;
-  }
-  return past;
 }
 
 // Lexical polarity, rather than sentence templates: syntax supplies tense, auxiliaries and scope.
@@ -1110,106 +896,6 @@ function skippedOf(raw: RawEstate): Set<string> {
   const built = new Set(raw.ignored?.paths ?? []);
   SKIPPED.set(raw, built);
   return built;
-}
-
-function referenceAtoms(
-  chunk: ProseChunk,
-  files: ReadonlyMap<string, EstateFile>,
-  raw: RawEstate,
-  builder: AtomBuilder,
-): void {
-  const skipped = skippedOf(raw);
-  const standing = files.get(chunk.file)?.kind === 'standing';
-  for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    // A standing line `@path` is an import: the runtime loads that file, so the agent reads nothing.
-    if (standing && /^@\S+$/.test(line.text.trim())) continue;
-    const references = namedReferences(line.text, true);
-    if (!references.length) continue;
-    const clauses = referenceClauses(line.text, references);
-    const past = pastFile(clauses);
-    const positive = new Set<NamedReference>();
-    const parsed = new Set<NamedReference>();
-    for (const clause of clauses) {
-      for (const token of clause.tokens) {
-        for (const reference of token.references ?? []) {
-          // Other occurrences of this filename must retain their own grammatical roles.
-          const context = clause.tokens
-            .map((part) =>
-              part.references?.includes(reference)
-                ? reference.spelling
-                : part.references
-                  ? 'otherdocument'
-                  : part.word,
-            )
-            .join(' ');
-          parsed.add(reference);
-          if (positiveMention(context, reference.spelling, ['read', 'open', 'load'])) positive.add(reference);
-        }
-      }
-    }
-    for (const reference of references) {
-      const { path: named, spelling } = reference;
-      if (past.has(reference)) continue;
-      if (
-        parsed.has(reference)
-          ? !positive.has(reference)
-          : !positiveMention(line.text, spelling, ['read', 'open', 'load'])
-      )
-        continue;
-      const identifier = !pathReference(named);
-      // Declared unit identifiers resolve without naming an absent file.
-      if (identifier && (routeNames(raw).skills.has(named) || routeNames(raw).helpers.has(named))) continue;
-      const located = locateNamed(named, chunk.file, files, {
-        bases: raw.bases ?? [],
-        skipped,
-        aliases: raw.aliases ?? {},
-        byName: names(raw, files),
-        externals: raw.externals ?? [],
-      });
-      const path = located.path;
-      const target = files.get(path);
-      const source = files.get(chunk.file);
-      // A routing link loads the declared skill; it does not separately order a read of its definition.
-      if (
-        source &&
-        routeNames(raw).definitions.has(path) &&
-        routeSources(source, files, raw)
-          .get(line.line)
-          ?.some((route) => route.definition === path)
-      )
-        continue;
-      const isSkipped = target === undefined && (skipped.has(path) || ignoredReference(raw, path));
-      // A name without a separator that resolves nowhere has no place. Quoted, backticked or linked with an
-      // extension, it designates a file beside its source and is concrete; a loose word, or a name with no
-      // extension, is information only.
-      const lacksPlace = located.via === 'none' && !located.candidates && !/[/\\]/.test(named);
-      const unresolvedName = lacksPlace && (reference.bare || !pathReference(named));
-      const concreteName = lacksPlace && !unresolvedName;
-      // An absent target is a claim only with evidence of a file: a document or script type, or an
-      // explicitly designated identifier (kept as information). Pairs, versions and dotted names are not.
-      if (!target && !isSkipped && !identifier && !documentFileType(path)) continue;
-      if (target && (target.kind === 'guard_script' || SCRIPT.test(path))) continue;
-      builder.add({
-        kind: 'reference',
-        title: `Read ${named}`,
-        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
-        evidence: [{ type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }],
-        situation: line.text,
-        fields: {
-          path,
-          ...(unresolvedName ? { written: named, unresolved: true } : {}),
-          ...(concreteName ? { concrete: true } : {}),
-          exists: target !== undefined || skipped.has(path),
-          readWhen: line.text,
-          from: chunk.file,
-          ...(isSkipped ? { ignored: true } : {}),
-          ...(located.via === 'alias' || located.via === 'suffix' ? { resolvedBy: located.via } : {}),
-          ...(located.candidates ? { candidates: located.candidates } : {}),
-          ...(located.via === 'external' ? { external: true } : {}),
-        },
-      });
-    }
-  }
 }
 
 /**
@@ -1681,168 +1367,6 @@ function routeAtoms(
 const OPEN_TOKEN = '\uE000';
 const CLOSE_TOKEN = '\uE001';
 const TOKEN = String.raw`\uE000\d+\uE001`;
-/** What is read: one masked span, else the words up to the next form word. */
-const TARGET = String.raw`(${TOKEN}|\S+)`;
-const NEGATIVE = String.raw`(?:do\s+not|don't|never|must\s+not|mustn't|should\s+not|shouldn't|cannot|can't|may\s+not)`;
-/** `prose`: the form ends on what is read, so a step in words ("the output of the build") may be read. */
-const GATE_FORMS: Array<{
-  form: string;
-  pattern: RegExp;
-  head: number[];
-  read: number;
-  act: number;
-  prose?: boolean;
-  positiveAct?: boolean;
-  loaded?: boolean;
-}> = [
-  {
-    form: 'requires-loaded',
-    pattern: new RegExp(
-      String.raw`^(.+?)\s+requires\s+(?:that\s+)?${TARGET}\s+(?:(?:to\s+)?be\s+)?(?:loaded|read)$`,
-      'i',
-    ),
-    head: [],
-    read: 2,
-    act: 1,
-    positiveAct: true,
-    loaded: true,
-  },
-  {
-    form: 'requires-reading',
-    pattern: new RegExp(String.raw`^(.+?)\s+requires\s+(?:you\s+to\s+read|reading)\s+${TARGET}$`, 'i'),
-    head: [],
-    read: 2,
-    act: 1,
-    positiveAct: true,
-  },
-  {
-    form: 'context-read-first',
-    pattern: new RegExp(
-      String.raw`^(?:to|for|when|if)\s+(.+?)\s*[:,]\s*(.*?)\bread\s+${TARGET}\s+first$`,
-      'i',
-    ),
-    head: [2],
-    read: 3,
-    act: 1,
-    positiveAct: true,
-  },
-  {
-    form: 'read-first-context',
-    pattern: new RegExp(String.raw`^(.*?)\bread\s+${TARGET}\s+first\s+(?:when|for)\s+(.+)$`, 'i'),
-    head: [1],
-    read: 2,
-    act: 3,
-  },
-  {
-    form: 'not-until-loaded',
-    pattern: new RegExp(
-      String.raw`^(.*?)\b${NEGATIVE}\s+(.+?)\s+until\s+${TARGET}\s+(?:is\s+|has\s+been\s+)(?:loaded|read)$`,
-      'i',
-    ),
-    head: [1],
-    read: 3,
-    act: 2,
-    loaded: true,
-  },
-  {
-    form: 'before-required-loaded',
-    pattern: new RegExp(
-      String.raw`^(.*?)\bbefore\s+([^,:]+?)\s*[:,]\s*${TARGET}\s+(?:must|shall)\s+be\s+(?:loaded|read)$`,
-      'i',
-    ),
-    head: [1],
-    read: 3,
-    act: 2,
-    loaded: true,
-  },
-  {
-    form: 'before-read',
-    pattern: new RegExp(String.raw`^(.*?)\bbefore\s+([^,:]+?)\s+(?:please\s+)?read\s+${TARGET}$`, 'i'),
-    head: [1],
-    read: 3,
-    act: 2,
-    positiveAct: true,
-  },
-  {
-    form: 'before-colon-read',
-    pattern: new RegExp(String.raw`^(.*?)\bbefore\s+([^:]+?)\s*:\s*(.*?)\bread\s+(${TOKEN}|.+)$`, 'i'),
-    head: [1, 3],
-    read: 4,
-    act: 2,
-    prose: true,
-  },
-  {
-    form: 'before-comma-read',
-    pattern: new RegExp(String.raw`^(.*?)\bbefore\s+([^,:]+?)\s*,\s*(.*?)\bread\s+(${TOKEN}|.+)$`, 'i'),
-    head: [1, 3],
-    read: 4,
-    act: 2,
-    prose: true,
-  },
-  {
-    form: 'prior-to-read',
-    pattern: new RegExp(
-      String.raw`^(.*?)\bprior\s+to\s+([^,:]+?)\s*[:,]\s*(.*?)\bread\s+(${TOKEN}|.+)$`,
-      'i',
-    ),
-    head: [1, 3],
-    read: 4,
-    act: 2,
-    prose: true,
-  },
-  {
-    form: 'read-first-then',
-    pattern: new RegExp(String.raw`^(.*?)\bread\s+${TARGET}\s+first,?\s+(?:and\s+)?then\s+(.+)$`, 'i'),
-    head: [1],
-    read: 2,
-    act: 3,
-  },
-  {
-    form: 'read-before',
-    pattern: new RegExp(String.raw`^(.*?)\bread\s+${TARGET}(?:\s+first)?\s+before\s+(.+)$`, 'i'),
-    head: [1],
-    read: 2,
-    act: 3,
-  },
-  {
-    form: 'not-until-read',
-    pattern: new RegExp(
-      String.raw`^(.*?)\b${NEGATIVE}\s+(.+?)\s+until\s+(?:you\s+have\s+|you've\s+|you\s+|after\s+)?(?:read|reading)\s+(?:the\s+output\s+of\s+)?(${TOKEN}|.+)$`,
-      'i',
-    ),
-    head: [1],
-    read: 3,
-    act: 2,
-    prose: true,
-  },
-  {
-    form: 'not-without-reading',
-    pattern: new RegExp(
-      String.raw`^(.*?)\b${NEGATIVE}\s+(.+?)\s+without\s+(?:first\s+)?(?:reading|having\s+read)\s+${TARGET}`,
-      'i',
-    ),
-    head: [1],
-    read: 3,
-    act: 2,
-  },
-  {
-    form: 'only-after-reading',
-    pattern: new RegExp(
-      String.raw`^(.+?)\s+only\s+(?:after|once)\s+(?:you\s+have\s+|you've\s+|having\s+)?(?:reading|read)\s+${TARGET}`,
-      'i',
-    ),
-    head: [],
-    read: 2,
-    act: 1,
-  },
-  {
-    form: 'question-read-first',
-    pattern: new RegExp(String.raw`^(.+?)\?\s*(.*?)\bread\s+${TARGET}\s+first\b`, 'i'),
-    head: [2],
-    read: 3,
-    act: 1,
-  },
-];
 
 /** A clause led by one of these is a condition or a purpose, not the directive itself. */
 const SUBORDINATE =
@@ -1922,315 +1446,6 @@ export function gateClauses(text: string, splitCoordinated = true): string[] {
     .filter((clause) => clause !== '');
 }
 
-/**
- * The thing to read: a masked span, else a path-like word, else (where the form allows) the words of the
- * clause, a step to run. A bare word such as "it" or "them" names nothing to read first.
- */
-function gateTarget(raw: string, spans: readonly string[], prose: boolean): string {
-  const text = raw.trim();
-  const span = new RegExp(`^${TOKEN}`).exec(text);
-  if (span) return unmask(span[0], spans);
-  const word = /^\S+/.exec(text)?.[0] ?? '';
-  if (/[/\\]|\.[A-Za-z0-9]+[.,:;!?)]*$/.test(word)) return word.replace(/[.,:;!?)]+$/, '');
-  return prose ? unmask(text, spans).replace(/[.,:;!?]+$/, '') : '';
-}
-
-const GATE_HEADINGS = new WeakMap<EstateFile, Array<{ text: string; line: number }>>();
-const READ_FIRST_ONLY = new RegExp(String.raw`^(.*?)\bread\s+${TARGET}\s+first$`, 'i');
-
-function gateHeadings(source: EstateFile | undefined): Array<{ text: string; line: number }> {
-  if (!source) return [];
-  const held = GATE_HEADINGS.get(source);
-  if (held) return held;
-  const headings = linesOf(blankFences(source.text)).flatMap((line) => {
-    const match = /^#{1,6}\s+(.+)$/.exec(line.text);
-    return match ? [{ text: (match[1] ?? '').replace(/[*`]/g, '').trim(), line: line.line }] : [];
-  });
-  GATE_HEADINGS.set(source, headings);
-  return headings;
-}
-
-function gateAtoms(
-  chunk: ProseChunk,
-  files: ReadonlyMap<string, EstateFile>,
-  raw: RawEstate,
-  builder: AtomBuilder,
-): void {
-  const source = files.get(chunk.file);
-  const headings = gateHeadings(source);
-  let headingIndex = -1;
-  for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    const { text, spans } = maskLine(line.text);
-    while (headings[headingIndex + 1] && (headings[headingIndex + 1]?.line ?? 0) < line.line) headingIndex++;
-    for (const decorated of gateClauses(text)) {
-      // Attention punctuation is decoration; neither its presence nor its absence establishes order.
-      const original = decorated.replace(/^[!‼]+\s*|\s*[!‼]+$/g, '');
-      const heading = headings[headingIndex];
-      const contextual =
-        heading && READ_FIRST_ONLY.test(original) && !original.includes('?') && isAct(heading.text);
-      const clause = contextual ? `${original}, then ${heading.text}` : original;
-      for (const { form, pattern, head, read, act, prose, positiveAct, loaded } of GATE_FORMS) {
-        const match = pattern.exec(clause);
-        if (!match) continue;
-        if (!head.every((group) => directiveHead(unmask(match[group] ?? '', spans)))) continue;
-        const target = gateTarget(match[read] ?? '', spans, prose === true || loaded === true);
-        const named = namedPaths(`Read ${target}`)[0];
-        const first = named ?? target.replace(/[`*"'\u201C\u201D]/g, '').trim();
-        const trigger = unmask(match[act] ?? '', spans)
-          .replace(/[`*]/g, '')
-          .trim();
-        // A condition scopes an obligation; it is not the act the read must precede.
-        const scoped = /^(?:if|when|whenever|unless)\b[^,]+,\s*(.+)$/i.exec(trigger);
-        const action = scoped?.[1] ?? trigger;
-        if (first === '' || trigger === '' || !isAct(action)) continue;
-        // Negation of the requirement sits at the predicate boundary, not in its object
-        // ("editing optional metadata requires …" still requires the read).
-        if (positiveAct && /\b(?:not|never|optional|optionally|[a-z]+n't)\s*$/i.test(action)) continue;
-        // A file is a path the reference tokenizer accepts (a code span may hold spaces), else one bare word.
-        const isFile = /\.[A-Za-z0-9]+$/.test(first) && (named !== undefined || !/\s/.test(first));
-        const skill = loaded ? raw.skills.find((skill) => skill.name === first) : undefined;
-        if (loaded && !isFile && !skill) continue;
-        const located = isFile
-          ? locateNamed(first, chunk.file, files, {
-              bases: raw.bases ?? [],
-              skipped: skippedOf(raw),
-              aliases: raw.aliases ?? {},
-              byName: names(raw, files),
-              externals: raw.externals ?? [],
-            })
-          : undefined;
-        const path = located?.path;
-        const before = skill ? `skill:${skill.name}` : isFile ? raw.labels.read : raw.labels.shell;
-        const after = actLabel(action, raw);
-        const evidence: EvidencePredicate[] = [
-          { type: 'ordered', before, after },
-          skill
-            ? { type: 'skill_loaded', name: skill.name }
-            : path
-              ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }
-              : { type: 'tool_called', label: raw.labels.shell, input: { command: { contains: first } } },
-        ];
-        builder.add({
-          kind: 'gate',
-          title: `Read ${first} before ${trigger}`,
-          at:
-            contextual && source && heading
-              ? {
-                  file: chunk.file,
-                  startLine: heading.line,
-                  endLine: line.line,
-                  quote: source.text
-                    .split('\n')
-                    .slice(heading.line - 1, line.line)
-                    .join('\n')
-                    .trim(),
-                }
-              : { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
-          evidence,
-          situation: /^(?:if|when|whenever|unless)\b[^,]+,/i.test(clause) ? unmask(clause, spans) : trigger,
-          fields: {
-            form,
-            first,
-            trigger,
-            ...(skill ? { skill: skill.name } : {}),
-            ...(path ? { path } : {}),
-            ...(located?.via === 'alias' || located?.via === 'suffix' ? { resolvedBy: located.via } : {}),
-            ...(located?.candidates ? { candidates: located.candidates } : {}),
-            ...(located?.via === 'external' ? { external: true } : {}),
-          },
-        });
-        break;
-      }
-    }
-  }
-}
-
-/** Verbs of the acts a gate can come before, with their -ing forms. */
-const ACT_VERBS = new Set(
-  [
-    ['edit', 'editing'],
-    ['write', 'writing'],
-    ['change', 'changing'],
-    ['modify', 'modifying'],
-    ['save', 'saving'],
-    ['create', 'creating'],
-    ['commit', 'committing'],
-    ['push', 'pushing'],
-    ['run', 'running'],
-    ['deploy', 'deploying'],
-    ['dispatch', 'dispatching'],
-    ['delegate', 'delegating'],
-    ['update', 'updating'],
-    ['rename', 'renaming'],
-    ['delete', 'deleting'],
-    ['remove', 'removing'],
-    ['merge', 'merging'],
-    ['send', 'sending'],
-    ['publish', 'publishing'],
-    ['release', 'releasing'],
-    ['reply', 'replying'],
-    ['answer', 'answering'],
-    ['call', 'calling'],
-    ['move', 'moving'],
-    ['copy', 'copying'],
-    ['install', 'installing'],
-    ['open', 'opening'],
-    ['close', 'closing'],
-  ].flat(),
-);
-
-/**
- * An act the agent performs: its first word, after a subject (you, we, the agent), is a verb of acting. A
- * time ("9 in the morning"), a meal or a past event ("the audit last year") is no act, nor is a feeling.
- */
-function isAct(trigger: string): boolean {
-  const words = trigger
-    .toLowerCase()
-    .replace(/^(you|we|i|the agent|the assistant)\s+/, '')
-    // "before you can edit": a modal after the subject is not the act.
-    .replace(/^(?:can|may|must|should|will|shall)\s+/, '')
-    .split(/\s+/);
-  const first = words[0] ?? '';
-  // An -ing form names an act in a gate (matching a line, posting a reply); else a verb of the list.
-  // "anything", "something": a pronoun, not an -ing form.
-  if (ACT_VERBS.has(first) || (first.length > 5 && first.endsWith('ing') && !first.endsWith('thing')))
-    return true;
-  // Grammar admits new imperative verbs without growing an estate-specific action vocabulary.
-  if (nlp(words.join(' ')).termList()[0]?.tags?.has('Imperative')) return true;
-  // "every ticket edit", "each change": an act named as a noun after a quantifier.
-  return ['every', 'each', 'any'].includes(first) && words.slice(1).some((word) => ACT_VERBS.has(word));
-}
-
-/** The tool an act names: editing is an edit, committing or running is a shell call; else the act itself. */
-function actLabel(act: string, raw: RawEstate): string {
-  const verb = act.toLowerCase();
-  if (/\b(edit|editing|change|changing|modify|modifying|update|updating)\b/.test(verb))
-    return raw.labels.edit;
-  if (/\b(write|writing|save|saving|create|creating)\b/.test(verb)) return raw.labels.write;
-  if (
-    /\b(commit|committing|push|pushing|run|running|deploy|deploying|rename|renaming|move|moving)\b/.test(verb)
-  )
-    return raw.labels.shell;
-  if (/\b(dispatch|dispatching|delegate|delegating)\b/.test(verb)) return raw.labels.dispatch;
-  return act;
-}
-
-function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, builder: AtomBuilder): void {
-  if (!files.has(chunk.file)) return;
-  for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    const text = withoutHazardExamples(line.text);
-    for (const hazard of HAZARDS) {
-      if (!hazard.pattern.test(text) || !runtimeHazard(hazard.id, text)) continue;
-      builder.add({
-        kind: 'hazard',
-        title: `Recover from ${hazard.title.toLowerCase()}`,
-        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
-        evidence: [{ type: 'custom', name: 'hazard_recovery', options: { hazard: hazard.id } }],
-        situation: hazard.title,
-        fields: { hazard: hazard.id },
-      });
-    }
-  }
-}
-
-/**
- * Quoted and colon-introduced payloads are samples by syntax, independent of the carrier's vocabulary.
- * A recovery condition, operational signal definition, or explicit runtime receiver preserves its event.
- */
-function operationalHazardQuote(prefix: string, suffix: string): boolean {
-  if (/\b(?:if|when|after|once|upon)\b[^,:]*$/i.test(prefix)) return true;
-  if (/:\s*$/.test(prefix)) return false;
-  const operation =
-    /^\s*(?:[-+*]\s+|\d+[.)]\s+)?(?:you\s+)?(?:(?:must|should|always)\s+)?(?:treat|interpret|recognize|recognise|regard|consider|take)\b/i.test(
-      prefix,
-    ) &&
-    /^\s+as\s+(?:(?:an?|the|your)\s+)?(?:runtime\s+)?(?:signal|trigger|condition|event|error|warning)\b/i.test(
-      suffix,
-    );
-  const effect = /^\s+(?:means?|signals?|indicates?|requires?|triggers?)\b/i.test(suffix);
-  return operation || effect;
-}
-
-function withoutHazardExamples(text: string): string {
-  const quoted = text.replace(
-    /`[^`\n]+`|"(?:\\.|[^"\\\n])*"|\u201C[^\u201D\n]*\u201D|(?<!\w)'(?:\\.|[^'\\\n])*'|\u2018[^\u2019\n]*\u2019/g,
-    (quote, offset: number) => {
-      const prefix =
-        text
-          .slice(0, offset)
-          .split(/[;!?]|\.(?=\s|$)/)
-          .at(-1) ?? '';
-      const suffix = text.slice(offset + quote.length).split(/[;!?]|\.(?=\s|$)/)[0] ?? '';
-      // Quoted content after a carrier is a sample unless grammar makes it an event to handle.
-      if (
-        !prefix.trim() ||
-        operationalHazardQuote(prefix, suffix) ||
-        messageDirection(prefix, suffix) === true
-      )
-        return quote;
-      return ' '.repeat(quote.length);
-    },
-  );
-  // Mask only the colon payload's clause; a later recovery instruction remains independent.
-  return quoted.replace(
-    /(^|[;.!?])([^;.!?]*?):\s+([^;.!?]*)/g,
-    (clause, lead: string, head: string, payload: string) =>
-      /\b(?:if|when|after|once|upon)\b[^,:]*$/i.test(head) || messageDirection(head, '') === true
-        ? clause
-        : `${lead}${head}: ${' '.repeat(payload.length)}`,
-  );
-}
-
-/**
- * An event with no owner is about the runtime in an instruction estate. Explicit owners still matter:
- * equipment restarts, commercial rate limits, customer messages and course sessions are domain work,
- * not events that interrupt the assistant. Keep incoming notifications from helpers as runtime events.
- */
-function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolean {
-  const line = text.replace(/[`*]/g, '').replace(/[‘’]/g, "'");
-  const eventLine = text.replace(/\*/g, '').replace(/[‘’]/g, "'");
-  switch (id) {
-    case 'compaction': {
-      const runtime = line.replace(
-        /\b(?:supplier|customer|client)(?:'s)?\s+(?:conversation|context)(?: window)? (?:is summari[sz]ed|fills? up|is full)\b/gi,
-        '',
-      );
-      return HAZARDS.find((hazard) => hazard.id === id)?.pattern.test(runtime) ?? false;
-    }
-    case 'restart':
-      return runtimeTransition(eventLine, RESTART_EVENT, true);
-    case 'rate_wave':
-      return runtimeRateLimit(eventLine);
-    case 'nudge_storm':
-      // A nudge the agent receives (repeated nudges, a hook nudges the agent), never the agent nudging a
-      // value of the work ("nudge the price up").
-      return [
-        ...line.matchAll(
-          /\bnudg(?:e|es|ed|ing)\b(\s+(?:up\s+|down\s+)?(?:the|a|an|this|that|these|those|its|their|our|your|my|it|them)\b(?:\s+(\w+))?)?/gi,
-        ),
-      ].some(
-        (match) =>
-          match[1] === undefined ||
-          /^(?:agent|assistant|model|session|helper|subagent|claude|guard|hook)$/i.test(match[2] ?? ''),
-      );
-    case 'notification':
-      return (
-        !/\b(?:send|deliver|post|email)\b[^.;!?]*\bnotifications?\b/i.test(line) ||
-        /\b(?:helper|subagent|worker|guard|hook)\b/i.test(line)
-      );
-    case 'session_boundary':
-      // Resumption requires a named runtime participant: "resume" can also name a document. New-session forms
-      // retain their existing behavior, independently of a resumption elsewhere on the same line.
-      if (RESUMPTION_EVENT.test(line) && runtimeTransition(eventLine, RESUMPTION_EVENT, false)) return true;
-      return (
-        SESSION_START_EVENT.test(line) &&
-        !/\bsession\s+(?:of|for|in)\s+(?:the\s+|a\s+)?(?:training|course|class|workshop|lesson)\b/i.test(line)
-      );
-    default:
-      return true;
-  }
-}
-
 /** The actor of an explicit call/use relationship, independent of the system's name. */
 function dependencyActor(phrase: string): string | undefined {
   const relation =
@@ -2254,224 +1469,6 @@ function runtimeParticipant(phrase: string): boolean {
   return /^(?:i|me|we|us|you|(?:agent|assistant|worker|subagent|session|process|runtime|machine|model|claude)(?:\s+(?:session|process|runtime))?)$/i.test(
     owner,
   );
-}
-
-/** A service can limit the agent's calls too; restarting a request is not restarting the runtime. */
-function rateRecipient(phrase: string): boolean {
-  return (
-    runtimeParticipant(phrase) ||
-    /^(?:(?:our|your|my|own|(?:the\s+)?(?:agent|assistant|worker|subagent)'s)\s+)+(?:outgoing\s+)?(?:calls|requests)$/i.test(
-      phrase.trim(),
-    )
-  );
-}
-
-/** The local subject, without clause introducers, auxiliaries or adverbs of the event. */
-function eventSubject(before: string): string {
-  const clause =
-    before.split(/[.;,:!?]|\b(?:if|when|after|before|once|unless|while|and|or|but|then)\b/i).at(-1) ?? '';
-  return clause
-    .trim()
-    .replace(/^(?:on|upon|following|during|at|should|would|could|did|does)\s+/i, '')
-    .replace(
-      /\s+(?:(?:is|are|am|was|were|be|been|being|has|have|had|gets?|got|will|would|can|could|may|might|must|should|shall|\w+ly)\s*)+$/i,
-      '',
-    )
-    .trim();
-}
-
-/** A direct object stops at a clause or preposition; temporal adjuncts do not name a target. */
-function eventObject(after: string): string {
-  const object = (
-    after
-      .trim()
-      .replace(/^(?:\w+ly\s*)+/i, '')
-      .split(
-        /[.;,:!?]|\b(?:if|when|after|before|once|unless|while|and|or|but|then|to|from|by|on|at|for|during|where|with|in|inside|outside|without|through|under|over|around|near|beneath|beside|behind|beyond|within|along|across|towards?|onto|into|upon|until|since|amid|among|between|despite)\b/i,
-      )[0] ?? ''
-  ).trim();
-  const temporal =
-    /^(?:the\s+)?(?:this|next|last|following|previous)\s+(?:morning|afternoon|evening|night|day|week|month|year)$|^(?:today|tomorrow|yesterday|tonight|overnight|again|later|earlier)$/i;
-  // An object pronoun is complete before any following time, manner, or place adjunct.
-  const pronoun = /^(?:me|us|you|it|them|him|her)\b/i.exec(object);
-  return temporal.test(object) ? '' : (pronoun?.[0] ?? object);
-}
-
-function unownedEvent(subject: string): boolean {
-  return /^(?:(?:on|upon|following|during|a|an|the|each|every|any|repeated|multiple|several|many|few|one|two|three|four|five|six|seven|eight|nine|ten|\d+|wave|waves|of)\s*)*$/i.test(
-    subject,
-  );
-}
-
-/** A reported message keeps its receiver or issuer even when its event words are quoted. */
-function messageDirection(before: string, after: string): boolean | undefined {
-  const verbs = [
-    ...before.matchAll(
-      /\b(gets?|got|receives?|received|hits?|hit|encounters?|encountered|returns?|returned|responds?|responded|answers?|answered|replies|replied|tells?|told|asks?|asked|instructs?|instructed)\b/gi,
-    ),
-  ];
-  const verb = verbs.at(-1);
-  if (!verb) return undefined;
-  if (/^(?:tell|told|ask|instruct)/i.test(verb[0]))
-    return runtimeParticipant(eventObject(before.slice((verb.index ?? 0) + verb[0].length)));
-  const actor = eventSubject(before.slice(0, verb.index));
-  if (/^(?:get|got|receive|hit|encounter)/i.test(verb[0])) return rateRecipient(actor);
-  const recipient = /^\s+(?:(?:is|was|gets?)\s+(?:returned|sent|shown)\s+)?(?:to|for)\s+(.+)/i.exec(after);
-  if (recipient) return rateRecipient(eventObject(recipient[1] ?? ''));
-  if (dependencyActor(actor) !== undefined) return runtimeDependency(actor);
-  if (/^(?:our|my|your|we|i)\b/i.test(actor) || runtimeParticipant(actor)) return false;
-  return undefined;
-}
-
-/**
- * Resolve an event inside a message against its own clause, while preserving explicit outer receivers
- * and issuers. Parenthetical illustrations are adjuncts, not direct objects of an adjacent event.
- * Descriptive quotations have already been removed by withoutHazardExamples.
- */
-function eventContext(
-  line: string,
-  event: { 0: string; index?: number },
-): { before: string; after: string } | undefined {
-  const at = event.index ?? 0;
-  let before = line.slice(0, at);
-  let after = line.slice(at + event[0].length);
-  const spans = line.matchAll(
-    /`[^`\n]+`|"(?:\\.|[^"\\\n])*"|“[^”\n]*”|(?<!\w)'(?:\\.|[^'\\\n])*'|\([^()\n]*\)/g,
-  );
-  for (const span of spans) {
-    const start = span.index ?? 0;
-    if (start >= at || start + span[0].length <= at) continue;
-    const outerBefore = line.slice(0, start);
-    const outerAfter = line.slice(start + span[0].length);
-    const direction = messageDirection(outerBefore, outerAfter);
-    if (direction === false) return undefined;
-    const body = span[0].slice(1, -1);
-    const local = at - start - 1;
-    const innerBefore = body.slice(0, local).replace(/["“”]/g, '');
-    const innerAfter = body.slice(local + event[0].length).replace(/["“”]/g, '');
-    const response = /\b(?:returns?|returned|responds?|responded|answers?|answered|replies|replied)\b/i.test(
-      outerBefore,
-    );
-    if (unownedEvent(eventSubject(innerBefore))) {
-      before = `${outerBefore}${innerBefore}`;
-      after = response ? outerAfter : `${innerAfter}${outerAfter}`;
-      // A quoted, unowned event in a reported message inherits its receiver, not the carrier noun.
-      if (
-        (direction === true || operationalHazardQuote(outerBefore, outerAfter)) &&
-        !response &&
-        !/^(?:429s?)$/i.test(body.trim())
-      )
-        before = innerBefore;
-    } else if (
-      !outerBefore.trim() ||
-      direction !== undefined ||
-      operationalHazardQuote(outerBefore, outerAfter)
-    ) {
-      before = innerBefore;
-      after = innerAfter;
-    }
-    break;
-  }
-  // Parentheses are adjuncts unless they supply an event's explicit participant ("of the kiosk").
-  const aside = /\((?!\s*of\b)[^()]*\)/gi;
-  return { before: before.replace(aside, ' '), after: after.replace(aside, ' ') };
-}
-
-/** In a passive event the subject undergoes it; in an active transitive event the object does. */
-function runtimeTransition(line: string, eventPattern: RegExp, allowUnowned: boolean): boolean {
-  return [...line.matchAll(new RegExp(eventPattern.source, 'gi'))].some((event) => {
-    const context = eventContext(line, event);
-    if (!context) return false;
-    const { before, after } = context;
-    const subject = eventSubject(before);
-    const passive =
-      /ed$/i.test(event[0]) &&
-      /\b(?:is|are|am|was|were|be|been|being|gets?|got)\b(?:\s+\w+ly)*\s*$/i.test(before);
-    const complement = after.replace(/^\s*\(\s*of\s+([^)]*)\)/i, ' $1').replace(/^\s+of\s+/i, ' ');
-    const candidate = eventObject(complement);
-    // Only a directly attached noun phrase supplies a restart target. Unclear complements are
-    // adjuncts: ownership falls back to the event's subject, never to a list of domain nouns.
-    const nounPhrase =
-      /^(?:(?:the|an?|this|that|these|those|my|your|our|its|their|his|her|own|some|each|every|any|all|both)\s+|(?:me|us|you|it|them|him|her)\b|[A-Z][\w'-]*\b)/.test(
-        candidate,
-      );
-    const object = nounPhrase || runtimeParticipant(candidate) ? candidate : '';
-    // With no actor, plural "restarts" names events, not an imperative acting on the next phrase.
-    if (/^(?:restart|reboot)s$/i.test(event[0]) && unownedEvent(subject))
-      return /^\s+of\s+/i.test(after) ? runtimeParticipant(object) : true;
-    // In "a process restart invalidates state", process modifies the event noun, not its verb.
-    const nominal =
-      /^(?:restart|reboot)$/i.test(event[0]) &&
-      /\b(?:agent|assistant|worker|subagent|session|process|runtime|machine|model|claude)\s*$/i.test(before);
-    if (nominal && !/^\s+of\s+/i.test(after)) return runtimeParticipant(subject);
-    if (!passive && object) {
-      // A reflexive target inherits its actor's ownership, not a global meaning for "its process".
-      const target = runtimeParticipant(subject)
-        ? object.replace(/^(?:its|their)\s+own\s+/i, 'own ')
-        : object;
-      return runtimeParticipant(target);
-    }
-    return runtimeParticipant(subject) || (allowUnowned && unownedEvent(subject));
-  });
-}
-
-/**
- * Limits are runtime hazards when the agent or a dependency receives them. A service reply needs an
- * explicit recipient, call relationship, or recovery instruction; describing a status is insufficient.
- */
-function runtimeRateLimit(line: string): boolean {
-  return [...line.matchAll(new RegExp(RATE_LIMIT_EVENT.source, 'gi'))].some((event) => {
-    const context = eventContext(line, event);
-    if (!context) return false;
-    const { before, after } = context;
-    const receipt =
-      /\b(?:gets?|got|receives?|received|hits?|hit|encounters?|encountered)\s+(?:(?:an?|the|[\w-]+'s)\s+)*(?:HTTP(?:\s+status)?\s+|status(?:\s+code)?\s+)?$/i.exec(
-        before,
-      );
-    if (receipt) return rateRecipient(eventSubject(before.slice(0, receipt.index)));
-    const response =
-      /\b(?:returns?|returned|responds?|responded|answers?|answered|replies|replied)\s+(?:with\s+)?(?:an?\s+)?(?:HTTP(?:\s+status)?\s+|status(?:\s+code)?\s+)?$/i.exec(
-        before,
-      );
-    if (response) {
-      const recipient = /^\s+(?:response\s+|status\s+|error\s+)?to\s+(.+)/i.exec(after);
-      if (recipient) return rateRecipient(eventObject(recipient[1] ?? ''));
-      const requester =
-        /^\s+(?:when|if|whenever)\s+(.+?)\s+(?:sends?|makes?|exceeds?|requests?|crosses?|uses?)\b/i.exec(
-          after,
-        );
-      if (requester) return rateRecipient(requester[1] ?? '');
-      const source = eventSubject(before.slice(0, response.index));
-      if (dependencyActor(source) !== undefined) return runtimeDependency(source);
-      return (
-        runtimeDependency(source) ||
-        (!runtimeParticipant(source) &&
-          !/^(?:our|my|your|we|i)\b/i.test(source) &&
-          /\b(?:if|when|once)\b[^;.!?]*,\s*[a-z]+\b/i.test(line))
-      );
-    }
-    // An active limiter names its recipient as the object; imposing a policy is not receiving one.
-    const verb = /^throttl/i.test(event[0]) || /^rate[- ]limit/i.test(event[0]);
-    const passive =
-      /ed$/i.test(event[0]) &&
-      /\b(?:is|are|am|was|were|be|been|being|gets?|got)\b(?:\s+\w+ly)*\s*$/i.test(before);
-    const object = eventObject(after);
-    const subject = eventSubject(before);
-    if (verb && !passive && object && !unownedEvent(subject))
-      return (!rateRecipient(subject) || runtimeDependency(subject)) && rateRecipient(object);
-    if (verb && !passive && object && /^throttles?$/i.test(event[0])) return false;
-    const scope = /^\s+(?:for|on|of)\s+(.+)/i.exec(after);
-    if (scope) return rateRecipient(eventObject(scope[1] ?? ''));
-    if (rateRecipient(subject)) return true;
-    if (/^429/i.test(event[0])) {
-      // A bare invoice number is not an HTTP event. Status/error/response forms name an event.
-      return (
-        /^(?:an?\s*)?(?:HTTP(?:\s+status)?|status(?:\s+code)?)?\s*$/i.test(subject) &&
-        (/\bHTTP\b|\bstatus\b/i.test(before) || /^\s+(?:error|response|status)\b/i.test(after))
-      );
-    }
-    return unownedEvent(subject);
-  });
 }
 
 /**

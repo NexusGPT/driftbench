@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../../src/index';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 
 const settings = JSON.stringify({
   hooks: {
@@ -10,7 +10,12 @@ const settings = JSON.stringify({
 
 async function lint(files: Record<string, string>) {
   const root = await estate(files);
-  const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+  const { map, raw } = await scanEstate({
+    root,
+    reader: new ClaudeCodeReader(),
+    now: NOW,
+    pointer: structurePointer(),
+  });
   return { map, raw, result: lintEstate(map, raw) };
 }
 
@@ -133,64 +138,6 @@ describe('only a script that writes a path makes it a runtime product', () => {
 });
 
 describe('counter-examples and fill-in values are not live references', () => {
-  it('blanks a wrong example up to its right counterpart and keeps the live part of the line', async () => {
-    const { map, result } = await lint({
-      'CLAUDE.md':
-        '# Rules\n✗ read `old/gone.md` → ✓ read `.claude/live.md`.\nWRONG: read `old/gone-two.md`.\n- Right: read `.claude/live.md`.\n',
-      '.claude/live.md': '# Live\n',
-    });
-    expect(result.counts.MISSING_REFERENCE).toBe(0);
-    expect(map.atoms.filter((atom) => atom.kind === 'reference').map((atom) => atom.fields?.path)).toEqual([
-      '.claude/live.md',
-      '.claude/live.md',
-    ]);
-  });
-
-  it('keeps live rules whose sentence uses wrong, bad, incorrect or a multiplication sign', async () => {
-    const { map, result } = await lint({
-      'CLAUDE.md': [
-        '# Rules',
-        'If the quantity is wrong: read `.claude/a1.md` before you edit the order.',
-        'When a review is bad: read `.claude/a2.md` before you reply.',
-        'If the total is incorrect: read `.claude/a3.md` before you send the invoice.',
-        'Scale every recipe by 2 × 3, then read `.claude/a4.md` before you print it.',
-        'If the count is wrong: read `.claude/a5.md` before you edit the list.',
-        '',
-      ].join('\n'),
-      '.claude/a1.md': '#\n',
-      '.claude/a2.md': '#\n',
-      '.claude/a3.md': '#\n',
-      '.claude/a4.md': '#\n',
-      '.claude/a5.md': '#\n',
-    });
-    const read = map.atoms
-      .filter((atom) => atom.kind === 'gate')
-      .map((atom) => String(atom.fields?.path ?? atom.title));
-    expect(read.join(' ')).toMatch(/a1/);
-    expect(read.join(' ')).toMatch(/a2/);
-    expect(read.join(' ')).toMatch(/a3/);
-    expect(read.join(' ')).toMatch(/a4/);
-    expect(read.join(' ')).toMatch(/a5/);
-    expect(result.counts.ORPHAN).toBe(0);
-  });
-
-  it('still blanks a counter-example that opens a line, a list item or a table cell', async () => {
-    const { map } = await lint({
-      'CLAUDE.md': [
-        '# Rules',
-        'Wrong: read `.claude/never1.md` before you edit. Right: read `.claude/live.md` before you edit.',
-        '- ✗ read `.claude/never2.md` first → ✓ read `.claude/live.md` first.',
-        '> × read `.claude/never3.md` before you edit',
-        '| ✗ read `.claude/never4.md` | ✓ read `.claude/live.md` |',
-        '',
-      ].join('\n'),
-      '.claude/live.md': '#\n',
-    });
-    const paths = map.atoms.filter((atom) => atom.kind === 'reference').map((atom) => atom.fields?.path);
-    expect(paths.filter((path) => String(path).includes('never'))).toEqual([]);
-    expect(paths.filter((path) => path === '.claude/live.md').length).toBeGreaterThanOrEqual(3);
-  });
-
   it('treats a block after a standalone wrong marker as an example', async () => {
     const { result } = await lint({
       'CLAUDE.md': '# Rules\n\n✗\n\n> Read `old/gone.md` first.\n\nRead `real-missing/guide.md` first.\n',
@@ -227,14 +174,5 @@ describe('a sentence is not a path', () => {
       'CLAUDE.md': `# Rules\nRead "${sentence}" before editing.\nRead \`real-missing/guide.md\`.\n`,
     });
     expect(result.counts.MISSING_REFERENCE).toBe(1);
-  });
-
-  it('quotes a hazard line as written when a counter-example on the same line is masked', async () => {
-    const { map } = await lint({
-      'CLAUDE.md':
-        '# Rules\n✗ ignore the repeated guard nudges and read `old/gone.md` → ✓ after a compaction, stop and recover from repeated guard nudges.\n',
-    });
-    const hazard = map.atoms.find((atom) => atom.kind === 'hazard');
-    expect(hazard?.provenance.quote).toContain('✗ ignore the repeated guard nudges');
   });
 });

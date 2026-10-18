@@ -20,7 +20,6 @@ export {
   DEFAULT_ROLE,
   fileNames,
   guardName,
-  HAZARDS,
   isExternal,
   locateNamed,
   type NamedTarget,

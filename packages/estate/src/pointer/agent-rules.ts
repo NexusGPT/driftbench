@@ -8,8 +8,8 @@
  */
 const ALSO_REFERENCE = `          also:
             - kind: reference
-              whenFile: true
-              title: "Read \${code}"
+              whenFile: each
+              title: "Read \${named}"
               situation: $unit
               fields: { readWhen: $unit, from: $file }
               evidence:
@@ -44,17 +44,17 @@ ${ALSO_REFERENCE}
         links: [act-tool]
         atom:
           kind: gate
-          title: "Read \${code} before \${span.governed-action}"
+          title: "Read \${named} before \${span.governed-action}"
           situation: "\${span.governed-action}"
-          fields: { first: $code, trigger: "\${span.governed-action}", path: $path }
+          fields: { first: $named, trigger: "\${span.governed-action}", path: $path }
           evidence:
             - { type: ordered, before: Read, after: $link.act-tool }
             - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
           also:
             - kind: reference
-              title: "Read \${code}"
+              title: "Read \${named}"
               situation: $unit
-              locate: true
+              locate: each
               fields: { readWhen: $unit, from: $file }
               evidence:
                 - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
@@ -74,9 +74,9 @@ ${ALSO_REFERENCE}
         description: A unit that tells the reader to read a file, or says where a file is that it can read, with no act that must wait for it. Its file is the first code span of the unit.
         atom:
           kind: reference
-          title: "Read \${code}"
+          title: "Read \${named}"
           situation: $unit
-          locate: true
+          locate: each
           fields: { readWhen: $unit, from: $file }
           evidence:
             - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }

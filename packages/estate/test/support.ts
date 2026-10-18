@@ -2,7 +2,15 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ClaudeCodeReader, estateRecordingPort, loadEstateRecording, scanEstate } from '../src/index';
+import {
+  ClaudeCodeReader,
+  estateRecordingPort,
+  loadEstateRecording,
+  type PointerScanOptions,
+  pointer,
+  scanEstate,
+} from '../src/index';
+import { namedPaths } from '../src/scan/code';
 
 /** The hand-written Northwind fixture estate. */
 export const FIXTURE = fileURLToPath(new URL('../../../examples/estates/fixture/', import.meta.url));
@@ -33,4 +41,46 @@ export async function scanFixture() {
 /** One answer of the prose contract, as JSON text. */
 export function answer(chunk: string, atoms: unknown[]): string {
   return JSON.stringify({ chunk, atoms });
+}
+
+/**
+ * A pointer reader for tests of how the scan finds, resolves and ignores the files a prose names: a planted
+ * system 2 labeller that calls a unit a reference exactly when it names a path (a code span, a link, a quoted
+ * file name, a wiki link, an import). The meaning of the sentence is not read; what the scan does with the path is
+ * the thing under test.
+ */
+export function structurePointer(): PointerScanOptions {
+  const sets = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  if (!sets.ok) throw new Error(sets.message);
+  const labeler: pointer.Labeler = {
+    id: 'structure',
+    cls: 'system2',
+    family: 'test',
+    model: 'structure-1',
+    settings: {},
+    maxUnits: (_set, wanted) => wanted,
+    render: (set, window) => ({
+      labeler: 'structure',
+      body: { set: set.set, window: window.id, units: window.units.map((unit) => unit.text) },
+    }),
+    opinions: pointer.denseOpinions,
+    async call(_wire, _set, window) {
+      return {
+        labels: window.units.map((unit) => ({
+          units: String(unit.n),
+          // A standing import line is loaded by the runtime and read by nobody: it is no reference.
+          label: namedPaths(unit.text).length > 0 && !/^@\S+$/.test(unit.text.trim()) ? 'reference' : 'none',
+        })),
+        returnedModel: 'structure-1',
+        stopReason: 'end_turn',
+        usage: { input: 0, output: 0 },
+      };
+    },
+  };
+  return {
+    sets: sets.sets,
+    labelling: pointer.singleLabelling(labeler),
+    cassette: new pointer.Cassette(),
+    mode: 'record',
+  };
 }

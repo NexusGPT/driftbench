@@ -48,10 +48,10 @@ const AtomBase = z.strictObject({
   fields: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
   /** Checks the set puts on every atom of this label, after the review check the scan adds. */
   evidence: z.array(EvidencePredicate).optional(),
-  /** Resolve the first code span of the unit as a file of the estate: the atom gets its path and whether it exists. */
-  locate: z.literal(true).optional(),
+  /** Resolve the first path the unit names as a file of the estate: the atom gets its path and whether it exists. `each`: one atom per path the unit names. */
+  locate: z.union([z.literal(true), z.literal('each')]).optional(),
   /** Build this atom only when the first code span of the unit leads to a file of the estate. */
-  whenFile: z.literal(true).optional(),
+  whenFile: z.union([z.literal(true), z.literal('each')]).optional(),
 });
 
 /** What a label builds: one atom, and the further atoms the same unit also is (a gate that also names a file). */

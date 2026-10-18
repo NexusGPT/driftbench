@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate, USER_LAYER } from '../../src/index';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 
 const skill = (name: string, body = `# ${name}\n`) =>
   `---\nname: ${name}\ndescription: Handle the ${name} chores. Use when the user asks for the ${name} chores.\n---\n\n${body}`;
@@ -34,7 +34,7 @@ const layered = () =>
 
 async function scan(files: Record<string, string>, reader = layered()) {
   const root = await estate(files);
-  return { root, ...(await scanEstate({ root, reader, now: NOW })) };
+  return { root, ...(await scanEstate({ root, reader, now: NOW, pointer: structurePointer() })) };
 }
 const skillNames = (map: { atoms: Array<{ kind: string; fields?: Record<string, unknown> }> }) =>
   map.atoms
@@ -122,7 +122,12 @@ describe('the user-level skill layer is a second skill layer', () => {
       { '.claude/skills/own/SKILL.md': skill('own') },
       { '.claude/skills/dock-roster': join(project, '.claude/skills/dock-roster') },
     );
-    const { map, raw } = await scanEstate({ root: project, reader: layered(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root: project,
+      reader: layered(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(skillNames(map)).toEqual(['dock-roster', 'own']);
     expect(raw.userLayer).toEqual({ read: ['own'], shadowed: [] });
     expect(raw.notes.filter((note) => note.message.includes('duplicate'))).toEqual([]);
@@ -230,10 +235,16 @@ describe('the folder of the user layer is configurable', () => {
         root: estateOnly,
         reader: new ClaudeCodeReader({ userSkills: 'mine' }),
         now: NOW,
+        pointer: structurePointer(),
       });
       expect(skillNames(option.map)).toEqual(['own-one']);
       // The option wins over the file, and the file's folder is relative to the estate, not to the working folder.
-      const config = await scanEstate({ root: estateOnly, reader: new ClaudeCodeReader(), now: NOW });
+      const config = await scanEstate({
+        root: estateOnly,
+        reader: new ClaudeCodeReader(),
+        now: NOW,
+        pointer: structurePointer(),
+      });
       expect(skillNames(config.map)).toEqual(['shared-one']);
     } finally {
       process.chdir(before);

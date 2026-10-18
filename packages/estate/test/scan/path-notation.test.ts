@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
 import { namedPaths } from '../../src/scan/code';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 
 describe('reference path notation', () => {
   it.each([
@@ -19,7 +19,12 @@ describe('reference path notation', () => {
       '.claude/skills/reconcile/SKILL.md': `---\nname: reconcile\n---\n${quote}\n`,
       '.claude/skills/reconcile/references/guide.md': '# Guide\n',
     });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.filter((a) => a.kind === 'reference')).toMatchObject([
       {
         fields: { path: '.claude/skills/reconcile/references/guide.md', exists: true },
@@ -50,13 +55,5 @@ describe('reference path notation', () => {
     expect(namedPaths(`${'ordinary words '.repeat(20000)} Read references/guide.md.`)).toEqual([
       'references/guide.md',
     ]);
-  });
-
-  it('does not turn prohibited wiki or backslash reads into positive references', async () => {
-    const root = await estate({
-      'CLAUDE.md': 'Never read [[references/guide]].\nDo not read `references\\other.md`.\n',
-    });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
-    expect(map.atoms.filter((a) => a.kind === 'reference')).toEqual([]);
   });
 });

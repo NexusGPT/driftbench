@@ -1,5 +1,5 @@
 import { foldQuote } from '@agent-nexus/driftbench-generate';
-import type { AtomBuilder } from '../scan/code';
+import { type AtomBuilder, namedPaths, namedReferences } from '../scan/code';
 import { PROSE_KINDS } from '../scan/prose';
 import { type Located, lineAt, quoteAtSpan } from '../scan/text';
 import type { Atom } from '../schema';
@@ -27,6 +27,7 @@ type Template = {
   link(kind: string, property?: string): string | undefined;
   span(kind: string): string | undefined;
   code(): string | undefined;
+  named(): string | undefined;
   path(): string | undefined;
   unit(): string;
   file(): string;
@@ -34,7 +35,7 @@ type Template = {
 
 const UNRESOLVED = Symbol('unresolved');
 const PLACEHOLDER =
-  /^\$(?:link\.([a-z][a-z0-9-]*)(?:\.([a-z]+))?|span\.([a-z][a-z0-9-]*)|code|path|unit|file)$/;
+  /^\$(?:link\.([a-z][a-z0-9-]*)(?:\.([a-z]+))?|span\.([a-z][a-z0-9-]*)|code|named|path|unit|file)$/;
 
 /**
  * Fills the placeholders of a value of a mapping: a string that is exactly `$link.<kind>` (the value the labeller
@@ -62,11 +63,13 @@ function fill(value: unknown, template: Template): unknown {
         ? template.span(match[3])
         : value === '$code'
           ? template.code()
-          : value === '$path'
-            ? template.path()
-            : value === '$unit'
-              ? template.unit()
-              : template.file();
+          : value === '$named'
+            ? template.named()
+            : value === '$path'
+              ? template.path()
+              : value === '$unit'
+                ? template.unit()
+                : template.file();
     return found === undefined ? UNRESOLVED : found;
   }
   if (Array.isArray(value)) {
@@ -87,6 +90,9 @@ function fill(value: unknown, template: Template): unknown {
 
 /** The text between the first pair of backticks of a unit: a code span, by Markdown structure. */
 const codeSpanOf = (text: string): string | undefined => /`([^`\n]+)`/.exec(text)?.[1]?.trim() || undefined;
+
+/** The first path a unit names, by the written forms of a name (code span, link, quoted, wiki), else its first code span. */
+const namedOf = (text: string): string | undefined => namedPaths(text)[0] ?? codeSpanOf(text);
 
 function titleOf(text: string): string {
   const flat = text
@@ -117,7 +123,7 @@ export function pointerAtoms(
     const label = item.set.labels.find((candidate) => candidate.name === item.label);
     const primary = label?.atom;
     if (!primary) continue;
-    const named = `${item.path} unit ${item.id} (${item.label})`;
+    const where = `${item.path} unit ${item.id} (${item.label})`;
     const text = texts.get(item.path);
     if (text === undefined) continue;
     // A gate holds two units: the quote runs from the first to the end of the second, in file order.
@@ -131,7 +137,7 @@ export function pointerAtoms(
       quote: text.slice(start, end),
     };
     if (!quoteAtSpan(text, at)) {
-      refusals.push(`${named}: the unit is not at lines ${at.startLine} to ${at.endLine} of the file`);
+      refusals.push(`${where}: the unit is not at lines ${at.startLine} to ${at.endLine} of the file`);
       continue;
     }
     const folded = foldQuote(at.quote);
@@ -146,7 +152,7 @@ export function pointerAtoms(
       const here = text.slice(item.unit.start + span.from, item.unit.start + span.to);
       if (here === '' || here !== item.unit.text.slice(span.from, span.to)) {
         refusals.push(
-          `${named}: the ${span.kind} span ${span.from} to ${span.to} is not an exact slice of the file`,
+          `${where}: the ${span.kind} span ${span.from} to ${span.to} is not an exact slice of the file`,
         );
         continue;
       }
@@ -166,13 +172,25 @@ export function pointerAtoms(
         continue;
       }
       if (!builder.atoms.some((other) => other.id === link.to)) {
-        refusals.push(`${named}: the ${link.kind} link names ${link.to}, which is no atom of the estate`);
+        refusals.push(`${where}: the ${link.kind} link names ${link.to}, which is no atom of the estate`);
         continue;
       }
       labelLinks.push({ kind: link.kind, atom: link.to });
     }
     const code = codeSpanOf(item.unit.text);
-    const template: Template = {
+    // A line of a standing file that is `@path` is an import: the runtime loads it and the agent reads nothing.
+    const imported = (path: string): boolean =>
+      builder.kindOf(item.path) === 'standing' &&
+      item.unit.text.split('\n').some((line) => line.trim() === `@${path}`);
+    const bareNames = new Set(
+      namedReferences(item.unit.text)
+        .filter((reference) => reference.bare)
+        .map((reference) => reference.path),
+    );
+    const allNamed = namedPaths(item.unit.text).filter((path) => !imported(path));
+    const firstNamed = namedOf(item.unit.text);
+    const readable = allNamed.length > 0 ? allNamed[0] : imported(firstNamed ?? '') ? undefined : firstNamed;
+    const templateFor = (namedPath: string | undefined): Template => ({
       link: (kind, property) => {
         const found = labelLinks.find((link) => link.kind === kind);
         if (found?.value !== undefined) return property === undefined ? found.value : undefined;
@@ -188,104 +206,117 @@ export function pointerAtoms(
         return span ? text.slice(start + span.from, start + span.to) : undefined;
       },
       code: () => code,
-      path: () => (code === undefined ? undefined : builder.locate(code, item.path)),
+      named: () => namedPath,
+      path: () => (namedPath === undefined ? undefined : builder.locate(namedPath, item.path)),
       unit: () => item.unit.text,
       file: () => item.path,
-    };
+    });
     let kept = false;
     for (const mapping of [primary, ...(primary.also ?? [])]) {
-      if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
-        refusals.push(
-          `${named}: the label ${item.label} maps to the atom kind ${mapping.kind}, which a pointer cannot build`,
-        );
-        continue;
-      }
-      const same = builder.atoms.find(
-        (other) =>
-          other.kind === mapping.kind &&
-          other.provenance.file === at.file &&
-          other.provenance.startLine <= at.endLine &&
-          at.startLine <= other.provenance.endLine &&
-          (other.producedBy === 'code' || foldQuote(other.provenance.quote) === folded),
-      );
-      if (same) {
-        duplicates.push(`${named} repeats ${same.id}`);
-        continue;
-      }
-      const situation = mapping.situation === undefined ? undefined : fill(mapping.situation, template);
-      const title = mapping.title === undefined ? undefined : fill(mapping.title, template);
-      const mappedFields = mapping.fields === undefined ? {} : fill(mapping.fields, template);
-      const mappedEvidence = mapping.evidence === undefined ? [] : fill(mapping.evidence, template);
-      // A mapping that locates its code span as a file resolves it by the estate's own places, never by words.
-      let located: Record<string, unknown> = {};
-      if (mapping.whenFile && (code === undefined || !builder.resolve(code, item.path).exists)) continue;
-      if (mapping.locate || mapping.whenFile) {
-        if (code === undefined) {
-          refusals.push(`${named}: the label ${item.label} locates a file, and the unit has no code span`);
+      const paths =
+        (mapping.locate === 'each' || mapping.whenFile === 'each') && allNamed.length > 0
+          ? allNamed
+          : [readable];
+      for (const namedPath of paths) {
+        const template = templateFor(namedPath);
+        if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
+          refusals.push(
+            `${where}: the label ${item.label} maps to the atom kind ${mapping.kind}, which a pointer cannot build`,
+          );
           continue;
         }
-        const target = builder.resolve(code, item.path);
-        located = {
-          path: target.path,
-          exists: target.exists,
-          ...(target.via === 'alias' || target.via === 'suffix' ? { resolvedBy: target.via } : {}),
-          ...(target.candidates ? { candidates: target.candidates } : {}),
-          ...(target.via === 'external' ? { external: true } : {}),
-        };
-      }
-      if (
-        situation === UNRESOLVED ||
-        title === UNRESOLVED ||
-        mappedFields === UNRESOLVED ||
-        mappedEvidence === UNRESOLVED
-      ) {
-        refusals.push(
-          `${named}: the label ${item.label} needs a span, a link or a code span that the unit does not give`,
+        const same = builder.atoms.find(
+          (other) =>
+            other.kind === mapping.kind &&
+            other.provenance.file === at.file &&
+            other.provenance.startLine <= at.endLine &&
+            at.startLine <= other.provenance.endLine &&
+            other.fields?.unit !== item.id &&
+            (other.producedBy === 'code' || foldQuote(other.provenance.quote) === folded),
         );
-        continue;
-      }
-      kept = true;
-      accepted.push(
-        builder.add({
-          kind: mapping.kind as (typeof POINTER_KINDS)[number],
-          title: typeof title === 'string' ? title : titleOf(item.unit.text),
-          at,
-          ...(conditional.length > 0
-            ? { situation: conditional.map((condition) => condition.unit.text.trim()).join(' ') }
-            : typeof situation === 'string'
-              ? { situation }
-              : {}),
-          evidence: [
-            {
-              type: 'custom',
-              name: 'prose_pointer',
-              options: {
-                reviewRequired: true,
-                unit: item.id,
-                set: item.set.set,
-                label: item.label,
-                ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
+        if (same) {
+          duplicates.push(`${where} repeats ${same.id}`);
+          continue;
+        }
+        const situation = mapping.situation === undefined ? undefined : fill(mapping.situation, template);
+        const title = mapping.title === undefined ? undefined : fill(mapping.title, template);
+        const mappedFields = mapping.fields === undefined ? {} : fill(mapping.fields, template);
+        const mappedEvidence = mapping.evidence === undefined ? [] : fill(mapping.evidence, template);
+        // A mapping that locates its code span as a file resolves it by the estate's own places, never by words.
+        let located: Record<string, unknown> = {};
+        if (mapping.whenFile && (namedPath === undefined || !builder.resolve(namedPath, item.path).exists))
+          continue;
+        if (mapping.locate || mapping.whenFile) {
+          if (namedPath === undefined) {
+            refusals.push(`${where}: the label ${item.label} locates a file, and the unit names none`);
+            continue;
+          }
+          const target = builder.resolve(namedPath, item.path, bareNames.has(namedPath));
+          located = {
+            path: target.path,
+            ...(target.unresolved ? { written: namedPath, unresolved: true } : {}),
+            ...(target.concrete ? { concrete: true } : {}),
+            exists: target.exists,
+            ...(target.ignored ? { ignored: true } : {}),
+            ...(target.via === 'alias' || target.via === 'suffix' ? { resolvedBy: target.via } : {}),
+            ...(target.candidates ? { candidates: target.candidates } : {}),
+            ...(target.via === 'external' ? { external: true } : {}),
+          };
+        }
+        if (
+          situation === UNRESOLVED ||
+          title === UNRESOLVED ||
+          mappedFields === UNRESOLVED ||
+          mappedEvidence === UNRESOLVED
+        ) {
+          refusals.push(
+            `${where}: the label ${item.label} needs a span, a link or a code span that the unit does not give`,
+          );
+          continue;
+        }
+        kept = true;
+        accepted.push(
+          builder.add({
+            kind: mapping.kind as (typeof POINTER_KINDS)[number],
+            title: typeof title === 'string' ? title : titleOf(item.unit.text),
+            at,
+            ...(conditional.length > 0
+              ? { situation: conditional.map((condition) => condition.unit.text.trim()).join(' ') }
+              : typeof situation === 'string'
+                ? { situation }
+                : {}),
+            evidence: [
+              {
+                type: 'custom',
+                name: 'prose_pointer',
+                options: {
+                  reviewRequired: true,
+                  unit: item.id,
+                  set: item.set.set,
+                  label: item.label,
+                  ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
+                },
               },
+              ...(mappedEvidence as NonNullable<typeof mapping.evidence>),
+            ],
+            producedBy: 'model',
+            fields: {
+              ...located,
+              ...(mappedFields as Record<string, unknown>),
+              extraction: 'pointer',
+              unit: item.id,
+              labelSet: item.set.set,
+              label: item.label,
+              cassette: item.source,
+              labeler,
+              ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
+              ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
+              ...(labelSpans.length > 0 ? { labelSpans } : {}),
+              ...(labelLinks.length > 0 ? { labelLinks } : {}),
             },
-            ...(mappedEvidence as NonNullable<typeof mapping.evidence>),
-          ],
-          producedBy: 'model',
-          fields: {
-            ...located,
-            ...(mappedFields as Record<string, unknown>),
-            extraction: 'pointer',
-            unit: item.id,
-            labelSet: item.set.set,
-            label: item.label,
-            cassette: item.source,
-            labeler,
-            ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
-            ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
-            ...(labelSpans.length > 0 ? { labelSpans } : {}),
-            ...(labelLinks.length > 0 ? { labelLinks } : {}),
-          },
-        }),
-      );
+          }),
+        );
+      }
     }
     if (kept) for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
   }

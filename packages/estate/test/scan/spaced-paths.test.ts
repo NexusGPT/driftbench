@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../../src/index';
 import { namedPaths } from '../../src/scan/code';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 
 describe('file names containing spaces', () => {
   it.each([
@@ -24,7 +24,12 @@ describe('file names containing spaces', () => {
       '.claude/skills/reconcile/SKILL.md': `---\nname: reconcile\ndescription: Reconcile an invoice.\n---\n${quote}`,
       '.claude/skills/reconcile/references/team notes.md': '# Notes\n',
     });
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     expect(map.atoms.find((atom) => atom.kind === 'reference')).toMatchObject({
       fields: { path: '.claude/skills/reconcile/references/team notes.md', exists: true },
       provenance: { quote },

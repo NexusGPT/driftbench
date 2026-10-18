@@ -184,7 +184,6 @@ export {
   fileNames,
   type GuardDecl,
   guardName,
-  HAZARDS,
   type InvariantState,
   ignoreRule,
   invariantAtoms,

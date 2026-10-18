@@ -2,7 +2,7 @@ import { mkdir, realpath, symlink } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
-import { estate, NOW } from '../support';
+import { estate, NOW, structurePointer } from '../support';
 
 it.each(['guide.md', 'documents/guide.md'])(
   'never reads an external symlink that a standing file names: %s',
@@ -17,7 +17,7 @@ it.each(['guide.md', 'documents/guide.md'])(
     expect(raw.notes).toContainEqual({ file: path, message: expect.stringContaining('external') });
     expect(await reader.listFiles(root)).not.toContain(path);
     if (/guide\.md$/.test(path)) {
-      const { map } = await scanEstate({ root, reader, now: NOW });
+      const { map } = await scanEstate({ root, reader, now: NOW, pointer: structurePointer() });
       const reference = map.atoms.find((atom) => atom.kind === 'reference');
       expect(reference?.fields?.external).toBe(true);
       expect(reference?.fields?.exists).toBe(false);
@@ -38,7 +38,7 @@ it('still follows a skills folder that the layout links to a shared library outs
   expect(raw.files.map((file) => file.path)).toContain('.claude/skills/parcels/SKILL.md');
   expect(raw.followedLinks).toEqual(['.claude/skills']);
   expect(JSON.stringify(raw.followedLinks)).not.toContain(await realpath(outside));
-  const { map } = await scanEstate({ root, reader, now: NOW });
+  const { map } = await scanEstate({ root, reader, now: NOW, pointer: structurePointer() });
   expect(map.followedLinks).toEqual(raw.followedLinks);
 });
 
