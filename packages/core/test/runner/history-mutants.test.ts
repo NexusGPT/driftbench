@@ -36,7 +36,9 @@ describe('readOnlyHistory', () => {
   it('refuses an array that holds something that is not a message, as freezeHistory does', () => {
     const bad = [message('one'), { role: 'user', content: 'x', toJSON: () => 'y' }] as unknown as Message[];
     expect(() => readOnlyHistory(bad)).toThrow(TypeError);
-    const sparse = [message('one'), , message('three')] as unknown as Message[];
+    // A hole: index 1 is never assigned.
+    const sparse: Message[] = [message('one')];
+    sparse[2] = message('three');
     expect(() => readOnlyHistory(sparse)).toThrow(TypeError);
   });
 
