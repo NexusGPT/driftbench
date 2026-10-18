@@ -209,6 +209,63 @@ describe('selection skips blocks only with a passing, matching gate', () => {
     expect(checkSelectionGate(passing, changed, [registry])).toMatchObject({ ok: false });
   });
 
+  describe('a gate for one prompt never skips blocks for a change to another prompt', () => {
+    // A second prompt `other`, with one declared (unverified) link from block 0 of every spec.
+    const other = { ...registry, prompt_id: 'other' };
+    const linked = specs.map((entry) => ({
+      ...entry,
+      spec: {
+        ...entry.spec,
+        metadata: {
+          links: [
+            ...((entry.spec.metadata?.links ?? []) as BlockLink[]),
+            {
+              block: entry.spec.blocks[0]?.id ?? 'x',
+              to: { kind: 'prompt_section' as const, prompt: 'other', section: 'closing' },
+              status: 'declared' as const,
+            },
+          ],
+        },
+      },
+    }));
+    const of = (...ids: string[]): ChangeManifest => ({
+      from: 'v1',
+      to: 'v2',
+      changes: ids.map((id) => ({ kind: 'prompt_section', id })),
+    });
+    const gated = (change: ChangeManifest) =>
+      radiusOf(linked, change, { sections: [registry, other], gate: passing });
+    const outs = (report: ReturnType<typeof gated>) =>
+      report.specs.flatMap((spec) => spec.blocks.filter((block) => block.state.F === 'out')).length;
+
+    it('is the whole suite for a change to the other prompt, naming the prompt with no gate', () => {
+      expect(passing.pass).toBe(true);
+      const report = gated(of('other#explicit_confirm'));
+      expect(report.whole?.reason).toContain('other has no verified-link gate');
+      expect(report.sectionGate?.used).toBe(false);
+      expect(outs(report)).toBe(0);
+    });
+
+    it('is the whole suite when the change names both prompts', () => {
+      const report = gated(of('acme-sales#explicit_confirm', 'other#closing'));
+      expect(report.whole?.reason).toContain('other has no verified-link gate');
+      expect(outs(report)).toBe(0);
+    });
+
+    it('is the whole suite for a section id with no prompt that resolves to both prompts', () => {
+      const report = gated(of('explicit_confirm'));
+      expect(report.whole?.reason).toContain('other has no verified-link gate');
+      expect(outs(report)).toBe(0);
+    });
+
+    it('still skips for a change to the gated prompt, with the other registry given', () => {
+      const report = gated(of('acme-sales#explicit_confirm'));
+      expect(report.whole).toBeNull();
+      expect(report.sectionGate?.used).toBe(true);
+      expect(outs(report)).toBeGreaterThan(0);
+    });
+  });
+
   it('is the whole suite with a file that is no gate record, or for a global section', () => {
     expect(radius({ pass: true }).whole?.reason).toContain('not a selection gate record');
     const global = radiusOf(specs, manifestOf(['identity']), { sections: [registry], gate: passing });

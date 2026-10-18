@@ -80,7 +80,9 @@ violating mutants is at or below 5%, over every mutant that is not a control. It
 With 0 violations the bound is at or below 5% from 73 mutants on. The gate record is bound to the prompt
 (id, version and text hash) and to the suite (each spec's hash and its verified links to the prompt). A
 changed prompt, spec or verified link makes it stale, and a stale or failed record keeps selection
-advisory.
+advisory. A record covers its own prompt only: a change that names another
+prompt, or a section id with no prompt while another prompt's registry is given, keeps the whole suite
+and names the prompt with no gate.
 
 ## When to use it
 

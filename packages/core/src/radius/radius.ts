@@ -301,7 +301,27 @@ export function radiusOf(
     const check = options.sections
       ? checkSelectionGate(options.gate, specs, options.sections)
       : ({ ok: false, reason: 'no section registry was given' } as const);
-    if (check.ok) {
+    // A gate checks the links of its own prompt only: a change that names, or resolves to, another prompt
+    // keeps the whole suite, or blocks would be skipped on that prompt's unverified links.
+    const gatePrompt = check.ok ? check.gate.prompt.id : '';
+    const registered = (options.sections ?? []).map((registry) => registry.prompt_id);
+    const ungated = [
+      ...new Set(
+        sectionChanges(manifest).flatMap((change) =>
+          change.prompt === '*'
+            ? registered.filter((prompt) => prompt !== gatePrompt)
+            : change.prompt === gatePrompt
+              ? []
+              : [change.prompt],
+        ),
+      ),
+    ];
+    if (check.ok && ungated.length > 0)
+      sectionGate = {
+        used: false,
+        reason: `the gate is for ${gatePrompt}; ${ungated.join(', ')} has no verified-link gate`,
+      };
+    else if (check.ok) {
       gated = sectionSelection(verifiedOnly(specs, check.gate.prompt.id), manifest, options.sections ?? [], {
         parentOf: options.parentOf,
       });
