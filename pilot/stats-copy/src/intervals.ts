@@ -65,6 +65,30 @@ export function effectiveSampleSize(n: number, m: number, rho: number): number {
   return n / designEffect(m, rho);
 }
 
+/**
+ * Kish's effective sample size of weighted units, (sum w)^2 / sum w^2 (Owen, Monte Carlo theory, chapter 9,
+ * equation 9.13). The weights are scaled by their largest, so large weights do not overflow.
+ */
+export function kishEffectiveSize(weights: readonly number[]): number {
+  if (weights.length === 0) throw new RangeError('kishEffectiveSize: weights is empty');
+  assertFiniteValues(weights, 'kishEffectiveSize: weights');
+  let largest = 0;
+  for (let i = 0; i < weights.length; i += 1) {
+    const w = weights[i] as number;
+    if (w < 0) throw new RangeError(`kishEffectiveSize: weights must be non-negative, got ${w} at index ${i}`);
+    if (w > largest) largest = w;
+  }
+  if (!(largest > 0)) throw new RangeError('kishEffectiveSize: weights must have a positive sum');
+  let total = 0;
+  let squares = 0;
+  for (const w of weights) {
+    const u = w / largest;
+    total += u;
+    squares += u * u;
+  }
+  return (total * total) / squares;
+}
+
 export interface BootstrapOptions {
   /** Cluster key per value, same length as values. Without it every value is its own cluster. */
   readonly clusters?: readonly (string | number)[];
