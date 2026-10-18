@@ -119,3 +119,11 @@ No em or en dashes. No slogans. Fictional data only: emails at example.com, no r
 * Reader commands: `driftbench help <area>` lists one area, `driftbench help search <words>` finds topics,
   `driftbench help --list` prints every command with its one line description and its topic.
 * Worked examples: `file=<path>` blocks and `sh setup` blocks, run in order with the commands.
+
+* Coverage gate: `tools/docs/help-coverage.test.ts` walks the registered Commander tree.
+  Every runnable command needs a topic and every flag needs a Commands and every option section.
+  Shared flags may use a directly linked `see_also` topic. Examples alone do not count.
+* Exported `IssueCodes`, `*IssueCodes`, `*WarningCodes` and `*ErrorCodes` arrays under package source
+  are discovered automatically. Each code needs an exact inline-code entry in Common errors.
+  A new registry must be a literal array, or the inventory reader must be extended with tests.
+* The PR checks run every help worked example, including changes that only edit Markdown.
