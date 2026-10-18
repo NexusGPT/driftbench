@@ -7,22 +7,22 @@
     "datasetHash": "1f0bb9da2d2fc84bae2512d043572ed7cf3a782db6cd25812c765b153ac890b1",
     "judge": "haiku",
     "model": "claude-haiku-5-5",
-    "settings": "[\"-p\",\"--output-format\",\"json\",\"--tools\",\"\",\"--setting-sources\",\"\",\"--strict-mcp-config\",\"--no-session-persistence\",\"--max-turns\",\"1\"]",
-    "fingerprint": "398673b792c1",
-    "head": "b878845d410a41e1cac514963f1812817ef64155",
-    "startedAt": "2026-10-13T08:55:56.532Z",
-    "finishedAt": "2026-10-13T08:57:12.631Z",
+    "settings": "{\"client\":\"criterion-messages-api-v1\",\"model\":\"claude-haiku-5-5\",\"anthropicVersion\":\"2023-06-01\",\"temperature\":\"omitted\",\"maxTokens\":{\"normal\":13312,\"large\":16384},\"schema\":\"none\",\"transportFingerprints\":{\"normal\":\"096c2a19bdd7\",\"large\":\"a63066d04b76\"}}",
+    "fingerprint": "b55396660b27",
+    "head": "f516a3a177364ffe7a3706af927da94cf606c4e1",
+    "startedAt": "2026-10-15T18:08:19.995Z",
+    "finishedAt": "2026-10-15T18:09:01.837Z",
     "n": 72,
-    "correct": 55,
+    "correct": 70,
     "wilson": {
-      "estimate": 0.7638888888888888,
-      "lower": 0.6540123102714637,
-      "upper": 0.8470329041915168
+      "estimate": 0.9722222222222222,
+      "lower": 0.9042582477856177,
+      "upper": 0.9923489780955054
     },
     "familyBootstrap": {
-      "estimate": 0.7638888888888888,
-      "lower": 0.6388888888888888,
-      "upper": 0.875,
+      "estimate": 0.9722222222222222,
+      "lower": 0.9305555555555556,
+      "upper": 1,
       "iterations": 2000,
       "clusters": 12,
       "method": "percentile",
@@ -38,15 +38,15 @@
         "id": "heldout-factuality.001",
         "family": "partly-right",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.002",
         "family": "conditional",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.003",
@@ -73,22 +73,22 @@
         "id": "heldout-factuality.006",
         "family": "partly-right",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.007",
         "family": "entity-distractor",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.008",
         "family": "consistent-subset",
         "expected": "pass",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "pass",
+        "correct": true
       },
       {
         "id": "heldout-factuality.009",
@@ -136,8 +136,8 @@
         "id": "heldout-factuality.015",
         "family": "temporal",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.016",
@@ -185,8 +185,8 @@
         "id": "heldout-factuality.022",
         "family": "long-context",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.023",
@@ -213,8 +213,8 @@
         "id": "heldout-factuality.026",
         "family": "consistent-subset",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.027",
@@ -234,15 +234,15 @@
         "id": "heldout-factuality.029",
         "family": "arithmetic",
         "expected": "pass",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "pass",
+        "correct": true
       },
       {
         "id": "heldout-factuality.030",
         "family": "near-number",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.031",
@@ -262,8 +262,8 @@
         "id": "heldout-factuality.033",
         "family": "unit-conversion",
         "expected": "pass",
-        "outcome": "pass",
-        "correct": true
+        "outcome": "fail",
+        "correct": false
       },
       {
         "id": "heldout-factuality.034",
@@ -283,8 +283,8 @@
         "id": "heldout-factuality.036",
         "family": "near-number",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.037",
@@ -332,8 +332,8 @@
         "id": "heldout-factuality.043",
         "family": "consistent-subset",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.044",
@@ -346,8 +346,8 @@
         "id": "heldout-factuality.045",
         "family": "temporal",
         "expected": "pass",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "pass",
+        "correct": true
       },
       {
         "id": "heldout-factuality.046",
@@ -360,8 +360,8 @@
         "id": "heldout-factuality.047",
         "family": "arithmetic",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.048",
@@ -500,8 +500,8 @@
         "id": "heldout-factuality.067",
         "family": "near-number",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       },
       {
         "id": "heldout-factuality.068",
@@ -514,8 +514,8 @@
         "id": "heldout-factuality.069",
         "family": "arithmetic",
         "expected": "fail",
-        "outcome": "fail",
-        "correct": true
+        "outcome": "pass",
+        "correct": false
       },
       {
         "id": "heldout-factuality.070",
@@ -528,673 +528,817 @@
         "id": "heldout-factuality.071",
         "family": "long-context",
         "expected": "pass",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "pass",
+        "correct": true
       },
       {
         "id": "heldout-factuality.072",
         "family": "consistent-subset",
         "expected": "fail",
-        "outcome": "inconclusive",
-        "correct": false
+        "outcome": "fail",
+        "correct": true
       }
     ]
   },
-  "cassetteSha256": "523106521d3ddcd35dc298d594557858fd7e9e28594448afc71efe08f55c4e08",
+  "cassetteSha256": "87738dc17d463f309fc56c8468581bb16ca775ef3e15a84eda4e4eaa7a234afe",
   "resolvedModels": [
     "claude-haiku-5-5"
   ],
-  "costUsd": 0.03037558,
-  "chargedUsd": 0.03037558,
+  "costUsd": 0.024425500000000003,
+  "chargedUsd": 0.024425500000000003,
   "calls": 72,
   "spend": [
     {
-      "at": "2026-10-13T08:55:59.867Z",
+      "at": "2026-10-15T18:08:23.040Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00031824,
-      "chargedUsd": 0.00031824,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003258,
+      "chargedUsd": 0.0003258,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1518,
+      "outputTokens": 348
     },
     {
-      "at": "2026-10-13T08:56:03.910Z",
+      "at": "2026-10-15T18:08:25.160Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00072054,
-      "chargedUsd": 0.00072054,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003359,
+      "chargedUsd": 0.0003359,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1554,
+      "outputTokens": 361
     },
     {
-      "at": "2026-10-13T08:56:04.066Z",
+      "at": "2026-10-15T18:08:25.397Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00072404,
-      "chargedUsd": 0.00072404,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0005022,
+      "chargedUsd": 0.0005022,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2917,
+      "outputTokens": 421
     },
     {
-      "at": "2026-10-13T08:56:04.444Z",
+      "at": "2026-10-15T18:08:25.526Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00041294,
-      "chargedUsd": 0.00041294,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003655,
+      "chargedUsd": 0.0003655,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1540,
+      "outputTokens": 423
     },
     {
-      "at": "2026-10-13T08:56:05.848Z",
+      "at": "2026-10-15T18:08:25.914Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00037664,
-      "chargedUsd": 0.00037664,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0005817000000000001,
+      "chargedUsd": 0.0005817000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2917,
+      "outputTokens": 580
     },
     {
-      "at": "2026-10-13T08:56:07.210Z",
+      "at": "2026-10-15T18:08:26.852Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00032523999999999997,
-      "chargedUsd": 0.00032523999999999997,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00026230000000000003,
+      "chargedUsd": 0.00026230000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1518,
+      "outputTokens": 221
     },
     {
-      "at": "2026-10-13T08:56:07.432Z",
+      "at": "2026-10-15T18:08:27.173Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00034344,
-      "chargedUsd": 0.00034344,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.000272,
+      "chargedUsd": 0.000272,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1490,
+      "outputTokens": 246
     },
     {
-      "at": "2026-10-13T08:56:07.855Z",
+      "at": "2026-10-15T18:08:27.567Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00035614,
-      "chargedUsd": 0.00035614,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002609,
+      "chargedUsd": 0.0002609,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1554,
+      "outputTokens": 211
     },
     {
-      "at": "2026-10-13T08:56:09.128Z",
+      "at": "2026-10-15T18:08:28.047Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00031844,
-      "chargedUsd": 0.00031844,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003759,
+      "chargedUsd": 0.0003759,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1554,
+      "outputTokens": 441
     },
     {
-      "at": "2026-10-13T08:56:10.782Z",
+      "at": "2026-10-15T18:08:28.965Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00038994,
-      "chargedUsd": 0.00038994,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003324,
+      "chargedUsd": 0.0003324,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1524,
+      "outputTokens": 360
     },
     {
-      "at": "2026-10-13T08:56:11.262Z",
+      "at": "2026-10-15T18:08:29.012Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00035764,
-      "chargedUsd": 0.00035764,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002355,
+      "chargedUsd": 0.0002355,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1490,
+      "outputTokens": 173
     },
     {
-      "at": "2026-10-13T08:56:11.675Z",
+      "at": "2026-10-15T18:08:29.236Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00044504,
-      "chargedUsd": 0.00044504,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002547,
+      "chargedUsd": 0.0002547,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1522,
+      "outputTokens": 205
     },
     {
-      "at": "2026-10-13T08:56:12.285Z",
+      "at": "2026-10-15T18:08:29.395Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00036043999999999996,
-      "chargedUsd": 0.00036043999999999996,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002654,
+      "chargedUsd": 0.0002654,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1554,
+      "outputTokens": 220
     },
     {
-      "at": "2026-10-13T08:56:13.743Z",
+      "at": "2026-10-15T18:08:30.817Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00030954,
-      "chargedUsd": 0.00030954,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.000252,
+      "chargedUsd": 0.000252,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1525,
+      "outputTokens": 199
     },
     {
-      "at": "2026-10-13T08:56:14.299Z",
+      "at": "2026-10-15T18:08:30.922Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00033334,
-      "chargedUsd": 0.00033334,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00026010000000000003,
+      "chargedUsd": 0.00026010000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1536,
+      "outputTokens": 213
     },
     {
-      "at": "2026-10-13T08:56:14.809Z",
+      "at": "2026-10-15T18:08:31.089Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00033764000000000005,
-      "chargedUsd": 0.00033764000000000005,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00028820000000000007,
+      "chargedUsd": 0.00028820000000000007,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1522,
+      "outputTokens": 272
     },
     {
-      "at": "2026-10-13T08:56:15.330Z",
+      "at": "2026-10-15T18:08:32.756Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00034214,
-      "chargedUsd": 0.00034214,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003065,
+      "chargedUsd": 0.0003065,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1490,
+      "outputTokens": 315
     },
     {
-      "at": "2026-10-13T08:56:20.325Z",
+      "at": "2026-10-15T18:08:32.775Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00053114,
-      "chargedUsd": 0.00053114,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002656,
+      "chargedUsd": 0.0002656,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1536,
+      "outputTokens": 224
     },
     {
-      "at": "2026-10-13T08:56:20.329Z",
+      "at": "2026-10-15T18:08:32.978Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00041654,
-      "chargedUsd": 0.00041654,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.000352,
+      "chargedUsd": 0.000352,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1540,
+      "outputTokens": 396
     },
     {
-      "at": "2026-10-13T08:56:20.337Z",
+      "at": "2026-10-15T18:08:33.837Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00039084,
-      "chargedUsd": 0.00039084,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00043520000000000006,
+      "chargedUsd": 0.00043520000000000006,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 563
     },
     {
-      "at": "2026-10-13T08:56:22.137Z",
+      "at": "2026-10-15T18:08:35.021Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00034194,
-      "chargedUsd": 0.00034194,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0005087,
+      "chargedUsd": 0.0005087,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2917,
+      "outputTokens": 434
     },
     {
-      "at": "2026-10-13T08:56:23.724Z",
+      "at": "2026-10-15T18:08:35.161Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00033084,
-      "chargedUsd": 0.00033084,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003576,
+      "chargedUsd": 0.0003576,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1576,
+      "outputTokens": 400
     },
     {
-      "at": "2026-10-13T08:56:24.521Z",
+      "at": "2026-10-15T18:08:35.188Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00074504,
-      "chargedUsd": 0.00074504,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003804,
+      "chargedUsd": 0.0003804,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1554,
+      "outputTokens": 450
     },
     {
-      "at": "2026-10-13T08:56:25.036Z",
+      "at": "2026-10-15T18:08:35.582Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00051144,
-      "chargedUsd": 0.00051144,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003009,
+      "chargedUsd": 0.0003009,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1514,
+      "outputTokens": 299
     },
     {
-      "at": "2026-10-13T08:56:25.814Z",
+      "at": "2026-10-15T18:08:37.122Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00039314000000000005,
-      "chargedUsd": 0.00039314000000000005,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002935,
+      "chargedUsd": 0.0002935,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1490,
+      "outputTokens": 289
     },
     {
-      "at": "2026-10-13T08:56:27.132Z",
+      "at": "2026-10-15T18:08:37.507Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00032614000000000005,
-      "chargedUsd": 0.00032614000000000005,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003584,
+      "chargedUsd": 0.0003584,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1514,
+      "outputTokens": 414
     },
     {
-      "at": "2026-10-13T08:56:28.244Z",
+      "at": "2026-10-15T18:08:37.755Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00038594,
-      "chargedUsd": 0.00038594,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003545,
+      "chargedUsd": 0.0003545,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1540,
+      "outputTokens": 401
     },
     {
-      "at": "2026-10-13T08:56:28.955Z",
+      "at": "2026-10-15T18:08:37.813Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00032954,
-      "chargedUsd": 0.00032954,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003669,
+      "chargedUsd": 0.0003669,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1524,
+      "outputTokens": 429
     },
     {
-      "at": "2026-10-13T08:56:28.961Z",
+      "at": "2026-10-15T18:08:39.168Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00041394,
-      "chargedUsd": 0.00041394,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002517,
+      "chargedUsd": 0.0002517,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1522,
+      "outputTokens": 199
     },
     {
-      "at": "2026-10-13T08:56:30.857Z",
+      "at": "2026-10-15T18:08:39.288Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00034854,
-      "chargedUsd": 0.00034854,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002952,
+      "chargedUsd": 0.0002952,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 283
     },
     {
-      "at": "2026-10-13T08:56:31.559Z",
+      "at": "2026-10-15T18:08:39.544Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00035904000000000003,
-      "chargedUsd": 0.00035904000000000003,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00039220000000000005,
+      "chargedUsd": 0.00039220000000000005,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 477
     },
     {
-      "at": "2026-10-13T08:56:32.956Z",
+      "at": "2026-10-15T18:08:41.311Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00043354000000000005,
-      "chargedUsd": 0.00043354000000000005,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00028389999999999996,
+      "chargedUsd": 0.00028389999999999996,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1514,
+      "outputTokens": 265
     },
     {
-      "at": "2026-10-13T08:56:33.964Z",
+      "at": "2026-10-15T18:08:41.390Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.0005454400000000001,
-      "chargedUsd": 0.0005454400000000001,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003314,
+      "chargedUsd": 0.0003314,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1514,
+      "outputTokens": 360
     },
     {
-      "at": "2026-10-13T08:56:34.817Z",
+      "at": "2026-10-15T18:08:41.424Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00043144,
-      "chargedUsd": 0.00043144,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00042320000000000004,
+      "chargedUsd": 0.00042320000000000004,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 539
     },
     {
-      "at": "2026-10-13T08:56:35.372Z",
+      "at": "2026-10-15T18:08:42.079Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00040894,
-      "chargedUsd": 0.00040894,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003809,
+      "chargedUsd": 0.0003809,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1524,
+      "outputTokens": 457
     },
     {
-      "at": "2026-10-13T08:56:36.594Z",
+      "at": "2026-10-15T18:08:42.899Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00035004000000000003,
-      "chargedUsd": 0.00035004000000000003,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00026070000000000005,
+      "chargedUsd": 0.00026070000000000005,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1522,
+      "outputTokens": 217
     },
     {
-      "at": "2026-10-13T08:56:37.128Z",
+      "at": "2026-10-15T18:08:42.921Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00031614,
-      "chargedUsd": 0.00031614,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002805,
+      "chargedUsd": 0.0002805,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1525,
+      "outputTokens": 256
     },
     {
-      "at": "2026-10-13T08:56:39.748Z",
+      "at": "2026-10-15T18:08:43.730Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00032023999999999996,
-      "chargedUsd": 0.00032023999999999996,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002738,
+      "chargedUsd": 0.0002738,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1518,
+      "outputTokens": 244
     },
     {
-      "at": "2026-10-13T08:56:39.753Z",
+      "at": "2026-10-15T18:08:43.863Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00044394,
-      "chargedUsd": 0.00044394,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002934,
+      "chargedUsd": 0.0002934,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1514,
+      "outputTokens": 284
     },
     {
-      "at": "2026-10-13T08:56:41.546Z",
+      "at": "2026-10-15T18:08:45.066Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.0007440400000000001,
-      "chargedUsd": 0.0007440400000000001,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0004897,
+      "chargedUsd": 0.0004897,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2917,
+      "outputTokens": 396
     },
     {
-      "at": "2026-10-13T08:56:41.552Z",
+      "at": "2026-10-15T18:08:45.421Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00042064,
-      "chargedUsd": 0.00042064,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.000367,
+      "chargedUsd": 0.000367,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1540,
+      "outputTokens": 426
     },
     {
-      "at": "2026-10-13T08:56:43.079Z",
+      "at": "2026-10-15T18:08:45.730Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00029114000000000006,
-      "chargedUsd": 0.00029114000000000006,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003015,
+      "chargedUsd": 0.0003015,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1490,
+      "outputTokens": 305
     },
     {
-      "at": "2026-10-13T08:56:44.454Z",
+      "at": "2026-10-15T18:08:45.802Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00051614,
-      "chargedUsd": 0.00051614,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.000321,
+      "chargedUsd": 0.000321,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1540,
+      "outputTokens": 334
     },
     {
-      "at": "2026-10-13T08:56:46.026Z",
+      "at": "2026-10-15T18:08:47.224Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00032834,
-      "chargedUsd": 0.00032834,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003275,
+      "chargedUsd": 0.0003275,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1540,
+      "outputTokens": 347
     },
     {
-      "at": "2026-10-13T08:56:46.063Z",
+      "at": "2026-10-15T18:08:47.227Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00044764,
-      "chargedUsd": 0.00044764,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003191,
+      "chargedUsd": 0.0003191,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1536,
+      "outputTokens": 331
     },
     {
-      "at": "2026-10-13T08:56:47.058Z",
+      "at": "2026-10-15T18:08:48.446Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00045584,
-      "chargedUsd": 0.00045584,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00042060000000000003,
+      "chargedUsd": 0.00042060000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1576,
+      "outputTokens": 526
     },
     {
-      "at": "2026-10-13T08:56:47.873Z",
+      "at": "2026-10-15T18:08:48.770Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00034254,
-      "chargedUsd": 0.00034254,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00026,
+      "chargedUsd": 0.00026,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1525,
+      "outputTokens": 215
     },
     {
-      "at": "2026-10-13T08:56:50.469Z",
+      "at": "2026-10-15T18:08:49.395Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00045064000000000004,
-      "chargedUsd": 0.00045064000000000004,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00042570000000000005,
+      "chargedUsd": 0.00042570000000000005,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 544
     },
     {
-      "at": "2026-10-13T08:56:50.730Z",
+      "at": "2026-10-15T18:08:49.950Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00049184,
-      "chargedUsd": 0.00049184,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00039610000000000003,
+      "chargedUsd": 0.00039610000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1536,
+      "outputTokens": 485
     },
     {
-      "at": "2026-10-13T08:56:51.437Z",
+      "at": "2026-10-15T18:08:50.352Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00041423999999999996,
-      "chargedUsd": 0.00041423999999999996,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002813,
+      "chargedUsd": 0.0002813,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1518,
+      "outputTokens": 259
     },
     {
-      "at": "2026-10-13T08:56:51.885Z",
+      "at": "2026-10-15T18:08:51.558Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00044884000000000005,
-      "chargedUsd": 0.00044884000000000005,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00045610000000000003,
+      "chargedUsd": 0.00045610000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1576,
+      "outputTokens": 597
     },
     {
-      "at": "2026-10-13T08:56:54.271Z",
+      "at": "2026-10-15T18:08:51.732Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00032673999999999995,
-      "chargedUsd": 0.00032673999999999995,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002518,
+      "chargedUsd": 0.0002518,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1518,
+      "outputTokens": 200
     },
     {
-      "at": "2026-10-13T08:56:54.449Z",
+      "at": "2026-10-15T18:08:51.875Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00044494,
-      "chargedUsd": 0.00044494,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00037489999999999995,
+      "chargedUsd": 0.00037489999999999995,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1554,
+      "outputTokens": 439
     },
     {
-      "at": "2026-10-13T08:56:55.079Z",
+      "at": "2026-10-15T18:08:52.040Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00076254,
-      "chargedUsd": 0.00076254,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0004742,
+      "chargedUsd": 0.0004742,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2917,
+      "outputTokens": 365
     },
     {
-      "at": "2026-10-13T08:56:55.368Z",
+      "at": "2026-10-15T18:08:53.347Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00037894000000000003,
-      "chargedUsd": 0.00037894000000000003,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00025580000000000004,
+      "chargedUsd": 0.00025580000000000004,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1518,
+      "outputTokens": 208
     },
     {
-      "at": "2026-10-13T08:56:58.226Z",
+      "at": "2026-10-15T18:08:53.639Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00039944000000000004,
-      "chargedUsd": 0.00039944000000000004,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00027110000000000003,
+      "chargedUsd": 0.00027110000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1536,
+      "outputTokens": 235
     },
     {
-      "at": "2026-10-13T08:56:58.995Z",
+      "at": "2026-10-15T18:08:53.850Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00043974,
-      "chargedUsd": 0.00043974,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003609,
+      "chargedUsd": 0.0003609,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1524,
+      "outputTokens": 417
     },
     {
-      "at": "2026-10-13T08:56:59.773Z",
+      "at": "2026-10-15T18:08:54.102Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00040483999999999995,
-      "chargedUsd": 0.00040483999999999995,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00033089999999999997,
+      "chargedUsd": 0.00033089999999999997,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1524,
+      "outputTokens": 357
     },
     {
-      "at": "2026-10-13T08:57:00.190Z",
+      "at": "2026-10-15T18:08:55.481Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.0005608400000000001,
-      "chargedUsd": 0.0005608400000000001,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002564,
+      "chargedUsd": 0.0002564,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1524,
+      "outputTokens": 208
     },
     {
-      "at": "2026-10-13T08:57:01.883Z",
+      "at": "2026-10-15T18:08:55.590Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00041644,
-      "chargedUsd": 0.00041644,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00033989999999999997,
+      "chargedUsd": 0.00033989999999999997,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1524,
+      "outputTokens": 375
     },
     {
-      "at": "2026-10-13T08:57:03.202Z",
+      "at": "2026-10-15T18:08:55.657Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00042844,
-      "chargedUsd": 0.00042844,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00027539999999999997,
+      "chargedUsd": 0.00027539999999999997,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1524,
+      "outputTokens": 246
     },
     {
-      "at": "2026-10-13T08:57:03.352Z",
+      "at": "2026-10-15T18:08:56.364Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00040094,
-      "chargedUsd": 0.00040094,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0004396,
+      "chargedUsd": 0.0004396,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1576,
+      "outputTokens": 564
     },
     {
-      "at": "2026-10-13T08:57:03.489Z",
+      "at": "2026-10-15T18:08:57.048Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00034683999999999995,
-      "chargedUsd": 0.00034683999999999995,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002514,
+      "chargedUsd": 0.0002514,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1524,
+      "outputTokens": 198
     },
     {
-      "at": "2026-10-13T08:57:05.805Z",
+      "at": "2026-10-15T18:08:57.800Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00039544000000000005,
-      "chargedUsd": 0.00039544000000000005,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0003636,
+      "chargedUsd": 0.0003636,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1536,
+      "outputTokens": 420
     },
     {
-      "at": "2026-10-13T08:57:06.190Z",
+      "at": "2026-10-15T18:08:58.221Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00033004,
-      "chargedUsd": 0.00033004,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00035039999999999995,
+      "chargedUsd": 0.00035039999999999995,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1514,
+      "outputTokens": 398
     },
     {
-      "at": "2026-10-13T08:57:06.737Z",
+      "at": "2026-10-15T18:08:58.447Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00039394,
-      "chargedUsd": 0.00039394,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0002597,
+      "chargedUsd": 0.0002597,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1522,
+      "outputTokens": 215
     },
     {
-      "at": "2026-10-13T08:57:07.104Z",
+      "at": "2026-10-15T18:08:58.937Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00044984,
-      "chargedUsd": 0.00044984,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00040060000000000003,
+      "chargedUsd": 0.00040060000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1576,
+      "outputTokens": 486
     },
     {
-      "at": "2026-10-13T08:57:08.963Z",
+      "at": "2026-10-15T18:08:59.492Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00032454,
-      "chargedUsd": 0.00032454,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00025670000000000006,
+      "chargedUsd": 0.00025670000000000006,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1522,
+      "outputTokens": 209
     },
     {
-      "at": "2026-10-13T08:57:10.763Z",
+      "at": "2026-10-15T18:09:00.898Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00048134,
-      "chargedUsd": 0.00048134,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.00041420000000000004,
+      "chargedUsd": 0.00041420000000000004,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 521
     },
     {
-      "at": "2026-10-13T08:57:10.850Z",
+      "at": "2026-10-15T18:09:01.285Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00048554000000000007,
-      "chargedUsd": 0.00048554000000000007,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.000235,
+      "chargedUsd": 0.000235,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1490,
+      "outputTokens": 172
     },
     {
-      "at": "2026-10-13T08:57:11.042Z",
+      "at": "2026-10-15T18:09:01.378Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00072354,
-      "chargedUsd": 0.00072354,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0004106,
+      "chargedUsd": 0.0004106,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1576,
+      "outputTokens": 506
     },
     {
-      "at": "2026-10-13T08:57:12.630Z",
+      "at": "2026-10-15T18:09:01.835Z",
       "model": "haiku",
       "resolvedModel": "claude-haiku-5-5",
-      "costUsd": 0.00028364000000000004,
-      "chargedUsd": 0.00028364000000000004,
-      "accounting": "provider",
-      "status": "ok"
+      "costUsd": 0.0005692000000000001,
+      "chargedUsd": 0.0005692000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2917,
+      "outputTokens": 555
     }
   ]
 }

@@ -28,8 +28,15 @@ export type ImplDef = {
   summary?: string;
 };
 
+/** What `ObjectRegistry.snapshot` copies: the kinds, implementations and shipped objects, by name. */
+export type RegistrySnapshot = {
+  kinds: ReadonlyMap<string, KindDef>;
+  impls: ReadonlyMap<string, ImplDef>;
+  shipped: ReadonlyMap<string, { raw: unknown; path: string }>;
+};
+
 /**
- * The kinds, implementations and shipped objects a process knows. Packages register their builtins on import;
+ * The kinds, implementations and shipped objects a process knows. Entry points explicitly initialize shipped definitions;
  * a plugin registers its own. A name registered twice is refused, so no registration replaces another: an
  * override is an object that extends a shipped one, never a second registration of it.
  */
@@ -64,6 +71,24 @@ export class ObjectRegistry {
     if (this.#shipped.has(key)) throw new Error(`the shipped object ${key} is already registered`);
     this.#shipped.set(key, { raw, path });
     return this;
+  }
+
+  /** A copy of everything registered, for `restore`. */
+  snapshot(): RegistrySnapshot {
+    return { kinds: new Map(this.#kinds), impls: new Map(this.#impls), shipped: new Map(this.#shipped) };
+  }
+
+  /**
+   * Puts back what `snapshot` copied: every kind, implementation and shipped object registered since is
+   * forgotten. The command line uses it to undo what the plugins of one run registered.
+   */
+  restore(snapshot: RegistrySnapshot): void {
+    this.#kinds.clear();
+    for (const [key, value] of snapshot.kinds) this.#kinds.set(key, value);
+    this.#impls.clear();
+    for (const [key, value] of snapshot.impls) this.#impls.set(key, value);
+    this.#shipped.clear();
+    for (const [key, value] of snapshot.shipped) this.#shipped.set(key, value);
   }
 
   kind(name: string): KindDef | undefined {
@@ -142,7 +167,10 @@ export const BUILTIN_KINDS: readonly KindDef[] = [
 
 /** The registry every loader uses unless it is given another one. */
 export const objectRegistry = new ObjectRegistry();
-for (const def of BUILTIN_KINDS) objectRegistry.registerKind(def);
+/** Initialize the shared kind vocabulary before resolving objects. Safe across plugin snapshots. */
+export function initializeShippedObjects(): void {
+  for (const def of BUILTIN_KINDS) if (!objectRegistry.kind(def.kind)) objectRegistry.registerKind(def);
+}
 
 /** An object once its `extends` chain and every layer are applied. */
 export type ResolvedObject = {
@@ -230,6 +258,7 @@ export class ObjectStore {
   #resolved = new WeakMap<Entry, ResolvedObject>();
 
   constructor(registry: ObjectRegistry = objectRegistry) {
+    if (registry === objectRegistry) initializeShippedObjects();
     this.registry = registry;
     for (const { raw, path } of registry.shipped()) this.add(raw, 'shipped', { path });
   }
@@ -445,6 +474,7 @@ export class ObjectStore {
           params: patch.params ?? {},
           impl: patch.impl as string,
           ...(patch.cites === undefined ? {} : { cites: patch.cites }),
+          ...(patch.applies_to === undefined ? {} : { applies_to: patch.applies_to }),
           layer: entry.layer,
           from: entry.places[index] ?? entry.path,
         });

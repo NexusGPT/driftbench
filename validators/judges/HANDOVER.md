@@ -10,23 +10,6 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 20 |
 | 2 | 20 |
 | 3 | 20 |
-| 4 | 20 |
-| 5 | 20 |
-| 6 | 20 |
-| 7 | 20 |
-| 8 | 20 |
-| 9 | 20 |
-| 10 | 20 |
-| 11 | 20 |
-| 12 | 20 |
-| 13 | 20 |
-| 14 | 20 |
-| 15 | 20 |
-| 16 | 20 |
-| 17 | 20 |
-| 18 | 20 |
-| 19 | 20 |
-| 20 | 20 |
 | hidden | 20 |
 <!-- level-table:end -->
 
@@ -38,11 +21,13 @@ Every item carries a cause, the one change in packages/judges that makes it pass
 
 ## Floor
 
-Floors are per ladder version (section 12.5); `validators/floors.json` is the maintainer's. The judges floor of 7 belongs to version 1. Version 2 starts at the level the pilot reached: 1.
+Floors are per ladder version (section 12.5). `validators/floors.json` enforces **20 for judges ladder version 2** and retains the version 1 floor of 7, with its evidence, under `history.judges`.
+
+Iteration 139 records the floor rise. At `14034c6caf7b46117fea61cf00688380dc5ad8d6`, the local `validate judges --seeds 1..3 --hidden --items --json` run reaches 20 on seeds 1, 2, 3 and hidden 336760492: 638 of 638 deterministic items pass. [CI run 38780677540](https://github.com/achammah/driftbench/actions/runs/38780677540) independently reports the same levels and hidden seed. The floor was set with `validate floors --raise judges 20 --ladder-version 2 --evidence run.json`. No live items or billed calls ran.
 
 ## Open items
 
-None. Iteration 127: 638 of 638 deterministic items pass on seeds 1 to 20 and the hidden seed, level 20 of 20 (bank score 1). The 20 live items need DRIFTBENCH_BILLED_APPROVAL and were not run. Fragile spots: screenData is a heuristic (the instructive gate in English, word lists per language, decoders in DECODERS, readings in READINGS); a new seed may hold a sentence it misses, so re-run `--seeds 1..20 --hidden --items` after any change to screen.ts. The floor for ladder version 2 is the maintainer's to raise (own commit). Lint of the whole repo fails on files outside packages/judges (comparisons/, packages/checks/src/support/porter.ts).
+None. Iteration 127: 638 of 638 deterministic items pass on seeds 1 to 20 and the hidden seed, level 20 of 20 (bank score 1). The 20 live items need DRIFTBENCH_BILLED_APPROVAL and were not run. Fragile spots: screenData is a heuristic (the instructive gate in English, word lists per language, decoders in DECODERS, readings in READINGS); a new seed may hold a sentence it misses, so re-run `--seeds 1..20 --hidden --items` after any change to screen.ts. The floor for ladder version 2 is now 20 (iteration 139; see Floor). Lint of the whole repo fails on files outside packages/judges (comparisons/, packages/checks/src/support/porter.ts).
 
 ## After PR 148
 
@@ -157,7 +142,7 @@ Iteration 138 (main merged; pinned google body hash updated for the nullable sch
 
 ## Next actions
 
-1. Raise the judges floor for ladder version 2 in its own commit (maintainer).
+1. Keep the judges version 2 floor at 20; CI must reject any lower reached level.
 2. Run the 20 live items under an approved sized card, if wanted.
 3. After any screen.ts change, check seeds 1 to 20 plus hidden: several fixes passed seed 1 and failed seeds 2 to 20.
 

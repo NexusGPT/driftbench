@@ -1,5 +1,17 @@
-import type { RunResult } from '@agent-nexus/driftbench-core';
+import { type RunResult, runOutcome } from '@agent-nexus/driftbench-core';
 import { type CampaignData, groupBy, runPassed, showTarget } from './data';
+import { historyNormalizationsText } from './format';
+
+/** A run that completed and failed: a measured failure, a JUnit failure. */
+function isFailure(run: RunResult): boolean {
+  return run.status === 'completed' && runOutcome(run) === 'fail';
+}
+
+/** A run with a block not run or blocked and no failure: neither a pass nor a fail, a JUnit skip. */
+function isUnscored(run: RunResult): boolean {
+  const outcome = runOutcome(run);
+  return run.status === 'completed' && (outcome === 'not_run' || outcome === 'blocked');
+}
 
 function xml(text: string): string {
   return text
@@ -42,13 +54,14 @@ export function failures(run: RunResult): string[] {
 /**
  * The campaign as JUnit XML: one test suite per golden, one test case per run. A run that completed and
  * did not pass is a failure listing its failing gating verdicts; a run that failed or was stopped is an
- * error. The timestamp is the campaign's creation time, so the same store gives the same file.
+ * error; a run with a block not run or blocked, and no failure, is skipped with the reason. The timestamp
+ * is the campaign's creation time, so the same store gives the same file.
  */
 export function renderJunit(data: CampaignData): string {
   const suites = [...groupBy(data.runs, (run) => run.specId).entries()];
   const total = {
     tests: data.runs.length,
-    failures: data.runs.filter((run) => run.status === 'completed' && !runPassed(run)).length,
+    failures: data.runs.filter(isFailure).length,
     errors: data.runs.filter((run) => run.status !== 'completed').length,
     time: data.runs.reduce((sum, run) => sum + run.latencyMs, 0),
   };
@@ -57,10 +70,11 @@ export function renderJunit(data: CampaignData): string {
     `<testsuites name="${xml(data.campaign.campaignId)}" tests="${total.tests}" failures="${total.failures}" errors="${total.errors}" time="${seconds(total.time)}">`,
   ];
   for (const [specId, runs] of suites) {
-    const failures = runs.filter((run) => run.status === 'completed' && !runPassed(run)).length;
+    const failures = runs.filter(isFailure).length;
     const errors = runs.filter((run) => run.status !== 'completed').length;
+    const skipped = runs.filter(isUnscored).length;
     lines.push(
-      `  <testsuite name="${xml(specId)}" tests="${runs.length}" failures="${failures}" errors="${errors}" skipped="0" time="${seconds(runs.reduce((sum, run) => sum + run.latencyMs, 0))}" timestamp="${xml(data.campaign.createdAt)}">`,
+      `  <testsuite name="${xml(specId)}" tests="${runs.length}" failures="${failures}" errors="${errors}" skipped="${skipped}" time="${seconds(runs.reduce((sum, run) => sum + run.latencyMs, 0))}" timestamp="${xml(data.campaign.createdAt)}">`,
     );
     for (const run of runs) lines.push(...testcase(run));
     lines.push('  </testsuite>');
@@ -70,6 +84,21 @@ export function renderJunit(data: CampaignData): string {
 }
 
 function testcase(run: RunResult): string[] {
+  const lines = testcaseResult(run);
+  const notes = run.blocks.flatMap((block) => {
+    const summary = historyNormalizationsText(block.observed.historyNormalizations);
+    return summary === '' ? [] : [`block ${block.index}: ${summary}`];
+  });
+  if (notes.length === 0) return lines;
+  if (lines.length === 1) {
+    lines[0] = (lines[0] as string).replace(/\/>$/, '>');
+    lines.push('    </testcase>');
+  }
+  lines.splice(lines.length - 1, 0, `      <system-out>${xml(notes.join('\n'))}</system-out>`);
+  return lines;
+}
+
+function testcaseResult(run: RunResult): string[] {
   const name = [
     showTarget(run.target),
     run.mode,
@@ -85,6 +114,16 @@ function testcase(run: RunResult): string[] {
     ];
   }
   if (runPassed(run)) return [`${open.slice(0, -1)}/>`];
+  if (isUnscored(run)) {
+    const reasons = run.blocks.flatMap((block) =>
+      block.notRun
+        ? [`block ${block.index} not run: ${block.notRun.check}: ${block.notRun.got}`]
+        : block.blocked
+          ? [`block ${block.index} blocked by ${block.blocked.by}`]
+          : [],
+    );
+    return [open, `      <skipped message="${xml(reasons[0] ?? runOutcome(run))}"/>`, '    </testcase>'];
+  }
   const list = failures(run);
   const message = list.length > 0 ? `${list.length} failing: ${list[0]}` : 'no block ran';
   return [

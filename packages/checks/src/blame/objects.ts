@@ -1,4 +1,5 @@
 import {
+  initializeShippedObjects,
   type ObjectRegistry,
   ObjectStore,
   objectRegistry,
@@ -10,11 +11,13 @@ import { SHIPPED_OBJECTS } from './shipped';
 
 export { SHIPPED_OBJECTS } from './shipped';
 
-const registered = new WeakSet<ObjectRegistry>();
-
-/** Registers the blame and placement implementations and shipped objects once per registry. */
+/**
+ * Registers the blame and placement implementations and shipped objects in a registry, skipping each one it
+ * already holds, so a second call, or a call after a registry restore, puts back only what is missing. The shared
+ * kind vocabulary is initialised first, so a caller that never goes through the CLI's `main()` still finds its kinds.
+ */
 export function registerBlameObjects(registry: ObjectRegistry = objectRegistry): ObjectRegistry {
-  if (registered.has(registry)) return registry;
+  initializeShippedObjects();
   for (const [name, impl] of Object.entries(BLAME_IMPLS)) {
     if (!registry.impl(name)) registry.registerImpl(name, { params: impl.params, summary: impl.summary });
   }
@@ -28,7 +31,6 @@ export function registerBlameObjects(registry: ObjectRegistry = objectRegistry):
     });
     if (!already) registry.registerShipped(SHIPPED_OBJECTS[key], `@agent-nexus/driftbench-checks ${key}`);
   }
-  registered.add(registry);
   return registry;
 }
 

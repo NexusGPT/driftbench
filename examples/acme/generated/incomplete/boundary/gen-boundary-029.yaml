@@ -6,7 +6,7 @@ id: gen-boundary-029
 version: 7a022d4e1380
 kind: conversation
 title: "Boundary value port.check.in.number.below-min-length: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -79,7 +79,7 @@ metadata:
       flow: upgrade
       user_type: existing-customer
       account_lookup: plan-not-in-catalog
-      channel: whatsapp
+      channel: chat
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify
@@ -87,7 +87,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-identify
-          stage: needs
+          stage: identify
         phrase:
           dimension: stage_transition
           value: needs-to-identify

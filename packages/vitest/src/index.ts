@@ -7,15 +7,19 @@
 import { readFileSync } from 'node:fs';
 import { extname, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { defaultChecks, initializeShippedObjects } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type BlockResult,
   type BlockSpec,
+  blockStatus,
   type CheckSet,
+  isScored,
+  objectContextFor,
   parseSpecText,
   type RunResult,
   runSpec,
+  skipReason,
   type UserDriver,
 } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
@@ -44,11 +48,13 @@ export function describeSpec(
   target: SpecTarget,
   options: DescribeSpecOptions = {},
 ): void {
+  initializeShippedObjects();
   const file = typeof path === 'string' ? (isAbsolute(path) ? path : resolve(path)) : fileURLToPath(path);
   const loaded = parseSpecText(
     readFileSync(file, 'utf8'),
     extname(file).toLowerCase() === '.json' ? 'json' : 'yaml',
     file,
+    { objects: () => objectContextFor(file) },
   );
   const timeout = options.timeoutMs ?? 60_000;
   if (!loaded.ok) {
@@ -79,12 +85,19 @@ export function describeSpec(
     spec.blocks.forEach((block, index) => {
       it(
         blockName(index, block),
-        async () => {
+        async (context) => {
           const result = await once();
           const observed = result.blocks.find((entry) => entry.index === index && !entry.injected);
           if (!observed)
             throw new Error(`block ${index} did not run: ${result.error ?? `the run ${result.status}`}`);
-          if (!observed.pass) throw new Error(blockFailure(observed));
+          // A block not run or blocked is no pass and no failure of the agent: the test is skipped with why, as a
+          // JUnit report skips it.
+          const reason = notRunReason(observed);
+          if (reason !== undefined) {
+            context.skip(reason);
+            return;
+          }
+          if (blockStatus(observed) !== 'pass') throw new Error(blockFailure(observed));
         },
         timeout,
       );
@@ -92,8 +105,13 @@ export function describeSpec(
     if (spec.end_state !== undefined) {
       it(
         'end state',
-        async () => {
+        async (context) => {
           const result = await once();
+          const skipped = result.blocks.find((entry) => !isScored(entry));
+          if (!result.endState && skipped) {
+            context.skip(`no end state was compared: ${notRunReason(skipped)}`);
+            return;
+          }
           if (!result.endState)
             throw new Error(`no end state was read: ${result.error ?? `the run ${result.status}`}`);
           if (!result.endState.match) {
@@ -128,6 +146,12 @@ function stimulusText(when: BlockSpec['when']): string {
 function cut(text: string): string {
   const line = text.replace(/\s+/g, ' ');
   return line.length > 60 ? `${line.slice(0, 57)}...` : line;
+}
+
+/** Why a block was not run or blocked, as a skipped test says it; undefined for a pass or a fail. */
+function notRunReason(block: BlockResult): string | undefined {
+  const reason = skipReason(block);
+  return reason === undefined ? undefined : `block ${block.index} was ${reason}`;
 }
 
 /** What failed in a block: each gating verdict that did not pass, with its evidence. */

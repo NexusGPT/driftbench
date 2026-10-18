@@ -77,7 +77,17 @@ The example is a private workspace package, `@agent-nexus/driftbench-example-acm
   one `text` segment. `toolCalls` lists the calls with input, output or error, and latency. `runtime.stages`
   names the flow stage the turn ends in. `cost` is `{ usd: 0 }`.
 * Guardrails. `runtime.guards` lists the ones that fired in the turn: `explicit_confirmation` passes on
-  CONFIRM and blocks a loose yes; `instruction_in_data` blocks an instruction hidden in a message.
+  CONFIRM and blocks a loose yes; `instruction_in_data` blocks an instruction in anything the agent reads,
+  once per turn.
+* Data stays data. The agent reads the customer's message, the files of `world.workspace` (the folder
+  `from`, then `files` over it) at every turn, and every tool answer and error. An instruction in the
+  message refuses the turn. An instruction in a file or a tool answer is dropped each time it is read,
+  before the agent reads the answer, and `instruction_in_data` reports a block: it reaches no reply and no
+  payload, and the turn is answered from the clean data as it would be without it. A file stays in the
+  workspace, so refusing on it would block every later turn. Only the poisoned value goes: a plan it
+  leaves unreadable is left out of the catalog and the other plans are still offered; with no readable
+  plan left, the answer is unreadable. The tool call is still observed as the tool answered. Only the
+  agent's own text is trusted: the system message, its replies and its tool inputs are never read as data.
 * World. `world.tools.<label>.error` makes the tool fail, and the agent says so without inventing its
   answer. `world.tools.<label>.result` replaces the answer. `latency_ms` is reported as the call's
   latency. `world.store` seeds records over the store, such as a transfer record for one spec.
