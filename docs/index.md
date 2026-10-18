@@ -84,6 +84,7 @@ Every page says what exists today and what is not built yet, with the phase that
 ## Research
 
 * [Budget-bounded test generation for AI agent evaluation](research/budget-bounded-tests.md): a research draft describing the budget selector and its evaluation.
+* [Block given experiments](research/block-given.md): three pre-registered experiments on the Given of a block: tool call records, context size and a Given verifier.
 
 ## What exists today
 
