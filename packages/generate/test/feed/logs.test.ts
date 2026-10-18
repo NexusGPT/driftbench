@@ -7,6 +7,7 @@ import {
   FeedError,
   feedFromLogs,
   type LoggedConversation,
+  NOT_SHOWN,
   privateCountsOf,
   type ReaderAnswer,
   type ReaderQuestion,
@@ -29,7 +30,7 @@ const KEYWORDS: Record<string, string[]> = {
   upset: ['furious'],
 };
 
-/** Answers a yes or no question from a keyword; says unsure when neither value is named. Records what it saw. */
+/** Answers from a keyword; says none of these when no value is named. Records what it saw. */
 function keywordReader(seen: Seen[]): ConversationReader {
   return {
     id: 'keyword',
@@ -46,11 +47,20 @@ function keywordReader(seen: Seen[]): ConversationReader {
 }
 
 function answerOf(question: ReaderQuestion, text: string): ReaderAnswer {
-  if (question.kind !== 'yesno') return { probabilities: {} };
   const has = (value: string) => (KEYWORDS[value] ?? []).some((word) => text.includes(word));
-  if (has(question.yes)) return { yes: 0.95 };
-  if (has(question.no)) return { yes: 0.05 };
-  return { yes: 0.5 };
+  if (question.kind === 'yesno') {
+    if (has(question.yes)) return { yes: 0.95 };
+    if (has(question.no)) return { yes: 0.05 };
+    return { yes: 0.5 };
+  }
+  // A choice: the option a keyword names, else "none of these".
+  const named = question.options.filter((option) => has(option.id)).map((option) => option.id);
+  const pick = named.length === 1 ? (named[0] as string) : NOT_SHOWN;
+  const probabilities: Record<string, number> = {};
+  for (const option of question.options) {
+    probabilities[option.id] = option.id === pick ? 0.9 : 0.1 / (question.options.length - 1);
+  }
+  return { probabilities };
 }
 
 /** n conversations of three turns each; the user turns say whether the person is calm or furious. */
