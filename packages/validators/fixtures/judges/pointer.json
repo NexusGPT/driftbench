@@ -4806,6 +4806,92 @@
       }
     },
     {
+      "name": "sure-none-option",
+      "set": {
+        "set": "orchard-voice",
+        "description": "How the notes of an orchard shop are worded.",
+        "labels": [
+          {
+            "name": "greeting",
+            "description": "A unit that fixes how a visitor is welcomed."
+          },
+          {
+            "name": "price-claim",
+            "description": "A unit that states what a crate costs.",
+            "examples": ["A crate of pears costs six euros."]
+          },
+          {
+            "name": "allergen-line",
+            "description": "A unit that must appear word for word.",
+            "examples": ["Nut traces are listed on the crate.", "Ask for the list."]
+          }
+        ]
+      },
+      "first": {
+        "label": "none",
+        "probabilities": {
+          "greeting": 0.04,
+          "price-claim": 0.03,
+          "none": 0.93
+        }
+      },
+      "second": {
+        "label": "greeting"
+      },
+      "rule": {
+        "rule": "cascade",
+        "passAt": 0.9,
+        "failAt": 0.1
+      },
+      "expect": {
+        "label": "none",
+        "by": "system1"
+      }
+    },
+    {
+      "name": "sure-none-option-boundary",
+      "set": {
+        "set": "orchard-voice",
+        "description": "How the notes of an orchard shop are worded.",
+        "labels": [
+          {
+            "name": "greeting",
+            "description": "A unit that fixes how a visitor is welcomed."
+          },
+          {
+            "name": "price-claim",
+            "description": "A unit that states what a crate costs.",
+            "examples": ["A crate of pears costs six euros."]
+          },
+          {
+            "name": "allergen-line",
+            "description": "A unit that must appear word for word.",
+            "examples": ["Nut traces are listed on the crate.", "Ask for the list."]
+          }
+        ]
+      },
+      "first": {
+        "label": "none",
+        "probabilities": {
+          "greeting": 0.05,
+          "price-claim": 0.05,
+          "none": 0.9
+        }
+      },
+      "second": {
+        "label": "price-claim"
+      },
+      "rule": {
+        "rule": "cascade",
+        "passAt": 0.9,
+        "failAt": 0.1
+      },
+      "expect": {
+        "label": "none",
+        "by": "system1"
+      }
+    },
+    {
       "name": "just-under-pass",
       "set": {
         "set": "orchard-voice",

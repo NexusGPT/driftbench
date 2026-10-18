@@ -23,14 +23,14 @@ export function judgesLadderV4(options: JudgesV4Options = {}): Ladder {
         name: 'pointer labellers: answer checks, label-set hash, yes or no and choice readers, stack, recording, gold set',
         metric: `pointer labeller items matching the documented rules / ${bank.length} items (${POINTER_FIXTURES})`,
         threshold: 1,
-        async compute({ root }) {
+        async compute({ root, seed }) {
           const fixtures = pointerFixtures(root);
           const impl = await loadPointerImpl();
           const results = [];
           for (const item of bank) {
             let misses: string[];
             try {
-              misses = await item.run(impl, fixtures);
+              misses = await item.run(impl, fixtures, seed, root);
             } catch (cause) {
               misses = [
                 `threw ${cause instanceof Error ? `${cause.name}: ${cause.message}` : String(cause)}`,

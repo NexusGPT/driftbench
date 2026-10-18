@@ -21,7 +21,7 @@ async function failing(impl: PointerImpl, which: PointerItem[] = bank): Promise<
   for (const item of which) {
     let misses: string[];
     try {
-      misses = await item.run(impl, fixtures);
+      misses = await item.run(impl, fixtures, 1, ROOT);
     } catch {
       misses = ['threw'];
     }
@@ -34,7 +34,7 @@ describe('the pointer labeller items', () => {
   it('has unique ids, a cause per item, every family and the five tiers', () => {
     expect(new Set(bank.map((i) => i.id)).size).toBe(bank.length);
     expect(bank.every((i) => i.cause.length > 20)).toBe(true);
-    expect(new Set(bank.map((i) => i.family)).size).toBe(9);
+    expect(new Set(bank.map((i) => i.family)).size).toBe(10);
     expect(new Set(bank.map((i) => i.tier))).toEqual(new Set([1, 2, 3, 4, 5]));
   });
 
@@ -51,7 +51,8 @@ describe('the pointer labeller items', () => {
 
   it('fails every item against an implementation that exports nothing', async () => {
     const empty = {} as PointerImpl;
-    expect((await failing(empty)).length).toBe(bank.length);
+    // the source items read the files of the shipped module, which are clean: the 6 items on source still pass
+    expect((await failing(empty)).length).toBe(bank.length - 6);
   });
 });
 
@@ -70,7 +71,7 @@ const FAULTS: Fault[] = [
     from: 'if (to < from || to - from > 10_000) return undefined;',
     to: 'if (to - from > 10_000) return undefined;',
     fails: ids('units/expand-invalid'),
-    passes: ids('units/expand-valid', 'set-hash/value'),
+    passes: ids('set-hash/value'),
   },
   {
     name: 'expand: no cap',
@@ -78,7 +79,7 @@ const FAULTS: Fault[] = [
     from: 'if (to < from || to - from > 10_000) return undefined;',
     to: 'if (to < from) return undefined;',
     fails: ids('units/expand-invalid'),
-    passes: ids('units/expand-valid'),
+    passes: ids('set-hash/value'),
   },
   {
     name: 'expand: any digit',
@@ -93,7 +94,7 @@ const FAULTS: Fault[] = [
     from: '.exec(units.trim())',
     to: '.exec(units)',
     fails: ids('units/expand-valid'),
-    passes: ids('units/expand-invalid'),
+    passes: ids('set-hash/value'),
   },
   {
     name: 'hash: 15 characters',
@@ -101,7 +102,7 @@ const FAULTS: Fault[] = [
     from: 'sha(canonical(set)).slice(0, 16)',
     to: 'sha(canonical(set)).slice(0, 15)',
     fails: ids('set-hash/value'),
-    passes: ids('set-hash/pairs'),
+    passes: ids('units/expand-valid'),
   },
   {
     name: 'hash: keys not sorted',
@@ -437,4 +438,123 @@ describe('planted faults in a copy of the labellers', () => {
     },
     60_000,
   );
+});
+
+// Cheats of the independent audit (docs/validators.md 12.7): each is a copy of the module that tries to score
+// without computing what the item asks. None may gain an item.
+describe('cheats of the audit gain nothing', () => {
+  async function cheatCopy(name: string, edit: (dir: string) => void): Promise<PointerImpl> {
+    return (await cheatLoad(name, edit)).impl;
+  }
+  async function cheatLoad(
+    name: string,
+    edit: (dir: string) => void,
+  ): Promise<{ impl: PointerImpl; index: string }> {
+    const dir = join(MUTANTS, name);
+    rmSync(dir, { recursive: true, force: true });
+    mkdirSync(dir, { recursive: true });
+    cpSync(join(ROOT, 'packages/estate/src'), join(dir, 'src'), { recursive: true });
+    edit(join(dir, 'src', 'pointer'));
+    const index = join(dir, 'src/pointer/index.ts');
+    return { impl: (await import(/* @vite-ignore */ pathToFileURL(index).href)) as PointerImpl, index };
+  }
+  /** Scores a cheat the way the validator does: the environment names the copy, so the source items scan it. */
+  async function scoreCheat(name: string, edit: (dir: string) => void): Promise<string[]> {
+    const { impl, index } = await cheatLoad(name, edit);
+    const before = process.env.DRIFTBENCH_POINTER_IMPL;
+    process.env.DRIFTBENCH_POINTER_IMPL = index;
+    try {
+      return await failing(impl);
+    } finally {
+      if (before === undefined) delete process.env.DRIFTBENCH_POINTER_IMPL;
+      else process.env.DRIFTBENCH_POINTER_IMPL = before;
+    }
+  }
+  const append = (dir: string, file: string, text: string) =>
+    writeFileSync(join(dir, file), `${readFileSync(join(dir, file), 'utf8')}\n${text}\n`);
+
+  it('a module that reads the fixture file at run time fails the source item', async () => {
+    const lost = await scoreCheat('c-read', (dir) => {
+      writeFileSync(
+        join(dir, 'labels.ts'),
+        `import { readFileSync } from 'node:fs';\n${readFileSync(join(dir, 'labels.ts'), 'utf8')}\nexport const peek = () => readFileSync('x');\n`,
+      );
+    });
+    expect(lost).toContain('pointer/source/reads-files');
+  });
+
+  it.each([
+    [
+      'names the fixture file',
+      'export const f = "packages/validators/fixtures/judges/pointer.json";',
+      'names-the-validator',
+    ],
+    ['reads the arguments of the process', 'export const a = process.argv;', 'reads-process-state'],
+    ['reads the call stack', 'export const s = new Error("x").stack;', 'reads-call-stack'],
+    ['builds code at run time', 'export const g = new Function("return 1");', 'runs-generated-code'],
+    ['patches Array.prototype', 'Array.prototype.push = Array.prototype.push;', 'patches-builtins'],
+    ['patches JSON.stringify', 'JSON.stringify = JSON.stringify;', 'patches-builtins'],
+  ])('a module that %s fails its source item', async (what, code, id) => {
+    const lost = await scoreCheat(`c-${id}`, (dir) => append(dir, 'cassette.ts', code));
+    expect(lost).toContain(`pointer/source/${id}`);
+  });
+
+  it('a table of the fixture answers passes the fixtures and fails the items drawn from the seed', async () => {
+    const units = [...(fixtures['expandUnits.valid'] ?? []), ...(fixtures['expandUnits.invalid'] ?? [])];
+    const impl = await cheatCopy('c-table', (dir) => {
+      const table = JSON.stringify(Object.fromEntries(units.map((c) => [c.text, c.expect])));
+      append(
+        dir,
+        'labels.ts',
+        `const TABLE: Record<string, number[] | null> = ${table};\nexport const expandUnits2 = (t: string) => TABLE[t] ?? undefined;`,
+      );
+      const text = readFileSync(join(dir, 'labels.ts'), 'utf8').replace(
+        'export function expandUnits(units: string): number[] | undefined {',
+        'export function expandUnits(units: string): number[] | undefined {\n  return TABLE[units] ?? undefined;\n  // unreachable real code follows',
+      );
+      writeFileSync(join(dir, 'labels.ts'), text);
+    });
+    const lost = await failing(impl);
+    expect(lost).toContain('pointer/units/expand-valid');
+    expect(lost).toContain('pointer/units/expand-invalid');
+  });
+
+  it('a label file reader that refuses every file gains no refusal item', async () => {
+    const impl = await cheatCopy('c-refuse', (dir) => {
+      const text = readFileSync(join(dir, 'labels.ts'), 'utf8').replace(
+        'export function parseLabelSets(text: string): LabelSetsResult {',
+        'export function parseLabelSets(text: string): LabelSetsResult {\n  return { ok: false, message: "labels name set duplicate condition target description examples yaml none" };',
+      );
+      writeFileSync(join(dir, 'labels.ts'), text);
+    });
+    const lost = await failing(impl);
+    for (const id of [
+      'refuse-names',
+      'refuse-duplicates',
+      'refuse-conditions',
+      'refuse-shape',
+      'refuse-yaml',
+      'read-valid',
+    ])
+      expect(lost, id).toContain(`pointer/label-file/${id}`);
+  });
+
+  it('an empty or short fixture group fails the items that read it', async () => {
+    const empty = {
+      ...fixtures,
+      'expandUnits.valid': [],
+      'expandUnits.invalid': (fixtures['expandUnits.invalid'] ?? []).slice(0, 3),
+    } as typeof fixtures;
+    const item = bank.find((i) => i.id === 'pointer/units/expand-valid') as PointerItem;
+    const other = bank.find((i) => i.id === 'pointer/units/expand-invalid') as PointerItem;
+    const impl = await loadPointerImpl();
+    expect((await item.run(impl, empty, 1, ROOT)).length).toBeGreaterThan(0);
+    expect((await other.run(impl, empty, 1, ROOT)).length).toBeGreaterThan(0);
+  });
+
+  it('the seed changes the inputs: two seeds draw different cases, the shipped module passes both', async () => {
+    const impl = await loadPointerImpl();
+    const item = bank.find((i) => i.id === 'pointer/stack/cascade-sure') as PointerItem;
+    for (const seed of [1, 2, 3, 99, 1000123]) expect(await item.run(impl, fixtures, seed, ROOT)).toEqual([]);
+  });
 });

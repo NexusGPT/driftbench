@@ -444,6 +444,8 @@ def o2(label, **kw):
 put("stack.cascade", "system 1 decides alone at pass-at or above and under fail-at for every label; between, system 2 decides; with no system 2 opinion an unsure unit is left unlabeled", [
     stk("sure-yes", o1(greeting=0.95, **{"price-claim": 0.1}), o2("price-claim")),
     stk("sure-yes-boundary", o1(greeting=0.9, **{"price-claim": 0.1}), o2("none")),
+    stk("sure-none-option", o1(greeting=0.04, **{"price-claim": 0.03, "none": 0.93}), o2("greeting")),
+    stk("sure-none-option-boundary", o1(greeting=0.05, **{"price-claim": 0.05, "none": 0.9}), o2("price-claim")),
     stk("just-under-pass", o1(greeting=0.899, **{"price-claim": 0.1}), o2("price-claim")),
     stk("sure-none", o1(greeting=0.05, **{"price-claim": 0.09}), o2("greeting")),
     stk("fail-boundary", o1(greeting=0.1, **{"price-claim": 0.05}), o2("greeting")),

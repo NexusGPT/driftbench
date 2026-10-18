@@ -1,8 +1,25 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { createHash } from 'node:crypto';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { pointer as shipped } from '@agent-nexus/driftbench-estate';
 import type { Tier } from '../../../ladder';
+import {
+  DEFECTS,
+  type Defect,
+  type FileRule,
+  rngOf,
+  seededAnswer,
+  seededChoice,
+  seededGold,
+  seededLabelFile,
+  seededLabellingHash,
+  seededRecording,
+  seededSetHash,
+  seededStack,
+  seededUnits,
+  seededYesNo,
+} from './pointer-seeded';
 
 /**
  * The pointer labellers of packages/estate/src/pointer, judged like judges (docs/validators.md section 12):
@@ -26,6 +43,7 @@ export const POINTER_FAMILIES = [
   'stack',
   'recording',
   'gold-set',
+  'source',
 ] as const;
 export type PointerFamily = (typeof POINTER_FAMILIES)[number];
 
@@ -36,7 +54,7 @@ export type PointerItem = {
   cause: string;
   component: string;
   /** Returns the misses; an empty list passes. */
-  run(impl: PointerImpl, fixtures: Fixtures): Promise<string[]> | string[];
+  run(impl: PointerImpl, fixtures: Fixtures, seed: number, root: string): Promise<string[]> | string[];
 };
 
 type Json = any;
@@ -683,6 +701,10 @@ function item(
     run: async (impl, fixtures) => {
       const cases = fixtures[group];
       if (!cases) return [`the fixture group ${group} is missing from ${POINTER_FIXTURES}`];
+      if (GROUP_SIZES[group] !== undefined && cases.length !== GROUP_SIZES[group])
+        return [
+          `the fixture group ${group} holds ${cases.length} cases, the items were written for ${GROUP_SIZES[group]}`,
+        ];
       return check(impl, cases);
     },
   };
@@ -991,7 +1013,15 @@ export function pointerBank(): PointerItem[] {
       S,
       'system 1 decides alone at pass-at or above and under fail-at',
       'stack.cascade',
-      cascade(['sure-yes', 'sure-yes-boundary', 'just-under-pass', 'sure-none', 'fail-boundary']),
+      cascade([
+        'sure-yes',
+        'sure-yes-boundary',
+        'sure-none-option',
+        'sure-none-option-boundary',
+        'just-under-pass',
+        'sure-none',
+        'fail-boundary',
+      ]),
     ),
   );
   out.push(
@@ -1161,5 +1191,333 @@ export function pointerBank(): PointerItem[] {
       goldCheck,
     ),
   );
+  return finishBank(out);
+}
+
+/** The text of a source without comments, so a doc comment may name `process` or a file. */
+export function stripComments(text: string): string {
+  let out = '';
+  let i = 0;
+  while (i < text.length) {
+    const c = text[i] as string;
+    const d = text[i + 1];
+    if (c === '/' && d === '/') {
+      while (i < text.length && text[i] !== '\n') i += 1;
+    } else if (c === '/' && d === '*') {
+      i += 2;
+      while (i < text.length && !(text[i] === '*' && text[i + 1] === '/')) {
+        if (text[i] === '\n') out += '\n';
+        i += 1;
+      }
+      i += 2;
+    } else if (c === "'" || c === '"' || c === '`') {
+      // keep string literals whole: a string that names a fixture file is evidence
+      const quote = c;
+      let j = i + 1;
+      while (j < text.length && text[j] !== quote) {
+        if (text[j] === '\\') j += 1;
+        j += 1;
+      }
+      out += text.slice(i, j + 1);
+      i = j + 1;
+    } else {
+      out += c;
+      i += 1;
+    }
+  }
   return out;
+}
+
+// ---------------------------------------------------------------------- what makes the bank hard to cheat
+/**
+ * The size of each fixture group when the items were written. An empty or missing group would pass every item
+ * that reads it, so an item fails when its group has another size (docs/validators.md section 12.7).
+ */
+export const GROUP_SIZES: Record<string, number> = {
+  'expandUnits.valid': 13,
+  'expandUnits.invalid': 15,
+  'setHash.value': 3,
+  'setHash.pairs': 10,
+  'setHash.isolated': 1,
+  'checkAnswer.accepted': 7,
+  'checkAnswer.refusals': 17,
+  'parseLabelSets.valid': 6,
+  'parseLabelSets.invalid': 21,
+  'askedLabels.cases': 5,
+  'yesNoOpinions.threshold': 7,
+  'yesNoOpinions.unanswered': 7,
+  'choiceOpinions.vector': 11,
+  'margin.cases': 13,
+  'stack.cascade': 22,
+  'stack.margin': 12,
+  'stack.single': 4,
+  'labelling.hash': 4,
+  'labelling.hash-pairs': 9,
+  'cassette.requestKey': 10,
+  'stack.goldset': 1,
+};
+
+type Seeded = (impl: PointerImpl, rng: ReturnType<typeof rngOf>) => string[];
+const defect =
+  (...d: Defect[]): Seeded =>
+  (impl, r) =>
+    seededAnswer(impl, r, d);
+const file =
+  (rule: FileRule): Seeded =>
+  (impl, r) =>
+    seededLabelFile(impl, r, rule);
+const SEEDED: Record<string, Seeded> = {
+  'units/expand-valid': seededUnits,
+  'units/expand-invalid': seededUnits,
+  'set-hash/value': seededSetHash,
+  'set-hash/pairs': seededSetHash,
+  'set-hash/isolated': seededSetHash,
+  'answer/accepted': defect('none'),
+  'answer/refuses-unknown-label': defect('unknown-label'),
+  'answer/refuses-bad-units': defect('bad-units'),
+  'answer/refuses-outside-window': defect('outside-window'),
+  'answer/refuses-named-twice': defect('named-twice'),
+  'answer/refuses-bad-target': defect('bad-target'),
+  'answer/refuses-none-target': defect('none-target'),
+  'answer/refuses-missing-target': defect('missing-target'),
+  'answer/refuses-extra-target': defect('extra-target'),
+  'answer/refusal-keeps-rest': defect(...DEFECTS),
+  'label-file/read-valid': file('valid'),
+  'label-file/refuse-names': file('names'),
+  'label-file/refuse-duplicates': file('duplicates'),
+  'label-file/refuse-conditions': file('conditions'),
+  'label-file/refuse-shape': file('shape'),
+  'label-file/refuse-yaml': file('yaml'),
+  'yes-no/asked-labels': (impl, r) => seededYesNo(impl, r, 'asked'),
+  'yes-no/threshold': (impl, r) => seededYesNo(impl, r, 'threshold'),
+  'yes-no/unanswered': (impl, r) => seededYesNo(impl, r, 'unanswered'),
+  'choice/vector-tolerance': seededChoice,
+  'choice/vector-refused': seededChoice,
+  'choice/choice-ties-missing': seededChoice,
+  'stack/margin': seededChoice,
+  'stack/cascade-sure': (impl, r) => seededStack(impl, r, 'cascade-sure'),
+  'stack/cascade-unsure': (impl, r) => seededStack(impl, r, 'cascade-unsure'),
+  'stack/cascade-fallback': (impl, r) => seededStack(impl, r, 'cascade-fallback'),
+  'stack/cascade-targets': (impl, r) => seededStack(impl, r, 'targets'),
+  'stack/cascade-bounds': (impl, r) => seededStack(impl, r, 'cascade-sure'),
+  'stack/margin-rule': (impl, r) => seededStack(impl, r, 'margin'),
+  'stack/margin-no-vector': (impl, r) => seededStack(impl, r, 'margin-no-vector'),
+  'recording/labelling-hash': seededLabellingHash,
+  'recording/labelling-hash-changes': seededLabellingHash,
+  'recording/key-value': seededRecording,
+  'recording/key-set-and-model': seededRecording,
+  'recording/key-body-and-labeler': seededRecording,
+  'gold-set/gold-set': seededGold,
+  'gold-set/gold-scan': seededGold,
+};
+
+/** Items that read only refusals also run a valid case, so an implementation that refuses everything fails them. */
+const CONTROLS: Record<string, Check> = {
+  ...Object.fromEntries(
+    [...REFUSALS.map((c) => `answer/refuses-${c}`), 'answer/refusal-keeps-rest'].map((id) => [
+      id,
+      (impl: PointerImpl, cases: Json[]) => answerCheck(() => true)(impl, cases),
+    ]),
+  ),
+  ...Object.fromEntries(
+    ['refuse-names', 'refuse-duplicates', 'refuse-conditions', 'refuse-shape', 'refuse-yaml'].map((n) => [
+      `label-file/${n}`,
+      (impl: PointerImpl, cases: Json[]) => parseValidCheck(impl, cases),
+    ]),
+  ),
+};
+const CONTROL_GROUP = (id: string): string =>
+  id.startsWith('answer/') ? 'checkAnswer.accepted' : 'parseLabelSets.valid';
+
+/** One cause per change that would make items pass: items that one change fixes name one cause (cause review). */
+const CAUSE_SHARED: Record<string, string> = {
+  'set-hash/value':
+    'setHash is the first 16 hex characters of the sha256 of the sorted-key compact JSON of the set, and any edit of the set changes it',
+  'set-hash/pairs':
+    'setHash is the first 16 hex characters of the sha256 of the sorted-key compact JSON of the set, and any edit of the set changes it',
+  'set-hash/isolated':
+    'setHash is the first 16 hex characters of the sha256 of the sorted-key compact JSON of the set, and any edit of the set changes it',
+  'answer/refuses-missing-target':
+    'checkAnswer checks the target of an entry against the label: required, none, extra or outside the window',
+  'answer/refuses-extra-target':
+    'checkAnswer checks the target of an entry against the label: required, none, extra or outside the window',
+  'answer/refuses-none-target':
+    'checkAnswer checks the target of an entry against the label: required, none, extra or outside the window',
+  'label-file/refuse-names':
+    'parseLabelSets validates the shape of the file: names, conditions, examples, descriptions',
+  'label-file/refuse-conditions':
+    'parseLabelSets validates the shape of the file: names, conditions, examples, descriptions',
+  'label-file/refuse-shape':
+    'parseLabelSets validates the shape of the file: names, conditions, examples, descriptions',
+  'choice/vector-tolerance':
+    'isVector accepts a probability vector within 0.01 of a sum of 1 and refuses anything else',
+  'choice/vector-refused':
+    'isVector accepts a probability vector within 0.01 of a sum of 1 and refuses anything else',
+  'stack/cascade-sure':
+    'the stack decides a unit by the cascade rule: system 1 at its bounds, system 2 between them',
+  'stack/cascade-unsure':
+    'the stack decides a unit by the cascade rule: system 1 at its bounds, system 2 between them',
+  'stack/cascade-bounds':
+    'the stack decides a unit by the cascade rule: system 1 at its bounds, system 2 between them',
+  'gold-set/gold-set':
+    'the stack decides a unit by the cascade rule: system 1 at its bounds, system 2 between them',
+  'gold-set/gold-scan':
+    'the stack decides a unit by the cascade rule: system 1 at its bounds, system 2 between them',
+  'stack/margin-rule':
+    'the margin rule lets system 1 decide only when its likeliest option leads by the cut, from a vector that holds none',
+  'stack/margin-no-vector':
+    'the margin rule lets system 1 decide only when its likeliest option leads by the cut, from a vector that holds none',
+  'recording/labelling-hash':
+    'a labelling hash is the first 16 hex characters of the sha256 of its canonical members and rule',
+  'recording/labelling-hash-changes':
+    'a labelling hash is the first 16 hex characters of the sha256 of its canonical members and rule',
+  'recording/key-value':
+    'readableOf and requestKey hash the parts of the body, the readable fields and the wire',
+  'recording/key-set-and-model':
+    'readableOf and requestKey hash the parts of the body, the readable fields and the wire',
+  'recording/key-body-and-labeler':
+    'readableOf and requestKey hash the parts of the body, the readable fields and the wire',
+  'units/expand-valid': 'expandUnits reads a unit number or range and refuses anything else',
+  'units/expand-invalid': 'expandUnits reads a unit number or range and refuses anything else',
+};
+
+function finishBank(items: PointerItem[]): PointerItem[] {
+  const out = items.map((base) => {
+    const key = base.id.replace(/^pointer\//, '');
+    const seeded = SEEDED[key];
+    const control = CONTROLS[key];
+    const group = base.id.startsWith('pointer/answer/') ? 'checkAnswer.accepted' : 'parseLabelSets.valid';
+    return {
+      ...base,
+      cause: CAUSE_SHARED[key] ?? base.cause,
+      run: async (impl: PointerImpl, fixtures: Fixtures, seed: number, root: string) => {
+        const misses = [...(await base.run(impl, fixtures, seed, root))];
+        if (control) {
+          const cases = fixtures[group];
+          if (!cases || cases.length !== GROUP_SIZES[group])
+            misses.push(
+              `the control group ${group} is missing or has another size than ${GROUP_SIZES[group]}`,
+            );
+          else misses.push(...(await control(impl, cases)).map((m) => `control: ${m}`));
+        }
+        if (seeded) {
+          const salt = Number.parseInt(createHash('sha256').update(base.id).digest('hex').slice(0, 6), 16);
+          misses.push(...seeded(impl, rngOf((seed >>> 0) + salt)).map((m) => `seed ${seed}: ${m}`));
+        }
+        return misses;
+      },
+    };
+  });
+  return [...out, ...sourceGuardItems()];
+}
+
+function moduleDir(root: string): string {
+  const impl = process.env.DRIFTBENCH_POINTER_IMPL;
+  if (impl) return dirname(resolve(impl.startsWith('file://') ? new URL(impl).pathname : impl));
+  return join(root, 'packages', 'estate', 'src', 'pointer');
+}
+
+function sourcesOf(dir: string): Array<{ file: string; text: string }> {
+  const found: Array<{ file: string; text: string }> = [];
+  if (!existsSync(dir)) return found;
+  const walk = (current: string) => {
+    for (const name of readdirSync(current)) {
+      const path = join(current, name);
+      if (statSync(path).isDirectory()) walk(path);
+      else if (/\.(ts|js|mjs|cjs)$/.test(name))
+        found.push({ file: path.slice(dir.length + 1), text: readFileSync(path, 'utf8') });
+    }
+  };
+  walk(dir);
+  return found;
+}
+
+type Source = { id: string; cause: string; what: string; patterns: RegExp[] };
+const SOURCE_GUARDS: Source[] = [
+  {
+    id: 'reads-files',
+    what: 'a file, a process, a connection or a worker',
+    cause: 'the pointer module reads files, runs processes or opens connections',
+    patterns: [
+      /\bfrom\s*['"`](?:node:)?(?:fs|fs\/promises|child_process|worker_threads|cluster|net|dgram|http|https|http2|tls|dns|vm|v8|readline)['"`]/,
+      /\brequire\s*\(/,
+      /\bcreateRequire\b/,
+      /\breadFile|\breaddir|\bcreateReadStream|\bspawn\b|\bexecSync\b|\bexecFile/,
+      /\bimport\.meta\b/,
+      /\b__dirname\b|\b__filename\b/,
+    ],
+  },
+  {
+    id: 'reads-process-state',
+    what: 'the arguments, the working folder or the main module of its process',
+    cause: 'the pointer module reads the arguments, the working folder or the main module of its process',
+    patterns: [
+      /\bprocess\s*\.\s*(?:argv|execArgv|cwd|binding|mainModule|title|pid)\b/,
+      /\bglobalThis\b/,
+      /\bglobal\s*\./,
+      /DRIFTBENCH/,
+    ],
+  },
+  {
+    id: 'reads-call-stack',
+    what: 'the call stack',
+    cause: 'the pointer module reads its call stack to see who is calling',
+    patterns: [/\.stack\b/, /\bcaptureStackTrace\b|\bprepareStackTrace\b/, /\bcallee\b|\bcaller\b/],
+  },
+  {
+    id: 'runs-generated-code',
+    what: 'generated code',
+    cause: 'the pointer module builds code from strings at run time',
+    patterns: [/\beval\s*\(/, /\bnew\s+Function\b|\bFunction\s*\(/],
+  },
+  {
+    id: 'patches-builtins',
+    what: 'a built-in object',
+    cause: 'the pointer module changes a built-in object or the prototype of one',
+    patterns: [
+      /\.prototype\b/,
+      /\b(?:JSON|Math|Object|Array|String|Number|Map|Set|Reflect|Promise|Date|Error|Symbol)\s*\.\s*[A-Za-z_]+\s*=[^=]/,
+      /\bdefineProperty\b|\bsetPrototypeOf\b|__proto__/,
+      /\bProxy\b/,
+    ],
+  },
+  {
+    id: 'names-the-validator',
+    what: 'the validator or its fixtures',
+    cause: 'the pointer module names the validator, its fixtures or its cases',
+    patterns: [
+      /pointer\.json/,
+      /make_pointer/,
+      /fixtures\/judges/,
+      /driftbench-validators|packages\/validators/,
+      /\bGROUP_SIZES\b|\bpointerBank\b|\bpointerFixtures\b/,
+    ],
+  },
+];
+
+function sourceGuardItems(): PointerItem[] {
+  return SOURCE_GUARDS.map((g) => ({
+    id: `pointer/source/${g.id}`,
+    family: 'source' as PointerFamily,
+    tier: 3 as Tier,
+    cause: g.cause,
+    component: 'packages/estate/src/pointer',
+    run: (_impl: PointerImpl, _fixtures: Fixtures, _seed: number, root: string) => {
+      const dir = moduleDir(root);
+      const files = sourcesOf(dir);
+      if (files.length === 0) return [`no source of the pointer module under ${dir}`];
+      const misses: string[] = [];
+      for (const f of files) {
+        const text = stripComments(f.text);
+        for (const pattern of g.patterns) {
+          const m = pattern.exec(text);
+          if (m)
+            misses.push(
+              `${f.file} touches ${g.what}: ${show(m[0])}. A labeller is pure computation: numbers, strings and lists in, the same out.`,
+            );
+        }
+      }
+      return misses;
+    },
+  }));
 }
