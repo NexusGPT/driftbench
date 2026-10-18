@@ -2126,9 +2126,7 @@
         "spec": "estate.pairwise.0010",
         "row": "pairwise.0010",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2172,9 +2170,7 @@
         "spec": "estate.pairwise.0020",
         "row": "pairwise.0020",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2218,9 +2214,7 @@
         "spec": "estate.pairwise.0029",
         "row": "pairwise.0029",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2264,9 +2258,7 @@
         "spec": "estate.pairwise.0038",
         "row": "pairwise.0038",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2310,9 +2302,7 @@
         "spec": "estate.pairwise.0068",
         "row": "pairwise.0068",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2356,9 +2346,7 @@
         "spec": "estate.pairwise.0078",
         "row": "pairwise.0078",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2402,9 +2390,7 @@
         "spec": "estate.pairwise.0086",
         "row": "pairwise.0086",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2448,9 +2434,7 @@
         "spec": "estate.pairwise.0162",
         "row": "pairwise.0162",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2494,9 +2478,7 @@
         "spec": "estate.pairwise.0163",
         "row": "pairwise.0163",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2540,9 +2522,7 @@
         "spec": "estate.pairwise.0167",
         "row": "pairwise.0167",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2586,9 +2566,7 @@
         "spec": "estate.pairwise.0243",
         "row": "pairwise.0243",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2632,9 +2610,7 @@
         "spec": "estate.pairwise.0321",
         "row": "pairwise.0321",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2678,9 +2654,7 @@
         "spec": "estate.pairwise.0322",
         "row": "pairwise.0322",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2724,9 +2698,7 @@
         "spec": "estate.pairwise.0325",
         "row": "pairwise.0325",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2770,9 +2742,7 @@
         "spec": "estate.pairwise.0400",
         "row": "pairwise.0400",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2816,9 +2786,7 @@
         "spec": "estate.pairwise.0404",
         "row": "pairwise.0404",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2862,9 +2830,7 @@
         "spec": "estate.pairwise.0479",
         "row": "pairwise.0479",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2908,9 +2874,7 @@
         "spec": "estate.pairwise.0559",
         "row": "pairwise.0559",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -2954,9 +2918,7 @@
         "spec": "estate.pairwise.0560",
         "row": "pairwise.0560",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3000,9 +2962,7 @@
         "spec": "estate.pairwise.0639",
         "row": "pairwise.0639",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3046,9 +3006,7 @@
         "spec": "estate.pairwise.0642",
         "row": "pairwise.0642",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3092,9 +3050,7 @@
         "spec": "estate.pairwise.0654",
         "row": "pairwise.0654",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3138,9 +3094,7 @@
         "spec": "estate.pairwise.0733",
         "row": "pairwise.0733",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3184,9 +3138,7 @@
         "spec": "estate.pairwise.0734",
         "row": "pairwise.0734",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3230,9 +3182,7 @@
         "spec": "estate.pairwise.0769",
         "row": "pairwise.0769",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3276,9 +3226,7 @@
         "spec": "estate.pairwise.0770",
         "row": "pairwise.0770",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3322,9 +3270,7 @@
         "spec": "estate.pairwise.0837",
         "row": "pairwise.0837",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3368,9 +3314,7 @@
         "spec": "estate.pairwise.0839",
         "row": "pairwise.0839",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3414,9 +3358,7 @@
         "spec": "estate.pairwise.0902",
         "row": "pairwise.0902",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3460,9 +3402,7 @@
         "spec": "estate.pairwise.0904",
         "row": "pairwise.0904",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3506,9 +3446,7 @@
         "spec": "estate.pairwise.0974",
         "row": "pairwise.0974",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3552,9 +3490,7 @@
         "spec": "estate.pairwise.0975",
         "row": "pairwise.0975",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3598,9 +3534,7 @@
         "spec": "estate.pairwise.1058",
         "row": "pairwise.1058",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3644,9 +3578,7 @@
         "spec": "estate.pairwise.1127",
         "row": "pairwise.1127",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3690,9 +3622,7 @@
         "spec": "estate.pairwise.1128",
         "row": "pairwise.1128",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3736,9 +3666,7 @@
         "spec": "estate.pairwise.1131",
         "row": "pairwise.1131",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3782,9 +3710,7 @@
         "spec": "estate.pairwise.1165",
         "row": "pairwise.1165",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3828,9 +3754,7 @@
         "spec": "estate.pairwise.1196",
         "row": "pairwise.1196",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3874,9 +3798,7 @@
         "spec": "estate.pairwise.1197",
         "row": "pairwise.1197",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3920,9 +3842,7 @@
         "spec": "estate.register_sample.register.standing.answer-in-the-language-of-the.build",
         "row": "register_sample.register.standing.answer-in-the-language-of-the.build",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -3966,9 +3886,7 @@
         "spec": "estate.register_sample.register.standing.answer-in-the-language-of-the.change_estate",
         "row": "register_sample.register.standing.answer-in-the-language-of-the.change_estate",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4012,9 +3930,7 @@
         "spec": "estate.register_sample.register.standing.answer-in-the-language-of-the.chat",
         "row": "register_sample.register.standing.answer-in-the-language-of-the.chat",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4058,9 +3974,7 @@
         "spec": "estate.register_sample.register.standing.answer-in-the-language-of-the.compose",
         "row": "register_sample.register.standing.answer-in-the-language-of-the.compose",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4104,9 +4018,7 @@
         "spec": "estate.register_sample.register.standing.answer-in-the-language-of-the.debug",
         "row": "register_sample.register.standing.answer-in-the-language-of-the.debug",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4150,9 +4062,7 @@
         "spec": "estate.register_sample.register.standing.answer-in-the-language-of-the.operate",
         "row": "register_sample.register.standing.answer-in-the-language-of-the.operate",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4196,9 +4106,7 @@
         "spec": "estate.register_sample.register.standing.answer-in-the-language-of-the.research",
         "row": "register_sample.register.standing.answer-in-the-language-of-the.research",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4242,9 +4150,7 @@
         "spec": "estate.register_sample.register.standing.at-most-one-question-per-reply.build",
         "row": "register_sample.register.standing.at-most-one-question-per-reply.build",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4288,9 +4194,7 @@
         "spec": "estate.register_sample.register.standing.at-most-one-question-per-reply.change_estate",
         "row": "register_sample.register.standing.at-most-one-question-per-reply.change_estate",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4334,9 +4238,7 @@
         "spec": "estate.register_sample.register.standing.at-most-one-question-per-reply.chat",
         "row": "register_sample.register.standing.at-most-one-question-per-reply.chat",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4380,9 +4282,7 @@
         "spec": "estate.register_sample.register.standing.at-most-one-question-per-reply.compose",
         "row": "register_sample.register.standing.at-most-one-question-per-reply.compose",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4426,9 +4326,7 @@
         "spec": "estate.register_sample.register.standing.at-most-one-question-per-reply.debug",
         "row": "register_sample.register.standing.at-most-one-question-per-reply.debug",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4472,9 +4370,7 @@
         "spec": "estate.register_sample.register.standing.at-most-one-question-per-reply.operate",
         "row": "register_sample.register.standing.at-most-one-question-per-reply.operate",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4518,9 +4414,7 @@
         "spec": "estate.register_sample.register.standing.at-most-one-question-per-reply.research",
         "row": "register_sample.register.standing.at-most-one-question-per-reply.research",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4564,9 +4458,7 @@
         "spec": "estate.register_sample.register.standing.never-use-obviously-or-simply.build",
         "row": "register_sample.register.standing.never-use-obviously-or-simply.build",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4610,9 +4502,7 @@
         "spec": "estate.register_sample.register.standing.never-use-obviously-or-simply.change_estate",
         "row": "register_sample.register.standing.never-use-obviously-or-simply.change_estate",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4656,9 +4546,7 @@
         "spec": "estate.register_sample.register.standing.never-use-obviously-or-simply.chat",
         "row": "register_sample.register.standing.never-use-obviously-or-simply.chat",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4702,9 +4590,7 @@
         "spec": "estate.register_sample.register.standing.never-use-obviously-or-simply.compose",
         "row": "register_sample.register.standing.never-use-obviously-or-simply.compose",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4748,9 +4634,7 @@
         "spec": "estate.register_sample.register.standing.never-use-obviously-or-simply.debug",
         "row": "register_sample.register.standing.never-use-obviously-or-simply.debug",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4794,9 +4678,7 @@
         "spec": "estate.register_sample.register.standing.never-use-obviously-or-simply.operate",
         "row": "register_sample.register.standing.never-use-obviously-or-simply.operate",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -4840,9 +4722,7 @@
         "spec": "estate.register_sample.register.standing.never-use-obviously-or-simply.research",
         "row": "register_sample.register.standing.never-use-obviously-or-simply.research",
         "testType": "register_sample",
-        "reasons": [
-          "the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"
-        ],
+        "reasons": ["the trace of the fake does not show the act {\"kind\":\"reply\",\"name\":\"answer\"}"],
         "expectedAct": {
           "kind": "reply",
           "name": "answer"
@@ -5690,9 +5570,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5702,9 +5580,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5714,9 +5590,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5726,9 +5600,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5738,9 +5610,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5750,9 +5620,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5762,9 +5630,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5774,9 +5640,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5786,9 +5650,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5798,9 +5660,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5810,9 +5670,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5822,9 +5680,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5834,9 +5690,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5846,9 +5700,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5858,9 +5710,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5870,9 +5720,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5882,9 +5730,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5894,9 +5740,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5906,9 +5750,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5918,9 +5760,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5930,9 +5770,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5942,9 +5780,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5954,9 +5790,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5966,9 +5800,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5978,9 +5810,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -5990,9 +5820,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6002,9 +5830,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6014,9 +5840,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6026,9 +5850,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6038,9 +5860,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6050,9 +5870,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6062,9 +5880,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6074,9 +5890,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6086,9 +5900,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6098,9 +5910,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6110,9 +5920,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6122,9 +5930,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6134,9 +5940,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6146,9 +5950,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6158,9 +5960,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6170,9 +5970,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6182,9 +5980,7 @@
         "testType": "ordered_pair",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6194,9 +5990,7 @@
         "testType": "skip_pressure",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no concrete supported call input"
-        ],
+        "reasons": ["the map supplies no concrete supported call input"],
         "traceRequired": false
       },
       {
@@ -6206,9 +6000,7 @@
         "testType": "tool_boundary",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6218,9 +6010,7 @@
         "testType": "tool_boundary",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6230,9 +6020,7 @@
         "testType": "tool_boundary",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6242,9 +6030,7 @@
         "testType": "tool_boundary",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6254,9 +6040,7 @@
         "testType": "tool_boundary",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6266,9 +6050,7 @@
         "testType": "tool_boundary",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6278,9 +6060,7 @@
         "testType": "tool_boundary",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6290,9 +6070,7 @@
         "testType": "tool_boundary",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6302,9 +6080,7 @@
         "testType": "tool_boundary",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6314,9 +6090,7 @@
         "testType": "tool_denied",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6326,9 +6100,7 @@
         "testType": "tool_denied",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6338,9 +6110,7 @@
         "testType": "tool_denied",
         "mode": "live",
         "complete": true,
-        "reasons": [
-          "the map supplies no supported reply act declaration"
-        ],
+        "reasons": ["the map supplies no supported reply act declaration"],
         "traceRequired": false
       },
       {
@@ -6350,10 +6120,7 @@
         "testType": "skip_pressure",
         "mode": "live",
         "complete": false,
-        "reasons": [
-          "the map supplies no concrete supported call input",
-          "the ask names no source"
-        ],
+        "reasons": ["the map supplies no concrete supported call input", "the ask names no source"],
         "traceRequired": false
       },
       {
@@ -6363,10 +6130,7 @@
         "testType": "skip_pressure",
         "mode": "live",
         "complete": false,
-        "reasons": [
-          "the map supplies no concrete supported call input",
-          "the ask names no source"
-        ],
+        "reasons": ["the map supplies no concrete supported call input", "the ask names no source"],
         "traceRequired": false
       }
     ]

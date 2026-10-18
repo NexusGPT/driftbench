@@ -128,6 +128,11 @@ Each row names a command that shows the phase working on the bundled examples, w
 
 There is no separate phase for code agents. A task spec runs through each phase with the conversation specs.
 
+## Validation records
+
+* [Structured source fields for ask validation](validation/ask-by-act-source-fields.md) lists the map fields an ask is checked against.
+* [Word-list inventory](validation/ask-by-act-word-list-inventory.md) lists the places that read a word and what replaced each.
+
 ## Working on the docs
 
 * `pnpm docs:reference` writes [the spec reference](reference/spec.md) and the reference page of every other file people write (family, campaign configuration, map, interview, criteria and labels, personas and red-team, change manifest, estate files) from the zod schemas. `pnpm docs:reference --check` exits 1 when a committed page is stale.
