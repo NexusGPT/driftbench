@@ -6,7 +6,8 @@ import type { BankItem, Json, PointerAdapter, PointerIO, Probe } from './bank';
 import { pointerBank, runItem } from './bank';
 import { captureIO } from './bank/io';
 import { leaksPrivateFragment, privateMarker } from './bank/privacy';
-import { matchingCheats, positionalCheats, reviewCheats } from './cheats';
+import { featureCheats, matchingCheats, positionalCheats, reviewCheats } from './cheats';
+import { honestLedger } from './honest';
 import { pointerLadder } from './index';
 
 const bank = pointerBank();
@@ -322,6 +323,42 @@ describe('blind pointer bank harness', () => {
         firstWordOnly: 0,
         exactThenFirstWord: 0,
       });
+    }
+  }, 300_000);
+
+  it('an honest ledger (identity follows the whole unit) passes the ten ledger items on every seed', async () => {
+    const names = [
+      'independent-clones',
+      'same-file-occurrences',
+      'separate-estate-keys',
+      'separate-file-paths',
+      'display-number-insertion',
+      'small-text-edit',
+      'cross-file-move',
+      'set-description-edit',
+      'stack-bound-edit',
+      'two-sets-one-unit',
+    ];
+    const items = bank.filter((item) => names.some((name) => item.id === `pointer.ids.${name}`));
+    expect(items).toHaveLength(10);
+    for (const seed of seeds)
+      for (const item of items) {
+        const result = await runItem(item, seed, honestLedger);
+        expect(result.pass, `${item.id} seed=${seed}: ${result.detail}`).toBe(true);
+      }
+  }, 300_000);
+
+  it('feature-key identity cheats (fifth word, v-token, digit word) score ZERO on EVERY seed', async () => {
+    for (const seed of seeds) {
+      const totals: Record<string, number> = Object.fromEntries(
+        Object.keys(featureCheats).map((name) => [name, 0]),
+      );
+      for (const item of bank.filter((i) => i.family === 'ids'))
+        for (const [name, cheat] of Object.entries(featureCheats))
+          totals[name] = (totals[name] as number) + Number((await runItem(item, seed, cheat)).pass);
+      expect(totals, `feature cheats seed=${seed}`).toEqual(
+        Object.fromEntries(Object.keys(featureCheats).map((name) => [name, 0])),
+      );
     }
   }, 300_000);
 

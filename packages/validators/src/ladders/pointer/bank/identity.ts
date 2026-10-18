@@ -708,6 +708,317 @@ function sharedFirstWordProbe(seed: number, salt: number): Probe {
   };
 }
 
+/** Words for the grid probe: none holds a `v` or a digit, so the token and digit slots are the only such words. */
+const GRID_WORDS = [
+  'amber',
+  'basket',
+  'candle',
+  'drawer',
+  'ember',
+  'folder',
+  'garden',
+  'harbor',
+  'island',
+  'jacket',
+  'kettle',
+  'lantern',
+  'marble',
+  'napkin',
+  'orchard',
+  'pencil',
+  'quilt',
+  'ribbon',
+  'saddle',
+  'tablet',
+  'umbrella',
+  'window',
+  'yellow',
+  'zipper',
+  'brass',
+  'cedar',
+  'dusty',
+  'eager',
+  'faded',
+  'gentle',
+  'hollow',
+  'inner',
+  'jolly',
+  'keen',
+  'light',
+  'mossy',
+  'noble',
+  'outer',
+  'plain',
+  'quiet',
+  'rusty',
+  'silent',
+  'tidy',
+  'upper',
+  'woolen',
+  'young',
+  'zesty',
+  'crisp',
+  'bright',
+  'calm',
+  'dark',
+  'early',
+  'fresh',
+  'green',
+  'heavy',
+  'idle',
+  'late',
+  'mild',
+  'neat',
+  'open',
+];
+const GRID_VERBS = [
+  'Keep',
+  'Count',
+  'Shelve',
+  'Weigh',
+  'Label',
+  'Store',
+  'Mend',
+  'Sort',
+  'Stack',
+  'Wrap',
+  'Check',
+  'Move',
+];
+const GRID_SLOTS = 12;
+const GRID_UNITS = 8;
+const TOKEN_SLOT = 6;
+const DIGIT_SLOT = 8;
+const FIFTH_SLOT = 4;
+
+function gridRandom(seed: number): () => number {
+  let state = seed >>> 0 || 1;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Levenshtein similarity (1 minus distance over the longer length). */
+function textSimilarity(a: string, b: string): number {
+  const row = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    let diagonal = row[0] as number;
+    row[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const above = row[j] as number;
+      row[j] = Math.min(above + 1, (row[j - 1] as number) + 1, diagonal + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diagonal = above;
+    }
+  }
+  return 1 - (row[b.length] as number) / Math.max(a.length, b.length, 1);
+}
+
+/**
+ * Units that agree in many words and differ in many others. Eight units have twelve slots; each slot takes one of
+ * three values, every value is shared by at least two units, and any two units differ in at least six slots. So
+ * no single word position, no token and no digit word names a unit, whatever the key. An edit changes one slot of
+ * one unit to a fourth value; across the history every slot is edited once, so any feature a key might read is
+ * changed on some unit that must keep its identity. A replacement unit and a distractor are unrelated sentences
+ * that copy the feature words of the replaced unit and of a survivor (first, fifth and last word, the token and
+ * the digit word): they must get new identities, and the survivor must keep its own.
+ */
+const gridCache = new Map<string, Probe>();
+function gridKeyProbe(seed: number, salt: number): Probe {
+  let built = gridCache.get(`${seed}|${salt}`);
+  if (!built) {
+    built = buildGridKeyProbe(seed, salt);
+    gridCache.set(`${seed}|${salt}`, built);
+  }
+  return {
+    ...built,
+    request: structuredClone(built.request),
+    expected: structuredClone(built.expected),
+    sample: structuredClone(built.sample),
+  };
+}
+
+function buildGridKeyProbe(seed: number, salt: number): Probe {
+  const base = 600 + salt * 100;
+  const rng = gridRandom(seed ^ Math.imul(salt + 7, 0x9e3779b1));
+  const pick = <T>(list: T[]): T => list[Math.floor(rng() * list.length)] as T;
+  // Four words per slot: values 0 to 2 are used by units, value 3 is the edit word.
+  const pool = (list: string[]): string[] => {
+    const copy = [...list];
+    const out: string[] = [];
+    while (out.length < 4) out.push(copy.splice(Math.floor(rng() * copy.length), 1)[0] as string);
+    return out;
+  };
+  const tokens = [0, 1, 2, 3].map((k) => token(seed, base + k));
+  const slots: string[][] = Array.from({ length: GRID_SLOTS }, (_, slot) => {
+    if (slot === 0) return pool(GRID_VERBS);
+    if (slot === TOKEN_SLOT) return tokens;
+    if (slot === DIGIT_SLOT) return [0, 1, 2, 3].map((k) => `r${2 + ((seed + k * 3 + salt) % 7)}${k}`);
+    return pool(GRID_WORDS);
+  });
+  let code: number[][] = [];
+  const differing = (a: number[], b: number[]) => a.filter((value, slot) => value !== b[slot]).length;
+  // Each slot is a column: eight units over three values, every value used by none or by at least two units.
+  const SPLITS = [
+    [2, 3, 3],
+    [2, 2, 4],
+    [4, 4, 0],
+    [3, 5, 0],
+    [2, 6, 0],
+    [4, 2, 2],
+  ];
+  const column = (): number[] => {
+    const split = pick(SPLITS) as number[];
+    const values = split.flatMap((count, value) => Array.from({ length: count }, () => value));
+    for (let i = values.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [values[i], values[j]] = [values[j] as number, values[i] as number];
+    }
+    return values;
+  };
+  for (let attempt = 0; attempt < 2000 && code.length === 0; attempt++) {
+    const columns = Array.from({ length: GRID_SLOTS }, column);
+    const candidate = Array.from({ length: GRID_UNITS }, (_, n) => columns.map((col) => col[n] as number));
+    const apart = candidate.every((a, i) => candidate.every((b, j) => i >= j || differing(a, b) >= 6));
+    if (apart) code = candidate;
+  }
+  if (code.length === 0) throw new Error('no grid code for this seed');
+  const sentence = (words: string[]) => `${words.join(' ')}.`;
+  const unitWords = (n: number): string[] =>
+    (code[n] as number[]).map((value, slot) => (slots[slot] as string[])[value] as string);
+  const original = Array.from({ length: GRID_UNITS }, (_, n) => unitWords(n));
+  // Phase edits: slot k of unit (k % 6) takes the fourth value of its slot, once per slot, cumulatively.
+  const editsBy = (phase: number): Map<number, Map<number, string>> => {
+    const byUnit = new Map<number, Map<number, string>>();
+    for (let slot = 0; slot < Math.min(phase, GRID_SLOTS); slot++) {
+      const unit = (slot * 5 + 1) % 6; // units 0 to 5 survive to the end; 6 and 7 are removed or replaced
+      const edit = byUnit.get(unit) ?? new Map<number, string>();
+      edit.set(slot, (slots[slot] as string[])[3] as string);
+      byUnit.set(unit, edit);
+    }
+    return byUnit;
+  };
+  const textAt = (n: number, phase: number): string => {
+    const words = [...(original[n] as string[])];
+    for (const [slot, word] of editsBy(phase).get(n) ?? []) words[slot] = word;
+    return sentence(words);
+  };
+  // Unrelated sentences that copy feature words: first, fifth, last word, token and digit word.
+  const filler = GRID_WORDS.filter((word) => !original.flat().includes(word));
+  const copyOf = (n: number, salt2: number): string => {
+    const own = original[n] as string[];
+    const words = Array.from({ length: GRID_SLOTS + 2 }, () => pick(filler));
+    words[0] = own[0] as string;
+    words[FIFTH_SLOT] = own[FIFTH_SLOT] as string;
+    words[TOKEN_SLOT + 1] = own[TOKEN_SLOT] as string;
+    words[DIGIT_SLOT + 2] = own[DIGIT_SLOT] as string;
+    words[words.length - 1] = own[GRID_SLOTS - 1] as string;
+    void salt2;
+    return sentence(words);
+  };
+  const all = Array.from({ length: GRID_UNITS }, (_, n) => sentence(original[n] as string[]));
+  // Cheap screen first (shared words), the edit-distance similarity only for the survivors of the screen.
+  const wordsOf = (text: string) => new Set(text.replace('.', '').split(' '));
+  const unrelated = (candidate: string): boolean => {
+    const w = wordsOf(candidate);
+    return all.every((u) => {
+      const shared = [...wordsOf(u)].filter((x) => w.has(x)).length;
+      return shared / w.size <= 0.45 && textSimilarity(u, candidate) < 0.5;
+    });
+  };
+  let replacement = copyOf(7, 0);
+  let distractor = copyOf(2, 1);
+  for (let tries = 0; tries < 200 && !(unrelated(replacement) && unrelated(distractor)); tries++) {
+    replacement = copyOf(7, tries);
+    distractor = copyOf(2, tries + 1);
+  }
+
+  type Placement = { path: string; texts: { id: number; text: string }[] };
+  type Phase = { placements: Placement[]; gone: number[] };
+  const live = (n: number, phase: number) => ({ id: n, text: textAt(n, phase) });
+  const phases: Phase[] = [];
+  const at = (a: Placement['texts'], b: Placement['texts'], gone: number[] = []) =>
+    phases.push({
+      placements: [
+        { path: 'grid/a.md', texts: a },
+        { path: 'grid/b.md', texts: b },
+      ],
+      gone,
+    });
+  // Phase p holds the edits of slots below p.
+  at(
+    [0, 1, 2, 3].map((n) => live(n, 0)),
+    [4, 5, 6, 7].map((n) => live(n, 0)),
+  );
+  // Reorder inside both files, and move unit 3 across.
+  at(
+    [2, 0, 1].map((n) => live(n, 0)),
+    [3, 7, 5, 4, 6].map((n) => live(n, 0)),
+  );
+  for (let p = 1; p <= GRID_SLOTS; p++) {
+    const rotate = <T>(list: T[]) => (p % 2 === 0 ? [...list].reverse() : list);
+    let a = rotate([0, 1, 2].map((n) => live(n, p)));
+    let b = rotate([3, 4, 5, 6, 7].map((n) => live(n, p)));
+    let gone: number[] = [];
+    if (p >= 4) {
+      // Unit 5 is removed; its tombstone stays from here on.
+      b = b.filter((entry) => entry.id !== 5);
+      gone = [5];
+    }
+    if (p >= 7) {
+      // Unit 7 is replaced by an unrelated sentence that copies its feature words.
+      b = b.map((entry) => (entry.id === 7 ? { id: 20, text: replacement } : entry));
+      gone = [5, 7];
+    }
+    if (p >= 9) a = [{ id: 21, text: distractor }, ...a];
+    at(a, b, gone);
+  }
+  const scans: Json[] = phases.map((phase) => ({
+    estateKey: `grid-${token(seed, base + 9)}`,
+    labelSets: { demo: 'Keep the fictional handling instructions.' },
+    files: phase.placements.map((file) => ({
+      path: file.path,
+      leadingNewlines: 0,
+      betweenNewlines: 2,
+      units: file.texts.map((entry) => ({
+        text: entry.text,
+        container: 'sentence',
+        labels: { demo: 'kept' },
+        linked: false,
+      })),
+    })),
+  }));
+  const lastSeen = new Map<number, { path: string; quote: string }>();
+  const sample: Json = phases.map((phase) => {
+    const entries = phase.placements.flatMap((file) =>
+      file.texts.map((entry) => {
+        lastSeen.set(entry.id, { path: file.path, quote: entry.text });
+        return { id: rawId(seed, base + 50 + entry.id), path: file.path, quote: entry.text, status: 'live' };
+      }),
+    );
+    return {
+      entries: [
+        ...entries,
+        ...phase.gone.map((id) => ({
+          id: rawId(seed, base + 50 + id),
+          path: (lastSeen.get(id) as { path: string }).path,
+          quote: (lastSeen.get(id) as { quote: string }).quote,
+          status: 'deleted',
+        })),
+      ],
+    };
+  });
+  return {
+    request: ledgerRequest(scans, false),
+    expected: ledgerObservation(sample) as Json,
+    observe: ledgerObservation,
+    sample,
+  };
+}
+
 function reanchorObservation(actual: unknown): unknown {
   if (!Array.isArray(actual)) return null;
   const entries = actual as {
@@ -991,6 +1302,7 @@ export function identityItems(): BankItem[] {
         freshFingerprintProbe(seed),
         positionHistoryProbe(seed),
         sharedFirstWordProbe(seed, c.name.length % 3),
+        gridKeyProbe(seed, c.name.length % 3),
       ],
     }),
   }));

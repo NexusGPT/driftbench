@@ -273,7 +273,11 @@ type MatchedInput = {
 
 const firstWord = (text: string): string => text.trim().split(/\s+/)[0] ?? '';
 
-function firstWordMatching(mint: 'whole' | 'first', exactFirst: boolean): PointerAdapter {
+function keyMatching(
+  feature: (text: string) => string,
+  mint: 'whole' | 'first',
+  exactFirst: boolean,
+): PointerAdapter {
   return {
     execute({ operation, input }) {
       if (operation !== 'ledger') return null;
@@ -289,7 +293,7 @@ function firstWordMatching(mint: 'whole' | 'first', exactFirst: boolean): Pointe
             ? []
             : previous.filter(
                 (old) =>
-                  !used.has(old) && (exact ? old.quote === text : firstWord(old.quote) === firstWord(text)),
+                  !used.has(old) && (exact ? old.quote === text : feature(old.quote) === feature(text)),
               );
           const old = candidates.find((entry) => entry.path === path) ?? candidates[0];
           if (old) used.add(old);
@@ -311,7 +315,7 @@ function firstWordMatching(mint: 'whole' | 'first', exactFirst: boolean): Pointe
           }
         for (const { path, text, slot } of pending) {
           const old = take(path, text, false);
-          const signature = mint === 'first' ? firstWord(text) : text;
+          const signature = mint === 'first' ? feature(text) : text;
           const key = JSON.stringify([scan.estateKey, path, signature]);
           const at = occurrences.get(key) ?? 0;
           occurrences.set(key, at + 1);
@@ -333,8 +337,50 @@ function firstWordMatching(mint: 'whole' | 'first', exactFirst: boolean): Pointe
   };
 }
 
+const firstWordMatching = (mint: 'whole' | 'first', exactFirst: boolean) =>
+  keyMatching(firstWord, mint, exactFirst);
+
 export const matchingCheats = {
   firstWordWhole: firstWordMatching('whole', false),
   firstWordOnly: firstWordMatching('first', false),
   exactThenFirstWord: firstWordMatching('whole', true),
+} satisfies Record<string, PointerAdapter>;
+
+/**
+ * Matching by one chosen feature of the text, from the fourth independent review: the fifth word, the first word
+ * that holds a `v` token (`/v[a-z0-9]{3,8}/`), and the first word that holds a digit. Each mints from the whole text
+ * or from the key alone, with and without an exact-text pass first. A bank whose units give such a feature a
+ * different value in every unit lets them score; the ledger items must keep that feature shared between units and
+ * moved by edits. They are zero-score regressions on every seed.
+ */
+const wordAt =
+  (n: number) =>
+  (text: string): string =>
+    text.trim().split(/\s+/)[n] ?? '';
+const vToken = (text: string): string =>
+  text
+    .trim()
+    .split(/\s+/)
+    .find((word) => /v[a-z0-9]{3,8}/.test(word)) ?? '';
+const digitWord = (text: string): string =>
+  text
+    .trim()
+    .split(/\s+/)
+    .find((word) => /[0-9]/.test(word)) ?? '';
+
+const vSubstring = (text: string): string => /v[a-z0-9]{3,8}/.exec(text)?.[0] ?? '';
+
+export const featureCheats = {
+  fifthWordWhole: keyMatching(wordAt(4), 'whole', false),
+  fifthWordOnly: keyMatching(wordAt(4), 'first', false),
+  exactThenFifthWord: keyMatching(wordAt(4), 'whole', true),
+  vTokenWhole: keyMatching(vToken, 'whole', false),
+  vTokenOnly: keyMatching(vToken, 'first', false),
+  exactThenVToken: keyMatching(vToken, 'whole', true),
+  vSubstringWhole: keyMatching(vSubstring, 'whole', false),
+  vSubstringOnly: keyMatching(vSubstring, 'first', false),
+  exactThenVSubstring: keyMatching(vSubstring, 'whole', true),
+  digitWordWhole: keyMatching(digitWord, 'whole', false),
+  digitWordOnly: keyMatching(digitWord, 'first', false),
+  exactThenDigitWord: keyMatching(digitWord, 'whole', true),
 } satisfies Record<string, PointerAdapter>;
