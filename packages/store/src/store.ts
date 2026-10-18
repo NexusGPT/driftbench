@@ -71,9 +71,18 @@ export function openMemoryStore(): SqliteStore {
   return openStore(':memory:');
 }
 
+/**
+ * How long a call waits for another connection that holds the file, in milliseconds. SQLite takes the whole
+ * file for a commit, and a live holder can be slow: a large commit, a loaded machine, a process the scheduler has
+ * not run for seconds. A call that waits only five seconds then fails with `database is locked` although the
+ * holder is alive and will finish; a holder that is gone drops its lock with the process, so a long wait costs
+ * only when the holder is alive. Every call is synchronous, so this is also the longest a call blocks.
+ */
+const BUSY_TIMEOUT_MS = 30_000;
+
 function setUp(db: DatabaseSync, path: string): void {
   db.exec('PRAGMA foreign_keys = ON');
-  db.exec('PRAGMA busy_timeout = 5000');
+  db.exec(`PRAGMA busy_timeout = ${BUSY_TIMEOUT_MS}`);
   const version = Number(db.prepare('PRAGMA user_version').get()?.user_version ?? 0);
   if (version > SCHEMA_VERSION) {
     throw new StoreError(
