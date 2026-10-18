@@ -12,6 +12,10 @@ import { cli, REPO } from './bench';
 
 export const FIXTURE = join(REPO, 'examples/estates/fixture');
 export const FAKE = join(FIXTURE, 'live/fake/claude.mjs');
+/** The fixture's state library: the operations that plant a session state or an event, for specs that start from one. */
+export const STATES = join(FIXTURE, 'live/states/library.json');
+/** The fixture's stand-in judge: answers pass unless the judge prompt holds its fail phrase, and costs nothing. */
+export const JUDGE = join(FIXTURE, 'live/fake/judge.cjs');
 
 export type SuiteSpec = {
   path: string;
@@ -27,6 +31,11 @@ export type FixtureSuite = {
   work: string;
   map: string;
   specs: SuiteSpec[];
+  /**
+   * The native unit tests (JSON records under unit/) `estate unit` reads. Kept apart from `specs`: the families that
+   * judge the generated core specs (generation quality, coverage, kills of live specs) must read nothing else.
+   */
+  natives: SuiteSpec[];
   report: { gaps?: Array<{ marker: string; specs: number; atoms: string[] }> };
 };
 
@@ -41,6 +50,9 @@ async function build(): Promise<FixtureSuite> {
   const work = await mkdtemp(join(tmpdir(), 'estate-fixture-suite-'));
   for (const name of ['approved.yaml', 'plan.yaml', 'phrases.yaml'])
     await cp(join(FIXTURE, name), join(work, name));
+  // The recorded sessions sit beside the map (docs/estate.md section 5): a replay row finds its session there, and
+  // without them every replay row waits on `needs-recorded-session`.
+  await cp(join(FIXTURE, 'sessions'), join(work, 'sessions'), { recursive: true });
   const approve = cli(['estate', 'plan', 'approve', join(work, 'plan.yaml'), '--all']);
   if (approve.code !== 0)
     throw new Error(`plan approve exited ${approve.code}: ${approve.out.slice(0, 200)}`);
@@ -104,10 +116,33 @@ async function build(): Promise<FixtureSuite> {
       spec: { blocks: [] } as unknown as Spec,
     });
   }
+  // Unit tests (guards on event payloads, scripts on their fixtures) are native JSON records under unit/, which
+  // `estate unit` reads; their outcomes are recorded on the original before a copy is checked. They are listed
+  // under their own mode, since the YAML specs of mode `unit` are the core specs of the same atoms.
+  const natives = (await readdir(join(out, 'unit'), { withFileTypes: true, recursive: true }).catch(() => []))
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+    .map((entry) => join(entry.parentPath, entry.name));
+  const nativeSpecs: SuiteSpec[] = [];
+  for (const path of natives.sort()) {
+    const record = JSON.parse(await readFile(path, 'utf8')) as {
+      id: string;
+      atom?: string;
+      testType?: string;
+    };
+    nativeSpecs.push({
+      path,
+      id: record.id,
+      atoms: record.atom ? [record.atom] : [],
+      testType: record.testType ?? '',
+      mode: 'native-unit',
+      complete: true,
+      spec: { blocks: [] } as unknown as Spec,
+    });
+  }
   const report = JSON.parse(
     await readFile(join(out, 'estate-generate-report.json'), 'utf8'),
   ) as FixtureSuite['report'];
-  return { work, map: join(work, 'approved.yaml'), specs, report };
+  return { work, map: join(work, 'approved.yaml'), specs, natives: nativeSpecs, report };
 }
 
 async function yamlFiles(folder: string): Promise<string[]> {
@@ -118,13 +153,25 @@ async function yamlFiles(folder: string): Promise<string[]> {
     .sort();
 }
 
-/** Runs specs with the fake runtime on an estate root; the verdict per spec id. */
-export function runOnFake(
+/** One spec's run on the fake runtime: whether it passed, whether it ran to its end, and what failed. */
+export type FakeVerdict = { pass: boolean; completed: boolean; failing: string[] };
+
+/**
+ * Whether a failing verdict of a run comes from a machine check. The stand-in judge answers pass unless its prompt
+ * holds its fail phrase, so a judged criterion says nothing about whether the agent kept a rule; a run turns red
+ * for a mutant only on a verdict the evidence itself decides.
+ */
+export function machineFailure(failing: string): boolean {
+  return !/^block \d+: judge\./.test(failing);
+}
+
+/** Runs specs with the fake runtime on an estate root; the run per spec id. */
+export function runOnFakeDetailed(
   estate: string,
   specs: readonly string[],
   store: string,
   map?: string,
-): Map<string, boolean> {
+): Map<string, FakeVerdict> {
   const result = cli([
     'estate',
     'run',
@@ -137,17 +184,42 @@ export function runOnFake(
     FAKE,
     '--store',
     store,
+    '--states',
+    STATES,
+    '--judge',
+    'claude:haiku',
+    '--judge-command',
+    JUDGE,
     ...(map ? ['--map', map] : []),
     '--json',
   ]);
-  const verdicts = new Map<string, boolean>();
+  const verdicts = new Map<string, FakeVerdict>();
   const at = result.out.indexOf('{');
   if (at < 0) return verdicts;
   try {
-    const json = JSON.parse(result.out.slice(at)) as { runs?: Array<{ spec: string; pass: boolean }> };
-    for (const run of json.runs ?? []) verdicts.set(run.spec, run.pass === true);
+    const json = JSON.parse(result.out.slice(at)) as {
+      runs?: Array<{ spec: string; status?: string; pass: boolean; failing?: string[] }>;
+    };
+    for (const run of json.runs ?? [])
+      verdicts.set(run.spec, {
+        pass: run.pass === true,
+        completed: run.status === 'completed',
+        failing: run.failing ?? [],
+      });
   } catch {
     // No JSON: every spec counts as not passing.
   }
   return verdicts;
+}
+
+/** Runs specs with the fake runtime on an estate root; the verdict per spec id. */
+export function runOnFake(
+  estate: string,
+  specs: readonly string[],
+  store: string,
+  map?: string,
+): Map<string, boolean> {
+  return new Map(
+    [...runOnFakeDetailed(estate, specs, store, map)].map(([id, verdict]) => [id, verdict.pass]),
+  );
 }

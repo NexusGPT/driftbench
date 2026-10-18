@@ -108,10 +108,11 @@ The printed summary, line by line:
 - `Coverage on the axis map at t = <t>: complete specs ..., all specs ...`, plus one entry per `--baseline`.
 - With `--spec-cap`: `Spec cap <n>: <w> of <c> candidate specs written; <p> ... protected.`
 - `Values with no approved phrase (<n>): ...`: approve a phrase for each to make its block complete.
+- `Approved phrases no walk could say (<n>), listed under no_phrase:` each phrase with the first reason; the report's `no_phrase` entry holds it under `unsaid` with every reason.
 - `Specs with a block the map supports no machine Then for (<n>), in incomplete/: ...` then `Most frequent reasons`: each names the relation or value the map lacks.
 - `Wrote <n> files to <dir>.`
 
-`generate-report.json` keys: `generator`, `map` (path, agent, version, hash, counts), `options`, `summary` (`specs`, `blocks`, `complete`, `incomplete`), `seeders` (per seeder, with `cut`), `graph`, `twise` (`t`, `dimensions`, `rows`, `allowed`, `covered`, `share`, `unreachable`), `boundary`, `deviation`, `metamorphic`, `cover` (with `unbuilt`), `constraints`, `no_phrase`, `no_then`, `coverage` (`actual` with every uncovered tuple, `t`, `allowed`, `complete`, `all`, `measures`, and `baseline` when given), `invalid`, `lint`; plus `budget` and `spec_cap` when used.
+`generate-report.json` keys: `generator`, `map` (path, agent, version, hash, counts), `options`, `summary` (`specs`, `blocks`, `complete`, `incomplete`), `seeders` (per seeder, with `cut`), `graph`, `twise` (`t`, `dimensions`, `rows`, `allowed`, `covered`, `share`, `unreachable`), `boundary`, `deviation`, `metamorphic`, `cover` (with `unbuilt`), `constraints`, `no_phrase` (with `unsaid` for an approved phrase no walk could say), `no_then`, `coverage` (`actual` with every uncovered tuple, `t`, `allowed`, `complete`, `all`, `measures`, and `baseline` when given), `invalid`, `lint`; plus `budget` and `spec_cap` when used.
 
 With `--model`, `generate` also writes `<out>/proposed/`: `candidates/` (the valid proposals), `gated/` (the gate's output on them) and `proposals.json`, and prints `Model proposals: <n> written by <family> <model>, each through the gate.`, one row per proposal (`counted` or `rejected`, blocks accepted, the gate stage that refused it) and `Counted <c> of <n> proposals.` A proposal's `target` is dropped, so the gate runs it on the first `--reference`.
 

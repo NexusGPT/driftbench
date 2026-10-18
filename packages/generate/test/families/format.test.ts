@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { stringify } from 'yaml';
+import { parse, stringify } from 'yaml';
 import { compileFile, formulaPattern } from '../../src/families/compile';
 import { alternatives, broken, drawKnobs, FamilyError, meets } from '../../src/families/knobs';
 import { loadFamily, pendingReview, reviewStatus } from '../../src/families/load';
@@ -352,8 +352,59 @@ describe('the checks the oracle outcome compiles to', () => {
     expect(pattern.test('=C2*12')).toBe(true);
     expect(pattern.test('=C2 * 12')).toBe(true);
     expect(pattern.test('=C3*12')).toBe(false);
-    expect(pattern.test('=12*C2')).toBe(false);
     expect(formulaPattern('=SUM(B2:B4)/2')).toBe('^=SUM\\(B2:B4\\)\\s*/\\s*2$');
+  });
+
+  it('matches one multiplication or one addition with its operands in either order, nothing else', () => {
+    const times = new RegExp(formulaPattern('=C2*12'));
+    for (const written of ['=12*C2', '=12 * C2', '=C2*12']) expect(times.test(written), written).toBe(true);
+    for (const written of ['=12*C3', '=13*C2', '=C2*13', '=12+C2', '=C2*12*12', '=12*C2*12', '=C2', '180'])
+      expect(times.test(written), written).toBe(false);
+    const plus = new RegExp(formulaPattern('=B2+C2'));
+    expect(plus.test('=C2 + B2')).toBe(true);
+    expect(plus.test('=C2*B2')).toBe(false);
+    // A subtraction or a division is not commutative, and a formula of two operations keeps its order.
+    expect(new RegExp(formulaPattern('=C2-12')).test('=12-C2')).toBe(false);
+    expect(new RegExp(formulaPattern('=C2/12')).test('=12/C2')).toBe(false);
+    expect(new RegExp(formulaPattern('=C2*12+1')).test('=1+C2*12')).toBe(false);
+  });
+
+  it('swaps only two operands that are each a cell reference or a number; any other formula keeps its order', () => {
+    // A comparison or a power inside an operand makes a formula of two operations: no swap.
+    const comparison = new RegExp(formulaPattern('=C2=12+1'));
+    expect(comparison.test('=C2=12+1')).toBe(true);
+    expect(comparison.test('=1+C2=12')).toBe(false);
+    const power = new RegExp(formulaPattern('=C2^2+1'));
+    expect(power.test('=C2^2+1')).toBe(true);
+    expect(power.test('=1+C2^2')).toBe(false);
+    for (const formula of ['=SUM(C2)*12', '=$C2*12', '=C2*-12', '=C2&12+1', '=C2*12%', '=C2>1*2'])
+      expect(formulaPattern(formula), formula).not.toContain('(?:');
+    // A decimal constant is a number operand, its dot taken literally.
+    const decimal = new RegExp(formulaPattern('=C2*1.5'));
+    expect(decimal.test('=1.5*C2')).toBe(true);
+    expect(decimal.test('=1x5*C2')).toBe(false);
+  });
+
+  it('lets the committed price-sheet instance i04 take =12*C<row> for its yearly formula, on its own row only', async () => {
+    const formulas: Array<{ cell: string; regex: string }> = [];
+    const walk = (node: unknown): void => {
+      if (Array.isArray(node)) node.forEach(walk);
+      else if (node && typeof node === 'object') {
+        const formula = (node as { formula?: { cell: string; regex: string } }).formula;
+        if (formula) formulas.push(formula);
+        else Object.values(node).forEach(walk);
+      }
+    };
+    walk(parse(await readFile(join(ACME_FAMILY, 'instances/i04/base.yaml'), 'utf8')));
+    expect(formulas.length).toBeGreaterThan(0);
+    for (const { cell, regex } of formulas) {
+      const row = cell.slice(1);
+      const pattern = new RegExp(regex);
+      expect(pattern.test(`=12*C${row}`), `${cell} ${regex}`).toBe(true);
+      expect(pattern.test(`=C${row} * 12`), `${cell} ${regex}`).toBe(true);
+      expect(pattern.test(`=12*C${Number(row) + 1}`), `${cell} ${regex}`).toBe(false);
+      expect(pattern.test(`=13*C${row}`), `${cell} ${regex}`).toBe(false);
+    }
   });
 
   it('checks a formula column by its formula on every row, the other columns by their values', () => {
@@ -381,8 +432,8 @@ describe('the checks the oracle outcome compiles to', () => {
       { rows: { sheet: 'Mobile', count: 2 } },
       { cells: { sheet: 'Mobile', column: 'A', from_row: 2, values: ['A', 'B'] } },
       { cells: { sheet: 'Mobile', column: 'B', from_row: 2, values: [10, ''] } },
-      { formula: { sheet: 'Mobile', cell: 'C2', regex: '^=B2\\s*\\*\\s*12$' } },
-      { formula: { sheet: 'Mobile', cell: 'C3', regex: '^=B3\\s*\\*\\s*12$' } },
+      { formula: { sheet: 'Mobile', cell: 'C2', regex: '^=(?:B2\\s*\\*\\s*12|12\\s*\\*\\s*B2)$' } },
+      { formula: { sheet: 'Mobile', cell: 'C3', regex: '^=(?:B3\\s*\\*\\s*12|12\\s*\\*\\s*B3)$' } },
       { no_error_cells: true },
     ]);
   });

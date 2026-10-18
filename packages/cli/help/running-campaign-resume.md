@@ -68,7 +68,7 @@ driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurren
 
 The same lines as `campaign run` (topic running-outcomes): the `Campaign <id>: <n> cells, <c> at a time.` header, one line per cell in cell order, and the summary. A cell whose completed run was already stored reads `pass (reused)` or `fail (reused)`, and the summary adds `<n> reused`. The spend counts only the runs this command made. The new runs are filed in the same store under the same campaign.
 
-Exit codes: 0 when every cell passes; 1 when a cell fails, failed or was stopped; 2 on bad input (no store file, an unknown campaign, a store with no campaign, a target with no adapter, a bad number).
+Exit codes: 0 when every cell passes; 1 when a cell fails, failed or was stopped; 3 when no cell failed but a cell was not run or blocked; 2 on bad input (no store file, an unknown campaign, a store with no campaign, a target with no adapter, a bad number).
 
 ## Worked example
 

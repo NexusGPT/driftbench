@@ -118,6 +118,33 @@ describe('given.origin', () => {
   });
 });
 
+describe('the messages an origin covers', () => {
+  it('are the ones the spec wrote: later turns of a run or of a mode T replay are not covered, nor hashed', () => {
+    const value = spec({ prefix, origin: 'recorded' }, [
+      { user: 'And when will they call?', expect: { tools: [{ label: 'notify_sales', count: 1 }] } },
+      { user: 'Thanks.', expect: { must: ['welcome'] } },
+    ]);
+    for (const index of [0, 1, 2]) {
+      const canonical = canonicalGiven(value, index);
+      const resolved = resolveGiven(canonical.state, canonical.prefix, target);
+      expect(resolved.origin).toBe('recorded');
+      expect(resolved.originLength, `block ${index}`).toBe(prefix.length);
+      expect(resolved.prefix.length).toBeGreaterThanOrEqual(prefix.length);
+    }
+    // Block 2's mode T prefix holds a canonical call after the written prefix.
+    const last = canonicalGiven(value, 2).prefix;
+    expect(last.slice(prefix.length).some((message) => (message.tool_calls?.length ?? 0) > 0)).toBe(true);
+    // The length follows from the spec, which the hash already covers: the hash is the one it was without it.
+    expect(givenHash(value, 0)).toBe(RECORDED_GIVEN_HASH);
+    // A prefix that states no origin clears both.
+    let state = initialGiven(value);
+    const written = prefix as Message[];
+    state = enterBlock(state, { prefix: written, origin: 'authored' });
+    state = enterBlock(state, { prefix: written.slice(0, 1) });
+    expect([state.origin, state.originLength]).toEqual([undefined, undefined]);
+  });
+});
+
 describe('the prose history warning', () => {
   // The H6 shape: the assistant's earlier turn states, in prose, a value a tool produced.
   const prose = [
@@ -183,3 +210,4 @@ describe('the prose history warning', () => {
 
 const PLAIN_SPEC_HASH = 'c5c8e63dceb0';
 const PLAIN_GIVEN_HASH = 'a122012ddafb';
+const RECORDED_GIVEN_HASH = 'bec9205f858f';

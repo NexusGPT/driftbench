@@ -1053,7 +1053,10 @@ describe('injected blocks', () => {
       next: () => steps.shift() ?? { kind: 'stop', reason: 'empty' },
     };
     const watch = spy();
-    await runSpec(spec, { adapter: echoAdapter(), driver: scripted, checks: [watch], mode: 'P', repeat: 0 });
+    // Forced tool results need toolStubs: on an adapter without it the blocks are not run.
+    const echo = echoAdapter();
+    const adapter = { ...echo, capabilities: () => ({ ...echo.capabilities(), toolStubs: true }) };
+    await runSpec(spec, { adapter, driver: scripted, checks: [watch], mode: 'P', repeat: 0 });
     expect(watch.seen.map((ctx) => ctx.given.world.tools?.lookup)).toEqual([
       { result: { ok: true } },
       { error: 'timeout' },

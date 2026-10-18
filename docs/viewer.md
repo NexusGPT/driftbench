@@ -55,6 +55,8 @@ A second reviewer records a view of a block with `driftbench queue vote`, which 
 
 The form under a block offers the judged criteria of its spec, and any judged criterion that voted on the block. Pick one, choose pass or fail, write why, and save. The page comes back on the same block with "Label saved". The label shows under the block, and the labelling section counts the labels per criterion.
 
+The saved transcript uses `realized.text` when stored. A hash-only block uses the authored message only when its hash matches. Otherwise the label omits the user message and saves `flags: ["sent text not stored"]`; the viewer marks it as excluded from calibration. Both normal and cascade calibration ignore these labels, even when supplied directly through the SDK. Message anchors refer to the saved transcript.
+
 One label is one block of the criterion's labels file, `<labels>/<criterion>.yaml`, in the format `judge calibrate` reads:
 
 * `id` is `<runId>.b<block>`.
