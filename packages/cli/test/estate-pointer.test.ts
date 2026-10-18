@@ -214,7 +214,7 @@ describe('driftbench estate scan --pointer', () => {
       { env: KEYS, fetch: wavering },
     );
     expect(code).toBe(0);
-    expect(output.out).toMatch(/\d+ unlabeled \(\d+ because the runs of one labeler disagreed\);/);
+    expect(output.out).toMatch(/the runs of one labeler disagreed on [1-9]\d* units;/);
   });
 
   it('builds atoms from the labels the classes decided, quoting the file', async () => {

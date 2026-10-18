@@ -107,7 +107,7 @@ export type PointerResult = {
   calls: number;
   /** Units no accepted answer named. */
   unlabeled: number;
-  /** Of the units a labeler with several runs left unlabeled, those whose runs disagreed. */
+  /** Units on which the runs of one labeler disagreed: that labeler gave no opinion for them. */
   split: number;
   refusals: string[];
   /** Windows that could not be labelled, with the reason. */
