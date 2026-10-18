@@ -22,7 +22,7 @@ export function mulberry32(seed: number): () => number {
 export function quantileSorted(sorted: readonly number[], p: number): number {
   const n = sorted.length;
   if (n === 0) throw new RangeError('quantileSorted: sorted is empty');
-  if (p < 0 || p > 1) throw new RangeError(`quantile level must lie in [0, 1], got ${p}`);
+  if (!(p >= 0 && p <= 1)) throw new RangeError(`quantileSorted: p must lie in [0, 1], got ${p}`);
   const h = (n - 1) * p;
   const lo = Math.floor(h);
   const hi = Math.min(lo + 1, n - 1);
@@ -34,6 +34,7 @@ export function quantileSorted(sorted: readonly number[], p: number): number {
 /** Quantile of an unsorted sample, type 7. */
 export function quantile(values: readonly number[], p: number): number {
   if (values.length === 0) throw new RangeError('quantile: values is empty');
+  if (!(p >= 0 && p <= 1)) throw new RangeError(`quantile: p must lie in [0, 1], got ${p}`);
   return quantileSorted(
     [...values].sort((x, y) => x - y),
     p,
@@ -75,8 +76,13 @@ export function assertProbability(name: string, value: number, open = false): vo
   }
 }
 
-export function assertSameLength(a: readonly unknown[], b: readonly unknown[], what: string): void {
+export function assertSameLength(
+  a: readonly unknown[],
+  b: readonly unknown[],
+  fn: string,
+  args = 'a or b',
+): void {
   if (a.length !== b.length) {
-    throw new RangeError(`${what}: both inputs must have the same length, got ${a.length} and ${b.length}`);
+    throw new RangeError(`${fn}: ${args} must have the same length, got ${a.length} and ${b.length}`);
   }
 }

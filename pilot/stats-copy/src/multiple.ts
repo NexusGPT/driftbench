@@ -18,9 +18,9 @@ export interface BenjaminiHochbergResult {
  * p(j) m / j, capped at 1, as scipy.stats.false_discovery_control computes it.
  */
 export function benjaminiHochberg(pvalues: readonly number[], q = 0.05): BenjaminiHochbergResult {
-  assertProbability('q', q, true);
+  assertProbability('benjaminiHochberg: q', q, true);
   pvalues.forEach((p, i) => {
-    assertProbability(`pvalues[${i}]`, p);
+    assertProbability(`benjaminiHochberg: pvalues[${i}]`, p);
   });
   const m = pvalues.length;
   if (m === 0) return { adjusted: [], rejected: [], threshold: null, q };

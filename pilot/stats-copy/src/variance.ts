@@ -81,11 +81,11 @@ export function varianceComponents(
   observations.forEach((o, i) => {
     if (o.path.length !== L) {
       throw new RangeError(
-        `varianceComponents: observation ${i} has ${o.path.length} path entries, expected ${L}`,
+        `varianceComponents: observations[${i}] has ${o.path.length} path entries, expected ${L}`,
       );
     }
     if (!Number.isFinite(ys[i] as number))
-      throw new RangeError(`varianceComponents: observation ${i} is not finite`);
+      throw new RangeError(`varianceComponents: observations[${i}] is not finite`);
   });
 
   // Group sizes and sums per level; level 0 is the grand group.
@@ -309,7 +309,7 @@ export function repeatsForFloor(input: RepeatsForFloorInput): RepeatsForFloorRes
   let variance: number;
   if (input.variance !== undefined) variance = input.variance;
   else if (input.flipRate !== undefined) {
-    assertProbability('flipRate', input.flipRate);
+    assertProbability('repeatsForFloor: flipRate', input.flipRate);
     variance = input.flipRate * (1 - input.flipRate);
   } else throw new RangeError('repeatsForFloor: give variance or flipRate');
   if (!(variance >= 0)) throw new RangeError('repeatsForFloor: variance must be non-negative');

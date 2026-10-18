@@ -22,7 +22,7 @@ function frequencies(counts: readonly number[], name: string): Frequencies {
   let f2 = 0;
   counts.forEach((c, i) => {
     if (!Number.isInteger(c) || c < 0)
-      throw new RangeError(`counts[${i}] must be a non-negative integer, got ${c}`);
+      throw new RangeError(`${name}: counts[${i}] must be a non-negative integer, got ${c}`);
     n += c;
     if (c > 0) observed += 1;
     if (c === 1) f1 += 1;

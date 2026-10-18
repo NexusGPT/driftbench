@@ -36,9 +36,9 @@ export function cohenKappa(
   b: readonly Label[],
   options: KappaOptions = {},
 ): KappaResult {
-  assertSameLength(a, b, 'cohenKappa');
+  assertSameLength(a, b, 'cohenKappa', 'a or b');
   const n = a.length;
-  if (n === 0) throw new RangeError('cohenKappa: a or b is empty');
+  if (n === 0) throw new RangeError('cohenKappa: a is empty');
   const categories = options.categories ? [...options.categories] : defaultOrder([...a, ...b]);
   const index = new Map<Label, number>(categories.map((c, i) => [c, i]));
   const k = categories.length;

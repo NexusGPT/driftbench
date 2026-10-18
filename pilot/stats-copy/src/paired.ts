@@ -27,8 +27,8 @@ export interface McNemarOptions {
  * freedom otherwise.
  */
 export function mcnemar(b: number, c: number, options: McNemarOptions = {}): McNemarResult {
-  assertCount('b', b);
-  assertCount('c', c);
+  assertCount('mcnemar: b', b);
+  assertCount('mcnemar: c', c);
   const n = b + c;
   const exact = options.exact ?? n < 25;
   if (n === 0) return { statistic: 0, pValue: 1, method: exact ? 'exact' : 'chi-square', b, c };
@@ -125,7 +125,7 @@ export function wilcoxonSignedRank(
   y: readonly number[],
   options: WilcoxonOptions = {},
 ): WilcoxonResult {
-  assertSameLength(x, y, 'wilcoxonSignedRank');
+  assertSameLength(x, y, 'wilcoxonSignedRank', 'x or y');
   const total = x.length;
   if (total === 0) throw new RangeError('wilcoxonSignedRank: x or y is empty');
   const diffs = x.map((v, i) => v - (y[i] as number));
@@ -211,11 +211,11 @@ export interface PairedDifference {
  */
 export function pairedRateDifference(table: PairedTable, alpha = 0.05): PairedDifference {
   const { bothPass: a, regressed: b, improved: c, bothFail: d } = table;
-  assertCount('bothPass', a);
-  assertCount('regressed', b);
-  assertCount('improved', c);
-  assertCount('bothFail', d);
-  assertProbability('alpha', alpha, true);
+  assertCount('pairedRateDifference: bothPass', a);
+  assertCount('pairedRateDifference: regressed', b);
+  assertCount('pairedRateDifference: improved', c);
+  assertCount('pairedRateDifference: bothFail', d);
+  assertProbability('pairedRateDifference: alpha', alpha, true);
   const n = a + b + c + d;
   if (n === 0) throw new RangeError('pairedRateDifference: table has no pairs');
   const z = normalQuantile(1 - alpha / 2);
@@ -271,11 +271,11 @@ export interface NonInferiorityResult {
 export function nonInferiority(input: NonInferiorityInput): NonInferiorityResult {
   const { baseline, candidate, margin } = input;
   if (baseline.length === 0) throw new RangeError('nonInferiority: baseline is empty');
-  assertSameLength(baseline, candidate, 'nonInferiority');
+  assertSameLength(baseline, candidate, 'nonInferiority', 'baseline or candidate');
   if (!(margin > 0 && margin < 1))
     throw new RangeError(`nonInferiority: margin must lie in (0, 1), got ${margin}`);
   const names = input.pairs ?? baseline.map((_, i) => String(i));
-  assertSameLength(baseline, names, 'nonInferiority pairs');
+  assertSameLength(baseline, names, 'nonInferiority', 'baseline or pairs');
   let bothPass = 0;
   let bothFail = 0;
   const regressedPairs: string[] = [];
@@ -294,8 +294,8 @@ export function nonInferiority(input: NonInferiorityInput): NonInferiorityResult
   const newFlags: string[] = [];
   if (input.gatingFlags) {
     const { baseline: fb, candidate: fc } = input.gatingFlags;
-    assertSameLength(baseline, fb, 'nonInferiority gatingFlags.baseline');
-    assertSameLength(baseline, fc, 'nonInferiority gatingFlags.candidate');
+    assertSameLength(baseline, fb, 'nonInferiority', 'baseline or gatingFlags.baseline');
+    assertSameLength(baseline, fc, 'nonInferiority', 'baseline or gatingFlags.candidate');
     fc.forEach((fired, i) => {
       if (fired && !fb[i]) newFlags.push(names[i] as string);
     });

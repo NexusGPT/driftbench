@@ -33,7 +33,7 @@ const cases: [string, () => unknown, RegExp][] = [
   ['goodTuring', () => goodTuring([]), /^goodTuring: counts/],
   ['hillNumber', () => hillNumber([], 2), /^hillNumber: counts/],
   ['hillNumbers', () => hillNumbers([]), /^hillNumbers: counts/],
-  ['cohenKappa', () => cohenKappa([], []), /^cohenKappa: a or b/],
+  ['cohenKappa', () => cohenKappa([], []), /^cohenKappa: a/],
   ['krippendorffAlpha raters', () => krippendorffAlpha([]), /^krippendorffAlpha: matrix/],
   ['krippendorffAlpha pairable', () => krippendorffAlpha([[], []]), /^krippendorffAlpha: matrix/],
   ['cusum', () => cusum([], { sd: 1 }), /^cusum: series/],
