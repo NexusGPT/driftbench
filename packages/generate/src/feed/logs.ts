@@ -99,5 +99,30 @@ export async function feedFromLogs(input: FeedLogsInput): Promise<FeedLogsResult
     store = result.store;
     reports[scope] = result.report;
   }
+  // Each call of feedVariables wrote the store-level prior for its own group alone, and the second overwrote the
+  // first. One prior names every group read, with its count in its own unit and its set hash.
+  const groups = SCOPES.flatMap((scope) => {
+    const report = reports[scope];
+    const fittedIds =
+      report?.variables.filter((entry) => entry.status === 'fitted').map((entry) => entry.id) ?? [];
+    if (!report || fittedIds.length === 0) return [];
+    const unit =
+      scope === 'turn' ? `${report.read} turns of past conversations` : `${report.read} past conversations`;
+    const corrected = report.variables.some((entry) => entry.corrected)
+      ? ', corrected for the reader errors measured on a calibration set'
+      : '';
+    return [
+      `${fittedIds.join(', ')} read from ${unit} (set hash ${report.set_hash.slice(0, 12)})${corrected}`,
+    ];
+  });
+  if (groups.length > 0) {
+    store = {
+      ...store,
+      prior: {
+        kind: 'fitted',
+        source: `Value shares of ${groups.join('; of ')} by ${input.reader.id}.`,
+      },
+    };
+  }
   return { store, overrides, reports };
 }

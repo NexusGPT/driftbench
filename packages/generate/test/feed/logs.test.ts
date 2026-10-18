@@ -308,7 +308,7 @@ describe('feedFromLogs: the prior of the store names every group it read', () =>
     const prior = result.store.prior;
     const source = prior.kind === 'fitted' ? prior.source : '';
     expect(source).toContain('80 turns');
-    expect(source).not.toContain('past conversations (set hash');
+    expect(source).not.toContain('80 past conversations');
   });
 
   it('leaves the prior as it was when no variable was fitted', async () => {
