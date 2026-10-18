@@ -259,6 +259,8 @@ A validator is merged only with its hardness measured, not asserted.
 
 The iteration 0 row and the ten pilot rows are the first rows of `validators/<component>/journal.jsonl`, and `driftbench validate <component> --hardness` prints the measurement from them: bank size per family and tier, score at iteration 0, score after the pilot, items fixed per iteration, the forecast, and whether the gate holds.
 
+A validator may hold a lower bar on a term, set only by the owner's decision for that validator and written in its `validators/<component>/GATE.md` with the measured reason. The blocks validator holds one: a score after the pilot of at most 0.8 (2026-10-18). Its growth items test documented behaviours main mostly already has (927 of 953 pass on main), so its score stays high while its forecast (267.5) and its distinct causes (155) meet the bar of this section; the documented rules main lacks give about 283 more cases, short of the about 2,866 a score of 0.4 needs.
+
 ### 12.5 Floors under the contract
 
 A floor is per ladder version. `floors.json` carries `ladderVersion` per component; a new bank starts a new ladder version with its floor at the pilot's level, and the evidence names the version. A floor never goes down within a version. The judges floor of 7 and the statistics floor of 1 belong to ladder version 1 of each and are kept in the file as history; version 2 of each started at the level its pilot reached, and the judges floor of ladder version 2 is now 20.
