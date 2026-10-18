@@ -11,7 +11,7 @@ The bank is not merge-ready under docs/validators.md §12.7. These are pending i
 
 ## Measured baseline
 
-`baseline.ts` imports the actual default adapter directly and runs every item at seeds 1–20 plus the canonical hidden seed derived from the measured commit. The latest measured row in `journal.jsonl` gives its source hash, date and per-seed results. The measured HEAD identifies the canonical hidden seed through `hiddenSeed(root)` in `packages/validators/src/seeds.ts`. The older journal row and `evidence/reference-and-mutants.json` are historical reports whose external reference/mutant code is not reproducible here; they do not establish an audit pass.
+`baseline.ts` imports the actual default adapter directly and runs every item at seeds 1–20 plus the canonical hidden seed derived from the measured commit. `evidence/baseline.json` gives its source hash, date and per-seed results; the single active `journal.jsonl` row is the schema-validated iteration-0 projection. The measured HEAD identifies the canonical hidden seed through `hiddenSeed(root)` in `packages/validators/src/seeds.ts`. The archived `evidence/journal-historical.jsonl` and `evidence/reference-and-mutants.json` are historical reports whose external reference/mutant code is not reproducible here; they do not establish an audit pass.
 
 ## Builder repair evidence
 

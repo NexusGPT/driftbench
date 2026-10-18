@@ -32,11 +32,11 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 
 ## Floor
 
-0 (validators/floors.json).
+No variables floor is committed in `validators/floors.json`; the measured baseline level is 0.
 
 ## Open items
 
-The items of the first failing level, by id, each with the component it points at.
+All 203 items in the first level (`store`) fail: sources 61, quotes 54, values 33 and boundaries 55. The actual adapter supplies no operations. Their stable IDs and target components are listed in `CATALOGUE.md`; integrate the real readers before starting executor repairs.
 
 ## Hypotheses tried
 
@@ -61,8 +61,8 @@ pnpm driftbench validate variables --brief
 
 ## Fixtures
 
-Where the validator reads its planted truth: name the files.
+The seeded fixtures live in `packages/validators/src/ladders/variables/bank/families/`; their item definitions and causes live in `bank/manifest/`. Reproducible limited witnesses and mutants live in `packages/validators/test/variables/`. No private conversation set is read.
 
 ## Fresh baseline and reproduction
 
-The measured journal row at `ba1e62133c1d6dd18410c114380c2ee3e5d2f1bc` (source SHA-256 `a7cc7b4e5169285746fb098ea773c27ce48857cea7a41107c50d3f4564e7f88e`) records 0/471 for each seed 1–20 and the canonical hidden seed using the actual default adapter. Run `pnpm exec tsx validators/variables/baseline.ts` to repeat with the current commit’s canonical hidden seed. The in-process runner uses the actual adapter module in any child process too.
+The raw measurement in `evidence/baseline.json` at `ba1e62133c1d6dd18410c114380c2ee3e5d2f1bc` (source SHA-256 `a7cc7b4e5169285746fb098ea773c27ce48857cea7a41107c50d3f4564e7f88e`) records 0/471 for each seed 1–20 and the canonical hidden seed using the actual default adapter. Run `pnpm exec tsx validators/variables/baseline.ts` to repeat with the current commit’s canonical hidden seed. This emits raw evidence; convert with `baseline-journal.ts` before using a journal row, as documented in `evidence/README.md`. The in-process runner uses the actual adapter module in any child process too.

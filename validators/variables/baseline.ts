@@ -1,4 +1,4 @@
-/** Actual default-adapter baseline; never substitutes a test reference. Uses the canonical hidden seed derived from the measured commit. */
+/** RAW EVIDENCE, not a JournalRow. Convert with baseline-journal.ts; never append this output to journal.jsonl. Actual default-adapter baseline; never substitutes a test reference. Uses the canonical hidden seed derived from the measured commit. */
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
