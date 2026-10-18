@@ -378,7 +378,7 @@ Source: `config_framework.md`, heading "2.5 The reference graph, checked at load
 
 ## Workspace seeds
 
-Built by: PR 562 (`origin/feat/block-parents`). Not on `origin/main`.
+Built by: PR 562 (`origin/feat/block-parents`), merged into `origin/main` on 2026-10-17 (84f530ed9). `docs/reference/spec.md` and `docs/concepts/given-when-then.md` on main now hold the contract; this section stays while bank items cite it.
 
 ### workspace.binary
 
@@ -395,7 +395,7 @@ Names from code, on the same ref: `packages/core/src/schema/common.ts` (`binary`
 
 ## Parent blocks
 
-Built by: PR 562 (`origin/feat/block-parents`). Not on `origin/main`.
+Built by: PR 562 (`origin/feat/block-parents`), merged into `origin/main` on 2026-10-17 (84f530ed9). `docs/reference/spec.md` and `docs/concepts/given-when-then.md` on main now hold the contract; this section stays while bank items cite it.
 A rule marked "implied by" follows from the quoted sentence of `docs/concepts/given-when-then.md` ("Parent blocks") on that ref. The page states it so the validator can cite it.
 
 ### The forest
