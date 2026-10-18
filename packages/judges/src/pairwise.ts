@@ -200,6 +200,35 @@ export async function judgePairwise(
   second: string,
   options: PairwiseOptions = {},
 ): Promise<PairwiseVerdict | CanonicalPairwiseVerdict | PairLedgerResult> {
+  // A product policy receives the original task, before the legacy comparison wrapper adds a custom
+  // system and rewrites the criterion. Explicit procedural options retain their existing semantics.
+  if (
+    client.judgePair &&
+    Object.entries(options).every(
+      ([key, value]) =>
+        value === undefined ||
+        key === 'reference' ||
+        key === 'reasoning' ||
+        (key === 'presentation' && value === 'both-orders'),
+    )
+  ) {
+    const result = await client.judgePair({
+      criterion,
+      transcript,
+      candidates: { A: first, B: second },
+      ...(options.reference === undefined ? {} : { reference: options.reference }),
+      ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
+    });
+    if (result.unparsed || !result.comparison)
+      throw new Error(`pair policy gave no comparison: ${result.answer.reasoning}`);
+    return {
+      ...result.comparison,
+      choice: naming(outcomeOf(result), true),
+      ...(result.requestCount === undefined ? {} : { calls: result.requestCount }),
+      ...(result.costUsd === undefined ? {} : { costUsd: result.costUsd }),
+      ...(result.escalation ? { escalation: result.escalation } : {}),
+    };
+  }
   if (options.answerContract === 'ledger' && options.presentation === 'canonical')
     throw new RangeError('pair ledger requires both-orders presentation');
   if (options.answerContract === 'ledger')

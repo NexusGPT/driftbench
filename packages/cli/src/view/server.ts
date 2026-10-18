@@ -2,7 +2,13 @@ import { createHash, randomBytes } from 'node:crypto';
 import { readdir } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { basename, extname } from 'node:path';
-import type { Campaign, RunResult, Spec, Store } from '@agent-nexus/driftbench-core';
+import {
+  type Campaign,
+  type RunResult,
+  realizedTextOf,
+  type Spec,
+  type Store,
+} from '@agent-nexus/driftbench-core';
 import {
   type AnnotationAnchor,
   agreementOf,
@@ -28,6 +34,7 @@ import {
   renderRun,
   runDetailOf,
   runPassed,
+  scoredRuns,
 } from '@agent-nexus/driftbench-report';
 import { openStore } from '@agent-nexus/driftbench-store';
 
@@ -383,20 +390,31 @@ async function queuePage(labelsDir: string, reviewer: string, csrf: string): Pro
   ]);
 }
 
+/** Runs that pass, fail, or neither, for the index: a run not run or blocked is in its own column. */
+export function passingAndFailing(runs: readonly RunResult[]): {
+  passing: number;
+  failing: number;
+  unscored: number;
+} {
+  const passing = runs.filter(runPassed).length;
+  const scored = scoredRuns(runs).length;
+  return { passing, failing: scored - passing, unscored: runs.length - scored };
+}
+
 async function indexPage(store: Store): Promise<string> {
   const campaigns = await store.listCampaigns();
   const rows: string[] = [];
   for (const campaign of campaigns) {
     const data = await loadCampaign(store, campaign.campaignId);
-    const passing = data.runs.filter(runPassed).length;
+    const { passing, failing, unscored } = passingAndFailing(data.runs);
     rows.push(
-      `<tr><td class="mono"><a href="/campaign/${encodeURIComponent(campaign.campaignId)}">${esc(campaign.campaignId)}</a></td><td>${esc(campaign.createdAt)}</td><td>${esc(campaign.modes.join(', '))}</td><td class="num">${campaign.specs.length}</td><td class="num">${data.runs.length} runs</td><td class="num">${passing}</td><td class="num">${data.runs.length - passing}</td></tr>`,
+      `<tr><td class="mono"><a href="/campaign/${encodeURIComponent(campaign.campaignId)}">${esc(campaign.campaignId)}</a></td><td>${esc(campaign.createdAt)}</td><td>${esc(campaign.modes.join(', '))}</td><td class="num">${campaign.specs.length}</td><td class="num">${data.runs.length} runs</td><td class="num">${unscored}</td><td class="num">${passing}</td><td class="num">${failing}</td></tr>`,
     );
   }
   const body =
     rows.length === 0
       ? '<p class="muted">The store holds no campaign. Run one with driftbench campaign run.</p>'
-      : `<div class="table-wrap"><table><caption>Campaigns, newest first</caption><thead><tr><th scope="col">campaign</th><th scope="col">created</th><th scope="col">modes</th><th scope="col">specs</th><th scope="col">runs</th><th scope="col">passing</th><th scope="col">not passing</th></tr></thead><tbody>${rows.join('\n')}</tbody></table></div>`;
+      : `<div class="table-wrap"><table><caption>Campaigns, newest first</caption><thead><tr><th scope="col">campaign</th><th scope="col">created</th><th scope="col">modes</th><th scope="col">specs</th><th scope="col">runs</th><th scope="col">not run or blocked</th><th scope="col">passing</th><th scope="col">failing</th></tr></thead><tbody>${rows.join('\n')}</tbody></table></div>`;
   return renderPage('driftbench view', [
     nav(),
     `<section id="campaigns"><h2>Campaigns</h2><p>Open a campaign for its scorecard and its runs; open a run to label its blocks. Compare two campaigns paired on the goldens both ran.</p>${body}</section>`,
@@ -441,7 +459,7 @@ async function comparePage(store: Store, url: URL): Promise<string> {
   return renderPage(`Compare ${candidate} with ${baseline}`, [nav(), form, renderCompare(result)]);
 }
 
-type HeldLabel = { criterion: string; label: string; note?: string };
+type HeldLabel = { criterion: string; label: string; note?: string; flags?: LabelledBlock['flags'] };
 
 /** Every label in the labels folder, by block id. */
 async function labelsById(dir: string): Promise<Map<string, HeldLabel[]>> {
@@ -464,7 +482,12 @@ async function labelsById(dir: string): Promise<Map<string, HeldLabel[]>> {
     }
     for (const block of blocks) {
       const list = out.get(block.id) ?? [];
-      list.push({ criterion, label: block.label, ...(block.note === undefined ? {} : { note: block.note }) });
+      list.push({
+        criterion,
+        label: block.label,
+        ...(block.flags === undefined ? {} : { flags: block.flags }),
+        ...(block.note === undefined ? {} : { note: block.note }),
+      });
       out.set(block.id, list);
     }
   }
@@ -501,7 +524,7 @@ async function runPage(
     const shown = existing
       .map(
         (entry) =>
-          `<li class="mono">${esc(entry.criterion)}: ${esc(entry.label)}${entry.note ? `. ${esc(entry.note)}` : ''}</li>`,
+          `<li class="mono">${esc(entry.criterion)}: ${esc(entry.label)}${entry.note ? `. ${esc(entry.note)}` : ''}${entry.flags?.includes('sent text not stored') ? '. Sent text not stored; excluded from calibration' : ''}</li>`,
       )
       .join('');
     const criterionField =
@@ -528,6 +551,7 @@ ${anchorField}
   const tally = new Map<string, { pass: number; fail: number }>();
   for (const list of held.values()) {
     for (const entry of list) {
+      if (entry.flags?.includes('sent text not stored')) continue;
       const count = tally.get(entry.criterion) ?? { pass: 0, fail: 0 };
       if (entry.label === 'pass') count.pass += 1;
       else count.fail += 1;
@@ -553,8 +577,9 @@ ${anchorField}
 /** Saves the label a form posted and returns where the browser goes next. */
 /** The transcript a label judges: the stimulus, each tool call with its result, then the reply. */
 function transcriptOf(block: BlockDetail) {
+  const text = realizedTextOf(block.authoredText, block.realized);
   return [
-    ...(block.stimulus === undefined ? [] : [{ role: 'user' as const, text: block.stimulus }]),
+    ...(text === undefined ? [] : [{ role: 'user' as const, text }]),
     ...block.toolCalls.flatMap((call) => [
       { role: 'tool_call' as const, text: JSON.stringify(call.input ?? null), tool: call.label },
       ...(call.output === undefined && call.error === undefined
@@ -672,22 +697,7 @@ async function saveFromForm(
   if (offered.length > 0 && !offered.includes(criterion)) {
     throw new HttpError(400, `The block offers the criteria ${offered.join(', ')}, not ${criterion}.`);
   }
-  const transcript = [
-    ...(block.stimulus === undefined ? [] : [{ role: 'user' as const, text: block.stimulus }]),
-    ...block.toolCalls.flatMap((call) => [
-      { role: 'tool_call' as const, text: JSON.stringify(call.input ?? null), tool: call.label },
-      ...(call.output === undefined && call.error === undefined
-        ? []
-        : [
-            {
-              role: 'tool_result' as const,
-              text: call.error ?? JSON.stringify(call.output),
-              tool: call.label,
-            },
-          ]),
-    ]),
-    { role: 'agent' as const, text: block.text },
-  ];
+  const transcript = transcriptOf(block);
   const picked = fields.get('anchor') ?? 'none';
   let anchor: AnnotationAnchor | undefined;
   if (picked !== 'none') {
@@ -706,6 +716,9 @@ async function saveFromForm(
     label,
     ...(note === '' ? {} : { note }),
     transcript,
+    ...(block.realized !== undefined && realizedTextOf(block.authoredText, block.realized) === undefined
+      ? { flags: ['sent text not stored' as const] }
+      : {}),
     ...(anchor === undefined ? {} : { anchor }),
   };
   const queue = await readQueue(labelsDir);

@@ -79,6 +79,7 @@ metadata:
     path: order-single-plan
     cell:
       catalog.search.out.customer: catalog.search.out.customer.null
+      catalog.search.out.plans: catalog.search.out.plans.empty
       flow: order
       coverage_result: 5g-only
       plan_choice: loose-yes-to-single-offer
@@ -91,7 +92,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address

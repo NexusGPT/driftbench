@@ -3,17 +3,18 @@ import { parseJudgeText, parseJudgeValue, responseSchema } from '../src/assessme
 import { emptyCassette, playerClient, recordingClient, requestKey } from '../src/cassette';
 import type { JudgeClient } from '../src/client';
 import type { JudgeRequest } from '../src/contract';
-import { buildPrompt, PROMPT_FINGERPRINT } from '../src/prompt';
+import { buildPrompt } from '../src/prompt';
 
 const request: JudgeRequest = {
   criterion: { name: 'c', rubric: 'The action is complete.' },
   transcript: [{ role: 'agent', text: 'The action is complete.' }],
 };
 const v2: JudgeRequest = { ...request, criterionDecoderVersion: 2 };
+const strict: JudgeRequest = { ...request, criterionDecoderVersion: 1 };
 const raw = (met: boolean | null, evidence: unknown = 'Invented quote') =>
   JSON.stringify({ checks: [{ id: 'c', reasoning: 'Observed action.', evidence, met }] });
 
-describe('opt-in criterion decoder v2', () => {
+describe('criterion decoder v2 historical compatibility', () => {
   it.each([
     [true, 'pass'],
     [false, 'fail'],
@@ -51,19 +52,19 @@ describe('opt-in criterion decoder v2', () => {
       expect(parseJudgeText(raw(true, evidence), v2).unparsed).toBe(true);
     },
   );
-  it('keeps the strict decoder as the default and for existing recordings', () => {
-    expect(parseJudgeText(raw(true), request).unparsed).toBe(true);
-    expect(parseJudgeText(raw(true), { ...request, criterionDecoderVersion: 1 }).unparsed).toBe(true);
+  it('is the default; the strict decoder stays selectable as version 1 and for existing recordings', () => {
+    expect(parseJudgeText(raw(true), request)).toEqual(parseJudgeText(raw(true), v2));
+    expect(parseJudgeText(raw(true), strict).unparsed).toBe(true);
   });
   it('does not change the prompt, fingerprint or provider schema', () => {
-    expect(PROMPT_FINGERPRINT).toBe('398673b792c1');
+    expect(buildPrompt(strict)).toEqual(buildPrompt(request));
     expect(buildPrompt(v2)).toEqual(buildPrompt(request));
     expect(responseSchema(v2)).toEqual(responseSchema(request));
     expect(JSON.stringify(responseSchema(v2))).not.toContain('grounded');
   });
-  it('keys v2 apart while default keys stay unversioned', () => {
-    expect(requestKey(request)).toBe(requestKey({ ...request, criterionDecoderVersion: 1 }));
-    expect(requestKey(v2)).not.toBe(requestKey(request));
+  it('keys the versions apart; version 1 keys stay unversioned', () => {
+    expect(requestKey(request)).not.toBe(requestKey(v2));
+    expect(requestKey(strict)).not.toBe(requestKey(request));
     for (const other of [
       { ...request, answerContract: 'legacy' as const },
       { ...request, assessment: { kind: 'pairwise' as const } },
@@ -73,8 +74,8 @@ describe('opt-in criterion decoder v2', () => {
     }
     expect(requestKey(v2, { cls: 'system1' })).toBe(requestKey(request, { cls: 'system1' }));
   });
-  it('records v2 identity only when opted in and replays the same nulled evidence', async () => {
-    const strict = emptyCassette();
+  it('records explicit v2 identity and replays the same nulled evidence', async () => {
+    const strictCassette = emptyCassette();
     const client: JudgeClient = {
       id: 'test',
       family: 'test',
@@ -84,9 +85,9 @@ describe('opt-in criterion decoder v2', () => {
         return parseJudgeText(raw(true), r);
       },
     };
-    await recordingClient(client, strict).judge(request);
-    expect(strict.entries[0]).not.toHaveProperty('criterionDecoderVersion');
-    expect(strict.entries[0]?.key).toBe(requestKey(request, client));
+    await recordingClient(client, strictCassette).judge(strict);
+    expect(strictCassette.entries[0]).not.toHaveProperty('criterionDecoderVersion');
+    expect(strictCassette.entries[0]?.key).toBe(requestKey(strict, client));
     const cassette = emptyCassette();
     const result = await recordingClient(client, cassette).judge(v2);
     expect(result.evidenceUnverified).toBe(1);
@@ -102,13 +103,13 @@ describe('opt-in criterion decoder v2', () => {
     cassette.judges.push(judge);
     cassette.entries.push({
       judge: 'test',
-      key: requestKey({ ...request, criterionDecoderVersion: 1 }, judge),
+      key: requestKey({ ...strict, criterionPromptVersion: 1 }, judge),
       answerContract: 'ledger',
       raw: raw(true),
     });
     const player = playerClient(cassette, 'test');
     expect((await player.judge(request)).unparsed).toBe(true);
-    expect(requestKey(request, player)).toBe(cassette.entries[0]?.key);
+    expect(requestKey({ ...request, criterionPromptVersion: 1 }, player)).toBe(cassette.entries[0]?.key);
     await expect(player.judge({ ...request, criterionDecoderVersion: 2 })).rejects.toMatchObject({
       code: 'cassette_miss',
     });

@@ -5,16 +5,152 @@ on:
     branches: [main]
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      jobs:
+        description: Comma-separated job ids to run on a train/* branch, no spaces (for example build,python). A dispatch on any other branch runs nothing.
+        required: true
+        type: string
 
 permissions:
   contents: read
 
+# Pull requests share one group per ref and a non-train PR cancels its older run. A push to main and a
+# dispatch each get a group of their own, so no run on main ever cancels or replaces another.
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') }}
 
 jobs:
+  pr-fast:
+    name: pr fast
+    # A pull request runs it. A merge train also dispatches it alone on a pre-flight branch (train/pre-<pr>,
+    # main plus one PR) to catch a defect in that PR before the train is built; the heavy jobs ignore it.
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',fast,'))
+    runs-on: ubuntu-latest
+    # The merge-train entry gate and the required check: it runs in about 3 minutes. The affected tests of a
+    # large diff run in `pr affected` instead, because they overran any limit here and blocked the PR.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - name: Cache package builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/*/dist
+            examples/*/dist
+            .cache/api-surface-build.json
+          key: build-v1-${{ runner.os }}-node24-${{ hashFiles('pnpm-lock.yaml', 'pnpm-workspace.yaml', 'package.json', 'tsconfig*.json', 'packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig*.json', 'packages/**/tsup.config.*', 'examples/**/src/**', 'examples/**/package.json', 'examples/**/tsconfig*.json', 'tools/structure/**') }}
+      # The build gate checks the cached source/output stamp, and rebuilds stale outputs.
+      - run: node tools/structure/api-surface.mjs --build --check
+      - name: CLI smoke
+        run: node packages/cli/dist/bin.js --version
+      # The docs checks always run: --changed below sees no source change in a PR that only edits markdown.
+      - name: Docs reference is current
+        run: pnpm docs:reference --check
+      - name: Docs reachability and examples
+        run: pnpm exec vitest run tools/docs --maxWorkers=2
+
+  pr-affected:
+    name: pr affected
+    # Reports the tests affected by a pull request. It is not required and not an input of `train gate`: a
+    # merge train runs the full suite in its build jobs, so the subset is skipped on a train PR. It runs on a
+    # pull request only; a pre-flight dispatch runs `pr fast` alone.
+    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Cache package builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/*/dist
+            examples/*/dist
+            .cache/api-surface-build.json
+          key: build-v1-${{ runner.os }}-node24-${{ hashFiles('pnpm-lock.yaml', 'pnpm-workspace.yaml', 'package.json', 'tsconfig*.json', 'packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig*.json', 'packages/**/tsup.config.*', 'examples/**/src/**', 'examples/**/package.json', 'examples/**/tsconfig*.json', 'tools/structure/**') }}
+      # The tests verify the build stamp, so the build gate runs first.
+      - run: node tools/structure/api-surface.mjs --build --check
+      # Markdown dependencies are read at runtime, so --changed alone cannot select their examples.
+      - name: Help topics and executable examples
+        run: pnpm exec vitest run packages/cli/test/help-topics.test.ts --maxWorkers=2
+      - name: Tests affected by this PR
+        run: pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests
+
+  train-gate:
+    name: train gate
+    if: always()
+    needs: [bench, research-replay, build, python, comparison-replay, viewer-journey, guard]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require the full merge train
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REF: ${{ github.head_ref }}
+          REF_NAME: ${{ github.ref_name }}
+          JOBS: ${{ inputs.jobs }}
+          RESULTS: ${{ join(needs.*.result, ',') }}
+        shell: bash
+        run: |
+          # 1. Where the run may count: a push to main, a PR from a train/* branch, or a dispatch on a train/* branch.
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            # A dispatch runs only the jobs it lists, so it counts on a train branch and nowhere else.
+            if [[ "$REF_NAME" != train/* ]]; then
+              echo '::error::A dispatch counts only on a train/<n> branch, never on main'
+              exit 1
+            fi
+            if [ -z "$JOBS" ]; then
+              echo '::error::A dispatch must list the jobs it runs'
+              exit 1
+            fi
+            # GitHub matches the list without regard to case, so the gate lowercases it before it reads it.
+            jobs_lc="$(printf '%s' "$JOBS" | tr '[:upper:]' '[:lower:]')"
+            # A dispatch counts only if at least one heavy job ran and passed. One that lists fast and ran no heavy job is a pre-flight run.
+            if [[ ",$RESULTS," != *,success,* ]]; then
+              if [[ ",$jobs_lc," == *,fast,* ]]; then
+                echo '::error::pre-flight run, not a train pass'
+              else
+                echo '::error::A dispatch must run at least one heavy job'
+              fi
+              exit 1
+            fi
+            # Every id in the list must be a job id, so a misspelt id cannot hide a skipped job.
+            for id in ${jobs_lc//,/ }; do
+              case ",bench,research-replay,build,python,comparison-replay,viewer-journey,guard,fast," in
+                *",$id,"*) ;;
+                *) echo "::error::Unknown job id in the dispatch list: $id"; exit 1 ;;
+              esac
+            done
+          elif [ "$EVENT_NAME" != push ] && ! { [ "$EVENT_NAME" = pull_request ] && [[ "$HEAD_REF" == train/* ]]; }; then
+            echo '::error::Merge through a train (train/<n>)'
+            exit 1
+          fi
+          # 2. Every heavy job that ran must have passed. A skipped job (an ordinary PR, a partial dispatch) is fine.
+          if [[ ",$RESULTS," == *,failure,* || ",$RESULTS," == *,cancelled,* ]]; then
+            echo "::error::A heavy job failed or was cancelled ($RESULTS)"
+            exit 1
+          fi
+
   bench:
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',bench,'))
     name: benchmark replay and floors
     runs-on: ubuntu-latest
     steps:
@@ -24,11 +160,12 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --prefer-offline
       - run: node tools/bench-lint.mjs
       - run: node --import tsx benchmarks/cli.ts replay --slice all --check-floor
 
   research-replay:
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',research-replay,'))
     name: research replays
     runs-on: ubuntu-latest
     steps:
@@ -40,12 +177,11 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --prefer-offline
       - run: tools/research-replay-ci.sh
 
   build:
-    # Draft pull requests do not use runners; marking one ready starts its checks.
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',build,'))
     name: build (node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
@@ -59,7 +195,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --prefer-offline
       - run: pnpm lint
       - run: pnpm typecheck
       # The API gate builds first and stamps source + emitted bytes. Tests verify that stamp.
@@ -72,8 +208,7 @@ jobs:
         run: node packages/cli/dist/bin.js --version
 
   python:
-    # Draft pull requests do not use runners; marking one ready starts its checks.
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',python,'))
     name: python (${{ matrix.python }})
     runs-on: ubuntu-latest
     strategy:
@@ -88,7 +223,7 @@ jobs:
           node-version: 24
           cache: pnpm
       # The tests run the driftbench CLI from source, through tsx.
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --prefer-offline
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
@@ -97,6 +232,7 @@ jobs:
         working-directory: python/driftbench
 
   comparison-replay:
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',comparison-replay,'))
     name: offline comparison replay
     runs-on: ubuntu-latest
     steps:
@@ -106,7 +242,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --prefer-offline
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
@@ -114,8 +250,7 @@ jobs:
         run: python -m unittest discover -s comparisons -p test_reproducibility.py -v
 
   viewer-journey:
-    # Draft pull requests do not use runners; marking one ready starts its checks.
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',viewer-journey,'))
     name: viewer journey (chromium)
     runs-on: ubuntu-latest
     steps:
@@ -125,7 +260,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Playwright version
         id: playwright
         run: echo "version=$(node -p "require('playwright-core/package.json').version")" >> "$GITHUB_OUTPUT"
@@ -147,8 +282,7 @@ jobs:
           if-no-files-found: ignore
 
   guard:
-    # Draft pull requests do not use runners; marking one ready starts its checks.
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',guard,'))
     name: leak guard
     runs-on: ubuntu-latest
     steps:
@@ -185,6 +319,9 @@ jobs:
           tar -xzf "$dir/$archive" -C "$dir" gitleaks
           if [ "$EVENT_NAME" = "pull_request" ]; then
             range="--no-merges --first-parent ${PR_BASE}..${PR_HEAD}"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            git fetch --no-tags origin main:refs/remotes/origin/main
+            range="--no-merges --first-parent origin/main..${GITHUB_SHA}"
           else
             first="$(jq -r '.commits[0].id // empty' "$GITHUB_EVENT_PATH")"
             last="$(jq -r '.commits[-1].id // empty' "$GITHUB_EVENT_PATH")"
@@ -198,3 +335,5 @@ jobs:
             fi
           fi
           "$dir/gitleaks" detect --redact -v --exit-code=2 --config .gitleaks.toml --log-opts="$range"
+          # Planted bypass cases: every one must stay reported, every real recording hash must pass.
+          node tools/guard/gitleaks-cases.mjs "$dir/gitleaks"
