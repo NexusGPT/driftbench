@@ -1071,7 +1071,16 @@ function overlapItems(): BankItem[] {
     title,
     async (ctx) => {
       const tag = `${P}.${metric}.${id}`;
-      const list = cases(ctx, tag).filter(([reply, reference]) => score[metric](reply, reference) > 0);
+      // A pair that scores 0 is dropped, and random pairs can all score 0 on a seed (BLEU needs a shared
+      // 4-gram), so further pairs are drawn under a numbered tag until at least four score above 0.
+      const list: [string, string][] = [];
+      for (let round = 0; list.length < 4 && round < 64; round++)
+        list.push(
+          ...cases(ctx, round === 0 ? tag : `${tag}#${round}`).filter(
+            ([reply, reference]) => score[metric](reply, reference) > 0,
+          ),
+        );
+      if (list.length === 0) throw new Error(`${tag}: no pair scores above 0 on seed ${ctx.seed}`);
       const rows: Row[] = list.flatMap(([reply, reference]) => {
         const s = score[metric](reply, reference);
         return [
