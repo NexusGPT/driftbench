@@ -77,4 +77,30 @@ describe('localizeRuns reads the authored block of a run block', () => {
     expect(localization.roots).toEqual(['s#c']);
     expect(localization.sections[0]?.section).toBe('close');
   });
+
+  it('reads the ancestors of a block of a parent forest from its parent edges', () => {
+    // a is a root, b's parent is a, c is a second root. b and c fail: c's failure is its own.
+    const forest = {
+      ...spec,
+      id: 'f',
+      blocks: [
+        { id: 'a', when: { user: 'a' } },
+        { id: 'b', parent: 'a', when: { user: 'b' } },
+        { id: 'c', when: { user: 'c' } },
+      ],
+    } as Spec;
+    const run = {
+      runId: 'r3',
+      specId: 'f',
+      specHash: specHash(forest),
+      mode: 'F',
+      repeat: 0,
+      target: { adapter: 'function', agent: 'x' },
+      status: 'completed',
+      blocks: [verdict(0, true), verdict(1, false), verdict(2, false)],
+    } as unknown as RunResult;
+    const { localization } = localizeRuns([forest], [run], registry, { mode: 'F' });
+    expect(localization.roots.sort()).toEqual(['f#b', 'f#c']);
+    expect(localization.inherited).toBe(0);
+  });
 });

@@ -144,9 +144,25 @@ export function localizeRows(
     registry.sections.filter((s) => s.scope === 'local' && s.stale !== true).map((s) => s.id),
   );
   const byId = new Map(specs.map((spec) => [spec.id, spec]));
+  // In a parent forest (docs/concepts/given-when-then.md, "Parent blocks") a block inherits only its
+  // ancestors along the parent edges, not every block authored before it.
+  const forestAncestors = (spec: Spec, index: number): string[] => {
+    const out: string[] = [];
+    const seen = new Set<number>([index]);
+    for (let parent = spec.blocks[index]?.parent; parent !== undefined; ) {
+      const at = spec.blocks.findIndex((block) => block.id === parent);
+      if (at < 0 || seen.has(at)) break;
+      seen.add(at);
+      out.unshift(blockKey(spec.id, blockName(spec, at)));
+      parent = spec.blocks[at]?.parent;
+    }
+    return out;
+  };
   const chain = (spec: Spec, index: number, seen: Set<string>): string[] => {
     if (mode === 'T') return [];
-    const own = spec.blocks.slice(0, index).map((_, at) => blockKey(spec.id, blockName(spec, at)));
+    const own = spec.blocks.some((block) => block.parent !== undefined)
+      ? forestAncestors(spec, index)
+      : spec.blocks.slice(0, index).map((_, at) => blockKey(spec.id, blockName(spec, at)));
     const parent = parentOf(spec);
     const source = parent ? byId.get(parent.spec) : undefined;
     if (!parent || !source || seen.has(source.id)) return own;
