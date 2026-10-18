@@ -249,6 +249,44 @@ blocks:
   });
 
   it.each([
+    ['with no child block of the same id', ''],
+    [
+      'with a child block of the same id as the linked parent block',
+      '  - id: open\n    user: Hello again\n    expect: { must: [Acme] }\n',
+    ],
+  ])('refuses a parent spec that has parent links of its own, %s, naming that spec', async (_name, extra) => {
+    const par = `id: par
+target: { adapter: function, agent: acme }
+blocks:
+  - id: open
+    user: Hello Acme
+    expect: { must: ['Acme'] }
+  - id: second
+    parent: open
+    user: I pick Mobile M
+    expect: { must: ['Mobile M'] }
+`;
+    const kid = `id: kid
+target: { adapter: function, agent: acme }
+blocks:
+  - id: c1
+    parent: par#second
+    user: Which plan did I pick?
+    expect: { must: ['You picked Mobile M'] }
+${extra}`;
+    const results = await load({ 'par.yaml': par, 'kid.yaml': kid });
+    expect(okSpec(results, 'par').blocks.map((block) => block.id)).toEqual(['open', 'second']);
+    const errors = errorsOf(results, 'kid.yaml');
+    expect(errors).toEqual([
+      {
+        code: 'PARENT_SPEC_MISMATCH',
+        message:
+          'the parent spec "par" has parent links of its own (block "second"): a spec opens another only as a sequence of blocks',
+      },
+    ]);
+  });
+
+  it.each([
     [
       'on a block other than block 0',
       { id: 'x', blocks: [{ user: 'a' }, { parent: 'stem#pick', user: 'b' }] },
