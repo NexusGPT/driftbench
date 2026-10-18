@@ -91,6 +91,9 @@ advisory.
 * On the H7 suite (the Acme stand-in prompt, 30 sections, 37 blocks, `claude-haiku-5-5`), 25 of 90
   single-section mutants killed a block (drop 7 of 30, negate 17 of 30, rephrase 1 of 30), no control did,
   and 12 of 26 local sections had no killing mutant. Rephrase is optional for that reason.
+* On a live rerun of that suite, the gate scored on the links the H7 run verified fails: 4 of 110 mutants
+  kill a block their selection leaves out (2 single-section, 2 of 20 new two-section mutants), an upper
+  bound of 9.0%. Section selection on that suite stays advisory.
 
 ## Commands and every option
 

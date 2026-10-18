@@ -46,19 +46,28 @@ type Runs = {
 };
 
 export const h7: Selection = fixture('h7-selection.json');
-const runs: Runs = fixture('h7-runs.json');
+const runsOf = (name: string): Runs => fixture(name);
 
 /** The block key `spec#block` of each H7 block id. */
 export const keyOf = new Map(h7.conversations.flatMap((c) => c.blocks.map((b) => [b.id, `${c.id}#${b.id}`])));
 
-const toRun = (text: string): SuiteRun =>
-  Object.fromEntries(
-    [...text].flatMap((char, at) =>
-      char === '-' ? [] : [[keyOf.get(runs.order[at] as string) as string, char === '1']],
-    ),
-  );
+const toRunOver =
+  (order: string[]) =>
+  (text: string): SuiteRun =>
+    Object.fromEntries(
+      [...text].flatMap((char, at) =>
+        char === '-' ? [] : [[keyOf.get(order[at] as string) as string, char === '1']],
+      ),
+    );
 
-export function h7Record(id = 'h7'): MutationRecord {
+/**
+ * A stored run of the H7 suite as a mutation record: `h7-runs.json` (the H7 runs, the default) or
+ * `h7-rerun-runs.json` (the live rerun for the phase 7 gate: the H7 single-section mutants and controls,
+ * and 20 two-section mutants H7 did not run).
+ */
+export function h7Record(id = 'h7', name = 'h7-runs.json'): MutationRecord {
+  const runs = runsOf(name);
+  const toRun = toRunOver(runs.order);
   return {
     kind: 'driftbench.mutation-run',
     version: 1,

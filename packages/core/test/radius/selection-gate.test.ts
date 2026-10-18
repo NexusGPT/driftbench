@@ -81,6 +81,44 @@ describe('the verified-link gate', () => {
   });
 });
 
+describe('the verified-link gate on the live rerun of the H7 suite', () => {
+  // The links are verified by the stored H7 run. The gate is scored on a later live run of the same suite
+  // (h7-rerun-runs.json): the 90 H7 single-section mutants, the 60 controls, and 20 two-section mutants
+  // H7 did not run. This is the plan's decision gate on real runs, not a test of the mechanics.
+  const live = analyseMutation(h7Record('h7-rerun', 'h7-rerun-runs.json'));
+  const gate = selectionGate(promotedSpecs('h7'), registry, live);
+
+  it('fails: 4 of 110 mutants kill a block their selection leaves out, upper bound 9.0%', () => {
+    expect(gate).toMatchObject({ pass: false, mutants: 110, pairs: 20, violating: 4, violatingPairs: 2 });
+    expect(gate.upper).toBeCloseTo(0.0898, 4);
+    expect(gate.reason).toContain('above 5%');
+    expect(gate.violations.map((violation) => violation.mutant).sort()).toEqual([
+      'new_customer_details__rephrase',
+      'pair__explicit_confirm__home_address_first',
+      'pair__home_address_first__recap',
+      'upgrade_identify__negate',
+    ]);
+  });
+
+  it('misses with single-section mutants too: two of the four violations are not pairs', () => {
+    expect(
+      gate.violations.filter((violation) => !violation.pair).map((violation) => violation.missed),
+    ).toEqual([
+      ['upgrade-loose-yes#ly1', 'upgrade-loose-yes#ly2', 'upgrade-loose-yes#ly3'],
+      ['porting-ok#p1'],
+    ]);
+  });
+
+  it('keeps section selection advisory: the radius of a section change is the whole suite', () => {
+    const report = radiusOf(promotedSpecs('h7'), manifestOf(['explicit_confirm']), {
+      sections: [registry],
+      gate,
+    });
+    expect(report.whole?.reason).toContain('the gate failed');
+    expect(report.sectionGate?.used).toBe(false);
+  });
+});
+
 describe('selection skips blocks only with a passing, matching gate', () => {
   const passing = selectionGate(specs, registry, rerun);
   const change = manifestOf(['explicit_confirm']);
