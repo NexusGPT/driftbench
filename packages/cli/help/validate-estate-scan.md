@@ -103,6 +103,8 @@ No word list and no grammar rule decides what is a rule.
 * The cassette keeps every labeler answer, keyed by the hash of the whole request and of what identifies it: the labeler, its model, the set, the versions of the prompt, the cut and the run.
   A changed prompt, set, model, labeler or cut misses, and the error names the field that differs from the
   nearest entry. A scan without `--record` never calls a labeler, so a replay needs no key and no network.
+  An answer that cannot be read after two asks is recorded as a failed window, so a replay lists the same window
+  with no call; delete that entry to ask again.
 * The answer is checked: a label not in the set, a unit not in the window, a unit named twice, a target that
   is no unit number, a target on `none` or where none is allowed, or choice probabilities that do not sum to 1
   is refused and listed (probabilities are never normalised). A unit no accepted answer names is counted as unlabeled.

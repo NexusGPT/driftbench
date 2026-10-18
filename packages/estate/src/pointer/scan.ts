@@ -335,6 +335,20 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         if (!RETRYABLE(cause)) break;
       }
     }
+    // An answer that cannot be read twice is the model's, not the network's: it is recorded, so the failure
+    // replays with no call. Any other failure (a refusal, a transport error) is not recorded.
+    if (failure instanceof LabelerError) {
+      const unreadable: Recorded = {
+        returnedModel: member.model,
+        stopReason: 'unreadable',
+        refused: 'unreadable',
+        error: failure.message,
+        usage: { input: 0, output: 0 },
+      };
+      cassette.put(wire, readable, unreadable);
+      counts.recorded++;
+      return { answer: unreadable, key: requestKey(wire, readable) };
+    }
     throw failure;
   }
 
@@ -348,6 +362,14 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         leaves: [],
         failures: [
           `${window.id} (${task.set.set}, ${task.member.id}): ${cause instanceof Error ? cause.message : String(cause)}`,
+        ],
+      };
+    }
+    if (result.answer.refused === 'unreadable') {
+      return {
+        leaves: [],
+        failures: [
+          `${window.id} (${task.set.set}, ${task.member.id}): ${result.answer.error ?? 'the answer cannot be read'}`,
         ],
       };
     }
