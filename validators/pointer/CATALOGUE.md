@@ -73,18 +73,21 @@ Chosen by the bank, not by the design: 1x is 300 units, 10x 3,000, 100x 30,000 (
 ## Notes on the specification (assumptions and gaps)
 
 1. Revision 3 defines no stack of a system-1 and a system-2 labeller. The stack family follows the default stack specification (margin, cut or share, three system 2 runs, accept rule, the person, failure handling, pluggable labellers) and runs on planted answers through a `StackApi` port; the reader has none yet, so those items fail with "the stack is not reachable". The raw Jev and Haiku ports are tested in the labels family as revision 3 gives them (thresholds 0.4 window, 0.7 unit).
-2. Section 8 writes `estate scan --replay <cassette>`; section 14 (what is built) writes `--cassette <file> [--record]`. The bank follows section 14.
-3. Section 8 says no item may depend on a cassette it produced. Replay items compare a recording with its own replay, two recordings, or a perturbed copy; the `fixture-` items replay the committed fixture cassettes as data and change one field of one entry, and nothing is recorded in item setup.
-4. The design shows only the container names `heading`, `sentence`, `list_item`. `table_cell`, `block_quote`, `front_matter`, `fence`, `comment` are assumed and mapped by the binding.
-5. Section 2 does not say whether a list item span includes its bullet or a table cell span its padding. Oracles compare the fingerprint normal form and require the span to lie inside the construct.
-6. Section 4 says "one id per unit that is labelled or linked". The bank reads it as: every unit of a labelled window has an entry, `none` included, because a unit a re-record stops selecting must stay tracked (`label_flip`, never a false `deleted`).
-7. Re-anchoring outcomes use the seven words of section 4 (unchanged, moved, ambiguous, changed, split, merged, deleted) read from the last lineage event. The event of an inserted unit is not asserted.
-8. A gate quote is checked as verbatim source text that starts with the first unit and ends with the second unit; section 6 says both "from its first to its second unit" and "the text of both units in file order".
-9. Layer C (links, blast radius, coverage, verification) is "not built" in section 14; its items stay in the bank and fail until it is built. Link states follow section 7 only.
-10. The context fingerprint is assumed to cover the neighbours (section 4 prefix and suffix). Items are silent on whether the heading path is inside it.
-11. Window size (100,000 tokens) is checked only with files far from the bound (30,000 characters against 900,000).
-12. The design leaves open: a gate across files (section 12), the text format of a YAML path, the container of markdown inside an HTML block. No item asserts them beyond what the rows say.
-13. The rows use the thresholds of section 4 (0.45 score, 0.4 text floor) only through clear cases: related texts at 0.85 similarity and above, unrelated texts under 0.25. Tuning the thresholds inside that gap cannot fail an item except the two that name 0.7 (reword-moderate) and the monotone sweep.
+2. Design revision 4 (labelers by class) is followed by the stack family. The labels and replay families keep the yes or no form of the system 1 labeller (question keys `u<n>__<label>`, thresholds 0.4 and 0.7), which revision 4 keeps as a shipped class. Not yet items: the choice-question system 1 client (a window of 30, probabilities that must sum to 1 within 0.01), three runs of system 2 with a unit labelled only when all agree, and the run, model and class fields of the cassette key.
+3. Some items need what the reader does not expose at commit 5ad1e263a: per-id events `split`, `merged` and `ambiguous` (five re-anchoring items), and `lineage` or `twinOf` on a ledger entry (three ids items). The binding returns counts and derived events only; those items fail until the reader exposes them.
+4. Every scan item checks that the scan holds the units the composer planted and that the reader cuts a fixed control file (a three-sentence paragraph and a two-item list); a reader that cuts one unit per file or per line, returns nothing or refuses everything passes no item but the empty-input stack item. Tests keep four such cheating readers at that bar.
+5. Section 8 writes `estate scan --replay <cassette>`; section 14 (what is built) writes `--cassette <file> [--record]`. The bank follows section 14.
+6. Section 8 says no item may depend on a cassette it produced. Replay items compare a recording with its own replay, two recordings, or a perturbed copy; the `fixture-` items replay the committed fixture cassettes as data and change one field of one entry, and nothing is recorded in item setup.
+7. The design shows only the container names `heading`, `sentence`, `list_item`. `table_cell`, `block_quote`, `front_matter`, `fence`, `comment` are assumed and mapped by the binding.
+8. Section 2 does not say whether a list item span includes its bullet or a table cell span its padding. Oracles compare the fingerprint normal form and require the span to lie inside the construct.
+9. Section 4 says "one id per unit that is labelled or linked". The bank reads it as: every unit of a labelled window has an entry, `none` included, because a unit a re-record stops selecting must stay tracked (`label_flip`, never a false `deleted`).
+10. Re-anchoring outcomes use the seven words of section 4 (unchanged, moved, ambiguous, changed, split, merged, deleted) read from the last lineage event. The event of an inserted unit is not asserted.
+11. A gate quote is checked as verbatim source text that starts with the first unit and ends with the second unit; section 6 says both "from its first to its second unit" and "the text of both units in file order".
+12. Layer C (links, blast radius, coverage, verification) is "not built" in section 14; its items stay in the bank and fail until it is built. Link states follow section 7 only.
+13. The context fingerprint is assumed to cover the neighbours (section 4 prefix and suffix). Items are silent on whether the heading path is inside it.
+14. Window size (100,000 tokens) is checked only with files far from the bound (30,000 characters against 900,000).
+15. The design leaves open: a gate across files (section 12), the text format of a YAML path, the container of markdown inside an HTML block. No item asserts them beyond what the rows say.
+16. The rows use the thresholds of section 4 (0.45 score, 0.4 text floor) only through clear cases: related texts at 0.85 similarity and above, unrelated texts under 0.25. Tuning the thresholds inside that gap cannot fail an item except the two that name 0.7 (reword-moderate) and the monotone sweep.
 
 ## cutting
 
