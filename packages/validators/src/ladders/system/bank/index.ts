@@ -15,6 +15,8 @@ import { specItems } from './claims/spec';
 import { cliItems } from './cli';
 import { comboItems } from './combos';
 import { fieldItems } from './fields';
+import { linkItems } from './links';
+import { linkChainItems } from './links-chain';
 import { precisionItems } from './precision';
 import { reachItems } from './reach';
 import { recordItems } from './records';
@@ -22,6 +24,7 @@ import { replayItems } from './replay';
 import { scaleItems } from './scale';
 import { BANK_LEVELS, type BankItem, type ItemResult } from './types';
 import { varianceItems } from './variance';
+import { verdictItems } from './verdicts';
 import { versionItems } from './version';
 
 export * from './types';
@@ -53,6 +56,9 @@ export function systemBank(): BankItem[] {
     ...replayItems(),
     ...cliItems(),
     ...scaleItems(),
+    ...linkItems(),
+    ...linkChainItems(),
+    ...verdictItems(),
   ];
   return items.sort((a, b) => a.level - b.level);
 }

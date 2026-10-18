@@ -76,6 +76,8 @@ export const BANK_LEVELS = [
   { level: 9, id: 'replay', name: 'replay equals live' },
   { level: 10, id: 'command-line', name: 'command-line exit codes and output fields' },
   { level: 11, id: 'scale', name: 'scale: the same answers at ten and a hundred times the size' },
+  { level: 12, id: 'links', name: 'a planted fault reaches its prompt section through the block links' },
+  { level: 13, id: 'not-run', name: 'blocks not run and blocked: records, outcomes and exit codes' },
 ] as const;
 
 /** An item before its cause is set: a module states shared causes where one change fixes many items. */

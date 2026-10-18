@@ -21492,6 +21492,2877 @@
       "source": "scale",
       "component": "packages/generate/src/select/cover.ts",
       "cause": "select-specs: the per-block cost does not grow with the size of the run"
+    },
+    {
+      "id": "links/localize/x1-local/F/id",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x1-local/F/index",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x1-local/T/id",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x1-local/T/index",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x2-contradiction/F/id",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x2-contradiction/F/index",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x2-contradiction/T/id",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x2-contradiction/T/index",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x3-flow/F/id",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x3-flow/F/index",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x3-flow/T/id",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x3-flow/T/index",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x4-format/F/id",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x4-format/F/index",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x4-format/T/id",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x4-format/T/index",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x5-tool/F/id",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x5-tool/F/index",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x5-tool/T/id",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/x5-tool/T/index",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d2-goal-shift/F/id",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d2-goal-shift/F/index",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d2-goal-shift/T/id",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d2-goal-shift/T/index",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d4-loose-confirmation/F/id",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d4-loose-confirmation/F/index",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d4-loose-confirmation/T/id",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d4-loose-confirmation/T/index",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d6-instruction-in-data/F/id",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d6-instruction-in-data/F/index",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d6-instruction-in-data/T/id",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d6-instruction-in-data/T/index",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d8-tool-failure/F/id",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d8-tool-failure/F/index",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d8-tool-failure/T/id",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d8-tool-failure/T/index",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d9-out-of-scope/F/id",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d9-out-of-scope/F/index",
+      "family": "link-localize",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d9-out-of-scope/T/id",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/localize/d9-out-of-scope/T/index",
+      "family": "link-localize",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns scores the sections a failing block links to with the documented Ochiai formula"
+    },
+    {
+      "id": "links/inherit/x1-local-x4-format/grouped",
+      "family": "link-inherit",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns drops a failure whose earlier block of the conversation failed in the same run"
+    },
+    {
+      "id": "links/inherit/x1-local-x4-format/flat",
+      "family": "link-inherit",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns with flat counting counts every failing block"
+    },
+    {
+      "id": "links/inherit/x2-contradiction-x5-tool/grouped",
+      "family": "link-inherit",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns drops a failure whose earlier block of the conversation failed in the same run"
+    },
+    {
+      "id": "links/inherit/x2-contradiction-x5-tool/flat",
+      "family": "link-inherit",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns with flat counting counts every failing block"
+    },
+    {
+      "id": "links/inherit/x3-flow-d2-goal-shift/grouped",
+      "family": "link-inherit",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns drops a failure whose earlier block of the conversation failed in the same run"
+    },
+    {
+      "id": "links/inherit/x3-flow-d2-goal-shift/flat",
+      "family": "link-inherit",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns with flat counting counts every failing block"
+    },
+    {
+      "id": "links/inherit/x4-format-d4-loose-confirmation/grouped",
+      "family": "link-inherit",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns drops a failure whose earlier block of the conversation failed in the same run"
+    },
+    {
+      "id": "links/inherit/x4-format-d4-loose-confirmation/flat",
+      "family": "link-inherit",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns with flat counting counts every failing block"
+    },
+    {
+      "id": "links/inherit/x5-tool-d6-instruction-in-data/grouped",
+      "family": "link-inherit",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns drops a failure whose earlier block of the conversation failed in the same run"
+    },
+    {
+      "id": "links/inherit/x5-tool-d6-instruction-in-data/flat",
+      "family": "link-inherit",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns with flat counting counts every failing block"
+    },
+    {
+      "id": "links/inherit/d2-goal-shift-d8-tool-failure/grouped",
+      "family": "link-inherit",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns drops a failure whose earlier block of the conversation failed in the same run"
+    },
+    {
+      "id": "links/inherit/d2-goal-shift-d8-tool-failure/flat",
+      "family": "link-inherit",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns with flat counting counts every failing block"
+    },
+    {
+      "id": "links/inherit/d4-loose-confirmation-d9-out-of-scope/grouped",
+      "family": "link-inherit",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns drops a failure whose earlier block of the conversation failed in the same run"
+    },
+    {
+      "id": "links/inherit/d4-loose-confirmation-d9-out-of-scope/flat",
+      "family": "link-inherit",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns with flat counting counts every failing block"
+    },
+    {
+      "id": "links/inherit/d6-instruction-in-data-x1-local/grouped",
+      "family": "link-inherit",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns drops a failure whose earlier block of the conversation failed in the same run"
+    },
+    {
+      "id": "links/inherit/d6-instruction-in-data-x1-local/flat",
+      "family": "link-inherit",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns with flat counting counts every failing block"
+    },
+    {
+      "id": "links/inherit/d8-tool-failure-x2-contradiction/grouped",
+      "family": "link-inherit",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns drops a failure whose earlier block of the conversation failed in the same run"
+    },
+    {
+      "id": "links/inherit/d8-tool-failure-x2-contradiction/flat",
+      "family": "link-inherit",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns with flat counting counts every failing block"
+    },
+    {
+      "id": "links/inherit/d9-out-of-scope-x3-flow/grouped",
+      "family": "link-inherit",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns drops a failure whose earlier block of the conversation failed in the same run"
+    },
+    {
+      "id": "links/inherit/d9-out-of-scope-x3-flow/flat",
+      "family": "link-inherit",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns with flat counting counts every failing block"
+    },
+    {
+      "id": "links/shift/perturbed/x1-local",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/shift/perturbed/x2-contradiction",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/shift/perturbed/x3-flow",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/shift/perturbed/x4-format",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/shift/perturbed/x5-tool",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/shift/perturbed/d2-goal-shift",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/shift/perturbed/d4-loose-confirmation",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/shift/perturbed/d6-instruction-in-data",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/shift/perturbed/d8-tool-failure",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/shift/perturbed/d9-out-of-scope",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/shift/forest-roots/x1-local",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows reads the ancestors of a block in a parent forest from its parent edges, not from every earlier block"
+    },
+    {
+      "id": "links/shift/forest-child-first/x1-local",
+      "family": "link-shift",
+      "tier": 5,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a block run out of authored order by its specIndex, never by its run position"
+    },
+    {
+      "id": "links/shift/forest-roots/x4-format",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows reads the ancestors of a block in a parent forest from its parent edges, not from every earlier block"
+    },
+    {
+      "id": "links/shift/forest-child-first/x4-format",
+      "family": "link-shift",
+      "tier": 5,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a block run out of authored order by its specIndex, never by its run position"
+    },
+    {
+      "id": "links/shift/forest-roots/x5-tool",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows reads the ancestors of a block in a parent forest from its parent edges, not from every earlier block"
+    },
+    {
+      "id": "links/shift/forest-child-first/x5-tool",
+      "family": "link-shift",
+      "tier": 5,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a block run out of authored order by its specIndex, never by its run position"
+    },
+    {
+      "id": "links/shift/forest-roots/d4-loose-confirmation",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows reads the ancestors of a block in a parent forest from its parent edges, not from every earlier block"
+    },
+    {
+      "id": "links/shift/forest-child-first/d4-loose-confirmation",
+      "family": "link-shift",
+      "tier": 5,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a block run out of authored order by its specIndex, never by its run position"
+    },
+    {
+      "id": "links/shift/forest-roots/d6-instruction-in-data",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows reads the ancestors of a block in a parent forest from its parent edges, not from every earlier block"
+    },
+    {
+      "id": "links/shift/forest-child-first/d6-instruction-in-data",
+      "family": "link-shift",
+      "tier": 5,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a block run out of authored order by its specIndex, never by its run position"
+    },
+    {
+      "id": "links/shift/forest-roots/d9-out-of-scope",
+      "family": "link-shift",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows reads the ancestors of a block in a parent forest from its parent edges, not from every earlier block"
+    },
+    {
+      "id": "links/shift/forest-child-first/d9-out-of-scope",
+      "family": "link-shift",
+      "tier": 5,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns maps a block run out of authored order by its specIndex, never by its run position"
+    },
+    {
+      "id": "links/select/direct/declared",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/select/direct/attributed",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/select/direct/verified",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/select/direct/refuted",
+      "family": "link-select",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection leaves out a refuted link"
+    },
+    {
+      "id": "links/select/direct/stale",
+      "family": "link-select",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block with a stale link"
+    },
+    {
+      "id": "links/select/references/declared",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over references"
+    },
+    {
+      "id": "links/select/references/attributed",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over references"
+    },
+    {
+      "id": "links/select/references/verified",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over references"
+    },
+    {
+      "id": "links/select/references/refuted",
+      "family": "link-select",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection leaves out a refuted link"
+    },
+    {
+      "id": "links/select/references/stale",
+      "family": "link-select",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block with a stale link"
+    },
+    {
+      "id": "links/select/overrides/declared",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over overrides"
+    },
+    {
+      "id": "links/select/overrides/attributed",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over overrides"
+    },
+    {
+      "id": "links/select/overrides/verified",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over overrides"
+    },
+    {
+      "id": "links/select/overrides/refuted",
+      "family": "link-select",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection leaves out a refuted link"
+    },
+    {
+      "id": "links/select/overrides/stale",
+      "family": "link-select",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block with a stale link"
+    },
+    {
+      "id": "links/select/duplicates-of/declared",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over duplicates-of"
+    },
+    {
+      "id": "links/select/duplicates-of/attributed",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over duplicates-of"
+    },
+    {
+      "id": "links/select/duplicates-of/verified",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over duplicates-of"
+    },
+    {
+      "id": "links/select/duplicates-of/refuted",
+      "family": "link-select",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection leaves out a refuted link"
+    },
+    {
+      "id": "links/select/duplicates-of/stale",
+      "family": "link-select",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block with a stale link"
+    },
+    {
+      "id": "links/select/duplicated-by/declared",
+      "family": "link-select",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over the duplicates a changed section lists"
+    },
+    {
+      "id": "links/select/duplicated-by/attributed",
+      "family": "link-select",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over the duplicates a changed section lists"
+    },
+    {
+      "id": "links/select/duplicated-by/verified",
+      "family": "link-select",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over the duplicates a changed section lists"
+    },
+    {
+      "id": "links/select/duplicated-by/refuted",
+      "family": "link-select",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection leaves out a refuted link"
+    },
+    {
+      "id": "links/select/duplicated-by/stale",
+      "family": "link-select",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block with a stale link"
+    },
+    {
+      "id": "links/select/transitive/declared",
+      "family": "link-select",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over chains of references and overrides"
+    },
+    {
+      "id": "links/select/transitive/attributed",
+      "family": "link-select",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over chains of references and overrides"
+    },
+    {
+      "id": "links/select/transitive/verified",
+      "family": "link-select",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over chains of references and overrides"
+    },
+    {
+      "id": "links/select/transitive/refuted",
+      "family": "link-select",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection leaves out a refuted link"
+    },
+    {
+      "id": "links/select/transitive/stale",
+      "family": "link-select",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block with a stale link"
+    },
+    {
+      "id": "links/select/unrelated/declared",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/select/unrelated/attributed",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/select/unrelated/verified",
+      "family": "link-select",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/select/unrelated/refuted",
+      "family": "link-select",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection leaves out a refuted link"
+    },
+    {
+      "id": "links/select/unrelated/stale",
+      "family": "link-select",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block with a stale link"
+    },
+    {
+      "id": "links/select-edge/global-section/id",
+      "family": "link-select-edge",
+      "tier": 1,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block when a changed section is global"
+    },
+    {
+      "id": "links/select-edge/global-section/index",
+      "family": "link-select-edge",
+      "tier": 1,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block when a changed section is global"
+    },
+    {
+      "id": "links/select-edge/unknown-section/id",
+      "family": "link-select-edge",
+      "tier": 1,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block when a changed section is in no registry"
+    },
+    {
+      "id": "links/select-edge/unknown-section/index",
+      "family": "link-select-edge",
+      "tier": 1,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block when a changed section is in no registry"
+    },
+    {
+      "id": "links/select-edge/no-links/id",
+      "family": "link-select-edge",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects a block with no link to the changed prompt"
+    },
+    {
+      "id": "links/select-edge/no-links/index",
+      "family": "link-select-edge",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects a block with no link to the changed prompt"
+    },
+    {
+      "id": "links/select-edge/stale-section/id",
+      "family": "link-select-edge",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block with a stale link"
+    },
+    {
+      "id": "links/select-edge/stale-section/index",
+      "family": "link-select-edge",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block with a stale link"
+    },
+    {
+      "id": "links/select-edge/link-to-missing-section/id",
+      "family": "link-select-edge",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block with a stale link"
+    },
+    {
+      "id": "links/select-edge/link-to-missing-section/index",
+      "family": "link-select-edge",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects every block with a stale link"
+    },
+    {
+      "id": "links/select-edge/two-changes/id",
+      "family": "link-select-edge",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/select-edge/two-changes/index",
+      "family": "link-select-edge",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/select-edge/spec-wide-link/id",
+      "family": "link-select-edge",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection reads a link with no block as a link of every block"
+    },
+    {
+      "id": "links/select-edge/spec-wide-link/index",
+      "family": "link-select-edge",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection reads a link with no block as a link of every block"
+    },
+    {
+      "id": "links/select-edge/link-by-index/id",
+      "family": "link-select-edge",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "linkHolds matches a link to its block by index"
+    },
+    {
+      "id": "links/select-edge/link-by-index/index",
+      "family": "link-select-edge",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "linkHolds matches a link to its block by index"
+    },
+    {
+      "id": "links/select-edge/duplicate-cycle/id",
+      "family": "link-select-edge",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over the duplicates a changed section lists"
+    },
+    {
+      "id": "links/select-edge/duplicate-cycle/index",
+      "family": "link-select-edge",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection closes the changed sections over the duplicates a changed section lists"
+    },
+    {
+      "id": "links/select-edge/reference-to-global/id",
+      "family": "link-select-edge",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/select-edge/reference-to-global/index",
+      "family": "link-select-edge",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/select-parent/child-first/id",
+      "family": "link-select-edge",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "links/select-parent/child-first/index",
+      "family": "link-select-edge",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "links/select-parent/child-first-gap/id",
+      "family": "link-select-edge",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "links/select-parent/child-first-gap/index",
+      "family": "link-select-edge",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "links/select-parent/grandchild-first/id",
+      "family": "link-select-edge",
+      "tier": 5,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "links/select-parent/grandchild-first/index",
+      "family": "link-select-edge",
+      "tier": 5,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "links/select-parent/two-children-first/id",
+      "family": "link-select-edge",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "links/select-parent/two-children-first/index",
+      "family": "link-select-edge",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "links/select-parent/child-after/id",
+      "family": "link-select-edge",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/select-parent/child-after/index",
+      "family": "link-select-edge",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection selects the blocks linked to a changed section and the later blocks of their conversation"
+    },
+    {
+      "id": "links/spec/refuse/unknown-block-id",
+      "family": "link-spec",
+      "tier": 1,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/spec/semantics.ts",
+      "cause": "spec validate refuses a link whose block names no block of the spec as LINK_BLOCK_UNKNOWN"
+    },
+    {
+      "id": "links/spec/refuse/index-past-end",
+      "family": "link-spec",
+      "tier": 1,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/spec/semantics.ts",
+      "cause": "spec validate refuses a link whose block names no block of the spec as LINK_BLOCK_UNKNOWN"
+    },
+    {
+      "id": "links/spec/refuse/unknown-key",
+      "family": "link-spec",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/schema/links.ts",
+      "cause": "spec validate refuses a malformed link as SCHEMA_CUSTOM at the field it breaks"
+    },
+    {
+      "id": "links/spec/refuse/unknown-key-in-to",
+      "family": "link-spec",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/schema/links.ts",
+      "cause": "spec validate refuses a malformed link as SCHEMA_CUSTOM at the field it breaks"
+    },
+    {
+      "id": "links/spec/refuse/bad-status",
+      "family": "link-spec",
+      "tier": 1,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/schema/links.ts",
+      "cause": "spec validate refuses a malformed link as SCHEMA_CUSTOM at the field it breaks"
+    },
+    {
+      "id": "links/spec/refuse/missing-status",
+      "family": "link-spec",
+      "tier": 1,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/schema/links.ts",
+      "cause": "spec validate refuses a malformed link as SCHEMA_CUSTOM at the field it breaks"
+    },
+    {
+      "id": "links/spec/refuse/missing-to",
+      "family": "link-spec",
+      "tier": 1,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/schema/links.ts",
+      "cause": "spec validate refuses a malformed link as SCHEMA_CUSTOM at the field it breaks"
+    },
+    {
+      "id": "links/spec/refuse/bad-relation",
+      "family": "link-spec",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/schema/links.ts",
+      "cause": "spec validate refuses a malformed link as SCHEMA_CUSTOM at the field it breaks"
+    },
+    {
+      "id": "links/spec/refuse/bad-creator",
+      "family": "link-spec",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/schema/links.ts",
+      "cause": "spec validate refuses a malformed link as SCHEMA_CUSTOM at the field it breaks"
+    },
+    {
+      "id": "links/spec/refuse/bad-target-kind",
+      "family": "link-spec",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/schema/links.ts",
+      "cause": "spec validate refuses a malformed link as SCHEMA_CUSTOM at the field it breaks"
+    },
+    {
+      "id": "links/spec/refuse/negative-turn",
+      "family": "link-spec",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/schema/links.ts",
+      "cause": "spec validate refuses a malformed link as SCHEMA_CUSTOM at the field it breaks"
+    },
+    {
+      "id": "links/spec/refuse/empty-section",
+      "family": "link-spec",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/schema/links.ts",
+      "cause": "spec validate refuses a malformed link as SCHEMA_CUSTOM at the field it breaks"
+    },
+    {
+      "id": "links/spec/lint/unknown-section",
+      "family": "link-spec",
+      "tier": 1,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/links.ts",
+      "cause": "checkSpecLinks reports LINK_TARGET_UNKNOWN as a error for a link with unknown section"
+    },
+    {
+      "id": "links/spec/lint/no-registry",
+      "family": "link-spec",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/links.ts",
+      "cause": "checkSpecLinks reports LINK_TARGET_UNKNOWN as a warning for a link with no registry"
+    },
+    {
+      "id": "links/spec/lint/stale-status",
+      "family": "link-spec",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/links.ts",
+      "cause": "checkSpecLinks reports LINK_STALE as a warning for a link with stale status"
+    },
+    {
+      "id": "links/spec/lint/stale-section",
+      "family": "link-spec",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/radius/links.ts",
+      "cause": "checkSpecLinks reports LINK_STALE as a warning for a link with stale section"
+    },
+    {
+      "id": "links/spec/identity/added/hash",
+      "family": "link-spec",
+      "tier": 1,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/spec/identity.ts",
+      "cause": "specHash and the run id leave metadata.links out"
+    },
+    {
+      "id": "links/spec/identity/added/cache",
+      "family": "link-spec",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/runner/cache.ts",
+      "cause": "the observed cache key leaves metadata.links out"
+    },
+    {
+      "id": "links/spec/identity/promoted/hash",
+      "family": "link-spec",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/spec/identity.ts",
+      "cause": "specHash and the run id leave metadata.links out"
+    },
+    {
+      "id": "links/spec/identity/promoted/cache",
+      "family": "link-spec",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/runner/cache.ts",
+      "cause": "the observed cache key leaves metadata.links out"
+    },
+    {
+      "id": "links/spec/identity/refuted/hash",
+      "family": "link-spec",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/spec/identity.ts",
+      "cause": "specHash and the run id leave metadata.links out"
+    },
+    {
+      "id": "links/spec/identity/refuted/cache",
+      "family": "link-spec",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/runner/cache.ts",
+      "cause": "the observed cache key leaves metadata.links out"
+    },
+    {
+      "id": "links/spec/identity/removed/hash",
+      "family": "link-spec",
+      "tier": 2,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/spec/identity.ts",
+      "cause": "specHash and the run id leave metadata.links out"
+    },
+    {
+      "id": "links/spec/identity/removed/cache",
+      "family": "link-spec",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/runner/cache.ts",
+      "cause": "the observed cache key leaves metadata.links out"
+    },
+    {
+      "id": "links/spec/identity/evidence/hash",
+      "family": "link-spec",
+      "tier": 3,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/spec/identity.ts",
+      "cause": "specHash and the run id leave metadata.links out"
+    },
+    {
+      "id": "links/spec/identity/evidence/cache",
+      "family": "link-spec",
+      "tier": 4,
+      "level": 12,
+      "source": "combination",
+      "component": "packages/core/src/runner/cache.ts",
+      "cause": "the observed cache key leaves metadata.links out"
+    },
+    {
+      "id": "links/chain-select/inside/id",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius.ts",
+      "cause": "radius --sections selects the blocks linked to a section reanchor found stale"
+    },
+    {
+      "id": "links/chain-select/inside/index",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius.ts",
+      "cause": "radius --sections selects the blocks linked to a section reanchor found stale"
+    },
+    {
+      "id": "links/chain-select/removed/id",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius.ts",
+      "cause": "radius --sections selects the blocks linked to a section reanchor found stale"
+    },
+    {
+      "id": "links/chain-select/removed/index",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius.ts",
+      "cause": "radius --sections selects the blocks linked to a section reanchor found stale"
+    },
+    {
+      "id": "links/chain-select/reordered/id",
+      "family": "link-chain",
+      "tier": 4,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-sections.ts",
+      "cause": "radius sections reanchor writes a prompt_section change per reordered section and radius --sections selects their linked blocks"
+    },
+    {
+      "id": "links/chain-select/reordered/index",
+      "family": "link-chain",
+      "tier": 4,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-sections.ts",
+      "cause": "radius sections reanchor writes a prompt_section change per reordered section and radius --sections selects their linked blocks"
+    },
+    {
+      "id": "links/chain-select/outside/id",
+      "family": "link-chain",
+      "tier": 3,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-sections.ts",
+      "cause": "radius sections reanchor writes a global prompt change for text added outside every section"
+    },
+    {
+      "id": "links/chain-select/outside/index",
+      "family": "link-chain",
+      "tier": 3,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-sections.ts",
+      "cause": "radius sections reanchor writes a global prompt change for text added outside every section"
+    },
+    {
+      "id": "links/chain-localize/x1-local/F/grouped",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/x2-contradiction/F/grouped",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/x3-flow/F/grouped",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/x4-format/F/grouped",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/x5-tool/F/grouped",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/d2-goal-shift/F/grouped",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/d4-loose-confirmation/F/grouped",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/d6-instruction-in-data/F/grouped",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/d8-tool-failure/F/grouped",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/d9-out-of-scope/F/grouped",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/x1-local/T/grouped",
+      "family": "link-chain",
+      "tier": 3,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/x5-tool/T/grouped",
+      "family": "link-chain",
+      "tier": 3,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/x2-contradiction/F/flat",
+      "family": "link-chain",
+      "tier": 3,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/d8-tool-failure/F/flat",
+      "family": "link-chain",
+      "tier": 3,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize reads the stored campaign and prints the localisation of its runs"
+    },
+    {
+      "id": "links/chain-localize/clean/F",
+      "family": "link-chain",
+      "tier": 1,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize exits 1 when nothing failed outside inherited failures"
+    },
+    {
+      "id": "links/chain-localize/clean/T",
+      "family": "link-chain",
+      "tier": 1,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize exits 1 when nothing failed outside inherited failures"
+    },
+    {
+      "id": "links/chain-localize/perturbed/x1-local",
+      "family": "link-chain",
+      "tier": 4,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/chain-localize/perturbed/x5-tool",
+      "family": "link-chain",
+      "tier": 4,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/chain-localize/perturbed/d4-loose-confirmation",
+      "family": "link-chain",
+      "tier": 4,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/chain-localize/perturbed/d9-out-of-scope",
+      "family": "link-chain",
+      "tier": 4,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "localizeRuns maps a mode P block to its authored index, never to its run position after the injected block"
+    },
+    {
+      "id": "links/chain-lint/lint/clean",
+      "family": "link-chain",
+      "tier": 1,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/spec.ts",
+      "cause": "spec lint --sections exits 0 when every link names a known section"
+    },
+    {
+      "id": "links/chain-lint/lint/unknown-section",
+      "family": "link-chain",
+      "tier": 1,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/spec.ts",
+      "cause": "spec lint --sections fails on a link to a section its registry does not hold"
+    },
+    {
+      "id": "links/chain-lint/lint/stale-warning",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/spec.ts",
+      "cause": "spec lint --sections reports a stale link as a warning that only --strict fails on"
+    },
+    {
+      "id": "links/chain-lint/lint/unknown-block",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/spec.ts",
+      "cause": "spec validate refuses a link whose block names no block of the spec as LINK_BLOCK_UNKNOWN"
+    },
+    {
+      "id": "links/chain-lint/check/match",
+      "family": "link-chain",
+      "tier": 1,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-sections.ts",
+      "cause": "radius sections check exits 0 when the registry describes the prompt"
+    },
+    {
+      "id": "links/chain-lint/check/edited",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-sections.ts",
+      "cause": "radius sections check exits 1 when a section hash no longer matches the prompt"
+    },
+    {
+      "id": "links/chain-lint/check/duplicate-id",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-sections.ts",
+      "cause": "radius sections check exits 2 on an invalid registry"
+    },
+    {
+      "id": "links/chain-lint/check/unknown-reference",
+      "family": "link-chain",
+      "tier": 3,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-sections.ts",
+      "cause": "radius sections check exits 2 on an invalid registry"
+    },
+    {
+      "id": "links/chain-lint/localize/two-registries-one-prompt",
+      "family": "link-chain",
+      "tier": 3,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize refuses two registries that describe one prompt"
+    },
+    {
+      "id": "links/chain-lint/localize/bad-counting",
+      "family": "link-chain",
+      "tier": 1,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize exits 2 on a bad option value"
+    },
+    {
+      "id": "links/chain-help/localize/flag",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius.ts",
+      "cause": "the subcommands of radius print their own usage on --help"
+    },
+    {
+      "id": "links/chain-help/localize/topic",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/help.ts",
+      "cause": "driftbench help <command> prints the usage of a subcommand of radius"
+    },
+    {
+      "id": "links/chain-help/sections-init/flag",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius.ts",
+      "cause": "the subcommands of radius print their own usage on --help"
+    },
+    {
+      "id": "links/chain-help/sections-init/topic",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/help.ts",
+      "cause": "driftbench help <command> prints the usage of a subcommand of radius"
+    },
+    {
+      "id": "links/chain-help/sections-check/flag",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius.ts",
+      "cause": "the subcommands of radius print their own usage on --help"
+    },
+    {
+      "id": "links/chain-help/sections-check/topic",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/help.ts",
+      "cause": "driftbench help <command> prints the usage of a subcommand of radius"
+    },
+    {
+      "id": "links/chain-help/sections-reanchor/flag",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/radius.ts",
+      "cause": "the subcommands of radius print their own usage on --help"
+    },
+    {
+      "id": "links/chain-help/sections-reanchor/topic",
+      "family": "link-chain",
+      "tier": 2,
+      "level": 12,
+      "source": "contract",
+      "component": "packages/cli/src/commands/help.ts",
+      "cause": "driftbench help <command> prints the usage of a subcommand of radius"
+    },
+    {
+      "id": "verdicts/capability/tools/F/first",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/capability/tools/F/middle",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/capability/tools/F/last",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/capability/tools/T/first",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in mode T checks each block alone against the capabilities"
+    },
+    {
+      "id": "verdicts/capability/tools/T/middle",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in mode T checks each block alone against the capabilities"
+    },
+    {
+      "id": "verdicts/capability/tools/T/last",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in mode T checks each block alone against the capabilities"
+    },
+    {
+      "id": "verdicts/capability/prefix/F/first",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/capability/prefix/F/middle",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/capability/prefix/F/last",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/capability/prefix/T/first",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in mode T checks each block alone against the capabilities"
+    },
+    {
+      "id": "verdicts/capability/prefix/T/middle",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in mode T checks each block alone against the capabilities"
+    },
+    {
+      "id": "verdicts/capability/prefix/T/last",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/capability.ts",
+      "cause": "runSpec in mode T checks each block alone against the capabilities"
+    },
+    {
+      "id": "verdicts/given/unpaired/F/first",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/given/unpaired/F/middle",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/given/unpaired/F/last",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/given/unpaired/T/first",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in mode T checks each block alone against the Given verifier"
+    },
+    {
+      "id": "verdicts/given/unpaired/T/middle",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in mode T checks each block alone against the Given verifier"
+    },
+    {
+      "id": "verdicts/given/unpaired/T/last",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in mode T checks each block alone against the Given verifier"
+    },
+    {
+      "id": "verdicts/given/repeated-id/F/first",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/given/repeated-id/F/middle",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/given/repeated-id/F/last",
+      "family": "verdict-not-run",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in modes F and P marks every block after one not run as not run"
+    },
+    {
+      "id": "verdicts/given/repeated-id/T/first",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in mode T checks each block alone against the Given verifier"
+    },
+    {
+      "id": "verdicts/given/repeated-id/T/middle",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in mode T checks each block alone against the Given verifier"
+    },
+    {
+      "id": "verdicts/given/repeated-id/T/last",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "runSpec in mode T checks each block alone against the Given verifier"
+    },
+    {
+      "id": "verdicts/given/tool-known/F/first",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a tool_known Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/given/tool-known/F/middle",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a tool_known Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/given/tool-known/T/first",
+      "family": "verdict-not-run",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a tool_known Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/given/tool-known/T/middle",
+      "family": "verdict-not-run",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a tool_known Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/given/value-in-message/F/first",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a value_in_message Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/given/value-in-message/F/middle",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a value_in_message Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/given/value-in-message/T/first",
+      "family": "verdict-not-run",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a value_in_message Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/given/value-in-message/T/middle",
+      "family": "verdict-not-run",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a value_in_message Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/given/history-matches-world/F/first",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a history_matches_world Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/given/history-matches-world/F/middle",
+      "family": "verdict-not-run",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a history_matches_world Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/given/history-matches-world/T/first",
+      "family": "verdict-not-run",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a history_matches_world Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/given/history-matches-world/T/middle",
+      "family": "verdict-not-run",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "the runner makes a block with a history_matches_world Given error not run, before it is sent"
+    },
+    {
+      "id": "verdicts/records/outcome/all-pass",
+      "family": "verdict-records",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "runOutcome lets a measured failure win, then not run, then blocked"
+    },
+    {
+      "id": "verdicts/records/outcome/fail-and-not-run",
+      "family": "verdict-records",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "runOutcome lets a measured failure win, then not run, then blocked"
+    },
+    {
+      "id": "verdicts/records/outcome/fail-and-blocked",
+      "family": "verdict-records",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "runOutcome lets a measured failure win, then not run, then blocked"
+    },
+    {
+      "id": "verdicts/records/outcome/not-run-and-blocked",
+      "family": "verdict-records",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "runOutcome lets a measured failure win, then not run, then blocked"
+    },
+    {
+      "id": "verdicts/records/outcome/blocked-only",
+      "family": "verdict-records",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "runOutcome lets a measured failure win, then not run, then blocked"
+    },
+    {
+      "id": "verdicts/records/outcome/not-run-on-a-stopped-run",
+      "family": "verdict-records",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "runOutcome lets a measured failure win, then not run, then blocked"
+    },
+    {
+      "id": "verdicts/records/outcome/not-run-with-end-state-missed",
+      "family": "verdict-records",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "runOutcome lets a measured failure win, then not run, then blocked"
+    },
+    {
+      "id": "verdicts/records/outcome/no-block",
+      "family": "verdict-records",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "runOutcome lets a measured failure win, then not run, then blocked"
+    },
+    {
+      "id": "verdicts/records/counts/1",
+      "family": "verdict-records",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "countRuns counts each run under its runOutcome"
+    },
+    {
+      "id": "verdicts/records/counts/2",
+      "family": "verdict-records",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "countRuns counts each run under its runOutcome"
+    },
+    {
+      "id": "verdicts/records/counts/4",
+      "family": "verdict-records",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "countRuns counts each run under its runOutcome"
+    },
+    {
+      "id": "verdicts/records/counts/9",
+      "family": "verdict-records",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "countRuns counts each run under its runOutcome"
+    },
+    {
+      "id": "verdicts/records/counts/25",
+      "family": "verdict-records",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "countRuns counts each run under its runOutcome"
+    },
+    {
+      "id": "verdicts/records/counts/60",
+      "family": "verdict-records",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "countRuns counts each run under its runOutcome"
+    },
+    {
+      "id": "verdicts/records/counts/100",
+      "family": "verdict-records",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "countRuns counts each run under its runOutcome"
+    },
+    {
+      "id": "verdicts/records/counts/400",
+      "family": "verdict-records",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/verdicts.ts",
+      "cause": "countRuns counts each run under its runOutcome"
+    },
+    {
+      "id": "verdicts/records/store-refuses/pass-pass-false",
+      "family": "verdict-records",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/store/src/store.ts",
+      "cause": "the store validates that a block record's pass and status agree before it writes"
+    },
+    {
+      "id": "verdicts/records/store-refuses/fail-pass-true",
+      "family": "verdict-records",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/store/src/store.ts",
+      "cause": "the store validates that a block record's pass and status agree before it writes"
+    },
+    {
+      "id": "verdicts/records/store-refuses/not_run-pass-true",
+      "family": "verdict-records",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/store/src/store.ts",
+      "cause": "the store validates that a block record's pass and status agree before it writes"
+    },
+    {
+      "id": "verdicts/records/store-refuses/blocked-pass-true",
+      "family": "verdict-records",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/store/src/store.ts",
+      "cause": "the store validates that a block record's pass and status agree before it writes"
+    },
+    {
+      "id": "verdicts/blocked/chain/x1-local/F",
+      "family": "verdict-blocked",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/chain/x1-local/T",
+      "family": "verdict-blocked",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/fan/x1-local/F",
+      "family": "verdict-blocked",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/fan/x1-local/T",
+      "family": "verdict-blocked",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/child-first/x1-local/F",
+      "family": "verdict-blocked",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the parent scheduler blocks descendants authored before their failed parent"
+    },
+    {
+      "id": "verdicts/blocked/child-first/x1-local/T",
+      "family": "verdict-blocked",
+      "tier": 5,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the parent scheduler blocks descendants authored before their failed parent"
+    },
+    {
+      "id": "verdicts/blocked/chain/x5-tool/F",
+      "family": "verdict-blocked",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/chain/x5-tool/T",
+      "family": "verdict-blocked",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/fan/x5-tool/F",
+      "family": "verdict-blocked",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/fan/x5-tool/T",
+      "family": "verdict-blocked",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/child-first/x5-tool/F",
+      "family": "verdict-blocked",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the parent scheduler blocks descendants authored before their failed parent"
+    },
+    {
+      "id": "verdicts/blocked/child-first/x5-tool/T",
+      "family": "verdict-blocked",
+      "tier": 5,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the parent scheduler blocks descendants authored before their failed parent"
+    },
+    {
+      "id": "verdicts/blocked/chain/d9-out-of-scope/F",
+      "family": "verdict-blocked",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/chain/d9-out-of-scope/T",
+      "family": "verdict-blocked",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/fan/d9-out-of-scope/F",
+      "family": "verdict-blocked",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/fan/d9-out-of-scope/T",
+      "family": "verdict-blocked",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/child-first/d9-out-of-scope/F",
+      "family": "verdict-blocked",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the parent scheduler blocks descendants authored before their failed parent"
+    },
+    {
+      "id": "verdicts/blocked/child-first/d9-out-of-scope/T",
+      "family": "verdict-blocked",
+      "tier": 5,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the parent scheduler blocks descendants authored before their failed parent"
+    },
+    {
+      "id": "verdicts/blocked/chain/given-unmet/F",
+      "family": "verdict-blocked",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/chain/given-unmet/T",
+      "family": "verdict-blocked",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/fan/given-unmet/F",
+      "family": "verdict-blocked",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/fan/given-unmet/T",
+      "family": "verdict-blocked",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the runner blocks every descendant of a failed or unrun parent and names the root cause"
+    },
+    {
+      "id": "verdicts/blocked/child-first/given-unmet/F",
+      "family": "verdict-blocked",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the parent scheduler blocks descendants authored before their failed parent"
+    },
+    {
+      "id": "verdicts/blocked/child-first/given-unmet/T",
+      "family": "verdict-blocked",
+      "tier": 5,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/core/src/runner/parents.ts",
+      "cause": "the parent scheduler blocks descendants authored before their failed parent"
+    },
+    {
+      "id": "verdicts/exits/run/not-run/F",
+      "family": "verdict-exits",
+      "tier": 1,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign run exits through gateExit over the run outcomes"
+    },
+    {
+      "id": "verdicts/exits/run/not-run/T",
+      "family": "verdict-exits",
+      "tier": 1,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign run exits through gateExit over the run outcomes"
+    },
+    {
+      "id": "verdicts/exits/run/clean/F",
+      "family": "verdict-exits",
+      "tier": 1,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign run exits through gateExit over the run outcomes"
+    },
+    {
+      "id": "verdicts/exits/run/clean/T",
+      "family": "verdict-exits",
+      "tier": 1,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign run exits through gateExit over the run outcomes"
+    },
+    {
+      "id": "verdicts/exits/run/not-run-and-fail/F",
+      "family": "verdict-exits",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign run exits through gateExit over the run outcomes"
+    },
+    {
+      "id": "verdicts/exits/run/not-run-and-fail/T",
+      "family": "verdict-exits",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign run exits through gateExit over the run outcomes"
+    },
+    {
+      "id": "verdicts/exits/run/json-counts/F",
+      "family": "verdict-exits",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign run prints the unscored count beside its pass line"
+    },
+    {
+      "id": "verdicts/exits/run/json-counts/T",
+      "family": "verdict-exits",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign run prints the unscored count beside its pass line"
+    },
+    {
+      "id": "verdicts/exits/status/not-run/F",
+      "family": "verdict-exits",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign status exits 1 on any cell that does not pass, not run and blocked included"
+    },
+    {
+      "id": "verdicts/exits/status/not-run/T",
+      "family": "verdict-exits",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign status exits 1 on any cell that does not pass, not run and blocked included"
+    },
+    {
+      "id": "verdicts/exits/resume/not-run/F",
+      "family": "verdict-exits",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign resume exits through gateExit over the run outcomes"
+    },
+    {
+      "id": "verdicts/exits/resume/not-run/T",
+      "family": "verdict-exits",
+      "tier": 2,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/campaign.ts",
+      "cause": "campaign resume exits through gateExit over the run outcomes"
+    },
+    {
+      "id": "verdicts/exits/ci/not-run/F",
+      "family": "verdict-exits",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/ci.ts",
+      "cause": "ci gives the verdict not-run, exit 3, when a spec has more blocks not run than --max-not-run allows"
+    },
+    {
+      "id": "verdicts/exits/ci/not-run/T",
+      "family": "verdict-exits",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/ci.ts",
+      "cause": "ci gives the verdict not-run, exit 3, when a spec has more blocks not run than --max-not-run allows"
+    },
+    {
+      "id": "verdicts/exits/ci/not-run-allowed/F",
+      "family": "verdict-exits",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/ci.ts",
+      "cause": "ci gives the verdict not-run, exit 3, when a spec has more blocks not run than --max-not-run allows"
+    },
+    {
+      "id": "verdicts/exits/ci/not-run-allowed/T",
+      "family": "verdict-exits",
+      "tier": 4,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/ci.ts",
+      "cause": "ci gives the verdict not-run, exit 3, when a spec has more blocks not run than --max-not-run allows"
+    },
+    {
+      "id": "verdicts/exits/compare/not-run/F",
+      "family": "verdict-exits",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/compare.ts",
+      "cause": "compare prints the not-run count beside its pass rates and never gates on it"
+    },
+    {
+      "id": "verdicts/exits/compare/not-run/T",
+      "family": "verdict-exits",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/compare.ts",
+      "cause": "compare prints the not-run count beside its pass rates and never gates on it"
+    },
+    {
+      "id": "verdicts/exits/report/junit-skipped/F",
+      "family": "verdict-exits",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/report.ts",
+      "cause": "the JUnit writer marks a run with a block not run as skipped"
+    },
+    {
+      "id": "verdicts/exits/report/junit-skipped/T",
+      "family": "verdict-exits",
+      "tier": 3,
+      "level": 13,
+      "source": "contract",
+      "component": "packages/cli/src/commands/report.ts",
+      "cause": "the JUnit writer marks a run with a block not run as skipped"
     }
   ]
 }
