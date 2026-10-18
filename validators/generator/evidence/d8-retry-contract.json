@@ -1,0 +1,94 @@
+{
+  "base": "9f14f170b452dc8bd718749f833225ab977dcee3",
+  "scope": "D8 retry contract only; no ladder, full-bank, floor, or hardness claim",
+  "ruling": "The rendered D8 read-only failure recovery requires count: 2: the initial call plus exactly one retry, as the unchanged prompt states.",
+  "unchanged": [
+    "bank items and thresholds",
+    "fault agents and reference follower",
+    "product source",
+    "hidden-seed derivation",
+    "floors"
+  ],
+  "redFirst": {
+    "command": "pnpm exec vitest run packages/validators/test/generator/d8-retry-contract.test.ts --maxWorkers 1",
+    "failed": 23,
+    "passed": 2,
+    "hiddenSeed": 669949872,
+    "failureClasses": [
+      "rendered max-only recovery passes recovery but fails adequacy on self-loops",
+      "exact count passes adequacy but fails recovery JSON equality",
+      "non-self-loop recovery count differs from the exact prose contract"
+    ]
+  },
+  "focusedVerification": {
+    "files": 5,
+    "passed": 54,
+    "failed": 0,
+    "visibleSeeds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    "hiddenSeed": 669949872,
+    "basis": "constructed legal failure probes run through runAll and the unchanged bank items; the hidden seed is derived from base HEAD"
+  },
+  "generatedSuiteItems": {
+    "before": [
+      {
+        "seed": 1,
+        "id": "perturbation.recovery.D8_tool_failure",
+        "pass": true,
+        "detail": "23 probes of D8_tool_failure; 0 differ from the recovery: "
+      },
+      {
+        "seed": 1,
+        "id": "adequacy.D8.advance",
+        "pass": false,
+        "detail": "in 8 of 23 specs the block where D8.advance first changes the agent does not fail: gen-cover-021 block 2, gen-cover-065 block 2, gen-cover-120 block 2"
+      },
+      {
+        "seed": 3,
+        "id": "perturbation.recovery.D8_tool_failure",
+        "pass": true,
+        "detail": "18 probes of D8_tool_failure; 0 differ from the recovery: "
+      },
+      {
+        "seed": 3,
+        "id": "adequacy.D8.advance",
+        "pass": false,
+        "detail": "in 6 of 18 specs the block where D8.advance first changes the agent does not fail: gen-cover-043 block 2, gen-cover-065 block 2, gen-cover-079 block 2"
+      }
+    ],
+    "after": [
+      {
+        "seed": 1,
+        "id": "perturbation.recovery.D8_tool_failure",
+        "pass": true,
+        "detail": "23 probes of D8_tool_failure; 0 differ from the recovery: "
+      },
+      {
+        "seed": 1,
+        "id": "adequacy.D8.advance",
+        "pass": true,
+        "detail": "in 0 of 23 specs the block where D8.advance first changes the agent does not fail: "
+      },
+      {
+        "seed": 3,
+        "id": "perturbation.recovery.D8_tool_failure",
+        "pass": true,
+        "detail": "18 probes of D8_tool_failure; 0 differ from the recovery: "
+      },
+      {
+        "seed": 3,
+        "id": "adequacy.D8.advance",
+        "pass": true,
+        "detail": "in 0 of 18 specs the block where D8.advance first changes the agent does not fail: "
+      }
+    ]
+  },
+  "fixtureSha256": {
+    "packages/validators/fixtures/generator/seed-1/approved.yaml": "47644e75873574e8cfdf7cf2025818a903895a65b486fabc25504244721aea2c",
+    "packages/validators/fixtures/generator/seed-1/hidden.json": "bb5b1ac1e0862a7aae4bfd77cb4efab1aa6c47f911a72336b4a57b791ad8d917"
+  },
+  "limits": [
+    "Only the two named bank items were measured on actual generated suites, seeds 1 and 3.",
+    "No full ladder or all-item sweep was run.",
+    "The ordinary repository typecheck cannot resolve the intentionally sparse-excluded comparisons/langfuse import."
+  ]
+}

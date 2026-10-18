@@ -121,8 +121,10 @@ describe('generator items on task family specs', () => {
     // The reference: every fault first changes the task spec at its opening block, and that block fails.
     const baseline = await verdicts(generated);
     for (const id of classes) expect(baseline[id], id).toEqual({ pass: true, taskBlock: 0 });
-    // A product that keeps the oracle's Then and drops the family's fixed checks fails every item.
+    // A product that keeps the oracle's Then and drops the family's fixed checks, and the map's reply rule a
+    // task spec holds too (one reply per turn, which also fails an empty reply), fails every item.
     const dropped = structuredClone(generated);
+    delete taskOf(dropped).rules;
     for (const block of taskOf(dropped).blocks) {
       if (!block.expect) continue;
       for (const key of ['lang', 'stage_reported', 'tools', 'must_not'] as const) delete block.expect[key];

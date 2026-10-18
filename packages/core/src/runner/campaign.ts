@@ -5,6 +5,8 @@ import type { CheckSet } from '../contracts/check';
 import type { UserDriver } from '../contracts/driver';
 import type { CostUnit, Store } from '../contracts/store';
 import type { ToolRule } from '../contracts/tool-policy';
+import { objectContextOfSpec } from '../objects/context';
+import { checkSpecObjects, shippedObjectContext } from '../objects/index';
 import type { BlockReuse } from '../radius/blocks';
 import type { TargetRef } from '../schema/common';
 import type { RunMode, RunResult } from '../schema/run';
@@ -15,6 +17,7 @@ import { replacesBlock } from './inject';
 import { preflightTargetPrices, priceObserved, TokenPrices } from './pricing';
 import type { RetryOptions } from './retry';
 import { runSpec } from './run';
+import { blocksOutcome } from './verdicts';
 
 /** One run to make: one spec, on one target, in one mode, for one repeat (and one perturbation in P). */
 export type PlannedCell = {
@@ -228,8 +231,15 @@ export type CellOutcome = {
   run?: RunResult;
   /** True when a completed run of this cell was already in the store. */
   reused: boolean;
-  state: 'pass' | 'fail' | 'failed' | 'stopped' | 'pending';
-  /** Gating verdicts that did not pass, as `block <index> <verdict id>`, and end-state fields that differ. */
+  /**
+   * `not_run` and `blocked`: the run completed with no failure, but a block was not run (or was blocked), so
+   * the cell is neither a pass nor a fail.
+   */
+  state: 'pass' | 'fail' | 'not_run' | 'blocked' | 'failed' | 'stopped' | 'pending';
+  /**
+   * Gating verdicts that did not pass, as `block <index> <verdict id>`, end-state fields that differ, and
+   * blocks not run or blocked, as `block <index> not_run <check>` and `block <index> blocked by <ancestor>`.
+   */
   failing: string[];
   /** Set when the budget stopped the cell before it started: the budget, and what the campaign had spent. */
   budgetStop?: { budgetUsd: number; spentUsd: number };
@@ -237,7 +247,10 @@ export type CellOutcome = {
   earlyStop?: { after: number };
 };
 
-/** The outcome of a cell from its run: pass when the run completed, every block passed and the end state matched. */
+/**
+ * The outcome of a cell from its run: pass when the run completed, every block passed and the end state
+ * matched; not_run or blocked when nothing failed but a block was not run or blocked (`blocksOutcome`).
+ */
 export function outcomeOf(cell: PlannedCell, run: RunResult | undefined, reused = false): CellOutcome {
   if (!run) return { cell, reused, state: 'pending', failing: [] };
   const failing = [
@@ -249,11 +262,25 @@ export function outcomeOf(cell: PlannedCell, run: RunResult | undefined, reused 
     ...(run.endState && !run.endState.match
       ? run.endState.diff.map((entry) => `end_state ${entry.field}`)
       : []),
+    ...run.blocks.flatMap((block) =>
+      block.notRun
+        ? [`block ${block.index} not_run ${block.notRun.check}`]
+        : block.blocked
+          ? [`block ${block.index} blocked by ${block.blocked.by}`]
+          : [],
+    ),
   ];
   if (run.status !== 'completed') return { cell, run, reused, state: run.status, failing };
-  const pass =
-    run.blocks.length > 0 && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
-  return { cell, run, reused, state: pass ? 'pass' : 'fail', failing };
+  // The end verdict is left to the readers of the run, as before: only a block not run or blocked moves the state.
+  const outcome = blocksOutcome(run);
+  if (outcome === 'pass') return { cell, run, reused, state: 'pass', failing };
+  return {
+    cell,
+    run,
+    reused,
+    state: outcome === 'not_run' || outcome === 'blocked' ? outcome : 'fail',
+    failing,
+  };
 }
 
 /** The run that stands for each cell of a campaign: its latest completed run, else its latest run. */
@@ -298,6 +325,8 @@ export type CampaignRunOptions = {
   recordProvenance?: boolean;
   /** Opt in: store the raw end-state values each T block reads. They may hold sensitive data. */
   recordEndStateSnapshots?: boolean;
+  /** Opt in: keep the text a driver sent where it differs from the spec, not only its hash. */
+  recordRealizedText?: boolean;
   /** Mode T: the stored baseline run to rerun only the radius blocks from; a refused plan reruns the whole cell. */
   blockReuse?(cell: PlannedCell): BlockReuse | undefined;
   retry?: RetryOptions;
@@ -335,6 +364,15 @@ export type CampaignRunOptions = {
  * it is still in flight. A campaign without that F cell gives P runs no reference.
  */
 export async function runCampaign(options: CampaignRunOptions): Promise<CellOutcome[]> {
+  // Validate before even a completed cell can be reused. A stored spec may outlive its object files.
+  const checkedSpecs = new Set<Spec>();
+  for (const cell of options.cells) {
+    const spec = options.specFor(cell);
+    if (checkedSpecs.has(spec)) continue;
+    checkedSpecs.add(spec);
+    const issues = checkSpecObjects(spec, objectContextOfSpec(spec) ?? shippedObjectContext());
+    if (issues.length) throw new Error(issues.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
+  }
   const stored = await options.store.listRuns({ campaignId: options.campaignId });
   const done = byCell(stored);
   const { cells, budgetUsd } = options;
@@ -448,6 +486,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       store: options.store,
       recordProvenance: options.recordProvenance,
       ...(options.recordEndStateSnapshots ? { recordEndStateSnapshots: true } : {}),
+      ...(options.recordRealizedText ? { recordRealizedText: true } : {}),
       ...(blockReuse ? { blockReuse } : {}),
       campaignId: options.campaignId,
       ...(options.cache ? { cache: options.cache } : {}),

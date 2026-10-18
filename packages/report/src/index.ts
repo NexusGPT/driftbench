@@ -36,10 +36,12 @@ export {
   loadCampaign,
   ReportInputError,
   runPassed,
+  scoredRuns,
   showTarget,
 } from './data';
 export { type Estimate, type IntervalMethod, type Rate, rate } from './estimate';
-export { carriedLines } from './format';
+export { carriedLines, effectiveNote, headlineNote, unscoredRuns } from './format';
+export { HEADLINE_POWER, type SuiteHeadline, type SuiteHeadlineOptions, suiteHeadline } from './headline';
 export { type RenderOptions, renderCompare, renderHtml, renderPage, renderRun, renderSpread } from './html';
 export { failures, renderJunit } from './junit';
 export {
@@ -84,4 +86,4 @@ export {
   type SpreadOptions,
   spread,
 } from './spread';
-export { compareText, criterionRepeatsText, textTable } from './text';
+export { compareText, criterionRepeatsText, headlineText, textTable } from './text';

@@ -55,10 +55,10 @@ describe('ordinary criteria default to an evidence ledger', () => {
       JSON.stringify({ checks: [{ id: 'relevancy', reasoning: 'check', evidence, met }] });
     expect(parseJudgeText(raw(false, null), request).answer.outcome).toBe('fail');
     expect(parseJudgeText(raw(null, null), request).answer.outcome).toBe('inconclusive');
-    expect(parseJudgeText(raw(true, 'invented quote'), request).unparsed).toBe(true);
     expect(
-      parseJudgeText(raw(true, 'invented quote'), { ...request, criterionDecoderVersion: 2 }),
-    ).toMatchObject({
+      parseJudgeText(raw(true, 'invented quote'), { ...request, criterionDecoderVersion: 1 }).unparsed,
+    ).toBe(true);
+    expect(parseJudgeText(raw(true, 'invented quote'), request)).toMatchObject({
       answer: { outcome: 'pass' },
       evidenceUnverified: 1,
       checks: [{ met: true, evidence: null, grounded: false }],
