@@ -205,3 +205,171 @@ function codeOf(text: string): string {
 export function documentsKey(text: string, key: string): boolean {
   return new RegExp(`(?<![A-Za-z0-9_])${key}(?![A-Za-z0-9_])`).test(codeOf(text));
 }
+
+/**
+ * A piece of a topic that documents one object. `section` is a heading and its text; only the first cell of a table
+ * row counts there, since a row of another object may name the same word. `table` is a whole table with the label
+ * line before it (a line ending in a colon that names the object). `row` is one table row, which documents an
+ * object kept inside one entry of its parent. `paragraph` is a paragraph an override points at.
+ */
+export type DocUnit = {
+  topic: string;
+  kind: 'section' | 'table' | 'row' | 'paragraph';
+  where: string;
+  text: string;
+};
+
+/** Where an object is documented when no heading, label or row of its own key says so. */
+export type UnitOverride = {
+  topic: string;
+  /** A heading's exact text: its section, with only the first cell of each table row. */
+  heading?: string;
+  /** The start of a paragraph. */
+  paragraph?: string;
+  /** The start of the label line of a table: the whole table. */
+  label?: string;
+  /** The key a table row opens with: that row. */
+  row?: string;
+};
+
+const firstCell = (row: string) => row.replace(/^\|/, '').split('|')[0] ?? '';
+const spansOf = (line: string) =>
+  [...line.matchAll(/\x60([^\x60\n]+)\x60/g)].map((m) => (m[1] ?? '').replace(/\[\]|\{\}/g, ''));
+const namesObject = (line: string, name: string) =>
+  spansOf(line).some((span) => span === name || span.endsWith(`.${name}`));
+
+type Parsed = {
+  lines: string[];
+  fenced: boolean[];
+  headings: Array<{ at: number; level: number; title: string }>;
+};
+function parse(topic: HelpTopic): Parsed {
+  const lines = topic.body.split('\n');
+  let fence = false;
+  const fenced = lines.map((line) => {
+    const edge = /^\x60\x60\x60/.test(line);
+    if (edge) fence = !fence;
+    return fence || edge;
+  });
+  const headings: Parsed['headings'] = [];
+  lines.forEach((line, at) => {
+    const m = /^(#{2,6}) (.*)$/.exec(line);
+    if (m && !fenced[at]) headings.push({ at, level: (m[1] ?? '').length, title: m[2] ?? '' });
+  });
+  return { lines, fenced, headings };
+}
+
+/** A heading's text, with the table rows cut down to their first cell. */
+function sectionText({ lines, fenced, headings }: Parsed, index: number): string {
+  const heading = headings[index] as Parsed['headings'][number];
+  const next = headings.slice(index + 1).find((other) => other.level <= heading.level);
+  const prose: string[] = [];
+  const cells: string[] = [];
+  for (let i = heading.at + 1; i < (next?.at ?? lines.length); i++) {
+    const line = lines[i] ?? '';
+    if (/^\|/.test(line) && !fenced[i]) cells.push(firstCell(line));
+    else prose.push(line);
+  }
+  return [...prose, ...cells].join('\n');
+}
+
+/** The documenting units of one topic that name `name` as their object. */
+export function unitsNamed(topic: HelpTopic, name: string): DocUnit[] {
+  const parsed = parse(topic);
+  const { lines, fenced } = parsed;
+  const units: DocUnit[] = [];
+  parsed.headings.forEach((heading, index) => {
+    if (heading.level >= 3 && namesObject(heading.title, name))
+      units.push({
+        topic: topic.id,
+        kind: 'section',
+        where: heading.title,
+        text: sectionText(parsed, index),
+      });
+  });
+  let i = 0;
+  while (i < lines.length) {
+    if (!/^\|/.test(lines[i] ?? '') || fenced[i]) {
+      i++;
+      continue;
+    }
+    const start = i;
+    while (i < lines.length && /^\|/.test(lines[i] ?? '')) i++;
+    let before = start - 1;
+    while (before >= 0 && (lines[before] ?? '').trim() === '') before--;
+    const label = before >= 0 && start - before <= 2 && !fenced[before] ? (lines[before] ?? '') : '';
+    const rows = lines.slice(start, i);
+    if (/:\s*$/.test(label) && namesObject(label, name)) {
+      units.push({ topic: topic.id, kind: 'table', where: label, text: `${label}\n${rows.join('\n')}` });
+    }
+    for (const row of rows) {
+      const first = spansOf(firstCell(row))[0];
+      if (first === name) units.push({ topic: topic.id, kind: 'row', where: first, text: row });
+    }
+  }
+  return units;
+}
+
+function unitOf(topics: HelpTopic[], at: UnitOverride): DocUnit | undefined {
+  const topic = topics.find((t) => t.id === at.topic);
+  if (!topic) return undefined;
+  const parsed = parse(topic);
+  if (at.heading !== undefined) {
+    const index = parsed.headings.findIndex((h) => h.title === at.heading);
+    return index < 0
+      ? undefined
+      : { topic: topic.id, kind: 'section', where: at.heading, text: sectionText(parsed, index) };
+  }
+  if (at.row !== undefined) {
+    const row = parsed.lines.find(
+      (line, i) => /^\|/.test(line) && !parsed.fenced[i] && spansOf(firstCell(line))[0] === at.row,
+    );
+    return row === undefined ? undefined : { topic: topic.id, kind: 'row', where: at.row, text: row };
+  }
+  if (at.label !== undefined) {
+    const from = parsed.lines.findIndex((line) => line.startsWith(at.label ?? '\u0000'));
+    if (from < 0) return undefined;
+    let first = from + 1;
+    while (first < parsed.lines.length && (parsed.lines[first] ?? '').trim() === '') first++;
+    if (!/^\|/.test(parsed.lines[first] ?? '')) return undefined;
+    let to = first;
+    while (to < parsed.lines.length && /^\|/.test(parsed.lines[to] ?? '')) to++;
+    return { topic: topic.id, kind: 'table', where: at.label, text: parsed.lines.slice(from, to).join('\n') };
+  }
+  const start = parsed.lines.findIndex((line) => line.startsWith(at.paragraph ?? '\u0000'));
+  if (start < 0) return undefined;
+  let end = start;
+  while (end < parsed.lines.length && (parsed.lines[end] ?? '').trim() !== '') end++;
+  return {
+    topic: topic.id,
+    kind: 'paragraph',
+    where: at.paragraph ?? '',
+    text: parsed.lines.slice(start, end).join('\n'),
+  };
+}
+
+/**
+ * The units that document the object at `path`: the override for that exact path, else the units of its own key,
+ * else those of the nearest ancestor key that has any. A key that is only named in some other object's row never
+ * counts, since the units are found by object, not by word.
+ */
+export function unitsForObject(
+  path: string,
+  topics: HelpTopic[],
+  overrides: Record<string, UnitOverride[]> = {},
+): DocUnit[] {
+  const pinned = overrides[path];
+  if (pinned) {
+    return pinned.map((at) => {
+      const unit = unitOf(topics, at);
+      if (!unit) throw new Error(`The unit of ${path} is gone: ${JSON.stringify(at)}`);
+      return unit;
+    });
+  }
+  const names = path.replace(/\[\]|\{\}/g, '').split('.');
+  for (let at = names.length - 1; at >= 0; at--) {
+    const found = topics.flatMap((topic) => unitsNamed(topic, names[at] as string));
+    if (found.length > 0) return found;
+  }
+  return [];
+}

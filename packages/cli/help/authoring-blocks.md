@@ -84,11 +84,11 @@ Tools and the runtime trace:
 | `tool_order` | `exact`, `in_order` or `any_order` | How the expected tools line up with the calls. `exact`: consecutive, nothing extra. `in_order`: this order, others may sit between. `any_order`: all present. |
 | `tools_offered` | `{ include?: [names], exclude?: [names] }` | Tools the runtime must offer, or must not offer, whatever the agent calls. |
 | `tool_f1` | `{ min }`, 0 to 1 | Precision, recall and F1 of the calls against `tools`. |
-| `skills` | list of `{ name, count? }` | Skills the runtime reports as loaded. |
-| `guards` | list of `{ name, verdict?, count? }` | Runtime checks (hooks, guardrails) that fired, with their verdict such as `pass`, `deny` or `block`. |
-| `references` | list of `{ path, count? }` | Files the agent read; `path` may be a glob (`*`, `**`, `?`). |
-| `subagents` | list of `{ name, model?, count? }` | Helpers the agent dispatched. |
-| `cards` | list of `{ name, count? }` | Rich cards the agent sent. |
+| `skills` | list of `{ name, count? }` | Skills the runtime reports as loaded. `count` is a whole number or `{ min?, max? }`, as for `tools`. |
+| `guards` | list of `{ name, verdict?, count? }` | Runtime checks (hooks, guardrails) that fired, with their verdict such as `pass`, `deny` or `block`. `count` is a whole number or `{ min?, max? }`, as for `tools`. |
+| `references` | list of `{ path, count? }` | Files the agent read; `path` may be a glob (`*`, `**`, `?`). `count` is a whole number or `{ min?, max? }`, as for `tools`. |
+| `subagents` | list of `{ name, model?, count? }` | Helpers the agent dispatched. `count` is a whole number or `{ min?, max? }`, as for `tools`. |
+| `cards` | list of `{ name, count? }` | Rich cards the agent sent. `count` is a whole number or `{ min?, max? }`, as for `tools`. |
 | `finish_reason` | string | The reason the model stopped, as the runtime reports it. |
 
 The visible text of the reply:
