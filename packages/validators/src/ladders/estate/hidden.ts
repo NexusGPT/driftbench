@@ -1,6 +1,6 @@
 import type { Atom } from '@agent-nexus/driftbench-estate';
 import { rngFor } from '@agent-nexus/driftbench-generate';
-import { guardFile, skillFile } from './layout';
+import { guardFile, STANDING, skillFile } from './layout';
 
 /**
  * The hidden specification of a generated estate, held in memory, and its seeded draw. The validator knows
@@ -58,6 +58,8 @@ export type StandingRule = {
   replyAct?: Atom['replyAct'];
   /** A hazard the line names: the scanner adds a hazard atom on the same line. */
   hazard?: HazardId;
+  /** Authored recovery inputs for the positive reference map, independent of prose parsing. */
+  recovery?: { reread: string[] };
   /** A fixed-form gate code reads (a gate atom and a reference atom on the line): the skill and reference. */
   fixedGate?: { skill: string; path: string };
   /** The label of the rule this rule's words cite. */
@@ -749,6 +751,7 @@ export function drawEstate(seed: number, profile: Profile = 'visible'): HiddenEs
             evidence: [{ type: 'custom', name: 'reread_after_compaction' }],
             behaviour: { type: 'none' },
             hazard: 'compaction',
+            recovery: { reread: [STANDING] },
             scope: 'compaction',
           }
         : {
