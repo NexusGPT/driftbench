@@ -263,15 +263,52 @@ export function neymanAllocation(input: NeymanInput): NeymanResult {
   const sumW = weights.reduce((s, w) => s + w, 0);
   if (sumW === 0) throw new RangeError('neymanAllocation: every stratum has size 0');
   const exact = weights.map((w) => (total * w) / sumW);
-  const allocated = exact.map(Math.floor);
-  let left = total - allocated.reduce((s, v) => s + v, 0);
-  const order = exact
-    .map((e, i) => [e - Math.floor(e), i] as const)
-    .sort((p, q) => q[0] - p[0] || p[1] - q[1]);
-  for (const [, i] of order) {
+  // Whole numbers with the lowest stratified variance sum w^2 / n (w = N_h S_h): every stratum with
+  // spread gets one unit when the total allows (an unsampled one has infinite variance), then each
+  // further unit goes to the stratum whose variance drops most, w^2 / (n (n + 1)).
+  const allocated = new Array<number>(weights.length).fill(0);
+  const active = weights.map((w, i) => [w, i] as const).filter(([w]) => w > 0);
+  const ranked = [...active].sort((p, q) => q[0] - p[0] || p[1] - q[1]);
+  let left = total;
+  for (const [, i] of ranked) {
     if (left <= 0) break;
+    allocated[i] = 1;
+    left -= 1;
+  }
+  // A max-heap of [drop, index], ties to the lower index, so each unit costs O(log strata).
+  const heap: (readonly [number, number])[] = [];
+  const before = (x: readonly [number, number], y: readonly [number, number]): boolean =>
+    x[0] > y[0] || (x[0] === y[0] && x[1] < y[1]);
+  const drop = (i: number): number => {
+    const n = allocated[i] as number;
+    const w = weights[i] as number;
+    return (w * w) / (n * (n + 1));
+  };
+  const siftDown = (from: number): void => {
+    let at = from;
+    for (;;) {
+      const l = 2 * at + 1;
+      const r = l + 1;
+      let top = at;
+      if (l < heap.length && before(heap[l] as readonly [number, number], heap[top] as readonly [number, number]))
+        top = l;
+      if (r < heap.length && before(heap[r] as readonly [number, number], heap[top] as readonly [number, number]))
+        top = r;
+      if (top === at) return;
+      const tmp = heap[at] as readonly [number, number];
+      heap[at] = heap[top] as readonly [number, number];
+      heap[top] = tmp;
+      at = top;
+    }
+  };
+  for (const [, i] of active) heap.push([drop(i), i]);
+  for (let at = (heap.length >> 1) - 1; at >= 0; at -= 1) siftDown(at);
+  while (left > 0 && heap.length > 0) {
+    const i = (heap[0] as readonly [number, number])[1];
     allocated[i] = (allocated[i] as number) + 1;
     left -= 1;
+    heap[0] = [drop(i), i];
+    siftDown(0);
   }
   return { exact, allocated };
 }
