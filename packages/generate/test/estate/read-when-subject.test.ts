@@ -41,14 +41,35 @@ describe('a file that states no moment is read at the work of its unit and the s
     expect(found.source).toBe(`${ref.id} (readWhen topic)`);
   });
 
-  it('names no subject for a generic file name, a missing path or a name with no letters', () => {
-    for (const path of ['references/README.md', 'index.md', '12.json']) {
-      expect(codeAsk('trigger', [reference(path, `- \`${path}\``), owner], []).text).toBe(
-        'Please fire a batch.',
-      );
-    }
+  it('names no subject for a missing path or a name with no letters', () => {
+    expect(codeAsk('trigger', [reference('12.json', '- `12.json`'), owner], []).text).toBe(
+      'Please fire a batch.',
+    );
     const bare = atom('reference.kiln.x', { fields: { readWhen: '- something' } });
     expect(codeAsk('trigger', [bare, owner], []).text).toBe('Please fire a batch.');
+  });
+
+  it('reads the stem of any file the same way, with no list of names', () => {
+    for (const [path, subject] of [
+      ['references/README.md', 'readme'],
+      ['index.md', 'index'],
+      ['notes/Memory.md', 'memory'],
+    ] as const)
+      expect(fileSubjectDerivation(path)).toBe(subject);
+  });
+
+  it('names no subject for the file that defines a skill or a helper, by the map and not by its name', () => {
+    const definition = reference('.claude/skills/kiln/SKILL.md', '- `.claude/skills/kiln/SKILL.md`');
+    const kiln = atom('skill.kiln.skill', {
+      kind: 'skill',
+      fields: { name: 'kiln', description: 'Fire the pottery kiln. Use when the user asks to fire a batch.' },
+      provenance: { quote: 'x', file: '.claude/skills/kiln/SKILL.md' },
+    });
+    const text = (estate: EstateAtom[]) =>
+      codeAsk('trigger', [definition, owner], [], false, undefined, undefined, { estate }).text;
+    expect(text([kiln])).toBe('Please fire a batch.');
+    // The same path with no unit defined there is an ordinary file: its stem is its subject.
+    expect(text([])).toBe('Please fire a batch, including the skill.');
   });
 
   it('does not repeat a subject the act already holds', () => {
@@ -79,7 +100,7 @@ describe('the ask that names the subject of a file records where it came from', 
   it('derives the subject from the path alone, by a fixed rule', () => {
     expect(fileSubjectDerivation('references/glaze-recipes.md')).toBe('glaze recipes');
     expect(fileSubjectDerivation('data-3.json')).toBe('data 3');
-    for (const path of ['references/README.md', 'index.md', '12.json', 'Check the tide tables', undefined, 3])
+    for (const path of ['12.json', 'Check the tide tables', undefined, 3])
       expect(fileSubjectDerivation(path)).toBeUndefined();
   });
 
