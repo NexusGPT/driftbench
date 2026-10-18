@@ -248,59 +248,45 @@ function structureItems(): BankItem[] {
 // cutter-masks: a stop inside inline code, link text or a link destination, or inside emphasis, ends nothing.
 function maskItems(): BankItem[] {
   const out: BankItem[] = [];
-  const shapes: Array<{ id: string; make(a: string, b: string): { inline: string } }> = [
-    {
-      id: 'inline-code',
-      make: (a, b) => ({ inline: `\`${a.replace(/\.$/, '')}. ${b.replace(/\.$/, '')}\`` }),
-    },
-    {
-      id: 'double-backtick-code',
-      make: (a, b) => ({ inline: `\`\`${a.replace(/\.$/, '')}. ${b.replace(/\.$/, '')}\`\`` }),
-    },
-    {
-      id: 'link-text',
-      make: (a, b) => ({
-        inline: `[${a.replace(/\.$/, '')}. ${b.replace(/\.$/, '')}](https://example.org/help)`,
-      }),
-    },
-    {
-      id: 'link-destination',
-      make: (a) => ({ inline: `[${a.replace(/\.$/, '')}](https://example.org/a.b/c.d)` }),
-    },
+  const bare = (text: string) => text.replace(/\.$/, '');
+  const shapes: Array<{ id: string; make(a: string, b: string, stop: string): string }> = [
+    { id: 'inline-code', make: (a, b, stop) => `\`${bare(a)}${stop} ${bare(b)}\`` },
+    { id: 'double-backtick-code', make: (a, b, stop) => `\`\`${bare(a)}${stop} ${bare(b)}\`\`` },
+    { id: 'link-text', make: (a, b, stop) => `[${bare(a)}${stop} ${bare(b)}](https://example.org/help)` },
+    { id: 'link-destination', make: (a, _b, stop) => `[${bare(a)}](https://example.org/a${stop}b/c.d)` },
   ];
   for (const shape of shapes)
     for (const place of ['middle', 'end'] as const)
-      out.push(
-        item({
-          id: `masks.${shape.id}.${place}`,
-          family: 'cutter-masks',
-          tier: shape.id.startsWith('link') ? 3 : 2,
-          component: CUT,
-          title: `a stop inside ${shape.id.replace(/-/g, ' ')} at the ${place} of a sentence ends no unit there`,
-          cause: `cut:mask-${shape.id}`,
-          run: (seed) => {
-            const [lead, a, b, next] = sentences(seed, `mask-${shape.id}-${place}`, 4) as [
-              string,
-              string,
-              string,
-              string,
-            ];
-            const { inline } = shape.make(a, b);
-            const sentence =
-              place === 'middle'
-                ? `${lead.replace(/\.$/, '')} with ${inline} now.`
-                : `${lead.replace(/\.$/, '')} ${inline}.`;
-            const text = `${sentence} ${next}\n`;
-            const at = text.indexOf(inline);
-            const inside = pointer
-              .cut(text)
-              .units.find((unit) => unit.start > at && unit.start < at + inline.length);
-            return inside
-              ? fail(`a unit starts inside "${inline.slice(0, 60)}": "${inside.text.slice(0, 40)}"`)
-              : PASS;
-          },
-        }),
-      );
+      for (const stop of ['.', '?', '!'] as const)
+        out.push(
+          item({
+            id: `masks.${shape.id}.${place}.${stop === '.' ? 'full-stop' : stop === '?' ? 'question' : 'exclamation'}`,
+            family: 'cutter-masks',
+            tier: shape.id.startsWith('link') ? 3 : 2,
+            component: CUT,
+            title: `a "${stop}" inside ${shape.id.replace(/-/g, ' ')} at the ${place} of a sentence ends no unit there`,
+            cause: `cut:mask-${shape.id}`,
+            run: (seed) => {
+              const [lead, a, b, next] = sentences(seed, `mask-${shape.id}-${place}-${stop}`, 4) as [
+                string,
+                string,
+                string,
+                string,
+              ];
+              const inline = shape.make(a, b, stop);
+              const sentence =
+                place === 'middle' ? `${bare(lead)} with ${inline} now.` : `${bare(lead)} ${inline}.`;
+              const text = `${sentence} ${next}\n`;
+              const at = text.indexOf(inline);
+              const inside = pointer
+                .cut(text)
+                .units.find((unit) => unit.start > at && unit.start < at + inline.length);
+              return inside
+                ? fail(`a unit starts inside "${inline.slice(0, 60)}": "${inside.text.slice(0, 40)}"`)
+                : PASS;
+            },
+          }),
+        );
   return out;
 }
 
@@ -521,12 +507,12 @@ function growthItems(): BankItem[] {
     ['numbered', 'conditional'],
   ];
   for (const s of styles)
-    for (const factor of [4, 8]) {
+    for (const factor of [2, 4, 8, 16]) {
       out.push(
         item({
           id: `growth.${s.join('+')}.x${factor}`,
           family: 'cutter-growth',
-          tier: factor === 4 ? 3 : 4,
+          tier: factor <= 4 ? 3 : 4,
           component: CUT,
           title: `a ${s.join(' and ')} prompt ${factor} times larger takes at most ${factor * 2.5} times as long to cut (best of three)`,
           cause: 'cut:linear-time',
