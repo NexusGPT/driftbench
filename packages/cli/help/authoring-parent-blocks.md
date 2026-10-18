@@ -185,6 +185,9 @@ Both offers fail alone: given only the email address, the agent answers with its
 So each edge has `linked: pass`, `isolated: fail` and `manifest: true`: the child depends on its parent.
 An edge with `manifest: false` holds the same verdict alone and could be its own spec.
 It costs one run per edge, so run it when you add an edge or change a parent.
+A child with no id is named by its position, such as `blocks.2`.
+Each side runs once: on an agent that does not answer the same way twice, a changed verdict can be noise.
+The edge is to the direct parent: state a grandparent set shows as a dependency of the grandchild's own edge.
 
 The next spec deliberately requires an impossible reply from its parent.
 The child is blocked, but the independent root still runs.
