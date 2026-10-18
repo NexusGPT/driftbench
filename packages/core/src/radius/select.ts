@@ -195,11 +195,37 @@ export function sectionSelection(
     return changed;
   };
   const bySpec = new Map(reports.map((report) => [report.specId, report]));
+  // A block-level parent edge (docs/concepts/given-when-then.md, "Parent blocks"): a change that reaches a
+  // parent reaches every descendant, even one authored before it.
+  const descendants = (spec: Spec, report: SectionSelectionSpec): boolean => {
+    let changed = false;
+    spec.blocks.forEach((block, index) => {
+      const own = report.blocks[index];
+      if (own?.state !== 'out') return;
+      const seen = new Set<number>([index]);
+      for (let parent = block.parent; parent !== undefined; ) {
+        const at = spec.blocks.findIndex((each) => each.id === parent);
+        if (at < 0 || seen.has(at)) return;
+        seen.add(at);
+        const ancestor = report.blocks[at];
+        if (ancestor && ancestor.state !== 'out') {
+          own.state = 'forward';
+          own.why = [`descends from ${ancestor.id}`];
+          changed = true;
+          return;
+        }
+        parent = spec.blocks[at]?.parent;
+      }
+    });
+    return changed;
+  };
   for (let moved = true; moved; ) {
     moved = false;
     for (const [at, report] of reports.entries()) {
       const first = report.blocks.find((block) => block.state !== 'out');
       if (first) moved = forwardFrom(report, first.index + 1, `after ${first.id}`) || moved;
+      const own = specs[at]?.spec;
+      if (own) moved = descendants(own, report) || moved;
       const spec = specs[at]?.spec;
       const parent = spec ? parentOf(spec) : undefined;
       const source = parent ? bySpec.get(parent.spec) : undefined;
