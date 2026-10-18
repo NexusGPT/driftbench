@@ -4,7 +4,14 @@ import { buildGraph } from '../graph/edges';
 import { navigationNames } from '../scan/code';
 import { codeNames } from '../scan/code-names';
 import { documentInfo, normativeEstate, unloadedByDesign } from '../scan/document-roles';
-import { DEFAULT_STANDING_CEILING, invariantAtoms, measureInvariants, scanAtoms } from '../scan/invariants';
+import {
+  DEFAULT_STANDING_CEILING,
+  invariantAtoms,
+  measureInvariants,
+  type PointerScanOptions,
+  type ScanAtoms,
+  scanAtoms,
+} from '../scan/invariants';
 import type { ChunkRun, ProseRefusal } from '../scan/prose';
 import type { ProseCache, ProseEstimate } from '../scan/prose-cache';
 import type { EstateReader, RawEstate } from '../scan/reader';
@@ -25,6 +32,8 @@ export type ScanEstateInput = {
   root: string;
   reader: EstateReader;
   port?: ModelPort;
+  /** Read the prose with the pointer reader instead of the model port. Opt-in. */
+  pointer?: PointerScanOptions;
   /** The root as the map records it: relative to where the map is written. Default `.`. */
   rootLabel?: string;
   ceiling?: number;
@@ -42,6 +51,7 @@ export type ScanEstateResult = {
   refusals: ProseRefusal[];
   duplicates: string[];
   calls: number;
+  pointer?: ScanAtoms['pointer'];
 };
 
 export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResult> {
@@ -50,6 +60,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     ...(input.port ? { port: input.port } : {}),
     ...(input.cache ? { cache: input.cache } : {}),
     ...(input.beforeModel ? { beforeModel: input.beforeModel } : {}),
+    ...(input.pointer ? { pointer: input.pointer } : {}),
     ...(input.maxTokens !== undefined ? { maxTokens: input.maxTokens } : {}),
   });
   const { builder } = scanned;
@@ -120,9 +131,17 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     ...(raw.ignored?.chosen && raw.ignored.chosen.length > 0 ? { ignore: raw.ignored.chosen } : {}),
     ...(raw.userLayer ? { userSkills: true as const } : {}),
     ...(raw.followedLinks && raw.followedLinks.length > 0 ? { followedLinks: raw.followedLinks } : {}),
-    ...(input.port
-      ? { producedBy: { family: input.port.family, model: input.port.model ?? 'unknown', at } }
-      : {}),
+    ...(input.pointer
+      ? {
+          producedBy: {
+            family: input.pointer.labelling.members.map((member) => member.family).join('+'),
+            model: input.pointer.labelling.members.map((member) => member.model).join('+'),
+            at,
+          },
+        }
+      : input.port
+        ? { producedBy: { family: input.port.family, model: input.port.model ?? 'unknown', at } }
+        : {}),
     hash: mapHash(atoms, graph.edges),
   };
   return {
@@ -133,6 +152,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     refusals: scanned.refusals,
     duplicates: scanned.duplicates,
     calls: scanned.calls,
+    ...(scanned.pointer ? { pointer: scanned.pointer } : {}),
   };
 }
 
