@@ -183,12 +183,12 @@ Why dense: each unit is considered, a missing unit shows as a gap (`unlabeled`),
 
 ### Implementations
 
-The labelers are named by the class the judges use (`docs/concepts/judges.md`): a **system 1** labeler asks one yes or no question per unit and label and reads a probability of yes; a **system 2** labeler is a chat model that reads the numbered window and answers one label per unit. The clients that fill them:
+The labelers are named by the class the judges use (`docs/concepts/judges.md`): a **system 1** labeler is a model that answers with probabilities: one choice question per unit (the labels and `none` as options, each with its definition), or a yes or no question per label; a **system 2** labeler is a chat model that reads the numbered window and answers one label per unit, three times, and a unit takes a label only when all three runs agree. The clients that fill them:
 
 | Class | Client | How it answers | Notes |
 |---|---|---|---|
-| system 2 | `anthropic` (default model `claude-haiku-5-5`) | One dense request per window and set; JSON with the labels of the set; response blocks read by type (thinking blocks may precede the text); hidden reasoning off. Temperature cannot be pinned, so determinism lives in the cassette. | Key from `ANTHROPIC_API_KEY`, never printed or put in a recording. |
-| system 1 | `system1` client (Nexus platform; `packages/judges/src/clients/system1.ts` for the judge) | One binary question per (unit, label). One request carries a window of up to 250 questions, split only when units times labels pass the cap. A unit takes the label with the highest probability at or above a threshold (0.4), else `none`. State is the numbered window with its heading path; `system1` unit state is the other state (one unit with all its labels, one request per unit, threshold 0.7). Questions are keyed `u<n>__<label>`. | The probabilities are kept in the cassette so the threshold can change without a re-record. Call shape, cap, window size and threshold are measured on one planted estate (section 10a). The endpoint reports its usage in tokens. |
+| system 2 | `anthropic` (default model `claude-haiku-5-5`) | One dense request per window and set, asked three times (three runs, each its own cassette entry); JSON with the labels of the set; response blocks read by type; hidden reasoning off. Temperature cannot be pinned, so determinism lives in the cassette. | Key from `ANTHROPIC_API_KEY`, never printed or put in a recording. A unit takes a label only when every run gives the same label and target. |
+| system 1 | `system1` client (Nexus platform; `packages/judges/src/clients/system1.ts` for the judge) | One native choice question per unit: the options are the labels of the set and `none`, each with its definition. A request carries a window of 30 units. The answer is a probability for each option; the scan refuses a unit whose probabilities do not sum to 1 within 0.01. A label that asks for a target is left to system 2. | Measured best near 30 units per window (section 10a). The earlier yes or no form (250 questions per request) scored lower. |
 | system 1 | `openai-decisions` | The public example of the class: the same questions as predicates to `POST /v1/decisions`. | The shapes follow the provider's public description; no live call has confirmed them here. |
 | either | `http:<url>`, `module:<path>` | A user labeler: the request is `{ set, window, prompt }` (system 2) or `{ set, window, state, questions }` (system 1), the answer is `{ labels }` or `{ probabilities }`. | Recorded and replayed through the cassette like the others, with the id in every key: a hash of the address, or `module:<id>`. |
 | any | replay | Reads a cassette; no network. | Used by CI and validators. |
@@ -198,11 +198,15 @@ Every labeler gives an opinion per unit of its window; the scan, not the labeler
 
 ### The default stack (owner ruling of 17 October)
 
-The default labeller is a system 1 labeler and a system 2 labeler working together, as a cascade the way a judge council does. System 1 decides a unit alone only at an extreme: from `pass at` for a label (default 0.9), or under `fail at` for every label (default 0.1). System 2 decides every unit in between. Either class runs alone, and `--labeler <class>:<client>[:<model>]` picks the clients. Both classes label every window, so a stack costs the sum of its two members, and the three arms of an experiment (system 1 alone, system 2 alone, the stack) are three replays of one recording. A label that asks for a target is never asked of system 1: system 2 alone decides it. The ledger label carries the hash of the labelers and bounds that made it, so a change of either re-labels the unit and leaves its id.
+The default labeller is a system 1 labeler and a system 2 labeler working together, as a cascade the way a judge council does. System 1 answers a choice question per unit and decides a unit alone when its likeliest option leads the second by the margin cut (default 0.65, the value of the stack specification: the 95% accuracy target on its estate). System 2 decides the rest, and a unit takes the label only if all three of its runs agree. Either class runs alone, and `--labeler <class>:<client>[:<model>]` picks the clients. A system 1 labeler that answers yes or no, or a call that sets `--labeler-pass-at` or `--labeler-fail-at`, decides by probability bounds instead: from `pass at` for a label (default 0.9), or under `fail at` for every label (default 0.1).
 
-The bounds were set from the fictional fixture only, never from a private estate. On the fixture the units that system 1 called with a probability from 0.6 to 0.9 and system 2 did not were wrong nine times in ten, and no unit that system 2 called an atom had every system 1 probability under 0.4, so the bounds sit at the extremes. Section 14 gives the sweep.
+A unit stays unlabeled, for a person, when system 2 gave no unanimous label and system 1 was not sure. System 1's uncertain label is never taken in its place. A system 1 answer whose probabilities are no vector is refused, counted and never normalised, and the unit goes to system 2.
+
+The cut is a setting of a replay: the cassette keeps every probability, so a new cut needs no new call. Section 14 gives the fixture sweep.
 
 ### System-1 settings (measured, section 10a)
+
+The bullets below were measured with the yes or no form. The shipped client now asks the choice question, measured at 80.0% against 71.8% for the yes or no form on the key of the research branch (window of 30 units, structure shown), and the stack reads its margin. The yes or no results stay as the record of how the form was chosen.
 
 Measured on one fictional estate with gold written by the helper (395 units, 5 labels, a pinned model version). The numbers show a direction, not a calibrated default. Section 10a holds the tables.
 
@@ -220,11 +224,13 @@ Measured on one fictional estate with gold written by the helper (395 units, 5 l
 Code refuses, with a listed reason:
 
 1. An answer that is not the agreed JSON, is for another window or set, or stopped at `max_tokens` or a refusal.
-2. A label name not in the set, a unit number not in the window, a range that leaves the window, or a `target` on a label without `target: required` (or missing on one with it).
+2. A label name not in the set, a unit number not in the window, a range that leaves the window, a `target` that is no unit number, a `target` on `none` or on a label without `target: required`, or a `target` missing on one with it. A refused entry is counted, never stripped.
 3. A label on an opaque or context-only unit.
 4. An overlap: a unit named twice.
 
-A refused answer is retried once, then recorded as a failed window. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom.
+A refused answer is retried once, then recorded as a failed window. A unit missing from an accepted answer is `unlabeled`, listed, and gets no atom. A choice answer whose probabilities do not sum to 1 (within 0.01) is refused for that unit and counted.
+
+A labeler that answers several times (system 2: three) gives a unit an opinion only when every run names it with the same label and target. A missing run leaves the unit without an opinion; runs that disagree are counted as a split.
 
 ## 4. Layer A: the ledger
 
@@ -275,9 +281,9 @@ CRDT-style ids are not used: the files are rewritten by git, formatters and mode
 
 Determinism lives entirely in the cassette, because the models cannot be pinned to temperature zero.
 
-- **Key.** SHA-256 of the canonical request (model, system, messages, output settings, `max_tokens`, thinking setting). The request already contains the label-set text, so the **label-set hash is in the key**. Editing a label re-labels only under that set.
-- **Readable fields** beside the key, so a miss can name what differs from the nearest entry: file, window, prompt version, schema version, set name and hash, labeler id, **cut digest**.
-- **Stored answer.** The labels, the returned model id, `stop_reason`, usage, and for the system-1 labeller the per-question probabilities. No file text is stored.
+- **Key.** SHA-256 of the canonical request and of everything that identifies the answer besides it: the labeler id and class, the model (an HTTP labeler's model is not in its body), the **label-set hash** (labels, atom mappings, polarity, conditions), the prompt and schema versions, the cut digest and the run (the nth ask of the same request). A hit is the full match. Editing a label re-labels only under that set.
+- **Readable fields** beside the key, so a miss can name what differs from the nearest entry: file, window, prompt version, schema version, set name and hash, labeler id and class, model, **cut digest**, run.
+- **Stored answer.** The labels, the returned model id, `stop_reason`, usage, and for the system-1 labeller the probability of every option. No file text is stored.
 - **Modes.** CI mode fails on a miss (no network). Record is explicit. Entries never expire. A returned-model mismatch on re-record warns.
 - **Seam.** The model port's HTTP `fetch` is the single recording seam.
 - **Where.** Fixture estates commit `examples/estates/<name>/cassette.jsonl`. Private estates keep theirs in an uncommitted `.cache/` folder.
@@ -457,17 +463,18 @@ Cost on the fixture (13 files that go to the model today): 8,384 characters of p
 
 ## 14. What is built
 
-Behind an opt-in flag, `driftbench estate scan <root> --pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labels <file>] [--ledger <file> [--ledger-check]] [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--jobs <n>]`. Code is in `packages/estate/src/pointer/` (cutter, ledger, cassette, label sets, the labeler port with its dense, yes or no and user clients, the stack, scan, atoms) and `packages/cli/src/commands/estate-pointer.ts`. Without the flag the scan is as before.
+Behind an opt-in flag, `driftbench estate scan <root> --pointer --cassette <file> [--record] [--labeler <class>:<client>[:<model>]]... [--labels <file>] [--ledger <file> [--ledger-check]] [--labeler-threshold <p>] [--labeler-pass-at <p>] [--labeler-fail-at <p>] [--labeler-margin-cut <m>] [--jobs <n>]`. Code is in `packages/estate/src/pointer/` (cutter, ledger, cassette, label sets, the labeler port with its dense, yes or no and user clients, the stack, scan, atoms) and `packages/cli/src/commands/estate-pointer.ts`. Without the flag the scan is as before.
 
 | Part | State |
 |---|---|
 | Cutter, fingerprint, cut digest | Built. No word list: sentence breaks come from `Intl.Segmenter` over masked text, merged by shape only. |
 | Ledger with the ladder (unchanged, moved, ambiguous, changed, split, merged, deleted) and `--ledger-check` | Built, with the text-similarity floor of section 4. A label carries the hash of the labelers and bounds that made it. |
-| Cassette keyed by the whole request and the labeler id, readable fields, a miss that names the differing field | Built. One file holds the answers of every labeler of a run; each answer is appended as it arrives. |
+| Cassette keyed by the whole request and what identifies it (labeler, class, model, set hash, versions, cut, run), readable fields, a miss that names the differing field | Built. One file holds the answers of every labeler of a run; each answer is appended as it arrives. |
 | Label sets as data, the shipped `agent-rules` set loaded by the same parser | Built. |
-| System 2 client (`anthropic`, default `claude-haiku-5-5`, hidden reasoning off) | Built. |
-| System 1 clients (`system1` client with window and unit state, `openai-decisions`) | Built. The probabilities are recorded, so a threshold is a replay setting. `openai-decisions` is unconfirmed by a live call. |
-| The default stack with `pass at` and `fail at`, and each class alone | Built. |
+| System 2 client (`anthropic`, default `claude-haiku-5-5`, hidden reasoning off), three runs per window, unanimous | Built. A split or missing run leaves the unit unlabeled. |
+| System 1 clients (`system1` client with window and unit state, one choice question per unit; `openai-decisions`, yes or no) | Built. The probabilities are recorded, so the margin cut or a threshold is a replay setting. `openai-decisions` is unconfirmed by a live call. |
+| The default stack with the margin cut (probability bounds for a yes or no system 1), and each class alone | Built. A unit unlabeled by system 2 and not sure at system 1 stays unlabeled. |
+| Condition label (`condition: true` with a target): the unit becomes the `situation` of the target's atom | Built, in the label set format. The shipped `agent-rules` set has none yet: adding one changes its hash and misses every cassette. |
 | User labelers by HTTP endpoint or module, through the same port | Built. |
 | Parallel requests (`--jobs`) with the same ledger and the same cassette bytes | Built. |
 | Atoms from labels (quote and lines are `source.slice` of the file, one reviewed `prose_pointer` check) | Built. A gate takes the quote from its first to its second unit. |
@@ -477,30 +484,26 @@ Behind an opt-in flag, `driftbench estate scan <root> --pointer --cassette <file
 
 ### Fixture recording (fictional Northwind estate, one run per arm)
 
-154 units in 14 files. One recording of the default stack holds the answers of both classes: 18 dense requests to system 2 and 19 window requests to system 1 (its cap is 250 questions). The unit-state arm of system 1 is a second recording of 154 requests.
+154 units in 14 files. One recording of the default stack holds the answers of both classes: 54 dense requests to system 2 (18 windows, three runs) and 19 choice requests to system 1 (windows of 30 units). The unit-state arm of system 1 is a second recording of 154 requests.
 
 | Arm | Requests | Tokens in / out | Cost (USD) |
 |---|---|---|---|
-| System 2, `claude-haiku-5-5`, dense window | 18 | 9,597 / 1,914 | 0.0019 |
-| System 1, window state | 19 | 52,900 / 18,476 | 0.0022 |
-| System 1, unit state | 154 | 93,319 / 18,788 | 0.0039 |
+| System 2, `claude-haiku-5-5`, dense window, three runs | 54 | 28,828 / 6,058 | 0.0059 |
+| System 1, choice question, window of 30 units | 19 | 38,847 / 10,620 | 0.0016 |
+| System 1, choice question, unit state | 154 | 79,459 / 10,990 | 0.0033 |
 
-Costs follow section 11. An earlier recording of these arms stored 0 tokens for system 1, because the client did not read the `usage` the endpoint reports; the cassettes were re-recorded. Three earlier runs of system 2 while the request was fixed (hidden reasoning that used the whole output allowance, a window id the model did not echo) cost about 0.0067 more.
+Costs follow section 11.
 
 Reference for the next table: the 57 prose atoms of the fixture map that its author approved. It is coarse: a pointed atom counts as right when its lines overlap an approved atom, and an approved atom counts as found when a pointed atom overlaps it. It is not the gold set of section 10.
 
-| Arm | Atoms built | Overlap an approved atom (precision) | Approved atoms found (recall) | Units decided |
+| Arm | Atoms built | Precision | Recall | Units left unlabeled |
 |---|---|---|---|---|
-| System 2 alone | 59 | 56 (94.9%) | 53 of 57 (93.0%) | system 2 154 |
-| System 1 alone, window state, threshold 0.4 | 79 | 59 (74.7%) | 55 of 57 (96.5%) | system 1 154 |
-| System 1 alone, window state, threshold 0.7 | 69 | 56 (81.2%) | 54 of 57 (94.7%) | system 1 154 |
-| System 1 alone, unit state, threshold 0.7 | 79 | 56 (70.9%) | 52 of 57 (91.2%) | system 1 154 |
-| Stack, pass at 0.9, fail at 0.1 (default) | 60 | 56 (93.3%) | 53 of 57 (93.0%) | system 1 29, system 2 125 |
-| Stack, pass at 0.8, fail at 0.1 | 68 | 57 (83.8%) | 54 of 57 (94.7%) | system 1 67, system 2 87 |
-| Stack, pass at 0.7, fail at 0.2 | 70 | 57 (81.4%) | 54 of 57 (94.7%) | system 1 78, system 2 76 |
-| Stack, pass at 0.6, fail at 0.2 | 72 | 57 (79.2%) | 54 of 57 (94.7%) | system 1 109, system 2 45 |
+| System 2 alone, three unanimous runs | 47 | 97.9% | 80.7% | 25 |
+| System 1 alone, choice, window of 30 | 85 | 69.4% | 98.2% | 0 |
+| System 1 alone, choice, unit state | 91 | 65.9% | 98.2% | 0 |
+| Stack, margin cut 0.65 (default) | 59 | 83.1% | 84.2% | 32 |
 
-Reading: on this one small fictional estate system 2 alone is the most precise at the same recall, system 1 alone finds one or two more approved atoms for 20 more atoms, and the stack falls between them, closer to system 2 the more extreme the bounds. The units that system 1 called with a probability from 0.6 to 0.9 and system 2 did not (10 units, 1 in the reference) show why the bounds are extreme. One estate, one run per arm and a reference built by overlap prove no ranking. They make experiment 13 on the gold set worth its cost. The bounds are not tuned on any private estate.
+Reading: on this one small fictional estate system 2 with unanimous runs is the most precise and leaves a fifth of the units to a person; system 1 alone finds nearly every approved atom for 30 to 40 more atoms; the stack falls between them. Before the unanimity rule the stack built 71 atoms at 81.7% precision and 96.5% recall: the unanimity trades recall for precision. One estate, one run per arm and a reference built by overlap prove no ranking.
 
 ### System-1 request size on the fixture
 
