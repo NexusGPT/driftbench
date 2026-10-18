@@ -1102,19 +1102,16 @@ On the fixture estate:
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --no-model --out _captures/docs3/cli/estate-map.yaml
-Wrote _captures/docs3/cli/estate-map.yaml: 69 atoms (69 read by code and approved, 0 split from prose by the model and waiting for approval), 48 edges.
+Wrote _captures/docs3/cli/estate-map.yaml: 53 atoms (53 read by code and approved, 0 split from prose by the model and waiting for approval), 41 edges.
   Atoms per kind:
-    gate         4
     route       13
     skill        4
-    reference   10
     script       2
     subagent     3
     guard        6
     tool        12
     setting      4
     stage        5
-    hazard       2
     invariant    4
   No model call: structured atoms only (--no-model).
   Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
@@ -1125,12 +1122,9 @@ Wrote _captures/docs3/cli/estate-map.yaml: 69 atoms (69 read by code and approve
     ...
   Refused: none.
   Ignored: none.
-  Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
+  Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/matching-rules.md, .claude/skills/invoice-reconcile/references/old-tolerances.md, .claude/skills/shipment-tracker/data/shipments.txt, .claude/skills/weekly-report/templates/report.md, .claude/steps.json.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
-  Unenforced: 3 of 4 rules have no guard.
-    instruction.standing.r14-do-not-commit-to-git
-    gate.invoice-reconcile.read-references-matching-rules-md-before
-    gate.weekly-report.read-templates-report-md-before-before
+  Unenforced: 0 of 0 rules have no guard.
 Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench estate approve _captures/docs3/cli/estate-map.yaml --kind instruction
 ```
 
