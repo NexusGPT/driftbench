@@ -37,6 +37,27 @@ export const LinkKind = z
   });
 export type LinkKind = z.infer<typeof LinkKind>;
 
+const AtomBase = z.strictObject({
+  kind: z.string().min(1),
+  polarity: z.enum(['obligation', 'prohibition']).optional(),
+  /** The title of the atom, in words of the unit: a placeholder or a string. Default: the unit text. */
+  title: z.string().min(1).optional(),
+  /** What the atom is about, in words: the set's own text, used when no condition unit gives one. */
+  situation: z.string().min(1).optional(),
+  /** Fields the set puts on every atom of this label, such as the id of a hazard. */
+  fields: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
+  /** Checks the set puts on every atom of this label, after the review check the scan adds. */
+  evidence: z.array(EvidencePredicate).optional(),
+  /** Resolve the first code span of the unit as a file of the estate: the atom gets its path and whether it exists. */
+  locate: z.literal(true).optional(),
+  /** Build this atom only when the first code span of the unit leads to a file of the estate. */
+  whenFile: z.literal(true).optional(),
+});
+
+/** What a label builds: one atom, and the further atoms the same unit also is (a gate that also names a file). */
+export const AtomMapping = AtomBase.extend({ also: z.array(AtomBase).min(1).optional() });
+export type AtomMapping = z.infer<typeof AtomMapping>;
+
 export const Label = z.strictObject({
   name: z
     .string()
@@ -53,18 +74,7 @@ export const Label = z.strictObject({
   spans: z.array(z.string().min(1)).min(1).optional(),
   /** The link kinds a unit with this label may carry. */
   links: z.array(z.string().min(1)).min(1).optional(),
-  atom: z
-    .strictObject({
-      kind: z.string().min(1),
-      polarity: z.enum(['obligation', 'prohibition']).optional(),
-      /** What the atom is about, in words: the set's own text, used when no condition unit gives one. */
-      situation: z.string().min(1).optional(),
-      /** Fields the set puts on every atom of this label, such as the id of a hazard. */
-      fields: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
-      /** Checks the set puts on every atom of this label, after the review check the scan adds. */
-      evidence: z.array(EvidencePredicate).optional(),
-    })
-    .optional(),
+  atom: AtomMapping.optional(),
 });
 export type Label = z.infer<typeof Label>;
 
@@ -174,12 +184,18 @@ export type Labelled = {
   units: string;
   label: string;
   target?: number;
-  spans?: SpanAnswer[];
+  spans?: SpanInput[];
   links?: LinkAnswer[];
 };
 
 /** A span as answered: offsets into the text of one unit, `to` exclusive. */
 export type SpanAnswer = { kind: string; from: number; to: number; polarity?: string };
+
+/** A span as a labeler may write it: offsets into the unit, or the words of the clause, copied from the unit. */
+export type SpanInput = { kind: string; polarity?: string } & (
+  | { from: number; to: number }
+  | { text: string }
+);
 
 /** A link as answered: a kind and the id of a candidate atom (or `none`). */
 export type LinkAnswer = { kind: string; to: string };
@@ -284,6 +300,44 @@ const POLARITIES = new Set(['obligation', 'prohibition']);
  * overlapping another span of the unit. A link names a kind the label may carry and a candidate the request
  * listed (or `none`). Any failure refuses the whole entry: the reason is returned as a string.
  */
+/**
+ * Where the words of a clause sit in the text of a unit: found without regard to case, exactly once. The slice
+ * kept is the unit's own text, never the copy. `reason` says why not.
+ */
+export function locateSpanText(
+  unitText: string,
+  words: string,
+): { from: number; to: number } | { reason: string } {
+  const lower = unitText.toLowerCase();
+  const wanted = words.toLowerCase();
+  const first = wanted === '' || lower.length !== unitText.length ? -1 : lower.indexOf(wanted);
+  if (first < 0) return { reason: 'the text is not in the unit' };
+  if (lower.indexOf(wanted, first + 1) >= 0) return { reason: 'the text is found twice in the unit' };
+  return { from: first, to: first + wanted.length };
+}
+
+/**
+ * Turns the spans a labeler wrote as words into offsets, so the words never reach a cassette. A text that cannot
+ * be located becomes an offset pair that no unit holds, which the check of the answer refuses.
+ */
+export function offsetSpans(entries: readonly Labelled[], window: Window): Labelled[] {
+  return entries.map((entry) => {
+    if (!entry.spans || !/^\d+$/.test(entry.units.trim())) return entry;
+    const unit = window.units.find((candidate) => candidate.n === Number(entry.units));
+    if (!unit) return entry;
+    return {
+      ...entry,
+      spans: entry.spans.map((span) => {
+        if (span === null || typeof span !== 'object' || !('text' in span) || typeof span.text !== 'string')
+          return span;
+        const { text, ...rest } = span;
+        const found = locateSpanText(unit.text, text);
+        return 'reason' in found ? { ...rest, from: -1, to: -1 } : { ...rest, ...found };
+      }),
+    };
+  });
+}
+
 function checkExtras(
   set: LabelSet,
   window: Window,
@@ -308,24 +362,36 @@ function checkExtras(
       if (!kind || !label.spans.includes(kind.name)) {
         return `${where}: the kind ${JSON.stringify(span.kind)} is not one the label ${entry.label} may carry`;
       }
-      if (!Number.isInteger(span.from) || !Number.isInteger(span.to)) return `${where}: offsets are integers`;
-      if (span.from < 0 || span.to > unit.text.length || span.from >= span.to) {
-        return `${where}: offsets leave the unit (length ${unit.text.length}) or are empty`;
+      // The words of the clause are located in the unit by code: found exactly once, else refused. The model
+      // is bad at counting characters and good at copying; a copied text enters nowhere unless it is a slice.
+      let from: number;
+      let to: number;
+      if ('text' in span && typeof span.text === 'string') {
+        const found = locateSpanText(unit.text, span.text);
+        if ('reason' in found) return `${where}: ${found.reason}`;
+        ({ from, to } = found);
+      } else if ('from' in span && Number.isInteger(span.from) && Number.isInteger(span.to)) {
+        ({ from, to } = span);
+        if (from < 0 || to > unit.text.length || from >= to) {
+          return `${where}: offsets leave the unit (length ${unit.text.length}) or are empty`;
+        }
+      } else {
+        return `${where}: offsets are integers, or the text is a string`;
       }
-      if (span.polarity !== undefined) {
+      if (span.polarity !== undefined && span.polarity !== null) {
         if (!kind.polarity) return `${where}: the kind ${kind.name} carries no polarity`;
         if (typeof span.polarity !== 'string' || !POLARITIES.has(span.polarity)) {
           return `${where}: the polarity is obligation or prohibition`;
         }
       }
-      if (seen.some((other) => span.from < other.to && other.from < span.to)) {
+      if (seen.some((other) => from < other.to && other.from < to)) {
         return `${where} overlaps another span of the unit`;
       }
       seen.push({
         kind: span.kind,
-        from: span.from,
-        to: span.to,
-        ...(span.polarity !== undefined ? { polarity: span.polarity } : {}),
+        from,
+        to,
+        ...(span.polarity !== undefined && span.polarity !== null ? { polarity: span.polarity } : {}),
       });
     }
     out.spans = seen.sort((a, b) => a.from - b.from);

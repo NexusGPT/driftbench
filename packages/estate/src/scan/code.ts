@@ -72,6 +72,12 @@ export class AtomBuilder {
     return locateNamed(path, from, this.files).path;
   }
 
+  /** Where a path written in `from` leads, how it was found, and whether the file is one of the estate. */
+  resolve(path: string, from: string): NamedTarget & { exists: boolean } {
+    const target = locateNamed(path, from, this.files);
+    return { ...target, exists: this.files.has(target.path) };
+  }
+
   scopeOf(path: string): string {
     const file = this.files.get(path);
     if (!file) return slug(path, 8);
