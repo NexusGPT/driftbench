@@ -55,7 +55,45 @@ export type LabelSetsResult = { ok: true; sets: LabelSet[] } | { ok: false; mess
 
 /** Reads the `labels:` list of a YAML text, and refuses a duplicate set or label name. */
 export function parseLabelSets(text: string): LabelSetsResult {
-  throw new Error('not implemented: parseLabelSets');
+  let value: unknown;
+  try {
+    value = parseYaml(text);
+  } catch (cause) {
+    const reason = cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
+    return { ok: false, message: `the label file is not valid YAML: ${reason}` };
+  }
+  const parsed = LabelFile.safeParse(value);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    const where = issue && issue.path.length > 0 ? `${issue.path.join('.')}: ` : '';
+    const reason = issue?.message ?? 'unreadable';
+    return { ok: false, message: `the label file is not a list of label sets: ${where}${reason}` };
+  }
+  const seenSets = new Set<string>();
+  for (const set of parsed.data.labels) {
+    if (seenSets.has(set.set)) return { ok: false, message: `the set ${set.set} is declared twice` };
+    seenSets.add(set.set);
+    const seenLabels = new Set<string>();
+    for (const label of set.labels) {
+      if (seenLabels.has(label.name)) {
+        return { ok: false, message: `the label ${label.name} is declared twice in the set ${set.set}` };
+      }
+      seenLabels.add(label.name);
+      if (label.condition && label.target !== 'required') {
+        return {
+          ok: false,
+          message: `the label ${label.name} in the set ${set.set} is a condition and must ask for a target`,
+        };
+      }
+      if (label.condition && label.atom) {
+        return {
+          ok: false,
+          message: `the label ${label.name} in the set ${set.set} is a condition and cannot map to an atom`,
+        };
+      }
+    }
+  }
+  return { ok: true, sets: parsed.data.labels };
 }
 
 /** The hash of a set's canonical form: editing one label changes only that set's hash. */
