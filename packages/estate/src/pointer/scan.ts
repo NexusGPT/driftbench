@@ -120,8 +120,10 @@ export type PointerResult = {
   unlabeled: number;
   /** Units on which the runs of one labeler disagreed: that labeler gave no opinion for them. */
   split: number;
-  /** Units whose runs agreed on the label but not on the spans or links: they keep the label and lose both. */
+  /** Units whose runs agreed on the label but drew the spans or links differently: the first run's stand. */
   spanSplit: number;
+  /** Units a member decided by a majority of its runs instead of all of them. */
+  voted: number;
   refusals: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
@@ -475,34 +477,55 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   }
 
   /**
-   * The opinion of a member for a unit: with several runs, the label every run gave (and the same target); a run
-   * that is missing or that differs leaves the member without an opinion, counted as a split when runs disagree.
+   * The opinion of a member for a unit. With several runs, the label every run gave (and the same target). A label
+   * that carries spans or links is taken when a majority of the runs give it, because those runs also say where
+   * its clauses are and a unit with such a label is easy to read two ways; any other disagreement, or a run that
+   * left the unit out where no majority exists, leaves the member without an opinion (a split when runs differ).
+   * Spans and links are those of the first run that gave the label with any; a difference between runs is counted.
    */
   let split = 0;
   let spanSplit = 0;
-  const opinionOf = (runs: ReadonlyArray<Map<number, Opinion>>, index: number): Opinion | undefined => {
+  let voted = 0;
+  const carriesSpans = (set: LabelSet, label: string): boolean => {
+    const found = set.labels.find((candidate) => candidate.name === label);
+    return found?.spans !== undefined || found?.links !== undefined;
+  };
+  const opinionOf = (
+    runs: ReadonlyArray<Map<number, Opinion>>,
+    index: number,
+    set: LabelSet,
+  ): Opinion | undefined => {
     const given = runs.map((run) => run.get(index));
     const first = given[0];
     if (given.length === 1) return first;
-    if (given.some((opinion) => !opinion)) return undefined;
-    const same = given.every(
-      (opinion) => opinion?.label === first?.label && opinion?.target === first?.target,
-    );
-    if (!same || !first) {
-      split++;
+    const present = given.filter((opinion): opinion is Opinion => opinion !== undefined);
+    const key = (opinion: Opinion) => `${opinion.label}\0${opinion.target ?? ''}`;
+    const tally = new Map<string, Opinion[]>();
+    for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
+    const unanimous = present.length === given.length && tally.size === 1;
+    const majority = [...tally.values()].find((group) => group.length * 2 > given.length);
+    const winners = unanimous
+      ? present
+      : majority && carriesSpans(set, majority[0]?.label ?? '')
+        ? majority
+        : undefined;
+    if (!winners || !winners[0]) {
+      if (present.length === given.length) split++;
       return undefined;
     }
-    // The label and target are unanimous. Spans and links count only when every run gave the same: runs that
-    // differ on them lose them (no span, no ask) and keep the label.
+    if (!unanimous) voted++;
+    // Spans and links are descriptions of where the clauses sit, not part of the label: runs that gave the label
+    // often draw a clause a word apart. The first run that gave any is kept, and the disagreement is counted.
     const extras = (opinion: Opinion | undefined) => JSON.stringify([opinion?.spans, opinion?.links]);
-    const agree = given.every((opinion) => extras(opinion) === extras(first));
-    if (!agree) spanSplit++;
-    const { spans, links, ...rest } = first;
+    if (!winners.every((opinion) => extras(opinion) === extras(winners[0]))) spanSplit++;
+    const { spans, links, ...rest } = winners[0];
+    const spanned = winners.find((opinion) => opinion.spans);
+    const linked = winners.find((opinion) => opinion.links);
     return {
       ...rest,
-      ...(agree && spans ? { spans } : {}),
-      ...(agree && links ? { links } : {}),
-      source: given.map((opinion) => opinion?.source ?? '').join('+'),
+      ...(spanned?.spans ? { spans: spanned.spans } : {}),
+      ...(linked?.links ? { links: linked.links } : {}),
+      source: winners.map((opinion) => opinion.source ?? '').join('+'),
     };
   };
 
@@ -519,7 +542,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         const entry = entries.get(unitId(file.path, index));
         if (!entry) continue;
         const decision = labelling.decide(
-          byMember.map((runs) => opinionOf(runs, index)),
+          byMember.map((runs) => opinionOf(runs, index, set)),
           set,
         );
         if (!decision) {
@@ -607,6 +630,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     unlabeled,
     split,
     spanSplit,
+    voted,
     refusals,
     failed,
     usage,

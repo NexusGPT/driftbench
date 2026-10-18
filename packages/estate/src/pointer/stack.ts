@@ -218,6 +218,8 @@ function describeMember(member: Labeler): Record<string, unknown> {
     model: member.model,
     settings: member.settings,
     runs: member.runs ?? 1,
+    // How the runs of a member become one opinion: unanimity, or a majority for the labels that carry spans.
+    vote: (member.runs ?? 1) > 1 ? 'unanimous-or-majority-for-spans' : undefined,
   };
 }
 

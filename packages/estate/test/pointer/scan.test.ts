@@ -566,7 +566,7 @@ describe('spans across the runs of a labeler', () => {
     expect(entry?.labels.duty?.spans).toEqual([{ kind: 'act', from: 0, to: 3 }]);
   });
 
-  it('keeps the label and drops the spans when the runs gave different ones, and counts the units', async () => {
+  it('keeps the label and the spans of the first run when the runs drew them differently, and counts the units', async () => {
     const calls = new Map<string, number>();
     const labeler = plantedDense(
       (window) => {
@@ -582,7 +582,7 @@ describe('spans across the runs of a labeler', () => {
     expect(result.spanSplit).toBeGreaterThan(0);
     for (const entry of result.ledger.entries.filter((candidate) => candidate.labels.duty)) {
       expect(entry.labels.duty?.label).toBe('order');
-      expect(entry.labels.duty?.spans).toBeUndefined();
+      expect(entry.labels.duty?.spans?.[0]?.to).toBe(3);
     }
   });
 
@@ -598,5 +598,115 @@ describe('spans across the runs of a labeler', () => {
     expect(result.refusals.length).toBeGreaterThan(0);
     expect(result.refusals[0]).toMatch(/offsets leave the unit/);
     expect(result.decided).toBe(0);
+  });
+});
+
+describe('a vote of two runs out of three for the labels that carry spans', () => {
+  const VOTE = `labels:
+  - set: duty
+    description: What the harbour notes ask of a skipper.
+    spans:
+      - { name: act, description: the clause that says what the skipper does }
+    labels:
+      - name: order
+        description: A unit that tells the skipper what to do before something else.
+        spans: [act]
+        atom: { kind: instruction, polarity: obligation }
+      - name: remark
+        description: A unit that only says how the quay is.
+        atom: { kind: instruction, polarity: obligation }
+`;
+  /** Each run answers every unit of every window from its own table, by run number (the nth ask of a window). */
+  const runs = (
+    table: (run: number, unit: { text: string }) => Labelled['label'] | undefined,
+    text = 'Coil',
+  ) => {
+    const calls = new Map<string, number>();
+    return plantedDense(
+      (window) => {
+        const run = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, run);
+        return window.units.flatMap((unit): Labelled[] => {
+          const label = table(run, unit);
+          if (label === undefined) return [];
+          const at = unit.text.indexOf(text);
+          return [
+            {
+              units: String(unit.n),
+              label,
+              ...(label === 'order' && unit.text.startsWith(text)
+                ? { spans: [{ kind: 'act', from: at, to: at + text.length }] }
+                : {}),
+            },
+          ];
+        });
+      },
+      [],
+      { runs: 3 },
+    );
+  };
+  const go = (labeler: Labeler) => pointerScan(input(labeler, new Cassette(), { sets: load(VOTE) }));
+  const coil = (unit: { text: string }) => unit.text.startsWith('Coil the ropes');
+
+  it('takes a label that carries spans when two runs out of three give it, with the spans of those two', async () => {
+    const result = await go(runs((run, unit) => (coil(unit) ? (run === 3 ? 'remark' : 'order') : 'remark')));
+    const entry = result.ledger.entries.find((candidate) => candidate.quote.startsWith('Coil the ropes'));
+    expect(entry?.labels.duty?.label).toBe('order');
+    expect(entry?.labels.duty?.spans).toEqual([{ kind: 'act', from: 0, to: 4 }]);
+    expect(result.voted).toBeGreaterThan(0);
+  });
+
+  it('keeps asking for all three runs when the winning label carries no spans', async () => {
+    const result = await go(runs((run, unit) => (coil(unit) ? (run === 3 ? 'order' : 'remark') : 'remark')));
+    const entry = result.ledger.entries.find((candidate) => candidate.quote.startsWith('Coil the ropes'));
+    expect(entry?.labels.duty).toBeUndefined();
+    expect(result.split).toBeGreaterThan(0);
+  });
+
+  it('counts a run that left the unit out as no vote, so two runs of the label still win', async () => {
+    const result = await go(runs((run, unit) => (coil(unit) ? (run === 3 ? undefined : 'order') : 'remark')));
+    const entry = result.ledger.entries.find((candidate) => candidate.quote.startsWith('Coil the ropes'));
+    expect(entry?.labels.duty?.label).toBe('order');
+  });
+
+  it('leaves a unit unlabeled when two runs out of three disagree with each other, whatever the third says', async () => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const run = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, run);
+        return window.units.map((unit) => ({
+          units: String(unit.n),
+          label: coil(unit) ? (['order', 'remark', 'none'][run - 1] as string) : 'remark',
+        }));
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await go(labeler);
+    const entry = result.ledger.entries.find((candidate) => candidate.quote.startsWith('Coil the ropes'));
+    expect(entry?.labels.duty).toBeUndefined();
+  });
+
+  it('keeps the label and the spans of the first run when the runs of the label point at different clauses', async () => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const run = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, run);
+        return window.units.map((unit) => ({
+          units: String(unit.n),
+          label: 'order',
+          spans: [{ kind: 'act', from: 0, to: run === 1 ? 4 : run === 2 ? 3 : 2 }],
+        }));
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await go(labeler);
+    const entry = result.ledger.entries.find((candidate) => candidate.quote.startsWith('Coil the ropes'));
+    expect(entry?.labels.duty?.label).toBe('order');
+    expect(entry?.labels.duty?.spans).toEqual([{ kind: 'act', from: 0, to: 4 }]);
+    expect(result.spanSplit).toBeGreaterThan(0);
   });
 });
