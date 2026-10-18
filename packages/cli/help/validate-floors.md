@@ -27,7 +27,7 @@ Two commands use the floors:
 The floors at the time of writing, from `validate floors` at the repository root:
 
 ```text
-Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
+Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 11 (ladder version 6).
 ```
 
 `estate` and `generator` have no floor. The `judges` floor of 20 belongs to ladder version 2, the
@@ -103,14 +103,15 @@ Every option of `driftbench validate`, for reference (the topic named in the las
   ```json
   {
     "version": 2,
-    "ladderVersion": { "judges": 2, "map": 2, "stats": 2, "system": 5 },
-    "floors": { "judges": 20, "map": 8, "stats": 7, "system": 9 },
+    "ladderVersion": { "judges": 2, "map": 2, "stats": 2, "system": 6 },
+    "floors": { "judges": 20, "map": 8, "stats": 7, "system": 11 },
     "evidence": {
-      "system": { "level": 9, "seeds": ["1", "2", "3", "20", "hidden"], "hiddenSeed": 88145333,
-                  "head": "<the commit the hidden seed came from>", "ladderVersion": 5 }
+      "system": { "level": 11, "seeds": ["1", "2", "3", "hidden"], "hiddenSeed": 679999498,
+                  "head": "<the commit the hidden seed came from>", "ladderVersion": 6 }
     },
     "history": {
-      "stats": [ { "ladderVersion": 1, "floor": 1, "evidence": { "level": 2, "ladderVersion": 1 } } ]
+      "stats": [ { "ladderVersion": 1, "floor": 1, "evidence": { "level": 2, "ladderVersion": 1 } } ],
+      "system": [ { "ladderVersion": 5, "floor": 9, "evidence": { "level": 9, "ladderVersion": 5 } } ]
     }
   }
   ```
