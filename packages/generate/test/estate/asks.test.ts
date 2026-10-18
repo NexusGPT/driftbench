@@ -54,7 +54,7 @@ describe('asks written by code from the atoms', () => {
   });
 
   it('asks a guard for the act the rule it enforces forbids, else for a call of the tool it watches', () => {
-    const rule = atom('instruction.standing.never-force-push', { title: 'Never force push' });
+    const rule = atom('instruction.standing.r6-never-run-git-push-force', { title: 'Never force push' });
     const guard = atom('guard.settings.block', {
       fields: { enforces: [{ atom: rule.id }], matcher: 'Bash' },
     });

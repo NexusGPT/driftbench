@@ -204,7 +204,7 @@ function stacked(
           ...(second ? {} : { fallback: true as const }),
         };
       }
-      // An unsure unit takes the label system 2 gave on every run. Without it the unit stays unlabeled: system
+      // An unsure unit takes the label system 2 gave on a majority of its runs. Without it the unit stays unlabeled: system
       // 1's uncertain label is never taken in its place.
       return second ? fromSecond(second) : undefined;
     },
@@ -218,8 +218,8 @@ function describeMember(member: Labeler): Record<string, unknown> {
     model: member.model,
     settings: member.settings,
     runs: member.runs ?? 1,
-    // How the runs of a member become one opinion: unanimity, or a majority for the labels that carry spans.
-    vote: (member.runs ?? 1) > 1 ? 'unanimous-or-majority-for-spans' : undefined,
+    // How the runs of a member become one opinion: the label more than half of the runs gave.
+    vote: (member.runs ?? 1) > 1 ? 'majority' : undefined,
   };
 }
 

@@ -145,14 +145,14 @@ describe('the fixture graph', () => {
         ]),
       ),
     ).toEqual({
-      'block-force-push.sh': ['registry instruction.standing.never-force-push'],
+      'block-force-push.sh': ['registry instruction.standing.r6-never-run-git-push-force'],
       'read-before-edit.py': [
-        'registry gate.standing.read-a-file-before-editing-it',
+        'registry instruction.standing.r3-read-a-file-before-you',
         'registry gate.standing.read-claude-skills-invoice-reconcile-references',
       ],
-      'ledger-guard.py': ['registry instruction.standing.never-delete-a-ledger-file-archive'],
-      'stop-word.sh': ['registry instruction.standing.on-stop-stop-all-work-and'],
-      'reply-length.py': ['quote register.standing.replies-under-1-200-characters'],
+      'ledger-guard.py': ['registry instruction.standing.r4-never-delete-a-file-under'],
+      'stop-word.sh': ['registry instruction.standing.r10-when-the-user-says-stop'],
+      'reply-length.py': ['quote register.standing.keep-every-reply-under-1-200'],
       'check-carrier.sh': ['registry instruction.shipment-tracker.always-pass-the-carrier-code-to'],
     });
   });
@@ -176,7 +176,7 @@ describe('the fixture graph', () => {
       map.edges.some((edge) => edge.from === from && edge.kind === kind && edge.to === to);
     expect(
       has(
-        'instruction.standing.keep-an-unconfirmed-draft-unsent',
+        'instruction.standing.r12-when-r2-applies-and-the',
         'cites',
         'instruction.standing.never-send-a-supplier-email-without',
       ),

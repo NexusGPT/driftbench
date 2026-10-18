@@ -1,15 +1,8 @@
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-  ClaudeCodeReader,
-  estateRecordingPort,
-  loadEstateRecording,
-  type PointerScanOptions,
-  pointer,
-  scanEstate,
-} from '../src/index';
+import { ClaudeCodeReader, type PointerScanOptions, pointer, scanEstate } from '../src/index';
 import { namedPaths } from '../src/scan/code';
 
 /** The hand-written Northwind fixture estate. */
@@ -26,15 +19,31 @@ export async function estate(files: Record<string, string>): Promise<string> {
   return root;
 }
 
-/** The fixture scanned with its recorded answers, as the committed map was. */
+/**
+ * The pointer reader of an example estate: the shipped label set and the default stack, answering from the
+ * `cassette.jsonl` beside the estate. No network and no key.
+ */
+export async function replayPointer(root: string): Promise<PointerScanOptions> {
+  const sets = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  if (!sets.ok) throw new Error(sets.message);
+  const specs = pointer.DEFAULT_LABELER_SPECS.map((text) => {
+    const spec = pointer.parseLabelerSpec(text);
+    if (!spec.ok) throw new Error(spec.message);
+    return spec.spec;
+  });
+  const built = await pointer.buildLabelling(specs, { env: {}, record: false, cwd: root });
+  if (!built.ok) throw new Error(built.message);
+  const cassette = pointer.Cassette.parse(await readFile(join(root, 'cassette.jsonl'), 'utf8'));
+  return { sets: sets.sets, labelling: built.labelling, cassette, mode: 'replay' };
+}
+
+/** The fixture scanned with its recorded labels, as the committed map was. */
 export async function scanFixture() {
-  const recording = await loadEstateRecording(join(FIXTURE, 'answers.yaml'));
-  if (!recording.ok) throw new Error(recording.message);
   return scanEstate({
     root: FIXTURE,
     reader: new ClaudeCodeReader(),
-    port: estateRecordingPort(recording.recording),
     now: NOW,
+    pointer: await replayPointer(FIXTURE),
   });
 }
 

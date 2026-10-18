@@ -68,7 +68,7 @@ function labelLine(label: Label): string {
 /** The fixed text of the dense request. */
 /**
  * The runs of a system 2 labeler. A chat model cannot be pinned to one answer, so the same window is asked this
- * many times and a unit takes a label only when every run gives it (the stack specification: three runs, unanimous).
+ * many times and a unit takes the label more than half of the runs give it (the stack specification: three runs, two of three).
  */
 export const DEFAULT_RUNS = 3;
 
@@ -191,7 +191,7 @@ export type AnthropicLabelerOptions = HttpOptions & {
   key?: string;
   baseUrl?: string;
   maxTokens?: number;
-  /** How many times a window is asked. A unit takes a label only when every run gives it the same one. */
+  /** How many times a window is asked. A unit takes the label more than half of the runs give it. */
   runs?: number;
   /** Hidden reasoning before the answer. Off by default: labelling a numbered window needs none, and it costs output tokens. */
   thinking?: 'off' | 'default';

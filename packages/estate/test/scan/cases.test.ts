@@ -4,29 +4,25 @@ import { describe, expect, it } from 'vitest';
 import {
   approveAtoms,
   ClaudeCodeReader,
-  estateRecordingPort,
   INFORMATION,
   lintEstate,
   loadEstateMap,
-  loadEstateRecording,
   scanEstate,
 } from '../../src/index';
-import { NOW } from '../support';
+import { NOW, replayPointer } from '../support';
 import { CASES } from './cases';
 
 async function scanCases() {
-  const recording = await loadEstateRecording(join(CASES, 'answers.yaml'));
-  if (!recording.ok) throw new Error(recording.message);
   return scanEstate({
     root: CASES,
     reader: new ClaudeCodeReader(),
-    port: estateRecordingPort(recording.recording),
     now: NOW,
+    pointer: await replayPointer(CASES),
   });
 }
 
 describe('the committed reader-cases outputs', () => {
-  it('map.yaml is what a scan with the recorded answers gives today, with no refusal', async () => {
+  it('map.yaml is what a scan with the recorded labels gives today, with no refusal', async () => {
     const committed = await loadEstateMap(join(CASES, 'map.yaml'));
     if (!committed.ok) throw new Error(JSON.stringify(committed.errors));
     const fresh = await scanCases();

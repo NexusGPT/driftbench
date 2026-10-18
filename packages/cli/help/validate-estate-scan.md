@@ -31,7 +31,7 @@ Four commands turn an estate folder into an approved map of atoms, the input of 
 * `estate map <map> --to <file>` writes a space map of the situation axes and the approved axis atoms, for
   `driftbench space` and for `estate plan --space`.
 
-An atom id is `kind.scope.slug`, such as `gate.standing.read-a-file-before-editing-it`. Each atom carries its
+An atom id is `kind.scope.slug`, such as `instruction.standing.r3-read-a-file-before-you`. Each atom carries its
 file, line span, quote and a SHA-256 hash of them; the loader recomputes every hash, so a map whose quote or
 span was edited by hand is refused. `approved` and `role` (`axis` or `detail`) may be edited by hand.
 
@@ -139,7 +139,7 @@ The labelers are named by the class the judges use (topic `judging-default-judge
 | Class | What it is | Clients |
 |---|---|---|
 | `system1` | a model that answers with probabilities: a choice among the labels for each unit, or a yes or no question per label, batched in one request per window | `openai-decisions[:model]`, the public example; the Nexus platform client, on the [Nexus adapter page](../adapters/nexus.md); `http:<url>`; `module:<path>` |
-| `system2` | a chat model that reads the numbered window and answers one label per unit; each window is asked three times and a unit takes a label only when all three runs agree, else it stays unlabeled | `anthropic[:model]`, default model `claude-haiku-5-5`; `http:<url>`; `module:<path>` |
+| `system2` | a chat model that reads the numbered window and answers one label per unit; each window is asked three times and a unit takes the label that two of the three runs give, else it stays unlabeled | `anthropic[:model]`, default model `claude-haiku-5-5`; `http:<url>`; `module:<path>` |
 
 The default is a stack of both, a system 1 labeler and a system 2 labeler. System 1 decides a unit alone when its
 likeliest label leads the second by `--labeler-margin-cut`. System 2 decides the rest. Either class runs alone
@@ -306,7 +306,7 @@ Wrote map.yaml: 125 atoms (68 read by code and approved, 57 split from prose by 
   Refused: none.
   Skipped 2 atoms code had already read:
     CLAUDE.md: atom #5 (gate: Read the matching rules before editing an invoice) repeats gate.standing.read-claude-skills-invoice-reconcile-references
-    CLAUDE.md: atom #14 (gate: Read git status before committing) repeats gate.standing.read-git-status-before-commit-to
+    CLAUDE.md: atom #14 (gate: Read git status before committing) repeats instruction.standing.r14-do-not-commit-to-git
   Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
   Unenforced: 54 of 61 rules have no guard.
@@ -325,7 +325,7 @@ map.yaml: estate at examples/estates/fixture, 125 atoms.
 map.yaml: 57 of 125 atoms wait for approval.
   instruction: 43
     instruction.standing.never-send-a-supplier-email-without  CLAUDE.md:10  "Never send an email to a supplier without showing the ful..."
-    instruction.standing.never-delete-a-ledger-file-archive  CLAUDE.md:12  "Never delete a file under `ledger/`; move it to `ledger/a..."
+    instruction.standing.r4-never-delete-a-file-under  CLAUDE.md:12  "Never delete a file under `ledger/`; move it to `ledger/a..."
 Approve a kind with --kind <kind>, an atom with --atom <id>, or every atom with --all.
 Approved 10 atoms in map.yaml; 0 were already approved.
 Approved 47 atoms in approved.yaml; 78 were already approved.

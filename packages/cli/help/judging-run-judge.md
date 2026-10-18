@@ -157,7 +157,7 @@ $ tsx packages/cli/src/bin.ts estate run examples/estates/fixture/generated/spec
 note: the estate copy is not pinned to a map hash; pass --map to pin it
 ✗ estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public  (0.0015 USD)
     failing: block 0: subagents.route-planner, block 0: judge.instruction.route-planner.no-delivery-planned-on-a-public
-    judged instruction.route-planner.no-delivery-planned-on-a-public: fail
+    judged instruction.route-planner.never-put-more-than-the-van: fail
 1 spec run live on a stand-in: 0 pass, 1 fail. Cost 0.0015 USD over 1 run that report one, judge claude:haiku 0.0015 USD of it. Campaign estate-run-ea9630d6c6e7.
 (exit 1)
 ```

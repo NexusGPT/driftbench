@@ -47,5 +47,5 @@ pnpm driftbench estate impact examples/estates/fixture-v2/maintain/diff.json \
 ```
 
 The JSON files are then formatted by the repository's formatter; the tests compare them as data. With
-`--write`, impact writes `retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed` into
+`--write`, impact writes `retired: atom instruction.standing.r12-when-r2-applies-and-the removed` into
 `tests/unsent-draft.yaml`; the committed tests are left as the first version wrote them.

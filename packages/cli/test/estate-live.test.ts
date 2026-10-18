@@ -16,8 +16,8 @@ vi.setConfig({ testTimeout: 60_000 });
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const FIXTURE = join(ROOT, 'examples/estates/fixture');
 const MAP = join(FIXTURE, 'approved.yaml');
-const R3 = 'gate.standing.read-a-file-before-editing-it';
-const R7 = 'instruction.standing.tell-the-user-about-a-late';
+const R3 = 'instruction.standing.r3-read-a-file-before-you';
+const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
 
 async function run(argv: string[], cwd = ROOT) {
   const output = { out: '', err: '' };
@@ -564,7 +564,7 @@ const HOLIDAY = join(
 );
 const OTHER = join(
   LIVE,
-  specNaming('obligation', 'instruction.weekly-report.fill-the-report-sections-in-the'),
+  specNaming('obligation', 'instruction.weekly-report.fill-the-template-in-this-order'),
 );
 
 type JudgedJson = Omit<RunJson, 'runs'> & {
@@ -590,7 +590,7 @@ describe('judged criteria in estate run', () => {
     expect(json.judge).toBe('claude:haiku');
     const [holiday, other] = json.runs;
     expect(holiday?.judged).toEqual([
-      { criterion: 'instruction.route-planner.no-delivery-planned-on-a-public', outcome: 'fail' },
+      { criterion: 'instruction.route-planner.never-put-more-than-the-van', outcome: 'fail' },
     ]);
     expect(holiday?.pass).toBe(false);
     expect(holiday?.failing.some((entry) => entry.includes('judge.instruction.route-planner'))).toBe(true);

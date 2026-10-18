@@ -505,7 +505,7 @@ describe('the fixture-v2 outputs', () => {
     expect(written.code).toBe(1);
     const retired = await readFile(join(root, 'tests', 'unsent-draft.yaml'), 'utf8');
     expect(retired).toContain(
-      '  retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed\n',
+      '  retired: atom instruction.standing.r12-when-r2-applies-and-the removed\n',
     );
     for (const name of ['supplier-yes', 'draft-pair', 'late-shipment']) {
       expect(await readFile(join(root, 'tests', `${name}.yaml`), 'utf8')).toBe(

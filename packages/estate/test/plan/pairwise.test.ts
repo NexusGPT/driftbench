@@ -42,14 +42,17 @@ describe('pairwise cells over the situation axes', () => {
 
   it('carries a constraint on one target atom, and drops one that names atoms of two kinds', async () => {
     const space = await fixtureSpace();
-    const atom = 'instruction.standing.never-force-push';
+    const atom = 'instruction.standing.r6-never-run-git-push-force';
     const constrained: SpaceMap = {
       ...space,
       constraints: [
         ...space.constraints,
         { forbid: { 'atoms.instruction': atom, deviation: 'none' }, reason: 'test' },
         {
-          forbid: { 'atoms.instruction': atom, 'atoms.gate': 'gate.standing.read-a-file-before-editing-it' },
+          forbid: {
+            'atoms.instruction': atom,
+            'atoms.gate': 'instruction.standing.r3-read-a-file-before-you',
+          },
           reason: 'two kinds',
         },
       ],

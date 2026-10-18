@@ -3,7 +3,7 @@
 # every row approved but one struck. The summary counts the rows below; no covering array was computed.
 # Fictional data only.
 version: 1
-mapHash: e48ea73788c2fb36e8def0b10b39a3551139beb107f54959237f272c2aa7ba41
+mapHash: 42a937ef55f1587407513d5d633726502fd42058c1211c576c74356860b1a117
 rows:
   - id: p01
     atomIds:
@@ -21,7 +21,7 @@ rows:
     weight: 1
   - id: p02
     atomIds:
-      - gate.standing.read-a-file-before-editing-it
+      - instruction.standing.r3-read-a-file-before-you
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -35,7 +35,7 @@ rows:
     weight: 1
   - id: p03
     atomIds:
-      - instruction.weekly-report.save-the-report-by-week-and
+      - instruction.weekly-report.save-the-report-as-reports-year
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -119,7 +119,7 @@ rows:
     weight: 1
   - id: p09
     atomIds:
-      - instruction.standing.tell-the-user-about-a-late
+      - instruction.standing.r7-when-a-shipment-is-late
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -133,7 +133,7 @@ rows:
     weight: 1
   - id: p10
     atomIds:
-      - instruction.standing.tell-the-user-about-a-late
+      - instruction.standing.r7-when-a-shipment-is-late
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -147,7 +147,7 @@ rows:
     weight: 1
   - id: p11
     atomIds:
-      - instruction.standing.tell-the-user-about-a-late
+      - instruction.standing.r7-when-a-shipment-is-late
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -175,7 +175,7 @@ rows:
     weight: 1
   - id: p13
     atomIds:
-      - gate.standing.read-a-file-before-editing-it
+      - instruction.standing.r3-read-a-file-before-you
     cell:
       ask_class: operate
       ask_shape: prescribed
@@ -232,7 +232,7 @@ rows:
   - id: p17
     atomIds:
       - subagent.ledger-auditor.helper-ledger-auditor
-      - instruction.ledger-auditor.the-auditor-never-edits-a-file
+      - instruction.ledger-auditor.you-never-edit-a-file-you
     cell:
       ask_class: operate
       ask_shape: concrete
@@ -400,7 +400,7 @@ rows:
     weight: 1
   - id: p29
     atomIds:
-      - register.standing.never-use-obviously-or-simply
+      - register.standing.never-use-the-words-obviously-or
     cell:
       ask_class: chat
       ask_shape: concrete
@@ -414,7 +414,7 @@ rows:
     weight: 1
   - id: p30
     atomIds:
-      - register.standing.replies-under-1-200-characters
+      - register.standing.keep-every-reply-under-1-200
     cell:
       ask_class: chat
       ask_shape: concrete
@@ -428,8 +428,8 @@ rows:
     weight: 1
   - id: p31
     atomIds:
-      - instruction.standing.after-a-compaction-re-read-the
-      - hazard.standing.recover-from-a-compaction-of-the
+      - hazard.standing.r15-after-a-compaction-re-read
+      - hazard.standing.r15-after-a-compaction-re-read
     cell:
       ask_class: build
       ask_shape: concrete
@@ -459,7 +459,7 @@ rows:
     atomIds:
       - route.standing.an-ask-to-prepare-the-weekly
       - skill.weekly-report.skill-weekly-report
-      - gate.weekly-report.read-templates-report-md-before-writing
+      - gate.weekly-report.read-templates-report-md-before-before
       - reference.weekly-report.read-templates-report-md
     cell:
       ask_class: build
@@ -489,7 +489,7 @@ rows:
     weight: 1
   - id: p35
     atomIds:
-      - register.standing.answer-in-the-language-of-the
+      - register.standing.r1-always-answer-in-the-language
     cell:
       ask_class: chat
       ask_shape: concrete
@@ -503,7 +503,7 @@ rows:
     weight: 1
   - id: p36
     atomIds:
-      - gate.standing.never-report-done-before-verify-passed
+      - instruction.standing.a-tracker-note-may-be-written
     cell:
       ask_class: operate
       ask_shape: concrete

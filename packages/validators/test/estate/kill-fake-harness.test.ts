@@ -30,14 +30,14 @@ async function specNaming(testType: string, atom: string): Promise<string> {
 
 describe('the fake runtime as the kill.fake family runs it', { timeout: 120_000 }, () => {
   it('runs a spec that starts from a session state, with the fixture state library', async () => {
-    const spec = await specNaming('hazard_recovery', 'hazard.standing.recover-from-a-compaction-of-the');
+    const spec = await specNaming('hazard_recovery', 'hazard.standing.r15-after-a-compaction-re-read');
     const run = [...runOnFakeDetailed(FIXTURE, [spec], join(await scratch(), 'runs.db'), MAP).values()][0];
     expect(run?.failing.join('\n')).not.toContain('no operation in the state library');
     expect(run).toMatchObject({ completed: true, pass: true, failing: [] });
   });
 
   it('decides a judged criterion with the stand-in judge instead of leaving it inconclusive', async () => {
-    const spec = await specNaming('obligation', 'instruction.inbox-triager.a-message-that-fits-no-folder');
+    const spec = await specNaming('obligation', 'instruction.inbox-triager.you-sort-messages-into-three-folders');
     const run = [...runOnFakeDetailed(FIXTURE, [spec], join(await scratch(), 'runs.db'), MAP).values()][0];
     expect(run?.failing.join('\n')).not.toContain('inconclusive');
     expect(run).toMatchObject({ completed: true, pass: true });

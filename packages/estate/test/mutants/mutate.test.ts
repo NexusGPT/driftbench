@@ -19,8 +19,8 @@ import {
 /** Estate mutants on a copy of the fictional Northwind fixture. */
 
 const FIXTURE = fileURLToPath(new URL('../../../../examples/estates/fixture/', import.meta.url));
-const R3 = 'gate.standing.read-a-file-before-editing-it';
-const R7 = 'instruction.standing.tell-the-user-about-a-late';
+const R3 = 'instruction.standing.r3-read-a-file-before-you';
+const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
 const WEBFETCH = 'tool.settings.deny-webfetch';
 
 let map: EstateMap;
@@ -67,7 +67,7 @@ describe('mutateEstate', () => {
     expect(result.map.atoms).toHaveLength(map.atoms.length - 1);
     expect(result.map.edges.some((edge) => edge.from === R3 || edge.to === R3)).toBe(false);
     const r4 = result.map.atoms.find(
-      (atom) => atom.id === 'instruction.standing.never-delete-a-ledger-file-archive',
+      (atom) => atom.id === 'instruction.standing.r4-never-delete-a-file-under',
     );
     expect(r4?.provenance.startLine).toBe(11);
     expect(result.collateral).toEqual([]);
@@ -185,7 +185,9 @@ describe('a delete in a JSON file, structurally', () => {
     );
     expect(existsSync(join(root, script))).toBe(false);
     expect(result.removed).toEqual([script]);
-    expect(result.collateral).toEqual(['instruction.invoice-reconcile.run-the-reconcile-script-and-show']);
+    expect(result.collateral).toEqual([
+      'instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice',
+    ]);
   });
 
   it('deletes a settings guard by its whole entry, and an environment key by its member', async () => {

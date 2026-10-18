@@ -138,61 +138,61 @@ Wrote _captures/docs3/estate/map.yaml: 122 atoms (68 read by code and approved, 
   Refused: none.
   Skipped 2 atoms code had already read:
     CLAUDE.md: atom #5 (gate: Read the matching rules before editing an invoice) repeats gate.standing.read-claude-skills-invoice-reconcile-references
-    CLAUDE.md: atom #14 (gate: Read git status before committing) repeats gate.standing.read-git-status-before-commit-to
+    CLAUDE.md: atom #14 (gate: Read git status before committing) repeats instruction.standing.r14-do-not-commit-to-git
   Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
   Unenforced: 51 of 58 rules have no guard.
-    gate.standing.read-git-status-before-commit-to
+    instruction.standing.r14-do-not-commit-to-git
     gate.invoice-reconcile.read-references-matching-rules-md-before
-    gate.weekly-report.read-templates-report-md-before-writing
-    register.standing.answer-in-the-language-of-the
+    gate.weekly-report.read-templates-report-md-before-before
+    register.standing.r1-always-answer-in-the-language
     instruction.standing.never-send-a-supplier-email-without
-    instruction.standing.tell-the-user-about-a-late
-    instruction.standing.never-invent-order-numbers-prices-or
-    register.standing.at-most-one-question-per-reply
-    instruction.standing.never-paste-a-credential-into-a
-    instruction.standing.keep-an-unconfirmed-draft-unsent
-    gate.standing.write-a-helper-s-brief-before
-    instruction.standing.after-a-compaction-re-read-the
-    instruction.standing.after-two-failures-of-a-tool
-    instruction.standing.report-only-numbers-read-during-the
-    gate.standing.never-report-done-before-verify-passed
-    register.standing.lead-with-the-result
-    register.standing.bullets-for-three-or-more-parallel
-    register.standing.never-use-obviously-or-simply
-    register.standing.currency-code-after-the-amount
-    instruction.standing.read-the-memory-index-at-the
-    instruction.inbox-triager.a-message-that-fits-no-folder
-    instruction.inbox-triager.the-triager-never-answers-or-deletes
-    instruction.ledger-auditor.the-auditor-never-edits-a-file
-    instruction.ledger-auditor.a-brief-missing-a-number-gets
-    instruction.ledger-auditor.look-for-double-payments-and-unapplied
-    register.ledger-auditor.the-auditor-answers-with-one-json
-    instruction.route-planner.never-load-a-route-over-the
-    instruction.route-planner.no-delivery-planned-on-a-public
-    register.route-planner.the-plan-is-a-table-of
-    instruction.memory-memory.the-weekly-report-is-due-monday
-    instruction.memory-memory.no-delivery-on-a-public-holiday
+    instruction.standing.r7-when-a-shipment-is-late
+    instruction.standing.r8-do-not-invent-order-numbers
+    instruction.standing.r9-ask-at-most-one-question
+    instruction.standing.r11-never-paste-the-contents-of
+    instruction.standing.r12-when-r2-applies-and-the
+    instruction.standing.r13-before-you-dispatch-a-helper
+    hazard.standing.r15-after-a-compaction-re-read
+    instruction.standing.r16-if-a-tool-fails-twice
+    instruction.standing.r17-report-a-number-only-when
+    instruction.standing.a-tracker-note-may-be-written
+    register.standing.lead-with-the-result-in-the
+    register.standing.use-a-bullet-list-for-three
+    register.standing.never-use-the-words-obviously-or
+    register.standing.write-amounts-with-the-currency-code
+    gate.standing.read-claude-memory-memory-md-before
+    instruction.inbox-triager.you-sort-messages-into-three-folders
+    instruction.inbox-triager.never-answer-a-message-yourself-and
+    instruction.ledger-auditor.you-never-edit-a-file-you
+    instruction.ledger-auditor.when-either-is-missing-answer-with
+    instruction.ledger-auditor.look-for-the-same-invoice-number
+    register.ledger-auditor.answer-with-one-json-object-and
+    instruction.route-planner.never-put-more-than-the-van
+    instruction.route-planner.never-put-more-than-the-van
+    register.route-planner.answer-with-a-table-van-stops
+    instruction.memory-memory.the-operations-team-wants-the-weekly
+    instruction.memory-memory.never-schedule-a-delivery-on-a
     instruction.memory-supplier-languages.write-to-each-supplier-in-its
-    instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
-    instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
-    instruction.invoice-reconcile.run-the-reconcile-script-and-show
-    instruction.invoice-reconcile.never-change-an-invoice-amount-report
-    instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
-    register.invoice-reconcile.one-closing-line-per-invoice
+    instruction.memory-supplier-languages.when-a-supplier-is-not-in
+    gate.invoice-reconcile.read-references-currency-table-md-before
+    instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
+    instruction.invoice-reconcile.never-change-an-amount-on-an
+    instruction.invoice-reconcile.when-the-total-difference-is-above
+    register.invoice-reconcile.end-with-one-line-per-invoice
     instruction.shipment-tracker.ask-for-the-tracking-number-when
     instruction.shipment-tracker.late-means-past-the-promised-date
-    instruction.shipment-tracker.on-a-carrier-error-say-so
-    instruction.shipment-tracker.never-guess-a-shipment-status
-    instruction.supplier-email.write-in-the-supplier-s-language
-    instruction.supplier-email.a-draft-has-a-subject-a
-    instruction.supplier-email.a-draft-stays-under-120-words
-    gate.supplier-email.show-the-draft-and-get-an
-    instruction.supplier-email.a-loose-yes-is-not-a
-    instruction.supplier-email.no-price-or-date-in-a
-    instruction.weekly-report.fill-the-report-sections-in-the
-    instruction.weekly-report.count-only-the-last-seven-days
-    instruction.weekly-report.save-the-report-by-week-and
+    instruction.shipment-tracker.when-the-carrier-answers-with-an
+    instruction.shipment-tracker.when-the-carrier-answers-with-an
+    gate.supplier-email.read-claude-memory-supplier-languages-md
+    register.supplier-email.every-draft-has-a-subject-with
+    register.supplier-email.every-draft-has-a-subject-with
+    instruction.supplier-email.show-the-full-draft-and-wait
+    instruction.supplier-email.show-the-full-draft-and-wait
+    instruction.supplier-email.never-copy-a-price-or-a
+    instruction.weekly-report.fill-the-template-in-this-order
+    instruction.weekly-report.count-only-what-the-ledger-and
+    instruction.weekly-report.save-the-report-as-reports-year
 Next: driftbench estate lint _captures/docs3/estate/map.yaml; driftbench estate approve _captures/docs3/estate/map.yaml --kind instruction
 ```
 
@@ -226,9 +226,9 @@ Wrote _captures/docs3/estate/map-nomodel.yaml: 69 atoms (69 read by code and app
   Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
   Unenforced: 3 of 4 rules have no guard.
-    gate.standing.read-git-status-before-commit-to
+    instruction.standing.r14-do-not-commit-to-git
     gate.invoice-reconcile.read-references-matching-rules-md-before
-    gate.weekly-report.read-templates-report-md-before-writing
+    gate.weekly-report.read-templates-report-md-before-before
 Next: driftbench estate lint _captures/docs3/estate/map-nomodel.yaml; driftbench estate approve _captures/docs3/estate/map-nomodel.yaml --kind instruction
 ```
 
@@ -252,7 +252,7 @@ driftbench estate scan <root> --out map.yaml --pointer --cassette pointer-casset
 
 * **Units.** A unit is a sentence, a list item, a table cell, a paragraph of a block quote, a heading or a value of the front matter. A fence or a comment is opaque: it is never sent, so no label can point at it. Sentences are cut from the text with the inline code, the links and the emphasis marks masked, and the cutter joins when it is unsure, so a wrong cut costs a coarser unit and never a wrong quote.
 * **Label sets.** A label set is a named list of labels, each with a description, up to three examples, an optional `target: required` for a label that links two units, and optional `spans` and `links` (clauses of one unit by character offsets, each an exact slice of the file, and links to atoms the request lists; the labeler writes no text), an optional `atom` mapping that says which kind of atom a unit with that label becomes, and an optional `condition: true` (with `target: required`, and no `atom`) for a label whose unit states when its target applies: the text of that unit becomes the `situation` of the target's atom. The shipped set `agent-rules` (rule, prohibition, gate, reply rule, example, description) is data in the same format as a set of your own, given with `--labels`. The words of the request come from the set, not from the code, so the same code labels a style guide for a bakery.
-* **Two classes of labeler.** The labelers are named by the class the judges use ([judges](concepts/judges.md)). A `system1` labeler is a model that answers with probabilities: a choice among the labels, or a yes or no question per label. A `system2` labeler is a chat model that reads the numbered window and answers a label per unit. A chat model cannot be pinned to one answer, so each window is asked three times: a unit takes a label only when all three runs give it the same label (and the same target). A unit the runs split on, or that a run leaves out, stays unlabeled, and the report counts it. The default is a stack of both: system 1 decides a unit alone when its likeliest label leads the second by the margin cut (`--labeler-margin-cut`, default 0.65), and system 2 decides the rest. Either runs alone with one `--labeler <class>:<client>`. The public system 1 example is the OpenAI Decisions API (`system1:openai-decisions:<model>`); the Nexus platform client is on the [Nexus adapter page](adapters/nexus.md).
+* **Two classes of labeler.** The labelers are named by the class the judges use ([judges](concepts/judges.md)). A `system1` labeler is a model that answers with probabilities: a choice among the labels, or a yes or no question per label. A `system2` labeler is a chat model that reads the numbered window and answers a label per unit. A chat model cannot be pinned to one answer, so each window is asked three times: a unit takes the label (and the same target) that two of the three runs give. Unanimity was tried first and dropped units the model reads two ways run after run (a prohibition or a plain rule; a gate or a plain rule): on the Northwind fixture it left 38 of 151 units unlabeled, 3 with the vote. A run that leaves a unit out counts for no label. A unit with no label that two runs share stays unlabeled, and the report counts it. Spans and links are those of the first run that gave the label with any. The default is a stack of both: system 1 decides a unit alone when its likeliest label leads the second by the margin cut (`--labeler-margin-cut`, default 0.65), and system 2 decides the rest. Either runs alone with one `--labeler <class>:<client>`. The public system 1 example is the OpenAI Decisions API (`system1:openai-decisions:<model>`); the Nexus platform client is on the [Nexus adapter page](adapters/nexus.md).
 * **A labeler of your own.** `--labeler system2:http:<url>` or `--labeler system1:module:<path>` puts your endpoint or your module behind the same port. Its answers are recorded and replayed like the others, and its id is part of every cassette key.
 * **The cassette.** Every answer is recorded with the hash of the whole request as its key, so a scan without `--record` needs no key and no network, and a changed prompt, set (labels, atom mappings and conditions included), model, labeler, cut or run misses and names the field that differs. The models cannot be pinned to one answer, so the cassette is where the scan is deterministic. It holds file names, hashes and answers, never the text of a unit. `--record` appends each answer as it arrives, so a run that stops keeps what it paid for.
 * **The ledger.** Each unit has an id, derived once from its file and its text and then kept in the ledger as the file changes: the ledger follows a unit that is edited, moved, split or merged, and says when it is gone. `--ledger-check` fails when a file changed and the committed ledger did not. A label stays with its unit only while the set and the labelers that made it are the same.
@@ -1107,7 +1107,7 @@ Added:
   + instruction.standing.name-the-finance-lead-on-a (instruction) CLAUDE.md:26
   + instruction.standing.keep-a-credit-note-as-a (instruction) CLAUDE.md:27
 Removed:
-  - instruction.standing.keep-an-unconfirmed-draft-unsent (instruction) CLAUDE.md:20
+  - instruction.standing.r12-when-r2-applies-and-the (instruction) CLAUDE.md:20
 Changed, white space only:
   ~ instruction.standing.never-send-a-supplier-email-without (instruction) CLAUDE.md:10-11
 Changed, semantic:
@@ -1115,7 +1115,7 @@ Changed, semantic:
       was: | plan the delivery routes for tomorrow | the `route-planner` agent |
       now: | plan the delivery routes for the next two days | the `route-planner` agent |
       also: title, situation, fields
-  ~ instruction.standing.tell-the-user-about-a-late (instruction) CLAUDE.md:16
+  ~ instruction.standing.r7-when-a-shipment-is-late (instruction) CLAUDE.md:16
       was: When a shipment is late by more than two days, tell the user and propose a supplier email.
       now: When a shipment is late by more than one day, tell the user and propose a supplier email.
       also: situation
@@ -1129,27 +1129,27 @@ Moved, same quote:
   > route.standing.an-ask-to-prepare-the-weekly CLAUDE.md:34 to 36
   > route.standing.an-ask-to-audit-the-ledger CLAUDE.md:35 to 37
   > gate.standing.read-claude-skills-invoice-reconcile-references CLAUDE.md:13 to 14
-  > hazard.standing.recover-from-a-new-session CLAUDE.md:50 to 52
-  > gate.standing.read-a-file-before-editing-it CLAUDE.md:11 to 12
-  > instruction.standing.never-delete-a-ledger-file-archive CLAUDE.md:12 to 13
-  > instruction.standing.never-force-push CLAUDE.md:14 to 15
-  > instruction.standing.never-invent-order-numbers-prices-or CLAUDE.md:16 to 17
-  > register.standing.at-most-one-question-per-reply CLAUDE.md:17 to 18
-  > instruction.standing.on-stop-stop-all-work-and CLAUDE.md:18 to 19
-  > instruction.standing.never-paste-a-credential-into-a CLAUDE.md:19 to 20
-  > gate.standing.never-report-done-before-verify-passed CLAUDE.md:41 to 43
-  > register.standing.replies-under-1-200-characters CLAUDE.md:45 to 47
-  > register.standing.lead-with-the-result CLAUDE.md:46 to 48
-  > register.standing.bullets-for-three-or-more-parallel CLAUDE.md:47 to 49
-  > register.standing.never-use-obviously-or-simply CLAUDE.md:48 to 50
-  > register.standing.currency-code-after-the-amount CLAUDE.md:49 to 51
-  > instruction.standing.read-the-memory-index-at-the CLAUDE.md:50 to 52
+  > gate.standing.read-claude-memory-memory-md-before CLAUDE.md:50 to 52
+  > instruction.standing.r3-read-a-file-before-you CLAUDE.md:11 to 12
+  > instruction.standing.r4-never-delete-a-file-under CLAUDE.md:12 to 13
+  > instruction.standing.r6-never-run-git-push-force CLAUDE.md:14 to 15
+  > instruction.standing.r8-do-not-invent-order-numbers CLAUDE.md:16 to 17
+  > instruction.standing.r9-ask-at-most-one-question CLAUDE.md:17 to 18
+  > instruction.standing.r10-when-the-user-says-stop CLAUDE.md:18 to 19
+  > instruction.standing.r11-never-paste-the-contents-of CLAUDE.md:19 to 20
+  > instruction.standing.a-tracker-note-may-be-written CLAUDE.md:41 to 43
+  > register.standing.keep-every-reply-under-1-200 CLAUDE.md:45 to 47
+  > register.standing.lead-with-the-result-in-the CLAUDE.md:46 to 48
+  > register.standing.use-a-bullet-list-for-three CLAUDE.md:47 to 49
+  > register.standing.never-use-the-words-obviously-or CLAUDE.md:48 to 50
+  > register.standing.write-amounts-with-the-currency-code CLAUDE.md:49 to 51
+  > gate.standing.read-claude-memory-memory-md-before CLAUDE.md:50 to 52
 Restated, same quote:
   * invariant.standing.the-standing-instructions-stay-under-40000: fields
 Edges added:
   + instruction.standing.keep-a-credit-note-as-a cites instruction.standing.name-the-finance-lead-on-a
 Edges removed:
-  - instruction.standing.keep-an-unconfirmed-draft-unsent cites instruction.standing.never-send-a-supplier-email-without
+  - instruction.standing.r12-when-r2-applies-and-the cites instruction.standing.never-send-a-supplier-email-without
 Wrote _captures/docs3/estate/diff.json.
 ```
 
@@ -1200,17 +1200,17 @@ $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests exam
 Impact of the estate diff ab256ba636f4 to 48cac5d0c4c3 on 8 live estate tests (0 retired before, 0 other specs).
   Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 24 atoms moved with the same quote.
 Regenerate:
-  northwind-draft-pair (draft-pair.yaml): instruction.standing.keep-an-unconfirmed-draft-unsent removed
-  northwind-late-shipment (late-shipment.yaml): instruction.standing.tell-the-user-about-a-late semantic
+  northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the removed
+  northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
 Re-approve, the meaning changed:
   route.standing.an-ask-to-plan-the-delivery (route): | plan the delivery routes for the next two days | the `route-planner` agent |
       tests: northwind-route-planner
-  instruction.standing.tell-the-user-about-a-late (instruction): When a shipment is late by more than one day, tell the user and propose a supplier email.
+  instruction.standing.r7-when-a-shipment-is-late (instruction): When a shipment is late by more than one day, tell the user and propose a supplier email.
       tests: northwind-late-shipment
 Retire:
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed [to write with --write]
+  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [to write with --write]
 New atoms with no test:
   instruction.standing.name-the-finance-lead-on-a (instruction) CLAUDE.md:26
   instruction.standing.keep-a-credit-note-as-a (instruction) CLAUDE.md:27
@@ -1218,7 +1218,7 @@ Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
 Needs a person: 4.
   - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
-  - re-approve instruction.standing.tell-the-user-about-a-late: its meaning changed; 1 test waits
+  - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
   - approve the tests of the new atom instruction.standing.name-the-finance-lead-on-a: no test covers it yet
   - approve the tests of the new atom instruction.standing.keep-a-credit-note-as-a: no test covers it yet
 ```
@@ -1228,13 +1228,13 @@ It exits 1 for the four items. `--write` writes each retirement reason into its 
 ```
 $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests _captures/docs3/estate/v2-tests --write
 Impact of the estate diff ab256ba636f4 to 48cac5d0c4c3 on 8 live estate tests (0 retired before, 0 other specs).
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed [written]
+  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [written]
 $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests _captures/docs3/estate/v2-tests --write
 Impact of the estate diff ab256ba636f4 to 48cac5d0c4c3 on 7 live estate tests (1 retired before, 0 other specs).
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed [already written]
+  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [already written]
 ```
 
-The spec then holds `retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed` under `metadata`.
+The spec then holds `retired: atom instruction.standing.r12-when-r2-applies-and-the removed` under `metadata`.
 
 ### Regression: replay over the corpus
 

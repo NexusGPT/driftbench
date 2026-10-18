@@ -93,7 +93,7 @@ describe('driftbench estate plan', () => {
     expect(summary.tuples.covered).toBe(summary.tuples.allowed);
     const parsed = parsePlanText(await readFile(join(root, 'focused.yaml'), 'utf8'));
     if (!parsed.ok) throw new Error('invalid focused plan');
-    const gate = 'gate.standing.read-git-status-before-commit-to';
+    const gate = 'instruction.standing.r14-do-not-commit-to-git';
     const own = parsed.plan.rows.filter((row) => row.id.startsWith('pairwise.') && row.atomIds[0] === gate);
     expect(own.length).toBeGreaterThan(0);
     expect(own.some((row) => row.cell.deviation === 'D5_language_switch')).toBe(false);
@@ -111,7 +111,7 @@ describe('driftbench estate plan', () => {
     await writeFile(
       join(root, 'bad.yaml'),
       space.replace(
-        '- { id: gate.standing.read-git-status-before-commit-to',
+        '- { id: instruction.standing.r14-do-not-commit-to-git',
         '- { id: gate.standing.not-in-the-map',
       ),
     );

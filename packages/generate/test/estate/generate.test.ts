@@ -172,7 +172,7 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     const spec = only(byId, 'estate.p30');
     expect(spec.criteria).toEqual([
       {
-        name: 'register.standing.replies-under-1-200-characters',
+        name: 'register.standing.keep-every-reply-under-1-200',
         rubric: 'Replies under 1,200 characters',
         gating: false,
         scope: 'block',
@@ -298,16 +298,16 @@ describe('estate generate on inputs that do not fit together', () => {
     const found = issues((copy) => {
       const row = copy.plan.rows[0];
       if (row) row.atomIds = ['route.nowhere'];
-      const atom = copy.map.atoms.find((entry) => entry.id === 'gate.standing.read-a-file-before-editing-it');
+      const atom = copy.map.atoms.find((entry) => entry.id === 'instruction.standing.r3-read-a-file-before-you');
       if (atom) atom.approved = false;
       const third = copy.plan.rows[2];
       if (third) third.testType = 'vibe_check';
     });
     expect(found).toEqual([
       'plan.rows.0.atomIds.0: route.nowhere is no atom of the map',
-      'plan.rows.1.atomIds.0: gate.standing.read-a-file-before-editing-it is not approved',
+      'plan.rows.1.atomIds.0: instruction.standing.r3-read-a-file-before-you is not approved',
       'plan.rows.2.testType: vibe_check is no test type',
-      'plan.rows.12.atomIds.0: gate.standing.read-a-file-before-editing-it is not approved',
+      'plan.rows.12.atomIds.0: instruction.standing.r3-read-a-file-before-you is not approved',
     ]);
   });
 
@@ -404,7 +404,7 @@ describe('estate generate on inputs that do not fit together', () => {
 
   it('finds no situation whose pinned cell value disagrees with the row', () => {
     const stop = {
-      atomIds: ['instruction.standing.on-stop-stop-all-work-and'],
+      atomIds: ['instruction.standing.r10-when-the-user-says-stop'],
       cell: { owner_signal: 'go' },
     };
     expect(findSituation(input.bank, 'trigger', stop)).toBeUndefined();
@@ -525,7 +525,7 @@ describe('domain predicates judged from the rule own words', () => {
       for (const name of names) expect(spec.blocks[0]?.expect?.criteria, record.id).toContain(name);
     }
     const holiday = judged.find((record) =>
-      record.judged.includes('instruction.route-planner.no-delivery-planned-on-a-public'),
+      record.judged.includes('instruction.route-planner.never-put-more-than-the-van'),
     );
     const rubric = only(all, holiday?.id ?? '').criteria?.[0]?.rubric;
     expect(rubric).toContain('"Never plan a delivery on a public holiday in the receiving country."');
@@ -610,9 +610,9 @@ describe('focus atoms get at least five complete specs, each with its own ask or
     'reference.invoice-reconcile.read-references-matching-rules-md',
     'script.invoice-reconcile.script-scripts-reconcile-py',
     'route.standing.an-ask-to-reconcile-an-invoice',
-    'hazard.standing.recover-from-a-compaction-of-the',
+    'hazard.standing.r15-after-a-compaction-re-read',
     'tool.settings.allow-read',
-    'gate.standing.read-a-file-before-editing-it',
+    'instruction.standing.r3-read-a-file-before-you',
     'subagent.route-planner.helper-route-planner',
     'guard.settings.posttooluse-bash-guard-ledger-guard-py',
   ];

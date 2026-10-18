@@ -41,7 +41,7 @@ describe('the estate map file', () => {
     expect(refused.ok ? [] : refused.errors.map((error) => [error.code, error.path])).toEqual([
       [
         'MAP_HASH',
-        `atoms.${(await scanFixture()).map.atoms.findIndex((atom) => atom.id === 'register.standing.at-most-one-question-per-reply')}.provenance`,
+        `atoms.${(await scanFixture()).map.atoms.findIndex((atom) => atom.id === 'instruction.standing.r9-ask-at-most-one-question')}.provenance`,
       ],
     ]);
     const flagged = text.replace(/approved: false/, 'approved: true');
@@ -76,9 +76,9 @@ describe('the estate map file', () => {
     expect(drift.map((issue) => issue.message.split(':')[0])).toEqual([
       'subagent.inbox-triager.helper-inbox-triager',
       'route.inbox-triager.an-ask-that-fits-inbox-triager',
-      'register.standing.at-most-one-question-per-reply',
-      'instruction.inbox-triager.a-message-that-fits-no-folder',
-      'instruction.inbox-triager.the-triager-never-answers-or-deletes',
+      'instruction.standing.r9-ask-at-most-one-question',
+      'instruction.inbox-triager.you-sort-messages-into-three-folders',
+      'instruction.inbox-triager.never-answer-a-message-yourself-and',
     ]);
   });
 });
@@ -100,8 +100,8 @@ describe('approval', () => {
 
   it('approves named atoms, or all, and counts what was already approved', async () => {
     const text = renderEstateMap((await scanFixture()).map);
-    const one = approveAtoms(text, { ids: ['gate.standing.read-a-file-before-editing-it'] });
-    expect(one.ok ? one.approved : []).toEqual(['gate.standing.read-a-file-before-editing-it']);
+    const one = approveAtoms(text, { ids: ['instruction.standing.r3-read-a-file-before-you'] });
+    expect(one.ok ? one.approved : []).toEqual(['instruction.standing.r3-read-a-file-before-you']);
     const all = approveAtoms(one.ok ? one.text : text, { all: true });
     expect(all.ok ? [all.approved.length, all.already] : []).toEqual([56, 70]);
   });

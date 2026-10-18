@@ -1128,9 +1128,9 @@ Wrote _captures/docs3/cli/estate-map.yaml: 69 atoms (69 read by code and approve
   Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
   Unenforced: 3 of 4 rules have no guard.
-    gate.standing.read-git-status-before-commit-to
+    instruction.standing.r14-do-not-commit-to-git
     gate.invoice-reconcile.read-references-matching-rules-md-before
-    gate.weekly-report.read-templates-report-md-before-writing
+    gate.weekly-report.read-templates-report-md-before-before
 Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench estate approve _captures/docs3/cli/estate-map.yaml --kind instruction
 ```
 
@@ -1330,7 +1330,7 @@ $ pnpm driftbench estate run <route_positive and tool_denied specs> --estate exa
     failing: block 0: forbidden.WebFetch
 2 specs run live on a stand-in: 1 pass, 1 fail. Cost 0.0000 USD over 2 runs that report one. Campaign estate-run-76badd446d95.
 (exit 1)
-$ pnpm driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --delete --to <dir>
+$ pnpm driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.r3-read-a-file-before-you --delete --to <dir>
   before: - **R3.** Read a file before you edit it.
   after:  (the line is gone)
   map be2e7a0919cb -> 046d83f242ed

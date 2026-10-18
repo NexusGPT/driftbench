@@ -141,7 +141,7 @@ Added:
   + instruction.standing.name-the-finance-lead-on-a (instruction) CLAUDE.md:26
   + instruction.standing.keep-a-credit-note-as-a (instruction) CLAUDE.md:27
 Removed:
-  - instruction.standing.keep-an-unconfirmed-draft-unsent (instruction) CLAUDE.md:20
+  - instruction.standing.r12-when-r2-applies-and-the (instruction) CLAUDE.md:20
 Changed, white space only:
   ~ instruction.standing.never-send-a-supplier-email-without (instruction) CLAUDE.md:10-11
 Changed, semantic:
@@ -149,7 +149,7 @@ Changed, semantic:
       was: | plan the delivery routes for tomorrow | the `route-planner` agent |
       now: | plan the delivery routes for the next two days | the `route-planner` agent |
       also: title, situation, fields
-  ~ instruction.standing.tell-the-user-about-a-late (instruction) CLAUDE.md:16
+  ~ instruction.standing.r7-when-a-shipment-is-late (instruction) CLAUDE.md:16
       was: When a shipment is late by more than two days, tell the user and propose a supplier email.
       now: When a shipment is late by more than one day, tell the user and propose a supplier email.
       also: situation
@@ -161,7 +161,7 @@ Restated, same quote:
 Edges added:
   + instruction.standing.keep-a-credit-note-as-a cites instruction.standing.name-the-finance-lead-on-a
 Edges removed:
-  - instruction.standing.keep-an-unconfirmed-draft-unsent cites instruction.standing.never-send-a-supplier-email-without
+  - instruction.standing.r12-when-r2-applies-and-the cites instruction.standing.never-send-a-supplier-email-without
 Wrote diff.json.
 ```
 
@@ -171,17 +171,17 @@ The impact:
 Impact of the estate diff be2e7a0919cb to a5c8cb21f4ae on 8 live estate tests (0 retired before, 0 other specs).
   Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 24 atoms moved with the same quote.
 Regenerate:
-  northwind-draft-pair (draft-pair.yaml): instruction.standing.keep-an-unconfirmed-draft-unsent removed
-  northwind-late-shipment (late-shipment.yaml): instruction.standing.tell-the-user-about-a-late semantic
+  northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the removed
+  northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
 Re-approve, the meaning changed:
   route.standing.an-ask-to-plan-the-delivery (route): | plan the delivery routes for the next two days | the `route-planner` agent |
       tests: northwind-route-planner
-  instruction.standing.tell-the-user-about-a-late (instruction): When a shipment is late by more than one day, tell the user and propose a supplier email.
+  instruction.standing.r7-when-a-shipment-is-late (instruction): When a shipment is late by more than one day, tell the user and propose a supplier email.
       tests: northwind-late-shipment
 Retire:
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed [to write with --write]
+  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [to write with --write]
 New atoms with no test:
   instruction.standing.name-the-finance-lead-on-a (instruction) CLAUDE.md:26
   instruction.standing.keep-a-credit-note-as-a (instruction) CLAUDE.md:27
@@ -189,7 +189,7 @@ Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
 Needs a person: 4.
   - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
-  - re-approve instruction.standing.tell-the-user-about-a-late: its meaning changed; 1 test waits
+  - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
   - approve the tests of the new atom instruction.standing.name-the-finance-lead-on-a: no test covers it yet
   - approve the tests of the new atom instruction.standing.keep-a-credit-note-as-a: no test covers it yet
 ```
@@ -229,10 +229,10 @@ The first and the retirement line of each impact, then the line written into the
 
 ```text
 Impact of the estate diff be2e7a0919cb to a5c8cb21f4ae on 8 live estate tests (0 retired before, 0 other specs).
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed [written]
+  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [written]
 Impact of the estate diff be2e7a0919cb to a5c8cb21f4ae on 7 live estate tests (1 retired before, 0 other specs).
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed [already written]
-  retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed
+  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [already written]
+  retired: atom instruction.standing.r12-when-r2-applies-and-the removed
 ```
 
 ## Common errors

@@ -41,9 +41,9 @@ const MANIFEST = join(FIXTURE, 'live/fake/manifest.json');
 const STATES = join(FIXTURE, 'live/states/library.json');
 
 /** The instruction atom the chain follows: mutated in step 6, rewritten in version 2, the radius of step 9. */
-const R7 = 'instruction.standing.tell-the-user-about-a-late';
+const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
 const R2 = 'instruction.standing.never-send-a-supplier-email-without';
-const R12 = 'instruction.standing.keep-an-unconfirmed-draft-unsent';
+const R12 = 'instruction.standing.r12-when-r2-applies-and-the';
 const ROUTE_PLAN = 'route.standing.an-ask-to-plan-the-delivery';
 const LEDGER_GUARD = 'guard.settings.posttooluse-bash-guard-ledger-guard-py';
 const FORCE_PUSH_GUARD = 'guard.settings.pretooluse-bash-guard-block-force-push';

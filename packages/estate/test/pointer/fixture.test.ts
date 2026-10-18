@@ -56,7 +56,7 @@ describe('the fixture through its committed cassettes', () => {
     expect(result.pointer?.failed).toEqual([]);
     // The real labeller sometimes gives a span or a target the check refuses, or a gate with no usable span: counted.
     expect(result.pointer?.refusals).toBeDefined();
-    // A unit is decided, or left unlabeled because system 2 did not give it one label on every run.
+    // A unit is decided, or left unlabeled because no label had two runs out of three.
     expect(result.pointer?.unlabeled).toBeGreaterThan(0);
     expect(result.pointer?.split).toBeGreaterThan(0);
     expect((result.pointer?.decided ?? 0) + (result.pointer?.unlabeled ?? 0)).toBe(

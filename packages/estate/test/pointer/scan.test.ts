@@ -465,17 +465,16 @@ describe('a labeler that answers several times', () => {
     expect(result.unlabeled).toBe(0);
   });
 
-  it('takes a label only when every run gives it', async () => {
-    // The third run of the quay says remark for its first unit.
+  it('takes the label two runs out of three give', async () => {
+    // The third run of the quay says remark for its first unit; the two others say order.
     const result = await duty(
       wavering((call, window) => call === 3 && window.path === 'quay.md'),
       new Cassette(),
     );
-    expect(result.unlabeled).toBe(1);
-    expect(result.split).toBe(1);
+    expect(result.unlabeled).toBe(0);
+    expect(result.voted).toBe(1);
     const quay = result.ledger.entries.filter((entry) => entry.path === 'quay.md');
-    expect(quay.filter((entry) => entry.labels.duty === undefined)).toHaveLength(1);
-    expect(quay.filter((entry) => entry.labels.duty?.label === 'order').length).toBe(quay.length - 1);
+    expect(quay.filter((entry) => entry.labels.duty?.label === 'order')).toHaveLength(quay.length);
   });
 
   it('leaves a unit unlabeled when a run does not name it, and does not call that a split', async () => {
@@ -656,11 +655,11 @@ describe('a vote of two runs out of three for the labels that carry spans', () =
     expect(result.voted).toBeGreaterThan(0);
   });
 
-  it('keeps asking for all three runs when the winning label carries no spans', async () => {
+  it('takes the label two runs out of three give, with or without spans', async () => {
     const result = await go(runs((run, unit) => (coil(unit) ? (run === 3 ? 'order' : 'remark') : 'remark')));
     const entry = result.ledger.entries.find((candidate) => candidate.quote.startsWith('Coil the ropes'));
-    expect(entry?.labels.duty).toBeUndefined();
-    expect(result.split).toBeGreaterThan(0);
+    expect(entry?.labels.duty?.label).toBe('remark');
+    expect(result.voted).toBeGreaterThan(0);
   });
 
   it('counts a run that left the unit out as no vote, so two runs of the label still win', async () => {

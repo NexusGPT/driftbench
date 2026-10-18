@@ -121,11 +121,11 @@ refused, then write two mutants and see the refusals.
 driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/plan.yaml --out suite
 driftbench estate run suite/specs/live/route_positive suite/specs/live/tool_denied --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --store live.db --map examples/estates/fixture/approved.yaml
 driftbench estate run suite/specs/live/route_positive --estate examples/estates/fixture --runtime claude-code --store live2.db # exit 2
-driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --delete --to deleted
-driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.never-force-push --invert --to inverted
-driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --to x # exit 2
+driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.r3-read-a-file-before-you --delete --to deleted
+driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.r6-never-run-git-push-force --invert --to inverted
+driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.r3-read-a-file-before-you --to x # exit 2
 driftbench estate mutate examples/estates/fixture/approved.yaml --atom no.such --delete --to y # exit 2
-driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --delete --to deleted # exit 2
+driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.r3-read-a-file-before-you --delete --to deleted # exit 2
 ```
 
 Output after the generate report:
@@ -136,12 +136,12 @@ Output after the generate report:
 ✓ estate.p24  (0.0000 USD)
 3 specs run live on a stand-in: 3 pass, 0 fail. Cost 0.0000 USD over 3 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-c8ae104f2e8d.
 claude is not a stand-in: a live run of the real runtime is billed. Size it first, then pass --allow-billed.
-Mutant: delete gate.standing.read-a-file-before-editing-it in CLAUDE.md.
+Mutant: delete instruction.standing.r3-read-a-file-before-you in CLAUDE.md.
   before: - **R3.** Read a file before you edit it.
   after:  (the line is gone)
   map be2e7a0919cb -> 046d83f242ed
 Wrote deleted: the estate copy, map.yaml and mutant.json.
-Mutant: invert instruction.standing.never-force-push in CLAUDE.md.
+Mutant: invert instruction.standing.r6-never-run-git-push-force in CLAUDE.md.
   before: - **R6.** Never run `git push --force` on any branch.
   after:  - **R6.** Always run `git push --force` on any branch.
   map be2e7a0919cb -> 7101f74ddcc6

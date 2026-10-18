@@ -69,7 +69,7 @@ describe('the estate plan', () => {
   }, 60_000);
 
   it('leaves unapproved atoms out of the rows and the unenforced list', async () => {
-    const id = 'instruction.standing.tell-the-user-about-a-late';
+    const id = 'instruction.standing.r7-when-a-shipment-is-late';
     const map = edited(await approvedFixture(), (copy) => {
       const atom = copy.atoms.find((candidate) => candidate.id === id);
       if (atom) atom.approved = false;
@@ -119,7 +119,7 @@ describe('the estate plan', () => {
     expect(() => buildPlan(map, { space })).toThrow(PlanInputError);
     const unapproved = edited(map, (copy) => {
       const atom = copy.atoms.find(
-        (candidate) => candidate.id === 'gate.standing.read-git-status-before-commit-to',
+        (candidate) => candidate.id === 'instruction.standing.r14-do-not-commit-to-git',
       );
       if (atom) atom.approved = false;
     });

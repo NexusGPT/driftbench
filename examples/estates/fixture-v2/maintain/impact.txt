@@ -1,24 +1,34 @@
-Impact of the estate diff e48ea73788c2 to c3b526d2ae0c on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 24 atoms moved with the same quote.
+Impact of the estate diff 42a937ef55f1 to 5a85e19fe13a on 8 live estate tests (0 retired before, 0 other specs).
+  Regenerate 5, re-approve 2, retire 2, new 6; 1 test untouched, 22 atoms moved with the same quote.
 Regenerate:
-  northwind-draft-pair (draft-pair.yaml): instruction.standing.keep-an-unconfirmed-draft-unsent removed
-  northwind-late-shipment (late-shipment.yaml): instruction.standing.tell-the-user-about-a-late semantic
-  northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
+  northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the removed
+  northwind-force-push (force-push.yaml): instruction.standing.r6-never-run-git-push-force restated
+  northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
+  northwind-ledger-archive (ledger-archive.yaml): instruction.standing.r4-never-delete-a-file-under restated, guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
 Re-approve, the meaning changed:
   route.standing.an-ask-to-plan-the-delivery (route): | plan the delivery routes for the next two days | the `route-planner` agent |
       tests: northwind-route-planner
-  instruction.standing.tell-the-user-about-a-late (instruction): When a shipment is late by more than one day, tell the user and propose a supplier email.
+  instruction.standing.r7-when-a-shipment-is-late (instruction): **R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.
       tests: northwind-late-shipment
 Retire:
-  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.keep-an-unconfirmed-draft-unsent removed [to write with --write]
+  northwind-stop-word (stop-word.yaml): retired: atom instruction.standing.r10-when-the-user-says-stop removed [to write with --write]
+  northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [to write with --write]
 New atoms with no test:
-  instruction.standing.name-the-finance-lead-on-a (instruction) CLAUDE.md:26
-  instruction.standing.keep-a-credit-note-as-a (instruction) CLAUDE.md:27
+  instruction.route-planner.read-the-open-orders-and-the (instruction) .claude/agents/route-planner.md:11
+  instruction.memory-supplier-languages.write-to-each-supplier-in-the (instruction) .claude/memory/supplier-languages.md:3
+  reference.standing.read-claude-skills-invoice-reconcile-references (reference) CLAUDE.md:14
+  hazard.standing.r10-when-the-user-says-stop (hazard) CLAUDE.md:19
+  instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
+  instruction.standing.r19-when-r18-applies-and-the (instruction) CLAUDE.md:27
 Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
-Needs a person: 4.
+Needs a person: 8.
   - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
-  - re-approve instruction.standing.tell-the-user-about-a-late: its meaning changed; 1 test waits
-  - approve the tests of the new atom instruction.standing.name-the-finance-lead-on-a: no test covers it yet
-  - approve the tests of the new atom instruction.standing.keep-a-credit-note-as-a: no test covers it yet
+  - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
+  - approve the tests of the new atom instruction.route-planner.read-the-open-orders-and-the: no test covers it yet
+  - approve the tests of the new atom instruction.memory-supplier-languages.write-to-each-supplier-in-the: no test covers it yet
+  - approve the tests of the new atom reference.standing.read-claude-skills-invoice-reconcile-references: no test covers it yet
+  - approve the tests of the new atom hazard.standing.r10-when-the-user-says-stop: no test covers it yet
+  - approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet
+  - approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet

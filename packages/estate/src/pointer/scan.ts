@@ -477,24 +477,17 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   }
 
   /**
-   * The opinion of a member for a unit. With several runs, the label every run gave (and the same target). A label
-   * that carries spans or links is taken when a majority of the runs give it, because those runs also say where
-   * its clauses are and a unit with such a label is easy to read two ways; any other disagreement, or a run that
-   * left the unit out where no majority exists, leaves the member without an opinion (a split when runs differ).
-   * Spans and links are those of the first run that gave the label with any; a difference between runs is counted.
+   * The opinion of a member for a unit. With several runs, the label (and the same target) that more than half of
+   * the runs gave: two of three. A run that left the unit out counts for no label. Unanimity dropped units that a
+   * model reads two ways run after run (a prohibition or a plain rule, a read before an edit or a plain rule),
+   * and a label held by two runs out of three is the one a reader would take. Where no label has a majority the
+   * member has no opinion (a split when runs differ). Spans and links are those of the first run that gave the
+   * label with any; a difference between runs is counted.
    */
   let split = 0;
   let spanSplit = 0;
   let voted = 0;
-  const carriesSpans = (set: LabelSet, label: string): boolean => {
-    const found = set.labels.find((candidate) => candidate.name === label);
-    return found?.spans !== undefined || found?.links !== undefined;
-  };
-  const opinionOf = (
-    runs: ReadonlyArray<Map<number, Opinion>>,
-    index: number,
-    set: LabelSet,
-  ): Opinion | undefined => {
+  const opinionOf = (runs: ReadonlyArray<Map<number, Opinion>>, index: number): Opinion | undefined => {
     const given = runs.map((run) => run.get(index));
     const first = given[0];
     if (given.length === 1) return first;
@@ -504,11 +497,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     for (const opinion of present) tally.set(key(opinion), [...(tally.get(key(opinion)) ?? []), opinion]);
     const unanimous = present.length === given.length && tally.size === 1;
     const majority = [...tally.values()].find((group) => group.length * 2 > given.length);
-    const winners = unanimous
-      ? present
-      : majority && carriesSpans(set, majority[0]?.label ?? '')
-        ? majority
-        : undefined;
+    const winners = unanimous ? present : majority;
     if (!winners || !winners[0]) {
       if (present.length === given.length) split++;
       return undefined;
@@ -542,7 +531,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         const entry = entries.get(unitId(file.path, index));
         if (!entry) continue;
         const decision = labelling.decide(
-          byMember.map((runs) => opinionOf(runs, index, set)),
+          byMember.map((runs) => opinionOf(runs, index)),
           set,
         );
         if (!decision) {

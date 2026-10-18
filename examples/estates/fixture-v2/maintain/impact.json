@@ -1,8 +1,8 @@
 {
   "version": 1,
   "diff": {
-    "old": "e48ea73788c2fb36e8def0b10b39a3551139beb107f54959237f272c2aa7ba41",
-    "new": "c3b526d2ae0cb801a71fa4dc7f74fa51c8cbd2213f28793aaf56660f532e28ad"
+    "old": "42a937ef55f1587407513d5d633726502fd42058c1211c576c74356860b1a117",
+    "new": "5a85e19fe13ab5b8907e0d787b422d4bf53eead1ee2a1f47c08ad8df6924baed"
   },
   "tests": {
     "live": 8,
@@ -15,8 +15,18 @@
       "file": "draft-pair.yaml",
       "atoms": [
         {
-          "atom": "instruction.standing.keep-an-unconfirmed-draft-unsent",
+          "atom": "instruction.standing.r12-when-r2-applies-and-the",
           "why": "removed"
+        }
+      ]
+    },
+    {
+      "test": "northwind-force-push",
+      "file": "force-push.yaml",
+      "atoms": [
+        {
+          "atom": "instruction.standing.r6-never-run-git-push-force",
+          "why": "restated"
         }
       ]
     },
@@ -25,7 +35,7 @@
       "file": "late-shipment.yaml",
       "atoms": [
         {
-          "atom": "instruction.standing.tell-the-user-about-a-late",
+          "atom": "instruction.standing.r7-when-a-shipment-is-late",
           "why": "semantic"
         }
       ]
@@ -34,6 +44,10 @@
       "test": "northwind-ledger-archive",
       "file": "ledger-archive.yaml",
       "atoms": [
+        {
+          "atom": "instruction.standing.r4-never-delete-a-file-under",
+          "why": "restated"
+        },
         {
           "atom": "guard.settings.posttooluse-bash-guard-ledger-guard-py",
           "why": "guard_state"
@@ -60,34 +74,69 @@
       "tests": ["northwind-route-planner"]
     },
     {
-      "atom": "instruction.standing.tell-the-user-about-a-late",
+      "atom": "instruction.standing.r7-when-a-shipment-is-late",
       "kind": "instruction",
-      "title": "Tell the user about a late shipment and propose a supplier email",
-      "quote": "When a shipment is late by more than one day, tell the user and propose a supplier email.",
+      "title": "R7. When a shipment is late by more than one day, tell the user and propose a supplier em…",
+      "quote": "**R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.",
       "tests": ["northwind-late-shipment"]
     }
   ],
   "retire": [
     {
+      "test": "northwind-stop-word",
+      "file": "stop-word.yaml",
+      "atoms": ["instruction.standing.r10-when-the-user-says-stop"],
+      "reason": "atom instruction.standing.r10-when-the-user-says-stop removed",
+      "state": "to_write"
+    },
+    {
       "test": "northwind-unsent-draft",
       "file": "unsent-draft.yaml",
-      "atoms": ["instruction.standing.keep-an-unconfirmed-draft-unsent"],
-      "reason": "atom instruction.standing.keep-an-unconfirmed-draft-unsent removed",
+      "atoms": ["instruction.standing.r12-when-r2-applies-and-the"],
+      "reason": "atom instruction.standing.r12-when-r2-applies-and-the removed",
       "state": "to_write"
     }
   ],
   "new": [
     {
-      "atom": "instruction.standing.name-the-finance-lead-on-a",
+      "atom": "instruction.route-planner.read-the-open-orders-and-the",
       "kind": "instruction",
-      "title": "Name the finance lead on a credit note above 500.00 EUR",
+      "title": "Read the open orders and the van table.",
+      "file": ".claude/agents/route-planner.md",
+      "line": 11
+    },
+    {
+      "atom": "instruction.memory-supplier-languages.write-to-each-supplier-in-the",
+      "kind": "instruction",
+      "title": "Write to each supplier in the language it reads.",
+      "file": ".claude/memory/supplier-languages.md",
+      "line": 3
+    },
+    {
+      "atom": "reference.standing.read-claude-skills-invoice-reconcile-references",
+      "kind": "reference",
+      "title": "Read .claude/skills/invoice-reconcile/references/matching-rules.md",
+      "file": "CLAUDE.md",
+      "line": 14
+    },
+    {
+      "atom": "hazard.standing.r10-when-the-user-says-stop",
+      "kind": "hazard",
+      "title": "R10. When the user says \"stop\", stop all work and confirm in one line.",
+      "file": "CLAUDE.md",
+      "line": 19
+    },
+    {
+      "atom": "instruction.standing.r18-never-approve-a-credit-note",
+      "kind": "instruction",
+      "title": "R18. Never approve a credit note above 500.00 EUR without naming the finance lead who agr…",
       "file": "CLAUDE.md",
       "line": 26
     },
     {
-      "atom": "instruction.standing.keep-a-credit-note-as-a",
+      "atom": "instruction.standing.r19-when-r18-applies-and-the",
       "kind": "instruction",
-      "title": "Keep a credit note as a draft until the finance lead answers",
+      "title": "R19. When R18 applies and the finance lead has not answered, keep the credit note as a dr…",
       "file": "CLAUDE.md",
       "line": 27
     }
@@ -103,13 +152,17 @@
     }
   ],
   "unaffected": {
-    "moved": 24,
-    "tests": 3
+    "moved": 22,
+    "tests": 1
   },
   "needsPerson": [
     "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",
-    "re-approve instruction.standing.tell-the-user-about-a-late: its meaning changed; 1 test waits",
-    "approve the tests of the new atom instruction.standing.name-the-finance-lead-on-a: no test covers it yet",
-    "approve the tests of the new atom instruction.standing.keep-a-credit-note-as-a: no test covers it yet"
+    "re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits",
+    "approve the tests of the new atom instruction.route-planner.read-the-open-orders-and-the: no test covers it yet",
+    "approve the tests of the new atom instruction.memory-supplier-languages.write-to-each-supplier-in-the: no test covers it yet",
+    "approve the tests of the new atom reference.standing.read-claude-skills-invoice-reconcile-references: no test covers it yet",
+    "approve the tests of the new atom hazard.standing.r10-when-the-user-says-stop: no test covers it yet",
+    "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet",
+    "approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet"
   ]
 }

@@ -8,25 +8,23 @@ import {
   diffGuardStates,
   type EstateDiff,
   estateImpact,
-  estateRecordingPort,
   loadEstateMap,
-  loadEstateRecording,
   loadEstateTests,
   loadGuardState,
   parseEstateDiff,
   scanEstate,
 } from '../../src/index';
 import type { EstateMap } from '../../src/schema';
-import { FIXTURE, NOW } from '../support';
+import { FIXTURE, NOW, replayPointer } from '../support';
 
 const V2 = fileURLToPath(new URL('../../../../examples/estates/fixture-v2/', import.meta.url));
 const OLD_PATH = 'examples/estates/fixture/approved.yaml';
 const NEW_PATH = 'examples/estates/fixture-v2/map.yaml';
 
 const R2 = 'instruction.standing.never-send-a-supplier-email-without';
-const R7 = 'instruction.standing.tell-the-user-about-a-late';
+const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
 const ROUTE = 'route.standing.an-ask-to-plan-the-delivery';
-const R12 = 'instruction.standing.keep-an-unconfirmed-draft-unsent';
+const R12 = 'instruction.standing.r12-when-r2-applies-and-the';
 const R18 = 'instruction.standing.name-the-finance-lead-on-a';
 const R19 = 'instruction.standing.keep-a-credit-note-as-a';
 const LEDGER = 'guard.settings.posttooluse-bash-guard-ledger-guard-py';
@@ -51,14 +49,12 @@ async function fresh(): Promise<EstateDiff> {
 }
 
 describe('the fixture-v2 estate', () => {
-  it('has a committed map equal to a fresh scan with its recorded answers', async () => {
-    const recording = await loadEstateRecording(join(V2, 'answers.yaml'));
-    if (!recording.ok) throw new Error(recording.message);
+  it('has a committed map equal to a fresh scan with its recorded labels', async () => {
     const scanned = await scanEstate({
       root: V2,
       reader: new ClaudeCodeReader(),
-      port: estateRecordingPort(recording.recording),
       now: NOW,
+      pointer: await replayPointer(V2),
     });
     const committed = await map(join(V2, 'map.yaml'));
     expect(scanned.refusals).toEqual([]);
