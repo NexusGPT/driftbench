@@ -1,0 +1,900 @@
+{
+  "items": [
+    {
+      "id": "boundaries/outcome-not-run-before-blocked/0",
+      "guards": "bug:outcome-not-run-before-blocked"
+    },
+    {
+      "id": "boundaries/outcome-not-run-before-blocked/1",
+      "guards": "bug:outcome-not-run-before-blocked"
+    },
+    {
+      "id": "boundaries/outcome-not-run-before-blocked/2",
+      "guards": "bug:outcome-not-run-before-blocked"
+    },
+    {
+      "id": "boundaries/outcome-not-run-before-blocked/3",
+      "guards": "bug:outcome-not-run-before-blocked"
+    },
+    {
+      "id": "boundaries/outcome-not-run-before-blocked/4",
+      "guards": "bug:outcome-not-run-before-blocked"
+    },
+    {
+      "id": "boundaries/gating-inconclusive/0",
+      "guards": "bug:gating-inconclusive"
+    },
+    {
+      "id": "boundaries/gating-inconclusive/1",
+      "guards": "bug:gating-inconclusive"
+    },
+    {
+      "id": "boundaries/gating-inconclusive/2",
+      "guards": "bug:gating-inconclusive"
+    },
+    {
+      "id": "boundaries/gating-inconclusive/3",
+      "guards": "bug:gating-inconclusive"
+    },
+    {
+      "id": "boundaries/changed-file-artifact/0",
+      "guards": "bug:changed-file-artifact"
+    },
+    {
+      "id": "boundaries/changed-file-artifact/1",
+      "guards": "bug:changed-file-artifact"
+    },
+    {
+      "id": "boundaries/changed-file-artifact/2",
+      "guards": "bug:changed-file-artifact"
+    },
+    {
+      "id": "boundaries/runtime-file-per-block/0",
+      "guards": "bug:runtime-file-per-block"
+    },
+    {
+      "id": "boundaries/runtime-file-per-block/1",
+      "guards": "bug:runtime-file-per-block"
+    },
+    {
+      "id": "boundaries/runtime-file-per-block/2",
+      "guards": "bug:runtime-file-per-block"
+    },
+    {
+      "id": "boundaries/executions-order/0",
+      "guards": "bug:executions-order"
+    },
+    {
+      "id": "boundaries/executions-order/1",
+      "guards": "bug:executions-order"
+    },
+    {
+      "id": "boundaries/executions-order/2",
+      "guards": "bug:executions-order"
+    },
+    {
+      "id": "boundaries/inside-sibling-prefix/0",
+      "guards": "bug:inside-sibling-prefix"
+    },
+    {
+      "id": "boundaries/inside-sibling-prefix/1",
+      "guards": "bug:inside-sibling-prefix"
+    },
+    {
+      "id": "boundaries/inside-sibling-prefix/2",
+      "guards": "bug:inside-sibling-prefix"
+    },
+    {
+      "id": "boundaries/seed-path-parent/0",
+      "guards": "bug:seed-path-parent"
+    },
+    {
+      "id": "boundaries/seed-path-parent/1",
+      "guards": "bug:seed-path-parent"
+    },
+    {
+      "id": "boundaries/seed-path-parent/2",
+      "guards": "bug:seed-path-parent"
+    },
+    {
+      "id": "boundaries/artifact-same-path/0",
+      "guards": "bug:artifact-same-path"
+    },
+    {
+      "id": "boundaries/artifact-same-path/1",
+      "guards": "bug:artifact-same-path"
+    },
+    {
+      "id": "boundaries/artifact-same-path/2",
+      "guards": "bug:artifact-same-path"
+    },
+    {
+      "id": "boundaries/exit-negative/0",
+      "guards": "bug:exit-negative"
+    },
+    {
+      "id": "boundaries/exit-negative/1",
+      "guards": "bug:exit-negative"
+    },
+    {
+      "id": "boundaries/exit-negative/2",
+      "guards": "bug:exit-negative"
+    },
+    {
+      "id": "boundaries/merge-world-workspace/0",
+      "guards": "bug:merge-world-workspace"
+    },
+    {
+      "id": "boundaries/merge-world-workspace/1",
+      "guards": "bug:merge-world-workspace"
+    },
+    {
+      "id": "boundaries/merge-world-workspace/2",
+      "guards": "bug:merge-world-workspace"
+    },
+    {
+      "id": "adv.tools.count-exact",
+      "guards": "shortcut:tools.count-exact"
+    },
+    {
+      "id": "adv.tools.count-range",
+      "guards": "shortcut:tools.count-range"
+    },
+    {
+      "id": "adv.tools.count-open-ended",
+      "guards": "shortcut:tools.count-open-ended"
+    },
+    {
+      "id": "adv.tools.count-absent-at-least-once",
+      "guards": "shortcut:tools.count-absent-at-least-once"
+    },
+    {
+      "id": "adv.tools.count-zero-forbids",
+      "guards": "shortcut:tools.count-zero-forbids"
+    },
+    {
+      "id": "adv.tools.input-bare",
+      "guards": "shortcut:tools.input-bare"
+    },
+    {
+      "id": "adv.tools.input-exact",
+      "guards": "shortcut:tools.input-exact"
+    },
+    {
+      "id": "adv.tools.input-regex",
+      "guards": "shortcut:tools.input-regex"
+    },
+    {
+      "id": "adv.tools.input-contains",
+      "guards": "shortcut:tools.input-contains"
+    },
+    {
+      "id": "adv.tools.input-one-of",
+      "guards": "shortcut:tools.input-one-of"
+    },
+    {
+      "id": "adv.tools.input-nonempty",
+      "guards": "shortcut:tools.input-nonempty"
+    },
+    {
+      "id": "adv.tools.input-absent",
+      "guards": "shortcut:tools.input-absent"
+    },
+    {
+      "id": "adv.tools.input-subset",
+      "guards": "shortcut:tools.input-subset"
+    },
+    {
+      "id": "adv.tools.input-every-call-first",
+      "guards": "shortcut:tools.input-every-call-first"
+    },
+    {
+      "id": "adv.tools.input-every-call-middle",
+      "guards": "shortcut:tools.input-every-call-middle"
+    },
+    {
+      "id": "adv.tools.input-every-call-last",
+      "guards": "shortcut:tools.input-every-call-last"
+    },
+    {
+      "id": "adv.tools.input-uncalled-fails",
+      "guards": "shortcut:tools.input-uncalled-fails"
+    },
+    {
+      "id": "adv.tools.input-closed",
+      "guards": "shortcut:tools.input-closed"
+    },
+    {
+      "id": "adv.tools.input-closed-nested-and-empty",
+      "guards": "shortcut:tools.input-closed-nested-and-empty"
+    },
+    {
+      "id": "adv.tools.order-exact",
+      "guards": "shortcut:tools.order-exact"
+    },
+    {
+      "id": "adv.tools.order-in_order",
+      "guards": "shortcut:tools.order-in_order"
+    },
+    {
+      "id": "adv.tools.order-any_order",
+      "guards": "shortcut:tools.order-any_order"
+    },
+    {
+      "id": "adv.tools.order-count-stretch",
+      "guards": "shortcut:tools.order-count-stretch"
+    },
+    {
+      "id": "adv.block.independent-first",
+      "guards": "shortcut:block.independent-first"
+    },
+    {
+      "id": "adv.block.independent-middle",
+      "guards": "shortcut:block.independent-middle"
+    },
+    {
+      "id": "adv.block.independent-last",
+      "guards": "shortcut:block.independent-last"
+    },
+    {
+      "id": "adv.block.two-failures-kept",
+      "guards": "shortcut:block.two-failures-kept"
+    },
+    {
+      "id": "adv.block.every-gating-verdict-first",
+      "guards": "shortcut:block.every-gating-verdict-first"
+    },
+    {
+      "id": "adv.block.every-gating-verdict-last",
+      "guards": "shortcut:block.every-gating-verdict-last"
+    },
+    {
+      "id": "adv.text.must-every-entry",
+      "guards": "shortcut:text.must-every-entry"
+    },
+    {
+      "id": "adv.text.must-case-and-match-case",
+      "guards": "shortcut:text.must-case-and-match-case"
+    },
+    {
+      "id": "adv.text.must-not-inverts",
+      "guards": "shortcut:text.must-not-inverts"
+    },
+    {
+      "id": "adv.text.must-is-a-regular-expression",
+      "guards": "shortcut:text.must-is-a-regular-expression"
+    },
+    {
+      "id": "adv.text.exact-normalised-or-strict",
+      "guards": "shortcut:text.exact-normalised-or-strict"
+    },
+    {
+      "id": "adv.text.starts-with-position",
+      "guards": "shortcut:text.starts-with-position"
+    },
+    {
+      "id": "adv.text.length-code-points",
+      "guards": "shortcut:text.length-code-points"
+    },
+    {
+      "id": "adv.text.json-paths-and-embedded",
+      "guards": "shortcut:text.json-paths-and-embedded"
+    },
+    {
+      "id": "adv.rules.max-calls-and-forbidden",
+      "guards": "shortcut:rules.max-calls-and-forbidden"
+    },
+    {
+      "id": "adv.stage.reached-and-reported",
+      "guards": "shortcut:stage.reached-and-reported"
+    },
+    {
+      "id": "adv.given.vars-from-the-block-on",
+      "guards": "shortcut:given.vars-from-the-block-on"
+    },
+    {
+      "id": "adv.given.vars-merge-by-key",
+      "guards": "shortcut:given.vars-merge-by-key"
+    },
+    {
+      "id": "adv.given.forced-tool-error-from-the-block-on",
+      "guards": "shortcut:given.forced-tool-error-from-the-block-on"
+    },
+    {
+      "id": "adv.given.unsupported-layer-is-not-run",
+      "guards": "shortcut:given.unsupported-layer-is-not-run"
+    },
+    {
+      "id": "adv.history.free-running-keeps-the-agents-own-words",
+      "guards": "shortcut:history.free-running-keeps-the-agents-own-words"
+    },
+    {
+      "id": "adv.history.burst-arrives-as-separate-messages",
+      "guards": "shortcut:history.burst-arrives-as-separate-messages"
+    },
+    {
+      "id": "adv.history.t-canonical-count-three",
+      "guards": "shortcut:history.t-canonical-count-three"
+    },
+    {
+      "id": "adv.history.t-canonical-count-range",
+      "guards": "shortcut:history.t-canonical-count-range"
+    },
+    {
+      "id": "adv.history.t-canonical-count-absent",
+      "guards": "shortcut:history.t-canonical-count-absent"
+    },
+    {
+      "id": "adv.history.t-canonical-count-zero",
+      "guards": "shortcut:history.t-canonical-count-zero"
+    },
+    {
+      "id": "adv.history.t-canonical-pins-exact-values-only",
+      "guards": "shortcut:history.t-canonical-pins-exact-values-only"
+    },
+    {
+      "id": "adv.history.t-canonical-result-or-error-comes-from-the-world",
+      "guards": "shortcut:history.t-canonical-result-or-error-comes-from-the-world"
+    },
+    {
+      "id": "adv.history.t-canonical-text-is-blank",
+      "guards": "shortcut:history.t-canonical-text-is-blank"
+    },
+    {
+      "id": "adv.history.t-block-sees-given-up-to-itself",
+      "guards": "shortcut:history.t-block-sees-given-up-to-itself"
+    },
+    {
+      "id": "adv.history.t-prefix-starts-from-the-latest-written",
+      "guards": "shortcut:history.t-prefix-starts-from-the-latest-written"
+    },
+    {
+      "id": "adv.history.t-first-block-has-no-assistant",
+      "guards": "shortcut:history.t-first-block-has-no-assistant"
+    },
+    {
+      "id": "adv.end-state.subset-vs-exact",
+      "guards": "shortcut:end-state.subset-vs-exact"
+    },
+    {
+      "id": "adv.end-state.none-and-source",
+      "guards": "shortcut:end-state.none-and-source"
+    },
+    {
+      "id": "adv.end-state.assertion-forms",
+      "guards": "shortcut:end-state.assertion-forms"
+    },
+    {
+      "id": "adv.perturbed.user-injection-at-first",
+      "guards": "shortcut:perturbed.user-injection-at-first"
+    },
+    {
+      "id": "adv.perturbed.user-injection-at-middle",
+      "guards": "shortcut:perturbed.user-injection-at-middle"
+    },
+    {
+      "id": "adv.perturbed.user-injection-at-last",
+      "guards": "shortcut:perturbed.user-injection-at-last"
+    },
+    {
+      "id": "adv.perturbed.world-only-stands-in-for-the-block",
+      "guards": "shortcut:perturbed.world-only-stands-in-for-the-block"
+    },
+    {
+      "id": "adv.loader.unknown-keys-need-a-valid-twin",
+      "guards": "shortcut:loader.unknown-keys-need-a-valid-twin"
+    },
+    {
+      "id": "adv.loader.stimulus-is-exactly-one",
+      "guards": "shortcut:loader.stimulus-is-exactly-one"
+    },
+    {
+      "id": "adv.loader.stage-must-name-a-declared-stage",
+      "guards": "shortcut:loader.stage-must-name-a-declared-stage"
+    },
+    {
+      "id": "adv.loader.shorthand-equals-the-long-form",
+      "guards": "shortcut:loader.shorthand-equals-the-long-form"
+    },
+    {
+      "id": "adv.loader.origin-needs-a-prefix",
+      "guards": "shortcut:loader.origin-needs-a-prefix"
+    },
+    {
+      "id": "adv.given-hash.canonical-and-content-sensitive",
+      "guards": "shortcut:given-hash.canonical-and-content-sensitive"
+    },
+    {
+      "id": "adv.given-hash.origin-enters-only-when-written",
+      "guards": "shortcut:given-hash.origin-enters-only-when-written"
+    },
+    {
+      "id": "adv.cache.version-label-plays-no-part",
+      "guards": "shortcut:cache.version-label-plays-no-part"
+    },
+    {
+      "id": "adv.cache.content-change-and-agent-version-miss",
+      "guards": "shortcut:cache.content-change-and-agent-version-miss"
+    },
+    {
+      "id": "scale/validate-conversation/10x",
+      "guards": "budget:validate-conversation"
+    },
+    {
+      "id": "scale/validate-conversation/100x",
+      "guards": "budget:validate-conversation"
+    },
+    {
+      "id": "scale/validate-task/10x",
+      "guards": "budget:validate-task"
+    },
+    {
+      "id": "scale/validate-task/100x",
+      "guards": "budget:validate-task"
+    },
+    {
+      "id": "scale/spec-hash/10x",
+      "guards": "budget:spec-hash"
+    },
+    {
+      "id": "scale/spec-hash/100x",
+      "guards": "budget:spec-hash"
+    },
+    {
+      "id": "scale/run-F/10x",
+      "guards": "budget:run-F"
+    },
+    {
+      "id": "scale/run-T/10x",
+      "guards": "budget:run-T"
+    },
+    {
+      "id": "scale/workspace-diff/10x",
+      "guards": "budget:workspace-diff"
+    },
+    {
+      "id": "scale/workspace-diff/100x",
+      "guards": "budget:workspace-diff"
+    },
+    {
+      "id": "scale/pii-scan/10x",
+      "guards": "budget:pii-scan"
+    },
+    {
+      "id": "twins/unknown-key/normal/spec",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/unknown-key/normal/block",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/unknown-key/normal/expect",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/unknown-key/normal/expectation-entry",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/unknown-key/normal/given-world",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/unknown-key/normal/last-block-given",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/unknown-key/code/spec",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/unknown-key/code/block",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/unknown-key/code/expect",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/unknown-key/code/expectation-entry",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/unknown-key/code/given-world",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/unknown-key/code/last-block-given",
+      "guards": "cheat:unknown-key"
+    },
+    {
+      "id": "twins/binary-not-base64/spec/0",
+      "guards": "cheat:binary-not-base64"
+    },
+    {
+      "id": "twins/binary-not-base64/spec/1",
+      "guards": "cheat:binary-not-base64"
+    },
+    {
+      "id": "twins/binary-not-base64/spec/2",
+      "guards": "cheat:binary-not-base64"
+    },
+    {
+      "id": "twins/binary-not-base64/spec/3",
+      "guards": "cheat:binary-not-base64"
+    },
+    {
+      "id": "twins/binary-not-base64/block/0",
+      "guards": "cheat:binary-not-base64"
+    },
+    {
+      "id": "twins/binary-not-base64/block/1",
+      "guards": "cheat:binary-not-base64"
+    },
+    {
+      "id": "twins/binary-not-base64/block/2",
+      "guards": "cheat:binary-not-base64"
+    },
+    {
+      "id": "twins/binary-not-base64/block/3",
+      "guards": "cheat:binary-not-base64"
+    },
+    {
+      "id": "adv.parents.forward-reference-runs-the-parent-first",
+      "guards": "shortcut:parents.forward-reference-runs-the-parent-first"
+    },
+    {
+      "id": "adv.parents.child-history-holds-the-parents-actual-turn",
+      "guards": "shortcut:parents.child-history-holds-the-parents-actual-turn"
+    },
+    {
+      "id": "adv.parents.roots-are-independent",
+      "guards": "shortcut:parents.roots-are-independent"
+    },
+    {
+      "id": "adv.parents.siblings-do-not-share-variables",
+      "guards": "shortcut:parents.siblings-do-not-share-variables"
+    },
+    {
+      "id": "adv.parents.shared-parent-runs-once",
+      "guards": "shortcut:parents.shared-parent-runs-once"
+    },
+    {
+      "id": "adv.parents.failed-parent-blocks-its-child",
+      "guards": "shortcut:parents.failed-parent-blocks-its-child"
+    },
+    {
+      "id": "adv.parents.blocked-names-direct-parent-and-root",
+      "guards": "shortcut:parents.blocked-names-direct-parent-and-root"
+    },
+    {
+      "id": "adv.parents.unrun-parent-blocks-its-child",
+      "guards": "shortcut:parents.unrun-parent-blocks-its-child"
+    },
+    {
+      "id": "adv.parents.teacher-forced-child-uses-the-recorded-parent",
+      "guards": "shortcut:parents.teacher-forced-child-uses-the-recorded-parent"
+    },
+    {
+      "id": "adv.parents.child-prefix-replaces-the-inherited-conversation",
+      "guards": "shortcut:parents.child-prefix-replaces-the-inherited-conversation"
+    },
+    {
+      "id": "adv.parents.refusals-and-their-twins",
+      "guards": "shortcut:parents.refusals-and-their-twins"
+    },
+    {
+      "id": "adv.objects.unknown-item-refused-with-its-twin",
+      "guards": "shortcut:objects.unknown-item-refused-with-its-twin"
+    },
+    {
+      "id": "adv.objects.extends-cycle-and-chain",
+      "guards": "shortcut:objects.extends-cycle-and-chain"
+    },
+    {
+      "id": "adv.objects.file-must-sit-at-its-kind-and-id",
+      "guards": "shortcut:objects.file-must-sit-at-its-kind-and-id"
+    },
+    {
+      "id": "adv.objects.enabled-item-needs-an-implementation",
+      "guards": "shortcut:objects.enabled-item-needs-an-implementation"
+    },
+    {
+      "id": "adv.objects.move-before-and-after-not-both",
+      "guards": "shortcut:objects.move-before-and-after-not-both"
+    },
+    {
+      "id": "adv.objects.hash-is-the-content-not-the-name",
+      "guards": "shortcut:objects.hash-is-the-content-not-the-name"
+    },
+    {
+      "id": "adv.objects.diff-exit-and-unknown-object",
+      "guards": "shortcut:objects.diff-exit-and-unknown-object"
+    },
+    {
+      "id": "adv.objects.stronger-layer-wins",
+      "guards": "shortcut:objects.stronger-layer-wins"
+    },
+    {
+      "id": "adv.values.differing-writing-falls-back-to-exact-with-its-lint",
+      "guards": "shortcut:values.differing-writing-falls-back-to-exact-with-its-lint"
+    },
+    {
+      "id": "adv.values.one-writing-types-never-coerce",
+      "guards": "shortcut:values.one-writing-types-never-coerce"
+    },
+    {
+      "id": "adv.values.compare-exact-states-its-reason",
+      "guards": "shortcut:values.compare-exact-states-its-reason"
+    },
+    {
+      "id": "adv.values.compare-modes-are-validated",
+      "guards": "shortcut:values.compare-modes-are-validated"
+    },
+    {
+      "id": "adv.values.contract-rung-fails-a-value-outside-an-enum",
+      "guards": "shortcut:values.contract-rung-fails-a-value-outside-an-enum"
+    },
+    {
+      "id": "adv.values.as-given-rung-needs-the-users-words",
+      "guards": "shortcut:values.as-given-rung-needs-the-users-words"
+    },
+    {
+      "id": "adv.values.other-assertion-forms-compare-as-written",
+      "guards": "shortcut:values.other-assertion-forms-compare-as-written"
+    },
+    {
+      "id": "adv.sections.init-one-section-per-heading-plus-preamble",
+      "guards": "shortcut:sections.init-one-section-per-heading-plus-preamble"
+    },
+    {
+      "id": "adv.sections.check-detects-an-edited-prompt",
+      "guards": "shortcut:sections.check-detects-an-edited-prompt"
+    },
+    {
+      "id": "adv.sections.reanchor-identical-text-keeps-everything",
+      "guards": "shortcut:sections.reanchor-identical-text-keeps-everything"
+    },
+    {
+      "id": "adv.sections.reanchor-edit-inside-makes-that-section-stale-and-moves-the-later-ones",
+      "guards": "shortcut:sections.reanchor-edit-inside-makes-that-section-stale-and-moves-the-later-ones"
+    },
+    {
+      "id": "adv.sections.reanchor-same-length-edit-moves-nothing",
+      "guards": "shortcut:sections.reanchor-same-length-edit-moves-nothing"
+    },
+    {
+      "id": "adv.sections.reanchor-reorder-is-reported-not-stale",
+      "guards": "shortcut:sections.reanchor-reorder-is-reported-not-stale"
+    },
+    {
+      "id": "adv.sections.reanchor-refuses-the-wrong-old-prompt",
+      "guards": "shortcut:sections.reanchor-refuses-the-wrong-old-prompt"
+    },
+    {
+      "id": "adv.sections.registry-refusals-and-twins",
+      "guards": "shortcut:sections.registry-refusals-and-twins"
+    },
+    {
+      "id": "adv.links.shape-is-validated-with-twins",
+      "guards": "shortcut:links.shape-is-validated-with-twins"
+    },
+    {
+      "id": "adv.links.stay-out-of-the-spec-hash",
+      "guards": "shortcut:links.stay-out-of-the-spec-hash"
+    },
+    {
+      "id": "boundaries/carry-last-campaign/0",
+      "guards": "bug:carry-last-campaign"
+    },
+    {
+      "id": "boundaries/carry-last-campaign/1",
+      "guards": "bug:carry-last-campaign"
+    },
+    {
+      "id": "boundaries/carry-last-campaign/2",
+      "guards": "bug:carry-last-campaign"
+    },
+    {
+      "id": "boundaries/carry-last-campaign/3",
+      "guards": "bug:carry-last-campaign"
+    },
+    {
+      "id": "boundaries/carry-last-campaign/4",
+      "guards": "bug:carry-last-campaign"
+    },
+    {
+      "id": "boundaries/carry-last-campaign/5",
+      "guards": "bug:carry-last-campaign"
+    },
+    {
+      "id": "boundaries/carry-last-campaign/6",
+      "guards": "bug:carry-last-campaign"
+    },
+    {
+      "id": "boundaries/carry-last-campaign/7",
+      "guards": "bug:carry-last-campaign"
+    },
+    {
+      "id": "boundaries/radius-reset-step/0",
+      "guards": "bug:radius-reset-step"
+    },
+    {
+      "id": "boundaries/radius-reset-step/1",
+      "guards": "bug:radius-reset-step"
+    },
+    {
+      "id": "boundaries/radius-reset-step/2",
+      "guards": "bug:radius-reset-step"
+    },
+    {
+      "id": "boundaries/radius-reset-step/3",
+      "guards": "bug:radius-reset-step"
+    },
+    {
+      "id": "boundaries/radius-deviation-prefix/0",
+      "guards": "bug:radius-deviation-prefix"
+    },
+    {
+      "id": "boundaries/radius-deviation-prefix/1",
+      "guards": "bug:radius-deviation-prefix"
+    },
+    {
+      "id": "boundaries/radius-deviation-prefix/2",
+      "guards": "bug:radius-deviation-prefix"
+    },
+    {
+      "id": "boundaries/radius-deviation-prefix/3",
+      "guards": "bug:radius-deviation-prefix"
+    },
+    {
+      "id": "boundaries/radius-sent-scored/0",
+      "guards": "bug:radius-sent-scored"
+    },
+    {
+      "id": "boundaries/radius-sent-scored/1",
+      "guards": "bug:radius-sent-scored"
+    },
+    {
+      "id": "boundaries/radius-sent-scored/2",
+      "guards": "bug:radius-sent-scored"
+    },
+    {
+      "id": "boundaries/radius-sent-scored/3",
+      "guards": "bug:radius-sent-scored"
+    },
+    {
+      "id": "adv.radius.stage-direct-and-forward",
+      "guards": "shortcut:radius.stage-direct-and-forward"
+    },
+    {
+      "id": "adv.radius.perturbed-forward-from-the-injection",
+      "guards": "shortcut:radius.perturbed-forward-from-the-injection"
+    },
+    {
+      "id": "adv.radius.tool-input",
+      "guards": "shortcut:radius.tool-input"
+    },
+    {
+      "id": "adv.radius.tool-result",
+      "guards": "shortcut:radius.tool-result"
+    },
+    {
+      "id": "adv.radius.tool-description",
+      "guards": "shortcut:radius.tool-description"
+    },
+    {
+      "id": "adv.radius.tool-presence",
+      "guards": "shortcut:radius.tool-presence"
+    },
+    {
+      "id": "adv.radius.tool-no-part",
+      "guards": "shortcut:radius.tool-no-part"
+    },
+    {
+      "id": "adv.radius.deviation-whole-class-name",
+      "guards": "shortcut:radius.deviation-whole-class-name"
+    },
+    {
+      "id": "adv.radius.unknown-deps-are-in-and-known-deps-are-out",
+      "guards": "shortcut:radius.unknown-deps-are-in-and-known-deps-are-out"
+    },
+    {
+      "id": "adv.radius.whole-suite-for-unmappable-changes",
+      "guards": "shortcut:radius.whole-suite-for-unmappable-changes"
+    },
+    {
+      "id": "adv.radius.empty-and-version-only-manifests",
+      "guards": "shortcut:radius.empty-and-version-only-manifests"
+    },
+    {
+      "id": "adv.radius.manifest-validation-and-twin",
+      "guards": "shortcut:radius.manifest-validation-and-twin"
+    },
+    {
+      "id": "adv.radius.rule-names-and-spec-rules",
+      "guards": "shortcut:radius.rule-names-and-spec-rules"
+    },
+    {
+      "id": "adv.radius.fixture-literal-in-the-stimulus",
+      "guards": "shortcut:radius.fixture-literal-in-the-stimulus"
+    },
+    {
+      "id": "adv.radius.criterion-by-name",
+      "guards": "shortcut:radius.criterion-by-name"
+    },
+    {
+      "id": "adv.radius.totals-add-up",
+      "guards": "shortcut:radius.totals-add-up"
+    },
+    {
+      "id": "adv.radius.block-without-id-is-listed-by-index",
+      "guards": "shortcut:radius.block-without-id-is-listed-by-index"
+    },
+    {
+      "id": "boundaries/pooled-rate-scored/0",
+      "guards": "bug:pooled-rate-scored"
+    },
+    {
+      "id": "boundaries/pooled-rate-scored/1",
+      "guards": "bug:pooled-rate-scored"
+    },
+    {
+      "id": "boundaries/pooled-rate-scored/2",
+      "guards": "bug:pooled-rate-scored"
+    },
+    {
+      "id": "adv.stats.pass-k-and-pass-at-k-are-the-hypergeometric-forms",
+      "guards": "shortcut:stats.pass-k-and-pass-at-k-are-the-hypergeometric-forms"
+    },
+    {
+      "id": "adv.stats.zero-failure-bound-is-the-smallest-run-count",
+      "guards": "shortcut:stats.zero-failure-bound-is-the-smallest-run-count"
+    },
+    {
+      "id": "adv.stats.design-effect-and-effective-size",
+      "guards": "shortcut:stats.design-effect-and-effective-size"
+    },
+    {
+      "id": "adv.stats.wilson-interval-bounds",
+      "guards": "shortcut:stats.wilson-interval-bounds"
+    },
+    {
+      "id": "adv.stats.repeats-for-floor-solves-the-half-width",
+      "guards": "shortcut:stats.repeats-for-floor-solves-the-half-width"
+    },
+    {
+      "id": "scale/suite-headline/10x",
+      "guards": "budget:suite-headline"
+    },
+    {
+      "id": "scale/suite-headline/100x",
+      "guards": "budget:suite-headline"
+    },
+    {
+      "id": "scale/wilson-effective/10x",
+      "guards": "budget:wilson-effective"
+    },
+    {
+      "id": "scale/wilson-effective/100x",
+      "guards": "budget:wilson-effective"
+    },
+    {
+      "id": "scale/hierarchical-interval/10x",
+      "guards": "budget:hierarchical-interval"
+    },
+    {
+      "id": "scale/hierarchical-interval/100x",
+      "guards": "budget:hierarchical-interval"
+    },
+    {
+      "id": "scale/bootstrap-interval/10x",
+      "guards": "budget:bootstrap-interval"
+    },
+    {
+      "id": "scale/bootstrap-interval/100x",
+      "guards": "budget:bootstrap-interval"
+    }
+  ]
+}
