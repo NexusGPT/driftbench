@@ -61,7 +61,7 @@ What the store holds, one table each:
 | `units` | measured cost units per adapter, read by `campaign plan` for its projection. No command records units during a run; code puts them with the store's `putUnit`. |
 | `blobs`, `versions` | the registry of datasets and prompts: each file once by its SHA-256, and one immutable row per version (`dataset` and `prompt` commands). |
 
-A run record holds `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId`, `status` (`completed`, `failed` or `stopped`), `error`, `blocks`, `succession`, `recovery` (mode P), `endState`, `cost`, `latencyMs`, `startedAt`, `finishedAt`, `cacheHit`, `events`, `provenance`, and `carried` on a run copied by `--change`. Each block holds `index`, `blockId`, `injected`, `givenHash`, `cacheKey`, `observed`, `verdicts`, `stageObserved`, `ledgerCheck`, `drift` and `pass`.
+A run record holds `runId`, `specId`, `specHash`, `identityHash` (the spec hash without its `version` label, which the run id is made from; absent in a run stored before it), `target`, `mode`, `repeat`, `perturbationId`, `status` (`completed`, `failed` or `stopped`), `error`, `blocks`, `succession`, `recovery` (mode P), `endState`, `cost`, `latencyMs`, `startedAt`, `finishedAt`, `cacheHit`, `events`, `provenance`, and `carried` on a run copied by `--change`. Each block holds `index`, `blockId`, `injected`, `givenHash`, `cacheKey`, `observed`, `verdicts`, `stageObserved`, `ledgerCheck`, `drift` and `pass`.
 
 ### Run record, field by field
 
@@ -204,7 +204,7 @@ Campaign second, created 2026-10-14T13:54:31.870Z.
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 ```
 
-The folder `stores` was created. The store now holds two campaigns, each with a run whose id is `d44b9dfe9d1cf87a` (the cell id), and the cache entries of the first campaign's blocks.
+The folder `stores` was created. The store now holds two campaigns, each with a run whose id is `fab7e9a89a94b309` (the cell id), and the cache entries of the first campaign's blocks.
 
 ## Common errors
 
