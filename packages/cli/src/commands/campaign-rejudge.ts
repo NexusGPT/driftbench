@@ -10,7 +10,6 @@ import {
   checkSpecObjects,
   completeBaselineProvenance,
   isScored,
-  loadChangeManifest,
   loadSpecs,
   objectContextFor,
   objectContextOfSpec,
@@ -31,6 +30,7 @@ import type { Command } from 'commander';
 import type { Io } from '../io';
 import { addJudgeOptions, judgeAsked, type RunJudgeOptions, runJudgeFrom } from '../judge-options';
 import { gateExit } from './gate-exit';
+import { loadRadiusChangeManifest } from './radius-change';
 
 type Options = RunJudgeOptions & {
   from: string;
@@ -92,7 +92,7 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
   if (rescoring) return campaignRescore(paths, options, io);
   let store: ReturnType<typeof openStore> | undefined;
   try {
-    const manifest = await loadChangeManifest(resolve(io.cwd, options.change as string));
+    const manifest = await loadRadiusChangeManifest(resolve(io.cwd, options.change as string));
     if (!manifest.ok) throw new Error(manifest.errors.join('\n'));
     const change = manifest.manifest;
     if (

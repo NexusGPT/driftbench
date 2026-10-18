@@ -84,6 +84,18 @@ const refuse = (why: string): never => {
   throw new Error(`${why}; rerun the agent in a full campaign.`);
 };
 
+/**
+ * A child of a parent-linked run was measured with the history, the previous stage and the Given of its
+ * ancestors; a re-judge builds its contexts from the block order, which would hand it unrelated trees.
+ */
+function refuseParentLinked(spec: Spec): void {
+  if (spec.blocks.some((block) => block.parent !== undefined)) {
+    refuse(
+      "A parent-linked run takes each child's history from its ancestors, which a re-judge or re-score does not rebuild",
+    );
+  }
+}
+
 /** Validate every context before the caller makes any judge call or writes any campaign. */
 export function prepareRejudge(
   old: Spec,
@@ -91,6 +103,7 @@ export function prepareRejudge(
   run: RunResult,
   options: RejudgeOptions,
 ): PreparedRejudge {
+  refuseParentLinked(spec);
   return prepareStored(old, spec, run, options, options.criteria, false);
 }
 
@@ -109,18 +122,6 @@ export function prepareRescore(
 ): PreparedRejudge {
   refuseParentLinked(spec);
   return prepareStored(old, spec, run, options, [], true);
-}
-
-/**
- * A child of a parent-linked run was measured with the history, the previous stage and the Given of its
- * ancestors; a re-score builds its contexts from the block order, which would hand it unrelated trees.
- */
-function refuseParentLinked(spec: Spec): void {
-  if (spec.blocks.some((block) => block.parent !== undefined)) {
-    refuse(
-      "A parent-linked run takes each child's history from its ancestors, which a re-score does not rebuild",
-    );
-  }
 }
 
 /**
@@ -272,6 +273,8 @@ export async function rejudgeRun(
   objects: ObjectContext = shippedObjectContext(),
 ): Promise<RunResult> {
   const { source, spec, contexts, stamp, carried } = prepared;
+  // The sink of every door that prepared this re-judge: the contexts were built from the block order.
+  refuseParentLinked(spec);
   const before = spent();
   const blocks: BlockResult[] = [];
   for (const ctx of contexts) {

@@ -99,7 +99,7 @@ it('refuses to prepare the re-score of a parent-linked run, so the cell runs fre
   ).toThrow(/A parent-linked run takes each child's history from its ancestors/);
 });
 
-it('refuses, at the re-score itself, a parent-linked spec that reached it through prepareRejudge', async () => {
+it('refuses, at the re-score itself, a parent-linked spec that reached it through another door', async () => {
   // Three blocks, an unrelated one between a root and its child: the child's history is the root alone. Each block
   // writes an explicit empty prefix, so the recorded tree reconstructs and reaches scoring through the public door.
   const tree = specOf({
@@ -117,7 +117,9 @@ it('refuses, at the re-score itself, a parent-linked spec that reached it throug
       },
     ],
   });
-  const source = await runSpec(tree, {
+  // The same recorded blocks without links prepare fine; the prepared value then carries the linked spec.
+  const flat = { ...tree, blocks: tree.blocks.map(({ parent: _parent, ...block }) => block) } as typeof tree;
+  const source = await runSpec(flat, {
     adapter: echoAdapter(),
     driver: createScriptedDriver(),
     checks: [mustCheck],
@@ -129,12 +131,8 @@ it('refuses, at the re-score itself, a parent-linked spec that reached it throug
   });
   expect(source.blocks.map((block) => block.blockId)).toEqual(['root', 'other', 'child']);
   // Only the rubric of the criterion changes: the one change a re-judge exists for.
-  const changed = {
-    ...tree,
-    criteria: [{ name: 'quality', rubric: 'The reply is useful and short.', gating: true }],
-  };
-  // The public re-judge door accepts the tree; nothing about it is invalid.
-  const input = prepareRejudge(tree, changed as never, source, {
+  const criteria = [{ name: 'quality', rubric: 'The reply is useful and short.', gating: true }];
+  const prepared = prepareRejudge(flat, { ...flat, criteria } as never, source, {
     fromCampaign: 'base',
     agentVersion: 'v1',
     criteria: ['quality'],
@@ -153,7 +151,7 @@ it('refuses, at the re-score itself, a parent-linked spec that reached it throug
   let evaluated = 0;
   await expect(
     rescoreRun(
-      input,
+      { ...prepared, spec: { ...tree, criteria } as never },
       [
         {
           ...mustCheck,
