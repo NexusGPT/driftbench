@@ -175,7 +175,12 @@ export const VECTOR_TOLERANCE = 0.01;
 
 /** Whether the probabilities form a vector: each in 0 to 1, summing to 1 within the tolerance. Never normalised. */
 export function isVector(probabilities: Readonly<Record<string, number>>): boolean {
-  throw new Error('not implemented: isVector');
+  const values = Object.values(probabilities);
+  if (values.length === 0) return false;
+  if (!values.every((p) => typeof p === 'number' && p >= 0 && p <= 1)) return false;
+  const sum = values.reduce((total, p) => total + p, 0);
+  // A hair of slack for the float error of adding two-decimal figures.
+  return Math.abs(sum - 1) <= VECTOR_TOLERANCE + 1e-9;
 }
 
 /**
@@ -185,7 +190,29 @@ export function isVector(probabilities: Readonly<Record<string, number>>): boole
  * to 1): it is refused with the reason, never repaired by normalising, and never guessed.
  */
 export function choiceOpinions(answer: Recorded, window: Window, asked: readonly Label[]): Opinions {
-  throw new Error('not implemented: choiceOpinions');
+  const byUnit = new Map<number, Opinion>();
+  const refusals: string[] = [];
+  const given = answer.probabilities ?? {};
+  const options = [...asked.map((label) => label.name), 'none'];
+  for (const unit of window.units) {
+    const probabilities: Record<string, number> = {};
+    const missing = options.find((option) => typeof given[choiceKey(unit.n, option)] !== 'number');
+    // A unit missing an option has no opinion; the scan lists it as unlabeled.
+    if (missing !== undefined) continue;
+    for (const option of options) probabilities[option] = given[choiceKey(unit.n, option)] as number;
+    if (!isVector(probabilities)) {
+      refusals.push(
+        `${window.id} unit ${unit.n}: the probabilities are no vector (they do not sum to 1), so the unit has no opinion`,
+      );
+      continue;
+    }
+    let best = options[0] as string;
+    for (const option of options) {
+      if ((probabilities[option] as number) > (probabilities[best] as number)) best = option;
+    }
+    byUnit.set(unit.index, { label: best, probabilities });
+  }
+  return { byUnit, refusals };
 }
 
 export type JevOptions = HttpOptions & {
