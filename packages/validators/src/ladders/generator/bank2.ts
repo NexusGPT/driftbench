@@ -1,5 +1,6 @@
 import { type Assertion, canonicalJson, type Spec } from '@agent-nexus/driftbench-core';
 import { stimulusText } from '@agent-nexus/driftbench-generate';
+import { compileSpace, placeSpec } from '@agent-nexus/driftbench-space';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
 import { DEVIATION_POOL, type HiddenSpec, readTurn, type ToolRole } from './hidden';
 import type { Generation } from './measure';
@@ -16,6 +17,11 @@ import { hiddenSpaceMap } from './render';
  */
 
 const verdict = (pass: boolean, detail: string): Verdict => ({ pass, detail });
+
+/** Map-derived obligations retain a witness even when a sibling obligation already fails. */
+function obligation(data: SeedData, parts: unknown[], holds: boolean): boolean {
+  return data.obligation?.(`research:${canonicalJson(parts)}`, holds) ?? holds;
+}
 
 const C = {
   scenario: 'packages/generate/src/seed/scenario.ts#buildScenario',
@@ -90,7 +96,7 @@ function pathItems(): BankItem[] {
     id: string,
     tier: Tier,
     component: string,
-    check: (generated: Generation) => Verdict,
+    check: (generated: Generation, data: SeedData) => Verdict,
   ): BankItem => ({
     id,
     family: 'paths',
@@ -98,52 +104,79 @@ function pathItems(): BankItem[] {
     level: 'paths',
     component,
     async check(data: SeedData) {
-      return check(await data.generated());
+      return check(await data.generated(), data);
     },
   });
   for (const id of BASE_PATHS) {
     items.push(
-      item(`paths.${id}.walked`, 1, C.scenario, (generated) => {
+      item(`paths.${id}.walked`, 1, C.scenario, (generated, data) => {
         const specs = walking(generated, id);
-        return verdict(specs.length > 0, `${specs.length} complete specs walk the path ${id}`);
+        return verdict(
+          obligation(data, ['path', id, 'walked'], specs.length > 0),
+          `${specs.length} complete specs walk the path ${id}`,
+        );
       }),
-      item(`paths.${id}.values`, 3, `${C.seeders}#twiseSeeder`, (generated) => {
+      item(`paths.${id}.values`, 3, `${C.seeders}#twiseSeeder`, (generated, data) => {
         const path = generated.hidden.paths.find((entry) => entry.id === id);
         const specs = walking(generated, id);
         const missing = Object.entries(path?.when ?? {}).flatMap(([dimension, values]) =>
-          values.filter((value) => !specs.some((spec) => cellOf(spec)[dimension] === value)),
+          values.filter(
+            (value) =>
+              !obligation(
+                data,
+                ['path', id, 'value', dimension, value],
+                specs.some((spec) => cellOf(spec)[dimension] === value),
+              ),
+          ),
         );
         return verdict(
           path !== undefined && specs.length > 0 && missing.length === 0,
           `${missing.length} values the path reads are walked by no complete spec: ${missing.slice(0, 4).join(', ')}`,
         );
       }),
-      item(`paths.${id}.channels`, 3, `${C.seeders}#twiseSeeder`, (generated) => {
+      item(`paths.${id}.channels`, 3, `${C.seeders}#twiseSeeder`, (generated, data) => {
         const specs = walking(generated, id);
         const missing = generated.hidden.channels.filter(
-          (channel) => !specs.some((spec) => spec.channel === channel),
+          (channel) =>
+            !obligation(
+              data,
+              ['path', id, 'channel', channel],
+              specs.some((spec) => spec.channel === channel),
+            ),
         );
         return verdict(
           specs.length > 0 && missing.length === 0,
           `channels never walked on the path: ${missing.join(', ') || 'none'}`,
         );
       }),
-      item(`paths.${id}.personas`, 3, `${C.seeders}#twiseSeeder`, (generated) => {
+      item(`paths.${id}.personas`, 3, `${C.seeders}#twiseSeeder`, (generated, data) => {
         const specs = walking(generated, id);
         const missing = generated.hidden.personas
           .map((persona) => persona.id)
-          .filter((persona) => !specs.some((spec) => personaOf(spec) === persona));
+          .filter(
+            (persona) =>
+              !obligation(
+                data,
+                ['path', id, 'persona', persona],
+                specs.some((spec) => personaOf(spec) === persona),
+              ),
+          );
         return verdict(
           specs.length > 0 && missing.length === 0,
           `personas never walked on the path: ${missing.join(', ') || 'none'}`,
         );
       }),
-      item(`paths.${id}.probes`, 4, `${C.seeders}#deviationSeeder`, (generated) => {
+      item(`paths.${id}.probes`, 4, `${C.seeders}#deviationSeeder`, (generated, data) => {
         const path = generated.hidden.paths.find((entry) => entry.id === id);
         const flow = generated.hidden.flows.find((entry) => entry.id === path?.flow);
         const specs = walking(generated, id);
         const missing = (flow?.deviations ?? []).filter(
-          (cls) => !specs.some((spec) => probes(spec).includes(cls)),
+          (cls) =>
+            !obligation(
+              data,
+              ['path', id, 'probe', cls],
+              specs.some((spec) => probes(spec).includes(cls)),
+            ),
         );
         return verdict(
           path !== undefined && missing.length === 0,
@@ -153,7 +186,7 @@ function pathItems(): BankItem[] {
     );
   }
   items.push(
-    item('paths.new-request-full.end-state', 2, C.relations, (generated) => {
+    item('paths.new-request-full.end-state', 2, C.relations, (generated, data) => {
       const path = generated.hidden.paths.find((entry) => entry.id === 'new-request-full');
       const last = path ? `${path.stages.at(-2)}-to-${path.stages.at(-1)}` : '';
       // A spec walks to the end when it takes the path's last move; a deviation whose recovery moves the
@@ -163,37 +196,48 @@ function pathItems(): BankItem[] {
           !probes(spec).includes('D8_tool_failure') &&
           spec.blocks.some((block) => (block.id ?? '').endsWith(`-${last}`)),
       );
+      obligation(
+        data,
+        ['path', 'new-request-full', 'end-state'],
+        specs.some((spec) => spec.end_state !== undefined),
+      );
       const without = specs.filter((spec) => spec.end_state === undefined);
       return verdict(
         specs.length > 0 && without.length === 0,
         `${without.length} of ${specs.length} complete specs that walk to the end check no end state`,
       );
     }),
-    item('paths.extras.walked', 3, C.scenario, (generated) => {
+    item('paths.extras.walked', 3, C.scenario, (generated, data) => {
       const present = generated.hidden.paths.filter((path) => EXTRA_PATHS.includes(path.id));
       const missing = present
-        .filter((path) => walking(generated, path.id).length === 0)
+        .filter(
+          (path) => !obligation(data, ['path', path.id, 'walked'], walking(generated, path.id).length > 0),
+        )
         .map((path) => path.id);
       return verdict(
         missing.length === 0,
         `extra-edge paths walked by no complete spec: ${missing.join(', ') || 'none'} (of ${present.length})`,
       );
     }),
-    item('paths.all-walked', 2, C.scenario, (generated) => {
+    item('paths.all-walked', 2, C.scenario, (generated, data) => {
       const missing = generated.hidden.paths
-        .filter((path) => walking(generated, path.id).length === 0)
+        .filter(
+          (path) => !obligation(data, ['path', path.id, 'walked'], walking(generated, path.id).length > 0),
+        )
         .map((path) => path.id);
       return verdict(
         missing.length === 0,
         `paths walked by no complete spec: ${missing.join(', ') || 'none'}`,
       );
     }),
-    item('paths.unwalked-reported', 2, 'packages/generate/src/enumerate/generate.ts', (generated) => {
+    item('paths.unwalked-reported', 2, 'packages/generate/src/enumerate/generate.ts', (generated, data) => {
       const unwalked = new Set((generated.report?.graph.unwalked ?? []).map((entry) => entry.path));
       const notWalked = generated.hidden.paths
         .filter((path) => generated.loaded.every((result) => !result.ok || pathOf(result.spec) !== path.id))
         .map((path) => path.id);
-      const silent = notWalked.filter((path) => !unwalked.has(path));
+      const silent = notWalked.filter(
+        (path) => !obligation(data, ['path', path, 'unwalked-reported'], unwalked.has(path)),
+      );
       return verdict(
         silent.length === 0,
         `paths no spec walks that the report does not list as unwalked: ${silent.join(', ') || 'none'}`,
@@ -286,7 +330,7 @@ function sequenceItems(): BankItem[] {
             return at >= 0 && at < spec.blocks.length - 1;
           });
           return verdict(
-            continued,
+            obligation(data, ['sequence', cls, 'continued'], continued),
             continued
               ? `a spec goes on after its ${cls} probe`
               : `no complete spec goes on after a ${cls} probe: recovery is never followed by the rest of the flow`,
@@ -320,7 +364,9 @@ function sequenceItems(): BankItem[] {
               if (before) probedAt.add(before);
             });
           }
-          const missing = reachable.filter((stage) => !probedAt.has(stage));
+          const missing = reachable.filter(
+            (stage) => !obligation(data, ['sequence', cls, 'stage', stage], probedAt.has(stage)),
+          );
           // A probe at a stage the map rules out for the class tests a conversation that cannot happen.
           const ruledOut = [...probedAt].filter((stage) => !allowed(hidden, { deviation: cls, stage }));
           return verdict(
@@ -361,7 +407,9 @@ function sequenceItems(): BankItem[] {
           for (let index = 1; index + 1 < seen.length; index += 1)
             walked.add(`${seen[index - 1]}>${seen[index]}>${seen[index + 1]}`);
         }
-        const missing = [...wanted].filter((pair) => !walked.has(pair));
+        const missing = [...wanted].filter(
+          (pair) => !obligation(data, ['sequence', 'edge-pair', pair], walked.has(pair)),
+        );
         return verdict(
           missing.length === 0,
           `${missing.length} of ${wanted.size} ordered edge pairs through ${stage} walked by no complete spec: ${missing.join(', ')}`,
@@ -390,12 +438,23 @@ function counts(generated: Generation, dimension: string): Map<string, number> {
   const add = (value: string | undefined) => {
     if (value !== undefined && out.has(value)) out.set(value, (out.get(value) ?? 0) + 1);
   };
+  // Stage and deviation are event-level strata. Use the same placement contract as coverage:
+  // blocks and declared perturbations both count; a deviation is placed where it arrives,
+  // not at its recovery destination. Spec-level strata below retain their per-spec unit.
+  if (dimension === 'stage' || dimension === 'deviation') {
+    const space = compileSpace(hiddenSpaceMap(hidden));
+    const index = space.dimensions.findIndex((entry) => entry.id === dimension);
+    for (const { spec } of generated.complete) {
+      for (const event of placeSpec(space, spec).events) {
+        for (const position of event.values[index] ?? []) add(space.dimensions[index]?.values[position]?.id);
+      }
+    }
+    return out;
+  }
   for (const { spec } of generated.complete) {
     if (dimension === 'behaviour') for (const id of spec.covers ?? []) add(id);
     else if (dimension === 'channel') add(spec.channel);
     else if (dimension === 'user_type') add(personaOf(spec));
-    else if (dimension === 'stage') for (const block of spec.blocks) add(block.expect?.stage);
-    else for (const cls of probes(spec)) add(cls);
   }
   return out;
 }
@@ -406,7 +465,7 @@ function allocationItems(): BankItem[] {
     const stat = (
       name: string,
       tier: Tier,
-      test: (values: number[], keys: string[]) => [boolean, string],
+      test: (values: number[], keys: string[], data: SeedData) => [boolean, string],
     ): BankItem => ({
       id: `allocation.${dimension}.${name}`,
       family: 'allocation',
@@ -415,7 +474,8 @@ function allocationItems(): BankItem[] {
       component: dimension === 'stage' ? C.scenario : `${C.seeders}#twiseSeeder`,
       async check(data) {
         const map = counts(await data.generated(), dimension);
-        const [pass, detail] = test([...map.values()], [...map.keys()]);
+        // Quantitative balance retains its threshold, rather than freezing raw counts.
+        const [pass, detail] = test([...map.values()], [...map.keys()], data);
         return verdict(
           pass,
           `${detail}; counts ${[...map.entries()].map(([key, value]) => `${key} ${value}`).join(', ')}`,
@@ -431,8 +491,10 @@ function allocationItems(): BankItem[] {
             .reduce((sum, value) => sum + (value / total) * Math.log(value / total), 0);
     };
     items.push(
-      stat('present', 2, (values, keys) => {
-        const missing = keys.filter((_, index) => values[index] === 0);
+      stat('present', 2, (values, keys, data) => {
+        const missing = keys.filter(
+          (key, index) => !obligation(data, ['allocation', dimension, key], values[index] !== 0),
+        );
         return [missing.length === 0, `values no complete spec places on: ${missing.join(', ') || 'none'}`];
       }),
       stat('ratio', 3, (values) => {
@@ -551,7 +613,7 @@ function contrastItems(): BankItem[] {
             ),
           );
           return verdict(
-            found,
+            obligation(data, ['contrast', role, 'enum', property.members[i], property.members[j]], found),
             `${a.length} and ${b.length} scenario specs hold members ${property.members[i]} and ${property.members[j]}; ${found ? 'a pair on one path expects different inputs' : 'no pair on one path expects different inputs for the change'}`,
           );
         },
@@ -608,7 +670,11 @@ function contrastItems(): BankItem[] {
             };
           });
           return verdict(
-            measured.every((entry) => entry.present && entry.blocks > 0 && entry.wrong === 0),
+            obligation(
+              data,
+              ['contrast', role, 'integer', low, high],
+              measured.every((entry) => entry.present && entry.blocks > 0 && entry.wrong === 0),
+            ),
             measured
               .map(
                 (entry) =>
@@ -641,7 +707,7 @@ function contrastItems(): BankItem[] {
             specs.every((right) => slots(left) !== slots(right) || thens(left) === thens(right)),
           );
           return verdict(
-            pair && equal,
+            obligation(data, ['invariance', path, 'persona'], pair) && equal,
             pair
               ? equal
                 ? 'specs that differ only in persona expect the same'
@@ -669,7 +735,7 @@ function contrastItems(): BankItem[] {
             specs.some((right) => slots(left) !== slots(right) && thens(left) !== thens(right)),
           );
           return verdict(
-            found,
+            obligation(data, ['contrast', path, 'values'], found),
             found
               ? 'two specs with different slot values expect different things'
               : 'no two complete specs walk the path with different slot values',
@@ -695,7 +761,7 @@ function contrastItems(): BankItem[] {
             specs.every((right) => slots(left) !== slots(right) || thens(left) === thens(right)),
           );
           return verdict(
-            pair && equal,
+            obligation(data, ['invariance', path, 'channel'], pair) && equal,
             pair
               ? equal
                 ? 'specs that differ only in channel expect the same'
