@@ -130,24 +130,25 @@ describe('a registry of many sections takes CPU time near linear in the sections
     expect(ms).toBeLessThan(BUDGET_MS);
   });
 
-  // A heading whose section holds no unique quote is folded into the section before it (docs/concepts/blast-radius.md,
-  // radius sections init), so identical sections fold, one by one, into the single section the whole prompt is.
-  it.each([2000, 8000])('%d identical sections, which have no unique quote and fold into one', (count) => {
+  // Two sections with the same text are neither folded nor refused (docs/concepts/blast-radius.md): each keeps an
+  // entry, numbered by its occurrence, so identical sections stay apart one by one.
+  it.each([2000, 8000])('%d identical sections keep an entry each, numbered by occurrence', (count) => {
     const text = identical(count);
     const result = sectionsFromHeadings(text, { promptId: 'p', version: '1' });
     if (!result.ok) throw new Error(`refused: ${result.errors.join('; ')}`);
     const sections = result.registry.sections;
-    expect(sections).toHaveLength(1);
-    const [only] = sections;
-    expect(only?.span.start).toBe(0);
-    expect(text.slice(only?.span.end).trim()).toBe('');
-    const quote = only?.anchor.quote ?? '';
-    expect(text.indexOf(quote)).toBe(text.lastIndexOf(quote));
+    expect(sections).toHaveLength(count);
+    expect(new Set(sections.map((each) => each.id)).size).toBe(count);
+    expect(sections.map((each) => each.anchor.occurrence)).toEqual(
+      Array.from({ length: count }, (_, index) => index + 1),
+    );
+    expect(sections[0]?.span.start).toBe(0);
+    expect(text.slice(sections[count - 1]?.span.end).trim()).toBe('');
   });
 
-  // Folding re-anchors a neighbour after every fold. The time is compared, not budgeted: the best of three CPU runs at
+  // Each identical section is numbered by its occurrence. The time is compared, not budgeted: the best of three CPU runs at
   // each size, so a loaded machine slows both sides of the ratio alike.
-  it('four times the identical sections take about four times the time to fold', () => {
+  it('four times the identical sections take about four times the time to keep apart', () => {
     const best = (count: number) => {
       const text = identical(count);
       return Math.min(
