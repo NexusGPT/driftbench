@@ -757,4 +757,24 @@ export const CONTRACTS: Readonly<Record<string, string>> = {
     'origin/feat/block-parents:docs/concepts/given-when-then.md#Parent blocks',
   'zeroFailureBound(p, alpha) is the number of failure-free runs needed to claim a failure rate below p at confidence 1 - alpha':
     'docs/concepts/statistics.md#Intervals',
+  'localizeRuns weighs a block by its failed rows over its rows':
+    'docs/reference/block-contracts.md#Localize',
+  'radius localize leaves stale links out of the Ochiai counts and reports them as advisory.':
+    'docs/reference/block-contracts.md#Localize',
+  'localizeRows leaves a stale section out of the ranking': 'docs/reference/block-contracts.md#Localize',
+  'localizeRuns lists a global section apart and never ranks it':
+    'docs/reference/block-contracts.md#Localize',
+  'spec validate reports LINK_BLOCK_UNKNOWN at metadata.links.<i>.block':
+    'docs/reference/block-contracts.md#metadata.links',
+  'spec validate refuses a relation outside its list under metadata.links':
+    'docs/reference/block-contracts.md#metadata.links',
+  'spec validate refuses a created_by outside its list under metadata.links':
+    'docs/reference/block-contracts.md#metadata.links',
+  'spec validate refuses a status outside its list under metadata.links':
+    'docs/reference/block-contracts.md#metadata.links',
+  'spec validate refuses a to.kind outside its list under metadata.links':
+    'docs/reference/block-contracts.md#metadata.links',
+  'blockLinks reads a link with no block as a link of every block':
+    'docs/reference/block-contracts.md#metadata.links',
+  'specHash leaves metadata.links out': 'docs/reference/block-contracts.md#metadata.links',
 };
