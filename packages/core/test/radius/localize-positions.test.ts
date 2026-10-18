@@ -56,4 +56,25 @@ describe('localizeRuns reads the authored block of a run block', () => {
     expect(localization.roots).toEqual(['s#b']);
     expect(localization.sections[0]?.section).toBe('offer');
   });
+
+  it('charges the authored block of a block the parent scheduler ran out of authored order', () => {
+    // Authored a, b, c; the runner ran c first (position 0, specIndex 2), then a and b. c fails.
+    const run = {
+      runId: 'r2',
+      specId: 's',
+      specHash: specHash(spec),
+      mode: 'F',
+      repeat: 0,
+      target: { adapter: 'function', agent: 'x' },
+      status: 'completed',
+      blocks: [
+        verdict(0, false, { specIndex: 2 }),
+        verdict(1, true, { specIndex: 0 }),
+        verdict(2, true, { specIndex: 1 }),
+      ],
+    } as unknown as RunResult;
+    const { localization } = localizeRuns([spec], [run], registry, { mode: 'F' });
+    expect(localization.roots).toEqual(['s#c']);
+    expect(localization.sections[0]?.section).toBe('close');
+  });
 });

@@ -233,12 +233,13 @@ export function localizeRuns(
     for (const block of run.blocks) {
       // A block not run or blocked is no measurement: it enters no row of the suite.
       if (block.injected === true || !isScored(block)) continue;
-      // The run position shifts by one after each injected block (mode P); the authored block is the one
-      // the links name.
+      // The authored block is the one the links name: the runner records it as specIndex when parent
+      // scheduling ran the block out of authored order; else the run position shifts by one after each
+      // injected block (mode P).
       const injectedBefore = run.blocks.filter(
         (other) => other.injected === true && other.index < block.index,
       ).length;
-      const at = block.index - injectedBefore;
+      const at = block.specIndex ?? block.index - injectedBefore;
       if (at < 0 || at >= spec.blocks.length) continue;
       verdicts.set(blockKey(spec.id, blockName(spec, at)), blockStatus(block) === 'fail');
     }
