@@ -118,7 +118,8 @@ function siblingSituation(
 
 /**
  * The reply acts a situation serves besides the row's own, when the row's act is a reply act. A phrase put to the
- * rows of two reply acts shows the agent no way to tell them apart, so the situation must be split per act.
+ * rows of two reply acts shows the agent no way to tell them apart, so the situation must be split per act. It
+ * binds the rows that sample a register rule (`register_sample`), whose whole outcome is the reply act.
  */
 export function rivalReplyActs(
   situation: Situation,
@@ -290,7 +291,8 @@ export function build(
         variant !== undefined && order.length > 0
           ? order[variant % order.length]
           : order[row.testType === 'twin' ? 1 : 0];
-      const rivals = phrase ? rivalReplyActs(situation, first, ctx) : [];
+      const rivals =
+        phrase && row.testType === 'register_sample' ? rivalReplyActs(situation, first, ctx) : [];
       if (rivals.length > 0) {
         // A phrase the situation shares with a row of another reply act names neither act.
         missing = {
@@ -309,15 +311,7 @@ export function build(
     }
     if (missing && ctx.fallback) {
       const written = codeAskOf(row, use, askAtoms, ctx, variant);
-      if (use === 'forced' && written.tool !== undefined) {
-        // The template of a tool names the tool and not the guarded act: the row waits for a phrase that instructs it.
-        gap(
-          then,
-          MARKERS.phrase,
-          first,
-          `a forced situation whose phrase instructs the act of ${first.id}; the template of ${written.tool} names no act`,
-        );
-      } else if (written.text === undefined) {
+      if (written.text === undefined) {
         // Never a nonsense ask: the row waits for an approved phrase, under its own gap.
         if (missing.shared) gap(then, missing.marker, first, missing.detail);
         else gap(then, MARKERS.askable, first, written.refused ?? 'the atom gives no task');

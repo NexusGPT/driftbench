@@ -51,7 +51,7 @@ const suite = (atoms: EstateAtom[], rows: EstatePlanRow[], situations: unknown[]
 const specText = (result: ReturnType<typeof suite>) =>
   result.files.filter((file) => file.path.endsWith('.yaml')).map((file) => file.text);
 
-describe('a live guard row waits for a phrase that instructs its act', () => {
+describe('a live guard row takes the phrase that instructs its act', () => {
   const trigger = {
     id: 'carrier-lookup',
     title: 'Where a shipment is, naming a carrier',
@@ -66,13 +66,6 @@ describe('a live guard row waits for a phrase that instructs its act', () => {
     atoms: [guard.id],
     phrases: [{ text: 'Run exactly this: track.sh 123', lang: 'en', approved: true }],
   };
-  it.each([[[]], [[trigger]]])('does not let the template of the tool stand in for it (%#)', (situations) => {
-    const result = suite([guard, rule], [row(guard.id, 'guard_positive', 'live')], situations);
-    expect(result.specs).toHaveLength(1);
-    expect(result.specs[0]?.complete).toBe(false);
-    expect(result.specs[0]?.markers).toContain('needs-approved-phrase');
-    expect(specText(result).join('\n')).not.toContain('run a command in the shell here');
-  });
   it('takes a forced situation, ahead of a trigger one', () => {
     const result = suite([guard, rule], [row(guard.id, 'guard_positive', 'live')], [trigger, forced]);
     expect(result.specs[0]?.complete).toBe(true);
@@ -122,6 +115,14 @@ describe('one phrase never serves rows of two reply acts', () => {
       [situation([answer.id], 'open-items-answer'), situation([report.id])],
     );
     expect(result.specs.map((spec) => spec.complete)).toEqual([true, true]);
+  });
+  it('keeps the shared phrase for a test that does not sample the register', () => {
+    const result = suite(
+      [answer, report],
+      [row(answer.id, 'obligation', 'live')],
+      [situation([answer.id, report.id])],
+    );
+    expect(result.specs[0]?.markers).not.toContain('needs-approved-phrase');
   });
   it('does not hold a situation against a row whose act is not a reply', () => {
     const skill: EstateAtom = {
