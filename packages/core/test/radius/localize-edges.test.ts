@@ -125,3 +125,25 @@ describe('localisation leaves stale sections out', () => {
     expect(localization.sections.every((each) => each.score === 0)).toBe(true);
   });
 });
+
+describe('a stale link', () => {
+  it('adds nothing to its section (docs/reference/block-contracts.md, Localize)', () => {
+    const spec = {
+      id: 'stale',
+      kind: 'conversation',
+      blocks: [{ id: 'only', when: { user: '.' } }],
+      metadata: {
+        links: [
+          {
+            block: 'only',
+            to: { kind: 'prompt_section', prompt: 'p', section: 'intro' },
+            status: 'declared',
+          },
+          { block: 'only', to: { kind: 'prompt_section', prompt: 'p', section: 'offer' }, status: 'stale' },
+        ],
+      },
+    } as Spec;
+    const rows = localizeRows([spec], registryOf(), 'T');
+    expect(rows[0]?.sections).toEqual(['intro']);
+  });
+});

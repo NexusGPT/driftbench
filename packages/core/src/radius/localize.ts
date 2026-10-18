@@ -173,6 +173,7 @@ export function localizeRows(
                 link.to.kind === 'prompt_section' &&
                 link.to.prompt === registry.prompt_id &&
                 link.status !== 'refuted' &&
+                link.status !== 'stale' &&
                 local.has(link.to.section) &&
                 linkHolds(spec, link, index),
             )
