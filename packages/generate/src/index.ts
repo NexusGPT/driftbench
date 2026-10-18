@@ -384,6 +384,7 @@ export {
   questionsFor,
   type ReaderAnswer,
   type ReaderQuestion,
+  type ScopeOverride,
   type ShareEstimate,
   type Tally,
   type ValueReport,

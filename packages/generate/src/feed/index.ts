@@ -31,6 +31,7 @@ export {
   feedFromLogs,
   type LoggedConversation,
   type LogScope,
+  type ScopeOverride,
 } from './logs';
 export {
   assertOutsideRepository,

@@ -1331,6 +1331,7 @@
       "STATIC_DIR": "value",
       "STATIC_TEST_TYPES": "value",
       "SYSTEM_PROMPT": "value",
+      "ScopeOverride": "type",
       "ScoreEntry": "type",
       "SealedBundle": "value",
       "SecondPass": "type",

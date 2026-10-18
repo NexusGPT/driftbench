@@ -156,14 +156,14 @@ The report (`FeedReport`) holds counts, shares, intervals and settings. `private
 
 ### From intake logs
 
-`feedFromLogs` feeds `feedVariables` from the output of `intakeLogs` (the `kept` list), so the reader sees the anonymised text of a log and never the raw one. It reads a variable at the scope you declare for it, in `scopes` (a variable id to `conversation` or `turn`):
+`feedFromLogs` feeds `feedVariables` from the output of `intakeLogs` (the `kept` list), so the reader sees the anonymised text of a log and never the raw one. It reads a variable at the scope the store declares for it (the `scope` of the variable, `conversation` when it states none):
 
 | Scope | The reader is asked | The reader sees | `total` and `count` in the store |
 |---|---|---|---|
-| `conversation` (the default for a variable you do not name) | once per conversation | the whole conversation, one line per turn, `role: text` | conversations |
+| `conversation` (the default) | once per conversation | the whole conversation, one line per turn, `role: text` | conversations |
 | `turn` | once per turn of the roles in `turnRoles` (default: the user) | that turn's text alone | turns |
 
-Use `turn` for a variable that can change inside one conversation, such as the mood of the person. The store format has no field for the scope, so it is a setting of the call, not part of the store. The result holds one store and one report per scope that had a variable to read (`reports.conversation`, `reports.turn`); each report has its own count and set hash, so write the counts of each with `privateCountsOf` and `writePrivateCounts`. A calibration set is given per scope (`calibration.conversation`, `calibration.turn`): whole conversations for the first, single turns for the second. The privacy rules are those of `feedVariables`: the store and the reports hold counts and digests, no id and no line of text.
+Use `turn` for a variable that can change inside one conversation, such as the mood of the person. The call can override a scope with `scopes` (a variable id to `conversation` or `turn`); `overrides` in the result lists each override that changed a scope, with the scope the store declares and the one used. The result holds one store and one report per scope that had a variable to read (`reports.conversation`, `reports.turn`); each report has its own count and set hash, so write the counts of each with `privateCountsOf` and `writePrivateCounts`. A calibration set is given per scope (`calibration.conversation`, `calibration.turn`): whole conversations for the first, single turns for the second. The privacy rules are those of `feedVariables`: the store and the reports hold counts and digests, no id and no line of text.
 
 Advice. The loader reports `VARIABLES_UNSOURCED` for each value, boundary and constraint that has no provenance. It never makes a store invalid: a store converted from a space map names no source at all.
 
