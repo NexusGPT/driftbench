@@ -324,8 +324,8 @@ const MUTANTS: Mutant[] = [
   {
     name: 'zFor is one-sided',
     file: 'intervals.ts',
-    from: 'return normalQuantile(1 - alpha / 2);',
-    to: 'return normalQuantile(1 - alpha);',
+    from: 'return -normalQuantile(alpha / 2);',
+    to: 'return -normalQuantile(alpha);',
     fails: ['zFor.levels', 'zFor.far-tail', 'zFor.monotone'],
   },
   {
@@ -496,7 +496,7 @@ const MUTANTS: Mutant[] = [
   {
     name: 'binomialCdf has no point mass at p = 0',
     file: 'special.ts',
-    from: '  if (p === 0) return k === 0 ? 1 : 0;\n',
+    from: '  if (p === 0) return 1;\n',
     to: '',
     fails: ['binomialCdf.edges'],
     passes: ['binomialCdf.moderate-n', 'binomialCdf.exact-small'],
