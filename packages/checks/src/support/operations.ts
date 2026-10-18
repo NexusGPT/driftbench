@@ -50,9 +50,10 @@ const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff
   { class: 'overwrite', pattern: /\bgit\s+(?:reset\s+--hard|restore)\b/, needsNoDiff: true },
   // `git checkout -- <path>`, with an optional revision before the `--`. The `--` ends the options: it is
   // followed by a space, the end, or (as before) a word such as `--force`. A `\b` after it never matched `-- `.
+  // The rule is a plain literal with no lookahead, because the estate vocabulary derives its cases from it.
   {
     class: 'overwrite',
-    pattern: /\bgit\s+checkout\s+(?:[^\s;&|-][^\s;&|]*\s+)?--(?=\s|$|\w)/,
+    pattern: /\bgit\scheckout\s(?:[^\s;&|\-][^\s;&|]*\s)?--(?:\s|\w|$)/,
     needsNoDiff: true,
   },
 ];
