@@ -104,6 +104,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       bank: ledger-audit
       phrase: 1

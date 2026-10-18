@@ -59,6 +59,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       form: structured ask
       field: gate.standing.never-report-done-before-verify-passed#structured ask

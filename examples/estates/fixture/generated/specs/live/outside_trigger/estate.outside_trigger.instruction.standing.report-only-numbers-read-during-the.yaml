@@ -62,6 +62,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: clarify
     from:
       neutral: outside
     outcome: no-change:negative

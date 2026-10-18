@@ -61,6 +61,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       form: structured ask
       field: hazard.standing.recover-from-a-new-session#structured ask

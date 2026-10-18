@@ -73,6 +73,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       form: structured ask
       field: gate.invoice-reconcile.read-references-matching-rules-md-before#structured ask

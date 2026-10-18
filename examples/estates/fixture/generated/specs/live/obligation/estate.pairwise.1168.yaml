@@ -98,6 +98,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: acknowledge
     from:
       bank: stop-word
       phrase: 1

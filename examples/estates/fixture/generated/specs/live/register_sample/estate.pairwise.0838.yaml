@@ -102,6 +102,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: answer
     from:
       bank: long-status-report
       phrase: 0

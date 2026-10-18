@@ -76,6 +76,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: clarify
     from:
       form: structured ask
       field: instruction.memory-memory.no-delivery-on-a-public-holiday#structured ask

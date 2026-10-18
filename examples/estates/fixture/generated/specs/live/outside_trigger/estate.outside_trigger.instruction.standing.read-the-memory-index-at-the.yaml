@@ -55,6 +55,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       neutral: outside
     outcome: no-change:negative

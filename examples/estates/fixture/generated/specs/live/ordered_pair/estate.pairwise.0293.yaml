@@ -103,6 +103,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: clarify
     from:
       bank: supplier-email
       phrase: 1

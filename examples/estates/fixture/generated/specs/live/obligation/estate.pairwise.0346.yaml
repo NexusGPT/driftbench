@@ -76,6 +76,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       form: structured ask
       field: instruction.memory-memory.the-weekly-report-is-due-monday#structured ask

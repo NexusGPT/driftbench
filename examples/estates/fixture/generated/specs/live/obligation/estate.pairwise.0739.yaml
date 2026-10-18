@@ -88,6 +88,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       bank: after-compaction
       phrase: 0

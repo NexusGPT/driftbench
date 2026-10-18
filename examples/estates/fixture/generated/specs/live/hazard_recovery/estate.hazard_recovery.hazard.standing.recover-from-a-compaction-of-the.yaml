@@ -63,6 +63,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       form: structured ask
       field: hazard.standing.recover-from-a-compaction-of-the#structured ask

@@ -91,6 +91,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       bank: ledger-file-removal
       phrase: 0

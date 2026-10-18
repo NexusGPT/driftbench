@@ -103,6 +103,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       bank: open-items
       phrase: 1

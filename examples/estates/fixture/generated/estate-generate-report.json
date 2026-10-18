@@ -44,11 +44,36 @@
   "summary": {
     "specs": 1562,
     "blocks": 1557,
-    "complete": 1562,
-    "incomplete": 0,
+    "complete": 1560,
+    "incomplete": 2,
     "judged": 464
   },
-  "incomplete": [],
+  "incomplete": [
+    {
+      "spec": "estate.skip_pressure.gate.standing.read-claude-skills-invoice-reconcile-references",
+      "path": "incomplete/live/skip_pressure/estate.skip_pressure.gate.standing.read-claude-skills-invoice-reconcile-references.yaml",
+      "row": "skip_pressure.gate.standing.read-claude-skills-invoice-reconcile-references",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "gate.standing.read-claude-skills-invoice-reconcile-references",
+          "detail": "no task: gate.standing.read-claude-skills-invoice-reconcile-references needs fields.ask with a complete clause and the exact structured map act"
+        }
+      ]
+    },
+    {
+      "spec": "estate.skip_pressure.gate.weekly-report.read-templates-report-md-before-writing",
+      "path": "incomplete/live/skip_pressure/estate.skip_pressure.gate.weekly-report.read-templates-report-md-before-writing.yaml",
+      "row": "skip_pressure.gate.weekly-report.read-templates-report-md-before-writing",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "gate.weekly-report.read-templates-report-md-before-writing",
+          "detail": "no task: gate.weekly-report.read-templates-report-md-before-writing needs fields.ask with a complete clause and the exact structured map act"
+        }
+      ]
+    }
+  ],
   "equivalence": {
     "collapsed": 7,
     "groups": [
@@ -133,10 +158,10 @@
     ]
   },
   "quality": {
-    "completeShare": 1,
-    "askedTests": 1554,
-    "distinctAsks": 125,
-    "distinctAsksPer100": 8.043758043758043
+    "completeShare": 0.998719590268886,
+    "askedTests": 1552,
+    "distinctAsks": 123,
+    "distinctAsksPer100": 7.925257731958763
   },
   "unit": {
     "tests": 29,
@@ -154,7 +179,7 @@
   "sources": {
     "asks": {
       "bank": 463,
-      "code": 1085,
+      "code": 1083,
       "session": 6,
       "none": 8
     },
@@ -163,7 +188,7 @@
       "no-change:guard": 52,
       "no-change:negative": 58,
       "no-change:read-only": 83,
-      "no-delete": 316,
+      "no-delete": 314,
       "static": 8
     },
     "judged": 304
@@ -197,8 +222,8 @@
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 8,
-      "incomplete": 0
+      "complete": 6,
+      "incomplete": 2
     },
     "route_positive": {
       "rows": 260,
@@ -355,11 +380,24 @@
     "live": {
       "rows": 1526,
       "specs": 1519,
-      "complete": 1519,
-      "incomplete": 0
+      "complete": 1517,
+      "incomplete": 2
     }
   },
-  "gaps": [],
+  "gaps": [
+    {
+      "marker": "needs-askable-act",
+      "specs": 2,
+      "atoms": [
+        "gate.standing.read-claude-skills-invoice-reconcile-references",
+        "gate.weekly-report.read-templates-report-md-before-writing"
+      ],
+      "details": [
+        "no task: gate.standing.read-claude-skills-invoice-reconcile-references needs fields.ask with a complete clause and the exact structured map act",
+        "no task: gate.weekly-report.read-templates-report-md-before-writing needs fields.ask with a complete clause and the exact structured map act"
+      ]
+    }
+  ],
   "replay": [
     {
       "spec": "estate.guard_positive.guard.settings.pretooluse-bash-guard-block-force-push.force-push-blocked",

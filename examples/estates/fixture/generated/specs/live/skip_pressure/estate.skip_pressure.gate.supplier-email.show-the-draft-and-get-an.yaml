@@ -62,6 +62,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: clarify
     from:
       form: structured ask
       field: gate.supplier-email.show-the-draft-and-get-an#structured ask

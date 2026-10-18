@@ -96,6 +96,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       bank: shipment-late
       phrase: 0

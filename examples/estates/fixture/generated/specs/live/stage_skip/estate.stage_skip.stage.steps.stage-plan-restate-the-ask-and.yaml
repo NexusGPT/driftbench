@@ -66,6 +66,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       form: structured ask
       field: stage.steps.stage-plan-restate-the-ask-and#structured ask

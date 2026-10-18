@@ -107,13 +107,11 @@ specs/live/guard_positive/estate.pairwise.1158.yaml
 specs/live/guard_positive/estate.pairwise.1159.yaml
 specs/live/guard_positive/estate.pairwise.1194.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.standing.read-claude-skills-invoice-reconcile-references.yaml
-specs/live/skip_pressure/estate.skip_pressure.gate.standing.read-claude-skills-invoice-reconcile-references.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.standing.read-git-status-before-commit-to.yaml
 specs/live/skip_pressure/estate.skip_pressure.gate.standing.read-git-status-before-commit-to.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml
 specs/live/skip_pressure/estate.skip_pressure.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.weekly-report.read-templates-report-md-before-writing.yaml
-specs/live/skip_pressure/estate.skip_pressure.gate.weekly-report.read-templates-report-md-before-writing.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.standing.read-a-file-before-editing-it.yaml
 specs/live/skip_pressure/estate.skip_pressure.gate.standing.read-a-file-before-editing-it.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.standing.write-a-helper-s-brief-before.yaml

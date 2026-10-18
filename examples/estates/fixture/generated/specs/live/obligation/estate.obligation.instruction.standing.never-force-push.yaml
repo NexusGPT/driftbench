@@ -88,6 +88,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: refuse
     from:
       bank: force-push
       phrase: 0

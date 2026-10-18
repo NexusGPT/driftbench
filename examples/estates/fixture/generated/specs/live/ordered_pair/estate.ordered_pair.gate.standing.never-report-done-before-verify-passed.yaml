@@ -86,6 +86,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       bank: weekly-report-update
       phrase: 0

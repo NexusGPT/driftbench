@@ -67,6 +67,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       form: structured ask
       field: instruction.standing.after-a-compaction-re-read-the#structured ask

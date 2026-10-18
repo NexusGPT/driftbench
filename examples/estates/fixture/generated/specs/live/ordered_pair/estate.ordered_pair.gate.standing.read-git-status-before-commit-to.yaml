@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please make one Bash tool call.
+      user: Please run `git commit`.
     expect:
       workspace:
         deleted: []
@@ -68,12 +68,13 @@ metadata:
     act:
       kind: call
       name: Bash
+      target: git commit
     from:
       form: structured act
       field: gate.standing.read-git-status-before-commit-to#structured act
       fp: ed1a3bf0527dc057f312ebf3f2e101c94c85e5cca02ef11aaa8d0cf29b6b5874
       frame: trigger
-      shape: make one {} tool call
+      shape: run `{}`
       pieces:
-        - Bash
+        - git commit
     outcome: no-delete

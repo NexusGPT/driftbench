@@ -71,6 +71,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       form: structured ask
       field: instruction.standing.read-the-memory-index-at-the#structured ask

@@ -60,6 +60,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: draft
     from:
       form: structured ask
       field: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and#structured ask

@@ -71,6 +71,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: clarify
     from:
       form: structured ask
       field: instruction.standing.report-only-numbers-read-during-the#structured ask

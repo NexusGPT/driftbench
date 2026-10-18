@@ -101,6 +101,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: answer
     from:
       bank: open-items
       phrase: 1

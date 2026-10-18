@@ -114,6 +114,7 @@ metadata:
       createdBy: generator
     act:
       kind: reply
+      name: report
     from:
       bank: invoice-reconcile
       phrase: 2
