@@ -84,6 +84,7 @@ Every page says what exists today and what is not built yet, with the phase that
 ## Research
 
 * [Budget-bounded test generation for AI agent evaluation](research/budget-bounded-tests.md): a research draft describing the budget selector and its evaluation.
+* [No fresh JudgeBench or RubricBench pool remains](research/fresh-public-pool-audit.md): an audit showing that no fresh JudgeBench or RubricBench item remains, with planning power numbers.
 
 ## What exists today
 
