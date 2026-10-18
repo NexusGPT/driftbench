@@ -9,6 +9,7 @@ see_also:
   - running-cache
   - running-outcomes
   - running-modes
+  - authoring-parent-blocks
 next:
   - running-campaign-export-import
 ---
@@ -41,6 +42,9 @@ driftbench campaign run [paths...] --agent-version <label> --store <file> --chan
 | `--max-age <days>` | `7` | the most days since a carried result was measured; an older one runs fresh. At least 0. |
 | `--block-reruns` | off | needs mode T in `--mode`. For a T cell in the radius, send only the blocks the change can affect. Keep the other stored blocks of the cell. |
 | `--record-end-state-snapshots` | off | store the raw end-state values each mode T block reads, so a later `--block-reruns` can rerun cells that check an end state. Off, such cells run whole. The values may be sensitive. A block rerun whose baseline recorded snapshots keeps recording them. |
+
+A parent-linked spec requires a full tree replay for partial block reuse. Its blocks cannot be treated as independent T blocks.
+A change to a parent reaches its descendants, including children written earlier in the file.
 
 ## Inputs
 
