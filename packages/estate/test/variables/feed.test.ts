@@ -57,15 +57,67 @@ describe('the estate feed refuses a value that has no quote', () => {
     ]);
     expect(result.store.variables).toEqual([]);
   });
+});
 
-  it('refuses a prose quote longer than the store takes (1,000 characters)', () => {
-    const long = `${'Count the boats twice and write the number down. '.repeat(30)}`.trim();
-    const files = { 'LONG.md': `# Long\n\n${long}\n` };
-    const result = estateToVariables(
-      mapOf([atom({ file: 'LONG.md', quote: long, files })]),
+describe('a long quote of a prose atom that the ledger resolves is valid at any length', () => {
+  const SENTENCE = 'Count the boats twice and write the number down.';
+  const long = (sentences: number) => Array.from({ length: sentences }, () => SENTENCE).join(' ');
+  const filesOf = (text: string) => ({ 'LONG.md': `# Long\n\n${text}\n` });
+  const feedOf = (quote: string, files = filesOf(quote)) =>
+    estateToVariables(
+      mapOf([atom({ file: 'LONG.md', quote, files })]),
       provenanceResolver(new Map(Object.entries(files))),
     );
-    expect(result.refused.map((entry) => entry.reason)).toEqual(['the quote is longer than 1000 characters']);
+  const quoteEntry = (result: ReturnType<typeof feedOf>) => {
+    const entry = valuesOf(result.store)[0]?.provenance?.[0];
+    if (entry?.kind !== 'quote') throw new Error('no quote entry');
+    return entry;
+  };
+
+  it('keeps a quote of exactly 1,000 characters whole', () => {
+    const quote = `${long(20)}`.slice(0, 1000).trimEnd();
+    const result = feedOf(quote.length === 1000 ? quote : `${quote}${'x'.repeat(1000 - quote.length)}`);
+    expect(result.refused).toEqual([]);
+    expect(quoteEntry(result).quote).toHaveLength(1000);
+  });
+
+  it('refuses nothing for a quote over 1,000 characters: the entry keeps its first words, cut at a word, and the ledger id', () => {
+    const quote = long(60);
+    expect(quote.length).toBeGreaterThan(2500);
+    const result = feedOf(quote);
+    expect(result.refused).toEqual([]);
+    const entry = quoteEntry(result);
+    expect(entry.quote.length).toBeLessThanOrEqual(1000);
+    expect(entry.quote.length).toBeGreaterThan(900);
+    expect(quote.startsWith(entry.quote)).toBe(true);
+    expect(quote[entry.quote.length]).toBe(' ');
+    expect(entry.ledger).toMatch(/^[a-z2-7]{10}$/);
+  });
+
+  it('gives a long quote without a space its first 1,000 characters', () => {
+    const quote = 'x'.repeat(2500);
+    const entry = quoteEntry(feedOf(quote));
+    expect(entry.quote).toBe('x'.repeat(1000));
+  });
+
+  it('is found in its file by the check of the quotes, and the store validates', async () => {
+    const files = filesOf(long(60));
+    const root = await hallFolder(files);
+    const result = feedOf(long(60), files);
+    expect(validateVariableStore(result.store).ok).toBe(true);
+    expect(await verifyVariableQuotes(result.store, root)).toEqual([]);
+  });
+
+  it('puts no limit on the length of the quote of a JSON or script atom: the entry keeps no text', () => {
+    const value = 'boat '.repeat(400).trim();
+    const files = { 'big.json': `{\n  "note": "${value}"\n}\n` };
+    const quote = `"note": "${value}"`;
+    const result = estateToVariables(
+      mapOf([atom({ kind: 'setting', file: 'big.json', quote, files })]),
+      provenanceResolver(new Map(Object.entries(files))),
+    );
+    expect(result.refused).toEqual([]);
+    expect(valuesOf(result.store)[0]?.provenance?.[0]).toMatchObject({ kind: 'structure', pointer: '/note' });
   });
 });
 

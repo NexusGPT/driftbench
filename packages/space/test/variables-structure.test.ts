@@ -135,6 +135,52 @@ describe('resolveStructure: the hash of the place a provenance entry names', () 
     expect(resolveStructure('{"k": 1}', { pointer: '' })).toEqual({ ok: true, hash: sha('{"k":1}') });
   });
 
+  it('keeps null, .inf, -.inf, .nan and -0 apart from each other and from the strings that look like them', () => {
+    const hashOf = (yaml: string) => {
+      const resolved = resolveStructure(yaml, { pointer: '/limit' });
+      if (!resolved.ok) throw new Error(resolved.message);
+      return resolved.hash;
+    };
+    const variants = [
+      'null',
+      '.inf',
+      '-.inf',
+      '.nan',
+      '0',
+      '-0.0',
+      '".inf"',
+      '"null"',
+      '"NaN"',
+      '"Infinity"',
+    ];
+    const hashes = variants.map((value) => hashOf(`limit: ${value}\n`));
+    expect(new Set(hashes).size).toBe(variants.length);
+    // The same number written another way is the same value.
+    expect(hashOf('limit: 1\n')).toBe(hashOf('limit: 1.0\n'));
+    expect(hashOf('limit: .inf\n')).toBe(hashOf('limit: .Inf\n'));
+    expect(hashOf('limit: .nan\n')).toBe(hashOf('limit: .NaN\n'));
+    // The hash of a finite number is the SHA-256 of its JSON, as before.
+    expect(hashOf('limit: 2\n')).toBe(sha('2'));
+  });
+
+  it('keeps them apart inside a list and a mapping too', () => {
+    const at = (yaml: string) => {
+      const resolved = resolveStructure(yaml, { pointer: '/a' });
+      if (!resolved.ok) throw new Error(resolved.message);
+      return resolved.hash;
+    };
+    const values = [
+      '[null, 1]',
+      '[.inf, 1]',
+      '[-.inf, 1]',
+      '[.nan, 1]',
+      '{k: null}',
+      '{k: .inf}',
+      '{k: .nan}',
+    ];
+    expect(new Set(values.map((value) => at(`a: ${value}\n`))).size).toBe(values.length);
+  });
+
   it.each([
     ['a key that is not there', '/permissions/ask'],
     ['an index past the end', '/permissions/deny/2'],

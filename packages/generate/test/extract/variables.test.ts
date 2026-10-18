@@ -410,6 +410,22 @@ describe('verifyVariableQuotes on structure entries', () => {
     ]);
   });
 
+  it.each(['.inf', '-.inf', '.nan', '"null"'])(
+    'finds out a YAML value recorded as null that became %s',
+    async (changed) => {
+      const dir = await folder({ 'limits.yaml': `limit: ${changed}\n` });
+      const store = storeWith({
+        kind: 'structure',
+        path: 'limits.yaml',
+        pointer: '/limit',
+        hash: sha('null'),
+      });
+      expect(codes(await verifyVariableQuotes(store, dir))).toEqual([
+        'VARIABLES_HASH_MISMATCH variables.0.values.0.provenance.0.hash',
+      ]);
+    },
+  );
+
   it('names a file it cannot read once, whatever mix of quotes and structure entries names it', async () => {
     const dir = await folder({});
     const store = storeWith(
