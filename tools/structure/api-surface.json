@@ -2539,6 +2539,7 @@
       "showNumber": "value",
       "statsBankChild": "value",
       "statsLadder": "value",
+      "stripCauseTag": "value",
       "stripHint": "value",
       "validateRow": "value",
       "wilsonLevel": "value",

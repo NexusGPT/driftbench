@@ -4,15 +4,8 @@
  */
 
 import { assertCount, assertFiniteValues, assertProbability, assertSameLength } from './basics';
-import { wilson } from './intervals';
-import {
-  binomialCdf,
-  binomialPmf,
-  chiSquareSf,
-  incompleteBeta,
-  normalQuantileFromLogP,
-  normalSf,
-} from './special';
+import { wilson, zFor } from './intervals';
+import { binomialCdf, binomialPmf, chiSquareSf, incompleteBeta, normalSf } from './special';
 
 export interface McNemarResult {
   /** The exact test reports min(b, c); the chi-square test reports the corrected chi-square. */
@@ -249,8 +242,7 @@ export function pairedRateDifference(table: PairedTable, alpha = 0.05): PairedDi
   assertProbability('pairedRateDifference', 'alpha', alpha, true);
   const n = a + b + c + d;
   if (n === 0) throw new RangeError('pairedRateDifference: table has no pairs');
-  // Keep the two-sided tail in log space, including when alpha / 2 underflows.
-  const z = -normalQuantileFromLogP(Math.log(alpha) - Math.LN2);
+  const z = zFor(alpha);
   const p1 = (a + b) / n;
   const p2 = (a + c) / n;
   const w1 = wilson(a + b, n, z);
