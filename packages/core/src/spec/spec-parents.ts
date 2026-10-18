@@ -98,6 +98,16 @@ export function resolveSpecParents(
           );
     }
     const replayedBefore = specParentRecord(parent.spec)?.replayed ?? 0;
+    // The opening is the parent's blocks up to the named one, in order: a parent that is a forest of its own
+    // has no such sequence, and its links would name blocks the written-out child renames.
+    const linkedBlock = parent.spec.blocks.find(
+      (block, index) => index >= replayedBefore && block.parent !== undefined,
+    );
+    if (linkedBlock)
+      return fail(
+        'PARENT_SPEC_MISMATCH',
+        `the parent spec "${ref.spec}" has parent links of its own (block "${linkedBlock.id ?? '?'}"): a spec opens another only as a sequence of blocks`,
+      );
     const at = parent.spec.blocks.findIndex(
       (block, index) => index >= replayedBefore && block.id === ref.block,
     );
