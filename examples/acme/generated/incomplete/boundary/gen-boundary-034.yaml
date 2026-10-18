@@ -78,6 +78,7 @@ metadata:
     path: upgrade-order
     cell:
       port.check.out.reason: port.check.out.reason.present
+      port.check.out.eligible: port.check.out.eligible.false
       flow: upgrade
       user_type: existing-customer
       account_lookup: found
@@ -90,7 +91,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-identify
-          stage: needs
+          stage: identify
         phrase:
           dimension: stage_transition
           value: needs-to-identify

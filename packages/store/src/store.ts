@@ -2,6 +2,8 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { DatabaseSync, SQLInputValue, StatementSync } from 'node:sqlite';
 import {
+  applyRealizedTextPolicy,
+  blockStatus,
   Campaign,
   type CostUnit,
   canonicalJson,
@@ -61,9 +63,18 @@ export function openMemoryStore(): SqliteStore {
   return openStore(':memory:');
 }
 
+/**
+ * How long a call waits for another connection that holds the file, in milliseconds. SQLite takes the whole
+ * file for a commit, and a live holder can be slow: a large commit, a loaded machine, a process the scheduler has
+ * not run for seconds. A call that waits only five seconds then fails with `database is locked` although the
+ * holder is alive and will finish; a holder that is gone drops its lock with the process, so a long wait costs
+ * only when the holder is alive. Every call is synchronous, so this is also the longest a call blocks.
+ */
+const BUSY_TIMEOUT_MS = 30_000;
+
 function setUp(db: DatabaseSync, path: string): void {
   db.exec('PRAGMA foreign_keys = ON');
-  db.exec('PRAGMA busy_timeout = 5000');
+  db.exec(`PRAGMA busy_timeout = ${BUSY_TIMEOUT_MS}`);
   const version = Number(db.prepare('PRAGMA user_version').get()?.user_version ?? 0);
   if (version > SCHEMA_VERSION) {
     throw new StoreError(
@@ -186,6 +197,9 @@ export class SqliteStore implements Store {
   private readonly db: DatabaseSync;
   private readonly sql: ReturnType<typeof statements>;
   private closed = false;
+  // Run writes need only this policy. Keep one validated row, not the full campaign per run.
+  // Compare the current database bytes on every write so other connections' changes are still checked.
+  private runCampaignPolicy?: { id: string; json: string; realizedText: boolean };
 
   constructor(db: DatabaseSync, path: string) {
     this.db = db;
@@ -422,11 +436,18 @@ export class SqliteStore implements Store {
 
   /**
    * Reads a folder `exportCampaign` wrote and stores its campaign and runs, all or nothing. The
-   * campaign must be new to this store or equal to the one it holds. Returns what it read.
+   * campaign must be new to this store or equal to the one it holds. Returns the stored runs
+   * after applying its text policy, alongside the verified source manifest.
    */
   async importCampaign(folder: string): Promise<CampaignBundle> {
     this.live();
     const bundle = await readCampaignBundle(folder);
+    bundle.runs = bundle.runs.map((run) =>
+      applyRealizedTextPolicy(run, bundle.campaign.provenance?.realizedText === true, {
+        fromRun: run.runId,
+        fromCampaign: bundle.campaign.campaignId,
+      }),
+    );
     this.live();
     transaction(this.db, () => {
       for (const source of bundle.sources) this.importVersionNow(source.version, source.files);
@@ -596,6 +617,7 @@ export class SqliteStore implements Store {
   async close(): Promise<void> {
     if (this.closed) return;
     this.closed = true;
+    this.runCampaignPolicy = undefined;
     this.db.close();
   }
 
@@ -636,7 +658,25 @@ export class SqliteStore implements Store {
         `putRun refused an invalid RunResult: ${describeIssues(parsed.error.issues)}`,
       );
     }
-    const { blocks, ...summary } = parsed.data;
+    const campaignRow = this.sql.selectCampaign.get(campaignId);
+    if (campaignRow === undefined) {
+      throw new StoreError(
+        'CAMPAIGN_MISSING',
+        `putRun: campaign ${campaignId} is not in the store; put the campaign before its runs`,
+      );
+    }
+    const campaignJson = text(campaignRow, 'json', `the campaigns row ${campaignId}`);
+    let policy = this.runCampaignPolicy;
+    if (policy?.id !== campaignId || policy.json !== campaignJson) {
+      const campaign = readCampaign(campaignRow);
+      policy = {
+        id: campaignId,
+        json: campaignJson,
+        realizedText: campaign.provenance?.realizedText === true,
+      };
+      this.runCampaignPolicy = policy;
+    }
+    const { blocks, ...summary } = applyRealizedTextPolicy(parsed.data, policy.realizedText);
     const what = `run ${summary.runId}`;
     let previous = -1;
     for (const block of blocks) {
@@ -647,12 +687,6 @@ export class SqliteStore implements Store {
         );
       }
       previous = block.index;
-    }
-    if (this.sql.selectCampaign.get(campaignId) === undefined) {
-      throw new StoreError(
-        'CAMPAIGN_MISSING',
-        `putRun: campaign ${campaignId} is not in the store; put the campaign before its runs`,
-      );
     }
     const rows = blocks.map((block) => {
       const { observed, verdicts, drift, ...rest } = block;
@@ -665,7 +699,7 @@ export class SqliteStore implements Store {
         toJson(observed, label),
         toJson(verdicts, label),
         toJson(drift, label),
-        block.pass ? 1 : 0,
+        blockStatus(block) === 'pass' ? 1 : 0,
         toJson(rest, label),
       ] satisfies SQLInputValue[];
     });

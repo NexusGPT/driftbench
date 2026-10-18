@@ -4,7 +4,7 @@
 id: gen-phrase-001
 version: 7a022d4e1380
 kind: conversation
-title: "Phrase of flow=upgrade: Path upgrade-most-data of upgrade: needs > identify > closing"
+title: "Phrase of flow=upgrade: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
 channel: chat
 lang: EN
 tier: generated
@@ -33,7 +33,7 @@ criteria:
 blocks:
   - id: b1-needs-to-identify
     when:
-      user: I keep running out of data, can I get a bigger plan?
+      user: Hi, I already have an Acme plan and I need more data.
     expect:
       stage: identify
       stage_reported: true
@@ -76,11 +76,12 @@ metadata:
       agent: acme
       version: "1"
       hash: 7a022d4e1380
-    path: upgrade-most-data
+    path: upgrade-order
     cell:
       flow: upgrade
       user_type: existing-customer
-      account_lookup: most-data
+      account_lookup: found
+      plan_choice: names-one
       channel: chat
       coverage_result: none
     blocks:
@@ -89,7 +90,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-identify
-          stage: needs
+          stage: identify
         phrase:
           dimension: stage_transition
           value: needs-to-identify

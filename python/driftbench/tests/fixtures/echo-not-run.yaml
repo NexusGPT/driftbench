@@ -1,0 +1,13 @@
+# A fictional spec that forces a tool result: the process adapter cannot apply it (no toolStubs), so the
+# block is not run, and nothing fails.
+id: py-echo-not-run
+given:
+  world:
+    tools:
+      lookup:
+        result: { ok: true }
+blocks:
+  - user: hello
+    expect:
+      stage: echoed
+      must: ['echo: hello \(1 messages\)']

@@ -13,9 +13,9 @@ The same three parts hold for a conversational exchange and for a task step. See
 A spec sets Given in two places.
 
 * `given` at the top of the spec: the default for every block. It holds `ledger`, `world` and `vars`.
-* `given` on a block: the same three parts, plus `prefix`, the messages that come before the block.
+* `given` on a block: the same three parts, plus `prefix`, the messages that come before the block, and `origin`, where that prefix comes from.
 
-A block's `prefix` starts the block in the middle of a conversation, without replaying the blocks before it. In a free-running run, the block opens a new session from that prefix, and the blocks after it continue from there. Whether the agent itself sees the prefix depends on the adapter's `seedPrefix` capability; see [adapters](../adapters/index.md#capabilities). The block's `ledger`, `world` and `vars` merge into the running state from that block onwards, in free-running and perturbed modes. In teacher-forced mode, every block starts from its own resolved Given. See [run modes](run-modes.md).
+A block's `prefix` starts the block in the middle of a conversation, without replaying the blocks before it. In a free-running run, the block opens a new session from that prefix, and the blocks after it continue from there. The agent sees the prefix only on an adapter with the `seedPrefix` capability; on another, the block is `not_run` (the `capability` check), never run without it. See [adapters](../adapters/index.md#capabilities). The block's `ledger`, `world` and `vars` merge into the running state from that block onwards, in free-running and perturbed modes. In teacher-forced mode, every block starts from its own resolved Given. See [run modes](run-modes.md).
 
 | Part | What it holds | Example |
 |---|---|---|
@@ -27,13 +27,61 @@ A block's `prefix` starts the block in the middle of a conversation, without rep
 | `world.fixtures` | free fixtures | a price table |
 | `vars` | runtime variables | the clock, the channel, the sender |
 
-An adapter applies `world.tools` only when it has the `toolStubs` capability; see [adapters](../adapters/index.md#capabilities).
+An adapter applies `world.tools` only when it has the `toolStubs` capability; on another, a block with a forced tool result is `not_run`. See [adapters](../adapters/index.md#capabilities).
+
+### Tool history: records, not prose
+
+A fact the agent learnt from a tool belongs in the prefix as a tool call with its `output`, never only in the assistant's text. The two are different tests. In an experiment on a sales agent (15 blocks, each run 30 times per arm), the agent that read an earlier result only in its own prose called the tool again in 332 of 450 runs, and the one that read the recorded call in 0 of 450; on the three lead blocks it filed the same callback request a second time in all 90 prose runs. `spec lint` warns with `PREFIX_PROSE_HISTORY` when an assistant message of a prefix states a ledger fact that no recorded call of the prefix holds and the user never said.
+
+`origin` says where a prefix comes from:
+
+| Value | Meaning |
+|---|---|
+| `authored` | a person wrote it |
+| `recorded` | it is copied from a real run, its tool calls with the results the tools really returned; `import traces` writes it |
+| `canonical` | it is the replay of a spec as written: the calls the blocks expect, with the results the world forces |
+
+`origin` is optional and needs a `prefix` on the same block (`GIVEN_ORIGIN_WITHOUT_PREFIX` otherwise). It holds for the blocks after it until a block writes another prefix. It enters the Given hash and the spec hash only when present, so a spec without it keeps its hashes, and results with different origins are never pooled: a report and `compare` key results on the spec hash.
+
+```yaml
+- user: What is my callback reference?
+  given:
+    origin: recorded
+    prefix:
+      - role: user
+        content: Can someone call me back about fiber?
+      - role: assistant
+        content: Done, an advisor will call you today.
+        tool_calls:
+          - id: call-1
+            label: notify_sales
+            input: { topic: fiber }
+            output: { ref: LD-4471 }
+  expect:
+    must: [LD-4471]
+    tools:
+      - { label: notify_sales, count: 0 }
+```
 
 The facts grow block by block: `ledger_add` in a block's `expect` adds the facts that block establishes, and every later check sees them. The ledger check compares what each block states with them, in code; see [drift](drift.md#the-ledger-check).
 
 For a task step, Given includes the workspace. The adapter that owns the workspace takes a snapshot of it before the step and a diff after; see the [process adapter](../adapters/process.md).
 
-The runner resolves Given into one record per block (`ResolvedGiven`): the prefix, the ledger, the world, the vars, the target agent and a hash of all of them. The prefix is the run's history before the block. The block's record keeps the hash, and the cache key holds the whole resolved Given. See [running](../running.md#given-resolution-and-the-hash).
+The runner resolves Given into one record per block (`ResolvedGiven`): the prefix, its origin when the spec states one, the ledger, the world, the vars, the target agent and a hash of all of them. The prefix is the run's history before the block. The block's record keeps the hash, and the cache key holds the whole resolved Given. See [running](../running.md#given-resolution-and-the-hash).
+
+### Parent blocks
+
+A block may set `parent: <block id>` to start from that block's **recorded end state** in the same spec. The runner orders dependencies before children, including forward references. `PARENT_MISSING` and `PARENT_CYCLE` are spec errors.
+
+Once a spec declares a parent link, its blocks form a forest in every mode: each root starts at the spec defaults, and a child inherits only its ancestors. Specs without parent links retain their sequential F/P and canonical T behavior. A child's prefix includes the parent's actual reply and tool calls with recorded results/errors, using the same tool-history compiler as an authored prefix. Its ledger includes facts established by the parent. World and variables are copied, so siblings cannot change each other's start. The child's own Given then merges ledger, world and variables by key; `given.prefix` replaces the inherited conversation. A child's own `world.workspace` replaces the inherited workspace whole: none of the parent's files carry then, only the ones the child names.
+
+A passed parent runs once per run, however many children share it. Child-only mode T selection automatically replays its ancestors when no in-run recording exists. A replayed ancestor gives its end state and its cost, but it is not a measurement of that run: it adds no block, verdict or count, and `blockRerun.reason` names it. Observed-cache replay reconstructs the same history from recorded observations. Partial carry reruns and re-judging conservatively request a full replay for a parent-linked spec, because their current input proof assumes independent T blocks.
+
+If a parent fails, is `not_run`, or is already blocked, the child is `blocked`: it receives no agent call and adds no failure. `blocked.by` names its direct parent and `blocked.root` names the original failed or unrun cause. Independent roots continue. The report groups the blocked descendants under that root. A blast-radius change reaching a parent includes its descendants in every mode, even when they occur earlier in the YAML.
+
+The runner records the world and variables it manages. An adapter with mutable private state can export its end state through `snapshotGiven(session)`, returning `{ world, vars }`; its `open(given)` must restore that exported state. The function adapter accepts a `snapshotGiven(state)` callback alongside `create(given)`. The runner takes a separate copy for each branch. Such runs bypass the observation cache, which cannot store private world snapshots. A sandbox must export its changed workspace too. The process adapter does: it reads every file the parent left (its protocol files aside), byte for byte. UTF-8 text goes into `world.workspace.files`; any other file, such as an xlsx, docx, pdf or png the agent produced, goes into `world.workspace.binary` as base64. The child's own sandbox is seeded from them, so siblings never share a folder. Without `snapshotGiven`, the children are `not_run: unsupported`, never silently seeded from the old files. When an export fails (more files than the adapter's `exportMaxBytes`, 50 MB in all by default), the children are `not_run: setup_failed` with the reason, and their descendants are blocked. What carries is the regular files, byte for byte, a UTF-8 byte-order mark included. Not carried: `.git` and `node_modules`, which the snapshot skips; empty folders; file modes. A link that points inside the workspace arrives as a plain copy of its target; a link that leaves the workspace fails the export. A seeded child also requires the adapter's `seedPrefix` capability.
+
+See the [Acme worked example](../../examples/acme/parents/README.md), which runs both passing and blocked branches without a model call.
 
 ## When
 

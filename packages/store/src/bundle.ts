@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
 import {
+  applyRealizedTextPolicy,
   Campaign,
   canonicalJson,
   type LoadedSpec,
@@ -82,6 +83,12 @@ export async function writeCampaignBundle(
   runs: readonly RunResult[],
   carried: { specs?: readonly LoadedSpec[]; sources?: readonly BundleSource[] } = {},
 ): Promise<string> {
+  runs = runs.map((run) =>
+    applyRealizedTextPolicy(run, campaign.provenance?.realizedText === true, {
+      fromRun: run.runId,
+      fromCampaign: campaign.campaignId,
+    }),
+  );
   const specs = carried.specs ?? [];
   const sources = carried.sources ?? [];
   const folder = resolve(dir, fileName(campaign.campaignId));

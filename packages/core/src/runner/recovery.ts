@@ -2,6 +2,7 @@ import type { BlockResult, RunResult } from '../schema/run';
 import type { Expect, Spec } from '../schema/spec';
 import { isZero } from '../spec/semantics';
 import { specBlocks } from './compounding';
+import { blockStatus } from './verdicts';
 
 export type RecoveryMetrics = NonNullable<RunResult['recovery']>;
 
@@ -48,6 +49,9 @@ export function recoveryOf(
   const { blocks } = run;
   const k = blocks.findIndex((block) => block.injected === true && block.blockId === run.perturbationId);
   if (k < 0) return undefined;
+  // A deviation that was never sent (its block not run or blocked) measures no recovery.
+  if (blockStatus(blocks[k] as BlockResult) !== 'pass' && blockStatus(blocks[k] as BlockResult) !== 'fail')
+    return undefined;
   const indexOf = specIndexes(spec, run);
   const expectOf = (position: number): Expect =>
     position === k ? (perturbation.expect ?? {}) : (spec.blocks[indexOf.get(position) ?? -1]?.expect ?? {});
@@ -60,7 +64,7 @@ export function recoveryOf(
   for (let position = k; position < blocks.length; position++) {
     const block = blocks[position] as BlockResult;
     const target = targetOf(position);
-    if (block.pass && (target === undefined || block.stageObserved === target)) {
+    if (blockStatus(block) === 'pass' && (target === undefined || block.stageObserved === target)) {
       recoveredAt = position;
       break;
     }
@@ -93,7 +97,7 @@ export function recoveryOf(
       }
     }
   } else if (recoveredAt !== undefined) {
-    collateral = blocks.slice(recoveredAt + 1).filter((block) => !block.pass).length;
+    collateral = blocks.slice(recoveredAt + 1).filter((block) => blockStatus(block) === 'fail').length;
   }
 
   const consequential = consequentialTools(spec, options.consequential);

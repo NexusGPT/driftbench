@@ -1,6 +1,6 @@
 ---
 title: The default judge
-summary: "What one judge call sends and how its answer becomes pass, fail or inconclusive: the request fields, the prompt and its data tags, the criterion ledger the model returns, how code computes the verdict, re-asks, the judge clients and their environment variables, prompt rules version 2, the two ledger decoders and the legacy contract."
+summary: "What one judge call sends and how its answer becomes pass, fail or inconclusive: the request fields, the prompt and its data tags, the criterion ledger the model returns, how code computes the verdict, re-asks, the judge clients and their environment variables, prompt rules version 2, the three ledger decoders and the legacy contract."
 commands:
   - judge run
   - judge calibrate
@@ -25,7 +25,7 @@ The default judge is the prompt and parser every built-in chat judge uses for an
 * otherwise any requirement with `met: null` gives inconclusive;
 * otherwise, every requirement met, pass.
 
-A `met: true` needs evidence quoted from the supplied data. A quote that is not in the data makes the whole ledger unparseable (decoder version 1, the default), and an unparseable answer is inconclusive, never a pass or a fail built from its prose.
+A `met: true` needs evidence quoted from the supplied data. An ungrounded span makes the ledger unparseable; an unparseable answer is inconclusive. The default decoder is version 3: an ungrounded single-string quote becomes null while its `met` value is kept. Version 1 rejects either form. See `judging-evidence` for the version-specific span rules.
 
 System 1 judges (`createOpenAiDecisionsJudge`, `createJevJudge`) do not use the ledger: they answer the binary question `Answer yes when the data passes the criterion, no when it fails.` with a probability of yes. From 0.6 it is a pass, up to 0.4 a fail, between them inconclusive (options `passAt`, `failAt`).
 
@@ -46,12 +46,12 @@ No command option changes the prompt or the parser. The commands that send defau
 | `driftbench replay`, `driftbench estate run` | The claude command judge with `--judge claude:<model>` (see `judging-run-judge`). |
 | `pnpm bench replay`, `pnpm bench record` | The shipped default judge on haiku, gpt-6-luna and gemini-3.5-flash-lite. |
 
-These request fields are library settings only, with no CLI option and no spec field:
+These library request fields have no direct CLI option. Criteria in specs and criteria files expose `prompt_version` and `decoder_version` for the first two fields (explicit decoder values 1 or 2; unset uses decoder 3). See the spec reference for other criterion settings:
 
 | Request field | Values | Default | Effect |
 |---|---|---|---|
-| `criterionPromptVersion` | 1, 2 | 1 | 2 adds three rules to the system prompt: compare named identifiers, numbers and units exactly; treat facts the criterion states as the expected values, so `met` is not null for want of an outside source; let the record the question names decide, over the scope line and a contradicting reply. It has its own fingerprint (`249796293203` on main; version 1 is `398673b792c1`). It does not apply to legacy, to an `assessment`, or to a request with its own `system`. |
-| `criterionDecoderVersion` | 1, 2 | 1 | 2 is lenient: a string evidence quote that is not in the data becomes `evidence: null` with `grounded: false`, and the check keeps the `met` the model gave. A list of `{ source, quote }` spans that does not ground stays unparseable under both. Only the parser changes, not the prompt. |
+| `criterionPromptVersion` | 1, 2 | 2 | 2 adds three rules to the system prompt: compare named identifiers, numbers and units exactly; treat facts the criterion states as the expected values, so `met` is not null for want of an outside source; let the record the question names decide, over the scope line and a contradicting reply. Each prompt version has its own fingerprint. It does not apply to legacy, to an `assessment`, or to a request with its own `system`. |
+| `criterionDecoderVersion` | 1, 2, 3 | 3 | Versions 2 and 3 drop an ungrounded string quote to `evidence: null` with `grounded: false`, keeping `met`; version 1 rejects it. Version 3 also accepts source-local symbol spans, input-label aliases and tool-event names, and drops criterion-only spans. A met check still needs evidence after that drop. Other ungrounded span lists remain unparseable. Only the parser changes, not the prompt. |
 | `answerContract` | `ledger`, `legacy` | `ledger` | `legacy` reproduces the older binary contract (`outcome`, `reasoning`, `score`, `evidence`) byte for byte, so old cassettes and scores replay. A cassette with no ledger entry replays as legacy automatically. |
 | `requirements` | list of `{ id, requirement }` | one requirement: the criterion name and its full rubric | Split a criterion into several checked requirements. |
 | `system` | text | the default system prompt | A caller's own system prompt. |
@@ -210,7 +210,7 @@ The grounded `met: false` gives fail. The `met: true` whose quote is not in the 
 
 ## Common errors
 
-* Inconclusive verdicts with `invalid criterion ledger: ...` in the reasoning. The model broke the contract: a missing or duplicate id, an extra key, or a quote not in the data. The large-budget re-ask runs once. If it persists, check the rubric is one clear question, or try decoder version 2 in code.
+* Inconclusive verdicts with `invalid criterion ledger: ...` in the reasoning. The model broke the contract: a missing or duplicate id, an extra key, or a quote not in the data. The large-budget re-ask runs once. If it persists, check the rubric is one clear question, or select the historical decoder explicitly when replaying older answers.
 * A criterion that is always inconclusive because the data lacks what the rubric needs, such as a catalog the reply must match. Name the source file in the criterion's `inputs`.
 * `OPENAI_API_KEY is not set` style `config` errors from a provider client. Set the variable named in the message, and the model variable; nothing is guessed.
 * A cassette that no longer replays after a prompt change. The fingerprint is in every key: record again (see `judging-cassettes`).

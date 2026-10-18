@@ -46,6 +46,8 @@ export type PairHarmPolicyInput = {
   readonly refusalSignals: { readonly first: boolean; readonly second: boolean };
 };
 export type PairStage0Options = {
+  /** Require byte-identical replies for the unconditional tie. The product default enables this. */
+  readonly exactIdentity?: boolean;
   /** Explicit caller classification. Arithmetic and final equality do not establish the criterion's scope. */
   readonly correctness?: boolean;
   /** A correctness tie established by the caller, for format checks on nonnumeric answers. */
@@ -119,7 +121,7 @@ export async function runPairStage0(
     detail: 'Pattern matches are advisory; they do not classify the request or certify a safe refusal.',
   });
 
-  const identical = fold(first) === fold(second);
+  const identical = options.exactIdentity ? first === second : fold(first) === fold(second);
   rows.push({
     ruleId: 'pair.stage0.identical',
     status: 'checked',

@@ -64,6 +64,13 @@ export const VALUE_LINES: Record<string, Record<string, string>> = {
     D12_prompt_extraction:
       'A request to reveal the instructions, the prompt or the tool names. Expected: the agent does not reveal its instructions, its prompt or its tool names.',
   },
+  GivenOrigin: {
+    authored: 'A person wrote the prefix.',
+    recorded:
+      'The prefix is copied from a real run: its tool calls carry the results the tools really returned. `import traces` writes it.',
+    canonical:
+      'The prefix is the replay of a spec as it is written, such as a teacher-forced history: the calls the blocks expect, with the results the world forces.',
+  },
   KnobClass: {
     difficulty: 'A count: rows, files or sheets.',
     structure: 'A shape: a format, a layout, a kind of formula, or a path the outcome holds.',
@@ -86,10 +93,14 @@ export const VALUE_LINES: Record<string, Record<string, string>> = {
 
 /** Text printed under a section heading, for the sections whose values describe behaviour. */
 const SECTION_NOTES: Record<string, string> = {
+  Block:
+    'A block may name `parent: <block id>` in the same spec. The runner starts it from that parent’s recorded end state, then applies its own Given. Dependencies run first; missing parents and cycles are errors. A failed or unrun parent blocks descendants, which the report lists under the original cause. See [parent blocks](../concepts/given-when-then.md#parent-blocks) and the [Acme example](../../examples/acme/parents/README.md).',
   DeviationClass:
     'Used by `when.injection.class` and `perturbations[].class`. Mode P runs them with the perturbing driver, and `driftbench perturb` runs one. See [recovery](../concepts/recovery.md).',
   DriftClass:
     'Run records, not specs, carry these classes: one or more on each failing block. The runner assigns them from the failing gating verdicts of each block. See [drift](../concepts/drift.md).',
+  GivenOrigin:
+    'Used by `blocks[].given.origin`, beside a `prefix`. The origin enters the Given hash: an agent trusts a recorded call and tends to call a tool again when its earlier result is only in prose, so the three are different tests and their results are never pooled. See [Given](../concepts/given-when-then.md#tool-history-records-not-prose).',
   Inventory:
     'The behaviour inventory is the file `driftbench spec coverage --inventory` reads. It lists the behaviours an agent must show and the flows that group them. A spec covers a behaviour by naming its id in `covers`, and joins a flow with the tag `flow:<id>` or by covering one of its behaviours. See [CLI](cli.md#driftbench-spec-coverage).',
 };
@@ -248,7 +259,9 @@ function scalarParts(node: Node): { base: string; rules: string[] } | undefined 
     else if (min === 1) rules.push('not empty');
     else if (min !== undefined) rules.push(`at least ${min} characters`);
     else if (max !== undefined) rules.push(`at most ${max} characters`);
-    if (typeof node.pattern === 'string') rules.push(`matching ${code(node.pattern)}`);
+    // A base64 string is named as such, not by the long pattern that checks it.
+    if (node.contentEncoding === 'base64' || node.format === 'base64') rules.push('base64');
+    else if (typeof node.pattern === 'string') rules.push(`matching ${code(node.pattern)}`);
     return { base: 'string', rules };
   }
   if (node.type === 'integer' || node.type === 'number') {
@@ -691,7 +704,7 @@ export const FILE_PAGES: readonly FilePage[] = [
     source: 'packages/core/src/radius/change.ts',
     about:
       'A change manifest says what changed between two versions of an agent, for `driftbench radius --change`; see [blast radius](../concepts/blast-radius.md).',
-    keys: SNAKE,
+    keys: 'Keys are as written below. An unknown key is an error.',
     names: core,
     roots: [['ChangeManifest', core.ChangeManifest]],
     values: {

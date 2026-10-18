@@ -47,12 +47,12 @@ The file is JSON with exactly three keys:
 |---|---|
 | `version` | Always `1`. |
 | `judges` | One entry per judge: `id` (unique), `family`, `cls` (`system1` or `system2`), `cost` (relative, at least 0), and optional `model`, `settings` (the client settings it was recorded with), `families`, `comparison`, `dialect`, `reasoning` (`low`, `medium` or `high`). |
-| `entries` | One entry per recorded call: `judge` (an id listed above), `key` (12 lowercase hex characters), and one of `answer` (a structured answer, as a system 1 client builds it), `raw` (the model's text, parsed again at replay) or `error` (a call that gave no answer). Optional: `criterion` (for a reader; the key decides the match), `answerContract` (`ledger` or `legacy`), `criterionDecoderVersion` (1 or 2), `pairContract`, `note`, `result`, `unparsedReason`, `cost_usd` (replayed as the call's cost) and `repaired`. |
+| `entries` | One entry per recorded call: `judge` (an id listed above), `key` (12 lowercase hex characters), and one of `answer` (a structured answer, as a system 1 client builds it), `raw` (the model's text, parsed again at replay) or `error` (a call that gave no answer). Optional: `criterion` (for a reader; the key decides the match), `answerContract` (`ledger` or `legacy`), `criterionDecoderVersion` (1, 2 or 3), `pairContract`, `note`, `result`, `unparsedReason`, `cost_usd` (replayed as the call's cost) and `repaired`. |
 
 The request key is a hash of:
 
 * The data: the criterion, the transcript, the artifact, the inputs, the Given, the reference, the large budget for a re-ask, and, when used, the requirements, the assessment, the candidates, a custom system prompt and canonical presentation.
-* The prompt fingerprint of the contract in use: the default criterion ledger, legacy, criterion prompt version 2, response relevance, the pair ledger and others each have their own.
+* The prompt fingerprint of the contract in use: the default criterion ledger (prompt version 2), legacy, historical prompt version 1, response relevance and the pair ledger each have their own.
 * The client: its class, model and settings (for the claude command judge, its command flags).
 
 Replay rules:
@@ -71,7 +71,7 @@ The cassettes in the repository and their entry counts:
 
 | File | Entries | Judges |
 |---|---|---|
-| `examples/acme/criteria/council.cassette.json` | 76 | `jev-a`, `jev-b`, `openai-decisions`, `openai-chat`, `google-chat`, `anthropic-chat` (scripted) |
+| `examples/acme/criteria/council.cassette.json` | 76 | `s1p-a`, `s1p-b`, `openai-decisions`, `openai-chat`, `google-chat`, `anthropic-chat` (scripted) |
 | `examples/acme/criteria/calibration/cassette.json` | 387 | the same six (scripted) |
 | `examples/acme/criteria/calibration/campaign.cassette.json` | 38 | the same six (scripted), for the Acme campaign blocks |
 | `examples/acme/criteria/calibration/claude-haiku.cassette.json` | 124 | `claude-haiku` (real recordings) |
@@ -83,7 +83,7 @@ The scripted answers prove the council and calibration mechanics, not the accura
 Two entries of the council cassette, a system 1 `answer` and a system 2 `raw`:
 
 ```
-{"judge": "jev-a", "key": "9ef7d269a5d1", "criterion": "care_redirect", "answer": {"outcome": "pass", "score": 0.93, "reasoning": "jev-a probability of yes 0.93"}}
+{"judge": "s1p-a", "key": "9ef7d269a5d1", "criterion": "care_redirect", "answer": {"outcome": "pass", "score": 0.93, "reasoning": "s1p-a probability of yes 0.93"}}
 {"judge": "openai-chat", "key": "8963fc9a0ec7", "criterion": "holds_instructions", "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"The reply follows the new price from the message.\"}"}
 ```
 
@@ -129,12 +129,12 @@ separated  honest_failure [system2, gating]: pass fixture pass, fail fixture fai
 separated  ledger_intact [system2]: pass fixture pass, fail fixture fail
 separated  no_invented_data [system2, gating]: pass fixture pass, fail fixture fail
 NOT separated  one_question_per_turn [system1]: pass fixture inconclusive (split, re-judged), fail fixture inconclusive (split, re-judged)
-    pass: system1: jev-a inconclusive, jev-b inconclusive, openai-decisions inconclusive; split
+    pass: system1: s1p-a inconclusive, s1p-b inconclusive, openai-decisions inconclusive; split
     pass: system2: google-chat inconclusive, openai-chat inconclusive, anthropic-chat inconclusive; split
-    pass: system1 (large budget): jev-a@large inconclusive, jev-b@large inconclusive, openai-decisions@large inconclusive; split
-    fail: system1: jev-a inconclusive, jev-b inconclusive, openai-decisions inconclusive; split
+    pass: system1 (large budget): s1p-a@large inconclusive, s1p-b@large inconclusive, openai-decisions@large inconclusive; split
+    fail: system1: s1p-a inconclusive, s1p-b inconclusive, openai-decisions inconclusive; split
     fail: system2: google-chat inconclusive, openai-chat inconclusive, anthropic-chat inconclusive; split
-    fail: system1 (large budget): jev-a@large inconclusive, jev-b@large inconclusive, openai-decisions@large inconclusive; split
+    fail: system1 (large budget): s1p-a@large inconclusive, s1p-b@large inconclusive, openai-decisions@large inconclusive; split
 separated  plain_language [system1]: pass fixture pass, fail fixture fail
 separated  resumes_pending_step [system1, gating]: pass fixture pass, fail fixture fail
 separated  sheet_matches_catalog [system1, gating]: pass fixture pass, fail fixture fail
