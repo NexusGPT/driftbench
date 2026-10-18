@@ -43,6 +43,7 @@ const POINTER_SCAN = 'packages/estate/src/pointer/scan.ts';
 const POINTER_ATOMS = 'packages/estate/src/pointer/atoms.ts';
 const LEDGER = 'packages/estate/src/pointer/ledger.ts';
 const RADIUS = 'packages/estate/src/pointer/radius.ts';
+const CASSETTE = 'packages/estate/src/pointer/cassette.ts';
 const LEVEL = 8;
 
 type RecordedAtom = { kind: string; quote: string; polarity?: string; line: number };
@@ -114,19 +115,32 @@ type Scan = { map: EstateMap; calls: number; windows: number; carried: number; l
 async function pointerScanOf(
   files: Readonly<Record<string, string>>,
   planted: ReadonlyMap<string, RecordedAtom[]>,
-  options: { previous?: pointer.Ledger; cassette?: pointer.Cassette; replay?: boolean; log?: string[] } = {},
+  options: {
+    previous?: pointer.Ledger;
+    cassette?: pointer.Cassette;
+    replay?: boolean;
+    log?: string[];
+    /** Replaces the truth labeler, such as one of another model, or one that keeps its call in a replay. */
+    labeler?: (truth: pointer.Labeler) => pointer.Labeler;
+    /** Keeps the labeler's call in a replay: a replay must still never call it. */
+    keepCall?: boolean;
+    sets?: pointer.LabelSet[];
+  } = {},
 ): Promise<Scan> {
   const root = await writeEstate(files);
   try {
     const reader = readerFor(RUNTIME);
     if (!reader) throw new Error(`no reader for ${RUNTIME}`);
-    const labeler = truthLabeler(planted, options.log);
+    const truth = truthLabeler(planted, options.log);
+    const labeler = options.labeler ? options.labeler(truth) : truth;
     const result = await scanEstate({
       root,
       reader,
       pointer: {
-        sets: agentRules(),
-        labelling: pointer.singleLabelling(options.replay ? { ...labeler, call: undefined } : labeler),
+        sets: options.sets ?? agentRules(),
+        labelling: pointer.singleLabelling(
+          options.replay && !options.keepCall ? { ...labeler, call: undefined } : labeler,
+        ),
         cassette: options.cassette ?? new pointer.Cassette(),
         mode: options.replay ? 'replay' : 'record',
         ...(options.previous ? { previous: options.previous } : {}),
@@ -324,6 +338,63 @@ const SCAN_SPECS: ItemSpec[] = [
     title: 'every instruction atom has the polarity of its planted rule',
     cause: 'pointer:label-to-atom-instruction-prohibition',
     component: POINTER_ATOMS,
+  },
+  // Audit of version 2, round 1 (validators/estate/audit.md): a replay that calls on a miss (B18), a cassette key
+  // that holds only the wire (B19) or only the file, window and set (C15), conditions never attached (C17) and
+  // atomsByUnit without the condition units (B15) passed every item.
+  {
+    key: 'replay.no-call-on-miss',
+    tier: 3,
+    title:
+      'a replay never calls the labeler: with a labeler that could call, a window the cassette misses is not asked (validate-estate-scan: "A scan without --record never calls a labeler")',
+    cause: 'pointer:replay-never-calls',
+    component: POINTER_SCAN,
+  },
+  {
+    key: 'replay.miss-on-model',
+    tier: 3,
+    title:
+      'a replay with the labeler of another model misses the cassette (docs/estate.md: "a changed prompt, set, model, labeler, cut or run misses")',
+    cause: 'pointer:cassette-key-identifies-the-request',
+    component: CASSETTE,
+  },
+  {
+    key: 'replay.miss-on-labeler',
+    tier: 3,
+    title: 'a replay with another labeler id misses the cassette',
+    cause: 'pointer:cassette-key-identifies-the-request',
+    component: CASSETTE,
+  },
+  {
+    key: 'replay.miss-on-set',
+    tier: 3,
+    title:
+      'a replay with a label set of the same name and another description misses the cassette (the set hash)',
+    cause: 'pointer:cassette-key-identifies-the-request',
+    component: CASSETTE,
+  },
+  {
+    key: 'condition.situation',
+    tier: 3,
+    title:
+      'a unit labelled with a condition label becomes the situation of its target\'s atom (docs/estate.md: "the text of that unit becomes the situation of the target\'s atom")',
+    cause: 'pointer:condition-becomes-situation',
+    component: POINTER_ATOMS,
+  },
+  {
+    key: 'condition.atoms-by-unit',
+    tier: 3,
+    title:
+      'atomsByUnit puts the target\'s atom on the unit of its condition (authoring-blast-radius: "which atom sits on which unit (fields.unit, fields.condition)")',
+    cause: 'radius:atoms-by-unit-holds-conditions',
+    component: RADIUS,
+  },
+  {
+    key: 'condition.manifest',
+    tier: 4,
+    title: 'an edit of a condition unit is a prompt change of the atom it conditions',
+    cause: 'radius:atoms-by-unit-holds-conditions',
+    component: RADIUS,
   },
 ];
 
@@ -599,6 +670,162 @@ function ledgerScanFamily(): Family {
         'polarity',
         check(wrongPolarity.length === 0, `${wrongPolarity.length} instruction atoms carry another polarity`),
       );
+      // A replay of the edited estate with a labeler that keeps its call: the edited window misses, and is not asked.
+      const replayLog: string[] = [];
+      let replayFailed = '';
+      try {
+        await pointerScanOf(editedFiles, editedPlanted, {
+          cassette: pointer.Cassette.parse(cassette.render()),
+          replay: true,
+          keepCall: true,
+          log: replayLog,
+        });
+      } catch (cause) {
+        replayFailed = String(cause).slice(0, 80);
+      }
+      set(
+        'replay.no-call-on-miss',
+        check(
+          replayLog.length === 0,
+          `the replay asked the labeler ${replayLog.length} windows (${replayLog.slice(0, 2).join(', ')}); it ended ${replayFailed || 'without an error'}`,
+        ),
+      );
+      // A replay whose request differs from the recorded one only beside the wire: it misses, never hits.
+      const missWith = async (
+        key: string,
+        labeler: ((truth: pointer.Labeler) => pointer.Labeler) | undefined,
+        sets?: pointer.LabelSet[],
+      ) => {
+        try {
+          const replayed = await pointerScanOf(rendered.files, planted, {
+            cassette: pointer.Cassette.parse(cassette.render()),
+            replay: true,
+            ...(labeler ? { labeler } : {}),
+            ...(sets ? { sets } : {}),
+          });
+          set(
+            key,
+            check(false, `the replay hit the cassette: ${replayed.windows} windows, ${replayed.calls} calls`),
+          );
+        } catch (cause) {
+          set(key, check(true, String(cause)));
+        }
+      };
+      await missWith('replay.miss-on-model', (truth) => ({ ...truth, model: 'truth-2' }));
+      await missWith('replay.miss-on-labeler', (truth) => ({
+        ...truth,
+        id: 'estate-truth-b',
+        render: (labelSet, window) => ({ ...truth.render(labelSet, window), labeler: 'estate-truth-b' }),
+      }));
+      const reworded = pointer.parseLabelSets(
+        pointer.AGENT_RULES_SET.replace(
+          'What an instruction file asks of the agent that reads it.',
+          'What an instruction file asks of its reader.',
+        ),
+      );
+      if (!reworded.ok) throw new Error(reworded.message);
+      await missWith('replay.miss-on-set', undefined, reworded.sets);
+      // A condition label: the first rule unit of a window with a description unit beside it is conditioned by it.
+      const conditionSets = pointer.parseLabelSets(
+        `${pointer.AGENT_RULES_SET}      - name: condition\n        description: A unit that states when another unit applies.\n        target: required\n        condition: true\n`,
+      );
+      if (!conditionSets.ok) throw new Error(conditionSets.message);
+      const chosen: { path?: string; rule?: string; condition?: string } = {};
+      const conditioned = await pointerScanOf(rendered.files, planted, {
+        sets: conditionSets.sets,
+        labeler: (truth) => ({
+          ...truth,
+          async call(wire, labelSet, window) {
+            const answer = await (truth.call as NonNullable<pointer.Labeler['call']>)(wire, labelSet, window);
+            if (chosen.rule !== undefined) return answer;
+            const labels = answer.labels as Array<{ units: string; label: string; target?: number }>;
+            const labelOfUnit = (n: number) => labels.find((each) => each.units === String(n))?.label;
+            for (const unit of window.units) {
+              if (labelOfUnit(unit.n) !== 'rule') continue;
+              const beside = window.units.find(
+                (other) =>
+                  Math.abs(other.n - unit.n) === 1 &&
+                  labelOfUnit(other.n) === 'description' &&
+                  other.text.trim().length > 0,
+              );
+              if (!beside) continue;
+              Object.assign(chosen, { path: window.path, rule: unit.text, condition: beside.text });
+              return {
+                ...answer,
+                labels: labels.map((each) =>
+                  each.units === String(beside.n)
+                    ? { units: each.units, label: 'condition', target: unit.n }
+                    : each,
+                ),
+              };
+            }
+            return answer;
+          },
+        }),
+      });
+      const ruleAtom = conditioned.map.atoms.find(
+        (atom) =>
+          atom.fields?.extraction === 'pointer' &&
+          atom.provenance.file === chosen.path &&
+          chosen.rule !== undefined &&
+          atom.provenance.quote.includes(chosen.rule.trim()),
+      );
+      const situation = (ruleAtom as { situation?: string } | undefined)?.situation;
+      set(
+        'condition.situation',
+        check(
+          chosen.condition !== undefined && situation === chosen.condition.trim(),
+          chosen.condition === undefined
+            ? 'no rule unit of the estate has a description unit beside it in its window'
+            : `the conditioned rule's atom has the situation ${JSON.stringify(situation)}, expected ${JSON.stringify(chosen.condition.trim())}`,
+        ),
+      );
+      const conditionUnit = conditioned.ledger.entries.find(
+        (entry) =>
+          entry.status === 'live' &&
+          entry.path === chosen.path &&
+          chosen.condition !== undefined &&
+          entry.quote.trim() === chosen.condition.trim(),
+      )?.id;
+      const onUnit = pointer.atomsByUnit(conditioned.map.atoms);
+      set(
+        'condition.atoms-by-unit',
+        check(
+          ruleAtom !== undefined &&
+            conditionUnit !== undefined &&
+            (onUnit.get(conditionUnit) ?? []).includes(ruleAtom.id),
+          `the condition unit ${conditionUnit} holds the atoms ${JSON.stringify(onUnit.get(conditionUnit ?? '') ?? [])}, expected ${ruleAtom?.id}`,
+        ),
+      );
+      const condPaths = [...new Set(conditioned.ledger.entries.map((entry) => entry.path))].sort();
+      const condEdited = {
+        ...rendered.files,
+        ...(chosen.path && chosen.condition
+          ? {
+              [chosen.path]: (rendered.files[chosen.path] ?? '').replace(
+                chosen.condition.trim(),
+                `${chosen.condition.trim().replace(/\.$/, '')} today.`,
+              ),
+            }
+          : {}),
+      };
+      const condAfter = pointer.nextLedger(
+        condPaths.map((each) => ({ path: each, cut: pointer.cut(condEdited[each] ?? '') })),
+        conditioned.ledger,
+        'estate',
+      ).ledger;
+      const condManifest = pointer.ledgerChangeManifest(
+        pointer.rerunOf(pointer.ledgerChanges(conditioned.ledger, condAfter), conditioned.ledger),
+        { from: 'v1', to: 'v2', atomsByUnit: onUnit },
+      );
+      set(
+        'condition.manifest',
+        check(
+          ruleAtom !== undefined &&
+            condManifest.changes.some((change) => change.kind === 'prompt' && change.id === ruleAtom.id),
+          `the manifest of the condition edit is ${JSON.stringify(condManifest.changes).slice(0, 200)}`,
+        ),
+      );
       return out;
     },
   };
@@ -664,6 +891,15 @@ const DIFF_SPECS: ItemSpec[] = [
     tier: 3,
     title: 'a changed unit that holds no atom is a unit change',
     cause: 'radius:manifest-unit-change',
+    component: RADIUS,
+  },
+  // Audit of version 2, round 1: no whole-file fallback for a new unit (B13) passed every item.
+  {
+    key: 'rerun.new-heading',
+    tier: 4,
+    title:
+      'a new top-level heading and a rule under it rerun every old unit of the file (authoring-blast-radius: "else every unit of the file")',
+    cause: 'radius:rerun-new-whole-file',
     component: RADIUS,
   },
 ];
@@ -902,6 +1138,30 @@ function ledgerDiffFamily(): Family {
           );
         }
       }
+      // A new top-level heading and a rule under it at the end of the file: no old unit shares the heading.
+      const headed = {
+        ...rendered.files,
+        [path]: `${(rendered.files[path] ?? '').trimEnd()}\n\n# Added notes\n\nAlways close the ticket in the reply.\n`,
+      };
+      const headedChanges = pointer.ledgerChanges(before, ledgerOf(headed, before));
+      const headedRerun = pointer.rerunOf(headedChanges, before);
+      const fileUnits = before.entries
+        .filter((entry) => entry.status === 'live' && entry.path === path)
+        .map((entry) => entry.id)
+        .sort();
+      const freshUnits = headedChanges.filter((change) => change.class === 'new').length;
+      // The old last unit of the file has a new neighbour, so it is context: advisory, rerunning nothing.
+      const others = headedChanges.filter(
+        (change) => change.class !== 'new' && change.class !== 'unchanged' && change.class !== 'context',
+      );
+      const gotHeaded = [...headedRerun.units.keys()].sort().join(',');
+      set(
+        'rerun.new-heading',
+        check(
+          freshUnits >= 1 && others.length === 0 && fileUnits.length > 0 && gotHeaded === fileUnits.join(','),
+          `${freshUnits} new units, ${others.length} in another class; rerun ${headedRerun.units.size} units, expected the ${fileUnits.length} units of ${path}`,
+        ),
+      );
       // A unit in a file the ledger never held.
       const newFile: Record<string, string> = {
         ...rendered.files,
