@@ -110,7 +110,6 @@ export function readerFor(
   return runtime === 'claude-code' ? new ClaudeCodeReader(options) : undefined;
 }
 
-export { proseCandidates } from './candidates';
 export {
   FileProseCache,
   type ProseCache,

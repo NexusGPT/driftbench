@@ -264,23 +264,21 @@ What they print, in order (the scans and the approve listing are cut to their ma
 full output is longer):
 
 ```text
-Wrote structure.yaml: 120 atoms (69 read by code and approved, 51 code-found candidates waiting for approval, 0 split from prose by the model and waiting for approval), 56 edges.
+Wrote structure.yaml: 69 atoms (69 read by code and approved, 0 split from prose by the model and waiting for approval), 48 edges.
   Atoms per kind:
-    instruction   47
-    gate           4
-    route         13
-    skill          4
-    reference     10
-    script         2
-    subagent       3
-    guard          6
-    tool          12
-    setting        4
-    stage          5
-    register       4
-    hazard         2
-    invariant      4
-  No model call: structured atoms and code-found prose candidates (--no-model).
+    gate         4
+    route       13
+    skill        4
+    reference   10
+    script       2
+    subagent     3
+    guard        6
+    tool        12
+    setting      4
+    stage        5
+    hazard       2
+    invariant    4
+  No model call: structured atoms only (--no-model).
 Wrote map.yaml: 125 atoms (68 read by code and approved, 57 split from prose by the model and waiting for approval), 54 edges.
   Atoms per kind:
     instruction   43  (43 by the model)
@@ -318,7 +316,7 @@ approved.yaml: all 125 atoms are approved.
   (file)  MAP_UNKNOWN_KIND  "nosuch" is not an atom kind: instruction, gate, route, skill, reference, script, subagent, guard, tool, setting, stage, register, hazard, invariant
 Wrote space.yaml: 6 situation axes, 8 target dimensions (instruction 43, gate 8, route 13, skill 4, subagent 3, guard 6, stage 5, register 10), 3 constraints.
   The full grid holds 2531567001600 cells: plan on t-wise coverage, not the full grid.
-Wrote ignored.yaml: 68 atoms (68 read by code and approved, 0 split from prose by the model and waiting for approval), 47 edges.
+Wrote ignored.yaml: 69 atoms (69 read by code and approved, 0 split from prose by the model and waiting for approval), 48 edges.
   Ignored: 1 file no runtime loads.
     **/references/old-*  1
   Orphans: none.

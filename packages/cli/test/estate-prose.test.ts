@@ -37,8 +37,7 @@ it('reports the model budget before a call and persists unchanged chunks across 
   events.length = 0;
   expect(await estateScanCommand('.', { out: 'code.yaml', model: false }, io)).toBe(0);
   const loaded = await loadEstateMap(join(root, 'code.yaml'));
-  expect(
-    loaded.ok && loaded.map.atoms.some((atom) => atom.fields?.candidate === true && !atom.approved),
-  ).toBe(true);
-  expect(events.join('')).toContain('1 code-found candidates waiting for approval');
+  // No model and no pointer reader: code reads the structure and proposes no prose atom.
+  expect(loaded.ok && loaded.map.atoms.every((atom) => atom.approved)).toBe(true);
+  expect(events.join('')).not.toContain('code-found');
 });

@@ -247,7 +247,6 @@ export {
   toolBase,
   USER_LAYER,
 } from './scan';
-export { proseCandidates } from './scan/candidates';
 export {
   FileProseCache,
   type ProseCache,

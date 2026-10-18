@@ -1,7 +1,6 @@
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import { type PointerInput, type PointerResult, pointerAtoms, pointerScan } from '../pointer';
 import type { Atom } from '../schema';
-import { proseCandidates } from './candidates';
 import { AtomBuilder, codeAtoms, guardName } from './code';
 import { isNormative, normativeEstate, unloadedByDesign } from './document-roles';
 import { type ChunkRun, type ProseRefusal, runChunk } from './prose';
@@ -115,12 +114,6 @@ export async function scanAtoms(raw: RawEstate, options: ScanAtomsOptions = {}):
       duplicates.push(...result.duplicates);
     }
   }
-  const resolved = new Set(chunks.filter((run) => run.status === 'done').map((run) => run.chunk));
-  proseCandidates(
-    raw,
-    builder,
-    raw.prose.filter((chunk) => resolved.has(chunk.id)),
-  );
   return { builder, chunks, refusals, duplicates, calls: chunks.reduce((sum, run) => sum + run.calls, 0) };
 }
 

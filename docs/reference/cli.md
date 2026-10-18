@@ -1092,23 +1092,21 @@ On the fixture estate:
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --no-model --out _captures/docs3/cli/estate-map.yaml
-Wrote _captures/docs3/cli/estate-map.yaml: 120 atoms (69 read by code and approved, 51 code-found candidates waiting for approval, 0 split from prose by the model and waiting for approval), 56 edges.
+Wrote _captures/docs3/cli/estate-map.yaml: 69 atoms (69 read by code and approved, 0 split from prose by the model and waiting for approval), 48 edges.
   Atoms per kind:
-    instruction   47
-    gate           4
-    route         13
-    skill          4
-    reference     10
-    script         2
-    subagent       3
-    guard          6
-    tool          12
-    setting        4
-    stage          5
-    register       4
-    hazard         2
-    invariant      4
-  No model call: structured atoms and code-found prose candidates (--no-model).
+    gate         4
+    route       13
+    skill        4
+    reference   10
+    script       2
+    subagent     3
+    guard        6
+    tool        12
+    setting      4
+    stage        5
+    hazard       2
+    invariant    4
+  No model call: structured atoms only (--no-model).
   Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
   Unanswered prose chunks (no model call): 14, 6835 characters.
     CLAUDE.md  2782 characters
@@ -1119,11 +1117,10 @@ Wrote _captures/docs3/cli/estate-map.yaml: 120 atoms (69 read by code and approv
   Ignored: none.
   Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
-  Unenforced: 47 of 55 rules have no guard.
+  Unenforced: 3 of 4 rules have no guard.
     gate.standing.read-git-status-before-commit-to
     gate.invoice-reconcile.read-references-matching-rules-md-before
     gate.weekly-report.read-templates-report-md-before-writing
-    ...
 Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench estate approve _captures/docs3/cli/estate-map.yaml --kind instruction
 ```
 
