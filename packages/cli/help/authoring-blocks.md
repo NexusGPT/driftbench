@@ -8,6 +8,7 @@ commands:
 see_also:
   - authoring-spec-format
   - authoring-prefixes
+  - authoring-parent-blocks
   - authoring-perturbations
   - authoring-deviation-classes
   - authoring-spec-check
@@ -18,7 +19,9 @@ next:
 
 ## What it is
 
-A block is the unit driftbench checks. It is one stimulus to the agent and everything the agent does before the next stimulus. A spec is a list of blocks, run in order.
+A block is the unit driftbench checks. It is one stimulus to the agent and everything the agent does before the next stimulus. A spec is a list of block objects. They run in authored order unless parent dependencies require another order.
+
+A block can name a `parent` to start from that block's recorded end state. Once any block does, roots and branches run separately. See authoring-parent-blocks.
 
 Each block has three parts:
 
@@ -53,6 +56,7 @@ This is a format topic. The commands that read blocks are `spec validate`, `spec
 | Key | Type | Required | Meaning |
 |---|---|---|---|
 | `id` | non-empty string | no | An id unique in the spec. Two equal ids: `DUPLICATE_BLOCK_ID`. |
+| `parent` | non-empty string | no | The id of a block in this spec whose recorded end state seeds this block. Missing ids and cycles are invalid. A parent that does not pass blocks its children. See authoring-parent-blocks. |
 | `user` | string | one of three | One user message, or one instruction to a task agent. Shorthand for `when: { user }`. |
 | `burst` | list of 2 or more strings | one of three | Messages that arrive together. Shorthand for `when: { burst }`. |
 | `when` | mapping with exactly one of `user`, `burst`, `injection` | one of three | The stimulus in long form. |
@@ -77,7 +81,7 @@ Tools and the runtime trace:
 
 | Key | Type | Meaning |
 |---|---|---|
-| `tools` | list of `{ label, count?, input?, input_closed? }` | Expected tool calls. `label` is the tool name. `count` is a whole number or `{ min?, max? }`; without it the tool must run at least once; `0` means it must not run. `input` maps argument names to assertions; every call must hold each one. `input_closed: true` allows no argument key outside `input`. |
+| `tools` | list of `{ label, count?, input?, input_closed?, compare? }` | Expected tool calls. `label` is the tool name. `count` is a whole number or `{ min?, max? }`; without it the tool must run at least once; `0` means it must not run. `input` maps argument names to assertions; every call must hold each one. `input_closed: true` allows no argument key outside `input`. `compare` says how a value that differs from the expected one is decided (see judging-check-tools); absent means `auto`. |
 | `tool_order` | `exact`, `in_order` or `any_order` | How the expected tools line up with the calls. `exact`: consecutive, nothing extra. `in_order`: this order, others may sit between. `any_order`: all present. |
 | `tools_offered` | `{ include?: [names], exclude?: [names] }` | Tools the runtime must offer, or must not offer, whatever the agent calls. |
 | `tool_f1` | `{ min }`, 0 to 1 | Precision, recall and F1 of the calls against `tools`. |

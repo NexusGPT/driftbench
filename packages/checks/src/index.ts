@@ -76,10 +76,11 @@ export {
 } from './checks/stated_length';
 export { subagents } from './checks/subagents';
 export { toolF1 } from './checks/tool_f1';
-export { tools } from './checks/tools';
+export { createToolsCheck, type ToolsCheckOptions, tools } from './checks/tools';
 export { toolsOffered } from './checks/tools_offered';
 export { workspace } from './checks/workspace';
 export { type DefaultChecksOptions, defaultChecks, type JudgeCheckSource } from './defaults';
+export { initializeShippedObjects } from './initialize';
 export * as placement from './placement';
 export { type AssertionResult, checkAssertion } from './support/assert';
 export { countAllows, describeCount } from './support/count';
@@ -93,8 +94,38 @@ export {
 } from './support/operations';
 export { type PiiFinding, type PiiKind, redact, scanPii } from './support/pii';
 export { type SchemaIssue, validateStrict } from './support/schema';
+export {
+  type JudgeCalibration,
+  type JudgeModel,
+  type JudgeRequest,
+  type RecordedJudgeCall,
+  recordedJudgeModel,
+  SAME_REFERENT_PROMPTS,
+  type SameReferentJudge,
+} from './value-check/judge';
+export {
+  BUILTIN_RUNGS,
+  type CompareMode as ValueCompareMode,
+  DEFAULT_VALUE_POLICY,
+  EVIDENCE_NAMES,
+  type LadderResult,
+  type Rung,
+  type RungContext,
+  type RungResult,
+  registerValueCheck,
+  runLadder,
+  type Settles,
+  type ValueCase,
+  type ValuePolicy,
+  type ValuePolicyItem,
+  type ValueServices,
+  valuePolicyProblems,
+} from './value-check/ladder';
+export type { ReplayOutcome, ToolDeclaration, ToolReplayer } from './value-check/outcome';
+export { type Computation, evaluateFormula, type RecomputeCase } from './value-check/recompute';
+export type { StateDiffCase } from './value-check/state-diff';
 
-// The shipped policy/blame and policy/placement objects join the object registry when the package loads, as
-// every package registers its builtins: a project object can then extend them by id.
+// The shipped policy/blame and policy/placement objects join the object registry with initializeShippedObjects(),
+// as the value-check policy does: a project object can then extend them by id.
 
 export const packageName = '@agent-nexus/driftbench-checks';

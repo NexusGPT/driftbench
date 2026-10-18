@@ -1,5 +1,4 @@
 import type { Check, Embedder } from '@agent-nexus/driftbench-core';
-import { registerBlameObjects } from './blame/objects';
 import { artifacts } from './checks/artifacts';
 import { budget } from './checks/budget';
 import { cards } from './checks/cards';
@@ -33,9 +32,10 @@ import { startsWith } from './checks/starts_with';
 import { subagents } from './checks/subagents';
 import { toolF1 } from './checks/tool_f1';
 import { createToolPolicyCheck, type ToolRule } from './checks/tool-policy';
-import { tools } from './checks/tools';
+import { createToolsCheck, type ToolsCheckOptions, tools } from './checks/tools';
 import { toolsOffered } from './checks/tools_offered';
 import { workspace } from './checks/workspace';
+import { initializeShippedObjects } from './initialize';
 
 /**
  * What judges the criteria a block names: a council of @agent-nexus/driftbench-judges (its `check()` makes the
@@ -57,6 +57,11 @@ export type DefaultChecksOptions = {
   piiJudge?: PiiCheckOptions['judge'];
   /** A run-wide tool policy over the recorded calls of every block. Off when absent. */
   toolPolicy?: readonly ToolRule[];
+  /**
+   * The value-check policy and the services its rungs use (a tool replayer, a calibrated same-referent judge).
+   * Absent: the shipped policy with no service, so a stored value nothing else decides is inconclusive.
+   */
+  valueCheck?: ToolsCheckOptions;
 };
 
 /**
@@ -66,9 +71,10 @@ export type DefaultChecksOptions = {
  * verdicts and never replace one. The list is new on each call; the checks themselves hold no state.
  */
 export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
+  initializeShippedObjects();
   const piiJudge = options.piiJudge ?? options.judges?.piiJudge;
   return [
-    tools,
+    options.valueCheck === undefined ? tools : createToolsCheck(options.valueCheck),
     toolsOffered,
     forbidden,
     must,
@@ -109,5 +115,3 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     ...(options.judges ? [options.judges.check()] : []),
   ];
 }
-
-registerBlameObjects();
