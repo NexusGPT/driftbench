@@ -15,6 +15,7 @@ import { genCompleteFamily } from '../../src/ladders/estate/bank/loop';
 import { completionComponents } from '../../src/ladders/estate/completion';
 import { completionContract } from '../../src/ladders/estate/completion-contract';
 import * as pipeline from '../../src/ladders/estate/pipeline';
+import { type FieldReads, fieldReadCensus } from './field-reads';
 import { blockOptionCensus, readerCensus as codeCensus, textCensus } from './reader-census';
 import { referenceChecks, referenceRun, required, SUFFIXES, suffix } from './ruling-reference';
 
@@ -22,6 +23,12 @@ type Path = Array<string | number>;
 const REASON_CLASSES = ['default-equivalent', 'empty-demand', 'single-block-scope'] as const;
 /** Entry kinds whose omitted count the evaluators read as at least one (census below). */
 const DEFAULT_COUNT_KINDS = ['guards', 'references', 'skills', 'subagents', 'calls'];
+/** The reads of the default-equivalent class: an entry list off `expect`, and the count of an entry (a `some_call`
+ * entry is read as `entry`). */
+const DEFAULT_COUNT_READS: FieldReads[] = [
+  { receivers: ['expect'], fields: DEFAULT_COUNT_KINDS },
+  { receivers: ['guard', 'reference', 'skill', 'helper', 'subagent', 'entry'], fields: ['count'] },
+];
 type ReasonClass = (typeof REASON_CLASSES)[number];
 type EmissionSite = {
   path: Path;
@@ -151,7 +158,9 @@ const READER_ROOTS = [
 ];
 
 /** Every line of code under the evaluator roots that matches `pattern`, as `file: line`: comments and the text of
- * literals never count (reader-census.ts). A new reader changes this census and reopens the equivalence class. */
+ * literals never count (reader-census.ts). A new reader changes this census and reopens the equivalence class. Reads
+ * of a field of `expect` are found in the syntax tree instead (field-reads.ts), where `?.` and literal text cannot
+ * hide one. */
 function readerCensus(pattern: RegExp): string[] {
   return codeCensus(ROOT, READER_ROOTS, pattern);
 }
@@ -174,10 +183,7 @@ const CLASS_PROOFS: Record<
   'default-equivalent': {
     // The deleted value is `count: { min: 1 }` on a guards, references, skills or subagents entry, or on a `some_call` entry
     // (`calls`): some_call and hazard_recovery read it through `entry.count ?? { min: 1 }` and parseSomeCall's default.
-    census: () =>
-      readerCensus(
-        /expect\.(guards|references|skills|subagents)\b|\b(guard|reference|skill|helper|subagent)\.count\b|\bentry\.count\b/,
-      ),
+    census: () => fieldReadCensus(ROOT, READER_ROOTS, DEFAULT_COUNT_READS),
     readers: [
       "packages/checks/src/checks/estate.ts: countAllows(entry.count, matching.length) ? 'pass' : 'fail',",
       'packages/checks/src/checks/estate.ts: `${plural(matching.length, what)} of ${plural(own.length, `${entry.label} call`)} in this block, expected ${describeCount(entry.count)}`,',
@@ -224,7 +230,7 @@ const CLASS_PROOFS: Record<
   },
   'empty-demand': {
     // The deleted value is `expect.criteria: []`.
-    census: () => readerCensus(/expect\.criteria\b/),
+    census: () => fieldReadCensus(ROOT, READER_ROOTS, [{ receivers: ['expect'], fields: ['criteria'] }]),
     readers: [
       'packages/checks/src/checks/knowledge_retention.ts: const judged = (ctx.expect.criteria ?? []).some(',
       'packages/checks/src/checks/relevancy.ts: if (judged(ctx.expect.criteria)) {',
@@ -235,15 +241,24 @@ const CLASS_PROOFS: Record<
       'packages/judges/src/single.ts: applies: (ctx) => (ctx.expect.criteria?.length ?? 0) > 0,',
       'packages/judges/src/single.ts: return (ctx.expect.criteria ?? []).map((ref): Verdict => {',
       'packages/core/src/radius/depends.ts: criteria: unique((expect.criteria ?? []).map((ref) => parseCriterionRef(ref)?.name ?? ref)),',
+      'packages/core/src/radius/rejudge.ts: const refs = (block.expect?.criteria ?? []).filter((ref) =>',
       'packages/core/src/radius/rejudge.ts: const selected = (ctx.expect.criteria ?? []).map((ref) => parseCriterionRef(ref)?.name ?? ref);',
+      'packages/core/src/spec/lint.ts: for (const ref of expect?.criteria ?? []) {',
       'packages/core/src/spec/semantics.ts: expect.criteria?.forEach((ref, index) => {',
+      'packages/validators/test/estate/ruling-reference.ts: if (block.expect?.criteria)',
       "packages/validators/test/estate/ruling-reference.ts: block.expect.criteria = block.expect.criteria.filter((c) => c !== 'needs-registered-check');",
     ],
     cases() {
-      // Every reader takes `?? []`, `?.length ?? 0`, `?.forEach` or relevancy's own `?? []`.
+      // Every reader takes `?? []` (also behind `?.`, as rejudge and lint do), `?.length ?? 0`, `?.forEach` or
+      // relevancy's own `?? []`. The reference spec's own reader tests the value for truth and filters it, then
+      // hands it on to those readers: an empty list stays an empty list, an absent one stays absent.
       const forms = [
         (criteria?: string[]) => (criteria?.length ?? 0) > 0,
         (criteria?: string[]) => JSON.stringify(criteria ?? []),
+        (criteria?: string[]) =>
+          JSON.stringify(
+            ((criteria ? criteria.filter((ref) => ref !== 'x') : criteria) ?? []).map((ref) => ref),
+          ),
         (criteria?: string[]) => {
           const seen: string[] = [];
           criteria?.forEach((ref) => {
