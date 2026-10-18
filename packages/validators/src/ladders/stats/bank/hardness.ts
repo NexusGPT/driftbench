@@ -48,7 +48,7 @@ export async function scoreBank(
     const failedHere = new Set(bank.filter((item) => !run.get(item.id)?.pass).map((item) => item.id));
     for (const id of failedHere) failing.add(id);
     for (const item of bank) {
-      if (item.level === 'roadmap' || !failedHere.has(item.id)) continue;
+      if (item.level === 'roadmap' || item.level === 'capabilities' || !failedHere.has(item.id)) continue;
       const entry = failingDetails[item.id] ?? {
         seeds: [],
         detail: (run.get(item.id)?.detail ?? '').slice(0, 300),

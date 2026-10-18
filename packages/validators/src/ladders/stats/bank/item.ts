@@ -18,6 +18,7 @@ export const BANK_LEVELS = [
   'simulation',
   'scale',
   'roadmap',
+  'capabilities',
 ] as const;
 export type BankLevel = (typeof BANK_LEVELS)[number];
 

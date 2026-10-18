@@ -294,6 +294,336 @@
       ]
     },
     {
+      "fn": "youdenIndex",
+      "module": "classification",
+      "doc": "docs/statistics/classification.md#youdenindex",
+      "values": [
+        {
+          "args": [
+            {
+              "tp": 40,
+              "fp": 10,
+              "fn": 5,
+              "tn": 45
+            }
+          ],
+          "expected": 0.7070707070707071
+        },
+        {
+          "args": [
+            {
+              "tp": 1,
+              "fp": 0,
+              "fn": 9,
+              "tn": 90
+            }
+          ],
+          "expected": 0.1
+        },
+        {
+          "args": [
+            {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0,
+              "tn": 5
+            }
+          ],
+          "expected": 1.0
+        },
+        {
+          "args": [
+            {
+              "tp": 0,
+              "fp": 5,
+              "fn": 5,
+              "tn": 0
+            }
+          ],
+          "expected": -1.0
+        },
+        {
+          "args": [
+            {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "tn": 7
+            }
+          ],
+          "expected": 1.0
+        },
+        {
+          "args": [
+            {
+              "tp": 12,
+              "fp": 7,
+              "fn": 9,
+              "tn": 4
+            }
+          ],
+          "expected": -0.06493506493506493
+        },
+        {
+          "args": [
+            {
+              "tp": 8,
+              "fp": 30,
+              "fn": 2,
+              "tn": 60
+            }
+          ],
+          "expected": 0.4666666666666667
+        }
+      ],
+      "domain": [
+        {
+          "args": [
+            {
+              "tp": -1,
+              "fp": 2,
+              "fn": 3,
+              "tn": 4
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 1.5,
+              "fp": 2,
+              "fn": 3,
+              "tn": 4
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 1,
+              "fp": 2,
+              "fn": 3,
+              "tn": "NaN"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 1,
+              "fp": "Infinity",
+              "fn": 3,
+              "tn": 4
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 1,
+              "fp": 2,
+              "fn": 3
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 0,
+              "fp": 3,
+              "fn": 0,
+              "tn": 4
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 2,
+              "fp": 0,
+              "fn": 3,
+              "tn": 0
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "tn": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fn": "markedness",
+      "module": "classification",
+      "doc": "docs/statistics/classification.md#markedness",
+      "values": [
+        {
+          "args": [
+            {
+              "tp": 40,
+              "fp": 10,
+              "fn": 5,
+              "tn": 45
+            }
+          ],
+          "expected": 0.7
+        },
+        {
+          "args": [
+            {
+              "tp": 1,
+              "fp": 0,
+              "fn": 9,
+              "tn": 90
+            }
+          ],
+          "expected": 0.9090909090909091
+        },
+        {
+          "args": [
+            {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0,
+              "tn": 5
+            }
+          ],
+          "expected": 1.0
+        },
+        {
+          "args": [
+            {
+              "tp": 0,
+              "fp": 5,
+              "fn": 5,
+              "tn": 0
+            }
+          ],
+          "expected": -1.0
+        },
+        {
+          "args": [
+            {
+              "tp": 12,
+              "fp": 7,
+              "fn": 9,
+              "tn": 4
+            }
+          ],
+          "expected": -0.06072874493927125
+        },
+        {
+          "args": [
+            {
+              "tp": 8,
+              "fp": 30,
+              "fn": 2,
+              "tn": 60
+            }
+          ],
+          "expected": 0.17826825127334464
+        },
+        {
+          "args": [
+            {
+              "tp": 0,
+              "fp": 3,
+              "fn": 0,
+              "tn": 4
+            }
+          ],
+          "expected": 0.0
+        }
+      ],
+      "domain": [
+        {
+          "args": [
+            {
+              "tp": -1,
+              "fp": 2,
+              "fn": 3,
+              "tn": 4
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 1.5,
+              "fp": 2,
+              "fn": 3,
+              "tn": 4
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 1,
+              "fp": 2,
+              "fn": 3,
+              "tn": "NaN"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 1,
+              "fp": "Infinity",
+              "fn": 3,
+              "tn": 4
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 1,
+              "fp": 2,
+              "fn": 3
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 0,
+              "fp": 0,
+              "fn": 3,
+              "tn": 7
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 3,
+              "fp": 4,
+              "fn": 0,
+              "tn": 0
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "tn": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
       "fn": "fBeta",
       "module": "classification",
       "doc": "docs/statistics/classification.md#fbeta",

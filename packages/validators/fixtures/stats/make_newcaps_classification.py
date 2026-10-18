@@ -400,6 +400,62 @@ add(
 )
 
 
+def youden_exact(t):
+    return F(t["tp"], t["tp"] + t["fn"]) + F(t["tn"], t["tn"] + t["fp"]) - 1
+
+
+def youden_alt(t):
+    # the determinant of the table over the product of the two true-class totals
+    tp, fp, fn, tn = t["tp"], t["fp"], t["fn"], t["tn"]
+    return F(tp * tn - fp * fn, (tp + fn) * (tn + fp))
+
+
+cases = []
+for t in [T(40, 10, 5, 45), T(1, 0, 9, 90), T(5, 0, 0, 5), T(0, 5, 5, 0), T(3, 0, 0, 7), T(12, 7, 9, 4), T(8, 30, 2, 60)]:
+    a = youden_exact(t)
+    assert a == youden_alt(t)
+    cases.append(case([t], a))
+add(
+    "youdenIndex",
+    "classification",
+    cases,
+    TABLE_DOMAIN
+    + [
+        [T(0, 3, 0, 4)],
+        [T(2, 0, 3, 0)],
+        [T(0, 0, 0, 0)],
+    ],
+)
+
+
+def markedness_exact(t):
+    return F(t["tp"], t["tp"] + t["fp"]) + F(t["tn"], t["tn"] + t["fn"]) - 1
+
+
+def markedness_alt(t):
+    # the determinant of the table over the product of the two predicted-class totals
+    tp, fp, fn, tn = t["tp"], t["fp"], t["fn"], t["tn"]
+    return F(tp * tn - fp * fn, (tp + fp) * (fn + tn))
+
+
+cases = []
+for t in [T(40, 10, 5, 45), T(1, 0, 9, 90), T(5, 0, 0, 5), T(0, 5, 5, 0), T(12, 7, 9, 4), T(8, 30, 2, 60), T(0, 3, 0, 4)]:
+    a = markedness_exact(t)
+    assert a == markedness_alt(t)
+    cases.append(case([t], a))
+add(
+    "markedness",
+    "classification",
+    cases,
+    TABLE_DOMAIN
+    + [
+        [T(0, 0, 3, 7)],
+        [T(3, 4, 0, 0)],
+        [T(0, 0, 0, 0)],
+    ],
+)
+
+
 def fb_exact(t, beta):
     b2 = F(beta) ** 2
     den = (1 + b2) * t["tp"] + b2 * t["fn"] + t["fp"]

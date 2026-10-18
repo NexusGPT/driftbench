@@ -11,6 +11,7 @@ import { type BankItem, fail, ok, show } from './item';
  * - `newcap.<fn>.values`: every case gives the expected value within the tolerance of the function;
  * - `newcap.<fn>.domain`: every value case returns and every domain case throws a RangeError.
  * Both share one cause, the absence of the function, so a function is one cause however many cases it has.
+ * They are the last level, `capabilities`, so a missing capability never hides a regression in the levels below.
  */
 
 const DIR = 'packages/validators/fixtures/stats';
@@ -97,7 +98,7 @@ function itemsOf(group: string, entry: FunctionEntry): BankItem[] {
     id: `newcap.${entry.fn}.values`,
     family: `newcap-${group}`,
     tier: 3,
-    level: 'analytic',
+    level: 'capabilities',
     component,
     cause,
     check: ({ s }) => {
@@ -127,7 +128,7 @@ function itemsOf(group: string, entry: FunctionEntry): BankItem[] {
     id: `newcap.${entry.fn}.domain`,
     family: `newcap-${group}`,
     tier: 2,
-    level: 'analytic',
+    level: 'capabilities',
     component,
     cause,
     check: ({ s }) => {

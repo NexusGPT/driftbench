@@ -96,10 +96,15 @@ const LEVEL_TEXT: Record<BankLevel, { name: string; metric: string }> = {
     name: 'roadmap methods',
     metric: 'methods the dossiers name, matching scipy, degenerate-safe, scaling / items',
   },
+  capabilities: {
+    name: 'new capabilities',
+    metric:
+      'functions docs/statistics defines and the package lacks, matching exact references, refusing invalid input / items',
+  },
 };
 
 /**
- * The statistics validator, ladder version 2 (docs/validators.md sections 7 and 12): a bank of items in seven
+ * The statistics validator, ladder version 2 (docs/validators.md sections 7 and 12): a bank of items in eight
  * sub-banks, each a level with threshold 1. A seed's whole bank runs once, in child processes that stop an item
  * past its budget, and each level reads its items from that run. Version 1's levels are its first items.
  */

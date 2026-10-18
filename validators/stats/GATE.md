@@ -2,9 +2,15 @@
 
 ## Current gate review, 2026-10-18 evening
 
-The gate is **not met**. The bank has 1162 items: the 922 below, 117 new capabilities the package does not have (234 items, one cause each, defined in `docs/statistics/`), and the six earlier capability items. The 27 new capabilities that repeated roadmap methods were left out, so no cause counts twice. A domain item now also requires the function to accept its valid cases: a library that throws a `RangeError` on every call passes none of them. Each of the 117 functions has a values item that fails on a 0.2 percent nudge and on a throw, and a domain item that fails on a throw ([evidence](evidence/newcaps-sensitivity.md)).
+The gate is **not met**. The bank has 1166 items: the 928 earlier items (the 922 below and six clopperPearson extreme-alpha items) and 119 new capabilities the package does not have (238 items, one cause each, defined in `docs/statistics/`). The 27 new capabilities that repeated roadmap methods were left out, so no cause counts twice. A domain item now also requires the function to accept its valid cases: a library that throws a `RangeError` on every call passes none of them. Each of the 119 functions has a values item that fails on a 0.2 percent nudge and on a throw, and a domain item that fails on a throw ([evidence](evidence/newcaps-sensitivity.md)).
 
-Pilot rounds 11 to 20 ran on this bank (bank hash `eff677df`), from the product of the earlier pilot's round 10 ([evidence](evidence/pilot-rounds-11-20.md)):
+The new capabilities form the last level of the ladder, `capabilities` (level 8), so a missing capability never hides a regression in levels 1 to 7, and the floor of 7 keeps its meaning. Two classification functions (`youdenIndex`, `markedness`) were added after the pilot so that no family is under 20 items.
+
+| Inventory | Value | Section 12.1 |
+|---|---|---|
+| Bank | 1166 items, tiers 1 to 5 | 300 items, no family under 20, every tier: holds |
+
+Pilot rounds 11 to 20 ran on the bank before those two functions (1162 items, bank hash `eff677df`), from the product of the earlier pilot's round 10 ([evidence](evidence/pilot-rounds-11-20.md)):
 
 | Measure | Rounds 11 to 20 | Section 12.4 contract | Provisional bar below |
 |---|---|---|---|

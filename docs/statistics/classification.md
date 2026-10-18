@@ -45,6 +45,24 @@ balancedAccuracy(table: { tp: number; fp: number; fn: number; tn: number }): num
 * **Throws.** A `RangeError` when a field is missing or is not a non-negative integer, and when `tp + fn` is 0 or `tn + fp` is 0 (a class with no true case has no rate).
 * **Example.** `balancedAccuracy({ tp: 40, fp: 10, fn: 5, tn: 45 })` is 0.8535353535353535. `balancedAccuracy({ tp: 1, fp: 0, fn: 9, tn: 90 })` is 0.55. `balancedAccuracy({ tp: 0, fp: 5, fn: 5, tn: 0 })` is 0.
 
+### `youdenIndex`
+```ts
+youdenIndex(table: { tp: number; fp: number; fn: number; tn: number }): number
+```
+* **Definition.** Youden's J, also called informedness: the true positive rate plus the true negative rate minus 1, `tp / (tp + fn) + tn / (tn + fp) - 1`. It equals `(tp * tn - fp * fn) / ((tp + fn) * (tn + fp))`.
+* **Returns.** A number in [-1, 1]. It is 1 for a classifier with no error, 0 for one no better than chance, and -1 for one that is always wrong.
+* **Throws.** A `RangeError` when a field is missing or is not a non-negative integer, and when `tp + fn` is 0 or `tn + fp` is 0 (a class with no true case has no rate).
+* **Example.** `youdenIndex({ tp: 40, fp: 10, fn: 5, tn: 45 })` is 0.7070707070707071. `youdenIndex({ tp: 1, fp: 0, fn: 9, tn: 90 })` is 0.1. `youdenIndex({ tp: 0, fp: 5, fn: 5, tn: 0 })` is -1.
+
+### `markedness`
+```ts
+markedness(table: { tp: number; fp: number; fn: number; tn: number }): number
+```
+* **Definition.** The positive predictive value plus the negative predictive value minus 1, `tp / (tp + fp) + tn / (tn + fn) - 1`. It equals `(tp * tn - fp * fn) / ((tp + fp) * (fn + tn))`.
+* **Returns.** A number in [-1, 1].
+* **Throws.** A `RangeError` when a field is missing or is not a non-negative integer, and when `tp + fp` is 0 or `fn + tn` is 0 (a predicted class with no case has no predictive value).
+* **Example.** `markedness({ tp: 40, fp: 10, fn: 5, tn: 45 })` is 0.7. `markedness({ tp: 1, fp: 0, fn: 9, tn: 90 })` is 0.9090909090909091. `markedness({ tp: 0, fp: 3, fn: 0, tn: 4 })` is 0.
+
 ### `fBeta`
 ```ts
 fBeta(table: { tp: number; fp: number; fn: number; tn: number }, beta: number): number
