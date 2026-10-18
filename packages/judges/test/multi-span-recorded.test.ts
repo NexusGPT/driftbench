@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Cassette, playerClient, requestKey } from '../src/cassette';
 import { CLAUDE_SETTINGS } from '../src/clients/claude-cli';
 import type { JudgeRequest } from '../src/contract';
-import { buildPrompt, PROMPT_FINGERPRINT } from '../src/prompt';
+import { buildPrompt, CRITERION_PROMPT_V1_FINGERPRINT } from '../src/prompt';
 import recorded from './fixtures/multi-span.cassette.json';
 import requests from './fixtures/multi-span-requests.json';
 import observed from './fixtures/multi-span-results.json';
@@ -13,13 +13,13 @@ const player = playerClient(cassette, 'claude-haiku');
 describe('real Haiku responses to the multi-span contract', () => {
   it('pins all eight actual prompts, settings, response keys and costs', () => {
     expect(cassette.entries).toHaveLength(8);
-    expect(requests.promptFingerprint).toBe(PROMPT_FINGERPRINT);
+    // Recorded under prompt version 1; the player replays the cassette under the versions it records.
+    expect(requests.promptFingerprint).toBe(CRITERION_PROMPT_V1_FINGERPRINT);
     expect(requests.settings).toBe(CLAUDE_SETTINGS);
     for (const row of requests.cases) {
-      expect(buildPrompt(row.request as JudgeRequest)).toEqual(row.prompt);
-      expect(
-        cassette.entries.filter((entry) => entry.key === requestKey(row.request as JudgeRequest, player)),
-      ).toHaveLength(1);
+      const v1 = { ...(row.request as JudgeRequest), criterionPromptVersion: 1 as const };
+      expect(buildPrompt(v1)).toEqual(row.prompt);
+      expect(cassette.entries.filter((entry) => entry.key === requestKey(v1, player))).toHaveLength(1);
     }
     expect(observed).toMatchObject({ correct: 8, n: 8, wrong: 0, inconclusive: 0 });
     expect(cassette.entries.reduce((sum, entry) => sum + (entry.cost_usd ?? 0), 0)).toBeCloseTo(

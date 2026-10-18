@@ -11,6 +11,12 @@ describe('grounded final answer extraction', () => {
   it('does not infer an answer from the last unmarked paragraph', () => {
     expect(extractFinalAnswer('This is a long explanation with no explicit final answer.')).toBeUndefined();
   });
+  it.each([':', '='])('copies the last Final answer is%s marker literally', (separator) => {
+    const response = `Final answer: earlier\nCorrection. Final answer is${separator}  (C) Keep 0.010 kg.`;
+    const answer = extractFinalAnswer(response);
+    expect(answer?.text).toBe('(C) Keep 0.010 kg.');
+    expect(response.slice(answer?.start, answer?.end)).toBe(answer?.quote);
+  });
 });
 
 describe('strict reference agreement', () => {
