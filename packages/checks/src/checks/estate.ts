@@ -137,7 +137,7 @@ export const hazardRecovery: CustomCheckFunction = (ctx, options) => {
       isRecord(call.input) && typeof call.input.command === 'string' ? call.input.command : undefined;
     const kinds = [
       ...(command ? classifyCommand(command, hasDiff) : []),
-      ...[classifyTool(call.label) ?? []].flat(),
+      ...[classifyTool(call.label, ctx.spec.operations) ?? []].flat(),
     ];
     return kinds.map((kind) => `${kind} ${command ?? call.label}`);
   });

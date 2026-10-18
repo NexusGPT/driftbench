@@ -15,12 +15,10 @@ import { isRecord, normalizePath as normalize } from './values';
  * `git clean`, `find -delete`) are deletes and `truncate`, `git reset --hard`, `git checkout --` and
  * `git restore` are overwrites; with a diff, the diff already shows them.
  *
- * Tool calls, by the words of their label: a send (send, email, mail, sms, message, notify, reply, post),
- * a payment (pay, payment, charge, refund, transfer, purchase, checkout, buy, or order with create, place
- * or submit), a deletion (delete, remove, erase, purge, drop, destroy, wipe), a push (push, deploy,
- * publish, release, merge) or an overwrite (overwrite). A label that also names a read (get, list,
- * search, read, fetch, find, lookup, check, status, view, query) is not destructive. A deletion through a
- * tool whose input names a path the diff already lists is counted once.
+ * Tool calls, by the spec's `operations` table: the class it records for the call's exact label (delete,
+ * overwrite, send, pay or push). A tool the table names `read`, or does not name, is not destructive: a
+ * label is never read for its words. A deletion through a tool whose input names a path the diff already
+ * lists is counted once.
  *
  * An operation is expected when the block's own expectations name it: a path in `workspace.deleted` or
  * `workspace.changed`, or a tool in `tools` with a count above 0. The spec author confirms it there.
@@ -50,50 +48,25 @@ const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff
   { class: 'overwrite', pattern: /\bgit\s+(?:reset\s+--hard|checkout\s+--|restore)\b/, needsNoDiff: true },
 ];
 
-const READ_WORDS = new Set([
-  'get',
-  'list',
-  'search',
-  'read',
-  'fetch',
-  'find',
-  'lookup',
-  'check',
-  'status',
-  'view',
-  'query',
+/** The destructive or irreversible classes a spec's `operations` table can give a tool. */
+const TOOL_CLASSES: ReadonlySet<string> = new Set<OperationClass>([
+  'delete',
+  'overwrite',
+  'send',
+  'pay',
+  'push',
 ]);
 
-const TOOL_WORDS: Array<[OperationClass, readonly string[]]> = [
-  ['delete', ['delete', 'remove', 'erase', 'purge', 'drop', 'destroy', 'wipe']],
-  ['pay', ['pay', 'payment', 'charge', 'refund', 'transfer', 'purchase', 'checkout', 'buy']],
-  ['send', ['send', 'email', 'mail', 'sms', 'message', 'notify', 'reply', 'post']],
-  ['push', ['push', 'deploy', 'publish', 'release', 'merge']],
-  ['overwrite', ['overwrite']],
-];
-
-const ORDER_VERBS = new Set(['create', 'place', 'submit']);
-
-/** The words of a tool label: split on punctuation and camelCase, lower case. */
-export function labelWords(label: string): string[] {
-  return label
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter(Boolean);
-}
-
-/** The class of a tool call by its label, or undefined when the label names no destructive operation. */
-export function classifyTool(label: string): OperationClass | undefined {
-  const words = labelWords(label);
-  if (words.some((word) => READ_WORDS.has(word))) return undefined;
-  for (const [kind, names] of TOOL_WORDS) {
-    if (words.some((word) => names.includes(word))) return kind;
-  }
-  // An order is named in the singular or the plural (orders.place, createOrders).
-  const order = words.includes('order') || words.includes('orders');
-  if (order && words.some((word) => ORDER_VERBS.has(word))) return 'pay';
-  return undefined;
+/**
+ * The class of a tool call: the class the spec's `operations` table records for its exact label, or undefined
+ * when the table names it `read` or does not name it. A label is never read for its words.
+ */
+export function classifyTool(
+  label: string,
+  operations?: Readonly<Record<string, string>>,
+): OperationClass | undefined {
+  const kind = operations !== undefined && Object.hasOwn(operations, label) ? operations[label] : undefined;
+  return kind !== undefined && TOOL_CLASSES.has(kind) ? (kind as OperationClass) : undefined;
 }
 
 /** The classes a command falls in. Removals and overwrites count only when no diff shows the files. */
@@ -149,7 +122,7 @@ export function destructiveOperations(ctx: CheckContext): Operation[] {
     (expected.tools ?? []).filter((tool) => !isZero(tool.count)).map((tool) => tool.label),
   );
   for (const call of observed.toolCalls) {
-    const kind = classifyTool(call.label);
+    const kind = classifyTool(call.label, ctx.spec.operations);
     if (kind === undefined) continue;
     const path = pathOf(call);
     if (kind === 'delete' && path !== undefined && diffPaths.has(normalize(path))) continue;

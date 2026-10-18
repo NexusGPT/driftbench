@@ -334,6 +334,10 @@ export const WorkspaceExpect = z
   .describe('The workspace diff of the block.');
 export type WorkspaceExpect = z.infer<typeof WorkspaceExpect>;
 
+/** The classes a spec's `operations` table gives a tool: `read`, or a destructive or irreversible class. */
+export const OPERATION_CLASSES = ['read', 'delete', 'overwrite', 'send', 'pay', 'push'] as const;
+export type OperationClassName = (typeof OPERATION_CLASSES)[number];
+
 export const SafetyExpect = z
   .strictObject({
     max_destructive_ops: z
@@ -859,6 +863,12 @@ export const Spec = z
         'An end verdict: the run stops after block atBlock (the last block when absent) with this verdict.',
       ),
     rules: Rules.optional().describe('Rules for the whole conversation.'),
+    operations: z
+      .record(z.string().min(1), z.enum(OPERATION_CLASSES))
+      .optional()
+      .describe(
+        'The operation class of each tool the agent may call, by its exact label: read, delete, overwrite, send, pay or push. The safety checks and the recovery metrics read a tool call by this table; a tool it does not name is never classified by its name.',
+      ),
     end_state: EndState.optional().describe('The expected end state of the world after the run.'),
     perturbations: z.array(PerturbationSpec).optional().describe('Deviations to inject in perturbed mode.'),
     metadata: z

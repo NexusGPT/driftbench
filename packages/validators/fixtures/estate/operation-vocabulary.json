@@ -1,47 +1,10 @@
 {
   "source": {
     "path": "packages/checks/src/support/operations.ts",
-    "sha256": "8d0982b01069fc5462faf64f84a046eb4e733da36c7588703497d15651a9a22d"
+    "sha256": "3b2a25bc945eb8162aa540ffc99fe5044ac7163f17062792e1385528fb964cc0"
   },
   "grammar": "Literal branch expansion; repetition boundaries 0, 1, 2; unsupported syntax listed in gaps.",
-  "toolWords": [
-    {
-      "class": "delete",
-      "words": ["delete", "remove", "erase", "purge", "drop", "destroy", "wipe"]
-    },
-    {
-      "class": "pay",
-      "words": ["pay", "payment", "charge", "refund", "transfer", "purchase", "checkout", "buy"]
-    },
-    {
-      "class": "send",
-      "words": ["send", "email", "mail", "sms", "message", "notify", "reply", "post"]
-    },
-    {
-      "class": "push",
-      "words": ["push", "deploy", "publish", "release", "merge"]
-    },
-    {
-      "class": "overwrite",
-      "words": ["overwrite"]
-    }
-  ],
-  "readWords": [
-    "get",
-    "list",
-    "search",
-    "read",
-    "fetch",
-    "find",
-    "lookup",
-    "check",
-    "status",
-    "view",
-    "query"
-  ],
-  "orderVerbs": ["create", "place", "submit"],
-  "orderNouns": ["order", "orders"],
-  "orderClass": "pay",
+  "toolClasses": ["delete", "overwrite", "send", "pay", "push"],
   "commandRules": [
     {
       "class": "push",

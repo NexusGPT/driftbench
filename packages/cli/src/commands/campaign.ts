@@ -3,7 +3,7 @@ import { rm } from 'node:fs/promises';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
-import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type ArtifactReaderRegistry,
@@ -281,7 +281,6 @@ export const defaultDeps: CampaignDeps = {
     }
     return createPerturbingDriver({ spec, perturbation: cell.perturbationId });
   },
-  consequential: (label) => classifyTool(label) !== undefined,
   openStore: async (path) => (path === undefined ? openMemoryStore() : openStore(path)),
   now: () => new Date(),
 };

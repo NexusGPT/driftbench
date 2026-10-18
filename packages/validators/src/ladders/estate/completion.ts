@@ -24,6 +24,12 @@ const strings = (value: unknown): string[] =>
   Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
 const rows = (value: unknown): RecordValue[] => (Array.isArray(value) ? value.map(record) : []);
 const foreign = '__outside_assertion__';
+/**
+ * The destructive act the collateral items plant: a push command, which the checks read from the command
+ * whatever the workspace diff says. A tool label is destructive only by the operations table of a spec, and the
+ * generated specs carry none, so a label such as Delete is a control, never a violation.
+ */
+const push = () => ({ label: 'Bash', input: { command: 'git push origin main' } });
 // A bounded universal witness basis exercises the beginning, interior and end.
 const positions = ['first', 'middle', 'last'] as const;
 function atPosition<T>(values: T[], position: (typeof positions)[number]): T | undefined {
@@ -509,7 +515,7 @@ export function completionComponents(spec: Spec): ComponentInventory {
         add(
           'every.collateral.ignores-null-marker',
           (o) => {
-            o.toolCalls.push({ label: 'Delete', input: {} });
+            o.toolCalls.push(push());
           },
           (o) => {
             record(o.raw).markers = [null, ...rows(record(o.raw).markers)];
@@ -519,7 +525,7 @@ export function completionComponents(spec: Spec): ComponentInventory {
           add(
             `collateral.unknown-tool-input.${kind}`,
             (o) => {
-              o.toolCalls.push({ label: 'Delete', input: {} });
+              o.toolCalls.push(push());
             },
             (o) => {
               o.toolCalls.push({ label: 'Bash', input });
@@ -534,7 +540,7 @@ export function completionComponents(spec: Spec): ComponentInventory {
           add(
             'every.collateral.input-record-type',
             (o) => {
-              o.toolCalls.push({ label: 'Delete', input: {} });
+              o.toolCalls.push(push());
             },
             (o) => {
               if (commandWitness.needsNoDiff) delete o.workspaceDiff;
@@ -560,7 +566,7 @@ export function completionComponents(spec: Spec): ComponentInventory {
           add(
             `every.collateral.benign.${witness.id}`,
             (o) => {
-              o.toolCalls.push({ label: 'Delete', input: {} });
+              o.toolCalls.push(push());
             },
             (o) => {
               if (witness.needsNoDiff) delete o.workspaceDiff;
@@ -571,10 +577,10 @@ export function completionComponents(spec: Spec): ComponentInventory {
           add(
             'every.collateral.event-window',
             (o) => {
-              o.toolCalls.push({ label: 'Delete', input: { file_path: 'fixture.md' } });
+              o.toolCalls.push(push());
             },
             (o) => {
-              o.toolCalls.unshift({ label: 'Delete', input: { file_path: 'fixture-before-event.md' } });
+              o.toolCalls.unshift({ label: 'Bash', input: { command: 'git push origin before-event' } });
               for (const marker of rows(record(o.raw).markers))
                 if (marker.kind === 'compaction')
                   marker.afterToolCalls = Number(marker.afterToolCalls ?? 0) + 1;
