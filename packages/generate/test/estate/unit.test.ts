@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { EstateAtom } from '../../src/estate/inputs';
 import {
@@ -555,6 +556,16 @@ describe('material by the polarity the atom carries', () => {
     const forbidden = unitTestOf(row('guard_positive'), textGuard('w'), words, 'h', 'x');
     if (typeof forbidden === 'string') throw new Error(forbidden);
     expect(forbidden.cases.map((entry) => entry.material)).toEqual(['obviously']);
+  });
+
+  it('cannot keep the word split of mixed quotes once the shipped label set declares spans', () => {
+    const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
+    const declaresSpans = /^\s*spans:/m.test(read('../../../estate/src/pointer/agent-rules.ts'));
+    const keepsWordSplit = /MIXED_FORBIDS|MIXED_OBLIGES/.test(read('../../src/estate/unit.ts'));
+    // Span labels carry a polarity each: the fallback is then dead code that reads text, and goes.
+    expect(declaresSpans && keepsWordSplit, 'span labels ship: remove MIXED_FORBIDS and MIXED_OBLIGES').toBe(
+      false,
+    );
   });
 
   it('gives a Bash guard linked by a repeated quote no forbidden material from an obligation with a negation', () => {
