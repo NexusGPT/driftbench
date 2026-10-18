@@ -61,7 +61,8 @@ in another process: an in-process port cannot stop malicious code reading the ba
 Tier contexts compose each capability with: basic axes (1), a detail (2), heterogeneous cardinality (3),
 an unapproved decoy (4), and reordered coordinates plus instruction-bearing Unicode data (5).
 Scale additionally expands 12 coordinates to 120 and 1,200. Every seed changes fictional identifiers and
-selected numeric inputs; the test suite uses visible seeds 1–20 and the documented commit-derived hidden seed.
+selected numeric inputs; the test suite uses visible seeds 1–20, the review regression seed 820020691,
+and the documented commit-derived hidden seed (deduplicated when equal).
 
 The small-space oracle enumerates all valid full assignments, then constructs the feasible target sets
 from planted rule groups. It checks actual rows against those sets and recomputes every counter.
@@ -90,8 +91,28 @@ separately pin target counts and log normalization. Twenty response mutations ex
 they are not the twenty real-component planted bugs required by the independent audit.
 
 Every item must reject empty, constant and echo adapters on every visible seed and the hidden seed.
+The call-index cheat family tries every period from 1 through 8 and every offset, both with a counter
+carried across items and with a counter reset for each item. These cheats receive otherwise-correct canned
+payloads for validation, quote and planner replies; only their answer class follows the call index.
+The review's original quote-only reproducer is also retained on seeds 1, 20 and 820020691.
 Additional tests reject always-invalid and always-empty quote-success responses. Valid/invalid paired
 cases prevent an item from passing merely because an adapter always rejects or always accepts.
+
+### Case scheduling
+
+Item order is shuffled within each tier with an `item-order` seed domain. Answer positions use a separate
+`case-order` domain keyed by the seed, stable item ID and retry number; traversal position does not enter it.
+Each item retains every original case and repeats its smallest contrasting cases to at least 17 calls.
+Every proposed permutation must contain incompatible answer classes in at least one residue for **each**
+period 1–8. A residue contradiction rules out every motif and offset of that period, not just the tested
+three-way quote pattern. Generation throws if bounded rejection sampling cannot produce such a schedule.
+
+Classes use required acceptance/diagnostic fields, or the planner's required agent/version/seed identity.
+Labels, truth and schedule state never cross the adapter port. The schedule is deterministic and seed-varying;
+it is not a cryptographic secret and does not defend an implementation that reads oracle exports.
+Budget-prefix and repeat-byte comparisons run independently of case execution order.
+The scheduling tests also verify residue contradictions independently and compare positional patterns after
+removing seed-dependent names, so renamed fixtures cannot masquerade as order variation.
 
 There are 66 declared cause labels, reused across tier variants. This is deliberately below the section-12
 requirement of 100 independently reviewed *failing* causes: renaming variants would not create new fixes.

@@ -6,6 +6,8 @@ import {
   active,
   activeConstraints,
   canonical,
+  checkRelations,
+  checkRun,
   expectedLogWeight,
   expectedSeeds,
   expectedWarningCodes,
@@ -13,11 +15,14 @@ import {
   product,
   targetTruth,
 } from './oracle';
+import { planItems } from './plan-items';
+import { answerClass, contradictsPeriod, maxShortPeriod, scheduleCases, shuffled } from './schedule';
+import { storeItems } from './store-items';
 import type { BankItem, Case, Plan, Request, Row, VariablesAdapter } from './types';
 
 const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const hidden = 1_000_000 + (Number.parseInt(head.slice(0, 8), 16) % 1_000_000_000);
-const seeds = [...Array.from({ length: 20 }, (_, i) => i + 1), hidden];
+const seeds = [...new Set([...Array.from({ length: 20 }, (_, i) => i + 1), 820020691, hidden])];
 
 /**
  * A scripted fixture adapter, NOT a store or planner implementation and NOT a pilot.
@@ -105,7 +110,11 @@ function stub(
   seed: number,
   mutate?: (reply: unknown, request: Request) => unknown,
 ): VariablesAdapter {
-  const replies = new Map(item.generate(seed).map((test) => [canonical(test.request), canned(test)]));
+  const replies = new Map<string, unknown>();
+  for (const test of item.generate(seed)) {
+    const key = canonical(test.request);
+    if (!replies.has(key)) replies.set(key, canned(test));
+  }
   return {
     execute(request) {
       const reply = structuredClone(replies.get(canonical(request)));
@@ -115,6 +124,39 @@ function stub(
 }
 
 describe('blind variables bank', () => {
+  it.each([1, 20, 820020691])('rejects review call-order reproducer on seed %s', async (seed) => {
+    let calls = 0;
+    const result = await measure(
+      seed,
+      {
+        execute(request) {
+          if (request.operation !== 'quotes') return undefined;
+          const paths: string[] = [];
+          function walk(value: unknown, path = '') {
+            if (!value || typeof value !== 'object') return;
+            if ('kind' in value && value.kind === 'quote') paths.push(path);
+            for (const [key, child] of Object.entries(value)) walk(child, path ? `${path}.${key}` : key);
+          }
+          walk(request.store);
+          const phase = calls++ % 3;
+          return {
+            errors:
+              phase === 0
+                ? []
+                : [
+                    {
+                      code: phase === 1 ? 'VARIABLES_QUOTE_NOT_FOUND' : 'VARIABLES_SOURCE_UNREADABLE',
+                      path: `${paths[0]}.${phase === 1 ? 'quote' : 'path'}`,
+                    },
+                  ],
+          };
+        },
+      },
+      true,
+    );
+    expect(result.entries.filter((entry) => entry.pass).map((entry) => entry.id)).toEqual([]);
+  });
+
   it('has 330 items, 30 per requested family, six per family/tier, explicit causes and no aliases', () => {
     expect(items).toHaveLength(330);
     expect(new Set(items.map((i) => i.id)).size).toBe(330);
@@ -159,6 +201,121 @@ describe('blind variables bank', () => {
     },
     120_000,
   );
+
+  it.each(seeds)(
+    'rejects every short-period call-index cheat on seed %s',
+    async (seed) => {
+      // Cache fixtures only within this seed; every adapter still runs through runItem.
+      const prepared = shuffled(items, `item-order:test:${seed}`).map((item) => {
+        const cases = item.generate(seed);
+        const labels = cases.map(answerClass);
+        expect(cases.length, item.id).toBeGreaterThanOrEqual(17);
+        // Independent residue-table proof covers ALL possible motifs, not only the
+        // three-state motif exercised below. Offset only rotates residue names.
+        for (let period = 1; period <= maxShortPeriod; period++) {
+          for (let offset = 0; offset < period; offset++) {
+            const residues = new Map<number, Set<string>>();
+            labels.forEach((label, index) => {
+              const residue = (index + offset) % period;
+              const bucket = residues.get(residue) ?? new Set<string>();
+              bucket.add(label);
+              residues.set(residue, bucket);
+            });
+            expect(
+              [...residues.values()].some((bucket) => bucket.size > 1),
+              `${item.id}/${period}/${offset}`,
+            ).toBe(true);
+          }
+        }
+        const replies = new Map<string, { label: string; reply: unknown }>();
+        const classes = new Map<string, unknown>();
+        for (const test of cases) {
+          const key = canonical(test.request);
+          if (replies.has(key)) continue;
+          const reply = canned(test);
+          const label = answerClass(test);
+          replies.set(key, { label, reply });
+          classes.set(label, reply);
+        }
+        return {
+          item: { ...item, generate: () => cases },
+          replies,
+          classes: [...classes.entries()].sort(([a], [b]) => a.localeCompare(b)),
+        };
+      });
+      for (let period = 1; period <= maxShortPeriod; period++) {
+        for (let offset = 0; offset < period; offset++) {
+          let calls = 0;
+          for (const { item, replies, classes } of prepared) {
+            const adapter: VariablesAdapter = {
+              execute(request) {
+                // Deliberately grant the cheater perfect payload formatting via canned
+                // fixtures. ONLY the answer class is chosen by call index. Unlike an
+                // undefined response, its output can pass whenever that class is right.
+                const actual = replies.get(canonical(request));
+                if (!actual) throw new Error('cheat fixture missing');
+                const selected = classes[((calls++ + offset) % period) % classes.length];
+                if (!selected) throw new Error('cheat class missing');
+                return structuredClone(actual.label === selected[0] ? actual.reply : selected[1]);
+              },
+            };
+            expect((await runItem(item, seed, adapter)).pass, `${item.id}/${period}/${offset}/global`).toBe(
+              false,
+            );
+            const globalCalls = calls;
+            calls = 0;
+            expect((await runItem(item, seed, adapter)).pass, `${item.id}/${period}/${offset}/reset`).toBe(
+              false,
+            );
+            calls = globalCalls;
+          }
+        }
+      }
+    },
+    300_000,
+  );
+
+  it('retains every original probe, including repeated and scale probes', () => {
+    const originals = [...storeItems(), ...planItems()];
+    for (const original of originals) {
+      const item = items.find((item) => item.id === original.id)!;
+      const available = item.generate(hidden).map((test) => canonical(test));
+      for (const test of original.generate(hidden)) {
+        const index = available.indexOf(canonical(test));
+        expect(index, original.id).toBeGreaterThanOrEqual(0);
+        available.splice(index, 1);
+      }
+    }
+  });
+
+  it('fails closed when no contrasting answer class exists', () => {
+    const only = items[0]!.generate(1)[0]!;
+    expect(() => scheduleCases([only], 1, 'single-class')).toThrow('no contrasting answer classes');
+  });
+
+  it('certifies schedules independently of item traversal and changes both orders with the seed', async () => {
+    const failed: VariablesAdapter = { execute: () => undefined };
+    const a = (await measure(1, failed, true)).entries.map((item) => item.id);
+    const b = (await measure(20, failed, true)).entries.map((item) => item.id);
+    expect(a).not.toEqual(b);
+    expect(a).toEqual((await measure(1, failed, true)).entries.map((item) => item.id));
+    const forward = new Map(items.map((item) => [item.id, item.generate(1).map(answerClass)]));
+    for (const item of [...items].reverse()) {
+      expect(item.generate(1).map(answerClass)).toEqual(forward.get(item.id));
+      const pattern = (seed: number) => {
+        const names = new Map<string, number>();
+        return item.generate(seed).map((test) => {
+          const label = answerClass(test);
+          if (!names.has(label)) names.set(label, names.size);
+          return names.get(label);
+        });
+      };
+      // Remove seed-dependent names before comparing positions.
+      expect(new Set([1, 2, 20].map((seed) => canonical(pattern(seed)))).size, item.id).toBeGreaterThan(1);
+    }
+    expect(contradictsPeriod(['a', 'b', 'a', 'b'], 2)).toBe(false);
+    expect(contradictsPeriod(['a', 'b', 'b', 'a'], 2)).toBe(true);
+  });
 
   const cheats: [string, VariablesAdapter][] = [
     ['empty', { execute: () => undefined }],
@@ -385,6 +542,35 @@ describe('blind variables bank', () => {
       return reply;
     });
     expect((await runItem(item, hidden, adapter)).pass).toBe(false);
+  });
+
+  it('checks the unlimited budget prefix in either execution order', () => {
+    const item = items.find((item) => item.id === 'budget-order.interior-prefix.t1')!;
+    const cases = item.generate(1);
+    const limited = cases.find(
+      (test) => test.request.operation === 'plan' && test.request.options.budget === 3,
+    )!;
+    const unlimited = cases.find(
+      (test) =>
+        test.request.operation === 'plan' &&
+        test.request.options.budget === undefined &&
+        limited.request.operation === 'plan' &&
+        test.request.store.version === limited.request.store.version,
+    )!;
+    const runs = [unlimited, limited].map((test) => ({
+      case: test,
+      result: canned(test),
+      ms: 0,
+      heapBytes: 0,
+    }));
+    checkRelations(runs);
+    checkRelations([...runs].reverse());
+    const changed = runs[1]!.result as { plan: Plan; text: string };
+    changed.plan.rows.reverse();
+    changed.text = JSON.stringify(changed.plan);
+    for (const run of runs) checkRun(run);
+    expect(() => checkRelations(runs)).toThrow('budget must keep exact unlimited prefix');
+    expect(() => checkRelations([...runs].reverse())).toThrow('budget must keep exact unlimited prefix');
   });
 
   it('keeps expected truth isolated from adapter request mutation', async () => {

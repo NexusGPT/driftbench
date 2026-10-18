@@ -1,6 +1,7 @@
 import { performance } from 'node:perf_hooks';
 import { checkRelations, checkRun } from './oracle';
 import { planItems } from './plan-items';
+import { scheduleCases, shuffled } from './schedule';
 import { storeItems } from './store-items';
 import type { BankItem, Outcome, Run, VariablesAdapter } from './types';
 
@@ -15,7 +16,7 @@ export const items: readonly BankItem[] = [...storeItems(), ...planItems()].map(
       if (identity.request.operation === 'plan') identity.request.store.version += '-fictional-revision';
       cases.push(structuredClone(first), identity);
     }
-    return cases;
+    return scheduleCases(cases, seed, item.id);
   },
 }));
 
@@ -49,7 +50,10 @@ export async function measure(seed: number, adapter: VariablesAdapter, allLevels
   const entries: (BankItem & Outcome)[] = [];
   let level = 0;
   for (let tier = 1; tier <= 5; tier++) {
-    const own = items.filter((item) => item.level === tier);
+    const own = shuffled(
+      items.filter((item) => item.level === tier),
+      `item-order:${seed}:${tier}`,
+    );
     const outcomes = [];
     for (const item of own) {
       const outcome = await runItem(item, seed, adapter);

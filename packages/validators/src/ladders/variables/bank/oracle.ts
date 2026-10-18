@@ -323,7 +323,25 @@ export function checkRun(run: Run): void {
 }
 
 export function checkRelations(runs: Run[]): void {
-  const plans = runs.filter((run) => run.case.request.operation === 'plan');
+  const plans = runs
+    .filter((run) => run.case.request.operation === 'plan')
+    .map((run) => {
+      const request = run.case.request;
+      if (request.operation !== 'plan') throw new Error('plan relation request');
+      const reply = run.result as { plan: Plan; text: string };
+      const { budget: _budget, ...options } = request.options;
+      return {
+        ...run,
+        keys: {
+          request: canonical(request),
+          reply: canonical(reply),
+          store: canonical(request.store),
+          options: canonical(options),
+          rows: canonical(reply.plan.rows),
+          identity: canonical([reply.plan.agent, reply.plan.version, reply.plan.seed]),
+        },
+      };
+    });
   for (let i = 0; i < plans.length; i++)
     for (let j = i + 1; j < plans.length; j++) {
       const a = plans[i]!;
@@ -333,28 +351,31 @@ export function checkRelations(runs: Run[]): void {
       if (qa.operation !== 'plan' || qb.operation !== 'plan') continue;
       const ra = a.result as { plan: Plan; text: string };
       const rb = b.result as { plan: Plan; text: string };
-      if (canonical(qa) === canonical(qb))
-        same(ra, rb, 'same store/options must render identical bytes and plan');
-      if (
-        canonical([ra.plan.agent, ra.plan.version, ra.plan.seed]) !==
-        canonical([rb.plan.agent, rb.plan.version, rb.plan.seed])
-      )
+      if (a.keys.request === b.keys.request)
+        insist(a.keys.reply === b.keys.reply, 'same store/options must render identical bytes and plan');
+      if (a.keys.identity !== b.keys.identity)
         insist(ra.text !== rb.text, 'renderer returned constant bytes for different plan identity');
-      if (canonical(ra.plan.rows) !== canonical(rb.plan.rows))
+      if (a.keys.rows !== b.keys.rows)
         insist(ra.text !== rb.text, 'renderer returned constant bytes for different rows');
-      const { budget: budgetA, ...optionsA } = qa.options;
-      const { budget: budgetB, ...optionsB } = qb.options;
-      if (canonical(qa.store) !== canonical(qb.store) || canonical(optionsA) !== canonical(optionsB))
-        continue;
-      if (budgetA === undefined && budgetB !== undefined) {
-        const kept = Math.max(qb.options.seeds?.length ?? 0, budgetB);
+      const budgetA = qa.options.budget;
+      const budgetB = qb.options.budget;
+      if (a.keys.store !== b.keys.store || a.keys.options !== b.keys.options) continue;
+      if ((budgetA === undefined) !== (budgetB === undefined)) {
+        const unlimited = budgetA === undefined ? ra : rb;
+        const limited = budgetA === undefined ? rb : ra;
+        const budget = budgetA === undefined ? budgetB : budgetA;
+        const kept = Math.max(qa.options.seeds?.length ?? 0, budget ?? 0);
         same(
-          rb.plan.rows,
-          ra.plan.rows.slice(0, kept),
+          limited.plan.rows,
+          unlimited.plan.rows.slice(0, kept),
           'budget must keep exact unlimited prefix including IDs',
         );
-        same(rb.plan.generated, ra.plan.generated, 'budget changed generation count');
-        same(rb.plan.cut, ra.plan.rows.length - rb.plan.rows.length, 'cut differs from unlimited rows');
+        same(limited.plan.generated, unlimited.plan.generated, 'budget changed generation count');
+        same(
+          limited.plan.cut,
+          unlimited.plan.rows.length - limited.plan.rows.length,
+          'cut differs from unlimited rows',
+        );
       }
     }
 }
