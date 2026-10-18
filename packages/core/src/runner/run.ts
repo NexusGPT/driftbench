@@ -20,8 +20,8 @@ import {
   Verdict,
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
-import { cloneJson, contentHash } from '../spec/hash';
-import { specHash as specHashOf, specIdentity } from '../spec/identity';
+import { cloneJson } from '../spec/hash';
+import { specHash as specHashOf, specIdentityHash } from '../spec/identity';
 import { parentOrder } from '../spec/parents';
 import { type GivenFinding, verifyGiven } from '../spec/verify-given';
 import { compareEndState, type EndStateMatch } from './assertion';
@@ -150,10 +150,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const linked = spec.blocks.some((block) => block.parent !== undefined);
   const now = options.now ?? (() => new Date());
   const specHash = specHashOf(spec);
-  // The cache key leaves out the spec's version: a free label that plays no part (docs/running.md, "The
-  // cache and replay"), so relabelling a spec still replays its runs.
-  const { version: _version, ...unlabelled } = specIdentity(spec);
-  const cacheSpecHash = contentHash(unlabelled);
+  // The cache key and the run id leave out the spec's version: a free label that plays no part (docs/running.md,
+  // "The cache and replay"), so relabelling a spec still replays its runs and keeps its run ids.
+  const identityHash = specIdentityHash(spec);
+  const cacheSpecHash = identityHash;
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
   const prices = options.prices === undefined ? undefined : TokenPrices.parse(options.prices);
   if (options.requireTokenPrices) preflightTargetPrices([target], prices);
@@ -241,6 +241,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     recordRealizedText: options.recordRealizedText === true,
     spec,
     specHash,
+    identityHash,
     cacheSpecHash,
     target,
     mode: options.mode,
@@ -265,6 +266,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
       options.runId ??
       cellId({
         specHash,
+        identityHash,
         target,
         mode: options.mode,
         repeat: options.repeat,
@@ -314,6 +316,8 @@ type RunContext = {
   provenance: RunResult['provenance'];
   spec: Spec;
   specHash: string;
+  /** The spec hash without its version label, which the run id is made from. */
+  identityHash: string;
   /** The hash the cache key carries: the spec's, without its version label. */
   cacheSpecHash: string;
   target: TargetRef;
@@ -1072,6 +1076,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     runId: run.runId,
     specId: spec.id,
     specHash: run.specHash,
+    identityHash: run.identityHash,
     target: run.target,
     mode: run.mode,
     repeat: run.repeat,

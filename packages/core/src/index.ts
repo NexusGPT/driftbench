@@ -390,7 +390,7 @@ export {
 export * as script from './script';
 export { anyGlobMatches, globMatches } from './spec/glob';
 export { canonicalJson, cloneJson, contentHash } from './spec/hash';
-export { IDENTITY_EXCLUDED_METADATA, specHash, specIdentity } from './spec/identity';
+export { IDENTITY_EXCLUDED_METADATA, specHash, specIdentity, specIdentityHash } from './spec/identity';
 export { error, type Issue, type IssueCode, IssueCodes, warning } from './spec/issues';
 export { givenIssues, lintSpec } from './spec/lint';
 export {

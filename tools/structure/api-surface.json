@@ -741,6 +741,7 @@
       "specBlocks": "value",
       "specHash": "value",
       "specIdentity": "value",
+      "specIdentityHash": "value",
       "specLinks": "value",
       "stageSignatures": "value",
       "stimulusMessages": "value",

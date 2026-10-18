@@ -9,6 +9,7 @@ import type { BlockReuse } from '../radius/blocks';
 import type { TargetRef } from '../schema/common';
 import type { RunMode, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
+import { specIdentityHash } from '../spec/identity';
 import type { ObservedCache } from './cache';
 import { cellId } from './cell';
 import { replacesBlock } from './inject';
@@ -22,6 +23,8 @@ export type PlannedCell = {
   cellId: string;
   specId: string;
   specHash: string;
+  /** The spec hash without the version label, which the cell id is made from. */
+  identityHash?: string;
   target: TargetRef;
   mode: RunMode;
   repeat: number;
@@ -145,6 +148,7 @@ export function planCampaign(
   const repeatsOf = (mode: RunMode) => (typeof repeats === 'number' ? repeats : (repeats[mode] ?? 0));
   const cells: PlannedCell[] = [];
   for (const { spec, hash } of specs) {
+    const identityHash = specIdentityHash(spec);
     for (const target of targets) {
       for (const mode of modes) {
         const perturbations = mode === 'P' ? (spec.perturbations ?? []) : [undefined];
@@ -152,7 +156,7 @@ export function planCampaign(
           const perturbationId = perturbation?.id;
           const extra = perturbation === undefined || replacesBlock(perturbation) ? 0 : 1;
           for (let repeat = 0; repeat < repeatsOf(mode); repeat++) {
-            const key = { specHash: hash, target, mode, repeat, perturbationId };
+            const key = { specHash: hash, identityHash, target, mode, repeat, perturbationId };
             cells.push({
               cellId: cellId(key),
               specId: spec.id,
@@ -413,7 +417,13 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
   }
   const referenceFor = async (cell: PlannedCell): Promise<RunResult | undefined> => {
     for (const repeat of [...new Set([cell.repeat, 0])]) {
-      const id = cellId({ specHash: cell.specHash, target: cell.target, mode: 'F', repeat });
+      const id = cellId({
+        specHash: cell.specHash,
+        identityHash: cell.identityHash,
+        target: cell.target,
+        mode: 'F',
+        repeat,
+      });
       const planned = fRuns.get(id);
       const run = planned ? await planned.promise : done.get(id);
       if (run) return run;
@@ -440,7 +450,15 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       return false;
     }
     const firstTwo = [0, 1].map((repeat) =>
-      settled.get(cellId({ specHash: cell.specHash, target: cell.target, mode: 'F', repeat })),
+      settled.get(
+        cellId({
+          specHash: cell.specHash,
+          identityHash: cell.identityHash,
+          target: cell.target,
+          mode: 'F',
+          repeat,
+        }),
+      ),
     );
     if (firstTwo.some((entry) => entry === undefined)) return false;
     const outcomes = await Promise.all(firstTwo.map((entry) => entry?.promise));
