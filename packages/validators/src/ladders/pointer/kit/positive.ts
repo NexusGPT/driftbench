@@ -1,6 +1,6 @@
 import { Problem } from '../bank/types';
 import type { LedgerView, ScanResult, SourceFile } from '../sut/port';
-import { liveOf } from './estate';
+import { checkPlanted, liveOf } from './estate';
 
 /** A successful scan must actually retain source evidence before absence/equality earns credit.
  * Call only on fixtures with known prose in every file (not on empty or rejected inputs).
@@ -10,6 +10,8 @@ export function requireSourceWitness(
   files: readonly SourceFile[],
 ): asserts result is ScanResult & { ledger: LedgerView } {
   if (!result.ok || !result.ledger) throw new Problem('positive witness: no successful ledger');
+  // Every unit the composer planted in these files must be in the ledger, not just one per file.
+  checkPlanted(files, result);
   const live = liveOf(result.ledger);
   for (const file of files) {
     if (

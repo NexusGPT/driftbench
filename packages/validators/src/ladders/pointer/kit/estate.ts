@@ -1,7 +1,8 @@
 import { Problem } from '../bank/types';
 import type { LedgerEntry, LedgerView, PointerSut, ScanRequest, ScanResult, SourceFile } from '../sut/port';
-import { type Block, type Composed, type ComposeOptions, compose } from './compose';
+import { type Block, type Composed, type ComposeOptions, compose, truthOf } from './compose';
 import { norm } from './norm';
+import { compareCut } from './oracle';
 
 /** One file of a fictional estate, as blocks. */
 export type EstateFile = { path: string; blocks: Block[]; options?: ComposeOptions };
@@ -19,6 +20,87 @@ export function build(estate: readonly EstateFile[]): Built {
   return { files, docs };
 }
 
+const PROSE_CONTAINERS = new Set(['sentence', 'list_item', 'table_cell', 'block_quote', 'heading']);
+
+/**
+ * The scan must have produced what the files hold. For every file the composer wrote, each prose unit it planted
+ * (sentence, list item, table cell, quote paragraph, heading) must be a live entry of that path with the same
+ * text in the fingerprint normal form. A reader that returns nothing, one unit per file or one unit per line
+ * fails here, whatever the item was about. A file the composer did not write is not checked.
+ */
+export function checkPlanted(
+  files: readonly SourceFile[],
+  result: Pick<ScanResult, 'ok' | 'ledger' | 'error'>,
+): void {
+  if (!result.ok || !result.ledger) throw new Problem(`the scan failed: ${result.error ?? 'no ledger'}`);
+  const live = liveOf(result.ledger);
+  for (const file of files) {
+    const truth = truthOf(file.text);
+    if (!truth) continue;
+    const have = new Map<string, number>();
+    for (const e of live) {
+      if (e.path !== file.path) continue;
+      const key = norm(e.quote, e.container);
+      have.set(key, (have.get(key) ?? 0) + 1);
+    }
+    for (const unit of truth) {
+      if (!PROSE_CONTAINERS.has(unit.container)) continue;
+      const key = norm(unit.text, unit.container);
+      const count = have.get(key) ?? 0;
+      if (count === 0) {
+        throw new Problem(
+          `the scan of ${file.path} holds no entry for the planted ${unit.container} ${JSON.stringify(unit.text.slice(0, 40))}`,
+        );
+      }
+      have.set(key, count - 1);
+    }
+  }
+}
+
+const controls = new WeakMap<PointerSut, Promise<string | undefined>>();
+
+/**
+ * The control cut: a heading, a paragraph of three sentences on one line and a list of two items, in a fixed text.
+ * A scan item is only worth reading when the reader cuts these basics. Cached per reader.
+ */
+export function cutControl(sut: PointerSut): Promise<string | undefined> {
+  let known = controls.get(sut);
+  if (!known) {
+    known = (async () => {
+      const doc = compose([
+        { kind: 'heading', level: 1, text: 'Control notes' },
+        {
+          kind: 'paragraph',
+          sentences: [
+            'Fold the blue towels before noon.',
+            'Wipe the long counter after every sale.',
+            'Count the loose coins at closing time.',
+          ],
+        },
+        {
+          kind: 'list',
+          items: [{ text: 'Check the lamp near the door.' }, { text: 'Lock the side gate last.' }],
+        },
+      ]);
+      const got = await sut.cut({ path: 'control.md', text: doc.text });
+      return compareCut(doc.text, got, doc.units);
+    })();
+    controls.set(sut, known);
+  }
+  return known;
+}
+
+/** The checks every scan result must pass before an item reads it: the control cut and the planted units. */
+export async function verifyScan(
+  sut: PointerSut,
+  files: readonly SourceFile[],
+  result: Pick<ScanResult, 'ok' | 'ledger' | 'error'>,
+): Promise<void> {
+  const control = await cutControl(sut);
+  if (control) throw new Problem(`the reader does not cut the control file: ${control}`);
+  checkPlanted(files, result);
+}
+
 /** Runs a scan and fails with the reader's own message when it does not succeed. */
 export async function scanOk(
   sut: PointerSut,
@@ -26,6 +108,7 @@ export async function scanOk(
 ): Promise<ScanResult & { ledger: LedgerView }> {
   const result = await sut.scan(request);
   if (!result.ok || !result.ledger) throw new Problem(`the scan failed: ${result.error ?? 'no ledger'}`);
+  await verifyScan(sut, request.files, result);
   return result as ScanResult & { ledger: LedgerView };
 }
 
