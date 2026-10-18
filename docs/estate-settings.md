@@ -29,7 +29,7 @@ The settings file, `driftbench.estate.yaml`. Every key is optional.
 | `aliases` | `estate scan` | an alias and the folder it stands for | `aliases: { REF: .claude/skills/x/references }` |
 | `scripts` | `estate unit` | the fixtures of each script the unit runner runs | `scripts: { .claude/guards/check.py: [{ args: [--dry-run], expect: { exitCode: 0 } }] }` |
 | `labels` | `estate scan --pointer` | the label sets: a file, or the sets inline | `labels: labels.yaml` |
-| `labeler` | `estate scan --pointer` | one labeler per class, `<class>:<client>`, never a model | `labeler: [system1:jev, system2:anthropic]` |
+| `labeler` | `estate scan --pointer` | one labeler per class, `<class>:<client>`, never a model; without it, the default stack of both classes | `labeler: [system1:openai-decisions, system2:anthropic]` |
 | `threshold` | `estate scan --pointer` | `labeler`, `pass_at`, `fail_at`, `margin_cut`, each from 0 to 1 | `threshold: { pass_at: 0.9, fail_at: 0.1 }` |
 | `ledger` | `estate scan --pointer`, `radius ledger` | the ledger of unit ids | `ledger: driftbench.ledger.json` |
 
@@ -53,7 +53,7 @@ The ports.
 | a labeler endpoint | `<class>:http:<url>`; the bearer token in the variable `--labeler-key` names | `labeler: system2:http:https://labels.example.com/label` |
 | a labeler module | `<class>:module:<path>`; a module that exports `id`, `cls` and `label(request)` | `labeler: system2:module:labeler.mjs` |
 | `ANTHROPIC_LABELER_MODEL` | the model of `anthropic`; default `claude-haiku-5-5` | `ANTHROPIC_LABELER_MODEL=claude-sonnet-5-5` |
-| `JEV_MODEL` | the model of `jev`; default `jev-latest` | `JEV_MODEL=jev-latest` |
+| `JEV_MODEL` | the model of the system 1 client of the Nexus platform, the default system 1 labeler (on the Nexus adapter page) | `JEV_MODEL=<model>` |
 | `OPENAI_DECISIONS_MODEL` | the model of `openai-decisions`; it has no default | `OPENAI_DECISIONS_MODEL=<model>` |
 | `ANTHROPIC_API_KEY`, `JEV_API_KEY` with `JEV_URL` or `JEV_ROUTE`, `OPENAI_API_KEY` | the keys of a `--record` run; never printed or recorded | `ANTHROPIC_API_KEY` set in the shell |
 
@@ -86,14 +86,13 @@ A pointer key with the wrong shape stops the scan with exit 2 and names the key.
 
 ## Worked example
 
-The fixture estate, copied, with a settings file. The cassette of the fixture answers every request, so nothing is sent.
+The fixture estate, copied, with a settings file. It sets no labeler, so the scan reads with the default stack of both classes. The cassette of the fixture answers every request, so nothing is sent.
 
 ```sh setup
 cp -R examples/estates/fixture estate
 ```
 
 ```yaml file=estate/driftbench.estate.yaml
-labeler: [system1:jev, system2:anthropic]
 threshold: { pass_at: 0.9, fail_at: 0.1 }
 ledger: driftbench.ledger.json
 ```
@@ -103,8 +102,7 @@ driftbench estate scan estate --pointer --cassette estate/cassette.jsonl --updat
 ```
 
 ```text
-Pointer settings from driftbench.estate.yaml: labeler, threshold, ledger.
-  Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5 (pass at 0.9, fail at 0.1).
+Pointer settings from driftbench.estate.yaml: threshold, ledger.
   Requests: 73 answered, 0 sent, 0 recorded.
   Units since the last ledger: new 154.
 ```
