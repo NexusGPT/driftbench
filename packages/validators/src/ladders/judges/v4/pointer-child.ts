@@ -15,6 +15,7 @@ import { dirname, join, resolve } from 'node:path';
 import * as vm from 'node:vm';
 import * as workerThreads from 'node:worker_threads';
 import { disableProcessControl, lockIntrinsics, lockProcess } from './lock';
+import { recordImpl, type Tape } from './tape';
 
 // The token comes on stdin and is read before any module under audit is imported: only a line that starts with it
 // is believed by the parent, so a module cannot print a verdict of its own.
@@ -57,37 +58,24 @@ async function main(): Promise<void> {
   } catch (cause) {
     loadError = `the module under audit did not load: ${cause instanceof Error ? `${cause.name}: ${cause.message}` : String(cause)}`;
   }
-  const results: Array<{
-    id: string;
-    family: string;
-    tier: number;
-    component: string;
-    cause: string;
-    misses: string[];
-  }> = [];
+  const items: Array<{ id: string; tape: Tape; loadError?: string }> = [];
   for (const item of pointerBank()) {
-    let misses: string[];
-    if (!impl) misses = [loadError ?? 'the module under audit did not load'];
-    else {
-      try {
-        misses = await item.run(impl, fixtures, seed, root as string);
-      } catch (cause) {
-        misses = [`threw ${cause instanceof Error ? `${cause.name}: ${cause.message}` : String(cause)}`];
-      }
+    if (item.id.includes('/source/')) continue;
+    const tape: Tape = [];
+    if (!impl) {
+      items.push({ id: item.id, tape, loadError: loadError ?? 'the module under audit did not load' });
+      continue;
     }
-    results.push({
-      id: item.id,
-      family: item.family,
-      tier: item.tier,
-      component: item.component,
-      cause: item.cause,
-      misses,
-    });
+    try {
+      // The item's own verdict is thrown away: the parent replays the tape and decides.
+      await item.run(recordImpl(impl, tape), fixtures, seed, root as string);
+    } catch {
+      // a thrown error is on the tape as the call that threw
+    }
+    items.push({ id: item.id, tape });
   }
-  if (tree && treeHash(tree) !== before) {
-    for (const row of results) row.misses.push('the module changed its own files while it ran');
-  }
-  write(`${TOKEN} ${JSON.stringify(results)}\n`, () => realExit());
+  const changed = Boolean(tree && treeHash(tree) !== before);
+  write(`${TOKEN} ${JSON.stringify({ items, changed })}\n`, () => realExit());
 }
 
 main().catch((cause) => {

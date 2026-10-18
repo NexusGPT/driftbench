@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { pointer as shipped } from '@agent-nexus/driftbench-estate';
 import type { Tier } from '../../../ladder';
@@ -1195,38 +1195,36 @@ export function pointerBank(): PointerItem[] {
   return finishBank(out);
 }
 
-/** The text of a source without comments, so a doc comment may name `process` or a file. */
+/**
+ * The code lines of a source: whole-line comments and block comments that start a line are dropped, and every other
+ * line is kept as it is. A comment that trails code stays, and so does anything after a regular expression that
+ * looks like a comment: a scanner that guesses where a comment ends can be told where to stop reading.
+ */
 export function stripComments(text: string): string {
-  let out = '';
-  let i = 0;
-  while (i < text.length) {
-    const c = text[i] as string;
-    const d = text[i + 1];
-    if (c === '/' && d === '/') {
-      while (i < text.length && text[i] !== '\n') i += 1;
-    } else if (c === '/' && d === '*') {
-      i += 2;
-      while (i < text.length && !(text[i] === '*' && text[i + 1] === '/')) {
-        if (text[i] === '\n') out += '\n';
-        i += 1;
+  const out: string[] = [];
+  let inBlock = false;
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim();
+    if (inBlock) {
+      if (trimmed.includes('*/')) {
+        inBlock = false;
+        const rest = trimmed.slice(trimmed.indexOf('*/') + 2);
+        if (rest.trim() !== '') out.push(rest);
       }
-      i += 2;
-    } else if (c === "'" || c === '"' || c === '`') {
-      // keep string literals whole: a string that names a fixture file is evidence
-      const quote = c;
-      let j = i + 1;
-      while (j < text.length && text[j] !== quote) {
-        if (text[j] === '\\') j += 1;
-        j += 1;
-      }
-      out += text.slice(i, j + 1);
-      i = j + 1;
-    } else {
-      out += c;
-      i += 1;
+      continue;
     }
+    if (trimmed.startsWith('//')) continue;
+    if (trimmed.startsWith('/*')) {
+      if (!trimmed.includes('*/')) inBlock = true;
+      else {
+        const rest = trimmed.slice(trimmed.indexOf('*/') + 2);
+        if (rest.trim() !== '') out.push(rest);
+      }
+      continue;
+    }
+    out.push(line);
   }
-  return out;
+  return out.join('\n');
 }
 
 // ---------------------------------------------------------------------- what makes the bank hard to cheat
@@ -1426,25 +1424,35 @@ function moduleDir(root: string): string {
  * the process or a dynamic import where it must); a changed file, or one the shipped module does not have, is
  * the code under audit.
  */
-function sourcesOf(dir: string, shipped: string): Array<{ file: string; text: string }> {
-  const found: Array<{ file: string; text: string }> = [];
-  if (!existsSync(dir)) return found;
+/** The files of the module tree as the parent read them before the child ran; the scan reads this, not the disk after the run. */
+let snapshot: Map<string, string> | undefined;
+export function takeSnapshot(dir: string): Map<string, string> {
+  const files = new Map<string, string>();
+  if (!existsSync(dir)) return files;
   const walk = (current: string) => {
-    for (const name of readdirSync(current)) {
+    for (const name of readdirSync(current).sort()) {
       const path = join(current, name);
-      if (statSync(path).isDirectory()) {
-        walk(path);
-        continue;
-      }
-      if (/\.(json|md|map)$/.test(name)) continue;
-      const relative = path.slice(dir.length + 1);
-      const text = readFileSync(path, 'utf8');
-      const twin = join(shipped, relative);
-      if (existsSync(twin) && readFileSync(twin, 'utf8') === text) continue;
-      found.push({ file: relative, text });
+      if (statSync(path).isDirectory()) walk(path);
+      else files.set(path.slice(dir.length + 1), readFileSync(path, 'utf8'));
     }
   };
   walk(dir);
+  return files;
+}
+export function useSnapshot(files: Map<string, string> | undefined): void {
+  snapshot = files;
+}
+export { moduleDir as pointerModuleDir };
+
+function sourcesOf(dir: string, shipped: string): Array<{ file: string; text: string }> {
+  const found: Array<{ file: string; text: string }> = [];
+  const files = snapshot ?? takeSnapshot(dir);
+  for (const [relative, text] of files) {
+    if (/\.(json|md|map)$/.test(relative)) continue;
+    const twin = join(shipped, relative);
+    if (existsSync(twin) && readFileSync(twin, 'utf8') === text) continue;
+    found.push({ file: relative, text });
+  }
   return found;
 }
 
@@ -1511,8 +1519,44 @@ const SOURCE_GUARDS: Source[] = [
   },
 ];
 
+const SPECIFIER =
+  /(?:\bfrom\s*|\bimport\s*\(?\s*|\brequire\s*\(\s*|\bexport\s*\*\s*from\s*)['"`]([^'"`]+)['"`]/g;
+
+/** The bare module names the shipped module imports: the only packages a repaired copy may use. */
+function shippedPackages(shipped: string): Set<string> {
+  const names = new Set<string>();
+  const walk = (dir: string) => {
+    for (const name of readdirSync(dir)) {
+      const path = join(dir, name);
+      if (statSync(path).isDirectory()) walk(path);
+      else if (/\.(ts|js|mjs|cjs)$/.test(name)) {
+        for (const m of readFileSync(path, 'utf8').matchAll(SPECIFIER)) {
+          const spec = m[1] as string;
+          if (!spec.startsWith('.') && !spec.startsWith('/'))
+            names.add(
+              spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : (spec.split('/')[0] as string),
+            );
+        }
+      }
+    }
+  };
+  walk(shipped);
+  names.delete('@agent-nexus/driftbench-estate');
+  return names;
+}
+
+function importGuard(): Source {
+  return {
+    id: 'escapes-the-tree',
+    what: 'code outside its own folder',
+    cause:
+      'the pointer module imports code from outside its own source tree or a package the shipped module does not use',
+    patterns: [],
+  };
+}
+
 function sourceGuardItems(): PointerItem[] {
-  return SOURCE_GUARDS.map((g) => ({
+  return [...SOURCE_GUARDS, importGuard()].map((g) => ({
     id: `pointer/source/${g.id}`,
     family: 'source' as PointerFamily,
     tier: 3 as Tier,
@@ -1520,11 +1564,41 @@ function sourceGuardItems(): PointerItem[] {
     component: 'packages/estate/src/pointer',
     run: (_impl: PointerImpl, _fixtures: Fixtures, _seed: number, root: string) => {
       const dir = moduleDir(root);
-      if (!existsSync(dir)) return [`no source of the pointer module under ${dir}`];
+      if (!snapshot && !existsSync(dir)) return [`no source of the pointer module under ${dir}`];
       const files = sourcesOf(dir, join(root, 'packages', 'estate', 'src'));
       const misses: string[] = [];
+      const shippedRoot = join(root, 'packages', 'estate', 'src');
+      const allowed = g.id === 'escapes-the-tree' ? shippedPackages(shippedRoot) : new Set<string>();
       for (const f of files) {
         const text = stripComments(f.text);
+        if (g.id === 'escapes-the-tree') {
+          for (const m of text.matchAll(SPECIFIER)) {
+            const spec = m[1] as string;
+            const here = dirname(join(dir, f.file));
+            const target = spec.startsWith('.')
+              ? resolve(here, spec)
+              : spec.startsWith('/')
+                ? resolve(spec)
+                : undefined;
+            if (target !== undefined && !(target === dir || target.startsWith(dir + sep)))
+              misses.push(
+                `${f.file} imports ${show(spec)}, which is outside its own source tree. A labeller is made of its own files.`,
+              );
+            else if (
+              target === undefined &&
+              !spec.startsWith('node:') &&
+              !allowed.has(
+                spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : (spec.split('/')[0] as string),
+              )
+            )
+              misses.push(
+                `${f.file} imports the package ${show(spec)}, which the shipped module does not use.`,
+              );
+            else if (/\.(json|map|node|wasm|txt)$/.test(spec))
+              misses.push(`${f.file} imports the data file ${show(spec)}.`);
+          }
+          continue;
+        }
         for (const pattern of g.patterns) {
           const m = pattern.exec(text);
           if (m)
