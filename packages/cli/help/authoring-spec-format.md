@@ -232,7 +232,7 @@ Free, with these keys read by tools:
 
 ### `uses`
 
-Every rule driftbench applies is an object: a kind (`policy/blame`, `policy/value-check`, `check-set`, `diagnostic`, ...), an id, an optional parent it `extends`, and items, each one rule. `uses` names the objects a spec or a block runs with. Each key is optional and has no default: a spec without `uses` loads, hashes and replays exactly as before.
+Every rule driftbench applies is an object. It has a kind (`policy/blame`, `policy/value-check`, `check-set`, `diagnostic`, ...), an id, an optional parent it `extends`, and items, each one rule. `uses` names the objects a spec or a block runs with. Each key is optional and has no default: a spec without `uses` loads, hashes and replays exactly as before.
 
 | Key | Kind it names |
 |---|---|
@@ -247,7 +247,7 @@ Every rule driftbench applies is an object: a kind (`policy/blame`, `policy/valu
 | `judges` | `judge-council` |
 | `diagnostics` | a list of `diagnostic` ids |
 
-A value is an id, such as `blame: acme`, or an inline object that extends one: `value_check: { extends: default, items: [{ id: rung3_same_referent, params: { repeats: 5 } }] }`. An item operation names an item of the parent and sets fields (`params` maps merge, lists replace, `+key: [values]` appends, `-key: [values]` removes); `enabled: false` disables it; `add: true` with `title`, `when`, `effect` and `impl` adds one; `before` or `after` moves it, or `order` lists every enabled item once. An item may carry `applies_to: { skills, tools, units }`: it then fires only when the evidence names one of those skills or tools, or a unit matching one of the unit patterns (`R#41/*`); without it, everywhere. An item may also carry `cites`, a text naming its source for the reader, such as a rule number; it changes no result.
+A value is an id, such as `blame: acme`, or an inline object that extends one: `value_check: { extends: default, items: [{ id: rung3_same_referent, params: { repeats: 5 } }] }`. An item operation names an item of the parent and sets fields. `params` maps merge, lists replace, `+key: [values]` appends, and `-key: [values]` removes. `enabled: false` disables the item. `add: true` with `title`, `when`, `effect` and `impl` adds one. `before` or `after` moves it, or `order` lists every enabled item once. An item may carry `applies_to: { skills, tools, units }`. It then fires only when the evidence names one of those skills or tools, or a unit matching one of the unit patterns (`R#41/*`). Without it, the item fires everywhere. An item may also carry `cites`, a text naming its source for the reader, such as a rule number. It changes no result.
 
 Where an id is looked up, weakest first: the shipped objects; the project, files `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml` and its `objects:` list; each `_driftbench/<kind>/<id>.yaml` suite folder from the project down to the spec, a nearer one stronger. A `uses.yaml` in a `driftbench/` or `_driftbench/` folder sets `uses` for the specs below it. A block's key replaces the spec's, which replaces the suite's and the project's.
 
