@@ -100,11 +100,12 @@ No word list and no grammar rule decides what is a rule.
   occurrence, then kept in the ledger file as the text changes. The ledger follows a unit through an edit
   (unchanged, moved, changed, split, merged, deleted). It writes no times, so equal ledgers are equal bytes.
   A label is kept with its unit only while the label set and the labelers that made it are unchanged.
-* The cassette keeps every labeler answer, keyed by the hash of the whole request and the id of the labeler.
+* The cassette keeps every labeler answer, keyed by the hash of the whole request and of what identifies it: the labeler, its model, the set, the versions of the prompt, the cut and the run.
   A changed prompt, set, model, labeler or cut misses, and the error names the field that differs from the
   nearest entry. A scan without `--record` never calls a labeler, so a replay needs no key and no network.
-* The answer is checked: a label not in the set, a unit not in the window, a unit named twice, or a target
-  where none is allowed is refused and listed. A unit no accepted answer names is counted as unlabeled.
+* The answer is checked: a label not in the set, a unit not in the window, a unit named twice, a target that
+  is no unit number, a target on `none` or where none is allowed, or choice probabilities that do not sum to 1
+  is refused and listed (probabilities are never normalised). A unit no accepted answer names is counted as unlabeled.
 * An atom built from a label is unapproved, `producedBy: model`, with `fields.extraction: pointer`, the unit
   id, the set, the label and the cassette key, and one `prose_pointer` check that a person reviews.
 * Before the first request of a `--record` run the scan prints a plan: per labeler, the requests it needs,
@@ -118,7 +119,7 @@ The labelers are named by the class the judges use (topic `judging-default-judge
 | Class | What it is | Clients |
 |---|---|---|
 | `system1` | a model that answers with probabilities: a choice among the labels for each unit, or a yes or no question per label, batched in one request per window | `openai-decisions[:model]`, the public example; the Nexus platform client, on the [Nexus adapter page](../adapters/nexus.md); `http:<url>`; `module:<path>` |
-| `system2` | a chat model that reads the numbered window and answers one label per unit | `anthropic[:model]`, default model `claude-haiku-5-5`; `http:<url>`; `module:<path>` |
+| `system2` | a chat model that reads the numbered window and answers one label per unit; each window is asked three times and a unit takes a label only when all three runs agree, else it stays unlabeled | `anthropic[:model]`, default model `claude-haiku-5-5`; `http:<url>`; `module:<path>` |
 
 The default is a stack of both, a system 1 labeler and a system 2 labeler. System 1 decides a unit alone when its
 likeliest label leads the second by `--labeler-margin-cut`. System 2 decides the rest. Either class runs alone

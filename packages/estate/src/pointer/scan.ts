@@ -1,5 +1,5 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
-import { type Cassette, CassetteMiss, type Recorded, readableOf, wireKey } from './cassette';
+import { type Cassette, CassetteMiss, type Recorded, readableOf, requestKey } from './cassette';
 import { type Cut, cut, type Unit } from './cut';
 import {
   isTooLarge,
@@ -107,6 +107,8 @@ export type PointerResult = {
   calls: number;
   /** Units no accepted answer named. */
   unlabeled: number;
+  /** Of the units a labeler with several runs left unlabeled, those whose runs disagreed. */
+  split: number;
   refusals: string[];
   /** Windows that could not be labelled, with the reason. */
   failed: string[];
@@ -186,6 +188,8 @@ type Task = {
   memberAt: number;
   window: Window;
   digest: string;
+  /** Which run of the same request, from 1. */
+  run: number;
 };
 
 type Leaf = { window: Window; answer: Recorded; key: string };
@@ -201,6 +205,8 @@ function readableFor(task: Task, window: Window) {
     setHash: setHash(task.set),
     model: task.member.model,
     cutDigest: task.digest,
+    cls: task.member.cls,
+    run: String(task.run),
   });
 }
 
@@ -248,15 +254,18 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       for (const [memberAt, member] of labelling.members.entries()) {
         for (const window of windowsOf(file.path, fileCut.units, member.maxUnits(set, size))) {
           if (!window.units.some((unit) => want.has(unit.index))) continue;
-          tasks.push({
-            order: tasks.length,
-            file: file.path,
-            set,
-            member,
-            memberAt,
-            window,
-            digest: fileCut.digest,
-          });
+          for (let run = 1; run <= (member.runs ?? 1); run++) {
+            tasks.push({
+              order: tasks.length,
+              file: file.path,
+              set,
+              member,
+              memberAt,
+              window,
+              digest: fileCut.digest,
+              run,
+            });
+          }
         }
       }
     }
@@ -279,7 +288,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const wire = task.member.render(task.set, task.window);
     const entry = plan.members[task.memberAt] as MemberPlan;
     entry.windows++;
-    if (cassette.entries.has(wireKey(wire))) entry.cached++;
+    if (cassette.entries.has(requestKey(wire, readableFor(task, task.window)))) entry.cached++;
     else entry.characters += JSON.stringify(wire.body).length;
   }
   input.onPlan?.(plan);
@@ -308,7 +317,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         counts.output += answer.usage.output;
         cassette.put(wire, readable, answer);
         counts.recorded++;
-        return { answer, key: wireKey(wire) };
+        return { answer, key: requestKey(wire, readable) };
       } catch (cause) {
         failure = cause;
         if (isTooLarge(cause)) {
@@ -321,7 +330,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
           };
           cassette.put(wire, readable, refused);
           counts.recorded++;
-          return { answer: refused, key: wireKey(wire) };
+          return { answer: refused, key: requestKey(wire, readable) };
         }
         if (!RETRYABLE(cause)) break;
       }
@@ -378,12 +387,15 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   const refusals: string[] = [];
   const failed: string[] = [];
   let windows = 0;
-  const opinions = new Map<string, Array<Map<number, Opinion>>>();
-  const opinionsOf = (file: string, set: LabelSet): Array<Map<number, Opinion>> => {
+  // The opinions by file and set, then by member, then by run.
+  const opinions = new Map<string, Array<Array<Map<number, Opinion>>>>();
+  const opinionsOf = (file: string, set: LabelSet): Array<Array<Map<number, Opinion>>> => {
     const key = `${file}\0${set.set}`;
     let found = opinions.get(key);
     if (!found) {
-      found = labelling.members.map(() => new Map<number, Opinion>());
+      found = labelling.members.map((member) =>
+        Array.from({ length: member.runs ?? 1 }, () => new Map<number, Opinion>()),
+      );
       opinions.set(key, found);
     }
     return found;
@@ -396,11 +408,36 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       windows++;
       const read = task.member.opinions(leaf.answer, task.set, leaf.window);
       refusals.push(...read.refusals);
-      const target = opinionsOf(task.file, task.set)[task.memberAt] as Map<number, Opinion>;
+      const target = (opinionsOf(task.file, task.set)[task.memberAt] as Array<Map<number, Opinion>>)[
+        task.run - 1
+      ] as Map<number, Opinion>;
       for (const [index, opinion] of read.byUnit)
         target.set(index, { ...opinion, source: leaf.key.slice(0, 12) });
     }
   }
+
+  /**
+   * The opinion of a member for a unit: with several runs, the label every run gave (and the same target); a run
+   * that is missing or that differs leaves the member without an opinion, counted as a split when runs disagree.
+   */
+  let split = 0;
+  const opinionOf = (runs: ReadonlyArray<Map<number, Opinion>>, index: number): Opinion | undefined => {
+    const given = runs.map((run) => run.get(index));
+    const first = given[0];
+    if (given.length === 1) return first;
+    if (given.some((opinion) => !opinion)) return undefined;
+    const same = given.every(
+      (opinion) => opinion?.label === first?.label && opinion?.target === first?.target,
+    );
+    if (!same || !first) {
+      split++;
+      return undefined;
+    }
+    return {
+      ...first,
+      source: given.map((opinion) => opinion?.source ?? '').join('+'),
+    };
+  };
 
   let unlabeled = 0;
   let decided = 0;
@@ -415,7 +452,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         const entry = entries.get(unitId(file.path, index));
         if (!entry) continue;
         const decision = labelling.decide(
-          byMember.map((memberOpinions) => memberOpinions.get(index)),
+          byMember.map((runs) => opinionOf(runs, index)),
           set,
         );
         if (!decision) {
@@ -497,6 +534,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     fellBack,
     calls: usage.reduce((sum, entry) => sum + entry.calls, 0),
     unlabeled,
+    split,
     refusals,
     failed,
     usage,

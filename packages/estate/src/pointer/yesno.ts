@@ -160,14 +160,26 @@ export function choiceQuestions(asked: readonly Label[], window: Window): Record
   return out;
 }
 
+/** How far the probabilities of one choice answer may sit from a sum of 1: the endpoint rounds each to two decimals. */
+export const VECTOR_TOLERANCE = 0.01;
+
+/** Whether the probabilities form a vector: each in 0 to 1, summing to 1 within the tolerance. Never normalised. */
+export function isVector(probabilities: Readonly<Record<string, number>>): boolean {
+  const values = Object.values(probabilities);
+  if (values.length === 0 || values.some((p) => !Number.isFinite(p) || p < 0 || p > 1)) return false;
+  return Math.abs(values.reduce((sum, p) => sum + p, 0) - 1) <= VECTOR_TOLERANCE + 1e-9;
+}
+
 /**
  * The opinions of a choice answer: the label with the highest probability, `none` among the options. The
  * probabilities of the options are the opinion's, so a stack can read the margin between the two likeliest.
- * A unit missing an option has no opinion: it is listed as unlabeled, never guessed.
+ * A unit missing an option has no opinion, and so has a unit whose probabilities are no vector (they do not sum
+ * to 1): it is refused with the reason, never repaired by normalising, and never guessed.
  */
 export function choiceOpinions(answer: Recorded, window: Window, asked: readonly Label[]): Opinions {
   const names = [...asked.map((label) => label.name), 'none'];
   const byUnit = new Map<number, Opinion>();
+  const refusals: string[] = [];
   for (const unit of window.units) {
     const probabilities: Record<string, number> = {};
     let best: { label: string; p: number } | undefined;
@@ -178,9 +190,16 @@ export function choiceOpinions(answer: Recorded, window: Window, asked: readonly
       if (!best || p > best.p) best = { label: name, p };
     }
     if (Object.keys(probabilities).length < names.length || !best) continue;
+    if (!isVector(probabilities)) {
+      const total = Object.values(probabilities).reduce((sum, p) => sum + p, 0);
+      refusals.push(
+        `${window.id}: unit [${unit.n}] has probabilities that are no vector (they sum to ${Number(total.toFixed(4))})`,
+      );
+      continue;
+    }
     byUnit.set(unit.index, { label: best.label, probabilities });
   }
-  return { byUnit, refusals: [] };
+  return { byUnit, refusals };
 }
 
 export type JevOptions = HttpOptions & {

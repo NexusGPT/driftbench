@@ -51,16 +51,20 @@ async function replay(
 }
 
 describe('the fixture through its committed cassettes', () => {
-  it('replays the default stack with no call and no miss, and leaves no unit unlabeled', async () => {
+  it('replays the default stack with no call and no miss, and accounts for every unit', async () => {
     const { result, cassette } = await replay();
     expect(result.pointer?.calls).toBe(0);
     expect(result.pointer?.failed).toEqual([]);
     expect(result.pointer?.refusals).toEqual([]);
     expect(result.pointer?.atomRefusals).toEqual([]);
-    expect(result.pointer?.unlabeled).toBe(0);
-    // Every answer of the cassette is read: one request per window and labeler.
+    // A unit is decided, or left unlabeled because system 2 did not give it one label on every run.
+    expect(result.pointer?.unlabeled).toBeGreaterThan(0);
+    expect(result.pointer?.split).toBeGreaterThan(0);
+    expect((result.pointer?.decided ?? 0) + (result.pointer?.unlabeled ?? 0)).toBe(
+      result.pointer?.plan.units,
+    );
+    // Every answer of the cassette is read: one request per window, labeler and run.
     expect(cassette.entries.size).toBe(result.pointer?.windows);
-    expect(result.pointer?.decided).toBe(result.pointer?.plan.units);
     expect(result.pointer?.decidedBy.system1).toBeGreaterThan(0);
     expect(result.pointer?.decidedBy.system2).toBeGreaterThan(0);
   });
@@ -115,10 +119,12 @@ describe('the fixture through its committed cassettes', () => {
   it('replays each class alone from the same cassette', async () => {
     const one = await replay(['system1:jev']);
     const two = await replay(['system2:anthropic']);
-    for (const run of [one, two]) {
-      expect(run.result.pointer?.calls).toBe(0);
-      expect(run.result.pointer?.unlabeled).toBe(0);
-    }
+    expect(one.result.pointer?.calls).toBe(0);
+    expect(two.result.pointer?.calls).toBe(0);
+    expect(one.result.pointer?.unlabeled).toBe(0);
+    // System 2 alone leaves unlabeled the units its runs split on, and only those.
+    expect(two.result.pointer?.unlabeled).toBeGreaterThan(0);
+    expect(two.result.pointer?.unlabeled).toBe(two.result.pointer?.split);
     expect(one.result.pointer?.decidedBy).toEqual({ system1: one.result.pointer?.decided, system2: 0 });
     expect(two.result.pointer?.decidedBy).toEqual({ system1: 0, system2: two.result.pointer?.decided });
   });

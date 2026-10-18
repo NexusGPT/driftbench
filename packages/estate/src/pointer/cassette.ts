@@ -25,7 +25,12 @@ export type Readable = Record<string, string>;
 
 export type CassetteEntry = { key: string; readable: Readable; answer: Recorded };
 
-export const wireKey = (wire: Wire): string => sha(canonical(wire));
+/**
+ * The key of a request: the wire and everything that identifies the answer besides it (the labeler and its class,
+ * the model, the set hash, the prompt and schema versions, the cut, the run). A model the body does not hold, a
+ * label's polarity, a second run of the same request all change the key, so a hit is the full match.
+ */
+export const requestKey = (wire: Wire, readable: Readable): string => sha(canonical({ wire, readable }));
 
 /** Fields kept beside the key, so a miss can say what differs. `part.*` is a hash per top-level key of the request. */
 export function readableOf(
@@ -39,6 +44,9 @@ export function readableOf(
     setHash: string;
     model: string;
     cutDigest: string;
+    cls: string;
+    /** Which of the runs of the same request this is: `1` for a labeler that answers once. */
+    run: string;
   },
 ): Readable {
   const parts = Object.fromEntries(
@@ -95,15 +103,9 @@ export class Cassette {
 
   /** The recorded answer for a request, or the miss with the fields that differ from the nearest entry. */
   get(wire: Wire, readable: Readable): CassetteEntry {
-    const key = wireKey(wire);
+    const key = requestKey(wire, readable);
     const hit = this.entries.get(key);
-    if (hit) {
-      // The key covers the request; the cut digest guards the cutter: same request, different cut.
-      if (hit.readable.cutDigest !== readable.cutDigest) {
-        throw new CassetteMiss(key, ['cutDigest'], hit.key);
-      }
-      return hit;
-    }
+    if (hit) return hit;
     const same = [...this.entries.values()].filter(
       (entry) =>
         entry.readable.path === readable.path &&
@@ -120,7 +122,7 @@ export class Cassette {
   }
 
   put(wire: Wire, readable: Readable, answer: Recorded): CassetteEntry {
-    const key = wireKey(wire);
+    const key = requestKey(wire, readable);
     const entry = { key, readable, answer };
     this.entries.set(key, entry);
     this.onPut?.(entry);

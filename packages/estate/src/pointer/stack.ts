@@ -4,7 +4,7 @@ import { createAnthropicLabeler } from './dense';
 import { type Labeler, type LabelerClass, LabelerConfigError, type Opinion } from './labeler';
 import { canonical, type LabelSet } from './labels';
 import { createHttpLabeler, loadModuleLabeler } from './user';
-import { askedLabels, createJevLabeler, createOpenAiDecisionsLabeler } from './yesno';
+import { askedLabels, createJevLabeler, createOpenAiDecisionsLabeler, isVector } from './yesno';
 
 /**
  * Which labelers read the prose, and how their opinions become one label. The default is a stack of the two
@@ -125,16 +125,15 @@ function single(member: Labeler): Labelling {
 }
 
 /**
- * The margin of a system 1 opinion: the probability of the most likely label minus that of the second, normalised
- * to 1. A vector with no `none` entry (a yes or no model) gets an implicit `none` that takes what the labels
- * leave of 1; a choice model gives `none` itself.
+ * The margin of a system 1 opinion: the probability of the most likely option minus that of the second. The
+ * options include `none`, and the probabilities must form a vector; a vector that does not sum to 1 has no margin
+ * (it is never normalised).
  */
-export function margin(probabilities: Readonly<Record<string, number>>): { label: string; margin: number } {
-  const entries = Object.entries(probabilities);
-  const none = 'none' in probabilities ? 0 : Math.max(0, 1 - entries.reduce((sum, [, p]) => sum + p, 0));
-  const vector: Array<[string, number]> = 'none' in probabilities ? entries : [...entries, ['none', none]];
-  const total = vector.reduce((sum, [, p]) => sum + p, 0) || 1;
-  const sorted = vector.map(([name, p]) => [name, p / total] as const).sort((a, b) => b[1] - a[1]);
+export function margin(
+  probabilities: Readonly<Record<string, number>>,
+): { label: string; margin: number } | undefined {
+  if (!('none' in probabilities) || !isVector(probabilities)) return undefined;
+  const sorted = Object.entries(probabilities).sort((a, b) => b[1] - a[1]);
   return { label: sorted[0]?.[0] ?? 'none', margin: (sorted[0]?.[1] ?? 0) - (sorted[1]?.[1] ?? 0) };
 }
 
@@ -144,12 +143,25 @@ function stacked(
   bounds: { passAt: number; failAt: number; marginCut?: number },
 ): Labelling {
   const { passAt, failAt, marginCut } = bounds;
+  /** The label system 1 decides alone, or undefined when the unit is left to system 2. */
+  const sureLabel = (opinion: Opinion): string | undefined => {
+    if (marginCut !== undefined) {
+      const lead = margin(opinion.probabilities ?? {});
+      return lead && lead.margin >= marginCut ? lead.label : undefined;
+    }
+    let top: { label: string; p: number } | undefined;
+    for (const [name, p] of Object.entries(opinion.probabilities ?? {})) {
+      if (!top || p > top.p) top = { label: name, p };
+    }
+    if (top && top.p >= passAt) return top.label;
+    if (!top || top.p < failAt) return 'none';
+    return undefined;
+  };
   return {
     members: [system1, system2],
     hash: sha(
       canonical({
         members: [describeMember(system1), describeMember(system2)],
-        passAt,
         ...(marginCut === undefined ? { passAt, failAt, rule: 'cascade' } : { marginCut, rule: 'margin' }),
       }),
     ).slice(0, 16),
@@ -162,39 +174,38 @@ function stacked(
         by: 'system2',
         sources: sourcesOf(first, opinion),
       });
+      // System 1 gave no opinion (a failed call, a refused vector): it counts as below the cut and system 2 decides.
       if (!first && second) return { ...fromSecond(second), fallback: true };
       if (!first) return undefined;
-      if (!second) {
-        return { label: first.label, by: 'system1', sources: sourcesOf(first), fallback: true };
-      }
       // A label that asks for a target cannot be asked of system 1: system 2 alone decides it.
-      const asked = new Set(askedLabels(set, true).map((entry) => entry.name));
-      if (second.label !== 'none' && !asked.has(second.label)) return fromSecond(second);
-      if (marginCut !== undefined) {
-        // System 1 decides a unit it is clear about: its top label leads the second by the cut or more.
-        const lead = margin(first.probabilities ?? {});
-        if (lead.margin >= marginCut) {
-          return { label: lead.label, by: 'system1', sources: sourcesOf(first, second) };
-        }
-        return fromSecond(second);
+      if (second) {
+        const asked = new Set(askedLabels(set, true).map((entry) => entry.name));
+        if (second.label !== 'none' && !asked.has(second.label)) return fromSecond(second);
       }
-      let top: { label: string; p: number } | undefined;
-      for (const [name, p] of Object.entries(first.probabilities ?? {})) {
-        if (!top || p > top.p) top = { label: name, p };
+      const sure = sureLabel(first);
+      if (sure !== undefined) {
+        return {
+          label: sure,
+          by: 'system1',
+          sources: sourcesOf(first, second),
+          ...(second ? {} : { fallback: true as const }),
+        };
       }
-      if (top && top.p >= passAt) {
-        return { label: top.label, by: 'system1', sources: sourcesOf(first, second) };
-      }
-      if (!top || top.p < failAt) {
-        return { label: 'none', by: 'system1', sources: sourcesOf(first, second) };
-      }
-      return fromSecond(second);
+      // An unsure unit takes the label system 2 gave on every run. Without it the unit stays unlabeled: system
+      // 1's uncertain label is never taken in its place.
+      return second ? fromSecond(second) : undefined;
     },
   };
 }
 
 function describeMember(member: Labeler): Record<string, unknown> {
-  return { id: member.id, cls: member.cls, model: member.model, settings: member.settings };
+  return {
+    id: member.id,
+    cls: member.cls,
+    model: member.model,
+    settings: member.settings,
+    runs: member.runs ?? 1,
+  };
 }
 
 const label = (member: Labeler): string =>
@@ -335,9 +346,14 @@ export async function buildLabelling(
     if (first && second) {
       // A choice model gives a vector: it decides by margin unless the caller set the two probability bounds.
       const bounded = options.passAt !== undefined || options.failAt !== undefined;
-      const marginCut =
-        options.marginCut ??
-        (first.settings.question === 'choice' && !bounded ? DEFAULT_MARGIN_CUT : undefined);
+      const choice = first.settings.question === 'choice';
+      if (options.marginCut !== undefined && !choice) {
+        return {
+          ok: false,
+          message: `a margin cut needs a system 1 labeler that answers a choice question; ${first.id} does not`,
+        };
+      }
+      const marginCut = options.marginCut ?? (choice && !bounded ? DEFAULT_MARGIN_CUT : undefined);
       return {
         ok: true,
         labelling: stacked(first, second, {

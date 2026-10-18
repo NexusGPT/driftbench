@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Cassette, CassetteMiss, readableOf, type Wire, wireKey } from '../../src/pointer';
+import { Cassette, CassetteMiss, readableOf, requestKey, type Wire } from '../../src/pointer';
 
 const WIRE: Wire = {
   labeler: 'planted',
@@ -14,6 +14,8 @@ const META = {
   setHash: 'h1',
   model: 'm-1',
   cutDigest: 'cd1',
+  cls: 'system2',
+  run: '1',
 };
 const ANSWER = {
   labels: [{ units: '1', label: 'x' }],
@@ -83,11 +85,41 @@ describe('the cassette', () => {
     );
   });
 
-  it('keys the whole request, labeler id included', () => {
-    expect(wireKey(WIRE)).not.toBe(wireKey({ ...WIRE, labeler: 'other' }));
-    expect(wireKey({ labeler: 'a', body: { x: 1, y: 2 } })).toBe(
-      wireKey({ labeler: 'a', body: { y: 2, x: 1 } }),
-    );
+  it('keys the whole request and everything that identifies it, labeler id included', () => {
+    const key = (wire: Wire, meta: Partial<typeof META> = {}) =>
+      requestKey(wire, readableOf(wire, { ...META, ...meta }));
+    expect(key(WIRE)).not.toBe(key({ ...WIRE, labeler: 'other' }));
+    expect(key({ labeler: 'a', body: { x: 1, y: 2 } })).toBe(key({ labeler: 'a', body: { y: 2, x: 1 } }));
+  });
+
+  it('misses when only what the body does not hold differs: the model, the set hash, the run, the prompt', () => {
+    const cassette = recorded();
+    const others: Array<[string, Partial<typeof META>]> = [
+      ['model', { model: 'm-2' }],
+      ['setHash', { setHash: 'h2' }],
+      ['run', { run: '2' }],
+      ['promptVersion', { promptVersion: 'p2' }],
+      ['schemaVersion', { schemaVersion: 's2' }],
+      ['cls', { cls: 'system1' }],
+    ];
+    for (const [field, meta] of others) {
+      let miss: CassetteMiss | undefined;
+      try {
+        cassette.get(WIRE, readableOf(WIRE, { ...META, ...meta }));
+      } catch (cause) {
+        miss = cause as CassetteMiss;
+      }
+      expect(miss, field).toBeInstanceOf(CassetteMiss);
+      expect(miss?.differs, field).toEqual([field]);
+    }
+  });
+
+  it('keeps two answers that differ only by what the body does not hold', () => {
+    const cassette = recorded();
+    cassette.put(WIRE, readableOf(WIRE, { ...META, run: '2' }), { ...ANSWER, returnedModel: 'second' });
+    expect(cassette.entries.size).toBe(2);
+    expect(cassette.get(WIRE, readableOf(WIRE, { ...META, run: '2' })).answer.returnedModel).toBe('second');
+    expect(cassette.get(WIRE, readableOf(WIRE, META)).answer.returnedModel).toBe('m-1');
   });
 
   it('refuses a file that is not JSON lines', () => {

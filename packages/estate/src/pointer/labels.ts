@@ -149,6 +149,14 @@ export function checkAnswer(set: LabelSet, window: Window, answer: readonly Labe
       refusals.push(`${window.id}: "${entry.units}" names a unit that is already labelled`);
       continue;
     }
+    if (entry.target !== undefined && (typeof entry.target !== 'number' || !Number.isInteger(entry.target))) {
+      refusals.push(`${window.id}: the target ${JSON.stringify(entry.target)} is no unit number`);
+      continue;
+    }
+    if (entry.label === 'none' && entry.target !== undefined) {
+      refusals.push(`${window.id}: the label none takes no target`);
+      continue;
+    }
     if (label?.target === 'required' && (entry.target === undefined || !inWindow.has(entry.target))) {
       refusals.push(`${window.id}: the label ${entry.label} needs a target unit inside the window`);
       continue;

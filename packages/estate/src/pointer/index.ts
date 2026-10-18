@@ -7,8 +7,8 @@ export {
   type Readable,
   type Recorded,
   readableOf,
+  requestKey,
   type Wire,
-  wireKey,
 } from './cassette';
 export { type Container, type Cut, cut, fingerprint, sentenceSpans, type Unit } from './cut';
 export {
@@ -110,6 +110,7 @@ export {
   DEFAULT_DECISIONS_MAX_QUESTIONS,
   DEFAULT_MAX_QUESTIONS,
   DEFAULT_THRESHOLD,
+  isVector,
   type JevOptions,
   NONE_DEFINITION,
   type OpenAiDecisionsOptions,

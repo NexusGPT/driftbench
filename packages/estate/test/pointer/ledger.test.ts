@@ -141,4 +141,41 @@ describe('the ledger', () => {
     const again = scan({ 'a.md': '- Lock the door\n- Lock the door\n' }, twins.ledger);
     expect(again.ledger.entries.map((entry) => entry.id)).toEqual(ids);
   });
+
+  it('keeps the id of a short text that is unique in the old estate and the new one when it moves between files', () => {
+    const first = scan({
+      'hall.md': '# Hall\n\n- Lock up.\n- Water the plants on the left shelf\n',
+      'yard.md': '# Yard\n\n- Sweep the yard every evening\n',
+    });
+    const lock = idOf(first, 'hall.md', 'Lock up.');
+    expect(lock).toBeDefined();
+    const second = scan(
+      {
+        'hall.md': '# Hall\n\n- Water the plants on the left shelf\n',
+        'yard.md': '# Yard\n\n- Sweep the yard every evening\n- Lock up.\n',
+      },
+      first.ledger,
+    );
+    expect(idOf(second, 'yard.md', 'Lock up.')).toBe(lock);
+    expect(second.events.moved).toBeGreaterThanOrEqual(1);
+  });
+
+  it('gives a new id to a short text that repeats, when it moves between files', () => {
+    const first = scan({
+      'hall.md': '# Hall\n\n- Lock up.\n',
+      'yard.md': '# Yard\n\n- Lock up.\n- Sweep the yard every evening\n',
+      'shed.md': '# Shed\n\n- Count the tools twice a day\n',
+    });
+    const hallLock = idOf(first, 'hall.md', 'Lock up.');
+    const second = scan(
+      {
+        'hall.md': '# Hall\n\n- Water the plants on the left shelf\n',
+        'yard.md': '# Yard\n\n- Lock up.\n- Sweep the yard every evening\n',
+        'shed.md': '# Shed\n\n- Count the tools twice a day\n- Lock up.\n',
+      },
+      first.ledger,
+    );
+    // Two units with that text now exist in the new estate: neither takes the old id from another file.
+    expect(idOf(second, 'shed.md', 'Lock up.')).not.toBe(hallLock);
+  });
 });

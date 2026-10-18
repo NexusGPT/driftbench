@@ -190,6 +190,26 @@ describe('checking an answer', () => {
     ]);
   });
 
+  it('refuses a target that is no number, and a target on none, and says why', () => {
+    const set = load(TWO_SETS)[1] as LabelSet;
+    const gate = set.labels.find((label) => label.target === 'required');
+    const window = {
+      id: 'w',
+      path: 'w.md',
+      headingPath: [],
+      units: [1, 2, 3].map((n) => ({ n, text: `u${n}`, index: n - 1 })),
+    };
+    if (!gate) throw new Error('the set holds a label with a target');
+    const string = checkAnswer(set, window, [
+      { units: '1', label: gate.name, target: '2' as unknown as number },
+    ]);
+    expect(string.accepted.size).toBe(0);
+    expect(string.refusals).toEqual([expect.stringContaining('is no unit number')]);
+    const none = checkAnswer(set, window, [{ units: '1', label: 'none', target: 2 }]);
+    expect(none.accepted.size).toBe(0);
+    expect(none.refusals).toEqual([expect.stringContaining('none takes no target')]);
+  });
+
   it('refuses a malformed range', () => {
     expect(checkAnswer(counter, window, [{ units: 'one', label: 'greeting' }]).refusals).toHaveLength(1);
   });

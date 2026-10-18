@@ -8,6 +8,7 @@ import {
   createOpenAiDecisionsLabeler,
   DEFAULT_THRESHOLD,
   isTooLarge,
+  isVector,
   LabelerConfigError,
   type LabelSet,
   NONE_DEFINITION,
@@ -114,6 +115,31 @@ describe('the choice questions', () => {
   it('leaves a unit without an opinion when an option has no probability', () => {
     const answer = recorded({ [choiceKey(1, 'greeting')]: 0.9, [choiceKey(1, 'none')]: 0.1 });
     expect(choiceOpinions(answer, windowOf(1), askedLabels(BAKE, false)).byUnit.size).toBe(0);
+  });
+});
+
+describe('a choice answer that is no probability vector', () => {
+  const asked = askedLabels(BAKE, false);
+  const vector = (n: number, values: Record<string, number>) =>
+    Object.fromEntries(Object.entries(values).map(([name, p]) => [choiceKey(n, name), p]));
+
+  it('is refused with its sum and left without an opinion, never normalised', () => {
+    const answer = recorded({
+      ...vector(1, { greeting: 0.5, 'price-claim': 0.5, 'allergen-line': 0.5, none: 0.5 }),
+      ...vector(2, { greeting: 0.7, 'price-claim': 0.1, 'allergen-line': 0.1, none: 0.1 }),
+    });
+    const opinions = choiceOpinions(answer, windowOf(2), asked);
+    expect([...opinions.byUnit.values()].map((opinion) => opinion.label)).toEqual(['greeting']);
+    expect(opinions.refusals).toEqual([
+      expect.stringContaining('unit [1] has probabilities that are no vector (they sum to 2)'),
+    ]);
+  });
+
+  it('accepts the rounding of two decimals, and refuses a probability outside 0 to 1', () => {
+    expect(isVector({ a: 0.33, b: 0.33, c: 0.33, none: 0.01 })).toBe(true);
+    expect(isVector({ a: 0.33, b: 0.33, c: 0.3, none: 0.01 })).toBe(false);
+    expect(isVector({ a: 1.2, none: -0.2 })).toBe(false);
+    expect(isVector({})).toBe(false);
   });
 });
 
