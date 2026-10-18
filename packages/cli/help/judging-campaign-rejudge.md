@@ -123,7 +123,7 @@ $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --cam
 Re-judge needs a criterion-only manifest with identical from/to agent versions; otherwise rerun the agent.
 (exit 2)
 $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-rejudged --store rejudge/runs.db --change rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
-Campaign acme-rejudged: 2 blocks re-judged, 3 carried; 0 agent calls. Judge cost 0.0030 USD.
+Campaign acme-rejudged: 2 blocks re-judged, 3 carried; 0 agent calls. Judge cost 0.0060 USD.
 Runs: 0 pass, 1 fail.
 (exit 1)
 $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-r2 --store rejudge/runs.db --change rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs --json
@@ -139,12 +139,12 @@ $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --cam
     "notRun": 0,
     "blocked": 0
   },
-  "judgeCostUsd": 0.003
+  "judgeCostUsd": 0.006
 }
 (exit 1)
 ```
 
-`no_invented_data` is named by 2 of the 5 blocks, so those 2 are re-judged and 3 carried. The stand-in reports 0.0015 USD per call.
+`no_invented_data` is named by 2 of the 5 blocks, so those 2 are re-judged and 3 carried. The stand-in reports 0.0015 USD per call; the 2 re-judged blocks make 4 calls, 0.0060 USD.
 
 A re-score: a project check set leaves out `must`, and a baseline is stored under it. The same campaign is then re-scored with `--use`, with no agent and no judge call:
 
