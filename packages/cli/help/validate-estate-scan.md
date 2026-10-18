@@ -94,6 +94,13 @@ No word list and no grammar rule decides what is a rule.
 * A label set is a YAML list the user writes: a set name, a description, and per label a name, a
   description, up to three examples, an optional `target: required` (the label links two units, such as a
   gate) and an optional `atom: { kind, polarity }` (a unit with this label becomes an atom of that kind).
+  A set may declare `spans:` (kinds of clause a labeler points at inside one unit, by character offsets, each
+  with an optional polarity) and `links:` (kinds of link from a unit to an atom the request lists, such as the
+  skill a unit is about); a label lists the kinds it may carry. A span is an exact slice of the unit: the
+  labeler writes no text, and an offset that leaves the unit, an empty or overlapping span, an undeclared kind
+  or a link to an atom the request did not list refuses the whole entry. The atom keeps them in
+  `fields.labelSpans` (offsets into its quote) and `fields.labelLinks`. Only system 2 gives them; the runs must
+  agree on them or the unit keeps its label without them.
   An optional `condition: true` (needs `target: required`, takes no `atom`) marks a label whose unit states
   when its target unit applies: the unit's text becomes the `situation` of the atom built from the target,
   and a condition whose target holds no atom is listed as refused.
@@ -105,6 +112,8 @@ No word list and no grammar rule decides what is a rule.
 * The cassette keeps every labeler answer, keyed by the hash of the whole request and of what identifies it: the labeler, its model, the set, the versions of the prompt, the cut and the run.
   A changed prompt, set, model, labeler or cut misses, and the error names the field that differs from the
   nearest entry. A scan without `--record` never calls a labeler, so a replay needs no key and no network.
+  An answer that cannot be read after two asks is recorded as a failed window, so a replay lists the same window
+  with no call; delete that entry to ask again.
 * The answer is checked: a label not in the set, a unit not in the window, a unit named twice, a target that
   is no unit number, a target on `none` or where none is allowed, or choice probabilities that do not sum to 1
   is refused and listed (probabilities are never normalised). A unit no accepted answer names is counted as unlabeled.

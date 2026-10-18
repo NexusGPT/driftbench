@@ -207,7 +207,7 @@ export function pointerLines(result: ScanEstateResult, describe: string): string
   const live = done.ledger.entries.filter((entry) => entry.status === 'live').length;
   const lines = [
     `  Pointer reader: ${describe}.`,
-    `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled; ${done.atoms} atoms.`,
+    `  Units: ${live} in ${done.cuts.size} files; ${done.carried} kept from the ledger, ${done.decided} labelled by this run (${done.decidedBy.system1} by system 1, ${done.decidedBy.system2} by system 2${done.fellBack > 0 ? `, ${done.fellBack} of them because the other labeler gave no opinion` : ''}), ${done.unlabeled} unlabeled${done.split > 0 ? `; the runs of one labeler disagreed on ${done.split} units` : ''}${done.spanSplit > 0 ? `; the runs gave different spans for ${done.spanSplit} units, which keep their label and lose the spans` : ''}; ${done.atoms} atoms.`,
     `  Requests: ${done.windows} answered, ${done.calls} sent, ${done.recorded} recorded.`,
   ];
   for (const entry of done.usage) {

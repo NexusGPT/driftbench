@@ -20,6 +20,10 @@ export type LedgerLabel = {
   /** The class that decided: system1 or system2. */
   by?: 'system1' | 'system2';
   target?: string;
+  /** Clauses of the unit by offsets into its text; kept with the label, valid while the unit's text is. */
+  spans?: Array<{ kind: string; from: number; to: number; polarity?: string }>;
+  /** Atoms the unit points at, by kind and id. */
+  links?: Array<{ kind: string; to: string }>;
 };
 
 export type LedgerEntry = {
