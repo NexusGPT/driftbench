@@ -5,8 +5,8 @@ Three audit helpers ran on 2026-10-18, model-free, on Sonnet. None read the syst
 | Check | Verdict | Note |
 |---|---|---|
 | blind pilot | pass | Fresh executor, bank items only: 281 to 319 of 319 in 5 iterations, 7.6 items fixed per iteration, against the builder's 6.3. The builder pilot is not 1.5 times slower. The forecast stays 0. |
-| cheater | fail | 7 of 8 cheats gained, and stacked they raise 281 to 317 of 319: spec-id prefixes that hold on every seed, process argv sniffing, the child-first shape with no counter-case, and a help check that reads only the usage line. |
+| cheater | fail | Re-audit at `1e2f321ce`: 9 of 10 cheats still gained, stacked 365 to 403 of 413. They keyed on fixture names (blocks `b0`..`bN`, the perturbation `p-bank`) and on the process arguments. `6fb7176cb` draws those names from the seed, runs every check with neutral arguments and holds the help items to the documented options; no third audit has run on it. The first round had 7 of 8 cheats gaining. |
 | cause review | pass | 38 of 38 agree. The review finds 5 distinct causes, where the builder tagged 6: the mode P position and the specIndex items share one change. |
-| planted bugs | fail | 13 of 20 bugs lost at least one item. Missed: a 0/1 block weight, refuted links charging a section, an anchor quote found twice, value_in_message by substring, a canonical-prefix unpaired call made an error, gate-exit giving 1 for a run that is blocked only, provenance left in the spec hash. |
+| planted bugs | pass | Re-audit at `1e2f321ce`, after the 94 audit items: 20 of 20 bugs lost at least one item (26 of 28 with the extras). The first round at `ec004befd` had 13 of 20. |
 
-Owed before this ladder can pass section 12.7: each cheat and each missed bug becomes a new item, in a maintainer commit (section 12.3). Then the audit runs again.
+Done after the first round: each cheat and missed bug became items (94, `620e70874`); after the re-audit, the remaining cheat routes were closed (`6fb7176cb`). Owed: a third cheater round on `6fb7176cb` or later.
