@@ -92,6 +92,13 @@ No word list and no grammar rule decides what is a rule.
 * A label set is a YAML list the user writes: a set name, a description, and per label a name, a
   description, up to three examples, an optional `target: required` (the label links two units, such as a
   gate) and an optional `atom: { kind, polarity }` (a unit with this label becomes an atom of that kind).
+  A set may declare `spans:` (kinds of clause a labeler points at inside one unit, by character offsets, each
+  with an optional polarity) and `links:` (kinds of link from a unit to an atom the request lists, such as the
+  skill a unit is about); a label lists the kinds it may carry. A span is an exact slice of the unit: the
+  labeler writes no text, and an offset that leaves the unit, an empty or overlapping span, an undeclared kind
+  or a link to an atom the request did not list refuses the whole entry. The atom keeps them in
+  `fields.labelSpans` (offsets into its quote) and `fields.labelLinks`. Only system 2 gives them; the runs must
+  agree on them or the unit keeps its label without them.
   An optional `condition: true` (needs `target: required`, takes no `atom`) marks a label whose unit states
   when its target unit applies: the unit's text becomes the `situation` of the atom built from the target,
   and a condition whose target holds no atom is listed as refused.

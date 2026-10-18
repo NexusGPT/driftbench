@@ -88,6 +88,33 @@ export function pointerAtoms(
     );
     for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
     const conditionIds = conditional.map((condition) => condition.id);
+    // Spans are offsets into the unit; the atom keeps them as offsets into its own quote, each an exact slice
+    // of the file. A span that is not one is dropped with its reason; the atom keeps its label.
+    const labelSpans: Array<{ kind: string; from: number; to: number; polarity?: string }> = [];
+    for (const span of item.spans ?? []) {
+      const here = text.slice(item.unit.start + span.from, item.unit.start + span.to);
+      if (here === '' || here !== item.unit.text.slice(span.from, span.to)) {
+        refusals.push(
+          `${named}: the ${span.kind} span ${span.from} to ${span.to} is not an exact slice of the file`,
+        );
+        continue;
+      }
+      labelSpans.push({
+        ...span,
+        from: item.unit.start - start + span.from,
+        to: item.unit.start - start + span.to,
+      });
+    }
+    // A link names an atom of the estate: one the scan does not hold is dropped with its reason.
+    const labelLinks: Array<{ kind: string; atom: string }> = [];
+    for (const link of item.links ?? []) {
+      if (link.to === 'none') continue;
+      if (!builder.atoms.some((other) => other.id === link.to)) {
+        refusals.push(`${named}: the ${link.kind} link names ${link.to}, which is no atom of the estate`);
+        continue;
+      }
+      labelLinks.push({ kind: link.kind, atom: link.to });
+    }
     accepted.push(
       builder.add({
         kind: mapping.kind as (typeof PROSE_KINDS)[number],
@@ -119,6 +146,8 @@ export function pointerAtoms(
           labeler,
           ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
           ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
+          ...(labelSpans.length > 0 ? { labelSpans } : {}),
+          ...(labelLinks.length > 0 ? { labelLinks } : {}),
         },
       }),
     );
