@@ -313,9 +313,7 @@
           ],
           "log": "/private/tmp/astra-banks-preflight-mutations/deadline-removed.log",
           "testSummary": "Tests  1 failed | 4 passed (5)",
-          "assertionFailures": [
-            "expected undefined to be an instance of Error"
-          ]
+          "assertionFailures": ["expected undefined to be an instance of Error"]
         },
         {
           "mutation": "restored",
