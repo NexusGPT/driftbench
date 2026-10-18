@@ -246,6 +246,8 @@ export function erfc(x: number): number {
   if (x === 0) return 1;
   if (x === Number.POSITIVE_INFINITY || x > Math.sqrt(Number.MAX_VALUE)) return 0;
   if (x < 0) return 2 - erfc(-x);
+  // Beyond 27.3 the value is below the smallest double (and x * x overflows from 1e154, so Infinity gave NaN).
+  if (x > 27.3) return 0;
   return upperIncompleteGamma(0.5, x * x);
 }
 
