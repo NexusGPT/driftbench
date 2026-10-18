@@ -491,6 +491,90 @@ describe('the JSON run record of a helper run alone', () => {
   });
 });
 
+describe('material by the spans the pointer reader labelled', () => {
+  /** A label span over the first occurrence of a clause of the quote, as the atom records it. */
+  const span = (quote: string, clause: string, kind: string, polarity?: string) => {
+    const from = quote.indexOf(clause);
+    if (from < 0) throw new Error(`${clause} is no part of the quote`);
+    return { kind, from, to: from + clause.length, ...(polarity ? { polarity } : {}) };
+  };
+
+  it('reads the pinned mixed quotes through spans with a polarity each, with the same expectations', () => {
+    const mixed = 'Read `a.md` first. Never use `sed -i` on a drive.';
+    expect(
+      materialOf(mixed, undefined, [
+        span(mixed, 'Read `a.md` first.', 'prerequisite', 'obligation'),
+        span(mixed, 'Never use `sed -i` on a drive.', 'governed-action', 'prohibition'),
+      ]),
+    ).toEqual(['sed -i']);
+    const nursery = 'Never remove a tray under `greenhouse/`; move it to `greenhouse/spare/` instead.';
+    expect(
+      clausesOf(nursery, undefined, [
+        span(nursery, 'Never remove a tray under `greenhouse/`', 'governed-action', 'prohibition'),
+        span(nursery, 'move it to `greenhouse/spare/` instead', 'act'),
+      ]),
+    ).toEqual([
+      { forbids: true, obliges: false, act: 'remove', spans: ['greenhouse/'] },
+      { forbids: false, obliges: false, act: 'move', spans: ['greenhouse/spare/'] },
+    ]);
+  });
+
+  it('reads a clause in any language, because the span carries the polarity and no word is read', () => {
+    const quote = 'Lis `a.md` avant tout. Jamais de `sed -i` sur le disque.';
+    expect(
+      materialOf(quote, undefined, [
+        span(quote, 'Lis `a.md` avant tout.', 'prerequisite', 'obligation'),
+        span(quote, 'Jamais de `sed -i` sur le disque.', 'governed-action', 'prohibition'),
+      ]),
+    ).toEqual(['sed -i']);
+  });
+
+  it('ignores a span of a kind that governs nothing, and keeps the polarity of the atom out of it', () => {
+    const quote = 'Never run `git push --force`; see `docs/git.md` for the reason.';
+    expect(
+      materialOf(quote, 'obligation', [
+        span(quote, 'Never run `git push --force`', 'governed-action', 'prohibition'),
+        span(quote, 'see `docs/git.md` for the reason', 'refers-back'),
+      ]),
+    ).toEqual(['git push --force']);
+  });
+
+  it('sends a guard a rule of any language that has no polarity but labelled spans', () => {
+    const quote = 'Lis `a.md` avant tout. Jamais de `git push --force` ici.';
+    const atom: EstateAtom = {
+      ...rule('f1', quote),
+      fields: {
+        labelSpans: [
+          span(quote, 'Lis `a.md` avant tout.', 'prerequisite', 'obligation'),
+          span(quote, 'Jamais de `git push --force` ici.', 'governed-action', 'prohibition'),
+        ],
+      },
+    };
+    const bash = guard({ event: 'PreToolUse', matcher: 'Bash', enforces: [{ atom: 'f1', by: 'registry' }] });
+    const positive = unitTestOf(row('guard_positive'), bash, new Map([['f1', atom]]), 'h', 'x');
+    if (typeof positive === 'string') throw new Error(positive);
+    expect(positive.cases.map((entry) => entry.material)).toEqual(['git push --force']);
+  });
+
+  it('sends a guard with a mixed rule only the span it forbids', () => {
+    const quote = 'Never delete a tray under `greenhouse/`; move it to `greenhouse/spare/` instead.';
+    const atom: EstateAtom = {
+      ...rule('n1', quote),
+      fields: {
+        polarity: 'prohibition',
+        labelSpans: [
+          span(quote, 'Never delete a tray under `greenhouse/`', 'governed-action', 'prohibition'),
+          span(quote, 'move it to `greenhouse/spare/` instead', 'act'),
+        ],
+      },
+    };
+    const bash = guard({ event: 'PreToolUse', matcher: 'Bash', enforces: [{ atom: 'n1', by: 'registry' }] });
+    const positive = unitTestOf(row('guard_positive'), bash, new Map([['n1', atom]]), 'h', 'x');
+    if (typeof positive === 'string') throw new Error(positive);
+    expect(positive.cases.map((entry) => entry.material)).toEqual(['rm greenhouse/']);
+  });
+});
+
 describe('material by the polarity the atom carries', () => {
   const withPolarity = (id: string, quote: string, polarity: string): EstateAtom => ({
     ...rule(id, quote),

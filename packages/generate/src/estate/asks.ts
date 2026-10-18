@@ -400,6 +400,14 @@ export function actOf(
       if (asked) return withContext(asked, `${owner?.id} (asks it names)`);
     }
     // A gate holds over the act it names: with no trigger and no unit that carries it, no route is its work.
+    // A rule the pointer reader labelled as about a route gets that route's work, and no word overlap stands in
+    // for the link; a rule with no link keeps the nearest route by shared words until the labels ship.
+    const topic = topicOf(head);
+    if (topic !== undefined) {
+      const linked = routeActOf(estate, topic);
+      if (linked) return withContext(linked.act, `${linked.id} (route the rule is about)`);
+      return { act: '', source: `${head.id} (title)`, describes: true };
+    }
     const route =
       head.kind === 'gate' ? undefined : routeFor(estate, `${head.title} ${head.situation ?? ''} ${trigger}`);
     if (route) return withContext(route.act, `${route.id} (route nearest the rule)`);
@@ -465,6 +473,23 @@ function significant(text: string): Set<string> {
   return new Set(
     (text.toLowerCase().match(/[a-z]{3,}/g) ?? []).filter((word) => !COMMON.has(word)).map(stemOf),
   );
+}
+
+/** The atom a rule is labelled to be about (`fields.labelLinks`, link kind topic), if the pointer reader gave one. */
+function topicOf(rule: EstateAtom): string | undefined {
+  const links = rule.fields?.labelLinks;
+  if (!Array.isArray(links)) return undefined;
+  for (const link of links as Array<{ kind?: unknown; atom?: unknown }>)
+    if (link?.kind === 'topic' && typeof link.atom === 'string') return link.atom;
+  return undefined;
+}
+
+/** The work of a route atom named by id; undefined when the atom is no route of the estate or gives no task. */
+function routeActOf(estate: readonly EstateAtom[], id: string): { act: string; id: string } | undefined {
+  const route = estate.find((atom) => atom.id === id && atom.kind === 'route');
+  if (!route?.situation) return undefined;
+  const task = taskOf(firstSentence(route.situation));
+  return verbLed(task) && askable(task) === undefined ? { act: task, id: route.id } : undefined;
 }
 
 /**

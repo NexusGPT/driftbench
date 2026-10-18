@@ -185,22 +185,69 @@ function splitClauses(quote: string): Array<{ text: string; spans: string[]; phr
   });
 }
 
+/** A clause of a rule quote that the pointer reader labelled: offsets into the quote, and its own polarity. */
+export type LabelSpan = { kind: string; from: number; to: number; polarity?: string };
+
+/** The span kinds that say what a rule governs, shows or requires first; the others name nothing to act on. */
+const ACTING_SPANS: ReadonlySet<string> = new Set(['act', 'governed-action', 'prerequisite']);
+
+/** The labelled spans an atom carries (`fields.labelSpans`), those that are well formed. */
+export function labelSpansOf(atom: EstateAtom): LabelSpan[] {
+  const raw = atom.fields?.labelSpans;
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((item): LabelSpan[] => {
+    const entry = item as Partial<LabelSpan> | null;
+    return entry !== null &&
+      typeof entry === 'object' &&
+      typeof entry.kind === 'string' &&
+      Number.isInteger(entry.from) &&
+      Number.isInteger(entry.to)
+      ? [entry as LabelSpan]
+      : [];
+  });
+}
+
+function actOf(words: string): string | undefined {
+  return words
+    .toLowerCase()
+    .split(/[^a-z]+/)
+    .find((word) => ACT_COMMANDS[word] !== undefined);
+}
+
 /**
  * The clauses of a rule quote with the spans each holds, and whether each forbids or shows the right form.
- * A ✗ mark makes a clause forbid and a ✓ mark makes it show a form; a clause with no mark takes the polarity
- * of the atom. A quote with several unmarked clauses that hold spans mixes polarities the atom cannot split,
- * and keeps the word split; a quote with no polarity at all does too.
+ * With labelled spans the clauses are those spans of an acting kind and each forbids or obliges by its own
+ * polarity; no word is read for that. Without them: a ✗ mark makes a clause forbid and a ✓ mark makes it show a
+ * form; a clause with no mark takes the polarity of the atom. A quote with several unmarked clauses that hold
+ * spans mixes polarities the atom cannot split, and keeps the word split; a quote with no polarity at all does too.
  */
-export function clausesOf(quote: string, polarity?: RulePolarity): Clause[] {
+export function clausesOf(
+  quote: string,
+  polarity?: RulePolarity,
+  labelled: readonly LabelSpan[] = [],
+): Clause[] {
+  if (labelled.length > 0) {
+    return [...labelled]
+      .filter((span) => ACTING_SPANS.has(span.kind) && span.from >= 0 && span.to <= quote.length)
+      .sort((a, b) => a.from - b.from)
+      .map((span) => {
+        const clause = splitClauses(quote.slice(span.from, span.to));
+        const words = clause.map((entry) => entry.text.replace(/\uE000\d+\uE000/g, ' ')).join(' ');
+        const act = actOf(words);
+        return {
+          forbids: span.polarity === 'prohibition',
+          obliges: span.polarity === 'obligation',
+          ...(act !== undefined ? { act } : {}),
+          spans: clause.flatMap((entry) => entry.spans),
+        };
+      });
+  }
   const clauses = splitClauses(quote);
   const loose = clauses.filter((clause) => clause.spans.length > 0 && !/[✗✓]/.test(clause.text));
   const byWords = polarity === undefined || loose.length > 1;
   return clauses.map((clause) => {
     const words = clause.text.replace(/\uE000\d+\uE000/g, ' ');
-    const act = words
-      .toLowerCase()
-      .split(/[^a-z]+/)
-      .find((word) => ACT_COMMANDS[word] !== undefined);
+    const act = actOf(words);
     const marked = /[✗✓]/.test(clause.text);
     const forbids = marked
       ? clause.text.includes('✗')
@@ -221,8 +268,12 @@ export function clausesOf(quote: string, polarity?: RulePolarity): Clause[] {
  * ("Never use `sed -i`", "✗ `2>/dev/null`"), never a name or path the rule only mentions. A quote with no
  * span at all is its own material.
  */
-export function materialOf(quote: string, polarity?: RulePolarity): string[] {
-  const clauses = clausesOf(quote, polarity);
+export function materialOf(
+  quote: string,
+  polarity?: RulePolarity,
+  labelled: readonly LabelSpan[] = [],
+): string[] {
+  const clauses = clausesOf(quote, polarity, labelled);
   if (clauses.every((clause) => clause.spans.length === 0)) return [quote.trim()];
   return [...new Set(clauses.filter((clause) => clause.forbids).flatMap((clause) => clause.spans))];
 }
@@ -522,6 +573,7 @@ function guardRunOf(
     const rule = atoms.get(ruleId);
     const quote = rule?.provenance?.quote ?? '';
     const polarity = rule === undefined ? undefined : polarityOf(rule);
+    const labelled = rule === undefined ? [] : labelSpansOf(rule);
     // A declared numeric output constraint supplies its boundary independently of the hook source.
     const bound = textEvent
       ? rule?.evidence.find((entry) => entry.type === 'custom' && entry.name === 'max_characters')
@@ -531,7 +583,7 @@ function guardRunOf(
       return [{ text: 'x'.repeat(max + 1) }];
     }
     if (cites) {
-      const clauses = clausesOf(quote, polarity);
+      const clauses = clausesOf(quote, polarity, labelled);
       const forbidden = clauses
         .filter((clause) => clause.forbids)
         .flatMap((clause) =>
@@ -551,13 +603,13 @@ function guardRunOf(
       const spans = [...lineSpans, ...quoteSpans];
       if (spans.length > 0) return spans.map((text) => ({ text }));
     } else {
-      const spans = materialOf(quote, polarity).filter((item) => item !== quote.trim());
+      const spans = materialOf(quote, polarity, labelled).filter((item) => item !== quote.trim());
       if (spans.length > 0) return spans.map((text) => ({ text }));
     }
     if (!textEvent || quote.trim() === '') return [];
     // A text event reads the words a rule forbids; an obligation reacts to the phrase it quotes ("when the
     // user says "stop""), which is the text a payload must hold to trigger it.
-    const material = materialOf(quote, polarity);
+    const material = materialOf(quote, polarity, labelled);
     return (material.length > 0 ? material : polarity === 'obligation' ? phrasesOf(quote) : []).map(
       (text) => ({
         text,

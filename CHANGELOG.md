@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Estate generation reads the spans and links of the pointer reader when an atom carries them: `fields.labelSpans` gives the material of a guard test clause by clause with a polarity each, and a `topic` link in `fields.labelLinks` gives a rule the work of the route it is about. Atoms without them are read as before.
+
 * Estate unit tests of guards: the material a guard must stop is read from the `polarity` field of the rule atom and the ✗ and ✓ marks of its quote, no longer from a list of English words. A prohibition gives every span it holds in any phrasing or language; an obligation gives none (so "when the invoice is not in EUR, read `x.md`" no longer forbids `x.md`); a gate neither forbids nor asks for a form; a rule on the user's prompt that quotes a phrase sends that phrase. A quote with several unmarked clauses that carry spans keeps the word split until their spans carry labels. The fixture suite is unchanged.
 
 * New exports of `@agent-nexus/driftbench-estate`, frozen in `tools/structure/api-surface.json`: `proseCacheKey`, `ProseCache`, `FileProseCache` and `ProseEstimate`, `proseEstimateLine` (the cache of a model pass and its cost line); `USER_LAYER` and `isUserLayerPath` (the user-level skill layer); `citationsByFile` and `filesReached` (the estate graph).

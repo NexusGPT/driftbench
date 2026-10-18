@@ -204,6 +204,31 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
     expect(ask([none]).refused).toMatch(/describes the unit/);
   });
 
+  it('asks the work of the route a rule is labelled to be about, whatever words they share', () => {
+    const labelled = atom('instruction.standing.greet', {
+      title: 'Greet the harbour master first',
+      provenance: { quote: 'x', file: 'CLAUDE.md' },
+      fields: { labelLinks: [{ kind: 'topic', atom: quay.id }] },
+    });
+    const out = ask([labelled]);
+    expect(out.text).toBe('Please book a quay for a visiting vessel.');
+    expect(out.source).toBe(`${quay.id} (route the rule is about)`);
+    // The link wins over a route that shares more words with the rule.
+    const sharing = atom('instruction.standing.tides-note', {
+      title: 'Read the tide table for a port at dawn',
+      provenance: { quote: 'x', file: 'CLAUDE.md' },
+      fields: { labelLinks: [{ kind: 'topic', atom: quay.id }] },
+    });
+    expect(ask([sharing]).text).toBe('Please book a quay for a visiting vessel.');
+    // A link to an atom that is no route of the estate gives no work, and no overlap stands in for it.
+    const gone = atom('instruction.standing.greet-again', {
+      title: 'Quote the fee of a quay in euros',
+      provenance: { quote: 'x', file: 'CLAUDE.md' },
+      fields: { labelLinks: [{ kind: 'topic', atom: 'route.standing.gone' }] },
+    });
+    expect(ask([gone]).text).toBeUndefined();
+  });
+
   it('asks what the trigger of a gate names, and refuses a rule when no route gives work', () => {
     const gate = atom('gate.standing.log', {
       kind: 'gate',
