@@ -1,22 +1,14 @@
-Estate diff: examples/estates/fixture/approved.yaml (42a937ef55f1) to examples/estates/fixture-v2/map.yaml (5a85e19fe13a).
-  Atoms: 6 added, 6 removed, 2 changed (0 white space only, 2 semantic), 22 moved with the same quote, 30 restated, 82 unchanged.
-  Edges: 1 added, 2 removed.
+Estate diff: examples/estates/fixture/approved.yaml (42a937ef55f1) to examples/estates/fixture-v2/map.yaml (29539c63e4b2).
+  Atoms: 3 added, 1 removed, 2 changed (0 white space only, 2 semantic), 23 moved with the same quote, 3 restated, 98 unchanged.
+  Edges: 1 added, 0 removed.
   Guards: 1 of 6 changed enforcement state:
     promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce (evidence: 47 decisions, 0 wrong, logs/ledger-guard.decisions.jsonl)
 Added:
-  + instruction.route-planner.read-the-open-orders-and-the (instruction) .claude/agents/route-planner.md:11
-  + instruction.memory-supplier-languages.write-to-each-supplier-in-the (instruction) .claude/memory/supplier-languages.md:3
-  + reference.standing.read-claude-skills-invoice-reconcile-references (reference) CLAUDE.md:14
-  + hazard.standing.r10-when-the-user-says-stop (hazard) CLAUDE.md:19
+  + register.memory-supplier-languages.write-to-each-supplier-in-the (register) .claude/memory/supplier-languages.md:3
   + instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
   + instruction.standing.r19-when-r18-applies-and-the (instruction) CLAUDE.md:27
 Removed:
-  - instruction.ledger-auditor.audits-the-ledger-for-duplicate-payments (instruction) .claude/agents/ledger-auditor.md:3
-  - gate.invoice-reconcile.read-references-currency-table-md-before (gate) .claude/skills/invoice-reconcile/SKILL.md:10
-  - reference.invoice-reconcile.read-references-currency-table-md (reference) .claude/skills/invoice-reconcile/SKILL.md:10
-  - instruction.standing.r10-when-the-user-says-stop (instruction) CLAUDE.md:18
   - instruction.standing.r12-when-r2-applies-and-the (instruction) CLAUDE.md:20
-  - instruction.standing.r14-do-not-commit-to-git (instruction) CLAUDE.md:22
 Changed, semantic:
   ~ route.standing.an-ask-to-plan-the-delivery (route) CLAUDE.md:38
       was: | plan the delivery routes for tomorrow | the `route-planner` agent |
@@ -25,7 +17,7 @@ Changed, semantic:
   ~ instruction.standing.r7-when-a-shipment-is-late (instruction) CLAUDE.md:16
       was: **R7.** When a shipment is late by more than two days, tell the user and propose a supplier email.
       now: **R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.
-      also: title, evidence, fields
+      also: title
 Moved, same quote:
   > route.standing.an-ask-to-reconcile-an-invoice CLAUDE.md:31 to 33
   > route.standing.an-ask-to-know-where-a CLAUDE.md:32 to 34
@@ -37,6 +29,7 @@ Moved, same quote:
   > instruction.standing.r6-never-run-git-push-force CLAUDE.md:14 to 15
   > instruction.standing.r8-do-not-invent-order-numbers CLAUDE.md:16 to 17
   > instruction.standing.r9-ask-at-most-one-question CLAUDE.md:17 to 18
+  > instruction.standing.r10-when-the-user-says-stop CLAUDE.md:18 to 19
   > instruction.standing.r11-never-paste-the-contents-of CLAUDE.md:19 to 20
   > instruction.standing.every-task-follows-the-step-list CLAUDE.md:40 to 42
   > reference.standing.read-claude-steps-json CLAUDE.md:40 to 42
@@ -50,39 +43,9 @@ Moved, same quote:
   > gate.standing.read-claude-memory-memory-md-before CLAUDE.md:50 to 52
   > reference.standing.read-claude-memory-memory-md CLAUDE.md:50 to 52
 Restated, same quote:
-  * guard.settings.userpromptsubmit-guard-stop-word-sh: fields
-  * instruction.memory-supplier-languages.when-a-supplier-is-not-in: fields
-  * instruction.invoice-reconcile.a-line-on-the-invoice-with: fields
-  * instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice: situation, evidence, fields
-  * instruction.supplier-email.show-the-full-draft-and-wait: fields
-  * instruction.weekly-report.prepare-the-weekly-operations-report-from: fields
-  * register.standing.r1-always-answer-in-the-language: fields
-  * instruction.standing.r3-read-a-file-before-you: fields
-  * instruction.standing.r4-never-delete-a-file-under: evidence, fields
-  * instruction.standing.r6-never-run-git-push-force: fields
-  * instruction.standing.r8-do-not-invent-order-numbers: fields
-  * instruction.standing.r9-ask-at-most-one-question: fields
+  * instruction.standing.r8-do-not-invent-order-numbers: evidence, fields
   * instruction.standing.r11-never-paste-the-contents-of: evidence, fields
-  * instruction.standing.r13-before-you-dispatch-a-helper: fields
-  * hazard.standing.r15-after-a-compaction-re-read: fields
-  * instruction.standing.r16-if-a-tool-fails-twice: fields
-  * instruction.standing.r17-report-a-number-only-when: fields
-  * instruction.standing.every-task-follows-the-step-list: fields
-  * reference.standing.read-claude-steps-json: fields
-  * instruction.standing.a-tracker-note-may-be-written: fields
-  * instruction.standing.never-report-a-task-as-done: fields
-  * register.standing.keep-every-reply-under-1-200: fields
-  * register.standing.lead-with-the-result-in-the: fields
-  * register.standing.use-a-bullet-list-for-three: fields
-  * register.standing.never-use-the-words-obviously-or: fields
-  * register.standing.write-amounts-with-the-currency-code: fields
-  * gate.standing.read-claude-memory-memory-md-before: fields
-  * reference.standing.read-claude-memory-memory-md: fields
   * invariant.standing.the-standing-instructions-stay-under-40000: fields
-  * invariant.standing.no-file-of-the-estate-is: fields
 Edges added:
   + instruction.standing.r19-when-r18-applies-and-the cites instruction.standing.r18-never-approve-a-credit-note
-Edges removed:
-  - guard.settings.userpromptsubmit-guard-stop-word-sh enforces instruction.standing.r10-when-the-user-says-stop
-  - skill.invoice-reconcile.skill-invoice-reconcile reference reference.invoice-reconcile.read-references-currency-table-md
 Wrote examples/estates/fixture-v2/maintain/diff.json.

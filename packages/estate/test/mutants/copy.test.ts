@@ -106,7 +106,7 @@ describe('the estate copy of a mutant', () => {
     await copyEstate(CASES, to, loaded.map);
     const result = await mutateEstate(
       { root: to, map: loaded.map },
-      { delete: 'instruction.parcel-claims.never-promise-a-refund-date' },
+      { delete: 'instruction.parcel-claims.never-promise-the-user-a-refund' },
     );
     expect(result.after).not.toContain('refund date');
     expect(await readFile(join(CASES, '.claude/skills/parcel-claims/SKILL.md'), 'utf8')).toContain(

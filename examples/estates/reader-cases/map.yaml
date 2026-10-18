@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-18T17:12:49.701Z
+readAt: 2026-10-18T17:22:15.486Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -889,7 +889,6 @@ atoms:
       unit: gv2geffhvz
       labelSet: agent-rules
       label: reference
-      cassette: cassette:2b3729853f93+eeea722bf84f+feca8347a455+60608bd36a37
       labeler: jev+anthropic
   - id: instruction.memory-memory.never-schedule-a-delivery-on-a
     kind: instruction
@@ -911,7 +910,6 @@ atoms:
       unit: 7wqtvpz2nv
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:2b3729853f93+eeea722bf84f+feca8347a455+60608bd36a37
       labeler: jev+anthropic
       polarity: prohibition
   - id: instruction.memory-supplier-languages.write-to-each-supplier-in-the
@@ -934,7 +932,6 @@ atoms:
       unit: klbhgsbv5o
       labelSet: agent-rules
       label: rule
-      cassette: cassette:dbf4a2abfba8+abd995e764c4+47e41454632e
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.memory-supplier-languages.when-a-supplier-is-not-in
@@ -957,7 +954,6 @@ atoms:
       unit: vbhqgyxxpc
       labelSet: agent-rules
       label: rule
-      cassette: cassette:dbf4a2abfba8+abd995e764c4+47e41454632e
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.parcel-claims.attach-one-photo-of-each-damaged
@@ -980,7 +976,6 @@ atoms:
       unit: 2m7wqwpczt
       labelSet: agent-rules
       label: rule
-      cassette: cassette:fc6366c4f3b5+f7df81b8034e+8de65e9a8dd0
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.parcel-claims.file-a-damage-claim-within-7
@@ -1004,7 +999,6 @@ atoms:
       unit: eppoqn4q54
       labelSet: agent-rules
       label: rule
-      cassette: cassette:fc6366c4f3b5+8b6c593ade80+f7df81b8034e+8de65e9a8dd0
       labeler: jev+anthropic
       condition:
         - rhb3gjoz4g
@@ -1029,7 +1023,6 @@ atoms:
       unit: s5wuhau5gf
       labelSet: agent-rules
       label: rule
-      cassette: cassette:325e846cd12b+4f445c10a8cc+c83280c0d440+4fa42af01ff7
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.parcel-claims.when-a-supplier-is-not-in
@@ -1052,7 +1045,6 @@ atoms:
       unit: nutpconjzs
       labelSet: agent-rules
       label: rule
-      cassette: cassette:325e846cd12b+4f445c10a8cc+4fa42af01ff7
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.parcel-claims.a-claim-follows-references-claim-rules
@@ -1075,7 +1067,6 @@ atoms:
       unit: psptzwq4ip
       labelSet: agent-rules
       label: rule
-      cassette: cassette:5d122439b202+ff7efe0da29f+fe22515c35d2+f8b80776864f
       labeler: jev+anthropic
       polarity: obligation
       spans:
@@ -1106,7 +1097,6 @@ atoms:
       unit: psptzwq4ip
       labelSet: agent-rules
       label: rule
-      cassette: cassette:5d122439b202+ff7efe0da29f+fe22515c35d2+f8b80776864f
       labeler: jev+anthropic
   - id: instruction.parcel-claims.never-promise-the-user-a-refund
     kind: instruction
@@ -1128,7 +1118,6 @@ atoms:
       unit: qy6vgb55k4
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:5d122439b202+ff7efe0da29f+fe22515c35d2+f8b80776864f
       labeler: jev+anthropic
       polarity: prohibition
   - id: instruction.shipment-tracker.look-up-where-a-shipment-is
@@ -1151,7 +1140,6 @@ atoms:
       unit: gv2bfxr4fg
       labelSet: agent-rules
       label: rule
-      cassette: cassette:c26258446ab3+8e9e52d9ca97+aa0987662cae
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.shipment-tracker.always-pass-the-carrier-code-to
@@ -1174,7 +1162,6 @@ atoms:
       unit: 2pgcgb6enm
       labelSet: agent-rules
       label: rule
-      cassette: cassette:f9573789b5d4+486e05039917+9eee430d67d6+3a6cb817e679
       labeler: jev+anthropic
       polarity: obligation
       spans:
@@ -1199,7 +1186,6 @@ atoms:
       unit: 4hasfqfjdt
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:f9573789b5d4+9eee430d67d6+3a6cb817e679
       labeler: jev+anthropic
       polarity: prohibition
   - id: reference.shipment-tracker.read-claim-rules-md
@@ -1229,7 +1215,6 @@ atoms:
       unit: evvnctdqe4
       labelSet: agent-rules
       label: reference
-      cassette: cassette:f9573789b5d4+486e05039917+3a6cb817e679
       labeler: jev+anthropic
   - id: reference.shipment-tracker.read-notes-md
     kind: reference
@@ -1258,7 +1243,6 @@ atoms:
       unit: 6ekeihmkj7
       labelSet: agent-rules
       label: reference
-      cassette: cassette:f9573789b5d4+486e05039917+9eee430d67d6+3a6cb817e679
       labeler: jev+anthropic
   - id: instruction.standing.r1-never-run-git-push-force
     kind: instruction
@@ -1280,7 +1264,6 @@ atoms:
       unit: frayno4pmi
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:2117febdeb6d+5e28244a23fe+4c7452dce0ae+0cc9a67d8c55
       labeler: jev+anthropic
       polarity: prohibition
       spans:
@@ -1305,7 +1288,6 @@ atoms:
       unit: hrqlz3osgc
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:2117febdeb6d+5e28244a23fe+4c7452dce0ae+0cc9a67d8c55
       labeler: jev+anthropic
   - id: instruction.standing.r3-report-a-number-only-when
     kind: instruction
@@ -1327,7 +1309,6 @@ atoms:
       unit: pejftfirny
       labelSet: agent-rules
       label: rule
-      cassette: cassette:2117febdeb6d+5e28244a23fe+4c7452dce0ae
       labeler: jev+anthropic
       polarity: obligation
   - id: reference.standing.read-claude-processes-json
@@ -1356,7 +1337,6 @@ atoms:
       unit: zl7rk326zi
       labelSet: agent-rules
       label: reference
-      cassette: cassette:2117febdeb6d+5e28244a23fe+4c7452dce0ae+0cc9a67d8c55
       labeler: jev+anthropic
   - id: hazard.standing.read-claude-memory-memory-md-at
     kind: hazard
@@ -1383,7 +1363,6 @@ atoms:
       unit: 2z5lfdx7uu
       labelSet: agent-rules
       label: hazard-new-session
-      cassette: cassette:2117febdeb6d
       labeler: jev+anthropic
   - id: reference.standing.read-claude-memory-memory-md
     kind: reference
@@ -1417,7 +1396,6 @@ atoms:
       unit: 2z5lfdx7uu
       labelSet: agent-rules
       label: hazard-new-session
-      cassette: cassette:2117febdeb6d
       labeler: jev+anthropic
   - id: reference.standing.read-guards-check-registry-md
     kind: reference
@@ -1445,7 +1423,6 @@ atoms:
       unit: nim22d35d2
       labelSet: agent-rules
       label: reference
-      cassette: cassette:2117febdeb6d+5e28244a23fe+4c7452dce0ae+0cc9a67d8c55
       labeler: jev+anthropic
   - id: reference.standing.read-parcel-claims-references-claim-rules
     kind: reference
@@ -1473,7 +1450,6 @@ atoms:
       unit: nim22d35d2
       labelSet: agent-rules
       label: reference
-      cassette: cassette:2117febdeb6d+5e28244a23fe+4c7452dce0ae+0cc9a67d8c55
       labeler: jev+anthropic
   - id: reference.standing.read-claude-aliases-md
     kind: reference
@@ -1501,7 +1477,6 @@ atoms:
       unit: zjeq5qpkwd
       labelSet: agent-rules
       label: reference
-      cassette: cassette:2117febdeb6d+5e28244a23fe+4c7452dce0ae+0cc9a67d8c55
       labeler: jev+anthropic
   - id: invariant.standing.the-standing-instructions-stay-under-40000
     kind: invariant
@@ -1693,5 +1668,5 @@ ignore:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-18T17:12:49.701Z
+  at: 2026-10-18T17:22:15.486Z
 hash: 018c1f3968d91de17218fb65484d4d6bd55267bda795c8ddd59fce8a321be719

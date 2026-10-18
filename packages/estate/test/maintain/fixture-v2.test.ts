@@ -21,12 +21,12 @@ const V2 = fileURLToPath(new URL('../../../../examples/estates/fixture-v2/', imp
 const OLD_PATH = 'examples/estates/fixture/approved.yaml';
 const NEW_PATH = 'examples/estates/fixture-v2/map.yaml';
 
-const R2 = 'instruction.standing.never-send-a-supplier-email-without';
+const SUPPLIER_LANGUAGES = 'register.memory-supplier-languages.write-to-each-supplier-in-the';
 const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
 const ROUTE = 'route.standing.an-ask-to-plan-the-delivery';
 const R12 = 'instruction.standing.r12-when-r2-applies-and-the';
-const R18 = 'instruction.standing.name-the-finance-lead-on-a';
-const R19 = 'instruction.standing.keep-a-credit-note-as-a';
+const R18 = 'instruction.standing.r18-never-approve-a-credit-note';
+const R19 = 'instruction.standing.r19-when-r18-applies-and-the';
 const LEDGER = 'guard.settings.posttooluse-bash-guard-ledger-guard-py';
 
 async function map(path: string): Promise<EstateMap> {
@@ -54,7 +54,7 @@ describe('the fixture-v2 estate', () => {
       root: V2,
       reader: new ClaudeCodeReader(),
       now: NOW,
-      pointer: await replayPointer(V2),
+      pointer: await replayPointer(V2, join(FIXTURE, 'ledger.json')),
     });
     const committed = await map(join(V2, 'map.yaml'));
     expect(scanned.refusals).toEqual([]);
@@ -67,13 +67,13 @@ describe('the fixture-v2 estate', () => {
     const diff = await fresh();
     expect(diff.atoms.changed.map((entry) => [entry.id, entry.change])).toEqual([
       [ROUTE, 'semantic'],
-      [R2, 'whitespace'],
       [R7, 'semantic'],
     ]);
     expect(diff.atoms.removed.map((entry) => entry.id)).toEqual([R12]);
-    expect(diff.atoms.added.map((entry) => entry.id)).toEqual([R18, R19]);
+    // The labelers read R2 as no atom in either version, so its wrap is no change and R12 has no edge to cite.
+    expect(diff.atoms.added.map((entry) => entry.id)).toEqual([SUPPLIER_LANGUAGES, R18, R19]);
     expect(diff.edges.added).toEqual([{ from: R19, to: R18, kind: 'cites' }]);
-    expect(diff.edges.removed).toEqual([{ from: R12, to: R2, kind: 'cites' }]);
+    expect(diff.edges.removed).toEqual([]);
     expect(diff.guards?.filter((entry) => entry.move !== 'unchanged')).toEqual([
       {
         guard: LEDGER,
@@ -89,19 +89,22 @@ describe('the fixture-v2 estate', () => {
       },
     ]);
     expect(diff.guards).toHaveLength(6);
+    // A unit whose neighbours changed is read again: the label of two of them came back with other evidence.
     expect(diff.atoms.restated.map((entry) => [entry.id, entry.fields])).toEqual([
+      ['instruction.standing.r8-do-not-invent-order-numbers', ['evidence', 'fields']],
+      ['instruction.standing.r11-never-paste-the-contents-of', ['evidence', 'fields']],
       ['invariant.standing.the-standing-instructions-stay-under-40000', ['fields']],
     ]);
     expect(diff.summary).toEqual({
-      added: 2,
+      added: 3,
       removed: 1,
-      whitespace: 1,
+      whitespace: 0,
       semantic: 2,
-      moved: 24,
-      restated: 1,
-      unchanged: 97,
+      moved: 23,
+      restated: 3,
+      unchanged: 98,
       edgesAdded: 1,
-      edgesRemoved: 1,
+      edgesRemoved: 0,
     });
   });
 
@@ -138,12 +141,11 @@ describe('the fixture-v2 estate', () => {
         state: 'to_write',
       },
     ]);
-    expect(report.new.map((entry) => entry.atom)).toEqual([R18, R19]);
+    expect(report.new.map((entry) => entry.atom)).toEqual([SUPPLIER_LANGUAGES, R18, R19]);
     expect(report.guards.map((entry) => [entry.guard, entry.move, entry.tests, entry.need])).toEqual([
       [LEDGER, 'promoted', ['northwind-ledger-archive'], null],
     ]);
-    // northwind-supplier-yes names only the respaced R2: untouched.
-    expect(report.unaffected).toEqual({ moved: 24, tests: 3 });
-    expect(report.needsPerson).toHaveLength(4);
+    expect(report.unaffected).toEqual({ moved: 23, tests: 3 });
+    expect(report.needsPerson).toHaveLength(5);
   });
 });

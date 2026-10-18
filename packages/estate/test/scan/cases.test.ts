@@ -29,17 +29,7 @@ describe('the committed reader-cases outputs', () => {
     expect(fresh.refusals).toEqual([]);
     expect(fresh.chunks.every((run) => run.status === 'done')).toBe(true);
     expect(committed.map.hash).toBe(fresh.map.hash);
-    // The committed map predates descriptive guard metadata. Keep exact parity for its
-    // entire legacy shape; the source/registry metadata has its own public scan tests.
-    const legacy = fresh.map.atoms.map((atom) => {
-      if (atom.kind !== 'guard' || !atom.fields) return atom;
-      const { ruleText, ruleSources, rules, ...fields } = atom.fields;
-      expect(ruleText).toBeTypeOf('string');
-      expect(ruleSources).toBeInstanceOf(Array);
-      expect(rules).toBeInstanceOf(Array);
-      return { ...atom, fields };
-    });
-    expect(committed.map.atoms).toEqual(legacy);
+    expect(committed.map.atoms).toEqual(fresh.map.atoms);
     expect(committed.map.edges).toEqual(fresh.map.edges);
   });
 
@@ -56,7 +46,12 @@ describe('the committed reader-cases outputs', () => {
       result.findings
         .filter((finding) => !INFORMATION.has(finding.code))
         .map((finding) => [finding.code, finding.subject]),
-    ).toEqual([]);
+      // The labelers left two sentences that name a file unlabeled (no label had two runs out of three), so the
+      // two files stay unnamed: the one finding is the one an unread file gives.
+    ).toEqual([
+      ['ORPHAN', '.claude/skills/parcel-claims/references/notes.md'],
+      ['ORPHAN', '.claude/skills/parcel-claims/references/supplier-languages.md'],
+    ]);
     expect(
       map.atoms.find((atom) => atom.id === 'reference.shipment-tracker.read-notes-md')?.fields,
     ).toMatchObject({

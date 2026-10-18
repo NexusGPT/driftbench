@@ -1,7 +1,7 @@
 import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { analyzeGraph, ClaudeCodeReader, declaredLabels, literals, scanEstate } from '../src/index';
-import { answer, estate, NOW, scanFixture } from './support';
+import { answer, estate, NOW, scanFixture, structurePointer } from './support';
 
 const SETTINGS = (command: string) =>
   JSON.stringify(
@@ -146,10 +146,7 @@ describe('the fixture graph', () => {
       ),
     ).toEqual({
       'block-force-push.sh': ['registry instruction.standing.r6-never-run-git-push-force'],
-      'read-before-edit.py': [
-        'registry instruction.standing.r3-read-a-file-before-you',
-        'registry gate.standing.read-claude-skills-invoice-reconcile-references',
-      ],
+      'read-before-edit.py': ['registry instruction.standing.r3-read-a-file-before-you'],
       'ledger-guard.py': ['registry instruction.standing.r4-never-delete-a-file-under'],
       'stop-word.sh': ['registry instruction.standing.r10-when-the-user-says-stop'],
       'reply-length.py': ['quote register.standing.keep-every-reply-under-1-200'],
@@ -163,9 +160,8 @@ describe('the fixture graph', () => {
     for (const edge of map.edges) kinds[edge.kind] = (kinds[edge.kind] ?? 0) + 1;
     expect(kinds).toEqual({
       allows: 15,
-      cites: 1,
       dispatch: 1,
-      enforces: 7,
+      enforces: 6,
       event: 6,
       next: 4,
       reference: 6,
@@ -174,13 +170,6 @@ describe('the fixture graph', () => {
     });
     const has = (from: string, kind: string, to: string) =>
       map.edges.some((edge) => edge.from === from && edge.kind === kind && edge.to === to);
-    expect(
-      has(
-        'instruction.standing.r12-when-r2-applies-and-the',
-        'cites',
-        'instruction.standing.never-send-a-supplier-email-without',
-      ),
-    ).toBe(true);
     expect(
       has(
         'skill.invoice-reconcile.skill-invoice-reconcile',
@@ -214,8 +203,8 @@ describe('the fixture graph', () => {
     ]);
     expect(analysis.missingScripts).toEqual([]);
     const rules = map.atoms.filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind));
-    expect(rules).toHaveLength(61);
-    expect(analysis.unenforced).toHaveLength(54);
+    expect(rules).toHaveLength(62);
+    expect(analysis.unenforced).toHaveLength(56);
     expect(analysis.reachableFiles.has('.claude/skills/weekly-report/templates/report.md')).toBe(true);
     expect(analysis.reachableAtoms.has('subagent.inbox-triager.helper-inbox-triager')).toBe(false);
   });
@@ -238,7 +227,12 @@ describe('reachability', () => {
       [lone, false],
       [routed, true],
     ] as const) {
-      const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      const { map, raw } = await scanEstate({
+        root,
+        reader: new ClaudeCodeReader(),
+        now: NOW,
+        pointer: structurePointer(),
+      });
       const analysis = analyzeGraph(map.atoms, map.edges, raw.files);
       expect(analysis.reachableFiles.has('.claude/skills/notes/ref.md')).toBe(reachable);
       expect(analysis.unreachableFiles.includes('.claude/skills/notes/SKILL.md')).toBe(!reachable);

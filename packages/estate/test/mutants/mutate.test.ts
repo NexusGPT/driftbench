@@ -95,7 +95,7 @@ describe('mutateEstate', () => {
     expect(text.split('\n')).toHaveLength(original.split('\n').length);
     const atom = result.map.atoms.find((candidate) => candidate.id === R7);
     expect(atom?.provenance.quote).toBe(
-      'When a shipment is late by more than two days, do not tell the user and propose a supplier email.',
+      '**R7.** When a shipment is late by more than two days, do not tell the user and propose a supplier email.',
     );
     expect(result.mapHash).not.toBe(map.hash);
     await consistent(root, result.map);

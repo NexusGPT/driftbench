@@ -1,13 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { buildPlan, ClaudeCodeReader, citationsByFile, filesReached, scanEstate } from '../src/index';
-import { estate, NOW } from './support';
+import { estate, NOW, structurePointer } from './support';
 
 const definition = (name: string, body: string) =>
   `---\nname: ${name}\ndescription: Review fictional parcels.\n---\n${body}\n`;
 
 async function referenceEdges(files: Record<string, string>) {
   const root = await estate(files);
-  const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+  const { map } = await scanEstate({
+    root,
+    reader: new ClaudeCodeReader(),
+    now: NOW,
+    pointer: structurePointer(),
+  });
   const byId = new Map(map.atoms.map((atom) => [atom.id, atom]));
   return {
     atoms: map.atoms,
@@ -176,7 +181,12 @@ describe('a unit that cites its own file ends the walk', () => {
     ];
     for (const files of estates) {
       const root = await estate(files);
-      const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      const { map } = await scanEstate({
+        root,
+        reader: new ClaudeCodeReader(),
+        now: NOW,
+        pointer: structurePointer(),
+      });
       const approved = { ...map, atoms: map.atoms.map((atom) => ({ ...atom, approved: true })) };
       expect(buildPlan(approved).plan.rows.length).toBeGreaterThan(0);
     }

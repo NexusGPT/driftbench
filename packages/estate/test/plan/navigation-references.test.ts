@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises';
 import { expect, it } from 'vitest';
 import { buildPlan, ClaudeCodeReader, planJourneys, scanEstate } from '../../src/index';
-import { estate, NOW } from '../support';
+import { approvedAll, estate, NOW, structurePointer } from '../support';
 
 const files = {
   'CLAUDE.md': '# Harbour office\n',
@@ -24,8 +24,14 @@ const files = {
 async function scanned(documents?: Array<{ path: string; role: string }>) {
   const root = await estate(files);
   try {
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
-    return documents ? { ...map, documents: documents as never } : map;
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
+    const approved = approvedAll(map);
+    return documents ? { ...approved, documents: documents as never } : approved;
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -77,8 +83,15 @@ it('keeps a prerequisite to read a template: only a read-when reference is a pla
     ].join('\n'),
   });
   try {
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
-    const withRoles = { ...map, documents: roles as never };
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer([
+        { contains: 'Before assigning a berth', act: 'assigning a berth', tool: 'Edit' },
+      ]),
+    });
+    const withRoles = { ...approvedAll(map), documents: roles as never };
     const gate = withRoles.atoms.find((atom) => atom.kind === 'gate');
     expect(gate).toBeDefined();
     const { plan } = buildPlan(withRoles);
@@ -105,7 +118,12 @@ it('walks no journey into a document outside the estate, and still tests the rea
     '.claude/skills/berths/references/tide-limits.md': '# Tide limits\nDraught limits per tide.\n',
   });
   try {
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     const reference = map.atoms.find((atom) => atom.kind === 'reference');
     expect(reference).toBeDefined();
     const external = {
@@ -114,12 +132,12 @@ it('walks no journey into a document outside the estate, and still tests the rea
         atom.id === reference?.id ? { ...atom, fields: { ...atom.fields, external: true } } : atom,
       ),
     };
-    const inside = planJourneys(map);
-    const outside = planJourneys(external);
+    const inside = planJourneys(approvedAll(map));
+    const outside = planJourneys(approvedAll(external));
     expect(inside.edges.some((edge) => edge.to === reference?.id)).toBe(true);
     expect(outside.edges.some((edge) => edge.to === reference?.id)).toBe(false);
     expect(outside.journeys.flatMap((journey) => journey.atomIds)).not.toContain(reference?.id);
-    expect(buildPlan(external).plan.rows.some((row) => row.testType === 'read_when')).toBe(true);
+    expect(buildPlan(approvedAll(external)).plan.rows.some((row) => row.testType === 'read_when')).toBe(true);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

@@ -2,7 +2,7 @@
   "version": 1,
   "diff": {
     "old": "42a937ef55f1587407513d5d633726502fd42058c1211c576c74356860b1a117",
-    "new": "5a85e19fe13ab5b8907e0d787b422d4bf53eead1ee2a1f47c08ad8df6924baed"
+    "new": "29539c63e4b22d4c845213184793a8c7c400f3b7a032dcd8c1f31a7d29366d4b"
   },
   "tests": {
     "live": 8,
@@ -21,16 +21,6 @@
       ]
     },
     {
-      "test": "northwind-force-push",
-      "file": "force-push.yaml",
-      "atoms": [
-        {
-          "atom": "instruction.standing.r6-never-run-git-push-force",
-          "why": "restated"
-        }
-      ]
-    },
-    {
       "test": "northwind-late-shipment",
       "file": "late-shipment.yaml",
       "atoms": [
@@ -44,10 +34,6 @@
       "test": "northwind-ledger-archive",
       "file": "ledger-archive.yaml",
       "atoms": [
-        {
-          "atom": "instruction.standing.r4-never-delete-a-file-under",
-          "why": "restated"
-        },
         {
           "atom": "guard.settings.posttooluse-bash-guard-ledger-guard-py",
           "why": "guard_state"
@@ -83,13 +69,6 @@
   ],
   "retire": [
     {
-      "test": "northwind-stop-word",
-      "file": "stop-word.yaml",
-      "atoms": ["instruction.standing.r10-when-the-user-says-stop"],
-      "reason": "atom instruction.standing.r10-when-the-user-says-stop removed",
-      "state": "to_write"
-    },
-    {
       "test": "northwind-unsent-draft",
       "file": "unsent-draft.yaml",
       "atoms": ["instruction.standing.r12-when-r2-applies-and-the"],
@@ -99,32 +78,11 @@
   ],
   "new": [
     {
-      "atom": "instruction.route-planner.read-the-open-orders-and-the",
-      "kind": "instruction",
-      "title": "Read the open orders and the van table.",
-      "file": ".claude/agents/route-planner.md",
-      "line": 11
-    },
-    {
-      "atom": "instruction.memory-supplier-languages.write-to-each-supplier-in-the",
-      "kind": "instruction",
+      "atom": "register.memory-supplier-languages.write-to-each-supplier-in-the",
+      "kind": "register",
       "title": "Write to each supplier in the language it reads.",
       "file": ".claude/memory/supplier-languages.md",
       "line": 3
-    },
-    {
-      "atom": "reference.standing.read-claude-skills-invoice-reconcile-references",
-      "kind": "reference",
-      "title": "Read .claude/skills/invoice-reconcile/references/matching-rules.md",
-      "file": "CLAUDE.md",
-      "line": 14
-    },
-    {
-      "atom": "hazard.standing.r10-when-the-user-says-stop",
-      "kind": "hazard",
-      "title": "R10. When the user says \"stop\", stop all work and confirm in one line.",
-      "file": "CLAUDE.md",
-      "line": 19
     },
     {
       "atom": "instruction.standing.r18-never-approve-a-credit-note",
@@ -152,16 +110,13 @@
     }
   ],
   "unaffected": {
-    "moved": 22,
-    "tests": 1
+    "moved": 23,
+    "tests": 3
   },
   "needsPerson": [
     "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",
     "re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits",
-    "approve the tests of the new atom instruction.route-planner.read-the-open-orders-and-the: no test covers it yet",
-    "approve the tests of the new atom instruction.memory-supplier-languages.write-to-each-supplier-in-the: no test covers it yet",
-    "approve the tests of the new atom reference.standing.read-claude-skills-invoice-reconcile-references: no test covers it yet",
-    "approve the tests of the new atom hazard.standing.r10-when-the-user-says-stop: no test covers it yet",
+    "approve the tests of the new atom register.memory-supplier-languages.write-to-each-supplier-in-the: no test covers it yet",
     "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet",
     "approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet"
   ]

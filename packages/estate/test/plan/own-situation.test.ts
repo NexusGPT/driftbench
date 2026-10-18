@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { buildPlan, ClaudeCodeReader, scanEstate } from '../../src/index';
-import { estate, NOW } from '../support';
+import { approvedAll, estate, NOW, structurePointer } from '../support';
 
 it('keeps the declared owner on both contract and target-only covering rows', async () => {
   const root = await estate({
@@ -13,8 +13,20 @@ it('keeps the declared owner on both contract and target-only covering rows', as
       '# Publication\nBefore publishing the reader interview: Read style.md.\n',
     '.claude/skills/editorial/references/style.md': '# Editorial style\n',
   });
-  const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
-  const plan = buildPlan(map).plan;
+  const { map } = await scanEstate({
+    root,
+    reader: new ClaudeCodeReader(),
+    now: NOW,
+    pointer: structurePointer([
+      { contains: 'Before editing the reader interview', act: 'editing the reader interview', tool: 'Edit' },
+      {
+        contains: 'Before publishing the reader interview',
+        act: 'publishing the reader interview',
+        tool: 'Write',
+      },
+    ]),
+  });
+  const plan = buildPlan(approvedAll(map)).plan;
   const skill = map.atoms.find((atom) => atom.kind === 'skill' && atom.fields?.name === 'editorial');
   const gates = map.atoms.filter((atom) => atom.kind === 'gate');
   expect(gates).toHaveLength(2);

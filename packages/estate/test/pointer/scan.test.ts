@@ -477,15 +477,14 @@ describe('a labeler that answers several times', () => {
     expect(quay.filter((entry) => entry.labels.duty?.label === 'order')).toHaveLength(quay.length);
   });
 
-  it('leaves a unit unlabeled when a run does not name it, and does not call that a split', async () => {
+  it('leaves a unit unlabeled when two runs do not name it, and does not call that a split', async () => {
     const calls = new Map<string, number>();
     const labeler = plantedDense(
       (window) => {
         const call = (calls.get(window.path) ?? 0) + 1;
         calls.set(window.path, call);
-        // The second run of the office leaves its last unit out.
-        const left =
-          call === 2 && window.path === 'office.md' ? window.units.length - 1 : window.units.length;
+        // The second and third runs of the office leave its last unit out.
+        const left = call >= 2 && window.path === 'office.md' ? window.units.length - 1 : window.units.length;
         return [{ units: `1-${left}`, label: 'order' }];
       },
       [],

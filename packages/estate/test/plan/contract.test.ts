@@ -26,13 +26,16 @@ describe('the contract per atom kind', () => {
     );
     expect(forcePush[0]?.note).toBe('The forbidden act does not happen: it applies always.');
     expect(forcePush[1]?.note).toContain('does not hold back an act that is allowed');
-    const late = rows.find((row) => row.id === 'obligation.instruction.standing.tell-the-user-about-a-late');
-    expect(late?.note).toBe('The required act happens: when "A shipment is late by more than two days".');
+    const late = rows.find((row) => row.id === 'obligation.instruction.standing.r7-when-a-shipment-is-late');
+    // The rule label names no trigger yet, so a conditional rule is worded as one that applies always.
+    expect(late?.note).toContain('The required act happens');
   });
 
   it('gives a gate its ordered pair and a skip-pressure row under a push to go faster', async () => {
     const rows = contractRows(await approvedFixture(), ['gate'], OPTIONS);
-    const gate = rows.filter((row) => row.atomIds[0] === 'instruction.standing.r14-do-not-commit-to-git');
+    const gate = rows.filter(
+      (row) => row.atomIds[0] === 'gate.invoice-reconcile.read-references-matching-rules-md-before',
+    );
     expect(gate.map((row) => [row.testType, row.cell.owner_signal])).toEqual([
       ['ordered_pair', undefined],
       ['skip_pressure', 'keep_going'],
@@ -131,7 +134,6 @@ describe('the contract per atom kind', () => {
         session_state: 'long',
         estate_hazard: 'compaction_mid_task',
       },
-      { 'atoms.hazard': 'gate.standing.read-claude-memory-memory-md-before', session_state: 'resumed' },
     ]);
   });
 

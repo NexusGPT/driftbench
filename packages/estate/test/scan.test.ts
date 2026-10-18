@@ -185,9 +185,6 @@ describe('code atoms', () => {
       setting: 4,
       stage: 5,
       script: 2,
-      reference: 10,
-      gate: 4,
-      hazard: 2,
       invariant: 4,
     });
     // Without a model or a pointer reader no prose atom exists: every atom is read by code and approved.
@@ -199,43 +196,10 @@ describe('code atoms', () => {
     expect(result.map.producedBy).toBeUndefined();
   });
 
-  it('reads the fixed forms of a gate, with the read first and the act after', async () => {
-    const { map } = await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW });
-    const gates = map.atoms.filter((atom) => atom.kind === 'gate');
-    expect(
-      gates.map((gate) => [
-        gate.provenance.file,
-        gate.provenance.startLine,
-        gate.fields?.form,
-        gate.evidence[0],
-      ]),
-    ).toEqual([
-      ['CLAUDE.md', 13, 'before-colon-read', { type: 'ordered', before: 'Read', after: 'Edit' }],
-      ['CLAUDE.md', 22, 'not-until-read', { type: 'ordered', before: 'Bash', after: 'Bash' }],
-      [
-        '.claude/skills/invoice-reconcile/SKILL.md',
-        9,
-        'read-before',
-        { type: 'ordered', before: 'Read', after: 'matching any line' },
-      ],
-      [
-        '.claude/skills/weekly-report/SKILL.md',
-        9,
-        'before-colon-read',
-        { type: 'ordered', before: 'Read', after: 'Write' },
-      ],
-    ]);
-    expect(gates[0]?.fields?.path).toBe('.claude/skills/invoice-reconcile/references/matching-rules.md');
-    expect(gates[3]?.fields?.path).toBe('.claude/skills/weekly-report/templates/report.md');
-  });
-
   it('resolves a named file from its skill folder or from the root, and marks one that does not exist', async () => {
-    const { map } = await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanFixture();
     const references = map.atoms.filter((atom) => atom.kind === 'reference');
     expect(references.map((atom) => [atom.fields?.path, atom.fields?.exists])).toEqual([
-      ['.claude/skills/invoice-reconcile/references/matching-rules.md', true],
-      ['.claude/steps.json', true],
-      ['.claude/memory/MEMORY.md', true],
       ['.claude/memory/supplier-languages.md', true],
       ['.claude/skills/invoice-reconcile/references/matching-rules.md', true],
       ['.claude/skills/invoice-reconcile/references/currency-table.md', true],
@@ -243,8 +207,12 @@ describe('code atoms', () => {
       ['.claude/memory/supplier-languages.md', true],
       ['.claude/skills/weekly-report/templates/report.md', true],
       ['.claude/skills/weekly-report/references/kpi-definitions.md', false],
+      ['.claude/steps.json', true],
+      ['.claude/memory/MEMORY.md', true],
     ]);
-    const scripts = map.atoms.filter((atom) => atom.kind === 'script');
+    const scripts = (
+      await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW })
+    ).map.atoms.filter((atom) => atom.kind === 'script');
     expect(scripts.map((atom) => [atom.fields?.path, atom.provenance.file, atom.fields?.named])).toEqual([
       [
         '.claude/skills/invoice-reconcile/scripts/reconcile.py',
@@ -413,29 +381,6 @@ describe('prose atoms through the model port', () => {
     expect(
       builder.atoms.filter((atom) => atom.producedBy === 'model').map((atom) => atom.provenance.startLine),
     ).toEqual([6]);
-  });
-
-  it('skips a model atom that repeats an atom code already read', async () => {
-    const root = await estate({
-      'CLAUDE.md': 'Before editing a page: Read `guide.md`.\n',
-      'guide.md': '# Guide\n',
-    });
-    const raw = await new ClaudeCodeReader().read(root);
-    const port = new FakeModelPort([
-      answer('CLAUDE.md', [
-        {
-          kind: 'gate',
-          title: 'Guide first',
-          quote: 'Before editing a page: Read `guide.md`.',
-          evidence: [{ type: 'ordered', before: 'Read', after: 'Edit' }],
-        },
-      ]),
-    ]);
-    const { duplicates, builder } = await scanAtoms(raw, { port });
-    expect(duplicates).toEqual([
-      'CLAUDE.md: atom #1 (gate: Guide first) repeats gate.standing.read-guide-md-before-editing-a',
-    ]);
-    expect(builder.atoms.filter((atom) => atom.kind === 'gate')).toHaveLength(1);
   });
 
   it('retries an unreadable answer once, then reports the chunk failed', async () => {

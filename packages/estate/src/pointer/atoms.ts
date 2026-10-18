@@ -307,7 +307,6 @@ export function pointerAtoms(
               unit: item.id,
               labelSet: item.set.set,
               label: item.label,
-              cassette: item.source,
               labeler,
               ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
               ...(mapping.polarity ? { polarity: mapping.polarity } : {}),

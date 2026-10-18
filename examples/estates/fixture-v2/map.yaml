@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-18T17:12:08.098Z
+readAt: 2026-10-18T17:22:10.985Z
 atoms:
   - id: skill.invoice-reconcile.skill-invoice-reconcile
     kind: skill
@@ -500,7 +500,9 @@ atoms:
       script: .claude/guards/stop-word.sh
       scriptExists: true
       registry: G4
-      enforces: []
+      enforces:
+        - atom: instruction.standing.r10-when-the-user-says-stop
+          by: registry
   - id: guard.settings.stop-guard-reply-length-py
     kind: guard
     title: Stop guard reply-length.py
@@ -1192,7 +1194,6 @@ atoms:
       unit: ifwlbe733a
       labelSet: agent-rules
       label: rule
-      cassette: cassette:cc453bac3d0d+aef682e7a88d+a444d4fc3f97+c3bde385999b
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.inbox-triager.a-message-that-fits-none-goes
@@ -1217,7 +1218,6 @@ atoms:
       unit: ucqzvfeiik
       labelSet: agent-rules
       label: rule
-      cassette: cassette:cc453bac3d0d+aef682e7a88d+a444d4fc3f97+c3bde385999b
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.inbox-triager.never-answer-a-message-yourself-and
@@ -1240,9 +1240,30 @@ atoms:
       unit: e5orfrbvw4
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:cc453bac3d0d+aef682e7a88d+a444d4fc3f97+c3bde385999b
       labeler: jev+anthropic
       polarity: prohibition
+  - id: instruction.ledger-auditor.audits-the-ledger-for-duplicate-payments
+    kind: instruction
+    title: Audits the ledger for duplicate payments and invoices paid twice. Dispatch it with an inv…
+    provenance:
+      file: .claude/agents/ledger-auditor.md
+      startLine: 3
+      endLine: 3
+      quote: Audits the ledger for duplicate payments and invoices paid twice. Dispatch it with an invoice number and an order number when a reconciliation finds a difference above the threshold.
+      hash: b268e9e133cbdc4743c1d660bb356804ac861d878b2b96e2b6621db1ce80e58e
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: vevrrb6dx5, set: agent-rules, label: rule } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: vevrrb6dx5
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
+      polarity: obligation
   - id: instruction.ledger-auditor.you-never-edit-a-file-you
     kind: instruction
     title: "You never edit a file: you read and you report."
@@ -1263,7 +1284,6 @@ atoms:
       unit: wf65yszjnc
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:058143f55de2+c8ad3515d493+17db823ba57c+69899a68725a
       labeler: jev+anthropic
       polarity: prohibition
   - id: instruction.ledger-auditor.when-either-is-missing-answer-with
@@ -1288,7 +1308,6 @@ atoms:
       unit: 3eyqckfmkn
       labelSet: agent-rules
       label: rule
-      cassette: cassette:058143f55de2+c8ad3515d493+17db823ba57c+69899a68725a
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.ledger-auditor.look-for-the-same-invoice-number
@@ -1313,7 +1332,6 @@ atoms:
       unit: upb7zb4y7y
       labelSet: agent-rules
       label: rule
-      cassette: cassette:058143f55de2+c8ad3515d493+17db823ba57c+69899a68725a
       labeler: jev+anthropic
       polarity: obligation
   - id: register.ledger-auditor.answer-with-one-json-object-and
@@ -1338,7 +1356,6 @@ atoms:
       unit: pk2dvdlukx
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:058143f55de2+c8ad3515d493+17db823ba57c+69899a68725a
       labeler: jev+anthropic
   - id: instruction.route-planner.plans-tomorrow-s-delivery-routes-from
     kind: instruction
@@ -1360,30 +1377,6 @@ atoms:
       unit: cykbruoznz
       labelSet: agent-rules
       label: rule
-      cassette: cassette:18e0e9967603+8c2c41825ebb+c373b52a72f9+d59bac9474c9
-      labeler: jev+anthropic
-      polarity: obligation
-  - id: instruction.route-planner.read-the-open-orders-and-the
-    kind: instruction
-    title: Read the open orders and the van table.
-    provenance:
-      file: .claude/agents/route-planner.md
-      startLine: 11
-      endLine: 11
-      quote: Read the open orders and the van table.
-      hash: 0fbef408527d2f278bf73f2902919b1904482985da2948ad679d110fba2800c1
-    producedBy: model
-    role: axis
-    approved: false
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: xdy5raspfp, set: agent-rules, label: rule } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: xdy5raspfp
-      labelSet: agent-rules
-      label: rule
-      cassette: cassette:18e0e9967603+8c2c41825ebb+d59bac9474c9
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.route-planner.never-put-more-than-the-van
@@ -1406,7 +1399,6 @@ atoms:
       unit: cyfolf3scw
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:18e0e9967603+8c2c41825ebb+c373b52a72f9+d59bac9474c9
       labeler: jev+anthropic
       polarity: prohibition
   - id: instruction.route-planner.never-plan-a-delivery-on-a
@@ -1431,7 +1423,6 @@ atoms:
       unit: 3j7thuawtp
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:18e0e9967603+8c2c41825ebb+c373b52a72f9+d59bac9474c9
       labeler: jev+anthropic
       polarity: prohibition
   - id: register.route-planner.answer-with-a-table-van-stops
@@ -1456,7 +1447,6 @@ atoms:
       unit: vf6mmyr3dx
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:18e0e9967603+8c2c41825ebb+c373b52a72f9+d59bac9474c9
       labeler: jev+anthropic
   - id: reference.memory-memory.read-supplier-languages-md
     kind: reference
@@ -1484,7 +1474,6 @@ atoms:
       unit: gv2geffhvz
       labelSet: agent-rules
       label: reference
-      cassette: cassette:56446ef9212c+5f3e980b2446+b71323b3cf90+aab04200be28
       labeler: jev+anthropic
   - id: instruction.memory-memory.the-operations-team-wants-the-weekly
     kind: instruction
@@ -1506,7 +1495,6 @@ atoms:
       unit: uy66cc5nh7
       labelSet: agent-rules
       label: rule
-      cassette: cassette:56446ef9212c+5f3e980b2446+b71323b3cf90+aab04200be28
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.memory-memory.never-schedule-a-delivery-on-a
@@ -1529,11 +1517,10 @@ atoms:
       unit: 7wqtvpz2nv
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:56446ef9212c+5f3e980b2446+b71323b3cf90+aab04200be28
       labeler: jev+anthropic
       polarity: prohibition
-  - id: instruction.memory-supplier-languages.write-to-each-supplier-in-the
-    kind: instruction
+  - id: register.memory-supplier-languages.write-to-each-supplier-in-the
+    kind: register
     title: Write to each supplier in the language it reads.
     provenance:
       file: .claude/memory/supplier-languages.md
@@ -1545,16 +1532,14 @@ atoms:
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: klbhgsbv5o, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: klbhgsbv5o, set: agent-rules, label: reply-rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: klbhgsbv5o
       labelSet: agent-rules
-      label: rule
-      cassette: cassette:dbf4a2abfba8+82c06c6b3bed+47e41454632e
+      label: reply-rule
       labeler: jev+anthropic
-      polarity: obligation
   - id: instruction.memory-supplier-languages.when-a-supplier-is-not-in
     kind: instruction
     title: When a supplier is not in this table, write in English and tell the user.
@@ -1575,7 +1560,6 @@ atoms:
       unit: vbhqgyxxpc
       labelSet: agent-rules
       label: rule
-      cassette: cassette:dbf4a2abfba8+82c06c6b3bed+47e41454632e
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.invoice-reconcile.a-line-on-the-invoice-with
@@ -1598,7 +1582,6 @@ atoms:
       unit: l2du4zrlr4
       labelSet: agent-rules
       label: rule
-      cassette: cassette:ff57d5ebd35a+52215eb759bd+d4e3566c7285
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.invoice-reconcile.reconcile-a-supplier-invoice-against-its
@@ -1621,7 +1604,6 @@ atoms:
       unit: 4irijjz2pq
       labelSet: agent-rules
       label: rule
-      cassette: cassette:7a038ad7708a+df0385467545+31ad8e85245d+04b96f74f3cf
       labeler: jev+anthropic
       polarity: obligation
   - id: gate.invoice-reconcile.read-references-matching-rules-md-before
@@ -1650,11 +1632,10 @@ atoms:
       unit: 4wfcnk2irw
       labelSet: agent-rules
       label: gate
-      cassette: cassette:615890224d78+b20f0ae495d8+53ed26c5d47e+a626ea9466a0
       labeler: jev+anthropic
       labelSpans:
-        - kind: governed-action
-          from: 43
+        - from: 43
+          kind: governed-action
           to: 60
       labelLinks:
         - kind: act-tool
@@ -1687,12 +1668,81 @@ atoms:
       unit: 4wfcnk2irw
       labelSet: agent-rules
       label: gate
-      cassette: cassette:615890224d78+b20f0ae495d8+53ed26c5d47e+a626ea9466a0
       labeler: jev+anthropic
       labelSpans:
-        - kind: governed-action
-          from: 43
+        - from: 43
+          kind: governed-action
           to: 60
+      labelLinks:
+        - kind: act-tool
+          value: Edit
+  - id: gate.invoice-reconcile.read-references-currency-table-md-before
+    kind: gate
+    title: Read references/currency-table.md before convert every amount
+    provenance:
+      file: .claude/skills/invoice-reconcile/SKILL.md
+      startLine: 10
+      endLine: 10
+      quote: When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.
+      hash: 31f71701b9c1d09dfbe03356c29f45faa9f45ee300ec8f3390feee69422177a4
+    producedBy: model
+    role: axis
+    approved: false
+    situation: convert every amount
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: gfz5utnqh3, set: agent-rules, label: gate } }
+      - { type: ordered, before: Read, after: Edit }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/invoice-reconcile/references/currency-table.md } } }
+    enforcement: []
+    fields:
+      first: references/currency-table.md
+      trigger: convert every amount
+      path: .claude/skills/invoice-reconcile/references/currency-table.md
+      extraction: pointer
+      unit: gfz5utnqh3
+      labelSet: agent-rules
+      label: gate
+      labeler: jev+anthropic
+      labelSpans:
+        - from: 71
+          kind: governed-action
+          to: 91
+      labelLinks:
+        - kind: act-tool
+          value: Edit
+      spans:
+        - references/currency-table.md
+  - id: reference.invoice-reconcile.read-references-currency-table-md
+    kind: reference
+    title: Read references/currency-table.md
+    provenance:
+      file: .claude/skills/invoice-reconcile/SKILL.md
+      startLine: 10
+      endLine: 10
+      quote: When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.
+      hash: 31f71701b9c1d09dfbe03356c29f45faa9f45ee300ec8f3390feee69422177a4
+    producedBy: model
+    role: detail
+    approved: false
+    situation: When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: gfz5utnqh3, set: agent-rules, label: gate } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/invoice-reconcile/references/currency-table.md } } }
+    enforcement: []
+    fields:
+      path: .claude/skills/invoice-reconcile/references/currency-table.md
+      exists: true
+      readWhen: When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.
+      from: .claude/skills/invoice-reconcile/SKILL.md
+      extraction: pointer
+      unit: gfz5utnqh3
+      labelSet: agent-rules
+      label: gate
+      labeler: jev+anthropic
+      labelSpans:
+        - from: 71
+          kind: governed-action
+          to: 91
       labelLinks:
         - kind: act-tool
           value: Edit
@@ -1708,19 +1758,15 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: mc2fjnpbks, set: agent-rules, label: rule, condition: [ gfz5utnqh3 ] } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: mc2fjnpbks, set: agent-rules, label: rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: mc2fjnpbks
       labelSet: agent-rules
       label: rule
-      cassette: cassette:615890224d78+b20f0ae495d8+53ed26c5d47e+a626ea9466a0
       labeler: jev+anthropic
-      condition:
-        - gfz5utnqh3
       polarity: obligation
       spans:
         - python3 scripts/reconcile.py <invoice> <order>
@@ -1744,7 +1790,6 @@ atoms:
       unit: ldaywjqflr
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:615890224d78+b20f0ae495d8+53ed26c5d47e+a626ea9466a0
       labeler: jev+anthropic
       polarity: prohibition
   - id: instruction.invoice-reconcile.when-the-total-difference-is-above
@@ -1767,7 +1812,6 @@ atoms:
       unit: pfiujep4mk
       labelSet: agent-rules
       label: rule
-      cassette: cassette:615890224d78+b20f0ae495d8+53ed26c5d47e+a626ea9466a0
       labeler: jev+anthropic
       polarity: obligation
       spans:
@@ -1792,7 +1836,6 @@ atoms:
       unit: hkxeghi3ug
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:615890224d78+b20f0ae495d8+53ed26c5d47e+a626ea9466a0
       labeler: jev+anthropic
   - id: instruction.shipment-tracker.look-up-where-a-shipment-is
     kind: instruction
@@ -1814,7 +1857,6 @@ atoms:
       unit: ew32upricl
       labelSet: agent-rules
       label: rule
-      cassette: cassette:4bb068dfb313+62474458adb3+d02bc20c683b+8a9bf4fba35b
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.shipment-tracker.ask-for-the-tracking-number-when
@@ -1837,7 +1879,6 @@ atoms:
       unit: kwkaapewgh
       labelSet: agent-rules
       label: rule
-      cassette: cassette:f148cf5ceb28+02391faeb8e0+5704bde15832+1db50a5b8dc1
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.shipment-tracker.always-pass-the-carrier-code-to
@@ -1860,7 +1901,6 @@ atoms:
       unit: 2pgcgb6enm
       labelSet: agent-rules
       label: rule
-      cassette: cassette:f148cf5ceb28+02391faeb8e0+5704bde15832+1db50a5b8dc1
       labeler: jev+anthropic
       polarity: obligation
       spans:
@@ -1885,7 +1925,6 @@ atoms:
       unit: iax6q7xbmz
       labelSet: agent-rules
       label: rule
-      cassette: cassette:f148cf5ceb28+02391faeb8e0+5704bde15832+1db50a5b8dc1
       labeler: jev+anthropic
       polarity: obligation
   - id: reference.shipment-tracker.read-data-shipments-txt
@@ -1914,7 +1953,6 @@ atoms:
       unit: z5gnpvsklr
       labelSet: agent-rules
       label: reference
-      cassette: cassette:f148cf5ceb28+02391faeb8e0+5704bde15832+1db50a5b8dc1
       labeler: jev+anthropic
   - id: instruction.supplier-email.draft-answer-or-chase-an-email
     kind: instruction
@@ -1936,7 +1974,6 @@ atoms:
       unit: i7zk3vid52
       labelSet: agent-rules
       label: rule
-      cassette: cassette:36345232b88d+c8cd8b2f5ffd+5a93f987c7b0
       labeler: jev+anthropic
       polarity: obligation
   - id: gate.supplier-email.read-claude-memory-supplier-languages-md
@@ -1965,11 +2002,10 @@ atoms:
       unit: dgwysklcdn
       labelSet: agent-rules
       label: gate
-      cassette: cassette:7a516e80e9c5+f6b7c5b35fd7+0a36a2c24673+cd024a389eca
       labeler: jev+anthropic
       labelSpans:
-        - kind: governed-action
-          from: 0
+        - from: 0
+          kind: governed-action
           to: 32
       labelLinks:
         - kind: act-tool
@@ -2002,11 +2038,10 @@ atoms:
       unit: dgwysklcdn
       labelSet: agent-rules
       label: gate
-      cassette: cassette:7a516e80e9c5+f6b7c5b35fd7+0a36a2c24673+cd024a389eca
       labeler: jev+anthropic
       labelSpans:
-        - kind: governed-action
-          from: 0
+        - from: 0
+          kind: governed-action
           to: 32
       labelLinks:
         - kind: act-tool
@@ -2033,7 +2068,6 @@ atoms:
       unit: lnoao4ftra
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:7a516e80e9c5+f6b7c5b35fd7+0a36a2c24673+cd024a389eca
       labeler: jev+anthropic
   - id: register.supplier-email.keep-a-draft-under-120-words
     kind: register
@@ -2055,7 +2089,6 @@ atoms:
       unit: 2hpjnbkcu3
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:7a516e80e9c5+f6b7c5b35fd7+0a36a2c24673+cd024a389eca
       labeler: jev+anthropic
   - id: instruction.supplier-email.show-the-full-draft-and-wait
     kind: instruction
@@ -2077,7 +2110,6 @@ atoms:
       unit: h2cbsa3ka7
       labelSet: agent-rules
       label: rule
-      cassette: cassette:7a516e80e9c5+f6b7c5b35fd7+0a36a2c24673+cd024a389eca
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.supplier-email.a-looks-fine-or-a-thumbs
@@ -2102,7 +2134,6 @@ atoms:
       unit: dn435raxki
       labelSet: agent-rules
       label: rule
-      cassette: cassette:7a516e80e9c5+f6b7c5b35fd7+0a36a2c24673+cd024a389eca
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.supplier-email.never-copy-a-price-or-a
@@ -2127,7 +2158,6 @@ atoms:
       unit: xxhhucduvn
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:7a516e80e9c5+f6b7c5b35fd7+0a36a2c24673+cd024a389eca
       labeler: jev+anthropic
       polarity: prohibition
   - id: instruction.weekly-report.prepare-the-weekly-operations-report-from
@@ -2150,7 +2180,6 @@ atoms:
       unit: razzzppalt
       labelSet: agent-rules
       label: rule
-      cassette: cassette:d2446e0bd76a+8db1027180a0+44484d23ce73
       labeler: jev+anthropic
       polarity: obligation
   - id: gate.weekly-report.read-templates-report-md-before-before
@@ -2179,11 +2208,10 @@ atoms:
       unit: kb4qkuf4z2
       labelSet: agent-rules
       label: gate
-      cassette: cassette:9e9d47e02420+d2aed57a7930+ad7dbef3d183+bab9cce2a2a7
       labeler: jev+anthropic
       labelSpans:
-        - kind: governed-action
-          from: 0
+        - from: 0
+          kind: governed-action
           to: 25
       labelLinks:
         - kind: act-tool
@@ -2216,11 +2244,10 @@ atoms:
       unit: kb4qkuf4z2
       labelSet: agent-rules
       label: gate
-      cassette: cassette:9e9d47e02420+d2aed57a7930+ad7dbef3d183+bab9cce2a2a7
       labeler: jev+anthropic
       labelSpans:
-        - kind: governed-action
-          from: 0
+        - from: 0
+          kind: governed-action
           to: 25
       labelLinks:
         - kind: act-tool
@@ -2245,7 +2272,6 @@ atoms:
       unit: zccykz54pt
       labelSet: agent-rules
       label: rule
-      cassette: cassette:9e9d47e02420+d2aed57a7930+ad7dbef3d183+bab9cce2a2a7
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.weekly-report.count-only-what-the-ledger-and
@@ -2268,7 +2294,6 @@ atoms:
       unit: wrl4c7wlvb
       labelSet: agent-rules
       label: rule
-      cassette: cassette:9e9d47e02420+d2aed57a7930+ad7dbef3d183+bab9cce2a2a7
       labeler: jev+anthropic
       polarity: obligation
   - id: reference.weekly-report.read-references-kpi-definitions-md
@@ -2303,7 +2328,6 @@ atoms:
       unit: 47fkb6hjzb
       labelSet: agent-rules
       label: reference
-      cassette: cassette:9e9d47e02420+d2aed57a7930+ad7dbef3d183+bab9cce2a2a7
       labeler: jev+anthropic
   - id: instruction.weekly-report.save-the-report-as-reports-year
     kind: instruction
@@ -2327,7 +2351,6 @@ atoms:
       unit: 4u2gwiyt2j
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:9e9d47e02420+d2aed57a7930+ad7dbef3d183+bab9cce2a2a7
       labeler: jev+anthropic
       polarity: prohibition
       spans:
@@ -2353,7 +2376,6 @@ atoms:
       unit: 7c77n3lgl5
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
   - id: instruction.standing.r3-read-a-file-before-you
     kind: instruction
@@ -2375,7 +2397,6 @@ atoms:
       unit: oeowulj3qm
       labelSet: agent-rules
       label: rule
-      cassette: cassette:39ad4f421fb0+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.standing.r4-never-delete-a-file-under
@@ -2391,47 +2412,18 @@ atoms:
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: woijaqquri, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: woijaqquri, set: agent-rules, label: prohibition } }
     enforcement: [ guard.settings.posttooluse-bash-guard-ledger-guard-py ]
     fields:
       extraction: pointer
       unit: woijaqquri
       labelSet: agent-rules
-      label: rule
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d
+      label: prohibition
       labeler: jev+anthropic
-      polarity: obligation
+      polarity: prohibition
       spans:
         - ledger/
         - ledger/archive/
-  - id: reference.standing.read-claude-skills-invoice-reconcile-references
-    kind: reference
-    title: Read .claude/skills/invoice-reconcile/references/matching-rules.md
-    provenance:
-      file: CLAUDE.md
-      startLine: 14
-      endLine: 14
-      quote: "**R5.** Before editing any invoice file: Read `.claude/skills/invoice-reconcile/references/matching-rules.md`."
-      hash: e29c386d0be3a3bc6a97394ea11012473330140c8581cc2251e420652d47dd02
-    producedBy: model
-    role: detail
-    approved: false
-    situation: "**R5.** Before editing any invoice file: Read `.claude/skills/invoice-reconcile/references/matching-rules.md`."
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: 7cv2d5ktjq, set: agent-rules, label: gate } }
-      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/invoice-reconcile/references/matching-rules.md } } }
-    enforcement: []
-    fields:
-      path: .claude/skills/invoice-reconcile/references/matching-rules.md
-      exists: true
-      readWhen: "**R5.** Before editing any invoice file: Read `.claude/skills/invoice-reconcile/references/matching-rules.md`."
-      from: CLAUDE.md
-      extraction: pointer
-      unit: 7cv2d5ktjq
-      labelSet: agent-rules
-      label: gate
-      cassette: cassette:39ad4f421fb0+159053d5a28d+dcb3216f7a76
-      labeler: jev+anthropic
   - id: instruction.standing.r6-never-run-git-push-force
     kind: instruction
     title: R6. Never run git push --force on any branch.
@@ -2452,7 +2444,6 @@ atoms:
       unit: josrxaogo4
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
       polarity: prohibition
       spans:
@@ -2470,14 +2461,13 @@ atoms:
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: cojjskkmp4, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: emz6tmbir7, set: agent-rules, label: rule } }
     enforcement: []
     fields:
       extraction: pointer
-      unit: cojjskkmp4
+      unit: emz6tmbir7
       labelSet: agent-rules
       label: rule
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.standing.r8-do-not-invent-order-numbers
@@ -2493,16 +2483,15 @@ atoms:
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: jixkl7ilvt, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: jixkl7ilvt, set: agent-rules, label: prohibition } }
     enforcement: []
     fields:
       extraction: pointer
       unit: jixkl7ilvt
       labelSet: agent-rules
-      label: rule
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
+      label: prohibition
       labeler: jev+anthropic
-      polarity: obligation
+      polarity: prohibition
   - id: instruction.standing.r9-ask-at-most-one-question
     kind: instruction
     title: R9. Ask at most one question per reply.
@@ -2523,11 +2512,10 @@ atoms:
       unit: h7d22dl6s4
       labelSet: agent-rules
       label: rule
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d
       labeler: jev+anthropic
       polarity: obligation
-  - id: hazard.standing.r10-when-the-user-says-stop
-    kind: hazard
+  - id: instruction.standing.r10-when-the-user-says-stop
+    kind: instruction
     title: R10. When the user says "stop", stop all work and confirm in one line.
     provenance:
       file: CLAUDE.md
@@ -2536,21 +2524,18 @@ atoms:
       quote: '**R10.** When the user says "stop", stop all work and confirm in one line.'
       hash: a835d13bc258b635d4b7a03663938c800774fcb85d6b7f34b9c58d5783a38c95
     producedBy: model
-    role: detail
+    role: axis
     approved: false
-    situation: A compaction of the context
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: hexjxf5hak, set: agent-rules, label: hazard-compaction } }
-      - { type: custom, name: hazard_recovery, options: { hazard: compaction } }
-    enforcement: []
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: hexjxf5hak, set: agent-rules, label: prohibition } }
+    enforcement: [ guard.settings.userpromptsubmit-guard-stop-word-sh ]
     fields:
-      hazard: compaction
       extraction: pointer
       unit: hexjxf5hak
       labelSet: agent-rules
-      label: hazard-compaction
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
+      label: prohibition
       labeler: jev+anthropic
+      polarity: prohibition
   - id: instruction.standing.r11-never-paste-the-contents-of
     kind: instruction
     title: R11. Never paste the contents of .env or any credential into a reply.
@@ -2571,7 +2556,6 @@ atoms:
       unit: xi6od5jvxp
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
       polarity: prohibition
       spans:
@@ -2596,9 +2580,32 @@ atoms:
       unit: nm5qvlsrod
       labelSet: agent-rules
       label: rule
-      cassette: cassette:39ad4f421fb0+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
       polarity: obligation
+  - id: instruction.standing.r14-do-not-commit-to-git
+    kind: instruction
+    title: R14. Do not commit to git until you have read the output of git status.
+    provenance:
+      file: CLAUDE.md
+      startLine: 22
+      endLine: 22
+      quote: "**R14.** Do not commit to git until you have read the output of `git status`."
+      hash: 97b1a2429bd0fbbbc598c96370f0c0acad05c8cd06f89165a881152ff626b0c4
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: zuie2qo5us, set: agent-rules, label: rule } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: zuie2qo5us
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
+      polarity: obligation
+      spans:
+        - git status
   - id: hazard.standing.r15-after-a-compaction-re-read
     kind: hazard
     title: R15. After a compaction, re-read this file and the open tracker note before you continue.
@@ -2622,7 +2629,6 @@ atoms:
       unit: ndszu34jlz
       labelSet: agent-rules
       label: hazard-compaction
-      cassette: cassette:39ad4f421fb0+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
   - id: instruction.standing.r16-if-a-tool-fails-twice
     kind: instruction
@@ -2644,7 +2650,6 @@ atoms:
       unit: ggatj5jijq
       labelSet: agent-rules
       label: rule
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.standing.r17-report-a-number-only-when
@@ -2667,7 +2672,6 @@ atoms:
       unit: snwqcymbbi
       labelSet: agent-rules
       label: rule
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.standing.r18-never-approve-a-credit-note
@@ -2690,7 +2694,6 @@ atoms:
       unit: bluhvywt5m
       labelSet: agent-rules
       label: rule
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.standing.r19-when-r18-applies-and-the
@@ -2706,14 +2709,13 @@ atoms:
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: kfm4uyqyuy, set: agent-rules, label: rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: mx7vrgfrjv, set: agent-rules, label: rule } }
     enforcement: []
     fields:
       extraction: pointer
-      unit: kfm4uyqyuy
+      unit: mx7vrgfrjv
       labelSet: agent-rules
       label: rule
-      cassette: cassette:39ad4f421fb0+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
       polarity: obligation
   - id: instruction.standing.every-task-follows-the-step-list
@@ -2736,7 +2738,6 @@ atoms:
       unit: mnlr5rno4r
       labelSet: agent-rules
       label: rule
-      cassette: cassette:03bf73b8b11c+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
       polarity: obligation
       spans:
@@ -2767,7 +2768,6 @@ atoms:
       unit: mnlr5rno4r
       labelSet: agent-rules
       label: rule
-      cassette: cassette:03bf73b8b11c+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
   - id: instruction.standing.a-tracker-note-may-be-written
     kind: instruction
@@ -2791,7 +2791,6 @@ atoms:
       unit: ceowdbcrfy
       labelSet: agent-rules
       label: rule
-      cassette: cassette:03bf73b8b11c+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
       polarity: obligation
       spans:
@@ -2816,7 +2815,6 @@ atoms:
       unit: i7uw67ztqh
       labelSet: agent-rules
       label: prohibition
-      cassette: cassette:03bf73b8b11c+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
       polarity: prohibition
   - id: register.standing.keep-every-reply-under-1-200
@@ -2839,7 +2837,6 @@ atoms:
       unit: nycwt7y6ix
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:03bf73b8b11c+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
   - id: register.standing.lead-with-the-result-in-the
     kind: register
@@ -2861,7 +2858,6 @@ atoms:
       unit: pjmwg6jomd
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:03bf73b8b11c+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
   - id: register.standing.use-a-bullet-list-for-three
     kind: register
@@ -2883,7 +2879,6 @@ atoms:
       unit: akbpjlr55w
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:03bf73b8b11c+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
   - id: register.standing.never-use-the-words-obviously-or
     kind: register
@@ -2905,7 +2900,6 @@ atoms:
       unit: w5v46k2lbi
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:03bf73b8b11c+3d4d86fb4f2d+dcb3216f7a76
       labeler: jev+anthropic
   - id: register.standing.write-amounts-with-the-currency-code
     kind: register
@@ -2927,7 +2921,6 @@ atoms:
       unit: uhveskza77
       labelSet: agent-rules
       label: reply-rule
-      cassette: cassette:03bf73b8b11c+3d4d86fb4f2d+159053d5a28d+dcb3216f7a76
       labeler: jev+anthropic
   - id: gate.standing.read-claude-memory-memory-md-before
     kind: gate
@@ -2955,11 +2948,10 @@ atoms:
       unit: 2z5lfdx7uu
       labelSet: agent-rules
       label: gate
-      cassette: cassette:03bf73b8b11c+3d4d86fb4f2d+159053d5a28d
       labeler: jev+anthropic
       labelSpans:
-        - kind: governed-action
-          from: 32
+        - from: 32
+          kind: governed-action
           to: 61
       labelLinks:
         - kind: act-tool
@@ -2992,11 +2984,10 @@ atoms:
       unit: 2z5lfdx7uu
       labelSet: agent-rules
       label: gate
-      cassette: cassette:03bf73b8b11c+3d4d86fb4f2d+159053d5a28d
       labeler: jev+anthropic
       labelSpans:
-        - kind: governed-action
-          from: 32
+        - from: 32
+          kind: governed-action
           to: 61
       labelLinks:
         - kind: act-tool
@@ -3039,7 +3030,6 @@ atoms:
     fields:
       check: no_orphans
       orphans:
-        - .claude/skills/invoice-reconcile/references/currency-table.md
         - .claude/skills/invoice-reconcile/references/old-tolerances.md
       holds: false
   - id: invariant.settings.every-guard-finds-its-script-from
@@ -3198,6 +3188,7 @@ edges:
   - { from: guard.settings.pretooluse-edit-write-guard-read-before, to: event.PreToolUse, kind: event }
   - { from: guard.settings.stop-guard-reply-length-py, to: register.standing.keep-every-reply-under-1-200, kind: enforces }
   - { from: guard.settings.stop-guard-reply-length-py, to: event.Stop, kind: event }
+  - { from: guard.settings.userpromptsubmit-guard-stop-word-sh, to: instruction.standing.r10-when-the-user-says-stop, kind: enforces }
   - { from: guard.settings.userpromptsubmit-guard-stop-word-sh, to: event.UserPromptSubmit, kind: event }
   - { from: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh, to: instruction.shipment-tracker.always-pass-the-carrier-code-to, kind: enforces }
   - { from: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh, to: event.PreToolUse, kind: event }
@@ -3219,6 +3210,7 @@ edges:
   - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: tool.invoice-reconcile.declared-edit, kind: allows }
   - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: tool.settings.allow-read, kind: allows }
   - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: subagent.ledger-auditor.helper-ledger-auditor, kind: dispatch }
+  - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: reference.invoice-reconcile.read-references-currency-table-md, kind: reference }
   - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: reference.invoice-reconcile.read-references-matching-rules-md, kind: reference }
   - { from: skill.invoice-reconcile.skill-invoice-reconcile, to: script.invoice-reconcile.script-scripts-reconcile-py, kind: script }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: tool.invoice-reconcile.declared-bash, kind: allows }
@@ -3245,5 +3237,5 @@ edges:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-18T17:12:08.098Z
-hash: 5a85e19fe13ab5b8907e0d787b422d4bf53eead1ee2a1f47c08ad8df6924baed
+  at: 2026-10-18T17:22:10.985Z
+hash: 29539c63e4b22d4c845213184793a8c7c400f3b7a032dcd8c1f31a7d29366d4b

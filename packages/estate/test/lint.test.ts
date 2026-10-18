@@ -1,6 +1,7 @@
+import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, lintEstate, scanEstate } from '../src/index';
-import { estate, NOW, scanFixture } from './support';
+import { answer, estate, NOW, scanFixture, structurePointer } from './support';
 
 describe('estate lint', () => {
   it('finds every defect planted in the fixture, and nothing else', async () => {
@@ -15,7 +16,7 @@ describe('estate lint', () => {
       ['REGISTRY_ROW', 'reply-length.py'],
       ['REGISTRY_GUARD', 'G6'],
     ]);
-    expect(result.counts.UNENFORCED).toBe(54);
+    expect(result.counts.UNENFORCED).toBe(56);
     expect(result.failed).toBe(true);
   });
 
@@ -35,8 +36,7 @@ describe('estate lint', () => {
 
   it('passes a clean estate, where unenforced rules alone do not fail the lint', async () => {
     const root = await estate({
-      'CLAUDE.md': '# Rules\n\nBefore editing a page: Read `.claude/guide.md`.\n',
-      '.claude/guide.md': '# Guide\n',
+      'CLAUDE.md': '# Rules\n\nNever touch the vault folder at all.\n',
       '.claude/settings.json': JSON.stringify({
         hooks: {
           Stop: [{ hooks: [{ type: 'command', command: '"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh' }] }],
@@ -44,7 +44,17 @@ describe('estate lint', () => {
       }),
       '.claude/guards/g.sh': '#!/bin/sh\nexit 0\n',
     });
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'No vault',
+          quote: 'Never touch the vault folder at all.',
+          evidence: [{ type: 'custom', name: 'v' }],
+        },
+      ]),
+    ]);
+    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
     const result = lintEstate(map, raw);
     expect(result.findings.map((finding) => finding.code)).toEqual(['UNENFORCED']);
     expect(result.failed).toBe(false);
@@ -60,7 +70,12 @@ describe('estate lint', () => {
         },
       }),
     });
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: structurePointer(),
+    });
     const changed = {
       ...raw,
       files: raw.files.map((file) =>
@@ -69,6 +84,6 @@ describe('estate lint', () => {
     };
     const codes = lintEstate(map, changed).findings.map((finding) => finding.code);
     expect(codes).toContain('MISSING_SCRIPT');
-    expect(codes.filter((code) => code === 'QUOTE_DRIFT')).toHaveLength(2);
+    expect(codes.filter((code) => code === 'QUOTE_DRIFT')).toHaveLength(1);
   });
 });
