@@ -329,33 +329,9 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
         const recovery = recoveryAction(atom, ctx.atoms);
         const declared = evidence.options ?? {};
-        const reread = [
-          ...new Set([
-            ...(Array.isArray(declared.reread)
-              ? declared.reread.filter(
-                  (path): path is string => typeof path === 'string' && path.trim() !== '',
-                )
-              : []),
-            ...recovery.reread,
-          ]),
-        ];
-        const calls = [...(Array.isArray(declared.calls) ? declared.calls : []), ...recovery.calls].filter(
-          (call) => {
-            if (typeof call !== 'object' || call === null || Array.isArray(call)) return false;
-            const value = call as Record<string, unknown>;
-            return (
-              typeof value.label === 'string' &&
-              value.label.trim() !== '' &&
-              value.count !== 0 &&
-              !(
-                typeof value.count === 'object' &&
-                value.count !== null &&
-                (value.count as Record<string, unknown>).min === 0
-              )
-            );
-          },
-        );
-        const retry = declared.retry === true || recovery.retry;
+        const { reread, calls, retry } = recovery;
+        for (const detail of recovery.invalid ?? [])
+          gap(then, MARKERS.registered, atom, `invalid recovery evidence: ${detail}`);
         // A part of the rule that names no file ("the open tracker note") is checked by no path: the spec never
         // passes on the rest alone unmarked. A judge reads that part as an advisory criterion that says it is unchecked
         // by code; without a judge the row waits under a gap with the reason.
@@ -378,8 +354,8 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
           );
           return;
         }
-        // Only the actions the estate states stay: an empty path or a call counted zero demands nothing.
-        const { reread: _reread, calls: _calls, retry: _retry, ...rest } = declared;
+        // Valid source requirements remain intact; malformed siblings keep the row incomplete.
+        const { reread: _reread, calls: _calls, retry: _retry, unpathed: _unpathed, ...rest } = declared;
         then.custom.hazard_recovery = {
           ...rest,
           ...(reread.length > 0 ? { reread } : {}),

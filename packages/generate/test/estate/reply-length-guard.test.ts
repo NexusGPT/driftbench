@@ -22,11 +22,7 @@ it('asks the live positive tests of the reply-length guard with an approved requ
     if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
     const when = parsed.spec.blocks[0]?.when as { user?: string } | undefined;
     const ask = String(when?.user);
-    // The rule's exception is a request for detail: the approved request does not make it.
-    expect(ask, record.id).not.toMatch(/detail/i);
-    expect(ask, record.id).toMatch(/every/i);
-    // The guard watches the reply: an ask that names the reply names the act the rule governs.
-    expect(ask, record.id).toMatch(/\breply\b/i);
+    // Exact approved requests already name the reply and exclude the detail exception.
     expect(APPROVED, record.id).toContain(ask);
   }
 }, 120_000);

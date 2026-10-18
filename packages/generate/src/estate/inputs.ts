@@ -1,3 +1,4 @@
+import type { ReplyActEvidence, ReplyActId } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 
 /**
@@ -62,6 +63,8 @@ export type EstateAtom = {
   title: string;
   approved: boolean;
   situation?: string;
+  /** The approved reply action and the recorded output segment that must witness it. */
+  replyAct?: { id: ReplyActId; evidence: ReplyActEvidence };
   evidence: EstateEvidence[];
   /** Approved map guard IDs that enforce this atom. */
   enforcement?: string[];

@@ -172,8 +172,11 @@ describe('the affected gen.complete items', { timeout: 120_000 }, () => {
       const verdicts = await genCompleteFamily().evaluate(1);
       expect(verdicts.get('gen.complete.obligation-instruction-script')).toMatchObject({
         pass: false,
-        detail: expect.stringMatching(/fails on the rule follower:.*custom\.some_call/),
+        detail: expect.stringContaining('fails on the rule follower:'),
       });
+      expect(verdicts.get('gen.complete.obligation-instruction-script')?.detail).toContain(
+        'custom.some_call',
+      );
     } finally {
       mock.mockRestore();
     }

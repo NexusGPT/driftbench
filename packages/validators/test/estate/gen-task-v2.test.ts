@@ -297,7 +297,9 @@ describe('an ask with no source, a wrong record or a restated rule is rejected',
     const real = base();
     const link = { ...(metaOf(real).link as Meta), span: 'skill.invoice-reconcile.skill-invoice-reconcile' };
     const other = await plant(real, 'other-link', { meta: { link } });
-    expect(checkAsk(other, env).reasons.join(' ')).toMatch(/row tests|fingerprint/);
+    expect(checkAsk(other, env).reasons).toContain(
+      `the link names ${link.span}, the row tests ${real.atoms[0]}`,
+    );
     const act = await plant(real, 'lower-act', { meta: { act: { kind: 'reply' } } });
     const expected = actOfAtom(env.byId.get(String((metaOf(real).link as Meta).span)) as never, env.atoms);
     if (expected.kind !== 'reply') expect(checkAsk(act, env).reasons.join(' ')).toContain('the spec says');

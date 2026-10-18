@@ -1,9 +1,11 @@
 /** Exhaustive generation and recorded-trace diagnostics on the fictional fixture only. */
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import type { Observed } from '@agent-nexus/driftbench-core';
 import { parse } from 'yaml';
 import { fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
-import { checkAsk } from '../../src/ladders/estate/bank/task-check';
+import { checkAsk, checkTrace } from '../../src/ladders/estate/bank/task-check';
+import { observeOnFake } from '../../src/ladders/estate/bank/task-trace';
 import { envOfSuite, judgeSpecs, TASK_TYPES } from '../../src/ladders/estate/bank/taskv2';
 
 const output = resolve(process.argv[2] ?? '/tmp/astra-askwords-fixture-gaps.json');
@@ -54,10 +56,50 @@ const ready = suite.specs.filter(
     (TASK_TYPES as readonly string[]).includes(spec.testType) &&
     checkAsk(spec, env).reasons.length === 0,
 );
+const needs = new Map(ready.map((spec) => [spec.id, checkAsk(spec, env).trace]));
+const observed = new Map<string, Observed>();
 let traceResults: Array<{ id: string; testType: string; reasons: string[] }>;
 let traceExecutionError: string | undefined;
 try {
-  traceResults = staticOnly ? [] : await judgeSpecs(ready, env);
+  traceResults = staticOnly
+    ? []
+    : await judgeSpecs(ready, env, async (paths) => {
+        for (let offset = 0; offset < paths.length; offset += 20) {
+          const batch = await observeOnFake(paths.slice(offset, offset + 20));
+          for (const [id, trace] of batch) observed.set(id, trace);
+          const completed = ready.slice(0, Math.min(offset + 20, paths.length)).map((spec) => {
+            const need = checkAsk(spec, env).trace;
+            return {
+              id: spec.id,
+              reason: need
+                ? (checkTrace(need, observed.get(spec.id)) ?? null)
+                : 'no static trace requirement',
+            };
+          });
+          await writeFile(
+            `${output}.partial`,
+            `${JSON.stringify(
+              {
+                complete: false,
+                population: staticAsks.length,
+                staticFailures: staticAsks.filter((entry) => entry.reasons.length > 0),
+                completed,
+                remaining: paths.length - completed.length,
+              },
+              null,
+              2,
+            )}\n`,
+          );
+          console.log(
+            JSON.stringify({
+              traced: completed.length,
+              total: paths.length,
+              passed: completed.filter((entry) => entry.reason === null).length,
+            }),
+          );
+        }
+        return observed;
+      });
 } catch (error) {
   traceExecutionError = error instanceof Error ? error.message : String(error);
   traceResults = ready.map((spec) => ({
@@ -71,6 +113,9 @@ const traced = traceResults.map((entry) => ({
   row: staticAsks.find((ask) => ask.spec === entry.id)?.row ?? null,
   testType: entry.testType,
   reasons: entry.reasons,
+  expectedAct: needs.get(entry.id)?.act,
+  recordedReplyAct: observed.get(entry.id)?.replyAct ?? null,
+  recordedGuards: observed.get(entry.id)?.runtime?.guards ?? [],
 }));
 const artifact = {
   fixture: 'examples/estates/fixture',

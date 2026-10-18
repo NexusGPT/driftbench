@@ -17,11 +17,17 @@ it('uses actual fake traces for an unlisted helper verb, a wrong act, and the re
     (atom) => atom.id === 'guard.settings.userpromptsubmit-guard-stop-word-sh',
   );
   const helper = map.map.atoms.find((atom) => atom.id === 'subagent.inbox-triager.helper-inbox-triager');
-  if (!guard || !helper) throw new Error('fixture acts missing');
+  const report = map.map.atoms.find((atom) => atom.id === 'stage.steps.stage-plan-restate-the-ask-and');
+  const clarify = map.map.atoms.find(
+    (atom) => atom.id === 'instruction.standing.never-invent-order-numbers-prices-or',
+  );
+  if (!guard || !helper || !report || !clarify) throw new Error('fixture acts missing');
   const cases = [
     { id: 'unlisted', ask: 'Delegate `inbox-triager`.', unit: helper, pass: true },
     { id: 'wrong', ask: 'Please report the inventory.', unit: helper, pass: false },
     { id: 'guard-recording-gap', ask: 'stop', unit: guard, pass: false },
+    { id: 'unlisted-reply', ask: 'Berthify the vessel.', unit: report, pass: true },
+    { id: 'wrong-reply', ask: 'Please report the inventory.', unit: clarify, pass: false },
   ];
   const env = envOf(
     map.map.atoms,
@@ -56,7 +62,9 @@ it('uses actual fake traces for an unlisted helper verb, a wrong act, and the re
             expect:
               unit.kind === 'guard'
                 ? { guards: [{ name: 'stop-word.sh', verdict: 'nudge', count: { min: 1 } }] }
-                : { subagents: [{ name: 'inbox-triager', count: { min: 1 } }] },
+                : unit.kind === 'subagent'
+                  ? { subagents: [{ name: 'inbox-triager', count: { min: 1 } }] }
+                  : {},
           },
         ],
         metadata: {
@@ -87,6 +95,12 @@ it('uses actual fake traces for an unlisted helper verb, a wrong act, and the re
       expect(verdict.reasons, spec.id).toEqual([]);
       expect(verdict.trace).toBeDefined();
       expect(traces.get(spec.id), spec.id).toBeDefined();
+      if (cases[index]?.id === 'unlisted-reply' || cases[index]?.id === 'wrong-reply') {
+        const trace = traces.get(spec.id);
+        expect(trace?.replyAct?.id).toBe('report');
+        const segment = trace?.segments[trace?.replyAct?.evidence.index ?? -1];
+        expect(segment?.type).toBe('text');
+      }
       if (cases[index]?.id === 'guard-recording-gap') {
         expect(traces.get(spec.id)?.runtime?.guards).toContainEqual(
           expect.objectContaining({ name: 'stop-word.sh', verdict: 'allow' }),

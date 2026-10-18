@@ -9,7 +9,8 @@ import type { EstateAtom } from './inputs';
  * - `link`: the rule unit the ask exercises. `span` is the map atom id (the ledger unit id once the pointer
  *   reader lands) and `fp` its fingerprint when the ask was written.
  * - `act`: what the unit makes the agent do or not do, as the runtime shows it: a tool call, a guard that
- *   fires, a file read, a skill or a helper loaded. A unit whose act no trace shows is a `reply`.
+ *   fires, a file read, a skill or a helper loaded. A reply has its declared action ID; a nameless reply
+ *   is an unresolved fallback and provides no proof that an action occurred.
  * - `from`: where the ask text came from: an approved bank phrase, a recorded session, a fixed neutral ask, or
  *   a named form of the generator over a field of an atom.
  *
@@ -85,6 +86,8 @@ export function linkOf(atom: EstateAtom): LinkRecord {
 /** The act of a unit, from its evidence and fields. `owner` is the skill or helper that carries a rule. */
 export function actRecord(atom: EstateAtom, owner?: EstateAtom): ActRecord {
   const fields = atom.fields ?? {};
+  const reply = (): ActRecord =>
+    atom.replyAct ? { kind: 'reply', name: atom.replyAct.id } : { kind: 'reply' };
   switch (atom.kind) {
     case 'guard': {
       const name = text(fields.name);
@@ -96,9 +99,13 @@ export function actRecord(atom: EstateAtom, owner?: EstateAtom): ActRecord {
       let after: string | undefined;
       for (const entry of atom.evidence)
         if (entry.type === 'ordered' && after === undefined) after = entry.after;
-      return after !== undefined && TOOL_LABEL.test(after)
-        ? { kind: 'call', name: after }
-        : { kind: 'reply' };
+      if (after === undefined || !TOOL_LABEL.test(after)) return reply();
+      const order = fields.order;
+      const target =
+        after === 'Bash' && typeof order === 'object' && order !== null && !Array.isArray(order)
+          ? text((order as Record<string, unknown>).after)
+          : undefined;
+      return { kind: 'call', name: after, ...(target !== undefined ? { target } : {}) };
     }
     case 'reference': {
       const path = text(fields.path);
@@ -126,8 +133,11 @@ export function actRecord(atom: EstateAtom, owner?: EstateAtom): ActRecord {
       const name = text(owner?.fields?.name);
       return owner && name
         ? { kind: 'owned', name, target: owner.kind === 'subagent' ? 'helper' : 'skill' }
-        : { kind: 'reply' };
+        : reply();
     }
+    case 'stage':
+    case 'hazard':
+      return reply();
     default:
       return { kind: 'reply' };
   }

@@ -1,5 +1,5 @@
-import type { Observed } from '@agent-nexus/driftbench-core';
-import type { Atom } from '@agent-nexus/driftbench-estate';
+import { type Observed, ObservedReplyAct } from '@agent-nexus/driftbench-core';
+import { type Atom, ReplyActDeclaration } from '@agent-nexus/driftbench-estate';
 import {
   ASK_FORMS,
   declaredAskOf,
@@ -89,6 +89,7 @@ export type TraceNeed = {
   spans: string[];
   unit: string;
   evidence: Atom['evidence'];
+  replyAct?: Atom['replyAct'];
 };
 export type AskVerdict = { reasons: string[]; trace?: TraceNeed };
 
@@ -112,16 +113,17 @@ export function firstAskOf(spec: SuiteSpec): string {
 const sameAct = (a: Act, b: Act): boolean =>
   a.kind === b.kind && a.name === b.name && a.target === b.target && a.verdict === b.verdict;
 
-function replyEvidenceSupported(evidence: Atom['evidence']): boolean {
-  return (
-    evidence.some((entry) => entry.type === 'text' && entry.must?.some((part) => part.trim() !== '')) &&
-    evidence.every(
-      (entry) =>
-        entry.type === 'text' &&
-        entry.lang === undefined &&
-        [...(entry.must ?? []), ...(entry.mustNot ?? [])].every((part) => part.trim() !== ''),
-    )
-  );
+/** A semantic label proves an act only when its recorded evidence binds an actual output segment. */
+function boundReplyAct(observed: Observed): ObservedReplyAct | undefined {
+  const parsed = ObservedReplyAct.safeParse(observed.replyAct);
+  if (!parsed.success) return undefined;
+  const segment = observed.segments?.[parsed.data.evidence.index];
+  return segment?.type === 'text' && segment.text.trim() !== '' ? parsed.data : undefined;
+}
+
+function replyEvidenceSupported(act: Act, declaration: Atom['replyAct']): boolean {
+  const parsed = ReplyActDeclaration.safeParse(declaration);
+  return parsed.success && act.name === parsed.data.id;
 }
 
 export function spansOf(ask: string): string[] {
@@ -156,6 +158,31 @@ function pieceReasons(
   if (rebuilt === undefined) return [`the frame ${frame} and the shape ${shape} are not the generator's`];
   if (rebuilt !== ask) return ['the ask is not what its frame, shapes and pieces give'];
   const reasons: string[] = [];
+  if (frame === VERBATIM && !(cited.fields?.event === 'UserPromptSubmit' && declaredAskOf(cited, env.atoms)))
+    reasons.push('only a declared user prompt is its own act');
+  if (from.form === 'structured ask') {
+    const declared = declaredAskOf(cited, env.atoms);
+    const takesContext =
+      frame === 'trigger' || frame === 'twin' || frame === 'pressure' || /^variant_\d+$/.test(frame);
+    const expectedContext = frame !== VERBATIM && takesContext ? declared?.context : undefined;
+    const expectedPieces = declared
+      ? [declared.text, ...(expectedContext !== undefined ? [expectedContext] : [])]
+      : [];
+    if (
+      !declared ||
+      shape !== SLOT ||
+      context !== (expectedContext === undefined ? undefined : SLOT) ||
+      list.length !== expectedPieces.length ||
+      list.some((piece, index) => piece !== expectedPieces[index])
+    )
+      reasons.push('the structured ask pieces differ from its complete map declaration');
+    for (const piece of list)
+      if (!isClauseOf(piece, fieldsOf(cited)))
+        reasons.push(`the piece "${piece}" is no whole clause of the text of ${cited.id}`);
+    return reasons;
+  }
+  if (from.form !== 'structured act' && from.form !== 'tool' && from.form !== 'hazard')
+    return ['the legacy prose form supplies no structured task declaration'];
   if (from.form === 'structured act') {
     const act = actOfAtom(cited, env.atoms);
     let canonical: { shape: string; pieces: string[] } | undefined;
@@ -199,8 +226,6 @@ function pieceReasons(
   } else if (bare && !(from.form === 'hazard' && shape === HAZARD_FRAME)) {
     reasons.push('a code-written ask holds nothing written from its source');
   }
-  if (frame === VERBATIM && !(cited.fields?.event === 'UserPromptSubmit' && declaredAskOf(cited, env.atoms)))
-    reasons.push('only a declared user prompt is its own act');
   if (from.form === 'hazard' && shape !== HAZARD_FRAME && shape !== `${HAZARD_FRAME}, after ${SLOT}`)
     reasons.push('a hazard ask without its declared frame');
   const fields: Field[] = [];
@@ -263,8 +288,11 @@ export function checkAsk(spec: SuiteSpec, env: AskEnv): AskVerdict {
       `the act of ${unit.id} is ${JSON.stringify(expected)}, the spec says ${JSON.stringify(written)}`,
     );
 
-  if (expected.kind === 'reply' && !replyEvidenceSupported(unit.evidence))
-    reasons.push('the map supplies no supported positive reply witness');
+  if (expected.kind === 'call' && !callEvidenceSupported(expected))
+    reasons.push('the map supplies no concrete supported call input');
+
+  if (expected.kind === 'reply' && !replyEvidenceSupported(expected, unit.replyAct))
+    reasons.push('the map supplies no supported reply act declaration');
 
   // C3: the source of the ask.
   const from = record(meta.from);
@@ -336,6 +364,7 @@ export function checkAsk(spec: SuiteSpec, env: AskEnv): AskVerdict {
           spans,
           unit: unit.id,
           evidence: unit.evidence,
+          ...(unit.replyAct ? { replyAct: unit.replyAct } : {}),
         }
       : undefined;
   return { reasons, ...(trace ? { trace } : {}) };
@@ -343,17 +372,34 @@ export function checkAsk(spec: SuiteSpec, env: AskEnv): AskVerdict {
 
 const normalPath = (path: string): string => path.replace(/^\.\//, '').replaceAll('\\', '/');
 
+/** A tool label alone cannot identify the requested operation. */
+function callEvidenceSupported(act: Act): boolean {
+  return act.name === 'Bash' && typeof act.target === 'string' && act.target.trim() !== '';
+}
+
 /** Whether the trace of a run shows the act. */
-export function shows(act: Act, observed: Observed, evidence: Atom['evidence'] = []): boolean {
+export function shows(
+  act: Act,
+  observed: Observed,
+  evidence: Atom['evidence'] = [],
+  replyAct?: Atom['replyAct'],
+): boolean {
   const calls = observed.toolCalls ?? [];
   const runtime = observed.runtime;
-  const inputText = (input: unknown): string => JSON.stringify(input ?? {});
   switch (act.kind) {
-    case 'call':
-      return calls.some(
-        (call) =>
-          call.label === act.name && (act.target === undefined || inputText(call.input).includes(act.target)),
-      );
+    case 'call': {
+      if (!callEvidenceSupported(act)) return false;
+      const target = act.target as string;
+      const ordered = evidence.some((entry) => entry.type === 'ordered' && entry.after === act.name);
+      return calls.some((call) => {
+        const command = record(call.input)?.command;
+        return (
+          call.label === act.name &&
+          typeof command === 'string' &&
+          (command === target || (!ordered && command.startsWith(`${target} `)))
+        );
+      });
+    }
     case 'read': {
       const target = normalPath(act.target ?? '');
       const reads = [
@@ -392,21 +438,15 @@ export function shows(act: Act, observed: Observed, evidence: Atom['evidence'] =
       );
     }
     case 'reply': {
-      // The map supplies reply evidence. Absence-only rules or an unregistered custom check cannot prove
-      // which reply act happened; their missing witness is a failure, not a generic text-presence pass.
-      const positive = evidence.some(
-        (entry) => entry.type === 'text' && entry.must?.some((part) => part.trim() !== ''),
-      );
-      if (!positive || evidence.length === 0) return false;
-      const text = observed.text.toLocaleLowerCase();
-      return evidence.every(
-        (entry) =>
-          entry.type === 'text' &&
-          entry.lang === undefined &&
-          (entry.must ?? []).every((part) => part.trim() !== '' && text.includes(part.toLocaleLowerCase())) &&
-          (entry.mustNot ?? []).every(
-            (part) => part.trim() !== '' && !text.includes(part.toLocaleLowerCase()),
-          ),
+      const declaration = ReplyActDeclaration.safeParse(replyAct);
+      const label = boundReplyAct(observed);
+      return (
+        declaration.success &&
+        label !== undefined &&
+        act.name === declaration.data.id &&
+        label.id === declaration.data.id &&
+        label.evidence.type === declaration.data.evidence.type &&
+        label.evidence.part === declaration.data.evidence.part
       );
     }
     default:
@@ -416,9 +456,13 @@ export function shows(act: Act, observed: Observed, evidence: Atom['evidence'] =
 
 export function checkTrace(need: TraceNeed, observed: Observed | undefined): string | undefined {
   if (!observed) return 'the fake did not run the ask';
-  if (need.act.kind === 'reply' && !replyEvidenceSupported(need.evidence))
-    return 'the map supplies no supported positive reply witness';
-  const shown = shows(need.act, observed, need.evidence);
+  if (need.act.kind === 'call' && !callEvidenceSupported(need.act))
+    return 'the map supplies no concrete supported call input';
+  if (need.act.kind === 'reply' && !replyEvidenceSupported(need.act, need.replyAct))
+    return 'the map supplies no supported reply act declaration';
+  if (need.act.kind === 'reply' && !boundReplyAct(observed))
+    return 'the trace supplies no valid reply act bound to a text segment';
+  const shown = shows(need.act, observed, need.evidence, need.replyAct);
   if (need.control) return shown ? 'a control shows the act' : undefined;
   return shown ? undefined : `the trace of the fake does not show the act ${JSON.stringify(need.act)}`;
 }

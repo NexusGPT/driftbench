@@ -303,6 +303,18 @@ $ pnpm -s driftbench estate approve examples/estates/fixture/approved.yaml
 examples/estates/fixture/approved.yaml: all 125 atoms are approved.
 ```
 
+### Declaring a reply act
+
+An atom whose generated task requires a reply declares optional top-level `replyAct`. Its `id` is one of `answer`, `clarify`, `refuse`, `report`, `draft` or `acknowledge`. Its strict `evidence` object is `{ type: text_segment, part: reply }` or `{ type: text_segment, part: draft }`. The declaration describes the intended act; it is not proof that the agent performed it.
+
+The prose proposer supplies a declaration only when the quoted requirement supports that act. It also supplies a complete `ask: { text, context? }` for the intended task. Acceptance stores that request in `fields.ask`, bound to `{ kind: reply, name: <replyAct.id> }`; it never fills a missing request from the quote or title. New proposals remain unapproved. Old maps and recorded proposal answers without this field still load. A reply check with no declaration fails closed; the validator never derives an act from English words or treats nonempty text as proof.
+
+Recorded reply evidence comes from the reporting adapter or a declared judge. It names the closed act ID, output part and index of the actual text segment, together with its source. Validation requires the declared act and output part to match that recorded observation. A missing, invalid or differently labelled segment fails the check. The map, generated ask and expected outcome cannot label their own observation.
+
+An existing code-derived atom can receive these semantic declarations only when kind, file, both source lines and quote match exactly. Its ID, provenance, title, evidence and other fields are preserved. The enriched atom becomes `producedBy: model` and `approved: false`, so a person reviews the semantic addition. Existing semantic declarations are never overwritten by duplicate proposals. Stage and hazard proposals can enrich exact existing atoms only; they cannot create new stage or hazard IDs.
+
+Only an otherwise derived reply from an instruction, register rule, gate, stage or hazard uses this declaration. Adding it to a malformed guard, route or reference does not replace that atom's missing structured action. Existing evidence predicates and outcome checks still apply.
+
 ## 2. Relations: the estate graph
 
 Edges, decided by code:

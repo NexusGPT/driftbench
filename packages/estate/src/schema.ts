@@ -1,3 +1,4 @@
+import { ReplyActEvidence, ReplyActId } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 
 /**
@@ -169,6 +170,15 @@ export const EvidencePredicate = z.discriminatedUnion('type', [
 ]);
 export type EvidencePredicate = z.infer<typeof EvidencePredicate>;
 
+/** The intended reply act and output part; the runtime separately records its observed segment. */
+export const ReplyActDeclaration = z.strictObject({
+  id: ReplyActId.describe('The intended semantic reply act, chosen from the closed core IDs.'),
+  evidence: ReplyActEvidence.describe(
+    'The output part whose actual text segment must carry the recorded act.',
+  ),
+});
+export type ReplyActDeclaration = z.infer<typeof ReplyActDeclaration>;
+
 export const Atom = z.strictObject({
   id: z.string().min(1).describe('Stable id: kind, file and a slug of the quote'),
   kind: AtomKind.describe('The kind of place the atom comes from, which sets its mandatory test types.'),
@@ -188,6 +198,9 @@ export const Atom = z.strictObject({
     .default(false)
     .describe('Whether the atom is approved; only approved atoms enter the space map and the plan.'),
   situation: z.string().optional().describe('When the atom applies, in words; empty means always'),
+  replyAct: ReplyActDeclaration.optional().describe(
+    'The source-backed intended reply act; optional for old maps, required when validating a reply task.',
+  ),
   evidence: z
     .array(EvidencePredicate)
     .min(1)

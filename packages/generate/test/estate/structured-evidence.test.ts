@@ -48,8 +48,8 @@ describe('estate generation reads declared evidence instead of English vocabular
     expect(materialOf('Unlisted `one.md`. Unlisted `two.md`.')).toEqual(['one.md', 'two.md']);
   });
   it('fails a quote-only guard fixture closed despite a recognized prohibition verb', () => {
-    expect(unit(atom({ provenance: { quote: 'Never remove `garden/`.' } }))).toMatch(
-      /structured unit payload/,
+    expect(unit(atom({ provenance: { quote: 'Never remove `garden/`.' } }))).toContain(
+      'structured unit payload',
     );
   });
   it('builds exact guard input from map evidence even when the quote uses an unknown verb', () => {
@@ -129,7 +129,7 @@ describe('estate generation reads declared evidence instead of English vocabular
     expect(thenOf([rule], 'positive', { ...context, judge: true }).gaps[0]?.detail).toContain('declared');
   });
   it('requires structured ordering anchors and preserves the complete declared command', () => {
-    expect(anchorPair('Read', 'Write', context, {}, 'Read a file before you edit it.')).toMatch(/declared/);
+    expect(anchorPair('Read', 'Write', context, {}, 'Read a file before you edit it.')).toContain('declared');
     expect(anchorPair('Read', 'Write', context, { order: { key: 'file_path' } })).toEqual({
       before: 'Read',
       after: 'Write',

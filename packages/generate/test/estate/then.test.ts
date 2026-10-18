@@ -172,8 +172,8 @@ describe('each evidence predicate as an existing check', () => {
   });
 
   it('refuses a pair whose end is prose, or whose two ends are the same label', () => {
-    expect(anchorPair('Read', 'matching any line', ctx)).toMatch(/"matching any line" is no tool label/);
-    expect(anchorPair('Bash', 'Bash', ctx)).toMatch(/both ends are Bash/);
+    expect(anchorPair('Read', 'matching any line', ctx)).toContain('"matching any line" is no tool label');
+    expect(anchorPair('Bash', 'Bash', ctx)).toContain('both ends are Bash');
     const then = thenOf([atom('g', [{ type: 'ordered', before: 'Bash', after: 'Bash' }])], 'positive', ctx);
     expect(then.ordered).toEqual([]);
     expect(then.gaps.map((entry) => entry.marker)).toEqual([MARKERS.anchor]);

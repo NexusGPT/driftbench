@@ -4,6 +4,8 @@ The authored input is `examples/estates/fixture/approved.yaml`. Northwind and ev
 
 ## Existing schema and identity
 
+The schema and map-build line anchors in this section refer to the stacked baseline before the reply-act schema addition. Source citations elsewhere identify the fictional requirement passages.
+
 - `packages/estate/src/schema.ts:199` declares `Atom.fields` as an optional `z.record(z.string(), z.unknown())` for kind-specific structure.
 - `packages/estate/src/schema.ts:164` declares custom evidence `options` as an optional `z.record(z.string(), z.unknown())`.
 - `fields.order` and `fields.unitCases` use that existing map extension point. Their operational contracts are implemented in `packages/generate/src/estate/then.ts` and `unit.ts` respectively.
@@ -26,9 +28,9 @@ Each row names an exact atom ID. “Absent” means the named structured field w
 
 ## Explicit fictional request declarations
 
-The following atoms had no `fields.ask` object. Each now declares the full request text, optional context and exact map act shown below. Their cited source requirements remain unchanged. These authored requests exercise those requirements; they do not replace their assertions or weaken their outcomes.
+The following table records the original request additions before the typed `replyAct` migration. These atoms had no `fields.ask` object. It preserves the original task text, optional context and then-current map act for review. Their cited source requirements remain unchanged. These authored requests exercise those requirements; they do not replace their assertions or weaken their outcomes.
 
-All declarations use the existing `Atom.fields` record at `packages/estate/src/schema.ts:199`. The operational shape is `{ text, act, context? }`. Reply acts use `{ kind: reply }`; guard acts carry the exact map guard name and verdict. Validators re-render the ask from this declaration and require its act in the recorded trace.
+All request declarations use the existing `Atom.fields` record at baseline `packages/estate/src/schema.ts:199`. The operational shape is `{ text, act, context? }`. The historical table shows unnamed reply acts; current reply declarations carry `{ kind: reply, name: <replyAct.id> }` and the top-level typed `replyAct` described below. Guard acts retain their exact map name and verdict. Validators re-render each ask and require its declared act in the recorded trace.
 
 | Atom ID | Added request text | Added context | Added act | Source requirement |
 | --- | --- | --- | --- | --- |
@@ -58,9 +60,47 @@ All declarations use the existing `Atom.fields` record at `packages/estate/src/s
 
 The six route atoms already carry complete request strings in `fields.ask`, written by the route-table parser. The generator now uses those structured request cells with each route's independently derived act. Their source values are unchanged; no word extraction supplies an ask.
 
+## Typed reply-act declarations
+
+The map now has optional top-level `Atom.replyAct`, separate from `fields.ask`. `ReplyActDeclaration` uses the core closed `ReplyActId` values `answer`, `clarify`, `refuse`, `report`, `draft` and `acknowledge`, with `ReplyActEvidence: { type: text_segment, part: reply | draft }`. Neither object accepts additional fields. This is an additive schema field: older maps and proposal recordings still load without it, while reply validation requires it.
+
+The prose proposer emits the intended reply act when supported by the quoted requirement and preserves it through atom building. Its optional `ask: { text, context? }` becomes `fields.ask` with the exact reply act ID. An ask without a reply declaration is refused; absent requests are never inferred. New proposals remain unapproved. A declaration is honored only when the atom independently derives a reply act and belongs to instruction, register, gate, stage or hazard. It cannot turn a malformed guard, route or reference into a reply.
+
+An existing code-derived atom can receive these semantic declarations only when kind, file, both source lines and quote match exactly. Its ID, provenance, title, evidence and other fields are preserved. The enriched atom becomes `producedBy: model` and `approved: false`, so a person reviews the semantic addition. Existing semantic declarations are never overwritten by duplicate proposals. Stage and hazard proposals can enrich exact existing atoms only; they cannot create new stage or hazard IDs.
+
+A reporting adapter or declared judge records the observed reply act and binds its evidence to an actual text-segment index. The validator compares the declared act and output part to that observation. It does not infer semantic labels from words, use a generic nonempty reply as proof, or copy expected metadata into observed evidence. All existing evidence predicates remain required.
+
+### Fictional source migration coverage
+
+The source migration audit enumerates these map declarations:
+
+| Map | Reply-act declarations |
+| --- | ---: |
+| `examples/estates/fixture/map.yaml` | 34 |
+| `examples/estates/fixture/approved.yaml` | 34 |
+| `examples/estates/fixture-v2/map.yaml` | 35 |
+| `examples/estates/reader-cases/map.yaml` | 15 |
+| `examples/estates/reader-cases/approved.yaml` | 15 |
+
+These files contain 133 declarations across 44 distinct atom IDs. Every migrated request carries its named reply act. Existing evidence, provenance and IDs are retained.
+
+The replay fixtures retain source-backed reply declarations and full task requests. Stage declarations in `.claude/steps.json` remain authored map inputs because that structural file has no prose replay chunk. A declaration whose semantic act the runtime cannot record remains a trace failure; the source migration does not manufacture an observation.
+
 ## Source contracts
 
 `fields.order.before` and `.after` are complete anchors for different calls of the same tool. `fields.order.key` binds both calls to one input value. A Read ordering requirement without a path or a shared key stays incomplete.
+
+The authored git-gate order above also appears in `examples/estates/fixture/map.yaml` and `examples/estates/fixture-v2/map.yaml`. Both receive the approved fixture's exact `{ before: git status, after: git commit }` declaration. The generator can therefore construct the successor Bash call from `after` in all three maps without reading the trigger text.
+
+The successor-input audit leaves these three atom IDs unresolved in each of those three maps, for nine source gaps:
+
+| Atom ID | Missing successor evidence | Existing prerequisite evidence |
+| --- | --- | --- |
+| `gate.standing.read-claude-skills-invoice-reconcile-references` | The target and exact input of the successor `Edit` call | Read `.claude/skills/invoice-reconcile/references/matching-rules.md` |
+| `gate.weekly-report.read-templates-report-md-before-writing` | The target and exact input of the successor `Write` call | Read `.claude/skills/weekly-report/templates/report.md` |
+| `gate.standing.read-a-file-before-editing-it` | A concrete successor `Edit` input | An ordering relation between Read and Edit |
+
+A prerequisite reference or template path does not declare the file to edit or write. These cases remain incomplete; the generator does not reuse the prerequisite path as the successor target. An explicit successor tool input would resolve the missing source evidence.
 
 `fields.unitCases` contains `{ effect, material, tool?, input? }`. `effect` is `forbid` or `allow`. A tool event declares its tool ID; `input`, when supplied, is the exact tool input. These records generate payloads; they do not classify source prose. Every enforced rule must supply an executable payload or typed evidence from which one can be built.
 

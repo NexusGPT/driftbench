@@ -1,37 +1,93 @@
+import { Count } from '@agent-nexus/driftbench-core';
 import type { EstateAtom } from './inputs';
 
-export type RecoveryCall = { label: string; input: Record<string, unknown> };
+export type RecoveryCall = { label: string; input: Record<string, unknown>; count?: Count };
 export type RecoveryAction = {
   reread: string[];
   calls: RecoveryCall[];
   retry: boolean;
   /** A declared recovery target that has no executable path. */
   unpathed: string[];
+  /** Malformed source entries remain hard gaps even beside valid requirements. */
+  invalid?: string[];
 };
 
 /** Recovery comes from the map's typed declaration, never inferred from source wording. */
 export function recoveryAction(atom: EstateAtom, atoms?: ReadonlyMap<string, EstateAtom>): RecoveryAction {
-  const raw = atom.fields?.recovery;
-  const declaration =
-    typeof raw === 'object' && raw !== null && !Array.isArray(raw) ? (raw as Record<string, unknown>) : {};
-  const strings = (value: unknown): string[] =>
-    Array.isArray(value)
-      ? [...new Set(value.filter((item): item is string => typeof item === 'string' && item.trim() !== ''))]
-      : [];
-  const calls = Array.isArray(declaration.calls)
-    ? declaration.calls.filter((call): call is RecoveryCall => {
-        if (typeof call !== 'object' || call === null) return false;
-        const value = call as Record<string, unknown>;
-        return (
-          typeof value.label === 'string' &&
-          value.label.trim() !== '' &&
-          typeof value.input === 'object' &&
-          value.input !== null &&
-          !Array.isArray(value.input)
-        );
-      })
-    : [];
-  const reread = strings(declaration.reread);
+  const reread: string[] = [];
+  const calls: RecoveryCall[] = [];
+  const unpathed: string[] = [];
+  const invalid: string[] = [];
+  let retry = false;
+  const declarations: Array<{ path: string; value: unknown }> = [];
+  // Keep the historical options-before-fields order of emitted requirements.
+  atom.evidence.forEach((evidence, index) => {
+    if (evidence.type === 'custom' && evidence.name === 'hazard_recovery' && evidence.options !== undefined)
+      declarations.push({ path: `evidence[${index}].options`, value: evidence.options });
+  });
+  if (atom.fields?.recovery !== undefined)
+    declarations.push({ path: 'fields.recovery', value: atom.fields.recovery });
+  const strings = (value: unknown, path: string, target: string[]) => {
+    if (value === undefined) return;
+    if (!Array.isArray(value)) {
+      invalid.push(`${path}: expected an array`);
+      return;
+    }
+    value.forEach((entry, index) => {
+      if (typeof entry !== 'string' || entry.trim() === '')
+        invalid.push(`${path}[${index}]: expected a nonempty string`);
+      else if (!target.includes(entry)) target.push(entry);
+    });
+  };
+  for (const { path, value } of declarations) {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+      invalid.push(`${path}: expected an object`);
+      continue;
+    }
+    const declaration = value as Record<string, unknown>;
+    strings(declaration.reread, `${path}.reread`, reread);
+    strings(declaration.unpathed, `${path}.unpathed`, unpathed);
+    if (declaration.retry === true) retry = true;
+    else if (declaration.retry !== undefined && declaration.retry !== false)
+      invalid.push(`${path}.retry: expected a boolean`);
+    if (declaration.calls === undefined) continue;
+    if (!Array.isArray(declaration.calls)) {
+      invalid.push(`${path}.calls: expected an array`);
+      continue;
+    }
+    declaration.calls.forEach((entry, index) => {
+      const at = `${path}.calls[${index}]`;
+      if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
+        invalid.push(`${at}: expected a call object`);
+        return;
+      }
+      const call = entry as Record<string, unknown>;
+      if (
+        typeof call.label !== 'string' ||
+        call.label.trim() === '' ||
+        typeof call.input !== 'object' ||
+        call.input === null ||
+        Array.isArray(call.input)
+      ) {
+        invalid.push(`${at}: expected a nonempty label and an input object`);
+        return;
+      }
+      if (call.count !== undefined) {
+        const parsed = Count.safeParse(call.count);
+        if (!parsed.success) {
+          invalid.push(`${at}.count: invalid call count`);
+          return;
+        }
+        const count = parsed.data;
+        const minimum = typeof count === 'number' ? count : (count.min ?? 0);
+        if (minimum <= 0 || (typeof count === 'object' && count.max !== undefined && count.max < minimum)) {
+          invalid.push(`${at}.count: expected a positive, consistent lower bound`);
+          return;
+        }
+      }
+      calls.push(entry as RecoveryCall);
+    });
+  }
   const sources = [
     atom,
     ...[...(atoms?.values() ?? [])].filter((candidate) => {
@@ -73,7 +129,8 @@ export function recoveryAction(atom: EstateAtom, atoms?: ReadonlyMap<string, Est
   return {
     reread,
     calls,
-    retry: declaration.retry === true,
-    unpathed: strings(declaration.unpathed),
+    retry,
+    unpathed,
+    ...(invalid.length > 0 ? { invalid } : {}),
   };
 }

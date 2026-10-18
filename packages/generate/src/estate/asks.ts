@@ -80,6 +80,8 @@ export function askClausesOf(atom: EstateAtom): string[] {
 export function declaredAskOf(atom: EstateAtom, estate: readonly EstateAtom[] = []): DeclaredAsk | undefined {
   const ask = atom.fields?.ask;
   const expected = actRecord(atom, owningUnit(estate, atom));
+  // A tool label alone cannot identify the action or its required input.
+  if (expected.kind === 'call' && (expected.name !== 'Bash' || !expected.target)) return undefined;
   // The route parser already records the whole request cell separately from its target.
   if (atom.kind === 'route' && nonempty(ask) && expected.kind !== 'reply')
     return { text: ask, act: expected };
@@ -136,14 +138,9 @@ export function structuredAskOf(
       pieces = [definition.target];
       break;
     case 'call':
-      if (!definition.name) return undefined;
-      if (definition.name === 'Bash' && definition.target) {
-        shape = STRUCTURED_ACT_SHAPES.command;
-        pieces = [definition.target];
-      } else {
-        shape = definition.target ? STRUCTURED_ACT_SHAPES.callTarget : STRUCTURED_ACT_SHAPES.call;
-        pieces = definition.target ? [definition.name, definition.target] : [definition.name];
-      }
+      if (definition.name !== 'Bash' || !definition.target) return undefined;
+      shape = STRUCTURED_ACT_SHAPES.command;
+      pieces = [definition.target];
       break;
     case 'guard': {
       const tool = matchedTool(atom);

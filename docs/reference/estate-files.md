@@ -16,6 +16,8 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 * [Atom](#atom)
 * [AtomKind](#atomkind)
 * [Provenance](#provenance)
+* [ReplyActDeclaration](#replyactdeclaration)
+* [ReplyActDeclaration evidence](#replyactdeclaration-evidence)
 * [EvidencePredicate](#evidencepredicate)
 * [Edge](#edge)
 * [EdgeKind](#edgekind)
@@ -95,6 +97,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 | `role` | `axis` or `detail` | no | `axis` | Axis puts the atom in the space map as a target; detail keeps it for the generator only. |
 | `approved` | boolean | no | `false` | Whether the atom is approved; only approved atoms enter the space map and the plan. |
 | `situation` | string | no |  | When the atom applies, in words; empty means always |
+| `replyAct` | [ReplyActDeclaration](#replyactdeclaration) | no |  | The source-backed intended reply act; optional for old maps, required when validating a reply task. |
 | `evidence` | list of [EvidencePredicate](#evidencepredicate), at least 1 item | yes |  | What a trace shows when the atom is obeyed, as at least one typed predicate. |
 | `enforcement` | list of strings | no | `[]` | Ids of guards or tests that already check it; empty means trusted |
 | `fields` | map of string to any value | no |  | Kind-specific structure read by code: a guard event, a tool schema, a brief field list |
@@ -127,6 +130,22 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 | `endLine` | integer, at least 1 | yes |  | Last line of the quote in the file, counted from 1. |
 | `quote` | string, not empty | yes |  | The exact text the atom is read from |
 | `hash` | string, not empty | yes |  | SHA-256 of the quote, the file and the span; a change here is a changed atom |
+
+## ReplyActDeclaration
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | one of `answer`, `clarify`, `refuse`, `report`, `draft`, `acknowledge` | yes |  | The intended semantic reply act, chosen from the closed core IDs. |
+| `evidence` | [ReplyActDeclaration evidence](#replyactdeclaration-evidence) | yes |  | The output part whose actual text segment must carry the recorded act. |
+
+## ReplyActDeclaration evidence
+
+The output part whose actual text segment must carry the recorded act.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `type` | `text_segment` | yes |  |  |
+| `part` | `reply` or `draft` | yes |  |  |
 
 ## EvidencePredicate
 

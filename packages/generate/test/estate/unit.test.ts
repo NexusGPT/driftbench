@@ -535,7 +535,7 @@ describe('the JSON run record of a helper run alone', () => {
   it('says why a helper with no agent file or no task has none', () => {
     expect(
       helperUnitTestOf({ ...helper, provenance: { quote: 'x' } }, { task: 'Go.', files: {} }, 'h', 'i', at),
-    ).toMatch(/no helper with an agent file/);
-    expect(helperUnitTestOf(helper, { task: '  ', files: {} }, 'h', 'i', at)).toMatch(/no task/);
+    ).toContain('no helper with an agent file');
+    expect(helperUnitTestOf(helper, { task: '  ', files: {} }, 'h', 'i', at)).toContain('no task');
   });
 });

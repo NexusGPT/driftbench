@@ -19,6 +19,7 @@ const atom = (over: Partial<Atom>): Atom =>
       quote: 'Harbour disposition',
       hash: 'harbour',
     },
+    replyAct: { id: 'report', evidence: { type: 'text_segment', part: 'reply' } },
     evidence: [{ type: 'text', must: ['BERTH-42'] }],
     ...over,
   }) as Atom;
@@ -31,6 +32,17 @@ const observed = (over: Partial<Observed> = {}): Observed =>
     latencyMs: 0,
     ...over,
   }) as Observed;
+const reply = (id: 'answer' | 'report'): Observed =>
+  observed({
+    text: 'BERTH-42',
+    segments: [{ type: 'text', text: 'BERTH-42' }],
+    replyAct: {
+      id,
+      evidence: { type: 'text_segment', part: 'reply', index: 0 },
+      source: { kind: 'adapter', name: 'fictional-harbour-adapter' },
+    },
+  });
+
 function planted(unit: Atom, ask: string) {
   const env = envOf(
     [unit],
@@ -102,23 +114,17 @@ describe('generated asks are held to their map act and recorded trace', () => {
     expect(need).toBeDefined();
     if (need) expect(checkTrace(need, undefined)).toBe('the fake did not run the ask');
   });
-  it('rejects a permitted verb whose reply does not show the map act', async () => {
-    expect(
-      await reasons(atom({}), 'Please report the warehouse total.', observed({ text: 'STOCK-7' })),
-    ).toEqual([expect.stringContaining('does not show the act')]);
+  it('rejects a permitted verb whose reply label identifies the wrong map act', async () => {
+    expect(await reasons(atom({}), 'Please report the warehouse total.', reply('answer'))).toEqual([
+      expect.stringContaining('does not show the act'),
+    ]);
   });
-  it('accepts an unlisted verb whose reply shows the map evidence', async () => {
-    expect(await reasons(atom({}), 'Please berthify the vessel.', observed({ text: 'BERTH-42' }))).toEqual(
-      [],
-    );
+  it('accepts an unlisted verb whose bound reply label shows the map act', async () => {
+    expect(await reasons(atom({}), 'Please berthify the vessel.', reply('report'))).toEqual([]);
   });
-  it('fails closed for a reply with no checkable map evidence', async () => {
+  it('fails closed for a reply with no declared map act even when its outcome text matches', async () => {
     expect(
-      await reasons(
-        atom({ evidence: [{ type: 'custom', name: 'unregistered' }] }),
-        'Please berthify the vessel.',
-        observed({ text: 'Done' }),
-      ),
+      await reasons(atom({ replyAct: undefined }), 'Please berthify the vessel.', reply('report')),
     ).not.toEqual([]);
   });
   it('does not let a control pass on an absent run', async () => {

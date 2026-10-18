@@ -354,7 +354,7 @@ describe('a reference to a navigation document is no test', () => {
   it('stays incomplete, and says so, when an older plan still holds the row', () => {
     const suite = run([{ path: '.claude/skills/stock/references/examples/count-014.md', role: 'example' }]);
     expect(suite.report.summary.complete).toBe(0);
-    expect(suite.report.incomplete[0]?.reasons[0]?.detail).toMatch(/navigation-only document/);
+    expect(suite.report.incomplete[0]?.reasons[0]?.detail).toContain('navigation-only document');
   });
 
   it('is a normal test when the map records the document as normative or records no roles', () => {
@@ -629,8 +629,7 @@ describe('the review of the guard and gate asks: no broken sentence from a prono
       situation: 'Before you discharge a patient',
       fields: { trigger: 'you discharge a patient', readWhen: 'x' },
     });
-    const text = codeAsk('trigger', [rule, clinic], []).text ?? '';
-    expect(text).not.toMatch(/involves discharge|involves you/);
+    expect(codeAsk('trigger', [rule, clinic], []).text).toBeUndefined();
   });
 
   it('never pastes imperative rules or their conditions into requests', () => {

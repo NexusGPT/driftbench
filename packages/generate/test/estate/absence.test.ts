@@ -216,7 +216,9 @@ describe('handwritten archive estates: typed absence compiles and kills the viol
           skills: new Set(),
           customChecks: new Set(),
         }),
-      ).toThrow(/Unknown estate evidence predicate.*command_forbidden/);
+      ).toThrow(
+        `Unknown estate evidence predicate "command_forbidden" in atom ${input(bad).map.atoms[0]?.id}`,
+      );
   });
   it('does not infer a predicate from arbitrary absence-like words', () => {
     for (const name of [
@@ -267,9 +269,9 @@ describe('handwritten archive estates: typed absence compiles and kills the viol
   it('fails clearly on an unknown runtime absence and on malformed options', () => {
     const ctx = { blockIndex: 0, observed: observed() } as CheckContext;
     expect(() => absence(ctx, { predicates: [{ type: 'unlisted_absence', name: 'x' }] })).toThrow(
-      /Unknown estate absence predicate/,
+      'Unknown estate absence predicate',
     );
-    expect(() => absence(ctx, { predicates: [{ type: 'file_not_written' }] })).toThrow(/requires path/);
-    expect(() => absence(ctx, { predicates: [] })).toThrow(/nonempty/);
+    expect(() => absence(ctx, { predicates: [{ type: 'file_not_written' }] })).toThrow('requires path');
+    expect(() => absence(ctx, { predicates: [] })).toThrow('nonempty');
   });
 });

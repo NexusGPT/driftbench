@@ -198,11 +198,15 @@ describe('planted estates', { timeout: 60_000 }, () => {
     const scan = await estate.scan();
     const result = estate.judge(scan, ['item']).get('item');
     expect(result?.pass).toBe(false);
-    expect(result?.detail).toMatch(
-      /found reference .* at \.claude\/skills\/tally\/SKILL\.md:6, never planted/,
+    const unplanted = scan.map.atoms.find(
+      (atom) => atom.kind === 'reference' && atom.provenance.startLine === 6,
     );
-    expect(result?.detail).toMatch(/missed the dispatch edge skill to route/);
-    expect(result?.detail).toMatch(/the planted check fails/);
+    expect(unplanted).toBeDefined();
+    expect(result?.detail).toContain(
+      `found reference ${unplanted?.id} at .claude/skills/tally/SKILL.md:6, never planted`,
+    );
+    expect(result?.detail).toContain('missed the dispatch edge skill to route');
+    expect(result?.detail).toContain('the planted check fails');
   });
 
   it('answers any chunk with the planted prose atoms inside its lines', async () => {
@@ -260,7 +264,7 @@ describe('families against the current components', { timeout: 120_000 }, () => 
       expect(planted).toBe(true);
       expect(results.get('scan.standing.plain-table')?.pass).toBe(true);
       expect(results.get('scan.standing.plain-name')?.pass).toBe(false);
-      expect(results.get('scan.standing.plain-name')?.detail).toMatch(/missed route/);
+      expect(results.get('scan.standing.plain-name')?.detail).toContain('missed route');
     } finally {
       scan.mockRestore();
     }
@@ -341,7 +345,7 @@ describe('families against the current components', { timeout: 120_000 }, () => 
 describe('the long routing table plant', { timeout: 120_000 }, () => {
   it('declares the skill and the description route of every skill it plants, so only missed rows can fail it', async () => {
     const result = await judgeCase(1, 'bench.defects', longTable('long-routing-table', 3, 12, true));
-    expect(result.detail).not.toMatch(/found (skill|route) .* at \.claude\/skills\/.*never planted/);
+    expect(result.detail).toBe('holds');
     expect(result).toMatchObject({ pass: true });
   });
 });

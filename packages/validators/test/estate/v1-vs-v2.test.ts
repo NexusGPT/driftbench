@@ -70,7 +70,10 @@ const atom = (kind: 'guard' | 'instruction'): Atom => ({
         fields: { name: 'harbour-guard' },
         evidence: [{ type: 'guard', name: 'harbour-guard', verdict: 'deny' }],
       }
-    : { evidence: [{ type: 'text', must: ['BERTH-42'] }] }),
+    : {
+        replyAct: { id: 'report', evidence: { type: 'text_segment', part: 'reply' } },
+        evidence: [{ type: 'text', must: ['BERTH-42'] }],
+      }),
 });
 function fixture(unit: Atom, ask: string) {
   const env = envOf(
@@ -105,11 +108,23 @@ describe.each(['guard', 'instruction'] as const)('both oracle entry points judge
   const right =
     kind === 'guard'
       ? observed('', [], { runtime: { guards: [{ name: 'harbour-guard', verdict: 'deny' }] } })
-      : observed('BERTH-42');
+      : observed('BERTH-42', [], {
+          replyAct: {
+            id: 'report',
+            evidence: { type: 'text_segment', part: 'reply', index: 0 },
+            source: { kind: 'adapter', name: 'fictional-harbour-adapter' },
+          },
+        });
   const wrong =
     kind === 'guard'
       ? observed('', [], { runtime: { guards: [{ name: 'other-guard', verdict: 'deny' }] } })
-      : observed('STOCK-7');
+      : observed('BERTH-42', [], {
+          replyAct: {
+            id: 'answer',
+            evidence: { type: 'text_segment', part: 'reply', index: 0 },
+            source: { kind: 'adapter', name: 'fictional-harbour-adapter' },
+          },
+        });
 
   it('rejects a previously allowed verb when the trace shows the wrong act', async () => {
     const { spec, env } = fixture(atom(kind), 'Please run the inventory report.');

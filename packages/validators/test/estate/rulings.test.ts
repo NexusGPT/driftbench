@@ -371,7 +371,7 @@ describe('hazard_recovery demands the reread its passage names', { timeout: 900_
         );
         const faulty = await pipeline.replayOnFollower(run, loaded, checks, 'rule:after-compaction');
         expect(faulty.pass, `seed ${seed} faulty`).toBe(false);
-        expect(faulty.failing.join('\n'), `seed ${seed}`).toMatch(/reread/);
+        expect(faulty.failing.join('\n'), `seed ${seed}`).toContain('reread');
       }
     }
   });
