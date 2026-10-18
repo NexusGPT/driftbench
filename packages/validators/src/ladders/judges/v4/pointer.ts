@@ -85,19 +85,6 @@ const FILE = {
 // ---------------------------------------------------------------------------------------------- checkers
 const labelOf = (name: string) => ({ name, description: `The ${name} label.` });
 
-/** The reason of a refusal, read from the message by its meaning; the item shows the message when it differs. */
-function refusalCode(message: string): string {
-  if (/is not in the set/.test(message)) return 'unknown-label';
-  if (/is no unit number or range/.test(message)) return 'bad-units';
-  if (/leaves the window/.test(message)) return 'outside-window';
-  if (/already labelled/.test(message)) return 'named-twice';
-  if (/the target .* is no unit number/.test(message)) return 'bad-target';
-  if (/the label none takes no target/.test(message)) return 'none-target';
-  if (/needs a target/.test(message)) return 'missing-target';
-  if (/takes no target/.test(message)) return 'extra-target';
-  return `unrecognised: ${message}`;
-}
-
 type Check = (impl: PointerImpl, cases: Json[]) => string[] | Promise<string[]>;
 
 const expandCheck: Check = (impl, cases) => {
@@ -175,15 +162,23 @@ function answerCheck(keep: (c: Json) => boolean): Check {
         [...r.accepted.entries()].sort((x, y) => x[0] - y[0]).map(([n, v]) => [String(n), v]),
       );
       const covered = [...r.covered].sort((x, y) => x - y);
-      const refusals = r.refusals.map(refusalCode);
+      if (r.refusals.length !== c.expect.refusals.length) {
+        misses.push(
+          `${c.name}: ${r.refusals.length} refusals ${show(r.refusals)}, expected ${c.expect.refusals.length}, one per refused entry`,
+        );
+      } else {
+        r.refusals.forEach((message: string, i: number) => {
+          const must = c.expect.mentions[i] as string[];
+          if (!must.some((part) => message.includes(part)))
+            misses.push(
+              `${c.name}: the refusal "${message}" must name the part of the answer it refuses: ${must.map((part) => show(part)).join(' or ')}`,
+            );
+        });
+      }
       if (!same(accepted, c.expect.accepted))
         misses.push(`${c.name}: accepted ${show(accepted)}, expected ${show(c.expect.accepted)}`);
       if (!same(covered, c.expect.covered))
         misses.push(`${c.name}: covered ${show(covered)}, expected ${show(c.expect.covered)}`);
-      if (!same(refusals, c.expect.refusals))
-        misses.push(
-          `${c.name}: refused for ${show(refusals)} (${show(r.refusals)}), expected ${show(c.expect.refusals)}`,
-        );
     }
     return misses;
   };

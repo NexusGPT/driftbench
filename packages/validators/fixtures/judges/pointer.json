@@ -1377,7 +1377,8 @@
           }
         },
         "covered": [1, 2, 3],
-        "refusals": []
+        "refusals": [],
+        "mentions": []
       }
     },
     {
@@ -1457,7 +1458,8 @@
           }
         },
         "covered": [1, 2, 3, 4, 5],
-        "refusals": []
+        "refusals": [],
+        "mentions": []
       }
     },
     {
@@ -1536,7 +1538,8 @@
           }
         },
         "covered": [2, 3],
-        "refusals": []
+        "refusals": [],
+        "mentions": []
       }
     },
     {
@@ -1606,7 +1609,8 @@
           }
         },
         "covered": [5],
-        "refusals": []
+        "refusals": [],
+        "mentions": []
       }
     },
     {
@@ -1667,7 +1671,8 @@
       "expect": {
         "accepted": {},
         "covered": [],
-        "refusals": []
+        "refusals": [],
+        "mentions": []
       }
     },
     {
@@ -1737,7 +1742,8 @@
           }
         },
         "covered": [2],
-        "refusals": []
+        "refusals": [],
+        "mentions": []
       }
     },
     {
@@ -1803,7 +1809,8 @@
       "expect": {
         "accepted": {},
         "covered": [1, 2, 3, 4, 5],
-        "refusals": []
+        "refusals": [],
+        "mentions": []
       }
     }
   ],
@@ -1879,7 +1886,8 @@
           }
         },
         "covered": [2],
-        "refusals": ["unknown-label"]
+        "refusals": ["unknown-label"],
+        "mentions": [["shouting"]]
       }
     },
     {
@@ -1945,7 +1953,8 @@
       "expect": {
         "accepted": {},
         "covered": [],
-        "refusals": ["unknown-label"]
+        "refusals": ["unknown-label"],
+        "mentions": [["Greeting"]]
       }
     },
     {
@@ -2011,7 +2020,8 @@
       "expect": {
         "accepted": {},
         "covered": [],
-        "refusals": ["unknown-label"]
+        "refusals": ["unknown-label"],
+        "mentions": [["greet"]]
       }
     },
     {
@@ -2085,7 +2095,8 @@
           }
         },
         "covered": [2],
-        "refusals": ["bad-units"]
+        "refusals": ["bad-units"],
+        "mentions": [["x"]]
       }
     },
     {
@@ -2151,7 +2162,8 @@
       "expect": {
         "accepted": {},
         "covered": [],
-        "refusals": ["bad-units"]
+        "refusals": ["bad-units"],
+        "mentions": [["4-2"]]
       }
     },
     {
@@ -2225,7 +2237,8 @@
           }
         },
         "covered": [1],
-        "refusals": ["outside-window"]
+        "refusals": ["outside-window"],
+        "mentions": [["5-6", "6"]]
       }
     },
     {
@@ -2291,7 +2304,8 @@
       "expect": {
         "accepted": {},
         "covered": [],
-        "refusals": ["outside-window"]
+        "refusals": ["outside-window"],
+        "mentions": [["0", "0"]]
       }
     },
     {
@@ -2365,7 +2379,8 @@
           }
         },
         "covered": [2],
-        "refusals": ["named-twice"]
+        "refusals": ["named-twice"],
+        "mentions": [["2", "2"]]
       }
     },
     {
@@ -2445,7 +2460,8 @@
           }
         },
         "covered": [1, 2, 3],
-        "refusals": ["named-twice"]
+        "refusals": ["named-twice"],
+        "mentions": [["3-4", "3"]]
       }
     },
     {
@@ -2515,7 +2531,8 @@
       "expect": {
         "accepted": {},
         "covered": [2],
-        "refusals": ["named-twice"]
+        "refusals": ["named-twice"],
+        "mentions": [["2", "2"]]
       }
     },
     {
@@ -2582,7 +2599,8 @@
       "expect": {
         "accepted": {},
         "covered": [],
-        "refusals": ["none-target"]
+        "refusals": ["none-target"],
+        "mentions": [["none"]]
       }
     },
     {
@@ -2648,7 +2666,8 @@
       "expect": {
         "accepted": {},
         "covered": [],
-        "refusals": ["missing-target"]
+        "refusals": ["missing-target"],
+        "mentions": [["when"]]
       }
     },
     {
@@ -2715,7 +2734,8 @@
       "expect": {
         "accepted": {},
         "covered": [],
-        "refusals": ["missing-target"]
+        "refusals": ["missing-target"],
+        "mentions": [["when"]]
       }
     },
     {
@@ -2782,7 +2802,8 @@
       "expect": {
         "accepted": {},
         "covered": [],
-        "refusals": ["extra-target"]
+        "refusals": ["extra-target"],
+        "mentions": [["rule"]]
       }
     },
     {
@@ -2849,7 +2870,8 @@
       "expect": {
         "accepted": {},
         "covered": [],
-        "refusals": ["bad-target"]
+        "refusals": ["bad-target"],
+        "mentions": [["1.5"]]
       }
     },
     {
@@ -2916,7 +2938,8 @@
       "expect": {
         "accepted": {},
         "covered": [],
-        "refusals": ["bad-target"]
+        "refusals": ["bad-target"],
+        "mentions": [["\"3\""]]
       }
     },
     {
@@ -2990,7 +3013,8 @@
           }
         },
         "covered": [2],
-        "refusals": ["missing-target"]
+        "refusals": ["missing-target"],
+        "mentions": [["when"]]
       }
     }
   ],

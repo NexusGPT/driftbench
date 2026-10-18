@@ -139,32 +139,32 @@ W5B = window(5, offset=40, wid="notes.md#2")
 def check(sset, win, answer):
     allowed = {l["name"]: l for l in sset["labels"]}
     inwin = {u["n"] for u in win["units"]}
-    accepted, covered, refusals = {}, set(), []
+    accepted, covered, refusals, mentions = {}, set(), [], []
     for e in answer:
         label = allowed.get(e["label"])
         if e["label"] != "none" and label is None:
-            refusals.append("unknown-label"); continue
+            refusals.append("unknown-label"); mentions.append([e["label"]]); continue
         nums = expand(e["units"])
         if nums is None:
-            refusals.append("bad-units"); continue
+            refusals.append("bad-units"); mentions.append([e["units"]]); continue
         if any(n not in inwin for n in nums):
-            refusals.append("outside-window"); continue
+            refusals.append("outside-window"); mentions.append([e["units"], str(next(n for n in nums if n not in inwin))]); continue
         if any(n in covered for n in nums):
-            refusals.append("named-twice"); continue
+            refusals.append("named-twice"); mentions.append([e["units"], str(next(n for n in nums if n in covered))]); continue
         t = e.get("target")
         if t is not None and (not isinstance(t, int) or isinstance(t, bool)):
-            refusals.append("bad-target"); continue
+            refusals.append("bad-target"); mentions.append([json.dumps(t)]); continue
         if e["label"] == "none" and t is not None:
-            refusals.append("none-target"); continue
+            refusals.append("none-target"); mentions.append(["none"]); continue
         if label and label.get("target") == "required" and (t is None or t not in inwin):
-            refusals.append("missing-target"); continue
+            refusals.append("missing-target"); mentions.append([e["label"]]); continue
         if label and label.get("target") != "required" and t is not None:
-            refusals.append("extra-target"); continue
+            refusals.append("extra-target"); mentions.append([e["label"]]); continue
         for n in nums:
             covered.add(n)
             if e["label"] != "none":
                 accepted[n] = {"label": e["label"], **({"target": t} if t is not None else {})}
-    return {"accepted": {str(k): v for k, v in sorted(accepted.items())}, "covered": sorted(covered), "refusals": refusals}
+    return {"accepted": {str(k): v for k, v in sorted(accepted.items())}, "covered": sorted(covered), "refusals": refusals, "mentions": mentions}
 
 
 def chk(name, sset, win, answer):
