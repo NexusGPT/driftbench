@@ -58,8 +58,8 @@ the linked blocks.
 
 ```
 driftbench estate run [specs...] --estate <root> --runtime claude-code --store <db> [--order <file>] [--command <bin>] [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
-driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--force] [--json]
-driftbench estate mutate <map> (--delete <id> | --invert <id>) --to <dir> [--force] [--json]
+driftbench estate mutate <map> --to <dir> (--delete <id> | --invert <id>) [--force] [--json]
+driftbench estate mutate <map> --to <dir> --atom <id> (--delete | --invert) [--force] [--json]
 driftbench estate prove <specs...> --mutant <dir> --original <store> --mutated <store> [--write] [--json]
 ```
 
