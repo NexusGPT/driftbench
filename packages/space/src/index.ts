@@ -106,8 +106,10 @@ export {
   VariableConstraint,
   VariablePrior,
   VariableProvenance,
+  VariableScope,
   VariableStore,
   VariableValue,
+  variableScope,
 } from './variables/schema';
 
 export const packageName = '@agent-nexus/driftbench-space';
