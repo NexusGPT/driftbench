@@ -99,6 +99,21 @@ processes one explicitly selected set against an existing entry and returns
 `{entries,diagnostics}`. The diagnostic is normalized to `{kind:'label_flip',id,set}`;
 old ids and live status survive changed labels. Untouched sets retain their labels.
 
+### Position-changing identity witnesses
+
+Each ledger item includes fresh independent scans that change fingerprints while
+keeping estate, path and unit positions fixed. It also follows uniquely identifiable
+units through a real prefix insertion/removal, unit reorder, file reorder, and
+layout-only shifts. The same surviving unit must keep its ID when its index,
+line or offset changes. Removed entries keep their tombstones.
+
+Ledger file inputs may carry `source`; their already-cut units carry `hint.start`
+and `hint.end` (UTF-16, end exclusive) and `line` (one based). These are bank-owned
+input observations, calculated from that fictional source. They are not additional
+required return fields and never replace identity checks. Independent minting
+must depend on the fingerprint; persisted identity must not depend on the current
+position. The hash tuple encoding remains unspecified.
+
 ## Oracle boundaries
 
 - The design does not prescribe the hash algorithm or tuple encoding for ids.
@@ -138,6 +153,11 @@ handles with differing results, then replay identical opinions under system 1 at
 two thresholds, system 2, and the stack. Copying a recorded opinion does not compute
 these policy-dependent outputs. Shared companion witnesses do not create new
 items or distinct causes, and are not independent hardness evidence.
+The positional re-review adds three more zero-score adapters: the original
+ordinal-reuse attack plus separate line- and UTF-16-offset-keyed attacks. Each
+runs against the full bank on every seed. Counterexample tests verify the attacks
+produce valid snapshots, so an exception or malformed return cannot explain their
+zero scores.
 
 Tests use visible seeds 1–20 and the documented commit-derived hidden seed.
 The seed changes fictional text, ids, handles, or paths. No word list is used.

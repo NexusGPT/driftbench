@@ -4,8 +4,9 @@ import { isDeepStrictEqual } from 'node:util';
 import { describe, expect, it } from 'vitest';
 import type { BankItem, Json, PointerAdapter, PointerIO, Probe } from './bank';
 import { pointerBank, runItem } from './bank';
+import { captureIO } from './bank/io';
 import { leaksPrivateFragment, privateMarker } from './bank/privacy';
-import { reviewCheats } from './cheats';
+import { positionalCheats, reviewCheats } from './cheats';
 import { pointerLadder } from './index';
 
 const bank = pointerBank();
@@ -167,6 +168,148 @@ describe('blind pointer bank harness', () => {
       });
     }
   }, 120_000);
+
+  it('index, line and offset identity cheats score ZERO on EVERY seed', async () => {
+    for (const seed of seeds) {
+      const totals = { byIndex: 0, byLine: 0, byOffset: 0 };
+      for (const item of bank)
+        for (const name of Object.keys(positionalCheats) as (keyof typeof positionalCheats)[])
+          totals[name] += Number((await runItem(item, seed, positionalCheats[name])).pass);
+      expect(totals, `positional cheats seed=${seed}`).toEqual({ byIndex: 0, byLine: 0, byOffset: 0 });
+    }
+  }, 120_000);
+
+  it('positional cheats execute valid snapshots and demonstrate the fingerprint and reorder faults', async () => {
+    const scan = (texts: string[]) => {
+      let start = 0;
+      return {
+        estateKey: 'fictional-coordinate-estate',
+        files: [
+          {
+            path: 'fictional.md',
+            source: texts.join('\n\n'),
+            units: texts.map((text, index) => {
+              const unit = {
+                text,
+                container: 'sentence',
+                labels: { demo: 'kept' },
+                linked: false,
+                line: index * 2 + 1,
+                hint: { start, end: start + text.length },
+              };
+              start += text.length + 2;
+              return unit;
+            }),
+          },
+        ],
+      };
+    };
+    type Snapshots = { entries: { id: string; quote: string; status: string }[] }[];
+    for (const cheat of Object.values(positionalCheats)) {
+      const fresh = (await cheat.execute({
+        operation: 'ledger',
+        input: {
+          independent: true,
+          scans: [scan(['Fictional amber parcel.']), scan(['Fictional azure parcel.'])],
+        },
+      })) as Snapshots;
+      expect(fresh).toHaveLength(2);
+      expect(fresh[0]?.entries[0]?.id).toMatch(/^[a-z2-7]{10}$/);
+      expect(fresh[0]?.entries[0]?.id).toBe(fresh[1]?.entries[0]?.id);
+      expect(fresh[0]?.entries[0]?.quote).not.toBe(fresh[1]?.entries[0]?.quote);
+      const reordered = (await cheat.execute({
+        operation: 'ledger',
+        input: {
+          independent: false,
+          scans: [
+            scan(['Fictional amber parcel.', 'Fictional azure parcel.']),
+            scan(['Fictional azure parcel.', 'Fictional amber parcel.']),
+          ],
+        },
+      })) as Snapshots;
+      const before = reordered[0]?.entries.find((entry) => entry.quote === 'Fictional amber parcel.');
+      const after = reordered[1]?.entries.find((entry) => entry.quote === 'Fictional amber parcel.');
+      expect(before?.status).toBe('live');
+      expect(after?.status).toBe('live');
+      expect(before?.id).not.toBe(after?.id);
+    }
+  });
+
+  it('position-changing histories defeat each coordinate cheat independently of the fresh-mint probe', async () => {
+    for (const seed of seeds)
+      for (const item of bank.filter((item) => item.component === 'pointer.ledger')) {
+        const history = item.generate(seed).probes[3];
+        if (!history?.observe) throw new Error('history observation absent');
+        for (const [name, cheat] of Object.entries(positionalCheats)) {
+          const actual = await cheat.execute(structuredClone(history.request));
+          const observation = history.observe(actual, captureIO().snapshot());
+          expect(observation, `${item.id} ${name} seed=${seed}`).not.toEqual(history.expected);
+        }
+      }
+  });
+
+  it('ledger witnesses change real positions while preserving the planted survivor identity', () => {
+    type Unit = { text: string; line: number; hint: { start: number; end: number } };
+    type File = { path: string; source: string; units: Unit[] };
+    type Input = { independent: boolean; scans: { estateKey: string; files: File[] }[] };
+    for (const seed of seeds)
+      for (const item of bank.filter((item) => item.component === 'pointer.ledger')) {
+        const probes = item.generate(seed).probes;
+        for (const probe of probes) {
+          const input = probe.request.input as unknown as Input;
+          for (const scan of input.scans)
+            for (const file of scan.files)
+              for (const unit of file.units) {
+                expect(file.source.slice(unit.hint.start, unit.hint.end)).toBe(unit.text);
+                expect(file.source.slice(0, unit.hint.start).split('\n').length).toBe(unit.line);
+              }
+        }
+        const fresh = probes[2]?.request.input as unknown as Input;
+        expect(fresh.independent).toBe(true);
+        const left = fresh.scans[0];
+        const right = fresh.scans[1];
+        if (!left || !right) throw new Error('fresh mint snapshots absent');
+        expect(left.estateKey).toBe(right.estateKey);
+        for (const [f, file] of left.files.entries()) {
+          for (const [u, unit] of file.units.entries()) {
+            const counterpart = right.files[f]?.units[u];
+            expect(right.files[f]?.path).toBe(file.path);
+            expect(counterpart?.hint).toEqual(unit.hint);
+            expect(counterpart?.line).toBe(unit.line);
+            expect(counterpart?.text).not.toBe(unit.text);
+          }
+        }
+        const historyProbe = probes[3];
+        const history = historyProbe?.request.input as unknown as Input;
+        const quote = history.scans[0]?.files[0]?.units[1]?.text;
+        if (!quote || !historyProbe) throw new Error('position witness absent');
+        const positions = history.scans.map((scan) => {
+          let index = 0;
+          for (const file of scan.files)
+            for (const unit of file.units) {
+              if (unit.text === quote) return { index, line: unit.line, start: unit.hint.start };
+              index++;
+            }
+          throw new Error('surviving unit absent');
+        });
+        expect(positions[1]?.index).toBe((positions[0]?.index ?? 0) + 1);
+        expect(positions[2]).toEqual(positions[0]);
+        expect(history.scans[3]?.files.map((f) => f.path)).toEqual(
+          history.scans[2]?.files.map((f) => f.path).reverse(),
+        );
+        expect(positions[3]?.index).not.toBe(positions[2]?.index);
+        expect(positions[4]?.index).toBe(positions[3]?.index);
+        expect(positions[4]?.line).not.toBe(positions[3]?.line);
+        expect(positions[5]?.index).toBe(positions[4]?.index);
+        expect(positions[5]?.line).toBe(positions[4]?.line);
+        expect(positions[5]?.start).not.toBe(positions[4]?.start);
+        expect(positions[6]?.index).not.toBe(positions[5]?.index);
+        const snapshots = historyProbe.sample as { entries: { id: string; quote: string }[] }[];
+        const ids = snapshots.map((snapshot) => snapshot.entries.find((entry) => entry.quote === quote)?.id);
+        expect(ids.every((id) => typeof id === 'string')).toBe(true);
+        expect(new Set(ids).size).toBe(1);
+      }
+  });
 
   it('rejects privacy effect spoofing even with the exact planted labels and public plan', async () => {
     for (const item of bank.filter((i) => i.family === 'privacy')) {

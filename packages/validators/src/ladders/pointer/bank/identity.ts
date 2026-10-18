@@ -261,6 +261,38 @@ const ledgerCases: LedgerCase[] = [
   { name: 'two-sets-one-unit', cause: 'one-id-per-unit', tier: 5, mode: 'sets' },
 ];
 
+/** Bank input boundary: files carry their actual fictional Markdown source.
+ * hint.start/end are zero-based UTF-16, end-exclusive offsets into that source;
+ * line is the one-based line containing hint.start. Positions are input evidence,
+ * never identities and never additional requirements on returned ledger entries.
+ * Layout controls are generator-only and are removed from the emitted request. */
+function ledgerRequest(scans: Json[], independent: boolean): Probe['request'] {
+  const positioned = scans.map((value) => {
+    const scan = value as Record<string, Json>;
+    const files = scan.files as {
+      path: string;
+      units: { text: string }[];
+      leadingNewlines?: number;
+      betweenNewlines?: number;
+    }[];
+    return {
+      ...scan,
+      files: files.map((file) => {
+        let source = '\n'.repeat(file.leadingNewlines ?? 0);
+        const units = file.units.map((unit, index) => {
+          if (index > 0) source += '\n'.repeat(file.betweenNewlines ?? 2);
+          const start = source.length;
+          const line = source.slice(0, start).split('\n').length;
+          source += unit.text;
+          return { ...unit, hint: { start, end: source.length }, line };
+        });
+        return { path: file.path, source, units };
+      }),
+    };
+  });
+  return { operation: 'ledger', input: { scans: positioned, independent } };
+}
+
 function ledgerProbe(seed: number, mode: string, lifecycle: boolean): Probe {
   const text = `Retain the fictional parcel ${token(seed)} until the sealed carrier returns with its receipt.`;
   const trackedText = `Inspect the fictional vessel ${token(seed, 3)} under the painted cabinet before its keeper closes the register.`;
@@ -362,7 +394,127 @@ function ledgerProbe(seed: number, mode: string, lifecycle: boolean): Probe {
     ];
   }
   return {
-    request: { operation: 'ledger', input: { scans, independent } },
+    request: ledgerRequest(scans, independent),
+    expected: ledgerObservation(sample) as Json,
+    observe: ledgerObservation,
+    sample,
+  };
+}
+
+/** Independent minting must include the fingerprint. All positional evidence,
+ * including UTF-16 lengths, is identical across these fresh snapshots. */
+function freshFingerprintProbe(seed: number): Probe {
+  const estateKey = `fresh-${token(seed, 90)}`;
+  const texts = [
+    `Retain the fictional 📦 parcel ${token(seed, 91)} until its carrier presents receipt X.`,
+    `Inspect the fictional cabinet ${token(seed, 92)} before its keeper closes register X.`,
+    `Return the fictional vessel ${token(seed, 93)} after its custodian checks marker X.`,
+  ];
+  const changed = texts.map((text) => text.replace(' X.', ' Y.'));
+  const unit = (text: string) => ({ text, container: 'sentence', labels: { demo: 'kept' }, linked: false });
+  const scan = (quotes: string[]): Json => ({
+    estateKey,
+    files: [
+      { path: 'fresh/a.md', units: quotes.slice(0, 2).map(unit) },
+      { path: 'fresh/b.md', units: quotes.slice(2).map(unit) },
+    ],
+    labelSets: { demo: 'Keep the fictional handling instructions.' },
+  });
+  const entries = (quotes: string[], salt: number): LedgerEntry[] =>
+    quotes.map((quote, index) => ({
+      id: rawId(seed, salt + index),
+      path: index < 2 ? 'fresh/a.md' : 'fresh/b.md',
+      quote,
+      status: 'live',
+    }));
+  const sample: Json = [{ entries: entries(texts, 120) }, { entries: entries(changed, 140) }];
+  return {
+    request: ledgerRequest([scan(texts), scan(changed)], true),
+    expected: ledgerObservation(sample) as Json,
+    observe: ledgerObservation,
+    sample,
+  };
+}
+
+/** An identity follows a unique unit through genuine structural changes. Array
+ * order, file order, line number and offset are deliberately independent axes. */
+function positionHistoryProbe(seed: number): Probe {
+  const estateKey = `history-${token(seed, 150)}`;
+  const texts = [
+    `Retain the fictional 📦 parcel ${token(seed, 151)} beside the blue compartment until its courier presents the receipt.`,
+    `Inspect the fictional cabinet ${token(seed, 152)} beside the copper doorway before its keeper closes the register.`,
+    `Return the fictional vessel ${token(seed, 153)} to the green alcove after its custodian verifies the marker.`,
+    `Place the fictional envelope ${token(seed, 154)} beneath the silver panel while its steward reviews the manifest.`,
+    `Secure the fictional container ${token(seed, 155)} behind the amber screen until its attendant checks the seal.`,
+    `Count the fictional receipts ${token(seed, 156)} above the violet drawer before its auditor opens the ledger.`,
+  ];
+  const extended = `${(texts[2] as string).slice(0, -1)} beside the additional fictional reference ${token(seed, 157)}.`;
+  type Placement = { path: string; indices: number[]; leadingNewlines?: number; betweenNewlines?: number };
+  type Phase = { placements: Placement[]; deleted: number[]; extend?: boolean };
+  const initial: Placement[] = [
+    { path: 'history/a.md', indices: [0, 1, 2] },
+    { path: 'history/b.md', indices: [3, 4] },
+  ];
+  const permuted: Placement[] = [
+    { path: 'history/b.md', indices: [4, 3] },
+    { path: 'history/a.md', indices: [2, 0, 1] },
+  ];
+  const spaced = permuted.map((file) => ({ ...file, leadingNewlines: 3, betweenNewlines: 4 }));
+  const phases: Phase[] = [
+    { placements: initial, deleted: [] },
+    // Real insertion before all three surviving units, not a display-number edit.
+    { placements: [{ path: 'history/a.md', indices: [5, 0, 1, 2] }, initial[1] as Placement], deleted: [] },
+    { placements: initial, deleted: [5] },
+    // Both the input file array and the unique units within each file are permuted.
+    { placements: permuted, deleted: [5] },
+    // Indices and text stay fixed while preceding blank lines move every position.
+    { placements: spaced, deleted: [5] },
+    // Same lines and indices: a longer earlier unit shifts later UTF-16 offsets.
+    { placements: spaced, deleted: [5], extend: true },
+    // Remove a middle unit, retaining its tombstone and the later unit's identity.
+    {
+      placements: [spaced[0] as Placement, { ...spaced[1], path: 'history/a.md', indices: [2, 1] }],
+      deleted: [5, 0],
+      extend: true,
+    },
+  ];
+  const quoteAt = (index: number, phase: Phase) =>
+    index === 2 && phase.extend ? extended : (texts[index] as string);
+  const scans: Json[] = phases.map((phase) => ({
+    estateKey,
+    labelSets: { demo: 'Keep the fictional handling instructions.' },
+    files: phase.placements.map((file) => ({
+      path: file.path,
+      leadingNewlines: file.leadingNewlines ?? 0,
+      betweenNewlines: file.betweenNewlines ?? 2,
+      units: file.indices.map((index) => ({
+        text: quoteAt(index, phase),
+        container: 'sentence',
+        labels: { demo: 'kept' },
+        linked: false,
+      })),
+    })),
+  }));
+  const sample: Json = phases.map((phase) => ({
+    entries: [
+      ...phase.placements.flatMap((file) =>
+        file.indices.map((index) => ({
+          id: rawId(seed, 170 + index),
+          path: file.path,
+          quote: quoteAt(index, phase),
+          status: 'live',
+        })),
+      ),
+      ...phase.deleted.map((index) => ({
+        id: rawId(seed, 170 + index),
+        path: 'history/a.md',
+        quote: texts[index] as string,
+        status: 'deleted',
+      })),
+    ],
+  }));
+  return {
+    request: ledgerRequest(scans, false),
     expected: ledgerObservation(sample) as Json,
     observe: ledgerObservation,
     sample,
@@ -645,7 +797,14 @@ export function identityItems(): BankItem[] {
     title: c.name,
     cause: c.cause,
     design: '4. Layer A: the ledger — Id; 1. Label sets; 3. The default stack',
-    generate: (seed) => ({ probes: [ledgerProbe(seed, c.mode, false), ledgerProbe(seed, c.mode, true)] }),
+    generate: (seed) => ({
+      probes: [
+        ledgerProbe(seed, c.mode, false),
+        ledgerProbe(seed, c.mode, true),
+        freshFingerprintProbe(seed),
+        positionHistoryProbe(seed),
+      ],
+    }),
   }));
   const anchorBank: BankItem[] = anchorCases.flatMap((c) =>
     contexts.map((context) => ({

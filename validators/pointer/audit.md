@@ -7,7 +7,7 @@ closed; only independent auditors can replace them with passing findings.
 | Check | Verdict | Note |
 |---|---|---|
 | blind pilot | pending | No real-reader adapter or executor pilot is included. An independent executor must run iteration 0 and ten pilot iterations. |
-| cheater | fail | Independent review at a7672c443, [comment 6243006972](https://github.com/achammah/driftbench/pull/759#issuecomment-6243006972), found first-unit, text-hash, response-copy and split-text leak score gains. The builder adds regression tests; an independent rerun remains required. |
+| cheater | fail | Re-review at 6cda2a598, [comment 6243324694](https://github.com/achammah/driftbench/pull/759#issuecomment-6243324694), confirms the earlier four attacks score zero but a positional ledger passes all ten ledger items. Position regressions are added; an independent rerun remains required. |
 | cause review | pending | Shared cause names are retained. No independent sample of 30 failing items or agreement measurement exists yet. |
 | planted bugs | pending | Harness corruption checks do not establish detection of 20 independently planted reader bugs. |
 
@@ -62,9 +62,36 @@ retain quotes/status and compare duplicate identities over history. Privacy
 answers live in a separate transport fixture, effects are captured by the harness,
 and a single private marker character is sufficient to reject a result.
 
-The builder's regression suite requires zero passes for each of seven cheats on
+The first correction's regression suite requires zero passes for each of seven cheats on
 every seed, not merely zero items passing their intersection. Effectful leak
 mutants also preserve the honest trace except for an emitted fragment. These
 checks close the reported regressions; they do not certify the independent
 cheater audit, the reader, or the hardness forecast. The last independent verdict
 therefore remains **fail** until its author or another independent auditor reruns it.
+
+## Positional identity correction
+
+[Independent re-review 6243324694](https://github.com/achammah/driftbench/pull/759#issuecomment-6243324694)
+reports that estate/path/ordinal minting with ordinal reuse passes all ten ledger
+items at `6cda2a598b3130351ae8dd130e530f8f8b0a26d3` on seeds 1–20 and hidden
+827237017. The histories leave surviving units at fixed positions, so that
+shortcut cannot be distinguished from persisted identity by those witnesses.
+The builder reproduces all ten passes on those same seeds against a frozen copy
+of the pre-edit bank, using the reviewer's original adapter.
+
+Every ledger item now retains its earlier witnesses and adds real insertion and
+removal before surviving units, unique-unit and file-order permutations, and
+layout changes. Fictional source and input-only UTF-16 offsets and one-based lines
+make the coordinate changes inspectable. The output oracle still compares IDs
+by unit identity, path, quote and status; it does not fail an adapter merely for
+omitting coordinate fields. Independent fresh scans also change fingerprints
+while holding estate, path and positions fixed, requiring different minted IDs.
+
+The index-based review cheat is retained with its original behavior. Separate
+line-based and offset-based cheats reuse IDs by their respective coordinates.
+Each must score zero on every seed, alongside the previous seven cheats. Direct
+counterexamples also prove these adapters return valid snapshots while ignoring
+fingerprints and transferring IDs incorrectly on reorder. Shared witnesses do
+not add items or distinct causes: the bank remains 340 items with the same tiers
+and declared causes. The independent cheater verdict remains **fail** pending
+re-review; no reader pilot or hardness pass is claimed.

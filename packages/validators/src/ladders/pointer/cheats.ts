@@ -136,3 +136,124 @@ export const reviewCheats = { firstUnit, textHash, copying, leakyCopy } satisfie
   string,
   PointerAdapter
 >;
+
+/** Coordinate-only shortcuts from the second independent review. */
+type PositionedUnit = {
+  text: string;
+  line?: number;
+  hint?: { start: number; end?: number };
+};
+type PositionedFile = {
+  path: string;
+  source?: string;
+  units: PositionedUnit[];
+};
+type PositionalInput = {
+  independent?: boolean;
+  scans: { estateKey: string; files: PositionedFile[] }[];
+};
+type PositionalEntry = {
+  id: string;
+  path: string;
+  quote: string;
+  status: 'live' | 'deleted';
+};
+
+// Preserve the reviewer's exact global-ordinal reuse and trailing deletion rule.
+const byIndex = {
+  execute({ operation, input }) {
+    if (operation !== 'ledger') return null;
+    const x = input as unknown as PositionalInput;
+    let previous: PositionalEntry[] = [];
+    return x.scans.map((scan) => {
+      let ordinal = 0;
+      const entries: PositionalEntry[] = scan.files.flatMap((file) =>
+        file.units.map((unit): PositionalEntry => {
+          const at = ordinal++;
+          const old = previous[at];
+          return {
+            id: !x.independent && old ? old.id : hashed(`${scan.estateKey}:${file.path}:${at}`),
+            path: file.path,
+            quote: unit.text,
+            status: 'live',
+          };
+        }),
+      );
+      if (!x.independent) {
+        for (let at = entries.length; at < previous.length; at++) {
+          const old = previous[at] as PositionalEntry;
+          entries.push({ ...old, status: 'deleted' });
+        }
+      }
+      previous = structuredClone(entries);
+      return { entries };
+    });
+  },
+} satisfies PointerAdapter;
+
+/**
+ * Fallback positions are actual text coordinates, not aliases for ordinals.
+ * JavaScript string offsets count UTF-16 code units. LF counts make lines
+ * one-based, including when source uses CRLF. Explicit coordinates win.
+ */
+function positionedUnits(file: PositionedFile): { unit: PositionedUnit; line: number; start: number }[] {
+  const joined = file.units.map((unit) => unit.text).join('\n\n');
+  const source = file.source ?? joined;
+  let cursor = 0;
+  let joinedStart = 0;
+  return file.units.map((unit) => {
+    const found = source.indexOf(unit.text, cursor);
+    const start = unit.hint?.start ?? (found >= 0 ? found : joinedStart);
+    const positionSource = unit.hint || found >= 0 ? source : joined;
+    const line = unit.line ?? positionSource.slice(0, start).split('\n').length;
+    if (unit.hint || found >= 0) cursor = start + unit.text.length;
+    joinedStart += unit.text.length + 2;
+    return { unit, line, start };
+  });
+}
+
+function coordinateCheat(kind: 'line' | 'offset'): PointerAdapter {
+  return {
+    execute({ operation, input }) {
+      if (operation !== 'ledger') return null;
+      const x = input as unknown as PositionalInput;
+      let previous = new Map<string, PositionalEntry>();
+      return x.scans.map((scan) => {
+        const next = new Map<string, PositionalEntry>();
+        const entries: PositionalEntry[] = [];
+        for (const file of scan.files) {
+          for (const { unit, line, start } of positionedUnits(file)) {
+            const coordinate = kind === 'line' ? line : start;
+            const key = JSON.stringify([scan.estateKey, file.path, coordinate]);
+            const old = x.independent ? undefined : previous.get(key);
+            const entry: PositionalEntry = {
+              id: old?.id ?? hashed(key),
+              path: file.path,
+              quote: unit.text,
+              status: 'live',
+            };
+            entries.push(entry);
+            next.set(key, entry);
+          }
+        }
+        if (!x.independent) {
+          for (const [key, old] of previous) {
+            if (!next.has(key)) {
+              const tombstone: PositionalEntry = { ...old, status: 'deleted' };
+              entries.push(tombstone);
+              next.set(key, tombstone);
+            }
+          }
+        }
+        previous = next;
+        return { entries };
+      });
+    },
+  };
+}
+
+export const positionalCheats = {
+  byIndex,
+  byLine: coordinateCheat('line'),
+  byOffset: coordinateCheat('offset'),
+} satisfies Record<string, PointerAdapter>;
