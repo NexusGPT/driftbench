@@ -320,6 +320,8 @@ export {
   LinkRelation,
   LinkStatus,
   LinkTarget,
+  PlanRowTarget,
+  RuleTarget,
 } from './schema/links';
 export {
   ArtifactRef,

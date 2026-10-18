@@ -52,3 +52,31 @@ metadata:
     ask: code
     askFrom: route.shipment-tracker.an-ask-that-fits-shipment-tracker (asks it names)
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.shipment-tracker.an-ask-that-fits-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_near_miss.route.shipment-tracker.an-ask-that-fits-shipment-tracker
+        values:
+          ask_shape: ambiguous
+          atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

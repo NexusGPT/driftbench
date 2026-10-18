@@ -138,3 +138,87 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-identify
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-twise-011
+        values:
+          behaviour: B-001
+          channel: chat
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: not-found
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D9_out_of_scope
+      to:
+        kind: rule
+        rule: deviation=D9_out_of_scope
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D9_out_of_scope
+      to:
+        kind: plan_row
+        row: gen-twise-011
+        values:
+          behaviour: B-001
+          channel: chat
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: not-found
+          deviation: D9_out_of_scope
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-identify-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=identify-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-identify-to-identify
+      to:
+        kind: rule
+        rule: account_lookup=not-found
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-identify-to-identify
+      to:
+        kind: plan_row
+        row: gen-twise-011
+        values:
+          behaviour: B-001
+          channel: chat
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: not-found
+          stage_transition: identify-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

@@ -83,3 +83,22 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.write-a-helper-s-brief-before
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: ordered_pair.gate.standing.write-a-helper-s-brief-before
+        values:
+          atoms.gate: gate.standing.write-a-helper-s-brief-before
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

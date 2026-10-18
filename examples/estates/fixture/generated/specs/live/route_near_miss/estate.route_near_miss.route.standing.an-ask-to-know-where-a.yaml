@@ -52,3 +52,31 @@ metadata:
     ask: code
     askFrom: skill.shipment-tracker.skill-shipment-tracker (asks it names)
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-know-where-a
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_near_miss.route.standing.an-ask-to-know-where-a
+        values:
+          ask_shape: ambiguous
+          atoms.route: route.standing.an-ask-to-know-where-a
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

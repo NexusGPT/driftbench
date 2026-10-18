@@ -201,3 +201,153 @@ metadata:
         phrase:
           dimension: stage_transition
           value: handover-to-closing
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-036
+        values:
+          behaviour: B-003
+          channel: chat
+          user_type: new-customer
+          coverage_result: no-service
+          flow: new-home
+          callback_phone: given
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-callback
+      to:
+        kind: rule
+        rule: stage_transition=address-to-callback
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-callback
+      to:
+        kind: rule
+        rule: coverage_result=no-service
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-address-to-callback
+      to:
+        kind: plan_row
+        row: gen-twise-036
+        values:
+          behaviour: B-003
+          channel: chat
+          user_type: new-customer
+          coverage_result: no-service
+          flow: new-home
+          callback_phone: given
+          stage_transition: address-to-callback
+          stage: callback
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D7_silence_or_burst
+      to:
+        kind: rule
+        rule: deviation=D7_silence_or_burst
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D7_silence_or_burst
+      to:
+        kind: plan_row
+        row: gen-twise-036
+        values:
+          behaviour: B-003
+          channel: chat
+          user_type: new-customer
+          coverage_result: no-service
+          flow: new-home
+          callback_phone: given
+          deviation: D7_silence_or_burst
+          stage: callback
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-callback-to-handover
+      to:
+        kind: rule
+        rule: stage_transition=callback-to-handover
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-callback-to-handover
+      to:
+        kind: rule
+        rule: coverage_result=no-service
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-callback-to-handover
+      to:
+        kind: rule
+        rule: callback_phone=given
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b4-callback-to-handover
+      to:
+        kind: plan_row
+        row: gen-twise-036
+        values:
+          behaviour: B-003
+          channel: chat
+          user_type: new-customer
+          coverage_result: no-service
+          flow: new-home
+          callback_phone: given
+          stage_transition: callback-to-handover
+          stage: handover
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-handover-to-closing
+      to:
+        kind: rule
+        rule: stage_transition=handover-to-closing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b5-handover-to-closing
+      to:
+        kind: plan_row
+        row: gen-twise-036
+        values:
+          behaviour: B-003
+          channel: chat
+          user_type: new-customer
+          coverage_result: no-service
+          flow: new-home
+          callback_phone: given
+          stage_transition: handover-to-closing
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

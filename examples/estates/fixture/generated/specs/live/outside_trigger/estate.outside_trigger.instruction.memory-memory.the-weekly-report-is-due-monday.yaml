@@ -58,3 +58,22 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.memory-memory.the-weekly-report-is-due-monday
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.memory-memory.the-weekly-report-is-due-monday
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.memory-memory.the-weekly-report-is-due-monday
+        values:
+          atoms.instruction: instruction.memory-memory.the-weekly-report-is-due-monday
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -1,6 +1,7 @@
 /** One plan row to its task specs: the situation it uses, its expectation, its derived outcome and its id. */
 
 import type { CriterionDef } from '@agent-nexus/driftbench-core';
+import { type BlockOrigin, type RuleRef, writeBlocks } from '../blocks/writer';
 import { DEVIATION_EXPECTED } from '../seed/deviation';
 import { rngFor, shuffle } from '../seed/random';
 import { codeAsk, DEVIATION_ASKS } from './asks';
@@ -188,7 +189,7 @@ export function build(
 
   // Blocks.
   const placeholder = `[no approved phrase: ${use} situation for ${first.id}]`;
-  const blocks: Array<Record<string, unknown>> = [
+  const blocks: Array<Record<string, unknown> & { id: string }> = [
     { id: 'ask', when: { user: phrase?.text ?? placeholder }, expect: expectOf(then, true) },
   ];
   if (row.testType === 'stop_resume') {
@@ -274,6 +275,22 @@ export function build(
     : undefined;
   if (seed) vars.workspace_seed = seed.id;
 
+  // The block writer writes the blocks and their links: the row's atoms, the row and its cell, the session.
+  const version = ctx.map.hash.slice(0, 12);
+  const rules = atoms.map(ruleOf);
+  const planRow = row.variantOf ?? row.id;
+  const written = writeBlocks(
+    blocks.map((block, index) => {
+      const origin: BlockOrigin = {
+        rules,
+        row: { id: planRow, values: row.cell },
+        ...(session && index === 0 ? { turn: { conversation: session.name, turn: session.from_block } } : {}),
+      };
+      return { block, origin };
+    }),
+    version,
+  );
+
   const usesStages = blocks.some((block) => (block.expect as Record<string, unknown>).stage !== undefined);
   const kinds = [...new Set(atoms.map((atom) => `kind:${atom.kind}`))];
   const expectRun = session
@@ -283,7 +300,7 @@ export function build(
     : undefined;
   const spec: Record<string, unknown> = {
     id,
-    version: ctx.map.hash.slice(0, 12),
+    version,
     kind: 'task',
     title: `${row.testType}: ${first.title}${session ? ` (session ${session.name})` : ''}`,
     ...(phrase ? { lang: phrase.lang.toUpperCase() } : {}),
@@ -300,13 +317,13 @@ export function build(
     given: { vars, ...(seed ? { world: { workspace: { files: seed.files } } } : {}) },
     ...(usesStages ? { stages: ctx.stages.ids } : {}),
     ...(complete && then.criteria.length > 0 ? { criteria: then.criteria } : {}),
-    blocks,
+    blocks: written.blocks,
     ...(customOf(then) ? { rules: { custom: customOf(then) } } : {}),
     ...(perturbation ? { perturbations: [perturbation] } : {}),
     metadata: {
       estate: {
         atoms: row.atomIds,
-        planRow: row.variantOf ?? row.id,
+        planRow,
         ...(variant !== undefined ? { focusVariant: variant } : {}),
         cell: row.cell,
         seeder: ESTATE_SEEDER,
@@ -334,6 +351,7 @@ export function build(
             }),
       },
       ...(session ? { replay: { session: session.name, from_block: session.from_block } } : {}),
+      links: written.links,
     },
   };
   return {
@@ -348,6 +366,16 @@ export function build(
     ...(session ? { session } : {}),
     ...(expectRun ? { expect: expectRun } : {}),
   };
+}
+
+/**
+ * An atom as the rule a block tests: its id, and the ledger id of the unit it was read from when the pointer
+ * reader built it (`fields.unit` of an atom whose `fields.extraction` is `pointer`).
+ */
+export function ruleOf(atom: EstateAtom): RuleRef {
+  const fields = atom.fields ?? {};
+  const ledger = fields.extraction === 'pointer' && typeof fields.unit === 'string' ? fields.unit : undefined;
+  return { rule: atom.id, ...(ledger !== undefined ? { ledger } : {}) };
 }
 
 /** `rules.custom` of a spec: the ordered pairs, the some_call entries of the first block, the other checks. */

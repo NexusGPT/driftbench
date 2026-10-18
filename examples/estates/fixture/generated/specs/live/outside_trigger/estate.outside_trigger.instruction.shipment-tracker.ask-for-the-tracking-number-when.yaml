@@ -63,3 +63,30 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.shipment-tracker.ask-for-the-tracking-number-when
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.ask-for-the-tracking-number-when
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.shipment-tracker.ask-for-the-tracking-number-when
+        values:
+          atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

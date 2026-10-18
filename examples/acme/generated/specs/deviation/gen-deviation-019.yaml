@@ -128,3 +128,84 @@ metadata:
         phrase:
           dimension: deviation
           value: D11_pii_leak
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-deviation-019
+        values:
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: most-data
+          channel: chat
+          coverage_result: none
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-closing
+      to:
+        kind: rule
+        rule: stage_transition=identify-to-closing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-closing
+      to:
+        kind: rule
+        rule: account_lookup=most-data
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-closing
+      to:
+        kind: plan_row
+        row: gen-deviation-019
+        values:
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: most-data
+          channel: chat
+          coverage_result: none
+          stage_transition: identify-to-closing
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D11_pii_leak
+      to:
+        kind: rule
+        rule: deviation=D11_pii_leak
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D11_pii_leak
+      to:
+        kind: plan_row
+        row: gen-deviation-019
+        values:
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: most-data
+          channel: chat
+          coverage_result: none
+          deviation: D11_pii_leak
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

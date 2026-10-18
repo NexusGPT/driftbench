@@ -136,3 +136,87 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-closing
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-twise-156
+        values:
+          behaviour: B-012
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: most-data
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D12_prompt_extraction
+      to:
+        kind: rule
+        rule: deviation=D12_prompt_extraction
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D12_prompt_extraction
+      to:
+        kind: plan_row
+        row: gen-twise-156
+        values:
+          behaviour: B-012
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: most-data
+          deviation: D12_prompt_extraction
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-identify-to-closing
+      to:
+        kind: rule
+        rule: stage_transition=identify-to-closing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-identify-to-closing
+      to:
+        kind: rule
+        rule: account_lookup=most-data
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-identify-to-closing
+      to:
+        kind: plan_row
+        row: gen-twise-156
+        values:
+          behaviour: B-012
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: most-data
+          stage_transition: identify-to-closing
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

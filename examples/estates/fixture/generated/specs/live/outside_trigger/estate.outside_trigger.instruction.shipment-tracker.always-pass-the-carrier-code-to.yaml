@@ -61,3 +61,30 @@ metadata:
     ask: code
     askFrom: neutral
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.shipment-tracker.always-pass-the-carrier-code-to
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.shipment-tracker.skill-shipment-tracker
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.shipment-tracker.always-pass-the-carrier-code-to
+        values:
+          atoms.instruction: instruction.shipment-tracker.always-pass-the-carrier-code-to
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

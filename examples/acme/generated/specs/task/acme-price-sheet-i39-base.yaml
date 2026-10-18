@@ -214,5 +214,43 @@ metadata:
       version: "1"
       hash: 7a022d4e1380
     family: ../families/price-sheet
+  links:
+    - block: summary
+      to:
+        kind: rule
+        rule: flow=price-sheet
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: summary
+      to:
+        kind: rule
+        rule: behaviour=B-013
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: summary
+      to:
+        kind: rule
+        rule: behaviour=B-014
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: summary
+      to:
+        kind: plan_row
+        row: acme-price-sheet-i39-base
+        values:
+          flow: price-sheet
+          user_type: sales-operations
+          workspace_start: existing-workbook
+          stage: add_summary
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
 rules:
   one_message_per_turn: true

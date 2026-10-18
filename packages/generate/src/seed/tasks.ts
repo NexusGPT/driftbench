@@ -1,5 +1,6 @@
 import { resolve } from 'node:path';
-import type { TaskFamilyRelation } from '../extract/proposal';
+import { type SpecBlock, writeBlocks } from '../blocks/writer';
+import { FLOW_DIMENSION, type TaskFamilyRelation } from '../extract/proposal';
 import {
   buildInstance,
   FamilyError,
@@ -12,7 +13,7 @@ import {
   unapprovedPhrases,
 } from '../families';
 import type { RunIdentity } from './assemble';
-import type { PreparedMap } from './map';
+import { type PreparedMap, phraseKey } from './map';
 
 /**
  * The task seeder: the specs a code-agent task family writes for a flow the map hands to it
@@ -24,7 +25,10 @@ import type { PreparedMap } from './map';
  * - the spec holds the map's reply rule (`reply_count`), one reply per user turn unless the map says any;
  * - a planted variant, whose workspace holds an instruction in a file, also declares that file as a
  *   perturbation of the class the relation names, at the first block, with the first block's Then: the
- *   space places the class there, and a perturbed run applies the same workspace.
+ *   space places the class there, and a perturbed run applies the same workspace;
+ * - the block writer writes the family's blocks as they are, with their links: the flow and the behaviours
+ *   the spec covers as the rules, the spec with the values its instances hold (and the block's stage) as
+ *   the row.
  */
 
 export type TaskVariant = {
@@ -88,6 +92,16 @@ export function* streamTaskSpecs(
           ];
         }
       }
+      const written = writeBlocks(
+        ((spec.blocks as SpecBlock[] | undefined) ?? []).map((block) => ({
+          block,
+          origin: {
+            rules: taskRules(prepared, relation, spec),
+            row: { id: String(spec.id), values: taskValues(prepared, relation, block) },
+          },
+        })),
+        prepared.hash,
+      );
       const metadata = (spec.metadata as Record<string, unknown> | undefined) ?? {};
       spec.metadata = {
         ...metadata,
@@ -98,10 +112,46 @@ export function* streamTaskSpecs(
           map: { path: run.mapPath, agent: prepared.agent, version: prepared.version, hash: prepared.hash },
           family: relation.family,
         },
+        links: written.links,
       };
       yield { id: String(spec.id), spec, ...(variant.seed ? { seed: variant.seed } : {}) };
     }
   }
+}
+
+/** The rules a task spec's blocks test: the relation's flow, then each behaviour the spec covers. */
+function taskRules(
+  prepared: PreparedMap,
+  relation: TaskFamilyRelation,
+  spec: Record<string, unknown>,
+): Array<{ rule: string }> {
+  const rules = [{ rule: phraseKey(FLOW_DIMENSION, relation.flow) }];
+  for (const id of (spec.covers as unknown[] | undefined) ?? []) {
+    if (typeof id !== 'string') continue;
+    const dimension = prepared.space.dimensions.find(
+      (entry) => entry.kind === 'behaviour' && entry.index.has(id),
+    );
+    if (dimension) rules.push({ rule: phraseKey(dimension.id, id) });
+  }
+  return rules;
+}
+
+/** The values of a task block's row: the flow, the single values the relation holds, the block's stage. */
+function taskValues(
+  prepared: PreparedMap,
+  relation: TaskFamilyRelation,
+  block: SpecBlock,
+): Record<string, string> {
+  const values: Record<string, string> = { [FLOW_DIMENSION]: relation.flow };
+  for (const [dimension, held] of Object.entries(relation.holds ?? {})) {
+    if (held.length === 1 && held[0] !== undefined) values[dimension] = held[0];
+  }
+  const stage = (block.expect as { stage?: unknown } | undefined)?.stage;
+  if (typeof stage === 'string' && prepared.stage !== undefined) {
+    const id = prepared.space.dimensions[prepared.stage]?.id;
+    if (id !== undefined) values[id] = stage;
+  }
+  return values;
 }
 
 /** How many instances, per relation asked for, are drawn at most while a relation waits for its own. */

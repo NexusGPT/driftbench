@@ -88,3 +88,37 @@ metadata:
       - marker: needs-existing-file
         atom: reference.weekly-report.read-references-kpi-definitions-md
         detail: .claude/skills/weekly-report/references/kpi-definitions.md is no file of the estate
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-prepare-the-weekly
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.weekly-report.skill-weekly-report
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: reference.weekly-report.read-references-kpi-definitions-md
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: journey.07
+        values: {}
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

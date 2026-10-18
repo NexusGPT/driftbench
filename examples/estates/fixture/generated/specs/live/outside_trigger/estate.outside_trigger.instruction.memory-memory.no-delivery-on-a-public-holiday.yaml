@@ -58,3 +58,22 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.memory-memory.no-delivery-on-a-public-holiday
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.memory-memory.no-delivery-on-a-public-holiday
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.memory-memory.no-delivery-on-a-public-holiday
+        values:
+          atoms.instruction: instruction.memory-memory.no-delivery-on-a-public-holiday
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

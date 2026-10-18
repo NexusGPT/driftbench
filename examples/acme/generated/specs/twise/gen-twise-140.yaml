@@ -138,3 +138,84 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-address
+  links:
+    - block: b1-needs-to-address
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-140
+        values:
+          behaviour: B-011
+          channel: whatsapp
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          stage_transition: needs-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D7_silence_or_burst
+      to:
+        kind: rule
+        rule: deviation=D7_silence_or_burst
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-D7_silence_or_burst
+      to:
+        kind: plan_row
+        row: gen-twise-140
+        values:
+          behaviour: B-011
+          channel: whatsapp
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          deviation: D7_silence_or_burst
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-address-to-address
+      to:
+        kind: rule
+        rule: stage_transition=address-to-address
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-address-to-address
+      to:
+        kind: rule
+        rule: coverage_result=not-in-map
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-address-to-address
+      to:
+        kind: plan_row
+        row: gen-twise-140
+        values:
+          behaviour: B-011
+          channel: whatsapp
+          user_type: new-customer
+          coverage_result: not-in-map
+          flow: new-home
+          stage_transition: address-to-address
+          stage: address
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

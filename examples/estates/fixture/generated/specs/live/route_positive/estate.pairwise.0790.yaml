@@ -91,3 +91,28 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.standing.an-ask-to-write-to-or
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: pairwise.0790
+        values:
+          ask_class: change_estate
+          ask_shape: prescribed
+          session_state: after_compaction
+          owner_signal: go
+          deviation: D1_off_topic
+          estate_hazard: no_hazard
+          atoms.route: route.standing.an-ask-to-write-to-or
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

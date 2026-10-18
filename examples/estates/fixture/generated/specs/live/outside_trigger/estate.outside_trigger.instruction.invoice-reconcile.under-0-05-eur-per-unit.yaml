@@ -58,3 +58,22 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.invoice-reconcile.under-0-05-eur-per-unit
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.invoice-reconcile.under-0-05-eur-per-unit
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.invoice-reconcile.under-0-05-eur-per-unit
+        values:
+          atoms.instruction: instruction.invoice-reconcile.under-0-05-eur-per-unit
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

@@ -5,6 +5,17 @@
 export const packageName = '@agent-nexus/driftbench-generate';
 
 export {
+  type BlockInput,
+  type BlockOrigin,
+  linksOf,
+  type RuleRef,
+  type SourceTurn,
+  type SpecBlock,
+  turnOfSource,
+  type WrittenBlocks,
+  writeBlocks,
+} from './blocks/writer';
+export {
   approveDrafts,
   type DraftOptions,
   type DraftTrace,

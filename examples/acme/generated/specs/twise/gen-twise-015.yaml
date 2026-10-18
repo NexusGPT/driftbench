@@ -138,3 +138,87 @@ metadata:
         phrase:
           dimension: deviation
           value: D1_off_topic
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-twise-015
+        values:
+          behaviour: B-002
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: most-data
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-closing
+      to:
+        kind: rule
+        rule: stage_transition=identify-to-closing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-closing
+      to:
+        kind: rule
+        rule: account_lookup=most-data
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-closing
+      to:
+        kind: plan_row
+        row: gen-twise-015
+        values:
+          behaviour: B-002
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: most-data
+          stage_transition: identify-to-closing
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D1_off_topic
+      to:
+        kind: rule
+        rule: deviation=D1_off_topic
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b3-D1_off_topic
+      to:
+        kind: plan_row
+        row: gen-twise-015
+        values:
+          behaviour: B-002
+          channel: whatsapp
+          user_type: existing-customer
+          coverage_result: none
+          flow: upgrade
+          account_lookup: most-data
+          deviation: D1_off_topic
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

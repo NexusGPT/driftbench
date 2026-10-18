@@ -109,3 +109,62 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-closing
+  links:
+    - block: b1-needs-to-identify
+      to:
+        kind: rule
+        rule: stage_transition=needs-to-identify
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b1-needs-to-identify
+      to:
+        kind: plan_row
+        row: gen-behaviour-balance-045
+        values:
+          behaviour: B-002
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: most-data
+          channel: whatsapp
+          coverage_result: none
+          stage_transition: needs-to-identify
+          stage: identify
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-closing
+      to:
+        kind: rule
+        rule: stage_transition=identify-to-closing
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-closing
+      to:
+        kind: rule
+        rule: account_lookup=most-data
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380
+    - block: b2-identify-to-closing
+      to:
+        kind: plan_row
+        row: gen-behaviour-balance-045
+        values:
+          behaviour: B-002
+          flow: upgrade
+          user_type: existing-customer
+          account_lookup: most-data
+          channel: whatsapp
+          coverage_result: none
+          stage_transition: identify-to-closing
+          stage: closing
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: 7a022d4e1380

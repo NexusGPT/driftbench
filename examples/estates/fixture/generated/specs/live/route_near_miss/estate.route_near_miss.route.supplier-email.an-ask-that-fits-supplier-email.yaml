@@ -52,3 +52,31 @@ metadata:
     ask: code
     askFrom: route.supplier-email.an-ask-that-fits-supplier-email (asks it names)
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: route.supplier-email.an-ask-that-fits-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: rule
+        rule: skill.supplier-email.skill-supplier-email
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: route_near_miss.route.supplier-email.an-ask-that-fits-supplier-email
+        values:
+          ask_shape: ambiguous
+          atoms.route: route.supplier-email.an-ask-that-fits-supplier-email
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

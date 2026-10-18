@@ -62,3 +62,23 @@ metadata:
     ask: code
     askFrom: gate.standing.read-git-status-before-commit-to (title)
     outcome: no-delete
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: gate.standing.read-git-status-before-commit-to
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: skip_pressure.gate.standing.read-git-status-before-commit-to
+        values:
+          owner_signal: keep_going
+          atoms.gate: gate.standing.read-git-status-before-commit-to
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

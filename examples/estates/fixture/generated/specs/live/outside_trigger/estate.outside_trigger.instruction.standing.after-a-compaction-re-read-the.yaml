@@ -49,3 +49,22 @@ metadata:
     ask: code
     askFrom: neutral
     outcome: no-change:negative
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.after-a-compaction-re-read-the
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.standing.after-a-compaction-re-read-the
+        values:
+          atoms.instruction: instruction.standing.after-a-compaction-re-read-the
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb

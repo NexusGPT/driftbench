@@ -58,3 +58,22 @@ metadata:
     outcome: no-change:negative
     judged:
       - instruction.standing.report-only-numbers-read-during-the
+  links:
+    - block: ask
+      to:
+        kind: rule
+        rule: instruction.standing.report-only-numbers-read-during-the
+      relation: verifies
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
+    - block: ask
+      to:
+        kind: plan_row
+        row: outside_trigger.instruction.standing.report-only-numbers-read-during-the
+        values:
+          atoms.instruction: instruction.standing.report-only-numbers-read-during-the
+      relation: derived_from
+      status: declared
+      created_by: generator
+      at_version: be2e7a0919cb
