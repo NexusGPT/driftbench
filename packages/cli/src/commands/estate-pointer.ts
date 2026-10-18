@@ -70,13 +70,27 @@ export async function openPointer(
   io: Io,
   env: Record<string, string | undefined>,
   fetch?: FetchLike,
+  root: string = io.cwd,
 ): Promise<PointerHandle | undefined> {
   if (!options.cassette) {
     io.err('error: --pointer needs --cassette <file>: the file that holds the recorded answers\n');
     return undefined;
   }
+  // The settings file at the root of the estate; each command-line option wins over its key.
+  const read = await pointer.readPointerSettings(root);
+  if (!read.ok) {
+    io.err(`Cannot use the pointer settings of ${pointer.SETTINGS_FILE}:\n`);
+    for (const error of read.errors) io.err(`  ${error}\n`);
+    return undefined;
+  }
+  const settings = read.settings;
+  if (settings.keys.length > 0)
+    io.out(`Pointer settings from ${pointer.SETTINGS_FILE}: ${settings.keys.join(', ')}.\n`);
   const specs: pointer.LabelerSpec[] = [];
-  for (const text of options.labeler?.length ? options.labeler : pointer.DEFAULT_LABELER_SPECS) {
+  const labelers = options.labeler?.length
+    ? options.labeler
+    : (settings.labeler ?? pointer.DEFAULT_LABELER_SPECS);
+  for (const text of labelers) {
     const parsed = pointer.parseLabelerSpec(text);
     if (!parsed.ok) {
       io.err(`error: --labeler ${parsed.message}\n`);
@@ -84,11 +98,18 @@ export async function openPointer(
     }
     specs.push(parsed.spec);
   }
-  const threshold = fraction(options.labelerThreshold, '--labeler-threshold', io);
-  const passAt = fraction(options.labelerPassAt, '--labeler-pass-at', io);
-  const failAt = fraction(options.labelerFailAt, '--labeler-fail-at', io);
-  const marginCut = fraction(options.labelerMarginCut, '--labeler-margin-cut', io);
-  if (threshold === null || passAt === null || failAt === null || marginCut === null) return undefined;
+  const flags = {
+    threshold: fraction(options.labelerThreshold, '--labeler-threshold', io),
+    passAt: fraction(options.labelerPassAt, '--labeler-pass-at', io),
+    failAt: fraction(options.labelerFailAt, '--labeler-fail-at', io),
+    marginCut: fraction(options.labelerMarginCut, '--labeler-margin-cut', io),
+  };
+  if (Object.values(flags).some((value) => value === null)) return undefined;
+  const fromFile = settings.threshold ?? {};
+  const threshold = flags.threshold ?? fromFile.labeler;
+  const passAt = flags.passAt ?? fromFile.passAt;
+  const failAt = flags.failAt ?? fromFile.failAt;
+  const marginCut = flags.marginCut ?? fromFile.marginCut;
   let jobs = DEFAULT_JOBS;
   if (options.jobs !== undefined) {
     jobs = Number(options.jobs);
@@ -98,25 +119,35 @@ export async function openPointer(
     }
   }
   let setsText = pointer.AGENT_RULES_SET;
-  if (options.labels) {
-    const path = resolve(io.cwd, options.labels);
+  const labelsPath = options.labels
+    ? resolve(io.cwd, options.labels)
+    : settings.labels && 'path' in settings.labels
+      ? resolve(root, settings.labels.path)
+      : undefined;
+  if (labelsPath) {
     try {
-      setsText = await readFile(path, 'utf8');
+      setsText = await readFile(labelsPath, 'utf8');
     } catch (cause) {
-      io.err(`Cannot read the label sets ${show(path, io)}: ${reason(cause)}\n`);
+      io.err(`Cannot read the label sets ${show(labelsPath, io)}: ${reason(cause)}\n`);
       return undefined;
     }
-  }
+  } else if (settings.labels && 'text' in settings.labels) setsText = settings.labels.text;
   const sets = pointer.parseLabelSets(setsText);
   if (!sets.ok) {
-    io.err(`Cannot use the label sets${options.labels ? ` in ${options.labels}` : ''}: ${sets.message}\n`);
+    const where = labelsPath
+      ? ` in ${show(labelsPath, io)}`
+      : settings.labels
+        ? ` in ${pointer.SETTINGS_FILE}`
+        : '';
+    io.err(`Cannot use the label sets${where}: ${sets.message}\n`);
     return undefined;
   }
   const record = options.record === true;
   const built = await pointer.buildLabelling(specs, {
     env,
     record,
-    cwd: io.cwd,
+    // A module named in the settings file sits beside the estate; one named by --labeler, beside the shell.
+    cwd: options.labeler?.length ? io.cwd : root,
     ...(threshold === undefined ? {} : { threshold }),
     ...(passAt === undefined ? {} : { passAt }),
     ...(failAt === undefined ? {} : { failAt }),
@@ -146,7 +177,11 @@ export async function openPointer(
     await mkdir(dirname(cassettePath), { recursive: true });
     cassette.onPut = (entry) => appendFileSync(cassettePath, `${pointer.canonical(entry)}\n`);
   }
-  const ledgerPath = options.ledger ? resolve(io.cwd, options.ledger) : undefined;
+  const ledgerPath = options.ledger
+    ? resolve(io.cwd, options.ledger)
+    : settings.ledger
+      ? resolve(root, settings.ledger)
+      : undefined;
   let previous: pointer.Ledger | undefined;
   let previousText: string | undefined;
   if (ledgerPath && (await exists(ledgerPath))) {

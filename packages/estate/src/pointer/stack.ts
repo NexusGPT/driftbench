@@ -274,9 +274,10 @@ async function member(spec: LabelerSpec, inStack: boolean, options: LabellingOpt
     }
     case 'anthropic': {
       const key = options.record ? options.env.ANTHROPIC_API_KEY?.trim() : undefined;
+      const model = spec.model ?? options.env.ANTHROPIC_LABELER_MODEL?.trim();
       return createAnthropicLabeler({
         ...http,
-        ...(spec.model ? { model: spec.model } : {}),
+        ...(model ? { model } : {}),
         ...(key ? { key } : {}),
         ...(options.env.ANTHROPIC_BASE_URL ? { baseUrl: options.env.ANTHROPIC_BASE_URL } : {}),
       });

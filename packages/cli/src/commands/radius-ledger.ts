@@ -7,7 +7,7 @@ import { show, writeOut } from '../files';
 import type { Io } from '../io';
 
 export type RadiusLedgerOptions = {
-  ledger: string;
+  ledger?: string;
   out?: string;
   fromVersion?: string;
   toVersion?: string;
@@ -24,9 +24,9 @@ export function registerRadiusLedger(radius: Command, io: Io, setExit: (code: nu
     .command('ledger')
     .description('Map an edit of the estate prose to a change manifest, from the ledger of the last scan')
     .argument('<map>', 'the estate map of the last scan: its folder, its ignore list and its atoms')
-    .requiredOption(
+    .option(
       '--ledger <file>',
-      'the ledger of the last scan (estate scan --pointer --ledger --update)',
+      'the ledger of the last scan (estate scan --pointer --ledger --update); default ledger: of driftbench.estate.yaml',
     )
     .option(
       '--from-version <version>',
@@ -54,20 +54,6 @@ export async function radiusLedgerCommand(
     return 2;
   }
   const map = loaded.map;
-  let text: string;
-  try {
-    text = await readFile(resolve(io.cwd, options.ledger), 'utf8');
-  } catch (cause) {
-    io.err(
-      `Cannot read the ledger ${options.ledger}: ${cause instanceof Error ? cause.message : String(cause)}\n`,
-    );
-    return 2;
-  }
-  const before = pointer.parseLedger(text);
-  if (!before) {
-    io.err(`Cannot use the ledger ${options.ledger}: it is not a ledger\n`);
-    return 2;
-  }
   const reader = readerFor(map.runtime, { ignore: map.ignore ?? [] });
   if (!reader) {
     io.err(`The map was read by the runtime "${map.runtime}", which this driftbench cannot read.\n`);
@@ -76,6 +62,35 @@ export async function radiusLedgerCommand(
   const root = resolve(dirname(file), map.root);
   if (!(await isFolder(root))) {
     io.err(`Cannot find the estate folder ${show(root, io)} the map names.\n`);
+    return 2;
+  }
+  let ledgerPath = options.ledger === undefined ? undefined : resolve(io.cwd, options.ledger);
+  if (ledgerPath === undefined) {
+    // The ledger the settings file of the estate names, relative to the estate folder.
+    const settings = await pointer.readPointerSettings(root);
+    if (!settings.ok) {
+      io.err(`Cannot use the pointer settings of ${pointer.SETTINGS_FILE}:\n`);
+      for (const error of settings.errors) io.err(`  ${error}\n`);
+      return 2;
+    }
+    if (settings.settings.ledger === undefined) {
+      io.err(`error: name the ledger with --ledger <file>, or with ledger: in ${pointer.SETTINGS_FILE}\n`);
+      return 2;
+    }
+    ledgerPath = resolve(root, settings.settings.ledger);
+  }
+  let text: string;
+  try {
+    text = await readFile(ledgerPath, 'utf8');
+  } catch (cause) {
+    io.err(
+      `Cannot read the ledger ${show(ledgerPath, io)}: ${cause instanceof Error ? cause.message : String(cause)}\n`,
+    );
+    return 2;
+  }
+  const before = pointer.parseLedger(text);
+  if (!before) {
+    io.err(`Cannot use the ledger ${show(ledgerPath, io)}: it is not a ledger\n`);
     return 2;
   }
   const after = pointer.proseLedger(await reader.read(root), before);
@@ -100,7 +115,7 @@ export async function radiusLedgerCommand(
   );
   io.out(
     rerun.whole === null
-      ? `  ${rerun.units.size} units rerun, ${rerun.advisory.size} advisory only; ${manifest.changes.length} changes.\n`
+      ? `  ${count(rerun.units.size, 'unit reruns', 'units rerun')}, ${rerun.advisory.size} advisory only; ${count(manifest.changes.length, 'change', 'changes')}.\n`
       : `  The whole suite reruns: ${rerun.whole}.\n`,
   );
   io.out(`Wrote ${options.out}.\n`);
@@ -110,3 +125,5 @@ export async function radiusLedgerCommand(
 async function isFolder(path: string): Promise<boolean> {
   return (await stat(path).catch(() => undefined))?.isDirectory() === true;
 }
+
+const count = (n: number, one: string, many: string): string => `${n} ${n === 1 ? one : many}`;

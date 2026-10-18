@@ -88,6 +88,14 @@ export {
   windowsOf,
 } from './scan';
 export {
+  MODEL_VARIABLES,
+  type PointerSettings,
+  parsePointerSettings,
+  readPointerSettings,
+  SETTINGS_FILE,
+  type SettingsResult,
+} from './settings';
+export {
   buildLabelling,
   DEFAULT_FAIL_AT,
   DEFAULT_LABELER_SPECS,
