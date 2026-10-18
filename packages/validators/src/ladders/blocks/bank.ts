@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { type BankEntry, bankMeasure, type Measure } from '../../ladder';
 import { breakerItems } from '../blocks-breaker/index';
 import { growthChecksItems } from '../blocks-growth/checks/index';
+import { growthContracts2Items } from '../blocks-growth/contracts2/index';
+import { growthDocgapsItems } from '../blocks-growth/docgaps/index';
 import { growthRunItems } from '../blocks-growth/run/index';
 import { CONTRACTS } from './contracts';
 import { releaseAgents } from './kinds';
@@ -63,6 +65,8 @@ export function blocksBank(): BankItem[] {
     ...breakerItems(),
     ...growthChecksItems(),
     ...growthRunItems(),
+    ...growthDocgapsItems(),
+    ...growthContracts2Items(),
   ];
   return items
     .map((item) => {

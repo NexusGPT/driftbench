@@ -742,7 +742,7 @@ export const CONTRACTS: Readonly<Record<string, string>> = {
   'uses is part of the spec hash and is left out of the block cache key.':
     'docs/reference/block-contracts.md#Uses and the hashes',
   'uses is resolved weakest first with a stronger layer winning: suite, spec, block, command line':
-    'docs/reference/block-contracts.md#Content hash',
+    'docs/reference/block-contracts.md#Layer precedence',
   'wilson(k, n, z) is the Wilson score interval for k successes in n with z the two-sided 95 percent value by default':
     'docs/concepts/statistics.md#Intervals',
   'wilsonEffective computes n_eff from the cluster-robust variance and the t quantile.':
