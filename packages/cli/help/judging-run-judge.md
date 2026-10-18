@@ -119,7 +119,7 @@ The scripts below run the package from its source with `tsx`; this file tells `t
 ```
 
 ```sh setup
-tsx packages/cli/src/bin.ts estate run examples/estates/fixture/generated/specs/live/obligation/estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public.yaml --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --set-env FAKE_MANIFEST=$PWD/examples/estates/fixture/live/fake/manifest.json --store estate-runs.db --states examples/estates/fixture/live/states/library.json --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs  # exit 1
+tsx packages/cli/src/bin.ts estate run examples/estates/fixture/generated/specs/live/obligation/estate.obligation.instruction.route-planner.never-plan-a-delivery-on-a.yaml --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --set-env FAKE_MANIFEST=$PWD/examples/estates/fixture/live/fake/manifest.json --store estate-runs.db --states examples/estates/fixture/live/states/library.json --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs  # exit 1
 ```
 
 ```text
@@ -153,12 +153,12 @@ note: replay-clean-build: judged criteria are not run in replay
 ✓ replay-clean-build  session clean-build from block 0 (metadata)
 1 spec replayed: 1 pass, 0 fail. Judge claude:haiku, 0.0015 USD. Campaign replay-b3e3451867b0 (in memory).
 (exit 0)
-$ tsx packages/cli/src/bin.ts estate run examples/estates/fixture/generated/specs/live/obligation/estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public.yaml --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --set-env FAKE_MANIFEST=$PWD/examples/estates/fixture/live/fake/manifest.json --store estate-runs.db --states examples/estates/fixture/live/states/library.json --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
+$ tsx packages/cli/src/bin.ts estate run examples/estates/fixture/generated/specs/live/obligation/estate.obligation.instruction.route-planner.never-plan-a-delivery-on-a.yaml --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --set-env FAKE_MANIFEST=$PWD/examples/estates/fixture/live/fake/manifest.json --store estate-runs.db --states examples/estates/fixture/live/states/library.json --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
 note: the estate copy is not pinned to a map hash; pass --map to pin it
-✗ estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public  (0.0015 USD)
-    failing: block 0: subagents.route-planner, block 0: judge.instruction.route-planner.no-delivery-planned-on-a-public
-    judged instruction.route-planner.never-put-more-than-the-van: fail
-1 spec run live on a stand-in: 0 pass, 1 fail. Cost 0.0015 USD over 1 run that report one, judge claude:haiku 0.0015 USD of it. Campaign estate-run-ea9630d6c6e7.
+✗ estate.obligation.instruction.route-planner.never-plan-a-delivery-on-a  (0.0030 USD)
+    failing: block 0: subagents.route-planner, block 0: judge.instruction.route-planner.never-plan-a-delivery-on-a
+    judged instruction.route-planner.never-plan-a-delivery-on-a: fail
+1 spec run live on a stand-in: 0 pass, 1 fail. Cost 0.0030 USD over 1 run that report one, judge claude:haiku 0.0030 USD of it. Campaign estate-run-63dac7be86f3.
 (exit 1)
 ```
 

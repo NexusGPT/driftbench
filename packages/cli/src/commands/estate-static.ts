@@ -1,13 +1,26 @@
 import { readFile, stat } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
-import { RUNTIMES, readerFor, runStaticTests, type StaticResult } from '@agent-nexus/driftbench-estate';
+import {
+  type EstateMap,
+  loadEstateMap,
+  RUNTIMES,
+  readerFor,
+  runStaticTests,
+  type StaticResult,
+} from '@agent-nexus/driftbench-estate';
 import { formatJson, StaticTest } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import { jsonFiles } from '../files';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 
-export type EstateStaticOptions = { estate?: string; runtime?: string; ceiling?: string; json?: boolean };
+export type EstateStaticOptions = {
+  estate?: string;
+  runtime?: string;
+  ceiling?: string;
+  map?: string;
+  json?: boolean;
+};
 
 /**
  * `driftbench estate static <tests...> --estate <root>`: runs the static tests `estate generate` wrote
@@ -21,6 +34,10 @@ export function registerEstateStaticCommand(estate: Command, io: Io, setExit: (c
     .argument('<tests...>', 'static test files, or folders holding them (such as <suite>/static)')
     .option('--estate <root>', 'the estate root to read: the original or a mutant copy')
     .option('--runtime <name>', `the runtime that reads the estate: ${RUNTIMES.join(', ')}`, 'claude-code')
+    .option(
+      '--map <file>',
+      'the estate map: the files its prose atoms name are not orphans (code cannot read them again)',
+    )
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--json', 'print the results as JSON')
     .action(async (paths: string[], options: EstateStaticOptions) => {
@@ -88,7 +105,18 @@ export async function estateStaticCommand(
     io.err('No static test found.\n');
     return 2;
   }
-  const results = await runStaticTests(tests, { root, reader, ceiling });
+  let map: EstateMap | undefined;
+  if (options.map) {
+    const loaded = await loadEstateMap(resolve(io.cwd, options.map));
+    if (!loaded.ok) {
+      io.err(
+        `Cannot use the map ${options.map}: ${loaded.errors.map((issue) => issue.message).join('; ')}\n`,
+      );
+      return 2;
+    }
+    map = loaded.map;
+  }
+  const results = await runStaticTests(tests, { root, reader, ceiling, ...(map ? { map } : {}) });
   const failed = results.filter((result) => !result.pass);
   if (options.json)
     io.out(

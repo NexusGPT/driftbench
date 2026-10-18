@@ -40,6 +40,38 @@ describe('driftbench estate static', () => {
     expect(by['estate.invariant.invariant.registry.the-check-registry-lists-every-guard']).toBe(false);
   });
 
+  it('counts the files the prose of a given map names: the one orphan is the planted one', async () => {
+    const test = join(STATIC, 'invariant/estate.invariant.invariant.standing.no-file-of-the-estate-is.json');
+    const alone = await run(['estate', 'static', test, '--estate', FIXTURE, '--json']);
+    const unnamed = JSON.parse(alone.out) as { results: Array<{ detail: string }> };
+    expect(unnamed.results[0]?.detail).toContain('matching-rules.md');
+    const mapped = await run([
+      'estate',
+      'static',
+      test,
+      '--estate',
+      FIXTURE,
+      '--map',
+      join(FIXTURE, 'approved.yaml'),
+      '--json',
+    ]);
+    expect(mapped.code).toBe(1);
+    const named = JSON.parse(mapped.out) as { results: Array<{ detail: string }> };
+    expect(named.results[0]?.detail).toContain(
+      'does not hold: {"orphans":[".claude/skills/invoice-reconcile/references/old-tolerances.md"]}',
+    );
+    const bad = await run([
+      'estate',
+      'static',
+      test,
+      '--estate',
+      FIXTURE,
+      '--map',
+      join(FIXTURE, 'nope.yaml'),
+    ]);
+    expect(bad.code).toBe(2);
+  });
+
   it('turns a setting test red on a copy whose settings changed', async () => {
     const root = await mkdtemp(join(tmpdir(), 'driftbench-estate-static-'));
     await cp(join(FIXTURE, 'CLAUDE.md'), join(root, 'CLAUDE.md'));

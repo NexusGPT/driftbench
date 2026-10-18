@@ -366,7 +366,9 @@ function scanReport(result: ScanEstateResult, out: string, io: Io, describe = ''
       lines.push(`    ${run.chunk}  failed: ${run.error}${run.excerpt ? ` (answer: "${run.excerpt}")` : ''}`);
     }
   }
-  lines.push(result.refusals.length === 0 ? '  Refused: none.' : '  Refused, not in the map:');
+  // The pointer reader lists its own refusals above, one per answer; "none" would contradict that list.
+  if (result.refusals.length > 0) lines.push('  Refused, not in the map:');
+  else if ((result.pointer?.refusals.length ?? 0) === 0) lines.push('  Refused: none.');
   for (const refusal of result.refusals)
     lines.push(`    ${refusal.chunk}  ${refusal.entry}  ${refusal.reason}`);
   if (result.duplicates.length > 0) {

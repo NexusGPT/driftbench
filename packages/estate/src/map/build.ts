@@ -28,6 +28,19 @@ const RULE_KINDS = new Set(['instruction', 'gate', 'register']);
  * map is returned. The same estate, the same recorded answers and the same clock give the same map.
  */
 
+/**
+ * The files nothing names, given the atoms of an estate: those code read and those the prose gave. An atom names
+ * a file by its path; navigation documents and files the runtime loads by place count as named.
+ */
+export function orphansOf(raw: RawEstate, atoms: readonly Atom[], edges: readonly Edge[]): string[] {
+  const navigation = new Set(
+    raw.files.filter((file) => unloadedByDesign(raw, file)).map((file) => file.path),
+  );
+  return analyzeGraph(atoms, edges, raw.files, navigationNames(raw), codeNames(raw).links).orphans.filter(
+    (path) => !navigation.has(path),
+  );
+}
+
 export type ScanEstateInput = {
   root: string;
   reader: EstateReader;
