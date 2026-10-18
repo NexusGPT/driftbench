@@ -237,7 +237,38 @@ How to read it:
 * On Anthropic, the first `tool_use` keeps `call-1` and the second gets `toolu_h2`: Anthropic counts every call. Each `tool_result` names its own `tool_use_id`.
 * The free tool note is user text on both wires, after the assistant's reply text.
 
-The same prefix on the crewai adapter. A crew takes its history as text inputs, so with its default inputs the adapter refuses the two recorded calls before the crew starts. The script below runs the spec through the runner on a stand-in crew, with no Python and no model. It exits 1 when the run does not complete:
+The same kind of prefix on the crewai adapter. A crew takes its history as text inputs, so with its default inputs the adapter refuses the two recorded calls before the crew starts. The runner also checks that call ids are unique within one message, so this spec gives its two calls the ids `call-1` and `call-2`:
+
+```yaml file=out/running-tool-history/crew.yaml
+# Fictional data only.
+id: crew-history
+target: { adapter: function, agent: acme-sales }
+stages: [address, offer, callback, handover, closing]
+ledger_seed: { customer: new }
+blocks:
+  - id: ask-price
+    given:
+      origin: authored
+      prefix:
+        - role: user
+          content: Is fiber available at 3 Orchard Way, Acmeville?
+        - role: assistant
+          content: Yes, Acme Fiber 300 is available at 3 Orchard Way.
+          tool_calls:
+            - id: call-1
+              label: coverage.check
+              input: { address: '3 Orchard Way, Acmeville' }
+              output: { found: true, address_id: addr-0042 }
+            - id: call-2
+              label: catalog.search
+              input: { category: home, address_id: addr-0042 }
+              output: { plans: [fiber-300] }
+    user: How much is it per month?
+    expect:
+      stage: offer
+```
+
+The script below runs the spec through the runner on a stand-in crew, with no Python and no model. It exits 1 when the run does not complete:
 
 ```ts file=crew.mts
 import { readFileSync } from 'node:fs';
@@ -268,16 +299,16 @@ process.exitCode = run.status === 'completed' ? 0 : 1;
 ```
 
 ```sh setup
-tsx crew.mts out/running-tool-history/paired.yaml # exit 1
-tsx crew.mts out/running-tool-history/paired.yaml inputs
+tsx crew.mts out/running-tool-history/crew.yaml # exit 1
+tsx crew.mts out/running-tool-history/crew.yaml inputs
 ```
 
 ```text
-$ tsx crew.mts out/running-tool-history/paired.yaml
+$ tsx crew.mts out/running-tool-history/crew.yaml
 status failed, 0 block(s) run
 open on block 0 failed: AgentFailure: crewai: the Given prefix (origin authored) holds 2 recorded tool call(s), and a crew takes its history as text inputs, so its agents would read them as prose, not as tool results. Write those turns as blocks the crew runs, or pass `inputs` that hand the calls to the crew in a form it reads as records.
 (exit 1)
-$ tsx crew.mts out/running-tool-history/paired.yaml inputs
+$ tsx crew.mts out/running-tool-history/crew.yaml inputs
 status completed, 1 block(s) run
 (exit 0)
 ```
