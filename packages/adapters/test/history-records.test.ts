@@ -215,20 +215,23 @@ describe('the example histories', () => {
           ? { calls: message.calls.map((call) => ({ ...call, label: names.label(call.label) })) }
           : {}),
       }));
-      if (JSON.stringify(back) !== JSON.stringify(carried(history, { system: 'apart' })))
+      if (
+        JSON.stringify({ messages: back, normalizations: anthropic.normalizations }) !==
+        JSON.stringify(carried(history, { system: 'apart', omitEmptyText: 'anthropic' }))
+      )
         problems.push(`anthropic ${id}: read back differs`);
       const system = history.filter((message) => message.role === 'system' && message.content !== '');
       if (JSON.stringify(anthropic.system) !== JSON.stringify(system.map((message) => message.content)))
         problems.push(`anthropic ${id}: system differs`);
       if (
         JSON.stringify(fromChat(toChatMessages(history))) !==
-        JSON.stringify(carried(history, { system: 'inline', keepEmpty: true }))
+        JSON.stringify(carried(history, { system: 'inline', keepEmpty: true }).messages)
       )
         problems.push(`chat ${id}: read back differs`);
       const items = toInputItems(history, new ToolLabels());
       if (
         JSON.stringify(fromResponses(items)) !==
-        JSON.stringify(carried(history, { system: 'inline', mergeCallTurns: true }))
+        JSON.stringify(carried(history, { system: 'inline', mergeCallTurns: true }).messages)
       )
         problems.push(`responses ${id}: read back differs`);
     }
