@@ -129,3 +129,13 @@ pnpm exec tsx packages/validators/test/estate/fixture-gap-report.ts /tmp/astra-a
 The collector reports every incomplete generated row, omitted native unit, static ask failure and fake-agent trace failure. It runs every static-passing complete ask against the fictional fake agent. It records failures without changing item IDs, causes or required outcomes, then removes its generated scratch suite. The artifact, not this document, supplies measured counts.
 
 `completion-contract.ts` independently reads both `fields.recovery` and `hazard_recovery.options`. Both declared fixture hazards therefore retain their source requirements if a generated assertion is removed. Co-located evidence without an explicit recovery declaration remains a separate validator compatibility gap until the independent reconstruction supports it.
+
+## Reviewer reproductions and remaining drawn-source gaps
+
+The reviewer reproduction checks name-only legacy source forgery, an ordered Bash gate with an empty input, and malformed recovery entries beside valid siblings. They retain the original IDs and reject every planted wrong ask. Recovery decoding reports the exact invalid array index or field instead of filtering it away.
+
+The drawn positive recovery reference authors `recovery.reread` in its hidden fictional source and copies that declaration into a cloned map before regeneration. It preserves map IDs and plan rows, keeps the original missing-source plant, and rejects deletion of the generated reread assertion. Its measured result is recorded with the test run.
+
+Drawn `instruction.standing.re-read-the-standing-instructions-after` remains an operational-act gap: the required act is a Read of the standing file, not a reply. `instruction.standing.check-which-helpers-still-run-after` needs an explicit helper-inspection act and independently recorded event. These do not receive fabricated reply labels. A typed operational act binding (for example a read target or an inspection tool and input) must connect the authored requirement to the trace.
+
+The keyless gate mutant and judged-criteria fixtures also retain their original positive expectations. Their failures remain visible until their structured source contracts are supplied; exact diagnostic assertions do not relax the criteria.
