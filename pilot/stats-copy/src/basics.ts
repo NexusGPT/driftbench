@@ -55,6 +55,28 @@ export function mean(values: readonly number[]): number {
   return sum(values) / values.length;
 }
 
+/**
+ * The weighted mean sum w x / sum w (numpy.average). Computed about the first value, x0 + sum w (x - x0) / sum w,
+ * so a sample of equal values returns that value exactly.
+ */
+export function weightedMean(values: readonly number[], weights: readonly number[]): number {
+  if (values.length === 0) throw new RangeError('weightedMean: values is empty');
+  assertSameLength(values, weights, 'weightedMean', 'values or weights');
+  assertFiniteValues(values, 'weightedMean: values');
+  assertFiniteValues(weights, 'weightedMean: weights');
+  let total = 0;
+  let weighted = 0;
+  const x0 = values[0] as number;
+  for (let i = 0; i < values.length; i += 1) {
+    const w = weights[i] as number;
+    if (w < 0) throw new RangeError(`weightedMean: weights must be non-negative, got ${w} at index ${i}`);
+    total += w;
+    weighted += w * ((values[i] as number) - x0);
+  }
+  if (!(total > 0)) throw new RangeError('weightedMean: weights must have a positive sum');
+  return x0 + weighted / total;
+}
+
 /** Sample variance with n - 1 in the denominator. */
 export function sampleVariance(values: readonly number[]): number {
   const n = values.length;

@@ -12,7 +12,7 @@ export {
   krippendorffAlpha,
   type Label,
 } from './agreement';
-export { mean, mulberry32, quantile, quantileSorted, sampleVariance } from './basics';
+export { mean, mulberry32, quantile, quantileSorted, sampleVariance, weightedMean } from './basics';
 export {
   abundances,
   type ChaoResult,
