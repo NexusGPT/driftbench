@@ -822,6 +822,41 @@ describe('the settings file of the estate', () => {
     expect(output.out).toContain('Pointer reader: system 2 module:harbour harbour.');
   });
 
+  it('lets each option win over its key: threshold, label sets and ledger, with the file in place', async () => {
+    const { root } = await base();
+    const ledger = await readFile(join(root, 'ledger.json'), 'utf8');
+    await writeFile(join(root, 'rules-only.yaml'), SETS().slice(0, SETS().indexOf('  - set: harbour-voice')));
+    const { io, output } = capture(root);
+    const code = await estateScanCommand(
+      '.',
+      {
+        out: 'map.yaml',
+        pointer: true,
+        cassette: 'cassette.jsonl',
+        record: true,
+        update: true,
+        force: true,
+        labelerPassAt: '0.8',
+        labels: 'rules-only.yaml',
+        ledger: 'other.json',
+      },
+      io,
+      { env: KEYS, fetch: services },
+    );
+    expect(output.err).toBe('');
+    expect(code).toBe(0);
+    // The threshold of the option, not pass_at: 0.9 of the file.
+    expect(output.out).toContain('(pass at 0.8, fail at 0.1)');
+    // The ledger of the option is written; the ledger the file names is left as it was.
+    expect(await readFile(join(root, 'ledger.json'), 'utf8')).toBe(ledger);
+    const other = JSON.parse(await readFile(join(root, 'other.json'), 'utf8')) as {
+      entries: { labels: Record<string, unknown> }[];
+    };
+    // The label sets of the option: harbour-rules alone, not the two sets of labels.yaml.
+    const sets = new Set(other.entries.flatMap((entry) => Object.keys(entry.labels)));
+    expect([...sets]).toEqual(['harbour-rules']);
+  });
+
   it('lets a command-line option win over its key, and refuses a model in the file', async () => {
     const { root, before } = await base();
     const { io, output } = capture(root);
