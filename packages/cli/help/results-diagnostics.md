@@ -18,7 +18,7 @@ that tests compare with the data:
 | Diagnostic | Scope | Steps | What it writes |
 |---|---|---|---|
 | `code-agent-liability` | block | `chain`, `evidence`, `attribute`, `place` | for each failing gating verdict: `fault` (agent, skill, tool, test, env, setup), `disposition` (agent, shared, setup, excluded, credited, unassigned), `fix_location`, `fix_target`, `fix_action`, `fix_forms`, and the blame item and the placement item that decided it |
-| `value-mismatch` | block | `chain`, `evidence`, `attribute` | for each failing gating tools input verdict: outcome `unknown`, disposition `unassigned`, flag `lint:value_ladder_unavailable`. The value check's record does not reach it yet, so no blame item is applied |
+| `value-mismatch` | block | `chain`, `evidence`, `attribute` | for each failing gating tools input verdict: outcome `unknown`, disposition `unassigned`, flag `lint:value_ladder_unavailable`. This diagnostic does not read the value check's record yet, so no blame item is applied |
 | `fix-plan` | campaign | `recurrence`, `replace`, `merge`, `rank` | one fix per target and action, ranked by the failing blocks it explains (the agent's first), then cost; a core fix that replaces local fixes lists them as copies to remove |
 | `liability-confirm` | campaign | `plan`, `run`, `store`, `rejudge` | the cheapest run that could change each open diagnosis, made only within its budget, then `code-agent-liability` again |
 | `flaky-block` | campaign | `disagreement` | blocks whose repeats both pass and fail, with their pass share |
@@ -88,11 +88,12 @@ The fields of `blockEvidenceInputs(source)`:
 | Field | Meaning | Default |
 |---|---|---|
 | `observed`, `verdicts` | the stored block's observation and verdicts | required |
-| `expect` | the spec block's `expect`: its tools give the order, its skills the routed skills | none |
+| `expect` | the spec block's `expect`: its tools give the order, its skills the routed skills, its `protected` paths the files it guards | none |
 | `user` | the user turn the agent received | none |
-| `spec`, `specPath` | the spec, for `metadata.estate.atoms` and `metadata.estate.map`; the map path resolves from the spec's folder | none; the map path then resolves from the working folder |
+| `spec`, `specPath` | the spec, for `metadata.estate.atoms`, `metadata.estate.map` and `metadata.tool_schemas`; the map path resolves from the spec's folder | none; the map path then resolves from the working folder |
 | `map` | the estate map, when you read it yourself | read from `metadata.estate.map` |
 | `confirm` | stored confirm counts by verdict id, such as `{ runs: 3, reference_loads: 0 }` | none |
+| `valuePolicy` | the `policy/value-check` object the block resolved: it tells which implementation a stored rung id names | the shipped default |
 | `planRows`, `extra` | plan rows that name the rule's atom; any other evidence input field | none |
 
 The params a file that extends a shipped diagnostic may set:
@@ -117,7 +118,7 @@ location, disable `place` and set `emit: true` on `attribute`.
   commands with exit codes, guard decisions and the workspace diff.
 * For an estate spec: the atoms it enforces (`metadata.estate.atoms`) and the estate map (`metadata.estate.map`).
   The map gives each rule's file and line, kind, situation and enforcing guards.
-* For a value failure: nothing yet. Value evidence stays unknown with a lint until the separate value-ladder integration is available.
+* For a value failure: the value check's record of each failing value (`valueCheck` on the verdict), when the value check ran.
 * For `liability-confirm`: a runner. A stand-in command runs free; a reference target is billed.
 
 ## Outputs and how to read them
@@ -306,10 +307,10 @@ $ driftbench replay examples/estates/fixture/sessions/weekly-clean.jsonl example
 ✓ estate.p04.weekly-clean  session weekly-clean from block 0 (metadata)
 ✓ estate.p04.weekly-gate-violated  session weekly-gate-violated from block 0 (metadata)
 ✓ estate.p04.weekly-skill-skipped  session weekly-skill-skipped from block 0 (metadata)
-12 specs replayed: 10 pass, 2 fail. Judge none, 0.0000 USD. Campaign replay-a8f52370fafc.
+12 specs replayed: 10 pass, 2 fail. Judge none, 0.0000 USD. Campaign replay-b52e43884115.
 (exit 1)
 $ driftbench campaign run --config examples/acme/ci/campaign.yaml --mode F --store acme.db
-Campaign c-4689ca27c8ec: 12 cells, 2 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-798493ab512e: 12 cells, 2 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme-sales · F · repeat 0  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme-sales · F · repeat 1  pass  4 blocks
