@@ -464,6 +464,7 @@ describe('gen.task judges faulty generator outputs by the ask, on every seed', {
               spec: task(ask(seed)),
             },
           ],
+          natives: [],
           report: {},
         };
         const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(suite);
@@ -651,6 +652,7 @@ describe('gen.task compares the ask with the rules of the estate map', { timeout
           spec: task(ask),
         },
       ],
+      natives: [],
       report: {},
     };
     const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(suite);
