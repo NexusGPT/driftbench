@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +15,7 @@ import {
 } from '@agent-nexus/driftbench-estate';
 import { loadSpaceMap, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { parse as parseYaml } from 'yaml';
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { isStandIn } from '../src/commands/estate-live';
 import { type Io, main } from '../src/index';
 
@@ -219,6 +219,49 @@ function withoutRootAndTime(map: EstateMap) {
     readAt: '',
     ...(map.producedBy === undefined ? {} : { producedBy: { ...map.producedBy, at: '' } }),
   };
+}
+
+/** JSON with the keys of every object sorted, so equal content gives equal text. */
+function stable(value: unknown): string {
+  const sort = (item: unknown): unknown =>
+    Array.isArray(item)
+      ? item.map(sort)
+      : item !== null && typeof item === 'object'
+        ? Object.fromEntries(
+            Object.entries(item as Record<string, unknown>)
+              .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+              .map(([key, each]) => [key, sort(each)]),
+          )
+        : item;
+  return JSON.stringify(sort(value));
+}
+
+/**
+ * What a spec asks and checks: all of it but its name and its provenance. The names of the judged criteria
+ * come from atom ids, so they are replaced by their position; the rubric and the flags stay.
+ */
+function contentOf(spec: Generated['spec']): string {
+  const {
+    id: _id,
+    title: _title,
+    metadata: _metadata,
+    tags: _tags,
+    ...rest
+  } = structuredClone(spec) as Record<string, unknown>;
+  const criteria = rest.criteria as Array<Record<string, unknown>> | undefined;
+  const names = new Map(criteria?.map((criterion, at) => [criterion.name, `criterion.${at}`]));
+  if (criteria)
+    rest.criteria = criteria.map((criterion) => ({ ...criterion, name: names.get(criterion.name) }));
+  rest.blocks = (rest.blocks as Array<{ expect?: { criteria?: string[] } }>).map((block) => ({
+    ...block,
+    expect: {
+      ...block.expect,
+      ...(Array.isArray(block.expect?.criteria)
+        ? { criteria: block.expect.criteria.map((name) => names.get(name) ?? name) }
+        : {}),
+    },
+  }));
+  return stable(rest);
 }
 
 const atomsOf = (entry: Generated) => entry.spec.metadata.estate.atoms;
@@ -496,13 +539,71 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
 
       const specs = await readSpecs(out);
       chain.specs = specs;
+
+      /**
+       * What must hold for a plan row to stand under a representative, computed from the plan and not from the
+       * generator's label. The row has the atoms, test type, mode and cell of the representative's row. The
+       * representative is a complete spec. And the row, generated alone from a plan that holds only it, is a
+       * complete spec with the same blocks (Given, When, Then) and rules as the representative. Returns the
+       * ways it fails to hold; none means the fold is proved.
+       */
+      const foldProblems = async (rep: Generated, id: string): Promise<string[]> => {
+        const problems: string[] = [];
+        const own = plan.rows.find((row) => row.id === id);
+        const head = plan.rows.find((row) => row.id === rep.spec.metadata.estate.planRow);
+        if (own === undefined || head === undefined)
+          return [`${id} or its representative is no row of the plan`];
+        if (!rep.folder.startsWith('specs/'))
+          problems.push(`the representative ${rep.spec.id} is incomplete`);
+        if (stable(own.atomIds) !== stable(head.atomIds))
+          problems.push(`${id} names other atoms than ${head.id}`);
+        if (own.testType !== head.testType) problems.push(`${id} is another test type than ${head.id}`);
+        if (own.mode !== head.mode) problems.push(`${id} runs in another mode than ${head.id}`);
+        if (stable(own.cell) !== stable(head.cell)) problems.push(`${id} has another cell than ${head.id}`);
+        const dir = join(work, 'folds', createHash('sha256').update(id).digest('hex').slice(0, 12));
+        await mkdir(dir, { recursive: true });
+        await writeFile(
+          join(dir, 'plan.yaml'),
+          stringifyYaml({
+            ...plan,
+            rows: plan.rows.map((row) => ({ ...row, status: row.id === id ? 'approved' : 'struck' })),
+          }),
+        );
+        const alone = await cli([
+          'estate',
+          'generate',
+          '--map',
+          join(work, 'approved.yaml'),
+          '--plan',
+          join(dir, 'plan.yaml'),
+          '--out',
+          join(dir, 'generated'),
+          '--phrases',
+          join(FIXTURE, 'phrases.yaml'),
+          '--sessions',
+          join(FIXTURE, 'sessions/index.yaml'),
+          '--json',
+        ]);
+        if (alone.err !== '') return [...problems, `${id} alone: ${alone.err.trim()}`];
+        const written = await readSpecs(join(dir, 'generated'));
+        if (written.length !== 1) return [...problems, `${id} alone gives ${written.length} specs, not one`];
+        const [single] = written;
+        if (single === undefined) return problems;
+        if (!single.folder.startsWith('specs/')) problems.push(`${id} alone is an incomplete spec`);
+        if (contentOf(single.spec) !== contentOf(rep.spec)) {
+          problems.push(`${id} alone is not the spec of ${rep.spec.id}: its blocks or rules differ`);
+        }
+        return problems;
+      };
       const rowsById = new Map(plan.rows.map((row) => [row.id, row]));
       const atomIds = new Set(approved.atoms.map((atom) => atom.id));
       const covered = new Set<string>();
       /** The rows folded into another spec: they have no spec of their own. */
       const folded = new Set<string>();
       const representatives = new Set<string>();
-      for (const { spec, path } of specs) {
+      const claims: Array<{ rep: Generated; id: string }> = [];
+      for (const entry of specs) {
+        const { spec, path } = entry;
         const where = relative(out, path);
         const estate = spec.metadata.estate;
         // The three hand-offs: atoms of the approved map, the map hash, a row of the plan.
@@ -532,10 +633,40 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
           for (const id of planRows) {
             expect(rowsById.has(id), `${where}: ${id} is a row of the plan`).toBe(true);
             expect(folded.has(id), `${where}: ${id} is folded into one spec only`).toBe(false);
-            if (id !== estate.planRow) folded.add(id);
+            if (id !== estate.planRow) {
+              folded.add(id);
+              claims.push({ rep: entry, id });
+            }
             covered.add(id);
           }
         }
+      }
+      // Each fold is proved from the plan, not read from the label: a folded row, generated alone, is the
+      // representative's complete spec. A row whose own test is gone cannot stand under another spec.
+      for (const { rep: head, id } of claims) {
+        expect(await foldProblems(head, id), `${head.spec.id} stands for ${id}`).toEqual([]);
+      }
+      // The proof can fail. A row is listed under a spec it is not equivalent to, whether that spec is complete
+      // or incomplete, and the fold count and the plan row stay consistent: the proof rejects each case. The
+      // row is the currency conversion obligation of the invoice skill when the plan holds one.
+      const forgedRow =
+        plan.rows.find(
+          (row) => row.id.includes('convert-a-foreign-currency') && row.testType === 'obligation',
+        ) ?? plan.rows.find((row) => row.testType === 'obligation');
+      const unrelated = specs.find(
+        (entry) =>
+          entry.folder.startsWith('specs/') &&
+          entry.spec.metadata.estate.planRow !== forgedRow?.id &&
+          !atomsOf(entry).some((atom) => forgedRow?.atomIds.includes(atom)),
+      );
+      const unfinished = specs.find((entry) => entry.folder.startsWith('incomplete'));
+      expect(forgedRow, 'a row to forge a fold for').toBeDefined();
+      expect(unrelated, 'a complete spec unrelated to that row').toBeDefined();
+      expect(unfinished, 'an incomplete spec').toBeDefined();
+      for (const head of [unrelated, unfinished]) {
+        if (head === undefined || forgedRow === undefined) continue;
+        const problems = await foldProblems(head, forgedRow.id);
+        expect(problems.length, `${forgedRow.id} listed under ${head.spec.id}`).toBeGreaterThan(0);
       }
       // The static and the unit tests are JSON files that carry the same three fields.
       const jsonTests = (await filesUnder(out)).filter(
