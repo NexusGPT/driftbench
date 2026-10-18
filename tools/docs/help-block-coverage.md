@@ -1319,6 +1319,35 @@ All previously missing registrations now map to a section:
 | `refusal` | `core-error-codes` |
 | `truncated` | `core-error-codes` |
 
+## Second pass: schema keys and stored records
+
+Baseline: main at `8d775f2bb`. The first pass left commands, flags and errors at 88/88, 809/809 and 91/91.
+This pass adds the classes the registered-surface test does not read. `help-schema-coverage.test.ts` reads each
+class from the live Zod schema, so a key added later is listed without a hand-kept table.
+
+| Class | Read from | Topics that own it | Gaps before | Gaps after |
+|---|---|---|---|---|
+| command | Commander tree | any topic that lists the command | 0 | 0 |
+| flag | Commander tree | the topic of the command | 0 | 0 |
+| error code | exported `*IssueCodes`, `*WarningCodes`, `*ErrorCodes` | `Common errors` sections | 0 | 0 |
+| campaign config key | `CampaignConfig` | `running-campaign-config` | 0 | 0 |
+| spec key (292 keys in 56 objects) | `Spec` | `authoring-spec-format`, `authoring-blocks`, `authoring-prefixes`, `authoring-parent-blocks`, `authoring-perturbations`, the `judging-check-*` topics | 4 | 0 |
+| run record key | `RunResult`: root, block, provenance, rejudged, carried, blockRerun, succession, recovery, endState | `running-store` and the topics of each feature | 35 | 0 |
+| campaign record key | `Campaign`: root, provenance, rejudged, radius | `running-store`, `running-change-carry` | 16 | 0 |
+| block status, `not_run` kind, link status, relation and creator | the enums | `running-not-run`, `running-outcomes`, `authoring-block-links` | 0 | 0 |
+
+A key counts as documented when a topic of its owner names it in code: a code span or a fenced block.
+A mention in prose does not count. Spec keys are read in `Inputs` and `Commands and every option`;
+record keys are read in the whole topic, since a record is read as output.
+
+Gaps closed in this pass:
+
+* `criteria[]`: `answer_contract`, `repeat`, `per_turn`, `requirements[].requirement` (`authoring-spec-format`, which now lists every criterion key).
+* Run record: `endVerdict`, `endStateValue`, `blockRerun.downstreamNotRerun`, `provenanceDigest`, the nine `provenance` fields, the block `provenance` and `carried.measuredAt`, the `rejudged` stamp, all five `succession` fields and the five `recovery` fields that had none.
+* Campaign record: `targets`, `repeats`, `provenance.endStateSnapshots`, `provenance.adapters[]`, `rejudged[]`, `radius.fromVersion`, `radius.toVersion`.
+
+Not read by this pass: the `observed`, `verdicts` and `events` objects of a block, which belong to the run output topics.
+
 ## Verification contract
 
 `help-coverage.test.ts` discovers the Commander tree and exported error-code arrays on each run.

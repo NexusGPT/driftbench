@@ -121,3 +121,87 @@ export function coverageRows(program: Command, topics: HelpTopic[], codes: strin
 export async function currentCoverage(): Promise<CoverageRow[]> {
   return coverageRows(await registeredProgram(), loadHelpTopics(), registeredErrors());
 }
+
+/** One object of a Zod schema tree: the dotted path from the root, and the keys it declares. */
+export type SchemaObject = { path: string; keys: string[] };
+type ZodNode = { _zod?: { def?: ZodDef }; def?: ZodDef };
+type ZodDef = {
+  type?: string;
+  innerType?: ZodNode;
+  element?: ZodNode;
+  in?: ZodNode;
+  valueType?: ZodNode;
+  options?: ZodNode[];
+  shape?: Record<string, ZodNode>;
+  getter?: () => ZodNode;
+};
+
+/**
+ * Every object of a schema tree, found by reading the live Zod definition, so a key added to a schema is
+ * listed here without any hand-kept table. Arrays add `[]` to the path, records `{}`. A union lists the
+ * keys of all its options under one path.
+ */
+export function schemaObjects(root: unknown, rootName = '(root)'): SchemaObject[] {
+  const found = new Map<string, string[]>();
+  const visit = (node: ZodNode | undefined, path: string, seen: Set<ZodNode>, depth: number): void => {
+    if (!node || depth > 14) return;
+    const def = node._zod?.def ?? node.def;
+    switch (def?.type) {
+      case 'optional':
+      case 'nullable':
+      case 'default':
+      case 'readonly':
+      case 'catch':
+      case 'prefault': {
+        visit(def.innerType, path, seen, depth + 1);
+        return;
+      }
+      case 'array': {
+        visit(def.element, `${path}[]`, seen, depth + 1);
+        return;
+      }
+      case 'pipe': {
+        visit(def.in, path, seen, depth + 1);
+        return;
+      }
+      case 'lazy': {
+        visit(def.getter?.(), path, seen, depth + 1);
+        return;
+      }
+      case 'record': {
+        visit(def.valueType, `${path}{}`, seen, depth + 1);
+        return;
+      }
+      case 'union':
+        for (const option of def.options ?? []) visit(option, path, seen, depth + 1);
+        return;
+      case 'object': {
+        if (seen.has(node)) return;
+        const keys = Object.keys(def.shape ?? {});
+        const name = path || rootName;
+        found.set(name, [...new Set([...(found.get(name) ?? []), ...keys])]);
+        const inside = new Set(seen).add(node);
+        for (const [key, child] of Object.entries(def.shape ?? {}))
+          visit(child, path ? `${path}.${key}` : key, inside, depth + 1);
+        return;
+      }
+      default:
+    }
+  };
+  visit(root as ZodNode, '', new Set(), 0);
+  return [...found].map(([path, keys]) => ({ path, keys }));
+}
+
+/** The code of a topic text: fenced blocks and inline code spans. A key counts as named only inside code. */
+function codeOf(text: string): string {
+  const fences = [...text.matchAll(/^\x60\x60\x60[^\n]*\n([\s\S]*?)^\x60\x60\x60/gm)].map((m) => m[1] ?? '');
+  const inline = [
+    ...text.replace(/^\x60\x60\x60[\s\S]*?^\x60\x60\x60/gm, '').matchAll(/\x60([^\x60\n]+)\x60/g),
+  ].map((m) => m[1] ?? '');
+  return [...fences, ...inline].join('\n');
+}
+
+/** True when `text` names `key` in code: a code span such as `key`, `a.key` or `{ key?, other }`, or a code block. */
+export function documentsKey(text: string, key: string): boolean {
+  return new RegExp(`(?<![A-Za-z0-9_])${key}(?![A-Za-z0-9_])`).test(codeOf(text));
+}
