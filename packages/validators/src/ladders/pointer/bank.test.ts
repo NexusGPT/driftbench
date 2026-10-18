@@ -6,7 +6,7 @@ import type { BankItem, Json, PointerAdapter, PointerIO, Probe } from './bank';
 import { pointerBank, runItem } from './bank';
 import { captureIO } from './bank/io';
 import { leaksPrivateFragment, privateMarker } from './bank/privacy';
-import { positionalCheats, reviewCheats } from './cheats';
+import { matchingCheats, positionalCheats, reviewCheats } from './cheats';
 import { pointerLadder } from './index';
 
 const bank = pointerBank();
@@ -309,6 +309,113 @@ describe('blind pointer bank harness', () => {
         expect(ids.every((id) => typeof id === 'string')).toBe(true);
         expect(new Set(ids).size).toBe(1);
       }
+  });
+
+  it('first-word matching identity cheats score ZERO on EVERY seed, whether they mint from the whole text or the first word', async () => {
+    for (const seed of seeds) {
+      const totals = { firstWordWhole: 0, firstWordOnly: 0, exactThenFirstWord: 0 };
+      for (const item of bank)
+        for (const name of Object.keys(matchingCheats) as (keyof typeof matchingCheats)[])
+          totals[name] += Number((await runItem(item, seed, matchingCheats[name])).pass);
+      expect(totals, `matching cheats seed=${seed}`).toEqual({
+        firstWordWhole: 0,
+        firstWordOnly: 0,
+        exactThenFirstWord: 0,
+      });
+    }
+  }, 300_000);
+
+  it('the first-word cheats make valid snapshots and hand one unit the identity of another that shares its first word', async () => {
+    type Snapshots = { entries: { id: string; quote: string; status: string }[] }[];
+    const scan = (texts: string[]) => ({
+      estateKey: 'fictional-estate',
+      files: [
+        {
+          path: 'a.md',
+          units: texts.map((text) => ({
+            text,
+            container: 'sentence',
+            labels: { demo: 'kept' },
+            linked: false,
+          })),
+        },
+      ],
+    });
+    for (const [name, cheat] of Object.entries(matchingCheats)) {
+      const snapshots = (await cheat.execute({
+        operation: 'ledger',
+        input: {
+          independent: false,
+          scans: [
+            scan(['Keep the red parcel.', 'Keep the blue parcel.']),
+            scan(['Keep the blue parcel.', 'Keep the red parcel.']),
+          ],
+        },
+      })) as Snapshots;
+      expect(snapshots, name).toHaveLength(2);
+      for (const snapshot of snapshots)
+        for (const entry of snapshot.entries) expect(entry.id, name).toMatch(/^[a-z2-7]{10}$/);
+      const idOf = (at: number, quote: string) => snapshots[at]?.entries.find((e) => e.quote === quote)?.id;
+      // Exact text first keeps both; the others swap the red and the blue parcel.
+      if (name === 'exactThenFirstWord')
+        expect(idOf(0, 'Keep the red parcel.'), name).toBe(idOf(1, 'Keep the red parcel.'));
+      else expect(idOf(0, 'Keep the red parcel.'), name).not.toBe(idOf(1, 'Keep the red parcel.'));
+    }
+  });
+
+  it('every ledger item follows several units that share a first word through reorders, edits, a move and a replacement', () => {
+    type Unit = { text: string };
+    type Input = { scans: { files: { path: string; units: Unit[] }[] }[] };
+    type Snapshots = { entries: { id: string; path: string; quote: string; status: string }[] }[];
+    for (const seed of seeds)
+      for (const item of bank.filter((entry) => entry.component === 'pointer.ledger')) {
+        const probe = item.generate(seed).probes[4];
+        if (!probe) throw new Error(`${item.id}: shared first word witness absent`);
+        const input = probe.request.input as unknown as Input;
+        const snapshots = probe.sample as Snapshots;
+        const first = (text: string) => text.split(' ')[0];
+        const texts = input.scans.flatMap((scan) =>
+          scan.files.flatMap((file) => file.units.map((unit) => unit.text)),
+        );
+        expect(new Set(texts.map(first)), item.id).toEqual(new Set(['Keep']));
+        // At least five different live units in the first scan, all beginning with the same word.
+        const initial = input.scans[0]?.files.flatMap((file) => file.units.map((unit) => unit.text)) ?? [];
+        expect(new Set(initial).size, item.id).toBeGreaterThanOrEqual(5);
+        // Identity classes: one id per tracked unit through the history, never shared by two live units.
+        for (const snapshot of snapshots) {
+          const live = snapshot.entries.filter((entry) => entry.status === 'live');
+          expect(new Set(live.map((entry) => entry.id)).size, item.id).toBe(live.length);
+        }
+        const idsOf = (quote: string) =>
+          new Set(snapshots.flatMap((s) => s.entries.filter((e) => e.quote === quote).map((e) => e.id)));
+        // A unit that is edited keeps one id through its two texts; the replacement has an id of its own.
+        const everyId = new Set(snapshots.flatMap((s) => s.entries.map((e) => e.id)));
+        const lastLive = snapshots.at(-1)?.entries.filter((e) => e.status === 'live').length ?? 0;
+        const tombstones = snapshots.at(-1)?.entries.filter((e) => e.status === 'deleted').length ?? 0;
+        expect(tombstones, item.id).toBe(1);
+        expect(everyId.size, item.id).toBe(lastLive + tombstones);
+        expect(idsOf(initial[0] ?? '').size, item.id).toBe(1);
+      }
+  });
+
+  it('varies the planted transitions with the seed, not only the fictional tokens', () => {
+    const shape = (seed: number) => {
+      const item = bank.find((entry) => entry.component === 'pointer.ledger');
+      const probe = item?.generate(seed).probes[4];
+      const input = probe?.request.input as unknown as {
+        scans: { files: { path: string; units: { text: string }[] }[] }[];
+      };
+      // The history with every seeded token removed: which unit stands where in each scan.
+      return JSON.stringify(
+        input.scans.map((scan) =>
+          scan.files.map((file) => [
+            file.path,
+            file.units.map((unit) => unit.text.replace(/\bv[0-9a-z]+\b/g, 'T')),
+          ]),
+        ),
+      );
+    };
+    expect(new Set(seeds.map(shape)).size).toBeGreaterThan(1);
   });
 
   it('rejects privacy effect spoofing even with the exact planted labels and public plan', async () => {

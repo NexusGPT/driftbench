@@ -114,6 +114,18 @@ required return fields and never replace identity checks. Independent minting
 must depend on the fingerprint; persisted identity must not depend on the current
 position. The hash tuple encoding remains unspecified.
 
+### Shared-first-word identity witness
+
+Every ledger item also carries a history of units that begin with one word and are otherwise different sentences
+(the fifth probe). The history reorders the units inside each file and reverses the file order, inserts a unit of
+the same first word in front, moves one unit across files, edits two units a little at once while swapping their
+order, replaces one unit by an unrelated unit of the same first word, then shifts every position with blank lines
+and grows an earlier unit. Which unit moves, which two are edited and which is replaced follow the seed, as do the
+reorders, so a hidden seed changes the transitions and not only the fictional tokens. The expected observation
+tracks each unit by its identity class: an edited or moved unit keeps its id, the replacement has an id of its own,
+and the removed unit keeps its tombstone. An adapter that pairs a unit with an earlier unit by its first word, with
+or without matching exact text first, fails this probe.
+
 ## Oracle boundaries
 
 - The design does not prescribe the hash algorithm or tuple encoding for ids.
@@ -158,6 +170,11 @@ ordinal-reuse attack plus separate line- and UTF-16-offset-keyed attacks. Each
 runs against the full bank on every seed. Counterexample tests verify the attacks
 produce valid snapshots, so an exception or malformed return cannot explain their
 zero scores.
+
+The third re-review adds three first-word matching adapters (`matchingCheats`): the review's adapter that mints from
+the whole text and pairs by first word, one that mints from the first word alone, and one that matches exact text
+before falling back to the first word. Each runs against the full bank on every seed and must score zero; the
+review's same-first-word reorder is retained as a test that these adapters hand one unit another's identity.
 
 Tests use visible seeds 1–20 and the documented commit-derived hidden seed.
 The seed changes fictional text, ids, handles, or paths. No word list is used.

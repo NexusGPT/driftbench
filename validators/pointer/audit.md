@@ -95,3 +95,20 @@ fingerprints and transferring IDs incorrectly on reorder. Shared witnesses do
 not add items or distinct causes: the bank remains 340 items with the same tiers
 and declared causes. The independent cheater verdict remains **fail** pending
 re-review; no reader pilot or hardness pass is claimed.
+
+## First-word matching correction
+
+The third review (head 6106ac386) found an adapter that mints an id from the whole text and pairs a new unit with the
+first unmatched earlier unit that begins with the same word, preferring the same file. It passed 10 of 340 items on
+every seed, because the bank's histories gave every distinct unit a different first word, so pairing by first word was
+as good as tracking the unit. The cheater verdict stays **fail**: only an independent re-review may change it.
+
+What changed in the bank: every ledger item carries a fifth probe, a history of units that begin with one word and are
+otherwise different sentences, put through reorders inside and across files, an insertion in front, a move, two small
+edits at once with their order swapped, a replacement by an unrelated unit of the same first word, and shifted
+positions; the units that move, change and are replaced follow the seed. The review's adapter is retained in
+`cheats.ts` with two variants (mint from the first word, and match exact text before the first-word fallback), and all
+three score zero on seeds 1 to 20 and the commit-derived hidden seed (before the change the first and the third passed
+10 on each seed). The review's reorder counterexample is retained as a test. No item was dropped or weakened, and the
+scripted adapter still passes all 340 items on every seed.
+

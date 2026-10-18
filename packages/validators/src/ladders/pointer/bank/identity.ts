@@ -521,6 +521,193 @@ function positionHistoryProbe(seed: number): Probe {
   };
 }
 
+/** A seeded order of `n` positions in which no position keeps its place (a derangement), so a reorder always moves. */
+function movedOrder(seed: number, salt: number, n: number): number[] {
+  for (let attempt = 0; attempt < 64; attempt++) {
+    const order = Array.from({ length: n }, (_, i) => i);
+    let state = (seed ^ Math.imul(salt + attempt * 977 + 1, 0x9e3779b1)) >>> 0;
+    for (let i = n - 1; i > 0; i--) {
+      state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+      const j = (state >>> 8) % (i + 1);
+      [order[i], order[j]] = [order[j] as number, order[i] as number];
+    }
+    if (order.every((value, at) => value !== at)) return order;
+  }
+  return Array.from({ length: n }, (_, i) => (i + 1) % n);
+}
+
+/** A seeded choice among `n` things. */
+function choose(seed: number, salt: number, n: number): number {
+  return ((Math.imul(seed ^ Math.imul(salt + 1, 0x9e3779b1), 0x85ebca6b) >>> 0) >>> 5) % n;
+}
+
+/**
+ * Several distinct units that begin with the same word. Identity must follow the whole unit, not its first word:
+ * the units are reordered within and across files, one is inserted before the others, two are edited a little at
+ * once and swapped, one is replaced by an unrelated unit of the same first word, and positions shift. Every unit
+ * has its own sentence; only the first word is shared. The units to move, edit and replace are chosen by the seed.
+ */
+function sharedFirstWordProbe(seed: number, salt: number): Probe {
+  const base = 300 + salt * 20;
+  const estateKey = `shared-${token(seed, base)}`;
+  const t = (n: number) => token(seed, base + 1 + n);
+  const frames = [
+    (n: number) =>
+      `Keep the fictional 📦 parcel ${t(n)} beside the blue compartment until its courier presents the receipt.`,
+    (n: number) =>
+      `Keep every cabinet key ${t(n)} inside the copper doorway while a keeper closes the register.`,
+    (n: number) => `Keep a spare vessel ${t(n)} in the green alcove after custodians verify each marker.`,
+    (n: number) =>
+      `Keep the sealed envelope ${t(n)} beneath the silver panel whenever stewards review the manifests.`,
+    (n: number) =>
+      `Keep one amber container ${t(n)} behind the folding screen unless an attendant checks every seal.`,
+    (n: number) =>
+      `Keep two violet receipts ${t(n)} above the narrow drawer before auditors open the ledger.`,
+    (n: number) =>
+      `Keep the temporary lantern ${t(n)} on the northern landing during the evening inspection.`,
+    (n: number) =>
+      `Keep that crimson ribbon ${t(n)} under the oak counter once the florist locks the shutters.`,
+  ];
+  const original = frames.map((frame, n) => frame(n));
+  // Two small edits (one word of about fifteen), and a longer unit.
+  const edited = new Map<number, string>([
+    [3, (original[3] as string).replace('silver', 'pewter')],
+    [4, (original[4] as string).replace('amber', 'ochre')],
+  ]);
+  const extended = `${(original[5] as string).slice(0, -1)} beside the additional fictional reference ${t(9)}.`;
+  type Placement = { path: string; indices: number[]; leadingNewlines?: number; betweenNewlines?: number };
+  type Phase = { placements: Placement[]; gone: number[]; edit: boolean; extend: boolean };
+
+  const moved = choose(seed, base + 1, 3); // the unit of a.md that crosses into b.md
+  const replaced = (moved + 1 + choose(seed, base + 2, 2)) % 3; // the other unit of a.md that is replaced
+  const stays = [0, 1, 2].find((n) => n !== moved && n !== replaced) as number;
+  const within = movedOrder(seed, base + 3, 3);
+  const aInitial = [0, 1, 2];
+  const bInitial = [3, 4, 5];
+  const aReordered = within.map((k) => aInitial[k] as number);
+  const bReordered = movedOrder(seed, base + 4, 3).map((k) => bInitial[k] as number);
+  const onlyOrder = (list: number[], keep: number[]) => list.filter((n) => keep.includes(n));
+  const space = (files: Placement[]) => files.map((f) => ({ ...f, leadingNewlines: 3, betweenNewlines: 4 }));
+  const phases: Phase[] = [];
+  const add = (placements: Placement[], gone: number[], edit = false, extend = false) =>
+    phases.push({ placements, gone, edit, extend });
+  add(
+    [
+      { path: 'shared/a.md', indices: aInitial },
+      { path: 'shared/b.md', indices: bInitial },
+    ],
+    [],
+  );
+  // Both files reorder inside, and the file array reverses.
+  add(
+    [
+      { path: 'shared/b.md', indices: bReordered },
+      { path: 'shared/a.md', indices: aReordered },
+    ],
+    [],
+  );
+  // A new unit of the same first word goes in front; one unit moves across files, to the front of the other.
+  const aWithout = onlyOrder(aReordered, [stays, replaced]);
+  add(
+    [
+      { path: 'shared/b.md', indices: [moved, ...bReordered] },
+      { path: 'shared/a.md', indices: [6, ...aWithout] },
+    ],
+    [],
+  );
+  // Two units edited a little at once, and their relative order swapped.
+  const swapped = (list: number[]) => {
+    const a = list.indexOf(3);
+    const b = list.indexOf(4);
+    const out = [...list];
+    out[a] = 4;
+    out[b] = 3;
+    return out;
+  };
+  const bAfterMove = [moved, ...bReordered];
+  add(
+    [
+      { path: 'shared/b.md', indices: swapped(bAfterMove) },
+      { path: 'shared/a.md', indices: [6, ...aWithout] },
+    ],
+    [],
+    true,
+  );
+  // An unrelated unit of the same first word takes the place of a removed one.
+  add(
+    [
+      { path: 'shared/b.md', indices: swapped(bAfterMove) },
+      { path: 'shared/a.md', indices: [6, ...aWithout.map((n) => (n === replaced ? 7 : n))] },
+    ],
+    [replaced],
+    true,
+  );
+  // Blank lines move every position; an earlier unit grows and shifts later offsets.
+  add(
+    space([
+      { path: 'shared/b.md', indices: swapped(bAfterMove) },
+      { path: 'shared/a.md', indices: [6, ...aWithout.map((n) => (n === replaced ? 7 : n))] },
+    ]),
+    [replaced],
+    true,
+    true,
+  );
+  const quoteAt = (index: number, phase: Phase) =>
+    phase.extend && index === 5
+      ? extended
+      : phase.edit && edited.has(index)
+        ? (edited.get(index) as string)
+        : (original[index] as string);
+  const scans: Json[] = phases.map((phase) => ({
+    estateKey,
+    labelSets: { demo: 'Keep the fictional handling instructions.' },
+    files: phase.placements.map((file) => ({
+      path: file.path,
+      leadingNewlines: file.leadingNewlines ?? 0,
+      betweenNewlines: file.betweenNewlines ?? 2,
+      units: file.indices.map((index) => ({
+        text: quoteAt(index, phase),
+        container: 'sentence',
+        labels: { demo: 'kept' },
+        linked: false,
+      })),
+    })),
+  }));
+  // A removed unit keeps its last seen path and text as a tombstone from then on.
+  const lastSeen = new Map<number, { path: string; quote: string }>();
+  const sample: Json = phases.map((phase) => {
+    const live = phase.placements.flatMap((file) =>
+      file.indices.map((index) => {
+        const entry = {
+          id: rawId(seed, base + 40 + index),
+          path: file.path,
+          quote: quoteAt(index, phase),
+          status: 'live',
+        };
+        lastSeen.set(index, { path: file.path, quote: entry.quote });
+        return entry;
+      }),
+    );
+    return {
+      entries: [
+        ...live,
+        ...phase.gone.map((index) => ({
+          id: rawId(seed, base + 40 + index),
+          path: (lastSeen.get(index) as { path: string }).path,
+          quote: (lastSeen.get(index) as { quote: string }).quote,
+          status: 'deleted',
+        })),
+      ],
+    };
+  });
+  return {
+    request: ledgerRequest(scans, false),
+    expected: ledgerObservation(sample) as Json,
+    observe: ledgerObservation,
+    sample,
+  };
+}
+
 function reanchorObservation(actual: unknown): unknown {
   if (!Array.isArray(actual)) return null;
   const entries = actual as {
@@ -803,6 +990,7 @@ export function identityItems(): BankItem[] {
         ledgerProbe(seed, c.mode, true),
         freshFingerprintProbe(seed),
         positionHistoryProbe(seed),
+        sharedFirstWordProbe(seed, c.name.length % 3),
       ],
     }),
   }));

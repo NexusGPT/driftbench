@@ -257,3 +257,84 @@ export const positionalCheats = {
   byLine: coordinateCheat('line'),
   byOffset: coordinateCheat('offset'),
 } satisfies Record<string, PointerAdapter>;
+
+/**
+ * First-word matching shortcuts from the third independent review. A new unit takes the identity of the first
+ * unmatched earlier unit that begins with the same word, preferring the same file. Only the minting differs: from
+ * the whole text, from the first word alone, or from the first word and the tombstone rule of the review's adapter.
+ * `exactFirst` adds the strongest honest-looking shortcut: an unchanged unit is matched by its whole text before
+ * the first-word fallback runs. None reads a position, a history beyond the previous scan, or any expectation.
+ */
+type MatchedUnit = { text: string };
+type MatchedInput = {
+  independent?: boolean;
+  scans: { estateKey: string; files: { path: string; units: MatchedUnit[] }[] }[];
+};
+
+const firstWord = (text: string): string => text.trim().split(/\s+/)[0] ?? '';
+
+function firstWordMatching(mint: 'whole' | 'first', exactFirst: boolean): PointerAdapter {
+  return {
+    execute({ operation, input }) {
+      if (operation !== 'ledger') return null;
+      const x = input as unknown as MatchedInput;
+      let previous: PositionalEntry[] = [];
+      return x.scans.map((scan) => {
+        const used = new Set<PositionalEntry>();
+        const occurrences = new Map<string, number>();
+        const pending: { path: string; text: string; slot: number }[] = [];
+        const entries: (PositionalEntry | undefined)[] = [];
+        const take = (path: string, text: string, exact: boolean): PositionalEntry | undefined => {
+          const candidates = x.independent
+            ? []
+            : previous.filter(
+                (old) =>
+                  !used.has(old) && (exact ? old.quote === text : firstWord(old.quote) === firstWord(text)),
+              );
+          const old = candidates.find((entry) => entry.path === path) ?? candidates[0];
+          if (old) used.add(old);
+          return old;
+        };
+        for (const file of scan.files)
+          for (const unit of file.units) {
+            const slot = entries.length;
+            const exact = exactFirst ? take(file.path, unit.text, true) : undefined;
+            entries.push(
+              exact && {
+                id: exact.id,
+                path: file.path,
+                quote: unit.text,
+                status: 'live',
+              },
+            );
+            if (!exact) pending.push({ path: file.path, text: unit.text, slot });
+          }
+        for (const { path, text, slot } of pending) {
+          const old = take(path, text, false);
+          const signature = mint === 'first' ? firstWord(text) : text;
+          const key = JSON.stringify([scan.estateKey, path, signature]);
+          const at = occurrences.get(key) ?? 0;
+          occurrences.set(key, at + 1);
+          entries[slot] = {
+            id: old?.id ?? hashed(JSON.stringify([key, at])),
+            path,
+            quote: text,
+            status: 'live',
+          };
+        }
+        const live = entries as PositionalEntry[];
+        const out = [...live];
+        if (!x.independent)
+          for (const old of previous) if (!used.has(old)) out.push({ ...old, status: 'deleted' });
+        previous = structuredClone(out);
+        return { entries: out };
+      });
+    },
+  };
+}
+
+export const matchingCheats = {
+  firstWordWhole: firstWordMatching('whole', false),
+  firstWordOnly: firstWordMatching('first', false),
+  exactThenFirstWord: firstWordMatching('whole', true),
+} satisfies Record<string, PointerAdapter>;
