@@ -63,7 +63,7 @@ metadata:
       to:
         kind: rule
         rule: instruction.standing.never-force-push
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

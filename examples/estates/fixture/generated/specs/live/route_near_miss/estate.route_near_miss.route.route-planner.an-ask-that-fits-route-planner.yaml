@@ -57,7 +57,7 @@ metadata:
       to:
         kind: rule
         rule: route.route-planner.an-ask-that-fits-route-planner
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb
@@ -65,7 +65,7 @@ metadata:
       to:
         kind: rule
         rule: subagent.route-planner.helper-route-planner
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

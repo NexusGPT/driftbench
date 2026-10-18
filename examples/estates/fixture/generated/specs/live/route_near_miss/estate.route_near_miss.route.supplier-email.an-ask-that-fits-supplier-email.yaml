@@ -57,7 +57,7 @@ metadata:
       to:
         kind: rule
         rule: route.supplier-email.an-ask-that-fits-supplier-email
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb
@@ -65,7 +65,7 @@ metadata:
       to:
         kind: rule
         rule: skill.supplier-email.skill-supplier-email
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

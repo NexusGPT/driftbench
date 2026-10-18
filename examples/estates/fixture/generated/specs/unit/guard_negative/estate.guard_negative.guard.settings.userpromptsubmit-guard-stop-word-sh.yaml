@@ -55,7 +55,7 @@ metadata:
       to:
         kind: rule
         rule: guard.settings.userpromptsubmit-guard-stop-word-sh
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

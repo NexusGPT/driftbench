@@ -68,7 +68,7 @@ metadata:
       to:
         kind: rule
         rule: instruction.route-planner.never-load-a-route-over-the
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb
@@ -76,7 +76,7 @@ metadata:
       to:
         kind: rule
         rule: subagent.route-planner.helper-route-planner
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

@@ -15,8 +15,12 @@ import type { BlockLink } from '@agent-nexus/driftbench-core';
  * whether it is `verified` or `refuted`. Links stay out of the spec hash, so they never move a run id.
  */
 
-/** A rule a block tests: its readable id and, when its reader gave one, the ledger id of its unit. */
-export type RuleRef = { rule: string; ledger?: string };
+/**
+ * A rule a block tests: its readable id and, when its reader gave one, the ledger id of its unit. The relation
+ * is `verifies` (the block fails when the rule is gone) unless it says `exercises`: a negative control checks
+ * that the rule does not act where it does not apply, which no deletion of the rule can flip.
+ */
+export type RuleRef = { rule: string; ledger?: string; relation?: 'verifies' | 'exercises' };
 
 /** The recorded turn an ask comes from. */
 export type SourceTurn = { conversation: string; turn: number };
@@ -58,13 +62,13 @@ export function writeBlocks<B extends SpecBlock>(
 export function linksOf(block: string, origin: BlockOrigin, version: string): BlockLink[] {
   const links: BlockLink[] = [];
   const seen = new Set<string>();
-  for (const { rule, ledger } of origin.rules) {
+  for (const { rule, ledger, relation } of origin.rules) {
     if (seen.has(rule)) continue;
     seen.add(rule);
     links.push({
       block,
       to: { kind: 'rule', rule, ...(ledger !== undefined ? { ledger } : {}) },
-      relation: 'verifies',
+      relation: relation ?? 'verifies',
       status: 'declared',
       created_by: 'generator',
       at_version: version,

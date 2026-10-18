@@ -63,7 +63,7 @@ metadata:
       to:
         kind: rule
         rule: instruction.memory-supplier-languages.write-to-each-supplier-in-its
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

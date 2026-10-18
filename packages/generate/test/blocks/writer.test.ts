@@ -300,6 +300,11 @@ describe('one block writer for the prompt map and the estate map', () => {
             { kind: 'source_turn', conversation: replay.session, turn: replay.from_block },
           ]);
         } else expect(turns).toEqual([]);
+        const negative = ['outside_trigger', 'route_near_miss', 'guard_negative'].includes(
+          (spec.metadata?.estate as { testType: string }).testType,
+        );
+        for (const link of mine.filter((each) => each.to.kind === 'rule'))
+          expect(link.relation, spec.id).toBe(negative ? 'exercises' : 'verifies');
         for (const link of mine) {
           expect(link.status).toBe('declared');
           if (link.to.kind !== 'source_turn') expect(link.at_version).toBe(spec.version);

@@ -79,7 +79,7 @@ metadata:
       to:
         kind: rule
         rule: instruction.standing.tell-the-user-about-a-late
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

@@ -68,7 +68,7 @@ metadata:
       to:
         kind: rule
         rule: instruction.supplier-email.a-loose-yes-is-not-a
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb
@@ -76,7 +76,7 @@ metadata:
       to:
         kind: rule
         rule: skill.supplier-email.skill-supplier-email
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

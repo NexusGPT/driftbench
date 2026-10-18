@@ -54,7 +54,7 @@ metadata:
       to:
         kind: rule
         rule: guard.settings.stop-guard-reply-length-py
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

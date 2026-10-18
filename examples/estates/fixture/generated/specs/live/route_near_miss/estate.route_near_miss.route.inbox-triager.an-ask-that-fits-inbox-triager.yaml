@@ -57,7 +57,7 @@ metadata:
       to:
         kind: rule
         rule: route.inbox-triager.an-ask-that-fits-inbox-triager
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb
@@ -65,7 +65,7 @@ metadata:
       to:
         kind: rule
         rule: subagent.inbox-triager.helper-inbox-triager
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

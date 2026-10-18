@@ -68,7 +68,7 @@ metadata:
       to:
         kind: rule
         rule: instruction.inbox-triager.a-message-that-fits-no-folder
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb
@@ -76,7 +76,7 @@ metadata:
       to:
         kind: rule
         rule: subagent.inbox-triager.helper-inbox-triager
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

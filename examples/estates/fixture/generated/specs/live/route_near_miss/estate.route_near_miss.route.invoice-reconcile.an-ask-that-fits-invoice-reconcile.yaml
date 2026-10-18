@@ -83,7 +83,7 @@ metadata:
       to:
         kind: rule
         rule: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb
@@ -91,7 +91,7 @@ metadata:
       to:
         kind: rule
         rule: skill.invoice-reconcile.skill-invoice-reconcile
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

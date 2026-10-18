@@ -55,7 +55,7 @@ metadata:
       to:
         kind: rule
         rule: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

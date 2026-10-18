@@ -55,7 +55,7 @@ metadata:
       to:
         kind: rule
         rule: guard.settings.posttooluse-bash-guard-ledger-guard-py
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

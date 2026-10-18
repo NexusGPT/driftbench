@@ -277,7 +277,11 @@ export function build(
 
   // The block writer writes the blocks and their links: the row's atoms, the row and its cell, the session.
   const version = ctx.map.hash.slice(0, 12);
-  const rules = atoms.map(ruleOf);
+  // A negative control exercises its rules: it checks they do not act outside their trigger.
+  const rules = atoms.map((atom) => ({
+    ...ruleOf(atom),
+    ...(polarity === 'negative' ? { relation: 'exercises' as const } : {}),
+  }));
   const planRow = row.variantOf ?? row.id;
   const written = writeBlocks(
     blocks.map((block, index) => {

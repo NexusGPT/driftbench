@@ -63,7 +63,7 @@ metadata:
       to:
         kind: rule
         rule: instruction.invoice-reconcile.a-line-matches-on-article-code
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

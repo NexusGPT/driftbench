@@ -68,7 +68,7 @@ metadata:
       to:
         kind: rule
         rule: instruction.shipment-tracker.late-means-past-the-promised-date
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb
@@ -76,7 +76,7 @@ metadata:
       to:
         kind: rule
         rule: skill.shipment-tracker.skill-shipment-tracker
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

@@ -63,7 +63,7 @@ metadata:
       to:
         kind: rule
         rule: instruction.invoice-reconcile.under-0-05-eur-per-unit
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb

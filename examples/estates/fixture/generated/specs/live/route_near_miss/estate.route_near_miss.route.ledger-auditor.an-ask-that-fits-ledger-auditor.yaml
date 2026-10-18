@@ -57,7 +57,7 @@ metadata:
       to:
         kind: rule
         rule: route.ledger-auditor.an-ask-that-fits-ledger-auditor
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb
@@ -65,7 +65,7 @@ metadata:
       to:
         kind: rule
         rule: subagent.ledger-auditor.helper-ledger-auditor
-      relation: verifies
+      relation: exercises
       status: declared
       created_by: generator
       at_version: be2e7a0919cb
