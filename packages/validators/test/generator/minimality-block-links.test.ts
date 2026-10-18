@@ -43,7 +43,7 @@ describe('removeBlock with block links', () => {
     expect(reduced.metadata?.links).toEqual([link('b1', 'cards'), link(1, 'cards'), link(undefined, 'chat')]);
     expect(validateSpec(reduced).ok).toBe(true);
     // The input spec is not changed.
-    expect((spec.metadata?.links as unknown[]).length).toBe(5);
+    expect(spec.metadata?.links).toHaveLength(5);
   });
 });
 
