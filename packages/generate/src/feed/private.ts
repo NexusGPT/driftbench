@@ -8,7 +8,7 @@ import { z } from 'zod';
 /** One past conversation, as plain text. The id names it for the person who owns the set and is never stored. */
 export type Conversation = { id: string; text: string };
 
-const sha256 = (text: string) => createHash('sha256').update(text, 'utf8').digest('hex');
+export const sha256 = (text: string) => createHash('sha256').update(text, 'utf8').digest('hex');
 
 /**
  * A SHA-256 of the set: the hashes of the conversations, sorted and joined. It does not depend on the order
@@ -62,11 +62,11 @@ const Fraction = z.number().min(0).max(1).nullable();
 
 /**
  * Counts only, and numbers only: a variable and a value are named by their position in the store, never by a
- * string. The two strings are the agent (a plain name) and the SHA-256 of the set. Anything else is refused,
- * so no text can ride in a counts file whatever the caller passes.
+ * string. The two strings are SHA-256 digests, of the agent name and of the set: no string the caller wrote is
+ * stored. Anything else is refused, so no text can ride in a counts file whatever the caller passes.
  */
 const PrivateCountsSchema = z.strictObject({
-  agent: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/),
+  agent_hash: z.string().regex(/^[0-9a-f]{64}$/),
   set_hash: z.string().regex(/^[0-9a-f]{64}$/),
   read: Count,
   variables: z.array(
@@ -86,7 +86,7 @@ const PrivateCountsSchema = z.strictObject({
 export type PrivateCounts = z.infer<typeof PrivateCountsSchema>;
 
 /**
- * Writes the counts of a feed to `<dir>/feed-<agent>-<first 12 hash characters>.json`, owner-only (0600) on
+ * Writes the counts of a feed to `<dir>/feed-<first 12 characters of the agent hash>-<first 12 of the set hash>.json`, owner-only (0600) on
  * every write. The folder defaults to privateDir(); its real path must be outside any git repository, and the
  * file must not be a symlink. The file is written beside its final name and renamed over it, so an existing
  * file keeps no older mode and a link is replaced, never followed. Returns the path written.
@@ -107,7 +107,10 @@ export async function writePrivateCounts(
   await mkdir(requested, { recursive: true, mode: 0o700 });
   const dir = await realpath(requested);
   assertOutsideRepository(dir);
-  const path = join(dir, `feed-${parsed.data.agent}-${parsed.data.set_hash.slice(0, 12)}.json`);
+  const path = join(
+    dir,
+    `feed-${parsed.data.agent_hash.slice(0, 12)}-${parsed.data.set_hash.slice(0, 12)}.json`,
+  );
   const existing = await lstat(path).catch(() => undefined);
   if (existing?.isSymbolicLink())
     throw new Error(`${path} is a symlink: private counts are not written through a link`);

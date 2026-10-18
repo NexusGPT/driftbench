@@ -1,7 +1,7 @@
 import { type VariableStore, validateVariableStore } from '@agent-nexus/driftbench-space';
 import { DEFAULT_DECIDE, type DecideOptions, type Decision, decide } from './decide';
 import { type ConfusionCounts, type EstimateOptions, estimateShares, type Tally } from './estimate';
-import { type Conversation, conversationSetHash, type PrivateCounts } from './private';
+import { type Conversation, conversationSetHash, type PrivateCounts, sha256 } from './private';
 import { questionsFor } from './questions';
 import { type ConversationReader, NOT_SHOWN, type ReaderQuestion } from './reader';
 
@@ -223,7 +223,7 @@ export async function feedVariables(input: FeedInput): Promise<FeedResult> {
  */
 export function privateCountsOf(report: FeedReport): PrivateCounts {
   return {
-    agent: report.agent,
+    agent_hash: sha256(report.agent),
     set_hash: report.set_hash,
     read: report.read,
     variables: report.variables.map((v, variable) => ({

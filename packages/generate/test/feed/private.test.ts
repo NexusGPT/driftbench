@@ -1,6 +1,16 @@
-import { chmod, mkdir, mkdtemp, readFile, realpath, stat, symlink, writeFile } from 'node:fs/promises';
+import {
+  chmod,
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  realpath,
+  stat,
+  symlink,
+  writeFile,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   assertOutsideRepository,
@@ -11,6 +21,7 @@ import {
   privateDir,
   writePrivateCounts,
 } from '../../src/feed';
+import { sha256 } from '../../src/feed/private';
 import { fixtureStore, Population, simulatedReader } from './support';
 
 describe('the set hash', () => {
@@ -67,12 +78,15 @@ describe('what leaves a private run', () => {
     }
   });
 
-  it('writes the counts file readable by its owner only, named by agent and hash', async () => {
+  it('writes the counts file readable by its owner only, named by the digests of the agent and the set', async () => {
     const { result } = await run();
     const dir = await mkdtemp(join(tmpdir(), 'feed-private-'));
     const path = await writePrivateCounts(privateCountsOf(result.report), { dir });
     expect(path).toBe(
-      join(await realpath(dir), `feed-fixture-agent-${result.report.set_hash.slice(0, 12)}.json`),
+      join(
+        await realpath(dir),
+        `feed-${sha256('fixture-agent').slice(0, 12)}-${result.report.set_hash.slice(0, 12)}.json`,
+      ),
     );
     expect((await stat(path)).mode & 0o077).toBe(0);
     const counts = JSON.parse(await readFile(path, 'utf8')) as { variables: Array<{ values: unknown[] }> };
@@ -128,7 +142,7 @@ describe('reading a folder of conversations', () => {
 
 describe('the counts file is numbers and fixed keys', () => {
   const counts = () => ({
-    agent: 'writer-test',
+    agent_hash: 'b'.repeat(64),
     set_hash: 'a'.repeat(64),
     read: 4,
     variables: [
@@ -172,16 +186,81 @@ describe('the counts file is numbers and fixed keys', () => {
     await expect(writePrivateCounts(fraction as never, { dir: await tmp() })).rejects.toThrow(/counts/);
   });
 
-  it('rejects an agent or a hash that is not a plain name or a SHA-256', async () => {
+  it('refuses text through every input, the agent name included', async () => {
+    const SECRET = 'SECRET_CONVERSATION';
+    // Every leaf of a valid object, and every object that can take a new key, gets the text in turn.
+    const leaves: Array<(c: ReturnType<typeof counts>) => void> = [
+      (c) => Object.assign(c, { agent_hash: SECRET }),
+      (c) => Object.assign(c, { set_hash: SECRET }),
+      (c) => Object.assign(c, { read: SECRET }),
+      (c) => Object.assign(c, { agent: SECRET }),
+      (c) => Object.assign(c, { text: SECRET }),
+      (c) => Object.assign(c.variables, { 0: SECRET }),
+      (c) => Object.assign(c.variables[0] as object, { variable: SECRET }),
+      (c) => Object.assign(c.variables[0] as object, { decided: SECRET }),
+      (c) => Object.assign(c.variables[0] as object, { unsure: SECRET }),
+      (c) => Object.assign(c.variables[0] as object, { absent: SECRET }),
+      (c) => Object.assign(c.variables[0] as object, { unread: SECRET }),
+      (c) => Object.assign(c.variables[0] as object, { id: SECRET }),
+      (c) => Object.assign(c.variables[0]?.values[0] as object, { value: SECRET }),
+      (c) => Object.assign(c.variables[0]?.values[0] as object, { count: SECRET }),
+      (c) => Object.assign(c.variables[0]?.values[0] as object, { share: SECRET }),
+      (c) => Object.assign(c.variables[0]?.values[0] as object, { lower: SECRET }),
+      (c) => Object.assign(c.variables[0]?.values[0] as object, { upper: SECRET }),
+      (c) => Object.assign(c.variables[0]?.values[0] as object, { id: SECRET }),
+    ];
+    for (const [i, inject] of leaves.entries()) {
+      const c = counts();
+      inject(c);
+      const dir = await tmp();
+      await expect(writePrivateCounts(c as never, { dir }), `injection ${i}`).rejects.toThrow(/counts/);
+      expect(await readdir(dir), `injection ${i} left a file`).toEqual([]);
+    }
+  });
+
+  it('refuses an agent hash or a set hash that is not a SHA-256', async () => {
     await expect(
-      writePrivateCounts({ ...counts(), agent: 'two words' }, { dir: await tmp() }),
+      writePrivateCounts({ ...counts(), agent_hash: 'two words' }, { dir: await tmp() }),
     ).rejects.toThrow(/counts/);
     await expect(
-      writePrivateCounts({ ...counts(), agent: '../escape' }, { dir: await tmp() }),
+      writePrivateCounts({ ...counts(), agent_hash: '../escape' }, { dir: await tmp() }),
+    ).rejects.toThrow(/counts/);
+    await expect(
+      writePrivateCounts({ ...counts(), agent_hash: 'B'.repeat(64) }, { dir: await tmp() }),
     ).rejects.toThrow(/counts/);
     await expect(
       writePrivateCounts({ ...counts(), set_hash: 'SECRET_CONVERSATION' }, { dir: await tmp() }),
     ).rejects.toThrow(/counts/);
+  });
+
+  it('stores a digest of the agent name from a report, never the name', async () => {
+    const population = new Population(31);
+    const conversations = Array.from({ length: 60 }, (_, i) => ({
+      id: `c${i}`,
+      text: population.conversation().text,
+    }));
+    const store = fixtureStore();
+    store.agent = 'SECRET_AGENT_NAME with spaces and a line\nbreak';
+    const { report } = await feedVariables({
+      store,
+      conversations,
+      reader: simulatedReader(population, { accuracy: 1, unsure: 0, seed: 31 }),
+    });
+    const dir = await tmp();
+    const file = await writePrivateCounts(privateCountsOf(report), { dir });
+    const text = await readFile(file, 'utf8');
+    expect(text).not.toContain('SECRET_AGENT_NAME');
+    expect(JSON.parse(text).agent_hash).toBe(sha256(store.agent));
+    expect(basename(file)).not.toContain('SECRET');
+    const strings: string[] = [];
+    const walk = (o: unknown): void => {
+      if (typeof o === 'string') strings.push(o);
+      else if (Array.isArray(o)) o.forEach(walk);
+      else if (o && typeof o === 'object') Object.values(o).forEach(walk);
+    };
+    walk(JSON.parse(text));
+    expect(strings).toHaveLength(2);
+    for (const value of strings) expect(value).toMatch(/^[0-9a-f]{64}$/);
   });
 
   it('keeps owner-only permissions when it overwrites a file that was opened up', async () => {
@@ -216,7 +295,7 @@ describe('the counts file is numbers and fixed keys', () => {
     await writeFile(target, 'KEEP');
     const dir = join(root, 'private');
     await mkdir(dir);
-    const name = `feed-writer-test-${'a'.repeat(12)}.json`;
+    const name = `feed-${'b'.repeat(12)}-${'a'.repeat(12)}.json`;
     await symlink(target, join(dir, name));
     await expect(writePrivateCounts(counts(), { dir })).rejects.toThrow(/symlink/);
     expect(await readFile(target, 'utf8')).toBe('KEEP');
