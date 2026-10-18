@@ -1,7 +1,7 @@
 {
   "source": {
     "path": "packages/checks/src/support/operations.ts",
-    "sha256": "8d0982b01069fc5462faf64f84a046eb4e733da36c7588703497d15651a9a22d"
+    "sha256": "107562fea63a90a13c3bc79d9dcd2ff4b98d58f28202232100281df2a9acaeca"
   },
   "grammar": "Literal branch expansion; repetition boundaries 0, 1, 2; unsupported syntax listed in gaps.",
   "toolWords": [
@@ -208,23 +208,60 @@
     },
     {
       "class": "overwrite",
-      "source": "\\bgit\\s+(?:reset\\s+--hard|checkout\\s+--|restore)\\b",
+      "source": "\\bgit\\s+(?:reset\\s+--hard|restore)\\b",
       "flags": "",
       "needsNoDiff": true,
       "witnesses": [
         "git reset --hard",
         "git reset  --hard",
-        "git checkout --x",
-        "git checkout  --x",
         "git restore",
         "git  reset --hard",
         "git  reset  --hard",
-        "git  checkout --x",
-        "git  checkout  --x",
         "git  restore"
       ],
       "gaps": []
+    },
+    {
+      "class": "overwrite",
+      "source": "\\bgit\\s+checkout\\s+(?:[^\\s;&|-][^\\s;&|]*\\s+)?--(?:\\s+[^\\s;&|]|(?=\\w))",
+      "flags": "",
+      "needsNoDiff": true,
+      "witnesses": [
+        "git checkout -- x",
+        "git checkout --  x",
+        "git checkout  -- x",
+        "git checkout  --  x",
+        "git  checkout -- x",
+        "git  checkout --  x",
+        "git  checkout  -- x",
+        "git  checkout  --  x"
+      ],
+      "gaps": [
+        "30:unsupported-character-range",
+        "63:unsupported-group",
+        "68:unconsumed-pattern",
+        "68:unresolved-branch-boundary:2",
+        "68:unresolved-branch-boundary:3",
+        "68:unresolved-branch-boundary:6",
+        "68:unresolved-branch-boundary:7",
+        "68:unresolved-branch-boundary:10",
+        "68:unresolved-branch-boundary:11",
+        "68:unresolved-branch-boundary:14",
+        "68:unresolved-branch-boundary:15"
+      ]
     }
   ],
-  "gaps": []
+  "gaps": [
+    "COMMAND_RULES.8:30:unsupported-character-range",
+    "COMMAND_RULES.8:63:unsupported-group",
+    "COMMAND_RULES.8:68:unconsumed-pattern",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:2",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:3",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:6",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:7",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:10",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:11",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:14",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:15"
+  ]
 }
