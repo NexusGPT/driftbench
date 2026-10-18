@@ -84,6 +84,7 @@ Every page says what exists today and what is not built yet, with the phase that
 ## Research
 
 * [Budget-bounded test generation for AI agent evaluation](research/budget-bounded-tests.md): a research draft describing the budget selector and its evaluation.
+* [Block links experiments](research/block-links.md): two pre-registered experiments on section links and per-root counting, with prompt mutation as ground truth.
 
 ## What exists today
 
