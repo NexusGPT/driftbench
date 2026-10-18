@@ -33,7 +33,7 @@ Every stem names the rules of `docs/variables.md` it checks (the Page line of ea
 
 The second blind bank (330 items, 66 cause labels, a request and reply port over `validateVariableStore`, `verifyVariableQuotes` and `planV2`) is merged into this one; the PR is closed as superseded. The bank is one ladder named `variables`, now at version 2, with one port (`VariablesImpl`, which gained `validate` and `quotes`) and one `audit.md`.
 
-Counts of the merged bank: see `CATALOGUE.md` section 1 (items, stems, candidate cause labels). The labels are an upper bound, as above: the originals of the second bank were 66 labels, about 35 of which name a fix that a stem of this bank already had.
+Counts of the merged bank: see `CATALOGUE.md` section 1 (items, stems, candidate cause labels). The labels are an upper bound, as above: the originals of the second bank were 66 labels, and many of them name a fix that a stem of this bank already had (the table below shows where each family went).
 
 | Second-bank family | Where it went |
 |---|---|
