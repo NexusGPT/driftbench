@@ -19,10 +19,10 @@
   "classification": {
     "method": "Structured expectedAct.kind/name/target only; no wording-based classification. Static gaps and control failures belong to other. Control IDs come from task-check.CONTROL_TYPES. Groups are disjoint.",
     "absent_guard_intervention": "Expected guard identity/verdict is not shown (excluding stop-word.sh).",
-    "missing_owned_skill_load": "Expected direct skill or skill-owned act is not shown.",
+    "missing_owned_skill_load": "Expected direct skill or skill-owned act is not shown. An expected helper act (expectedAct kind helper, or owned with target helper) is not in this group: it is counted in other.",
     "wrong_reply_act": "Declared reply act is wrong or missing in the recorded reply evidence.",
     "stop_mismatch": "Expected stop-word.sh guard verdict is not shown.",
-    "other": "Static source/input/act gaps and other missing trace acts."
+    "other": "Static source/input/act gaps, expected helper acts that are not shown (15) and other missing trace acts."
   },
   "counts": {
     "absent_guard_intervention": 60,
