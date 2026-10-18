@@ -67,7 +67,7 @@ A run record holds `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `p
 
 The store prints nothing itself. Commands read it back as text or JSON (`campaign status`, `campaign status --json`, `report`, `view`). The tables are plain SQLite: any SQLite tool can read them, and each row keeps its full record as JSON in a `json` column beside the plain columns used for filters. The schema version is 2; an older store is upgraded when opened, and a store written by a newer driftbench is refused.
 
-Writes are transactional: a run and its blocks land together, and an import lands whole or not at all. A second process waits up to 5 seconds for a write lock.
+Writes are transactional: a run and its blocks land together, and an import lands whole or not at all. A second process waits up to 30 seconds for the file, a read as well as a write: a live holder that is slow is a wait, and a call fails with `database is locked` only after that.
 
 ## Worked example
 
