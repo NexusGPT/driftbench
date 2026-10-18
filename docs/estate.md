@@ -27,7 +27,7 @@ Every number on this page comes from the commands run on the fixture estates of 
 | [`examples/estates/fixture-v2`](../examples/estates/fixture-v2/README.md) | The same estate after a change, for `estate diff` and `estate impact`: one rule rewrapped, two changed in meaning, one removed, two added, one guard promoted. Eight version 1 tests and the committed diff and impact. |
 | `examples/estates/sessions` | Six synthetic sessions of another fictional estate (a shop build) with their guard decision logs, step feeds and seven replay specs, for `driftbench replay`. |
 
-No command on this page calls a paid model. The Northwind map is scanned with recorded answers (`--replay answers.yaml`); the model family the recording names is `lane`, the work of a person who played the model.
+No command on this page calls a paid model. The Northwind map is scanned with recorded answers (`--replay answers.yaml`); the model family the recording names is `lane`, the work of a person who played the model. The committed outputs of these folders are made again by the commands in [Regenerate the fixture](#regenerate-the-fixture).
 
 ## The commands
 
@@ -512,7 +512,7 @@ How a row becomes a spec:
 
 * Given: `vars.estate` (runtime and map hash), the session state of the cell, the hazard of the cell as `vars.event`, and the workspace seed of the situation, inlined as `world.workspace.files`.
 * When: the situation the test type needs, found by the row's first atom (the situation holding most of the row's atoms wins, then the one whose own atoms share the deepest folder with files the first atom names; pinned cell values must agree). A guard without a listed triggering situation uses a situation of a rule it enforces; a tool boundary uses a situation listing the most rules from its own file. A guard control uses a situation explicitly approved for that whole guard; an outside situation of one enforced rule is not a guard-wide certificate. Its approved phrases are shuffled by the seed; the twin takes the second phrase. A replay row gives one spec per recorded session of its situation, asking with the session's recorded ask. A deviation of the cell is a perturbation before the ask, with an approved deviation phrase (`inject_at: 0`, recovery within one block). `stop_resume` adds a resume block.
-* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone: the asks a route or skill description names ("Use when the user asks to X" gives "Please X."), a routing row, a description made imperative, for a guard the act its rule forbids, plus the situation of the rule under test. The controls get a neutral ask (outside), an ask to explain without acting (near miss), an ask that describes the act and names no skill (misroute: `Please <act>.`, so the route decides and the ask never tells the agent to load a wrong skill), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code` and the field the words came from (`askFrom`); an approved phrase always wins. `--no-fallback` turns this off. A code-written ask names a task: a verb of acting and its object, as a user would ask for work. The title of a rule is the rule, so it is never the ask: a rule is set off by the work it applies to, which is what the trigger of a gate names, else what the skill or helper that carries the rule is for, else the work of the route whose words the rule shares most (the first route when it shares none), since a rule of the standing instructions holds over any work. The one title used as an ask is a prohibition, whose forbidden act is the ask ("Never paste a credential" asks to paste one), which breaks the rule and does not copy it. A rule with no such work stays incomplete under `needs-askable-act`. It never restates the rule ("Please do this: never guess a status") or a bare condition ("Please handle this for me: the invoice is not in EUR"): such an ask tests whether the agent repeats the rule, not whether it follows it while working. The rule's situation becomes the task ("Where is shipment NW-55012?"). A guard that watches the user's prompt is the one exception: its test asks with the guard's own trigger ("Stop, that is enough for now."). The floor refuses, with the reason, an act of fewer than three words of letters, which is a verb and no object (the parts of a hyphenated compound count apart: "force-push a branch" passes, "force-push" does not), an act that does not start with a verb (a unit's own description: "Read-only audit lane for ledger checks"), a guard's title (its event and name), a phrase cut mid-sentence, an act or situation that names a file of the estate (the ask would say which file to read) or holds code; the row gets `needs-askable-act` and waits for an approved phrase.
+* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone: the asks a route or skill description names ("Use when the user asks to X" gives "Please X."), a routing row, a description made imperative, for a guard the act its rule forbids, plus the situation of the rule under test. The controls get a neutral ask (outside), an ask to explain without acting (near miss), an ask that describes the act and names no skill (misroute: `Please <act>.`, so the route decides and the ask never tells the agent to load a wrong skill), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code` and the field the words came from (`askFrom`); an approved phrase always wins. `--no-fallback` turns this off. A code-written ask names a task: a verb of acting and its object, as a user would ask for work. The title of a rule is the rule, so it is never the ask: a rule is set off by the work it applies to, which is what the trigger of a gate names, else what the skill or helper that carries the rule is for, else, for an instruction or an output rule, the work of the route whose words the rule shares most (the first route when it shares none), since a rule of the standing instructions holds over any work. A gate with no trigger and no unit that carries it holds over no route's work, so its row stays incomplete under `needs-askable-act`. The one title used as an ask is a prohibition, whose forbidden act is the ask ("Never paste a credential" asks to paste one), which breaks the rule and does not copy it. A rule with no such work stays incomplete under `needs-askable-act`. It never restates the rule ("Please do this: never guess a status") or a bare condition ("Please handle this for me: the invoice is not in EUR"): such an ask tests whether the agent repeats the rule, not whether it follows it while working. The rule's situation becomes the task ("Where is shipment NW-55012?"). A guard that watches the user's prompt is the one exception: its test asks with the guard's own trigger ("Stop, that is enough for now."). The floor refuses, with the reason, an act of fewer than three words of letters, which is a verb and no object (the parts of a hyphenated compound count apart: "force-push a branch" passes, "force-push" does not), an act that does not start with a verb (a unit's own description: "Read-only audit lane for ledger checks"), a guard's title (its event and name), a phrase cut mid-sentence, an act or situation that names a file of the estate (the ask would say which file to read) or holds code; the row gets `needs-askable-act` and waits for an approved phrase.
 * Then, from the evidence predicates of the row's atoms:
 
 | Predicate | Check |
@@ -1087,11 +1087,13 @@ The failing session that motivated a change is its fail-to-pass case: red before
 
 Built, in order: scan, lint and map; plan; the session reader and replay; generation; maintenance; the live runner with planted session states and hazards; estate mutants; the static and unit runners. Not built yet: the unit run of a helper alone, and a validation on a real estate against its native test battery.
 
+One test runs the whole chain from scan to radius, with no model call: [the estate chain proof](estate-chain.md).
+
 See also: [checks](reference/checks.md), [running](running.md), [statistics](concepts/statistics.md).
 
 ### Explicit operations in unit task specs
 
-`estate unit` accepts YAML or JSON task specs marked `metadata.estate.mode: unit`, alongside recorded JSON unit tests. A task spec declares its executable operation in `metadata.estate.unit`: a guard target (name, event, matcher and command) or a script target (path), plus concrete `cases` with guard event payloads or script arguments, files and stdin. The runner executes those inputs on a copy. It does not turn the user ask into a command or search the implementation for an input that satisfies the expected verdict. The runner evaluates `expect.guards`, `expect.execution` and `expect.workspace`; for `workspace` it compares the files of the operation's working folder before and after each case (the estate copy for a guard, the case folder for a script). An expectation of any other kind, or a workspace expectation the operation cannot observe, is an input error reported as `not_run`, never a pass. A fixture path that is absolute, or that leaves the working folder by `..` or a symbolic link, is refused before any fixture is written.
+`estate mutate` copies the estate configuration (`driftbench.estate.yaml`, at the root or in `.claude/`) with the estate files, since a unit test on the copy needs the helper executors and the script fixtures it declares. `estate unit` accepts YAML or JSON task specs marked `metadata.estate.mode: unit`, alongside recorded JSON unit tests. A task spec declares its executable operation in `metadata.estate.unit`: a guard target (name, event, matcher and command) or a script target (path), plus concrete `cases` with guard event payloads or script arguments, files and stdin. The runner executes those inputs on a copy. It does not turn the user ask into a command or search the implementation for an input that satisfies the expected verdict. The runner evaluates `expect.guards`, `expect.execution` and `expect.workspace`; for `workspace` it compares the files of the operation's working folder before and after each case (the estate copy for a guard, the case folder for a script). An expectation of any other kind, or a workspace expectation the operation cannot observe, is an input error reported as `not_run`, never a pass. A fixture path that is absolute, or that leaves the working folder by `..` or a symbolic link, is refused before any fixture is written.
 
 A unit task spec has one block. Guard expectations check actual firings: exit 2 denies, a JSON permission decision supplies its decision, another nonzero exit warns, and context on stdout nudges. `guard_message` checks the actual messages of the runs by which a guard acted (a deny, a block, a warn or a nudge); an allow, a timeout or a verdict outside that list is no intervention and has no message to judge; `guard_finished` and an optional `budgetMs` check completion. A case may supply an exact `expected` outcome. A script needs declared configuration fixtures, exact case outcomes, or an explicit expected exit code. Starting a process alone does not establish its correctness. Script execution assertions enforce `ran_code`, `max_commands` and the last command's `exit_code`. Guard case outcomes describe guard processes. `some_call` checks the actual script invocations and their input fields. Other custom script checks and assertions naming another operation are reported as unsupported, never silently dropped. Agent replies, skill loads and workspace edits require a live or replay test; direct unit operations do not establish those outcomes. Missing inputs, unsupported checks and missing script oracles are input errors, not executed failures or successful mutant kills.
 
@@ -1117,6 +1119,8 @@ scripts:
           stdout: GREEN PARCEL
 ```
 
+A helper run alone is also written as a JSON run record, `unit/contract_alone/unit.contract_alone.<helper atom>.json`, beside the unit-mode spec: its target is the helper and its agent file, and its one case holds the task the row asks and the workspace files its situation seeds. A record is an output, not an input: `driftbench estate unit --record` runs the helper on the original estate (three record runs) and writes its answer into the case; a later run, on any copy, must answer the same, so an agent file that lost its body or changed what it asks turns the record red. A helper with no declared executor, or whose executor fails, fails the record and is never recorded as a pass. The generate report counts these records under `unit.helpers`.
+
 The helper process receives one JSON line with `name`, `systemPrompt` (the current body without YAML frontmatter), `frontmatter` and `task` (the unit block's user message). Workspace files from the spec are planted in the copy; they cannot replace `.claude/` or configuration files. The executor returns a JSON object with `text`, `segments` and `toolCalls`, plus any observed runtime traces, executions or workspace diff in the core `Observed` format. Cost and latency fields are supplied by the runner. The executor must report actual observations. Machine checks evaluate the task assertions against them; zero process exit alone does not pass a helper test. Missing observations, unavailable executors and unreadable helper files are reported explicitly. An empty body still reaches the executor; only actual execution and its observations determine the result. Judged criteria require a judge and do not pass an offline unit run. Successful executions also report `helpers` entries with the helper name, process exit, measured milliseconds and text.
 
 Script fixture expectations are independent contracts written from the public usage, documented exit codes and declared outputs. Neither the runner nor generation derives an expected result from implementation source. Each configured fixture needs an explicit exit or output assertion; a usage line without expectations is not an oracle. Output-only expectations retain the documented default exit code of zero. The runner accepts both the existing fixture list and the `{ usage, fixtures }` form above, validates them before execution, and checks every fixture. `some_call` reads only actual command invocations (interpreter, script path and arguments); it cannot establish that a script performed an internal tool action. Unsupported custom checks and absent oracles report an input error, never a successful mutant kill.
@@ -1126,3 +1130,85 @@ A hand-written guard expectation without a `verdict` counts a blocking decision 
 Generated guard expectations retain their declared verdict for hostile and speed tests as well as positive and negative tests. With no declared verdict, a positive firing means an actual denial. Text-event guards enforcing a declared `max_characters` predicate receive a positive payload above that boundary and a separate neutral control. Boundary synthesis uses the map's evidence, never implementation literals, and is bounded by `MAX_BOUNDARY_CHARACTERS` in the generator.
 
 Recorded measurements behind two estate changes: [generation pass-to-fail comparison](estate-generation-loss-ca5.md) and [unit runner evidence](estate-unit-runner-evidence.md).
+
+## Regenerate the fixture
+
+The Northwind folders hold outputs that tests compare byte for byte: the map, the approved map, the space map, the plan and its summary, the approved copy of the plan, the generated suite, and the fixture-v2 map, diff and impact. Make them again after a change to a file the scan reads under `examples/estates/fixture`, to its `answers.yaml`, `phrases.yaml` or `sessions/`, or to the scan, plan or generate code. A change under `examples/estates/fixture-v2` alone needs only step 7. The commands call no model and write in place. Run them from the repository root, in this order.
+
+```sh
+F=examples/estates/fixture
+V=examples/estates/fixture-v2
+P=packages/generate/test/estate/fixtures
+T=$(mktemp -d)
+
+# 1. The map: a scan with the recorded answers.
+pnpm -s driftbench estate scan $F --runtime claude-code --replay $F/answers.yaml --out $F/map.yaml --force
+
+# 2. The approved map, and the space map of the docs.
+cp $F/map.yaml $F/approved.yaml
+pnpm -s driftbench estate approve $F/approved.yaml --all
+pnpm -s driftbench estate map $F/approved.yaml --to $F/space.yaml --agent northwind
+
+# 3. The map hash, in the three files that pin it.
+HASH=$(grep -m1 '^hash:' $F/approved.yaml | cut -d' ' -f2)
+perl -pi -e "s/^mapHash: \S+/mapHash: $HASH/" $F/phrases.yaml $P/plan.yaml
+perl -pi -e "s/MAP_HASH = '[0-9a-f]+'/MAP_HASH = '$HASH'/" packages/adapters/test/claude-code/live/support.ts
+
+# 4. The plan, of the full declared space.
+pnpm -s driftbench estate map $F/approved.yaml --to $T/space.yaml --agent estate
+pnpm -s driftbench estate plan $F/approved.yaml --out $F/plan.yaml --space $T/space.yaml --force
+
+# 5. The approved copy of the plan, under the three note lines it already has.
+head -3 $P/planner-plan.approved.yaml > $T/notes.txt
+pnpm -s driftbench estate plan approve $F/plan.yaml --all --out $T/approved-plan.yaml
+cat $T/notes.txt $T/approved-plan.yaml > $P/planner-plan.approved.yaml
+
+# 6. The suite.
+pnpm -s driftbench estate generate --map $F/approved.yaml --plan $P/planner-plan.approved.yaml --out $F/generated --force
+
+# 7. Fixture-v2: its map, the diff against the fixture, the impact on its tests.
+pnpm -s driftbench estate scan $V --runtime claude-code --replay $V/answers.yaml --out $V/map.yaml --force
+pnpm -s driftbench estate diff $F/approved.yaml $V/map.yaml --old-guards $V/maintain/guard-state.v1.yaml --out $V/maintain/diff.json > $V/maintain/diff.txt
+pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests > $V/maintain/impact.txt
+pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests --out $V/maintain/impact.json
+pnpm exec biome format --write $V/maintain/diff.json $V/maintain/impact.json
+rm -rf "$T"
+```
+
+| Step | Writes | Notes |
+|---|---|---|
+| 1 | `map.yaml` | The scan exits 1 when a prose file has no recorded answer, and names the file. Add an entry to `answers.yaml` for it (`atoms: []` when it holds no rule). The failed scan still writes a partial `map.yaml`, without the atoms of that file, and the block has no `set -e` (steps 6 and 7 exit 1 on purpose): run the whole block again from step 1. A scan that gives a different map than the committed one fails `packages/estate/test/fixture.test.ts`. |
+| 2 | `approved.yaml`, `space.yaml` | `approved.yaml` is `map.yaml` with every atom approved. The space map names the agent `northwind`. Both are checked by `fixture.test.ts`. |
+| 3 | `phrases.yaml`, `packages/generate/test/estate/fixtures/plan.yaml`, `packages/adapters/test/claude-code/live/support.ts` | The hash of the map replaces the old one in the phrase bank, in the hand-written plan and in the live adapter test. Nothing changes when the hash did not. `estate generate` refuses a bank written against another map and prints both hashes. |
+| 4 | `plan.yaml`, `plan.summary.json` | The committed plan is the plan of the full declared space, the one `estate map` writes with the agent name `estate`. The space file of this step is a scratch file. `packages/cli/test/estate-plan.test.ts` checks the committed bytes. |
+| 5 | `packages/generate/test/estate/fixtures/planner-plan.approved.yaml` | The plan with every row approved. `head -3` keeps the three note lines at the top of the file. `packages/generate/test/estate/generate.test.ts` checks that the file is the plan with only the status changed. |
+| 6 | `generated/` | Replaces `specs/`, `incomplete/`, `static/`, `unit/`, `estate-generate-report.json` and `run-order.txt`, and nothing else in the folder. Exit 1 is normal while some spec stays incomplete. The seed is 1. `generate.test.ts` compares every file. |
+| 7 | `fixture-v2/map.yaml`, `fixture-v2/maintain/diff.json`, `diff.txt`, `impact.json`, `impact.txt` | `estate impact` exits 1: the planted changes wait for a person. Its text goes to `impact.txt` without `--out`, so the file holds no line that names the JSON file. The repository formatter formats the two JSON files. `packages/estate/test/maintain/fixture-v2.test.ts` compares the JSON files as data, and `packages/cli/test/estate-maintain.test.ts` compares the two text files. |
+
+`phrases.yaml`, `sessions/`, `answers.yaml` and the files of the estate itself are inputs written by hand. The hand-written plan and `phrases.yaml` name atoms by id: when a change renames or removes an atom they name, edit both by hand. Step 6 exits 2 and names the entry of `phrases.yaml` that no longer matches an atom.
+
+A run on an estate that did not change changes only the time of the scan: `readAt` and the `at` of `producedBy` in `map.yaml`, `approved.yaml` and `fixture-v2/map.yaml`, and the two `readAt` values in `fixture-v2/maintain/diff.json`. Restore those four files with `git checkout` when nothing else moved. Use this as a check: if anything else changes on an estate you did not touch, the code behind a command changed its output.
+
+After a change of the estate, the tests that count what the fixture holds fail with the old number. Each names the number it expected. Check that the number the run printed is the one the change should produce, then replace it. A count that moves for a reason you cannot name is a defect.
+
+| Test file | What it counts |
+|---|---|
+| `packages/cli/test/estate.test.ts` | atoms, edges and prose chunks of the scan, and the approval counts |
+| `packages/cli/test/estate-plan.test.ts` | plan rows, by source and by status |
+| `packages/cli/test/estate-maintain.test.ts` | atoms unchanged between the map and its approved copy |
+| `packages/estate/test/scan.test.ts` | files by kind, atoms by kind, references |
+| `packages/estate/test/graph.test.ts` | edges by kind, the rules and the unenforced rules |
+| `packages/estate/test/map.test.ts` | approval counts, and the size of each target dimension of the space map (`atoms.instruction` and the other kinds) |
+| `packages/estate/test/plan/plan.test.ts` | plan rows per atom kind (`perKind`) |
+| `packages/estate/test/lint.test.ts` | the `UNENFORCED` count of the lint |
+| `packages/estate/test/maintain/fixture-v2.test.ts` | atoms unchanged in the fixture-v2 diff |
+| `packages/generate/test/estate/generate.test.ts` | approved rows, and the specs, blocks, complete, incomplete and judged specs of the suite |
+| `packages/cli/test/estate-generate.test.ts` | the sessions and the replay specs written over them, which move with `sessions/` and `phrases.yaml` |
+
+Run them, with the live adapter tests that read the hash:
+
+```sh
+pnpm exec vitest run packages/estate packages/generate packages/cli/test/estate packages/adapters/test/claude-code --maxWorkers=2
+```
+
+The captured outputs on this page, in [the CLI reference](reference/cli.md), in [the comparison](comparison.md) and in the help topics `packages/cli/help/validate-estate-*.md` keep the hash and the counts of the run they were captured from, and no command makes them again. `git grep` for the old hash lists them. One line is checked: the validator item `estate-approve-counts-match-docs` compares the atom count in this page's capture of `estate approve` with `approved.yaml`.

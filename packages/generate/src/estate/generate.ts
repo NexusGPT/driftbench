@@ -35,7 +35,7 @@ import { compilePredicate, isCompiledPredicate } from './predicates';
 import { STATIC_DIR, STATIC_TEST_TYPES, type StaticTest, staticCheckOf } from './static';
 import { ordered, runOrder, sortedKeys, totalsFor } from './summary';
 import { MARKER_NAMES, MARKERS, type Marker, stageModel } from './then';
-import { CHECK_GAP, UNIT_DIR, UNIT_TEST_TYPES, type UnitTest, unitTestOf } from './unit';
+import { CHECK_GAP, helperUnitTestOf, UNIT_DIR, UNIT_TEST_TYPES, type UnitTest, unitTestOf } from './unit';
 
 /**
  * `driftbench estate generate`: every approved plan row becomes one or more task specs, by code only.
@@ -311,7 +311,32 @@ export function generateEstateSuite(
       }
       continue;
     }
-    for (const built of buildRow(row, ctx, used)) emit(built, row, totalsType, totalsMode);
+    for (const built of buildRow(row, ctx, used)) {
+      emit(built, row, totalsType, totalsMode);
+      // A helper run alone is also a JSON run record: the task and the seeded files of the spec just built, for
+      // `estate unit --record` to run on the original estate and write the helper's answer into.
+      const helper = row.testType === 'contract_alone' ? head : undefined;
+      if (helper?.kind === 'subagent' && built.expect === undefined) {
+        const when = (built.spec.blocks as Array<{ when?: { user?: unknown } }> | undefined)?.[0]?.when;
+        const seeded = (
+          built.spec.given as { world?: { workspace?: { files?: Record<string, string> } } } | undefined
+        )?.world?.workspace?.files;
+        const id = `unit.contract_alone.${helper.id}`;
+        const test = helperUnitTestOf(
+          helper,
+          { task: typeof when?.user === 'string' ? when.user : '', files: seeded ?? {} },
+          ctx.map.hash,
+          id,
+          row,
+        );
+        if (typeof test === 'string') unitSkipped.push(`${id}: ${test}`);
+        else if (!unitSeen.has(`contract_alone:${helper.id}`)) {
+          unitSeen.add(`contract_alone:${helper.id}`);
+          files.push({ path: `${UNIT_DIR}/contract_alone/${id}.json`, text: formatJson(test) });
+          unitWritten.push(test);
+        }
+      }
+    }
   }
 
   // Focus atoms: variants of their rows, another ask and another situation each, until FOCUS_MIN complete
@@ -393,6 +418,7 @@ export function generateEstateSuite(
       guards: new Set(unitWritten.filter((test) => test.target.kind === 'guard').map((test) => test.atom))
         .size,
       scripts: unitWritten.filter((test) => test.target.kind === 'script').length,
+      helpers: unitWritten.filter((test) => test.target.kind === 'subagent').length,
       cases: unitWritten.reduce((sum, test) => sum + test.cases.length, 0),
       checks: {
         tested: unitWritten.filter((test) => test.target.kind === 'guard' && test.target.check !== undefined)
