@@ -259,8 +259,15 @@ function localizeItems(): BankItem[] {
         ),
       );
     }
-  // A stale link adds nothing; a stale section and a global section are not ranked.
-  for (const what of ['stale-link', 'stale-section', 'global-section', 'refuted-and-stale'] as const)
+  // A stale link adds nothing, in two shapes the contracts2 lane does not test (its stale link sits on a
+  // failing block beside a declared one): a stale link on a passing block, and a stale link with no block. A
+  // stale section and a global section are not ranked.
+  for (const what of [
+    'stale-link-passing-block',
+    'stale-section',
+    'global-section',
+    'stale-spec-wide-link',
+  ] as const)
     for (const repeats of [1, 3])
       for (const position of ['first', 'last'] as const) {
         const id = `localize/${what}/${repeats}/${position}`;
@@ -268,17 +275,18 @@ function localizeItems(): BankItem[] {
           item(
             id,
             family,
-            (what === 'stale-link' ? 3 : 2) as Tier,
+            (what === 'stale-link-passing-block' ? 3 : 2) as Tier,
             LOCALIZE,
-            what === 'stale-link'
-              ? `a stale link of a failing block adds nothing to its section (${position} block, ${repeats} repeats)`
+            what === 'stale-link-passing-block'
+              ? `a passing block's stale link to the section of the failing block adds no pass weight to it (${position} block, ${repeats} repeats)`
               : what === 'stale-section'
                 ? `a section the registry marks stale is not ranked (${position} block, ${repeats} repeats)`
                 : what === 'global-section'
                   ? `a block linked to the global section still leaves it unranked (${position} block, ${repeats} repeats)`
-                  : `a refuted link and a stale link on one failing block add nothing (${position} block, ${repeats} repeats)`,
-            what === 'stale-link' || what === 'refuted-and-stale'
-              ? 'localizeRows leaves a stale link out of the sections a block covers'
+                  : `a stale link with no block covers no block of its spec, so its section is charged nothing (${position} block, ${repeats} repeats)`,
+            what === 'stale-link-passing-block' || what === 'stale-spec-wide-link'
+              ? // The cause sentence of the contracts2 item on stale links: one change makes both pass, so it counts once.
+                'radius localize leaves stale links out of the Ochiai counts and reports them as advisory.'
               : what === 'stale-section'
                 ? 'localizeRows leaves a stale section out of the ranking'
                 : 'localizeRuns lists a global section apart and never ranks it',
@@ -287,29 +295,22 @@ function localizeItems(): BankItem[] {
               const s = between(rngFor(seed, `${id}-s`), 0, 1);
               const b = position === 'first' ? 0 : 3;
               const target = w.own[s]?.[b] as string;
-              const extra = `odd_${token(seed, `${id}x`)}`;
               const spec = w.specs[s] as World['specs'][number];
               let covers = (cs: number, cb: number) => [w.own[cs]?.[cb] as string, w.wide[cs] as string];
               let ranked = (section: string) => section !== w.global;
-              if (what === 'stale-link' || what === 'refuted-and-stale') {
-                w.registry.sections.push({
-                  id: extra,
-                  scope: 'local',
-                  span: span(w.registry.sections.length),
-                  sha256: hex,
-                  anchor: { quote: extra },
-                });
+              if (what === 'stale-link-passing-block') {
+                const other = b === 0 ? 1 : 0;
                 spec.metadata.links.push({
-                  block: spec.blocks[b]?.id,
-                  to: { kind: 'prompt_section', prompt: PROMPT, section: extra },
+                  block: spec.blocks[other]?.id,
+                  to: { kind: 'prompt_section', prompt: PROMPT, section: target },
                   status: 'stale',
                 });
-                if (what === 'refuted-and-stale')
-                  spec.metadata.links.push({
-                    block: spec.blocks[b]?.id,
-                    to: { kind: 'prompt_section', prompt: PROMPT, section: extra },
-                    status: 'refuted',
-                  });
+              } else if (what === 'stale-spec-wide-link') {
+                const wideLink = spec.metadata.links.find((link) => link.block === undefined);
+                if (!wideLink) throw new Error('the spec has no spec-wide link');
+                wideLink.status = 'stale';
+                covers = (cs, cb) =>
+                  cs === s ? [w.own[cs]?.[cb] as string] : [w.own[cs]?.[cb] as string, w.wide[cs] as string];
               } else if (what === 'stale-section') {
                 const section = w.registry.sections.find((each) => each.id === target);
                 if (section) section.stale = true;
