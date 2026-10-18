@@ -1,6 +1,6 @@
 # Design, allocation and variance
 
-This page defines sixteen functions that plan a study and estimate variance: sample sizes, power, the allocation of a sample over strata, and variance estimates for two samples, a mean and a panel of raters. Every function obeys the [shared conventions](capabilities.md#conventions): the `RangeError` rules, the accuracy of a relative 1e-11, and the quantiles of the normal passed in as arguments. This page repeats none of them.
+This page defines fourteen functions that plan a study and estimate variance: sample sizes, power, the allocation of a sample over strata, and variance estimates for two samples, a mean and a panel of raters. Every function obeys the [shared conventions](capabilities.md#conventions): the `RangeError` rules, the accuracy of a relative 1e-11, and the quantiles of the normal passed in as arguments. This page repeats none of them.
 
 Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
 
@@ -71,18 +71,6 @@ finitePopulationCorrection(sampleSize: number, population: number): number
 * **Returns.** A number.
 * **Throws.** A `RangeError` when `sampleSize` is not positive, or when `population` is 0 (it must be a positive whole number).
 * **Example.** `finitePopulationCorrection(100, 1000)` is 90.99181073703366. `finitePopulationCorrection(50, 50)` is 25.252525252525253. `finitePopulationCorrection(30, 1)` is 1.
-
-### `clusterSampleSize`
-
-```ts
-clusterSampleSize(n0: number, clusterSize: number, rho: number): number
-```
-
-* **File.** `packages/stats/src/sample-size.ts`.
-* **Definition.** The size needed in a clustered sample, given the size `n0` needed with independent units. The value is `n0 * (1 + (clusterSize - 1) * rho)`, where `rho` is the intra-cluster correlation. It is a real number and is not rounded. `clusterSize` is the average number of units per cluster and may be a fraction.
-* **Returns.** A number.
-* **Throws.** A `RangeError` when `n0` is not positive, when `clusterSize` is below 1, or when `rho` is outside [0, 1].
-* **Example.** `clusterSampleSize(100, 10, 0.05)` is 145. `clusterSampleSize(385, 25, 0.02)` is 569.8. `clusterSampleSize(50, 4, 1)` is 200.
 
 ## Power
 
@@ -179,18 +167,6 @@ welchT(a: number[], b: number[]): { t: number; df: number }
 * **Returns.** An object with two fields: `t`, a number, and `df`, a number that is not rounded.
 * **Throws.** A `RangeError` when `a` or `b` has fewer than 2 values, or when every value of `a` is equal and every value of `b` is equal (the denominator is 0).
 * **Example.** `welchT([1, 3], [2, 6])` is `{ t: -0.8944271909999159, df: 1.4705882352941178 }`. `welchT([5, 5, 5], [4, 6, 8])` is `{ t: -0.8660254037844386, df: 2 }`. `welchT([1, 2, 3], [0, 2, 4, 2])` is `{ t: 0, df: 4.909090909090909 }`.
-
-### `pooledVariance`
-
-```ts
-pooledVariance(a: number[], b: number[]): number
-```
-
-* **File.** `packages/stats/src/variance-estimates.ts`.
-* **Definition.** The pooled sample variance of two samples: `((na - 1) * va + (nb - 1) * vb) / (na + nb - 2)`, where `va` and `vb` are the sample variances of `a` and `b`. It equals the sum of the squared deviations of each value from the mean of its own sample, divided by `na + nb - 2`. When every value in both samples is constant, the result is 0.
-* **Returns.** A number, at least 0.
-* **Throws.** A `RangeError` when `a` or `b` has fewer than 2 values.
-* **Example.** `pooledVariance([1, 2], [3, 5])` is 1.25. `pooledVariance([2, 4, 4, 4, 5, 5, 7, 9], [1, 2, 3])` is 3.7777777777777777. `pooledVariance([3, 3], [7, 7])` is 0.
 
 ### `jackknifeMeanVariance`
 

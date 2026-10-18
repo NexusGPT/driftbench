@@ -81,7 +81,7 @@ benjaminiYekutieliAdjust(pvalues: number[]): number[]
 
 ## Estimating the share of true nulls
 
-The two functions of this section live in `packages/stats/src/storey.ts`. A p-value above `lambda` is taken as coming from a true null, because real effects give small p-values.
+The function of this section lives in `packages/stats/src/storey.ts`. A p-value above `lambda` is taken as coming from a true null, because real effects give small p-values.
 
 ### `storeyPiZero`
 ```ts
@@ -91,22 +91,6 @@ storeyPiZero(pvalues: number[], lambda: number): number
 * **Returns.** A number in [0, 1].
 * **Throws.** A `RangeError` for an empty array, for a p-value that is NaN, infinite or outside [0, 1], and for a `lambda` that is NaN, infinite, below 0 or at least 1.
 * **Example.** `storeyPiZero([0.2, 0.5, 0.5, 0.7, 0.9], 0.5)` is 0.8: two p-values are above 0.5, and 2 / (5 x 0.5) is 0.8. `storeyPiZero([0.01, 0.02, 0.03, 0.04], 0.5)` is 0. `storeyPiZero([0.5], 0.25)` is 1, because 1 / 0.75 is capped.
-
-### `storeyQValues`
-```ts
-storeyQValues(pvalues: number[], lambda: number): number[]
-```
-* **Definition.** The q-value of a p-value is the smallest false discovery rate at which it is called significant. Steps:
-  1. Let `pi0 = storeyPiZero(pvalues, lambda)`.
-  2. Sort the p-values ascending: `p(1) <= ... <= p(m)`.
-  3. For each rank `i`, let `r(i) = pi0 m p(i) / i`.
-  4. The q-value at rank `i` is the minimum of `r(j)` over all ranks `j` from `i` to m (the monotone minimum).
-  5. Put the values back in the input order.
-
-  Equal p-values get equal q-values, because the last rank of a block of ties has the smallest `r`. When `pi0` is 0, every q-value is 0. No q-value exceeds 1.
-* **Returns.** An array of numbers, one per p-value, in the input order.
-* **Throws.** A `RangeError` for an empty array, for a p-value that is NaN, infinite or outside [0, 1], and for a `lambda` that is NaN, infinite, below 0 or at least 1.
-* **Example.** `storeyQValues([0.2, 0.5, 0.5, 0.7, 0.9], 0.5)` has `pi0` 0.8 and is `[2/3, 2/3, 2/3, 0.7, 0.72]`. `storeyQValues([0.01, 0.02, 0.03, 0.04], 0.5)` is `[0, 0, 0, 0]`. `storeyQValues([0.0, 0.3, 1.0, 0.6], 0.3)` is `[0, 0.42857142857142855, 0.7142857142857143, 0.5714285714285714]`.
 
 ## Error rates for many tests
 

@@ -1,6 +1,6 @@
 # Descriptive and robust statistics
 
-Location, spread, shape and correlation measures that the statistics package ([statistics](../concepts/statistics.md)) does not have yet. The shared rules of every function (the `RangeError` conditions, the accuracy, the mid-rank rule for ties) are in the [conventions](capabilities.md#conventions) and are not repeated here. Each section lists only the inputs it refuses beyond those rules.
+Location, spread, mean and correlation measures that the statistics package ([statistics](../concepts/statistics.md)) does not have yet. The shared rules of every function (the `RangeError` conditions, the accuracy, the mid-rank rule for ties) are in the [conventions](capabilities.md#conventions) and are not repeated here. Each section lists only the inputs it refuses beyond those rules.
 
 Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
 
@@ -8,8 +8,7 @@ Status: planned. None of these functions exists in `@agent-nexus/driftbench-stat
 
 | File of `packages/stats/src` | Functions |
 |---|---|
-| `descriptive.ts` | `median`, `medianAbsoluteDeviation`, `trimmedMean`, `winsorizedMean`, `interquartileRange`, `coefficientOfVariation`, `mode`, `weightedMedian` |
-| `shape.ts` | `skewness`, `excessKurtosis` |
+| `descriptive.ts` | `median`, `coefficientOfVariation`, `mode`, `weightedMedian` |
 | `means.ts` | `geometricMean`, `harmonicMean` |
 | `correlation.ts` | `sampleCovariance`, `pearsonCorrelation`, `spearmanRho`, `kendallTauB` |
 
@@ -25,42 +24,6 @@ median(xs: number[]): number
 * **Returns.** A number. For one value, that value.
 * **Throws.** A `RangeError` for an empty array, and for the shared conditions.
 * **Example.** `median([5, 1, 4, 2, 3])` is 3. `median([1, 2, 3, 4])` is 2.5. `median([412, 380, 395, 1210, 402, 388])` is 398.5.
-
-### `medianAbsoluteDeviation`
-```ts
-medianAbsoluteDeviation(xs: number[]): number
-```
-* **Definition.** Let `m` be `median(xs)`. The result is the `median` of the values `|x - m|`. The result is raw: it is not multiplied by 1.4826 or any other scale factor.
-* **Returns.** A number, zero or more. It is 0 for one value and for values that are all equal.
-* **Throws.** A `RangeError` for an empty array, and for the shared conditions.
-* **Example.** For `[1, 1, 2, 2, 4, 6, 9]` the median is 2, the deviations are 1, 1, 0, 0, 2, 4, 7 and `medianAbsoluteDeviation` is 1. `medianAbsoluteDeviation([-3, 10, -1, 4])` is 3.5.
-
-### `trimmedMean`
-```ts
-trimmedMean(xs: number[], proportion: number): number
-```
-* **Definition.** Let `n` be the count and `g = Math.min(Math.floor(proportion * n), Math.floor((n - 1) / 2))`, with the product `proportion * n` evaluated in double arithmetic. The result is the mean of the sorted values after the `g` smallest and the `g` largest are removed: the sum of the `n - 2g` values that remain, divided by `n - 2g`. The cap keeps at least one value.
-* **Returns.** A number. With `proportion` 0 it is the plain mean. With one value it is that value.
-* **Throws.** A `RangeError` when `proportion` is below 0 or is 0.5 or more, for an empty array, and for the shared conditions (a `proportion` that is `NaN` or infinite).
-* **Example.** `trimmedMean([1, 2, 3, 4, 5, 6, 7, 8, 9, 100], 0.1)` cuts 1 value from each end and gives 5.5. `trimmedMean([10, 2, 7, 3, 99], 0.25)` cuts `floor(1.25) = 1` from each end, keeps 3, 7 and 10, and gives 6.666666666666667. `trimmedMean([9, 1, 5, 7], 0.2)` cuts `floor(0.8) = 0` and gives 5.5.
-
-### `winsorizedMean`
-```ts
-winsorizedMean(xs: number[], proportion: number): number
-```
-* **Definition.** Let `g` be the cut count of `trimmedMean`, and `s` the sorted values with 0-based positions. The `g` smallest values are replaced by `s[g]` and the `g` largest by `s[n - 1 - g]`. The result is the mean of all `n` values after the replacement: their sum divided by `n`.
-* **Returns.** A number. With `proportion` 0 it is the plain mean.
-* **Throws.** The same as `trimmedMean`: a `RangeError` when `proportion` is below 0 or is 0.5 or more.
-* **Example.** `winsorizedMean([10, 2, 7, 3, 99], 0.25)` has `g = 1`. The sorted values 2, 3, 7, 10, 99 become 3, 3, 7, 10, 10 and the result is 6.6. `winsorizedMean([1, 2, 4, 8, 16, 32, 64, 128, 256, 1000], 0.1)` is 76.8.
-
-### `interquartileRange`
-```ts
-interquartileRange(xs: number[]): number
-```
-* **Definition.** `q(0.75) - q(0.25)`, with `q` the type 7 quantile of the existing `quantile`. On the sorted values `s`, `h = (n - 1) * p`, `lo = Math.floor(h)` and `q(p) = s[lo] + (h - lo) * (s[lo + 1] - s[lo])`. When `lo` is the last position, `q(p)` is `s[lo]`.
-* **Returns.** A number, zero or more. It is 0 for one value.
-* **Throws.** A `RangeError` for an empty array, and for the shared conditions.
-* **Example.** `interquartileRange([1, 2, 3, 4, 5])` is 2. For `[1, 2, 3, 4]` the quartiles are 1.75 and 3.25, so `interquartileRange` is 1.5.
 
 ### `coefficientOfVariation`
 ```ts
@@ -88,28 +51,6 @@ weightedMedian(xs: number[], weights: number[]): number
 * **Returns.** A number, one of the values of `xs`.
 * **Throws.** A `RangeError` when a weight is 0 or negative, for an empty array, and for the shared conditions (a length mismatch, a `NaN` or infinite value or weight).
 * **Example.** `weightedMedian([1, 2, 3], [1, 1, 5])` is 3: the total is 7, and the cumulative weights are 1, 2 and 7. `weightedMedian([30, 10, 40, 20], [0.25, 0.25, 0.25, 0.25])` is 20: the cumulative weight reaches the half, 0.5, at 20.
-
-## Shape
-
-Both shape functions use population moments about the mean: `m_k = (1 / n) * sum((x - mean)^k)`.
-
-### `skewness`
-```ts
-skewness(xs: number[]): number
-```
-* **Definition.** `g1 = m3 / m2^1.5`, the population moment skewness. When all values are equal (compared with `===`, so for one value too), `m2` is 0 and the result is 0. The test is on the values, never on the computed `m2`, which rounding can leave slightly above 0.
-* **Returns.** A number. It is positive when the long tail is on the right, negative when it is on the left, and 0 for symmetric values.
-* **Throws.** A `RangeError` for an empty array, and for the shared conditions.
-* **Example.** `skewness([1, 2, 3, 10])` is 1.0182337649086284. `skewness([0, 0, 0, 1])` is 1.1547005383792515. `skewness([1, 2, 3, 4, 5])` is 0. `skewness([4, 4, 4])` is 0.
-
-### `excessKurtosis`
-```ts
-excessKurtosis(xs: number[]): number
-```
-* **Definition.** `g2 = m4 / m2^2 - 3`, the population moment excess kurtosis. When all values are equal (compared with `===`, so for one value too), the result is 0. The test is on the values, as for `skewness`.
-* **Returns.** A number. It is -2 for two distinct values with the same count, and 0 for a normal distribution.
-* **Throws.** A `RangeError` for an empty array, and for the shared conditions.
-* **Example.** `excessKurtosis([1, 2, 3, 4, 5])` is -1.3. `excessKurtosis([1, 2])` is -2. `excessKurtosis([412, 380, 395, 1210, 402, 388])` is 1.1920484963303795. `excessKurtosis([4, 4, 4])` is 0.
 
 ## Means
 

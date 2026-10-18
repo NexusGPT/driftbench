@@ -1,37 +1,26 @@
 # Exact tests
 
-This page defines sixteen functions: p-values by enumeration and the statistics of classical tests. The shared rules of [the capabilities page](capabilities.md#conventions) apply to each of them: the `RangeError` rules, the accuracy of a relative 1e-11 and the mid-rank rule for ties.
+This page defines thirteen functions: p-values by enumeration and the statistics of classical tests. The shared rules of [the capabilities page](capabilities.md#conventions) apply to each of them: the `RangeError` rules, the accuracy of a relative 1e-11 and the mid-rank rule for ties.
 
 Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
 
 | Group | File in `packages/stats/src` | Functions |
 |---|---|---|
-| Exact tests on counts | `exact.ts` | `fisherExact`, `hypergeometricPmf`, `binomialTestExact`, `signTestExact`, `poissonTestExact` |
+| Exact tests on counts | `exact.ts` | `hypergeometricPmf`, `binomialTestExact`, `signTestExact`, `poissonTestExact` |
 | Nonparametric exact tests | `nonparametric.ts` | `wilcoxonSignedRankExactP`, `mannWhitneyUExactP`, `permutationTestMeanDifference`, `waldWolfowitzRunsExactP` |
-| Rank statistics | `rank-tests.ts` | `kruskalWallisH`, `friedmanStatistic`, `cochranQ` |
-| Statistics of tables | `tables.ts` | `mantelHaenszelOddsRatio`, `chiSquareIndependenceStatistic`, `chiSquareGoodnessOfFitStatistic`, `gTestStatistic` |
+| Rank statistics | `rank-tests.ts` | `kruskalWallisH`, `friedmanStatistic` |
+| Statistics of tables | `tables.ts` | `chiSquareIndependenceStatistic`, `chiSquareGoodnessOfFitStatistic`, `gTestStatistic` |
 
 ## Rules used by several functions
 
 * **Exact value.** A p-value on this page is a sum of probabilities of an exactly defined set of outcomes. The result is that sum, not an approximation by a normal or a chi-square curve. An implementation keeps the relative accuracy of 1e-11 even when the p-value is very small, for example by working with integer counts or with logarithms of probabilities.
-* **The small-probabilities rule.** Some two-sided p-values are defined from a discrete distribution with probabilities P(x) and an observed outcome x0. The p-value is the sum of P(x) over every outcome x with P(x) <= P(x0) * (1 + 1e-7). The factor 1 + 1e-7 is a relative slack. It makes outcomes of equal probability count together although their computed probabilities differ in the last digits. The sum is limited to 1. The rule serves `fisherExact`, `binomialTestExact`, `poissonTestExact` and `waldWolfowitzRunsExactP`.
+* **The small-probabilities rule.** Some two-sided p-values are defined from a discrete distribution with probabilities P(x) and an observed outcome x0. The p-value is the sum of P(x) over every outcome x with P(x) <= P(x0) * (1 + 1e-7). The factor 1 + 1e-7 is a relative slack. It makes outcomes of equal probability count together although their computed probabilities differ in the last digits. The sum is limited to 1. The rule serves `binomialTestExact`, `poissonTestExact` and `waldWolfowitzRunsExactP`.
 * **The doubled-tail rule.** Some two-sided p-values are defined from a distribution that is symmetric. The p-value is twice the probability of the lower tail that ends at the smaller of the observed statistic and its mirror value, limited to 1. The rule serves `signTestExact`, `wilcoxonSignedRankExactP` and `mannWhitneyUExactP`.
 * **Inputs are never changed.** Each function is pure.
 
 ## Exact tests on counts
 
 These functions belong in `packages/stats/src/exact.ts`.
-
-### `fisherExact`
-
-```ts
-fisherExact(table: { a: number; b: number; c: number; d: number }): number
-```
-
-* **Definition.** The table has the cells `a` and `b` in its first row and `c` and `d` in its second row. Let r1 = a + b, c1 = a + c and n = a + b + c + d. The margins are fixed. A table with the same margins has x in its first cell, where x runs over the integers from max(0, r1 + c1 - n) to min(r1, c1). Its probability is P(x) = C(c1, x) * C(n - c1, r1 - x) / C(n, r1), where C is the binomial coefficient. The result is the two-sided p-value by the small-probabilities rule with the observed x0 = a. A table with a zero margin has one possible table, and the result is 1.
-* **Returns.** A number in [0, 1].
-* **Throws.** A `RangeError` when all four cells are 0.
-* **Example.** `fisherExact({ a: 3, b: 1, c: 1, d: 3 })` is 0.4857142857142857. `fisherExact({ a: 5, b: 0, c: 0, d: 5 })` is 0.007936507936507936.
 
 ### `hypergeometricPmf`
 
@@ -151,31 +140,9 @@ friedmanStatistic(matrix: number[][]): number
 * **Throws.** A `RangeError` when the matrix has no row, when a row has fewer than 2 values, when the rows differ in length, or when every row has all its values equal (C is 0).
 * **Example.** `friedmanStatistic([[1, 2, 3], [2, 1, 3], [1, 3, 2], [1, 2, 3]])` is 4.5. `friedmanStatistic([[3, 1, 2]])` is 2.
 
-### `cochranQ`
-
-```ts
-cochranQ(matrix: number[][]): number
-```
-
-* **Definition.** The matrix has b rows (subjects) and k columns (treatments). Each entry is 0 or 1. Let C_j be the sum of column j, R_i the sum of row i and T the sum of all entries. The result is (k - 1) * (k * sum(C_j^2) - T^2) / (k * T - sum(R_i^2)). The value equals the tie-corrected `friedmanStatistic` of the same matrix.
-* **Returns.** A number, zero or larger.
-* **Throws.** A `RangeError` when the matrix has no row, when a row has fewer than 2 values, when the rows differ in length, when an entry is not 0 or 1, or when the denominator is 0, which happens when every row sum is 0 or k.
-* **Example.** `cochranQ([[1, 0, 0], [1, 1, 0], [1, 1, 1], [0, 1, 0], [1, 1, 0], [0, 0, 1]])` is 1.6. `cochranQ([[1, 0, 1]])` is 2.
-
 ## Statistics of tables
 
 These functions belong in `packages/stats/src/tables.ts`.
-
-### `mantelHaenszelOddsRatio`
-
-```ts
-mantelHaenszelOddsRatio(tables: { a: number; b: number; c: number; d: number }[]): number
-```
-
-* **Definition.** Each table has the cells `a`, `b`, `c` and `d`, and n_i = a + b + c + d. The result is sum(a * d / n_i) / sum(b * c / n_i), each sum over all tables. For one table the result is a * d / (b * c). The result is 0 when every product a * d is 0.
-* **Returns.** A number, zero or larger.
-* **Throws.** A `RangeError` when the list is empty, when a table has all four cells 0, or when sum(b * c / n_i) is 0.
-* **Example.** `mantelHaenszelOddsRatio([{ a: 7, b: 3, c: 2, d: 9 }])` is 10.5. `mantelHaenszelOddsRatio([{ a: 12, b: 5, c: 6, d: 14 }, { a: 8, b: 7, c: 3, d: 12 }, { a: 15, b: 4, c: 9, d: 11 }])` is 4.918595711967199.
 
 ### `chiSquareIndependenceStatistic`
 

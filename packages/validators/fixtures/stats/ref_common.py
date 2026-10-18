@@ -192,9 +192,21 @@ def _clean(v):
     return v
 
 
+def roadmap_methods():
+    """The methods roadmap.json defines, quarantined or kept: their items and their causes belong to the roadmap."""
+    roadmap = json.loads(Path(__file__).with_name("roadmap.json").read_text())
+    return {m["name"] for m in roadmap["methods"]}
+
+
 def write(group, provenance, functions):
     names = [f["fn"] for f in functions]
     assert len(set(names)) == len(names), "duplicate function in the group"
+    # A roadmap method already has its cases and its cause; a second definition would count it twice.
+    twins = roadmap_methods()
+    dropped = [n for n in names if n in twins]
+    if dropped:
+        print(f"left out {len(dropped)} roadmap methods: {' '.join(dropped)}")
+    functions = [f for f in functions if f["fn"] not in twins]
     out = {"_provenance": provenance, "group": group, "functions": _clean(functions)}
     path = Path(__file__).with_name(f"newcaps-{group}.json")
     path.write_text(json.dumps(out, indent=1, allow_nan=False) + "\n")

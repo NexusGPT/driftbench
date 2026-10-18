@@ -1,6 +1,6 @@
 # Bayesian summaries and rate intervals
 
-This page defines sixteen functions that the statistics package ([statistics](../concepts/statistics.md)) does not have yet. Nine summarise a pass rate with a Beta prior: the posterior mode and variance, the chance of the next success, the Beta-Binomial and Dirichlet-Multinomial distributions, a Bayes factor against a point null, and comparisons of two Beta variables. Seven give a closed-form confidence interval on a rate from `k` successes in `n` trials. The conventions of [statistics capabilities](capabilities.md) hold for all of them: the `RangeError` rules, the accuracy of a relative 1e-11, and the quantile `z` passed in as an argument.
+This page defines fourteen functions that the statistics package ([statistics](../concepts/statistics.md)) does not have yet. Nine summarise a pass rate with a Beta prior: the posterior mode and variance, the chance of the next success, the Beta-Binomial and Dirichlet-Multinomial distributions, a Bayes factor against a point null, and comparisons of two Beta variables. Five give a closed-form confidence interval on a rate from `k` successes in `n` trials. The conventions of [statistics capabilities](capabilities.md) hold for all of them: the `RangeError` rules, the accuracy of a relative 1e-11, and the quantile `z` passed in as an argument.
 
 Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
 
@@ -108,19 +108,9 @@ dirichletMultinomialPmf(counts: number[], alphas: number[]): number
 
 ## Intervals on a rate
 
-The first six of these seven functions give an interval for the rate behind `k` successes in `n` trials. In each of them `p̂ = k / n`, and `z` is the normal quantile passed in by the caller, for example `Z95` for a 95 percent two-sided interval. The result is the object `{ lower, upper }`. Each bound is clipped: `lower` is the larger of 0 and the computed lower bound, and `upper` is the smaller of 1 and the computed upper bound. The functions are defined in `packages/stats/src/intervals.ts`.
+The first four of these five functions give an interval for the rate behind `k` successes in `n` trials. In each of them `p̂ = k / n`, and `z` is the normal quantile passed in by the caller, for example `Z95` for a 95 percent two-sided interval. The result is the object `{ lower, upper }`. Each bound is clipped: `lower` is the larger of 0 and the computed lower bound, and `upper` is the smaller of 1 and the computed upper bound. The functions are defined in `packages/stats/src/intervals.ts`.
 
-The first six functions share these `RangeError` conditions, in addition to the shared conventions: `n` is 0, `k` is greater than `n`, and `z` is zero or negative. `ruleOfThreeUpperBound` takes no `k` and no `z`.
-
-### `waldInterval`
-```ts
-waldInterval(k: number, n: number, z: number): { lower: number; upper: number }
-```
-* **Definition.** With `half = z * sqrt(p̂ (1 - p̂) / n)` the bounds are `p̂ - half` and `p̂ + half`, then clipped. For `k = 0` and for `k = n` the half width is 0, so the interval is the single point `p̂`.
-* **Returns.** An object with the number fields `lower` and `upper`.
-* **Throws.** The conditions listed above for the intervals.
-* **Example.** `waldInterval(7, 10, Z95)` is `{ lower: 0.415974, upper: 0.984026 }`. `waldInterval(9, 12, 1)` is `{ lower: 0.625, upper: 0.875 }`. `waldInterval(0, 20, Z95)` is `{ lower: 0, upper: 0 }`. `waldInterval(2, 6, Z95)` has `lower` 0 after clipping and `upper` about 0.710529.
-* **File.** `packages/stats/src/intervals.ts`.
+The first four functions share these `RangeError` conditions, in addition to the shared conventions: `n` is 0, `k` is greater than `n`, and `z` is zero or negative. `ruleOfThreeUpperBound` takes no `k` and no `z`.
 
 ### `agrestiCoullInterval`
 ```ts
@@ -140,16 +130,6 @@ plusFourInterval(k: number, n: number, z: number): { lower: number; upper: numbe
 * **Returns.** An object with the number fields `lower` and `upper`.
 * **Throws.** The conditions listed above for the intervals.
 * **Example.** `plusFourInterval(7, 10, Z95)` is `{ lower: 0.391864, upper: 0.893851 }`. `plusFourInterval(0, 1, Z95)` has `lower` 0 after clipping and `upper` about 0.829407. `plusFourInterval(2, 30, 1)` is `{ lower: 0.062392, upper: 0.172902 }`.
-* **File.** `packages/stats/src/intervals.ts`.
-
-### `arcsineInterval`
-```ts
-arcsineInterval(k: number, n: number, z: number): { lower: number; upper: number }
-```
-* **Definition.** The variance-stabilising interval. Let `theta = asin(sqrt(p̂))`, an angle in [0, pi/2], and `delta = z / (2 * sqrt(n))`. The bounds are `lower = sin^2(max(0, theta - delta))` and `upper = sin^2(min(pi/2, theta + delta))`. The angles are limited to [0, pi/2] before the sine is squared, because `sin^2` is increasing only on that range. So `lower` is 0 when `theta <= delta`, and `upper` is 1 when `theta + delta >= pi/2`. No continuity term is added. For `k = n` the angle `theta` is `pi/2`.
-* **Returns.** An object with the number fields `lower` and `upper`.
-* **Throws.** The conditions listed above for the intervals.
-* **Example.** `arcsineInterval(7, 10, Z95)` is `{ lower: 0.396612, upper: 0.928987 }`. `arcsineInterval(0, 20, Z95)` is `{ lower: 0, upper: 0.0472546 }`. `arcsineInterval(20, 20, Z95)` is `{ lower: 0.952745, upper: 1 }`.
 * **File.** `packages/stats/src/intervals.ts`.
 
 ### `logitWaldInterval`

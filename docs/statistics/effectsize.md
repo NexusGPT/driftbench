@@ -1,12 +1,12 @@
 # Effect sizes
 
-A p-value says that two versions of an agent differ. An effect size says by how much. This page defines sixteen functions that measure the size of a difference: standardised differences of means, rank based effect sizes, odds and risk measures of a 2x2 table, association measures and three effect sizes for proportions, analysis of variance and goodness of fit. The conventions of every function (invalid input, accuracy, ties, the argument `z`) are in [statistics capabilities](capabilities.md#conventions) and are not repeated here.
+A p-value says that two versions of an agent differ. An effect size says by how much. This page defines eleven functions that measure the size of a difference: a standardised difference of means, a rank based effect size, odds and risk measures of a 2x2 table and three effect sizes for proportions, analysis of variance and goodness of fit. The conventions of every function (invalid input, accuracy, ties, the argument `z`) are in [statistics capabilities](capabilities.md#conventions) and are not repeated here.
 
 Status: planned. None of these functions exists in `@agent-nexus/driftbench-stats` yet.
 
 ## The 2x2 table
 
-The rates and `phiCoefficient` take a table, a plain object `{ a, b, c, d }` of counts.
+The rates take a table, a plain object `{ a, b, c, d }` of counts.
 
 * Row 1 is the first group. `a` units have the event and `b` do not.
 * Row 2 is the second group. `c` units have the event and `d` do not.
@@ -18,51 +18,24 @@ Each count is a non-negative integer, as the shared conventions require. A funct
 
 The functions of this part belong in `packages/stats/src/effect-size.ts`. Each takes two arrays of numbers. A sample variance divides by n - 1.
 
-### `cohensD`
-```ts
-cohensD(a: number[], b: number[]): number
-```
-* **Definition.** Let `s1²` and `s2²` be the sample variances of `a` and `b`, with sizes `n1` and `n2`. The pooled variance is `sp² = ((n1 - 1) s1² + (n2 - 1) s2²) / (n1 + n2 - 2)`. The result is `(mean(a) - mean(b)) / sp`. The sign follows the difference of the means, so it is negative when `b` has the higher mean. Compute each variance from deviations about its own mean, not from sums of raw squares.
-* **Returns.** A number.
-* **Throws.** A `RangeError` when `a` or `b` has fewer than 2 values, and when `sp²` is 0 (every value of both arrays is equal within its array).
-* **Example.** `cohensD([5, 7, 9], [1, 3, 5])` is 2. `cohensD([1, 3], [2, 6])` is -0.8944271909999159. `cohensD([1, 2, 3], [3, 2, 1])` is 0.
-
 ### `hedgesG`
 ```ts
 hedgesG(a: number[], b: number[]): number
 ```
-* **Definition.** Cohen's d with the small sample correction `J(df)`, where `df = n1 + n2 - 2`. The result is `J(df) * cohensD(a, b)`. The correction is `J(df) = Gamma(df / 2) / (sqrt(df / 2) * Gamma((df - 1) / 2))`. Compute it with the log-gamma function: `J(df) = exp(lnGamma(df / 2) - lnGamma((df - 1) / 2)) / sqrt(df / 2)`. Do not use the approximation `1 - 3 / (4 df - 1)`; it is not exact. `J(df)` is below 1 and tends to 1 as `df` grows.
+* **Definition.** Cohen's d with the small sample correction `J(df)`, where `df = n1 + n2 - 2`. Let `s1²` and `s2²` be the sample variances of `a` and `b`, with sizes `n1` and `n2`. The pooled variance is `sp² = ((n1 - 1) s1² + (n2 - 1) s2²) / (n1 + n2 - 2)`, and Cohen's d is `d = (mean(a) - mean(b)) / sp`; compute each variance from deviations about its own mean, not from sums of raw squares. The result is `J(df) * d`. The correction is `J(df) = Gamma(df / 2) / (sqrt(df / 2) * Gamma((df - 1) / 2))`. Compute it with the log-gamma function: `J(df) = exp(lnGamma(df / 2) - lnGamma((df - 1) / 2)) / sqrt(df / 2)`. Do not use the approximation `1 - 3 / (4 df - 1)`; it is not exact. `J(df)` is below 1 and tends to 1 as `df` grows.
 * **Returns.** A number.
-* **Throws.** The same as `cohensD`: a `RangeError` when `a` or `b` has fewer than 2 values, and when the pooled variance is 0.
+* **Throws.** A `RangeError` when `a` or `b` has fewer than 2 values, and when `sp²` is 0 (every value of both arrays is equal within its array).
 * **Example.** `hedgesG([5, 7, 9], [1, 3, 5])` is 1.5957691216057308. Here `df` is 4 and `J(4)` is the square root of 2 / pi. `hedgesG([6, 8], [3, 5, 4])` is 1.8799712059732503 (`df` is 3).
-
-### `glassDelta`
-```ts
-glassDelta(treated: number[], control: number[]): number
-```
-* **Definition.** `(mean(treated) - mean(control)) / sd(control)`, where `sd(control)` is the sample standard deviation of `control` (divisor n - 1). The standard deviation of `treated` plays no part.
-* **Returns.** A number. It is negative when `treated` has the lower mean.
-* **Throws.** A `RangeError` when `treated` is empty, when `control` has fewer than 2 values, and when every value of `control` is equal (the standard deviation is 0). A `treated` array with one value is valid.
-* **Example.** `glassDelta([5, 7, 9], [1, 3, 5])` is 2. `glassDelta([8], [2, 4])` is 3.5355339059327378. `glassDelta([1, 2, 3], [3, 2, 1])` is 0.
 
 ## Rank based effect sizes
 
 The functions of this part belong in `packages/stats/src/effect-size.ts`. Each takes two arrays of numbers, both non-empty. They compare every value of `a` with every value of `b`, so there are `n1 * n2` pairs. Count the pairs as integers first and divide once.
 
-### `cliffsDelta`
-```ts
-cliffsDelta(a: number[], b: number[]): number
-```
-* **Definition.** Let `gt` be the number of pairs with `a[i] > b[j]` and `lt` the number with `a[i] < b[j]`. The result is `(gt - lt) / (n1 * n2)`. A pair of equal values counts for neither. The result lies in [-1, 1]. It is 1 when every value of `a` is above every value of `b`, and -1 in the opposite case.
-* **Returns.** A number.
-* **Throws.** No `RangeError` beyond the shared conventions (an empty array, a value that is `NaN` or infinite).
-* **Example.** `cliffsDelta([1, 2, 3], [4, 5, 6])` is -1. `cliffsDelta([1, 2, 2, 3], [2, 3, 4])` is -0.5833333333333334. `cliffsDelta([2, 2, 2], [2, 2])` is 0.
-
 ### `varghaDelaneyA`
 ```ts
 varghaDelaneyA(a: number[], b: number[]): number
 ```
-* **Definition.** The probability that a random value of `a` is above a random value of `b`, with ties counting one half. With `gt` the number of pairs with `a[i] > b[j]` and `eq` the number with `a[i] == b[j]`, the result is `(gt + eq / 2) / (n1 * n2)`. The result lies in [0, 1]. It equals `(cliffsDelta(a, b) + 1) / 2`.
+* **Definition.** The probability that a random value of `a` is above a random value of `b`, with ties counting one half. With `gt` the number of pairs with `a[i] > b[j]` and `eq` the number with `a[i] == b[j]`, the result is `(gt + eq / 2) / (n1 * n2)`. The result lies in [0, 1].
 * **Returns.** A number.
 * **Throws.** No `RangeError` beyond the shared conventions.
 * **Example.** `varghaDelaneyA([1, 2, 2, 3], [2, 3, 4])` is 0.20833333333333334. `varghaDelaneyA([2, 2, 2], [2, 2])` is 0.5. `varghaDelaneyA([4, 5, 6], [1, 2, 3])` is 1.
@@ -124,28 +97,6 @@ numberNeededToTreat(table: { a: number; b: number; c: number; d: number }): numb
 * **Returns.** A number, 1 or greater.
 * **Throws.** A `RangeError` when `n1` is 0 or `n2` is 0 (an empty group), and when `p1 - p2` is 0 (`a * n2 == c * n1`).
 * **Example.** `numberNeededToTreat({ a: 10, b: 20, c: 5, d: 40 })` is 4.5. `numberNeededToTreat({ a: 5, b: 15, c: 10, d: 10 })` is 4. `numberNeededToTreat({ a: 7, b: 0, c: 0, d: 9 })` is 1.
-
-## Association
-
-The functions of this part belong in `packages/stats/src/association.ts`.
-
-### `phiCoefficient`
-```ts
-phiCoefficient(table: { a: number; b: number; c: number; d: number }): number
-```
-* **Definition.** `(a * d - b * c) / sqrt((a + b) * (c + d) * (a + c) * (b + d))`. Form the integer numerator `a * d - b * c` before dividing. The result lies in [-1, 1]. It is positive when `a * d > b * c`, and its square equals the chi-square statistic of the table divided by the total count.
-* **Returns.** A number.
-* **Throws.** A `RangeError` when any of the four margins `a + b`, `c + d`, `a + c`, `b + d` is 0.
-* **Example.** `phiCoefficient({ a: 10, b: 20, c: 5, d: 40 })` is 0.2721655269759087. `phiCoefficient({ a: 5, b: 0, c: 0, d: 7 })` is 1. `phiCoefficient({ a: 0, b: 5, c: 7, d: 0 })` is -1. `phiCoefficient({ a: 10, b: 10, c: 20, d: 20 })` is 0.
-
-### `cramersV`
-```ts
-cramersV(counts: number[][]): number
-```
-* **Definition.** `counts` is a matrix of r rows and c columns of counts. Let `R[i]` be the row totals, `C[j]` the column totals and `n` the grand total. The expected count of a cell is `E[i][j] = R[i] * C[j] / n`. The chi-square statistic is the sum over all cells of `(O[i][j] - E[i][j])^2 / E[i][j]`, with `O[i][j]` the cell count. The result is `sqrt(chi2 / (n * min(r - 1, c - 1)))`. It lies in [0, 1]. For a 2x2 matrix it equals `|phiCoefficient|` of the same counts.
-* **Returns.** A number.
-* **Throws.** A `RangeError` when the matrix has fewer than 2 rows, when it has fewer than 2 columns, when its rows do not all have the same length, and when any row total or any column total is 0.
-* **Example.** `cramersV([[10, 20], [5, 40]])` is 0.2721655269759087. `cramersV([[30, 10, 5], [10, 25, 15], [5, 15, 35]])` is 0.43135275289353814. `cramersV([[10, 20], [20, 40]])` is 0. `cramersV([[5, 0], [0, 7]])` is 1.
 
 ## Proportions, variance explained and goodness of fit
 
