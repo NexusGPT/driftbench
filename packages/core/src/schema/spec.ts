@@ -13,6 +13,7 @@ import {
   WorldState,
 } from './common';
 import { parameterSchema, unsupportedSchemaKeywords } from './json-schema';
+import { BlockLinks } from './links';
 import { Uses } from './object';
 
 /**
@@ -40,6 +41,27 @@ export const Stimulus = z
   .describe('What reaches the agent in one block: exactly one of user, burst or injection.');
 export type Stimulus = z.infer<typeof Stimulus>;
 
+/** Where a ledger fact was stated before the block: by whom, and in which prefix message. */
+export const SharedFact = z
+  .strictObject({
+    fact: z.string().min(1).describe('The ledger key of the fact.'),
+    by: z
+      .enum(['user', 'agent', 'record'])
+      .describe(
+        'Who stated it: user or agent in a prefix message, record when it comes from a system of record and was never said.',
+      ),
+    in: z
+      .number()
+      .int()
+      .min(0)
+      .optional()
+      .describe('The index of the prefix message that states it, from 0. Needed for user and agent.'),
+  })
+  .describe(
+    'Where a ledger fact was stated before the block, checked by spec lint and before the block runs.',
+  );
+export type SharedFact = z.infer<typeof SharedFact>;
+
 /** Initial conditions set on the whole spec. */
 export const GivenDefaults = z
   .strictObject({
@@ -52,6 +74,13 @@ export const GivenDefaults = z
       .record(z.string(), z.unknown())
       .optional()
       .describe('Runtime variables, such as the clock, the channel or the sender.'),
+    summary: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        'What a named state (vars.session_state) holds, in words. spec lint --summaries warns when a named state has none.',
+      ),
   })
   .describe('Initial conditions set on the whole spec.');
 export type GivenDefaults = z.infer<typeof GivenDefaults>;
@@ -76,6 +105,17 @@ export const GivenOverride = z
       .describe('Facts the agent must hold at this block. They merge into the ledger from here on.'),
     world: WorldState.optional().describe('Changes to the world from this block onwards.'),
     vars: z.record(z.string(), z.unknown()).optional().describe('Runtime variables from this block onwards.'),
+    shared: z
+      .array(SharedFact)
+      .optional()
+      .describe(
+        'Where each ledger fact was stated in the prefix: a fact said by the user or the agent must appear in the message it names.',
+      ),
+    summary: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('What a named state (vars.session_state) holds from this block onwards, in words.'),
   })
   .describe(
     'Initial conditions set on one block. A prefix lets the block start without replaying the ones before.',
@@ -510,6 +550,13 @@ export type Expect = z.infer<typeof Expect>;
 export const BlockSpec = z
   .strictObject({
     id: z.string().min(1).optional().describe('An id, unique in the spec.'),
+    parent: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        "The id of a block in this spec whose recorded end state supplies this block's Given. A failed or unrun parent blocks this block.",
+      ),
     when: Stimulus.describe('The stimulus.'),
     given: GivenOverride.optional().describe('Initial conditions for this block.'),
     expect: Expect.optional().describe('The expected output and state delta.'),
@@ -856,6 +903,12 @@ export const Spec = z
     metadata: z
       .record(z.string(), z.unknown())
       .superRefine((metadata, ctx) => {
+        if (metadata.links !== undefined) {
+          const links = BlockLinks.safeParse(metadata.links);
+          if (!links.success)
+            for (const issue of links.error.issues)
+              ctx.addIssue({ code: 'custom', message: issue.message, path: ['links', ...issue.path] });
+        }
         if (!isPlainObject(metadata.tool_schemas)) return;
         for (const [label, definition] of Object.entries(metadata.tool_schemas)) {
           for (const issue of unsupportedSchemaKeywords(parameterSchema(definition))) {
@@ -864,7 +917,9 @@ export const Spec = z
         }
       })
       .optional()
-      .describe('Free metadata.'),
+      .describe(
+        'Free metadata. `links` holds the links of the blocks to prompt sections, spec clauses and past turns; it and `provenance` stay out of the spec hash.',
+      ),
   })
   .describe('One golden conversation, or one task for a code agent, written as a succession of blocks.');
 export type Spec = z.infer<typeof Spec>;

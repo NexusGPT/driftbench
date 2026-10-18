@@ -31,9 +31,7 @@ export type MainOptions = {
 export async function main(argv: string[], io: Io = processIo, options: MainOptions = {}): Promise<number> {
   // The shared registry is filled before plugins or any command resolve objects. Printing the top-level help or
   // the version needs no object, so that path loads no other package.
-  if (!printsIndexOnly(argv)) (await import('@agent-nexus/driftbench-core')).initializeShippedObjects();
-  // Command modules stay independent of which package owns each shipped object.
-  await import('@agent-nexus/driftbench-checks');
+  if (!printsIndexOnly(argv)) (await import('@agent-nexus/driftbench-checks')).initializeShippedObjects();
   let exitCode = 0;
   const setExit = (code: number) => {
     exitCode = code;
