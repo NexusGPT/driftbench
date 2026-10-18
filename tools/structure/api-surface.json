@@ -1021,6 +1021,15 @@
       "validatePlan": "value",
       "writeRetirements": "value"
     },
+    "estate/labeler-contract": {
+      "CONTRACT_FILES": "value",
+      "CONTRACT_SETS": "value",
+      "ContractCase": "type",
+      "LabelerContractOptions": "type",
+      "LabelerFactory": "type",
+      "labelerContract": "value",
+      "labelerContractCases": "value"
+    },
     "generate": {
       "AUDIT_FILE": "value",
       "Accepted": "type",
