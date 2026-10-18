@@ -1,4 +1,10 @@
-import { type BlockSpec, type Spec, specHash } from '@agent-nexus/driftbench-core';
+import {
+  type BlockSpec,
+  type Spec,
+  specAsAuthored,
+  specHash,
+  specParentRecord,
+} from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import { formatJson } from '../enumerate/json';
 import type { BlockRecord, GateResult } from './gate';
@@ -38,11 +44,28 @@ export function gateFiles(
   const bySpec = new Map<string, BlockRecord[]>();
   for (const record of result.blocks) bySpec.set(record.spec, [...(bySpec.get(record.spec) ?? []), record]);
 
+  // A spec with an accepted block is written in its split. A stem that a written spec starts from is written
+  // in the same split even when none of its own blocks was accepted, so every written child can load.
+  const splits = new Map<string, 'dev' | 'holdout'>();
+  for (const candidate of candidates) {
+    const accepted = (bySpec.get(candidate.spec.id) ?? []).filter((record) => record.status === 'accepted');
+    if (accepted.length > 0) splits.set(candidate.spec.id, accepted[0]?.split ?? 'dev');
+  }
+  const specOf = new Map(candidates.map((candidate) => [candidate.spec.id, candidate.spec]));
+  for (const [id, split] of [...splits]) {
+    const seen = new Set<string>([id]);
+    for (let at = specOf.get(id); at; ) {
+      const parent = specParentRecord(at)?.from.split('#')[0];
+      if (parent === undefined || seen.has(parent) || !specOf.has(parent)) break;
+      seen.add(parent);
+      if (!splits.has(parent)) splits.set(parent, split);
+      at = specOf.get(parent);
+    }
+  }
   for (const candidate of candidates) {
     const records = bySpec.get(candidate.spec.id) ?? [];
-    const accepted = records.filter((record) => record.status === 'accepted');
-    if (accepted.length === 0) continue;
-    const split = accepted[0]?.split ?? 'dev';
+    const split = splits.get(candidate.spec.id);
+    if (split === undefined) continue;
     const gated = gatedSpec(candidate.spec, records, meta.options.date);
     const folder = split === 'holdout' ? HOLDOUT_DIR : GATED_DIR;
     const path = `${folder}/${candidate.path}`;
@@ -66,8 +89,14 @@ export function gateFiles(
   return files;
 }
 
-function gatedSpec(spec: Spec, records: readonly BlockRecord[], date: string): Spec {
-  const byIndex = new Map(records.map((record) => [record.index, record]));
+/**
+ * The gated spec as authored: a child of a stem is written with its own blocks and its parent link, as the
+ * candidate file had it, and its records (read on the written-out spec) are moved to its own positions.
+ */
+function gatedSpec(written: Spec, records: readonly BlockRecord[], date: string): Spec {
+  const shift = specParentRecord(written)?.replayed ?? 0;
+  const spec = specAsAuthored(written);
+  const byIndex = new Map(records.map((record) => [record.index - shift, record]));
   const dropped: string[] = [];
   const blocks: BlockSpec[] = spec.blocks.map((block, index) => {
     if (byIndex.get(index)?.status === 'accepted') return block;

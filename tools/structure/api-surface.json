@@ -744,6 +744,7 @@
       "sentStimulus": "value",
       "sha256Hex": "value",
       "skipReason": "value",
+      "specAsAuthored": "value",
       "specBlocks": "value",
       "specHash": "value",
       "specIdentity": "value",
