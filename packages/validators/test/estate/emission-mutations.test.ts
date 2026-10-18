@@ -251,6 +251,7 @@ const CLASS_PROOFS: Record<
       'packages/core/src/radius/rejudge.ts: const selected = (ctx.expect.criteria ?? []).map((ref) => parseCriterionRef(ref)?.name ?? ref);',
       'packages/core/src/spec/lint.ts: for (const ref of expect?.criteria ?? []) {',
       'packages/core/src/spec/semantics.ts: expect.criteria?.forEach((ref, index) => {',
+      "packages/core/src/spec/spec-parents.ts: chain.flatMap((block) => (block.expect?.criteria ?? []).map((ref) => ref.replace(/@gating$/, ''))),",
       'packages/validators/test/estate/ruling-reference.ts: if (block.expect?.criteria)',
       "packages/validators/test/estate/ruling-reference.ts: block.expect.criteria = block.expect.criteria.filter((c) => c !== 'needs-registered-check');",
     ],
