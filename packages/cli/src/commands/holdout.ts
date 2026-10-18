@@ -298,8 +298,15 @@ export async function holdoutScoreCommand(options: ScoreOptions, io: Io, deps: H
         repeat: 0,
         blocks: spec.blocks.length,
       };
+      // A conversation with a block not run or blocked, and no failure, is no measurement: it is listed with
+      // the ones not run and stays out of the rate.
+      const state = outcomeOf(cell, run).state;
+      if (state === 'not_run' || state === 'blocked') {
+        notRun.push(`${spec.id} (${state === 'not_run' ? 'a block not run' : 'a block blocked'})`);
+        continue;
+      }
       conversations += 1;
-      if (outcomeOf(cell, run).state === 'pass') passed += 1;
+      if (state === 'pass') passed += 1;
     }
     const rate = passRate(passed, conversations);
     const scored = {

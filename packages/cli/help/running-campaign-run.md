@@ -18,6 +18,7 @@ see_also:
   - running-change-carry
   - running-simulate
   - running-process-and-sandboxes
+  - running-realized-text
 next:
   - running-outcomes
 ---
@@ -65,7 +66,7 @@ Running only a change (topic running-change-carry):
 | `--max-age <days>` | `7` | with `--change`: the most days since a carried result was measured. |
 | `--block-reruns` | off | with `--change` and mode T: send only the blocks a change can affect and keep the other stored blocks of a cell. |
 | `--record-end-state-snapshots` | off | store the raw end-state values each mode T block reads, so a later `--block-reruns` can rerun cells that check an end state. The values may be sensitive. |
-| `--record-realized-text` | off | store the text a driver sent where it differs from the spec (a simulated user, a red-team attacker) as `realized.text`, for replay and audit. Off, each such block keeps only the text's hash. The text may be private. A resumed campaign keeps the choice. Whole-run and block carries follow this new campaign’s choice, not the baseline’s; missing source text is never reconstructed. |
+| `--record-realized-text` | off | store the text a driver sent where it differs from the spec (a simulated user, a red-team attacker) as `realized.text`, for replay and audit. Off, each such block keeps only the text's hash. The text may be private. A resumed campaign keeps the choice. Whole-run and block carries follow this new campaign’s choice, not the baseline’s; missing source text is never reconstructed. Topic running-realized-text. |
 
 Where results go (topics running-store and running-cache):
 
@@ -99,6 +100,37 @@ Who writes the user turns (topic running-simulate):
 | `--agent-family <family>` | `none` for the Acme targets; required for any other target with `--driver simulated` | the model family of the agent under test, or `none` for an agent that is not a model. |
 | `--judge-family <family>` | none | a model family of the judges; repeat it. The simulated user's model must differ from the agent's and the judges' families. |
 
+Judging and the checks (the judges run only on criteria a block names; topics judging-council, judging-run-judge and judging-machine-checks):
+
+| Option | Default | Effect |
+|---|---|---|
+| `--judge <kind:model>` | none | judge the judged criteria with this judge, such as `claude:haiku` or `openai:<model>`. Kinds: claude, openai, anthropic, google, openai-decisions, jev, http (`http:<family>@<url>`). Repeat it for a council. Keys come from the environment. Paid calls. |
+| `--judge-command <path>` | `claude` | the claude command a claude judge runs. |
+| `--judge-budget <usd>` | none | stop judging once the judges have spent this much. A billed claude judge needs it. |
+| `--judges <cassette>` | none | add every judge of this recording (a cassette JSON file) as a player: no call. |
+| `--judge-mode <mode>` | from the judge classes | the council mode: `system1`, `hybrid` or `llm`. |
+| `--assignments <file>` | none | the council assignment table `judge calibrate` wrote. |
+| `--cascade` | off | the council runs its cheapest judge first and stops on a sure pass. |
+| `--weights <weights>` | none | council vote weights, `judge=weight,...`, or a YAML file of `judge: weight`. |
+| `--judge-route <route>` | none | route each call through a label-blind router: `escalation`. |
+| `--route-first <judge>` | none | with `--judge-route escalation`: the judge that answers first (`kind:model` or a judge id). |
+| `--route-then <judge>` | none | with `--judge-route escalation`: a judge asked when a trigger fires. Repeat for several. |
+| `--route-on <triggers>` | `order-split,inconclusive,reference-disagreement,low-confidence` | with `--judge-route escalation`: the triggers, comma separated. |
+| `--route-confidence <p>` | `0.5` | with `--judge-route escalation`: the low-confidence bar, from 0 to 1. |
+| `--route-decide <rule>` | `majority` | with `--judge-route escalation`: `majority` or `first-stands`. |
+| `--panel-weights <weights>` | none | a weighted panel of every judge, `judge=weight,...` or a YAML file. A thin margin abstains. |
+| `--panel-margin <share>` | `0.3` | with `--panel-weights`: the smallest winning margin, as a share of the total weight. |
+| `--reference-solve <kind:model>` | none | solve each question blind first, and judge against the agreed answer. Kinds: claude, openai, anthropic, google. |
+| `--reference-samples <n>` | `5` | with `--reference-solve`: how many solves, from 1 to 20. |
+| `--reference-route <route>` | none | with `--reference-solve`: `auto` solves only a question with one checkable answer. |
+| `--verify <kind>` | none | check what the reply states before the judge reads it. `arithmetic`: explicit equations, in a bounded sandbox. |
+| `--prompt-budget <chars>` | none | drop the oldest transcript entries until the judge prompt fits this many characters. The last block stays. |
+| `--record <cassette>` | none | save every live judge answer as a cassette, to replay with `--judges`. |
+| `--owner <values...>` | none | the owner's own email, phone, IBAN or national number: the `pii` check leaves exactly these out. |
+| `--owner-file <file>` | none | owner values for the `pii` check, one per line. `#` starts a comment line. |
+| `--tool-policy <rules>` | none | a run-wide tool policy, a YAML list of `{ pattern, action: allow \| deny \| ask }`. A call a rule denies (ask counts as denied) fails its block's `tool_policy` check. It checks the calls; it does not stop the agent making them. |
+| `--embedder <name>` | none | the embedder the `similarity` check scores with, as a plugin registered it. |
+
 Output and config:
 
 | Option | Default | Effect |
@@ -131,7 +163,7 @@ On stderr: errors, and the note that a budget does not count simulated-user or j
 
 With `--store`, the store gains the campaign record, the specs at their content hash, one run per cell (filed as each finishes), and the cache entries. The run id of a cell is its cell id.
 
-Exit codes: 0 when every cell passes; 1 when a cell fails, failed or was stopped (the budget included), or when a `--change` audit finds a miss; 2 on bad input, when nothing ran.
+Exit codes: 0 when every cell passes; 1 when a cell fails, failed or was stopped (the budget included), or when a `--change` audit finds a miss; 3 when no cell failed but a cell was not run or blocked (a Given the target cannot apply: no pass, no failure); 2 on bad input, when nothing ran.
 
 ## Worked example
 

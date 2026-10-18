@@ -31,6 +31,7 @@ import {
   type Observed,
   type ResolvedGiven,
   type RunResult,
+  runSpec,
   type Session,
   type Stimulus,
   type TargetRef,
@@ -39,7 +40,14 @@ import {
   type WorldState,
 } from '@agent-nexus/driftbench-core';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
-import { BLOCK_METRIC, openStore, type SqliteStore, StoreError } from '@agent-nexus/driftbench-store';
+import {
+  BLOCK_METRIC,
+  openStore,
+  SCHEMA_VERSION,
+  type SqliteStore,
+  StoreError,
+} from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { type BankItem, expectAll, fail, type ItemContext, type ItemResult, PASS, type Tier } from '../types';
 import { behavioursFor, plantedFlow, runScenario } from '../world';
 
@@ -92,6 +100,20 @@ type Spec = {
 function adapterItem(spec: Spec): BankItem {
   return { id: `claim/adapters/${spec.slug}`, family: ADAPTERS_FAMILY, ...without(spec) };
 }
+
+/**
+ * The newer schema versions a refusal item writes: the version the seed draws above the current one (as the item
+ * always did, never replaced), and the next version, added on every seed.
+ */
+export function newerSchemas(seed: number): number[] {
+  return [...new Set([SCHEMA_VERSION + 1 + (seed % 4), SCHEMA_VERSION + 1])];
+}
+
+/**
+ * The store schema that brought the block verdicts not_run and blocked: a floor, never a fixed number. A store
+ * that holds one must be stamped at least this, so a driftbench older than the verdicts refuses it.
+ */
+const VERDICT_SCHEMA = 3;
 
 function storeItem(spec: Spec): BankItem {
   return { id: `claim/adapters/store-${spec.slug}`, family: STORE_FAMILY, ...without(spec) };
@@ -1677,7 +1699,7 @@ function processItems(): BankItem[] {
       component: PROC,
       source: 'contract',
       title:
-        'process.md "Capabilities": sandbox and readArtifact on, deterministic as declared, variants, seedPrefix, toolStubs, trace and endState off, version 0.1.0',
+        'process.md "Capabilities": sandbox, readArtifact and seedPrefix (the history file) on, deterministic as declared, variants, toolStubs, trace and endState off, version 0.1.0',
       cause: 'processAdapter declares its capabilities and version as the process page documents',
       async check({ scratch }) {
         const adapter = processAdapter({
@@ -1687,7 +1709,7 @@ function processItems(): BankItem[] {
         });
         const want = {
           variants: false,
-          seedPrefix: false,
+          seedPrefix: true,
           toolStubs: false,
           trace: false,
           sandbox: true,
@@ -3719,16 +3741,84 @@ await store.close();
         'errors.ts SCHEMA_VERSION: a database written by a newer schema is refused at open, and left as it was',
       cause: 'openStore refuses a database of a newer schema version without touching it',
       async check(ctx) {
-        const { path } = await seededFile(ctx, 'newer-schema');
-        const newer = 3 + (ctx.seed % 4);
-        editByHand(path, `PRAGMA user_version = ${newer}`);
-        const code = await codeOf(async () => {
-          openStore(path);
+        const checks: Array<[boolean, string]> = [];
+        for (const newer of newerSchemas(ctx.seed)) {
+          const { path } = await seededFile(ctx, `newer-schema-${newer}`);
+          editByHand(path, `PRAGMA user_version = ${newer}`);
+          const code = await codeOf(async () => {
+            openStore(path);
+          });
+          const after = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
+          checks.push(
+            [
+              code === 'StoreError SCHEMA_VERSION',
+              `version ${newer}: expected StoreError SCHEMA_VERSION, got ${code}`,
+            ],
+            [after === newer, `version ${newer}: expected the version left at ${newer}, got ${after}`],
+          );
+        }
+        return expectAll(checks);
+      },
+    }),
+    storeItem({
+      slug: 'schema-holds-block-verdicts',
+      tier: 1,
+      level: 1,
+      component: STORE,
+      source: 'contract',
+      title:
+        'packages/store/src/schema.ts: the store schema is at least the version that brought the block verdicts not_run and blocked (3), so an older driftbench refuses a store that holds one',
+      cause:
+        'SCHEMA_VERSION is at or above the version that introduced not_run and blocked, in the file and in a bundle',
+      async check(ctx) {
+        const { path, run, dir } = await seededFile(ctx, 'verdict-schema');
+        // A run whose last block was not run: the record an older reader cannot hold.
+        const last = run.blocks.length - 1;
+        const unsent = {
+          ...run,
+          runId: `${run.runId}-unsent`,
+          blocks: run.blocks.map((block, index) =>
+            index === last
+              ? {
+                  ...block,
+                  verdicts: [],
+                  drift: [],
+                  pass: false,
+                  status: 'not_run' as const,
+                  notRun: {
+                    kind: 'unsupported' as const,
+                    layer: '5 world',
+                    check: 'capability',
+                    expected: 'e',
+                    got: 'g',
+                  },
+                }
+              : block,
+          ),
+        };
+        const back = await withStore(path, async (store) => {
+          await store.putRun('c-1', unsent);
+          return store.getRun(unsent.runId, 'c-1');
         });
-        const after = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
+        const folder = await withStore(path, (store) => store.exportCampaign('c-1', join(dir, 'export')));
+        const manifest = JSON.parse(readFileSync(join(folder, 'manifest.json'), 'utf8')) as {
+          schemaVersion?: unknown;
+        };
+        const file = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
         return expectAll([
-          [code === 'StoreError SCHEMA_VERSION', `expected StoreError SCHEMA_VERSION, got ${code}`],
-          [after === newer, `expected the version left at ${newer}, got ${after}`],
+          [
+            SCHEMA_VERSION >= VERDICT_SCHEMA,
+            `expected SCHEMA_VERSION at least ${VERDICT_SCHEMA}, got ${SCHEMA_VERSION}`,
+          ],
+          [file >= VERDICT_SCHEMA, `expected the file at schema ${VERDICT_SCHEMA} or above, got ${file}`],
+          [
+            Number(manifest.schemaVersion) >= VERDICT_SCHEMA,
+            `expected the bundle at schema ${VERDICT_SCHEMA} or above, got ${show(manifest.schemaVersion)}`,
+          ],
+          [
+            back?.blocks[last]?.status === 'not_run',
+            `expected the block read back not_run, got ${show(back?.blocks[last]?.status)}`,
+          ],
         ]);
       },
     }),
@@ -3761,7 +3851,10 @@ await store.close();
         const after = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
         return expectAll([
           [code === 'no error', `expected the upgraded store to work, got ${code}`],
-          [after === 2, `expected schema version 2 after the upgrade, got ${after}`],
+          [
+            after === SCHEMA_VERSION,
+            `expected schema version ${SCHEMA_VERSION} (the current schema) after the upgrade, got ${after}`,
+          ],
         ]);
       },
     }),
@@ -3775,18 +3868,28 @@ await store.close();
         'errors.ts SCHEMA_VERSION: a bundle whose manifest names a newer schema version is refused on import',
       cause: 'readCampaignBundle refuses a bundle of a newer schema version',
       async check(ctx) {
-        const { path, dir } = await seededFile(ctx, 'bundle-newer');
-        const folder = await withStore(path, (store) => store.exportCampaign('c-1', join(dir, 'export')));
-        const manifestPath = join(folder, 'manifest.json');
-        const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
-        writeFileSync(manifestPath, JSON.stringify({ ...manifest, schemaVersion: 9 }));
-        const target = join(dir, 'target.sqlite');
-        const code = await codeOf(withStore(target, (store) => store.importCampaign(folder)));
-        const left = await withStore(target, (store) => store.listCampaigns());
-        return expectAll([
-          [code === 'StoreError SCHEMA_VERSION', `expected StoreError SCHEMA_VERSION, got ${code}`],
-          [left.length === 0, `expected nothing imported, found ${left.length} campaign(s)`],
-        ]);
+        const checks: Array<[boolean, string]> = [];
+        for (const newer of newerSchemas(ctx.seed)) {
+          const { path, dir } = await seededFile(ctx, `bundle-newer-${newer}`);
+          const folder = await withStore(path, (store) => store.exportCampaign('c-1', join(dir, 'export')));
+          const manifestPath = join(folder, 'manifest.json');
+          const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+          writeFileSync(manifestPath, JSON.stringify({ ...manifest, schemaVersion: newer }));
+          const target = join(dir, 'target.sqlite');
+          const code = await codeOf(withStore(target, (store) => store.importCampaign(folder)));
+          const left = await withStore(target, (store) => store.listCampaigns());
+          checks.push(
+            [
+              code === 'StoreError SCHEMA_VERSION',
+              `version ${newer}: expected StoreError SCHEMA_VERSION, got ${code}`,
+            ],
+            [
+              left.length === 0,
+              `version ${newer}: expected nothing imported, found ${left.length} campaign(s)`,
+            ],
+          );
+        }
+        return expectAll(checks);
       },
     }),
     storeItem({
@@ -4173,8 +4276,95 @@ await store.close();
 }
 
 /** The claims of this page: the function, http and process adapters, and the store under stress. */
+/* ------------------------------------------------------------------------------------------------ */
+/* The capability check (index.md "Capabilities")                                                   */
+/* ------------------------------------------------------------------------------------------------ */
+
+const RUNNER = 'packages/core/src/runner/run.ts';
+
+/** A spec whose Given forces a tool result from block 0 on, and has two blocks. */
+function forcedToolSpec(seed: number) {
+  const code = `R-${String(2000 + (seed % 7000)).padStart(4, '0')}`;
+  const result = validateSpec({
+    id: `forced-tool-${seed}`,
+    given: { world: { tools: { lookup: { result: { code } } } } },
+    blocks: [
+      { user: `Look up ${code}`, expect: { must: ['ok'] } },
+      { user: 'And again', expect: { must: ['ok'] } },
+    ],
+  });
+  if (!result.ok) throw new Error(`the item's spec is invalid: ${JSON.stringify(result.errors)}`);
+  return result.spec;
+}
+
+function capabilityItems(): BankItem[] {
+  return [
+    adapterItem({
+      slug: 'capability/tool-stubs-not-run',
+      tier: 2,
+      level: 3,
+      component: RUNNER,
+      source: 'contract',
+      title:
+        'index.md "Capabilities": a forced tool result in world.tools on an adapter without toolStubs gives not_run: unsupported, check capability, and the block is never sent',
+      cause: 'runSpec runs the capability check before it sends a block',
+      async check({ seed }) {
+        const fake = fakeFetch(() => json(textObserved('ok')));
+        const adapter = httpAdapter({ url: URL_TURN, fetch: fake.fetch });
+        const run = await runSpec(forcedToolSpec(seed), {
+          adapter,
+          driver: createScriptedDriver(),
+          checks: [],
+          mode: 'F',
+          repeat: 0,
+        });
+        const statuses = run.blocks.map((block) => block.status ?? (block.pass ? 'pass' : 'fail'));
+        const first = run.blocks[0]?.notRun;
+        return expectAll([
+          [fake.calls.length === 0, `expected no POST, got ${fake.calls.length}`],
+          [statuses.join(',') === 'not_run,not_run', `expected not_run,not_run, got ${statuses.join(',')}`],
+          [run.blocks.every((block) => block.pass === false), 'expected pass false on every block not run'],
+          [
+            first?.kind === 'unsupported' && first.check === 'capability' && first.layer === '5 world',
+            `expected kind unsupported, check capability, layer 5 world, got ${show(first)}`,
+          ],
+          [run.endState === undefined, 'expected no end state compared on a run with a block not run'],
+        ]);
+      },
+    }),
+    adapterItem({
+      slug: 'capability/tool-stubs-declared-runs',
+      tier: 1,
+      level: 3,
+      component: RUNNER,
+      source: 'contract',
+      title:
+        'index.md "Capabilities": the same spec on an http adapter that declares toolStubs runs every block, with no status',
+      cause: 'the capability check passes a layer the adapter declares it applies',
+      async check({ seed }) {
+        const fake = fakeFetch(() => json(textObserved('ok')));
+        const adapter = httpAdapter({ url: URL_TURN, fetch: fake.fetch, capabilities: { toolStubs: true } });
+        const run = await runSpec(forcedToolSpec(seed), {
+          adapter,
+          driver: createScriptedDriver(),
+          checks: [],
+          mode: 'F',
+          repeat: 0,
+        });
+        return expectAll([
+          [fake.calls.length === 2, `expected two POSTs, got ${fake.calls.length}`],
+          [
+            run.blocks.every((block) => block.status === undefined && block.notRun === undefined),
+            `expected no status, got ${show(run.blocks.map((block) => block.status))}`,
+          ],
+        ]);
+      },
+    }),
+  ];
+}
+
 export function adaptersItems(): BankItem[] {
-  return [...functionItems(), ...httpItems(), ...processItems(), ...storeItems()];
+  return [...functionItems(), ...httpItems(), ...processItems(), ...capabilityItems(), ...storeItems()];
 }
 
 export type { ItemResult };

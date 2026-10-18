@@ -32,6 +32,8 @@ export const BASE = 'base';
 export type Planted = { hid: string; kind: AtomKind; key?: string };
 
 export type ScanOutcome = {
+  /** Product scan time only; excludes fixture I/O, matching, lint and cleanup. */
+  scanMs: number;
   map: EstateMap;
   raw: RawEstate;
   lint: LintResult;
@@ -196,18 +198,21 @@ export class PlantedEstate {
       const port = truthPort(this.answers);
       const reader = readerFor(RUNTIME);
       if (!reader) throw new Error(`no reader for ${RUNTIME}`);
+      const started = Date.now();
       const result = await scanEstate({
         root,
         reader,
         port,
         now: () => new Date('2026-10-11T00:00:00.000Z'),
       });
+      const scanMs = Date.now() - started;
       const map: EstateMap = {
         ...result.map,
         atoms: result.map.atoms.map((atom) => ({ ...atom, approved: true })),
       };
       const match = matchAtoms(this.expected, map.atoms);
       return {
+        scanMs,
         map,
         raw: result.raw,
         lint: lintEstate(map, result.raw),
