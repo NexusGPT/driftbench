@@ -79,8 +79,12 @@ function table(rows: Record<string, pointer.Labelled[]>): pointer.Labeler {
   );
 }
 
-async function scan(rows: Record<string, pointer.Labelled[]>, over: Partial<pointer.PointerInput> = {}) {
-  const root = await estate(FILES);
+async function scan(
+  rows: Record<string, pointer.Labelled[]>,
+  over: Partial<pointer.PointerInput> = {},
+  files: Record<string, string> = FILES,
+) {
+  const root = await estate(files);
   const cassette = new pointer.Cassette();
   const result = await scanEstate({
     root,
@@ -395,5 +399,66 @@ describe('atoms from labels', () => {
       const atom = replay.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
       expect(atom?.fields?.labelSpans).toEqual([{ kind: 'act', from: 0, to: 13 }]);
     });
+  });
+});
+
+describe('the condition label of the shipped set', () => {
+  const FOG = {
+    'CLAUDE.md': [
+      '# Harbour office',
+      '',
+      '- Hang the lamp before dusk',
+      '- On foggy nights only',
+      '- Close the gate at night',
+      '',
+    ].join('\n'),
+  };
+  const shipped = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
+  const sets = shipped.ok ? shipped.sets : [];
+
+  it('has a condition label that points at the unit it scopes, and builds no atom of its own', () => {
+    const label = sets[0]?.labels.find((candidate) => candidate.condition);
+    expect(label?.name).toBe('condition');
+    expect(label?.target).toBe('required');
+    expect(label?.atom).toBeUndefined();
+  });
+
+  it('gives the unit it points at its situation, from planted condition units', async () => {
+    // Units of CLAUDE.md: 1 heading, 2-4 items (lamp, fog, gate).
+    const { result } = await scan(
+      {
+        'CLAUDE.md': [
+          { units: '2', label: 'rule' },
+          { units: '3', label: 'condition', target: 2 },
+          { units: '4', label: 'rule' },
+        ],
+      },
+      { sets },
+      FOG,
+    );
+    const lamp = result.map.atoms.find((atom) => atom.provenance.quote === 'Hang the lamp before dusk');
+    const gate = result.map.atoms.find((atom) => atom.provenance.quote === 'Close the gate at night');
+    expect(lamp?.situation).toBe('On foggy nights only');
+    expect(gate?.situation).toBeUndefined();
+    expect(result.map.atoms.some((atom) => atom.provenance.quote === 'On foggy nights only')).toBe(false);
+  });
+
+  it('lets only system 2 answer it: a yes or no model is not asked about a label with a target', () => {
+    const asked = pointer.askedLabels(sets[0] as pointer.LabelSet, true).map((label) => label.name);
+    expect(asked).not.toContain('condition');
+  });
+
+  it('changes the hash of the set, so an older cassette misses', async () => {
+    const without = pointer.parseLabelSets(
+      pointer.AGENT_RULES_SET.replace(/ {6}- name: condition[\s\S]*?(?= {6}- name: example)/, ''),
+    );
+    expect(without.ok && without.sets[0] ? pointer.setHash(without.sets[0]) : '').not.toBe(
+      pointer.setHash(sets[0] as pointer.LabelSet),
+    );
+    const { cassette } = await scan({ 'CLAUDE.md': [{ units: '2', label: 'rule' }] }, { sets }, FOG);
+    const older = without.ok ? without.sets : [];
+    await expect(
+      scan({ 'CLAUDE.md': [{ units: '2', label: 'rule' }] }, { sets: older, cassette, mode: 'replay' }, FOG),
+    ).rejects.toThrow(/differs in: .*setHash/);
   });
 });

@@ -45,6 +45,7 @@ describe('label sets', () => {
       'prohibition',
       'gate',
       'reply-rule',
+      'condition',
       'example',
       'description',
     ]);
