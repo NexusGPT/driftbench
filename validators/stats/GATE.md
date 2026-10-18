@@ -1,12 +1,43 @@
 # Stats validator: where the gate stands
 
+## Ladder version 3: the recorded bar
+
+Max score after the pilot: 0.85
+Min forecast: 9
+Min distinct failing causes: 80
+
+The owner's fallback, verbatim: "If you cannot do it, lower the bar per validator". The lead recorded this bar for ladder version 3 after the blind pilot below, with the reason below.
+
+### The measurement
+
+The pilot is blind: a fresh executor, given only the stripped failing-item list, repaired the iteration-0 copy of `packages/stats` (commit `141a67d8`) for ten iterations. The starting package is that copy, loaded through `DRIFTBENCH_STATS_IMPL`, because `main` already holds the fixes of the earlier iterations and an executor on `main` has no failing items to read; the CLI and the other packages were at `main`. The bank is the 904 items of this branch. The rows are the `executor: blind` rows of `journal.jsonl`; the commits are on `pilot/stats-v3-blind`.
+
+| Measure | Value | Section 12.4 | Recorded bar |
+|---|---|---|---|
+| Bank | 904 items, 22 families, tiers 1 to 5 | 300 items: holds | |
+| Score at iteration 0 | 0.6504 (588 of 904) | | |
+| Score after the pilot | 0.8263 (747 of 904) | at most 0.4: not met | at most 0.85: met |
+| Items fixed per iteration | 15.9 (mean over ten iterations) | | |
+| Forecast | 9.87 iterations (157 failing / 15.9) | at least 100: not met | at least 9: met |
+| Distinct failing causes | 85 | at least 100: not met | at least 80: met |
+| Audit | `audit.md` pending for this bank | required | required |
+
+### Why the bar is out of reach, in numbers
+
+* A forecast of 100 at 15.9 items per iteration needs about 1590 failing items after the pilot. The whole bank is 904 items.
+* A score of 0.4 after the pilot needs about 540 failing items after ten iterations; the pilot cleared 159 of 316 in ten iterations. Three iterations (the empty-input messages, the guard messages, the non-finite data) cleared 95 items, because one shared helper in an executor's hand turns many items green.
+* The package is small: the differential sweep covered its 57 exports. Real causes are bounded by what the package computes. The bank holds 85 distinct causes after the pilot; 11 of them are the sweep defects and the four statistics the docs define and the package lacks (batches 10 and 11 of [NEEDS.md](NEEDS.md)). The other 74 are guards, edge limits, coverage designs and missing methods. Items beyond that would be methods no page asks for: the 155 quarantined methods, which section 12.1 rules out as padding.
+* The blind pilot found one validator defect on the way (an English-word argument had to be quoted but the hint did not say so); it is fixed in its own pull request, and the pilot rows are the measurement before that fix.
+
+The terms below are met by the pilot as measured. They are not a promise that a harder bank cannot be written: a new capability with a page that needs it adds causes, and the bar is read again then.
+
+## Ladder version 2 (history)
+
 Status, 2026-10-12: the owner closed the validator design ("we've done enough work on validator honestly, let's just start building and iterating"). The stats validator merges with the lowered bar below, set to what its honest bank meets. It does not meet the section 12 contract (forecast 100, score after the pilot 0.4, 100 distinct causes), and no item was added to reach it. Every item names its need in [NEEDS.md](NEEDS.md).
 
 ## The recorded bar
 
-Max score after the pilot: 0.7
-Min forecast: 70
-Min distinct failing causes: 60
+Version 2 bar (history): score after the pilot at most 0.7, forecast at least 70, at least 60 distinct failing causes.
 
 The owner's fallback, verbatim: "If you cannot do it, lower the bar per validator". The stats bar is what this honest bank meets: a forecast of at least 70 iterations (measured 73.21), a score after the pilot of at most 0.7 (measured 0.6851) and at least 60 distinct failing causes (measured 62). `driftbench validate stats --hardness` reads the three lines above (`parseGate` in `packages/validators/src/hardness.ts`, which takes a value only when it lowers the section 12.4 term). The audit (12.7) still applies: the stats-v2 audit judged the old bank, and this bank has no `audit.md` yet.
 

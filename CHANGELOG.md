@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Statistics validator is ladder version 3 (the bank of 904 items, 46 of them failing until the stats-fix pull requests land) with no floor yet; `validate stats --hardness` reports the blind pilot on the iteration-0 copy of the package: 0.6504 to 0.8263, forecast 9.87, 85 causes. The recorded bar for version 3 (score at most 0.85, forecast at least 9, causes at least 80) and its reason are in `validators/stats/GATE.md` and docs/validators.md section 12.9. `--hardness` prints the iteration 0 of the pilot it measures with.
+
 * Statistics validator: 32 items for four statistics that `docs/concepts/statistics.md` now defines under "Planned" (`holm`, `sampleSizeForEffect`, `kappaInterval`, `mcnemarMidP`) and the package does not have yet; they fail with the signature to add. Oracles in `packages/validators/fixtures/stats/make_exact_capabilities.py`. 904 items. `validators/stats/NEEDS.md`, batch 11.
 
 * Statistics validator: 14 failing-by-construction items (`defect.*`) for the accuracy defects of a 12,000-case differential sweep (`hillNumber` at large q, a quantile taken at `1 - alpha / 2`, the far tails of `betaQuantile` and `clopperPearson`, `normalQuantile` below 1e-308, the log-gamma prefactor at shapes of 1e4 and more, `binomialCdf` at n of 1e9, the exact `ksTest` tail). They pass with the open stats-fix pull requests merged. 872 items. `validators/stats/NEEDS.md`, batch 10.

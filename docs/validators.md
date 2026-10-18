@@ -301,6 +301,12 @@ The gate. No validator merges without the audit: `--hardness` fails its gate whe
 
 Owner review, 2026-10-12: the rules of sections 12.1 to 12.7 changed four times while validators were being built, and every change cost rework across six lanes. From this point the contract is frozen as written: the bank (12.1, 12.2, 12.6), the forecast and the distinct-cause count (12.4), floors per ladder version (12.5) and the independent audit with its blind view (12.7, `--blind`, `--all-levels`). A rule changes only when an audit report names a hole the current rules let through, and the change is written here, with that report as its reason, before any lane acts on it.
 
+### 12.9 Recorded bars
+
+A bar lowered for one validator is recorded in `validators/<component>/GATE.md` as the three lines `Max score after the pilot`, `Min forecast` and `Min distinct failing causes` (the owner's rule: "If you cannot do it, lower the bar per validator"), with the pilot numbers and the reason. A bar only lowers a term of 12.4; the audit of 12.7 is not lowered.
+
+* stats, ladder version 3: score after the pilot at most 0.85, forecast at least 9, at least 80 distinct failing causes. The blind pilot on the iteration-0 copy of the package measured 0.8263, a forecast of 9.87 and 85 causes on a bank of 904 items. The reason: a forecast of 100 at the 15.9 items the pilot fixed per iteration needs about 1590 failing items, more than the bank holds, and the package (the differential sweep covered its 57 exports) has 11 causes from defects and from statistics the docs define; the rest are guards, limits and coverage designs. Padding the bank with methods no page asks for is ruled out by 12.1. The numbers and the starting package are in `validators/stats/GATE.md`.
+
 ## Measurement cache during system sweeps
 
 A system sweep can invoke the statistics validator repeatedly with the same code and seed. Within that system command, these statistics sub-runs use a measurement cache keyed by the latest commit touching `packages/stats`, the statistics validator's source tree, the seed, the repository root and the full-run mode. Every system item still runs on every requested seed. Only an identical statistics sub-run can reuse its measured result.
