@@ -42,8 +42,9 @@ A `when` condition reads evidence names (see `authoring-evidence-names`), never 
 
 A name with no value never holds, except under `not`. Every key of a `when` must hold.
 
-A diagnosis never changes the machine pass of a block, nor any verdict. Loading the checks package registers both
-files and their implementations with the object registry, so a project file can extend them. No command runs blame
+A diagnosis never changes the machine pass of a block, nor any verdict. `initializeShippedObjects()` of the checks package registers both
+files and their implementations with the object registry, so a project file can extend them. Every command
+calls it before it loads a spec; a script calls it first. No command runs blame
 or placement yet: call them from a script, through the `blame` and `placement` namespaces of
 `@agent-nexus/driftbench-checks`.
 
@@ -292,10 +293,11 @@ items:
 ```
 
 ```ts file=blame.mts
-import { blame, placement } from '@agent-nexus/driftbench-checks';
+import { blame, initializeShippedObjects, placement } from '@agent-nexus/driftbench-checks';
 import { ObjectStore } from '@agent-nexus/driftbench-core';
 
-// 1. Resolve the shipped files and the project file.
+// 1. Register the shipped files, then resolve them and the project file.
+initializeShippedObjects();
 const store = new ObjectStore();
 store.addFile('driftbench/policy/blame/acme.yaml', 'project');
 const shipped = store.resolve('policy/blame', 'default');
