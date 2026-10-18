@@ -192,6 +192,67 @@ describe('feedFromLogs: the scope of a variable', () => {
   });
 });
 
+/** The fixture store with the scopes written in it, as an owner writes them. */
+function scoped(scopes: Record<string, 'turn' | 'conversation'>) {
+  const store = structuredClone(fixtureStore());
+  for (const variable of store.variables) {
+    const scope = scopes[variable.id];
+    if (scope) variable.scope = scope;
+  }
+  return store;
+}
+
+describe('feedFromLogs: the store declares the scope', () => {
+  it('reads a variable the store marks turn once per user turn, with no scopes given', async () => {
+    const seen: Seen[] = [];
+    const result = await feedFromLogs({
+      store: scoped({ customer_mood: 'turn' }),
+      conversations: logs(40),
+      reader: keywordReader(seen),
+      options: { variables: ONLY, minDecided: 10 },
+    });
+    expect(seen.filter((entry) => entry.question === 'customer_mood')).toHaveLength(80);
+    expect(seen.filter((entry) => entry.question === 'session_state')).toHaveLength(40);
+    expect(result.reports.turn?.variables.map((v) => v.id)).toEqual(['customer_mood']);
+    expect(result.overrides).toEqual([]);
+  });
+
+  it('lets the call override the store, and reports each override it used', async () => {
+    const seen: Seen[] = [];
+    const result = await feedFromLogs({
+      store: scoped({ customer_mood: 'turn' }),
+      conversations: logs(40),
+      reader: keywordReader(seen),
+      scopes: { customer_mood: 'conversation' },
+      options: { variables: ONLY, minDecided: 10 },
+    });
+    expect(seen.filter((entry) => entry.question === 'customer_mood')).toHaveLength(40);
+    expect(result.overrides).toEqual([{ variable: 'customer_mood', declared: 'turn', used: 'conversation' }]);
+  });
+
+  it('reports an override of a variable that states no scope against the default', async () => {
+    const result = await feedFromLogs({
+      store: fixtureStore(),
+      conversations: logs(40),
+      reader: keywordReader([]),
+      scopes: { customer_mood: 'turn' },
+      options: { variables: ONLY, minDecided: 10 },
+    });
+    expect(result.overrides).toEqual([{ variable: 'customer_mood', declared: 'conversation', used: 'turn' }]);
+  });
+
+  it('reports nothing when the call only repeats what the store declares', async () => {
+    const result = await feedFromLogs({
+      store: scoped({ customer_mood: 'turn' }),
+      conversations: logs(40),
+      reader: keywordReader([]),
+      scopes: { customer_mood: 'turn', session_state: 'conversation' },
+      options: { variables: ONLY, minDecided: 10 },
+    });
+    expect(result.overrides).toEqual([]);
+  });
+});
+
 describe('feedFromLogs: the calibration of each group', () => {
   it('corrects a turn-scoped variable with turn calibration items and a conversation-scoped one with conversation items', async () => {
     const calibration = {
