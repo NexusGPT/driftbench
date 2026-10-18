@@ -95,7 +95,11 @@ describe('diff.feasible reads the impossible pairs and every seeder', () => {
         (entry) => entry.forbid.behaviour === 'B-004' && entry.forbid.deviation === 'D1_off_topic',
       ),
     );
-    const cell = { flow: 'change-request', behaviour: 'B-004', deviation: 'D1_off_topic', stage: 'choice' };
+    // A flow that owns the behaviour and a stage its path reaches: a cell naming a flow that does not own the
+    // behaviour, or a stage the flow never reaches, is no position of the map.
+    const flow = required(hidden.flows.find((entry) => entry.behaviours.includes('B-004'))).id;
+    const stage = required(hidden.paths.find((path) => path.flow === flow)?.stages[1]);
+    const cell = { flow, behaviour: 'B-004', deviation: 'D1_off_topic', stage };
     const result = await item('cover').check(dataFor(18, generated(hidden, 18, 'cover', cell)));
     expect(result).toEqual({
       pass: false,
