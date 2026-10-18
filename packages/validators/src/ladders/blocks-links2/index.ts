@@ -85,6 +85,14 @@ export function neutralName(seed: number, tag: string): string {
   return out;
 }
 
+/**
+ * A status that covers, drawn from the seed: `declared`, `attributed` and `verified` links all cover their
+ * section (planted-bug audit round 2: a product that counts only `declared` passed every item).
+ */
+function covering(seed: number, tag: string): string {
+  return (['declared', 'attributed', 'verified'] as const)[between(rngFor(seed, `status:${tag}`), 0, 2)];
+}
+
 /** A spec count and a block count drawn from the seed: the inputs carry no fixed shape (cheater round 2). */
 function shapeOf(seed: number, tag: string, specs: [number, number], blocks: [number, number]) {
   const rng = rngFor(seed, `shape:${tag}`);
@@ -165,11 +173,11 @@ function world(seed: number, tag: string, specs: number, blocks: number, form: '
           ...blockIds.map((blockId, b) => ({
             block: form === 'id' ? blockId : b,
             to: { kind: 'prompt_section' as const, prompt, section: sections[b] as string },
-            status: 'declared',
+            status: covering(seed, `${tag}status${s}.${b}`),
           })),
           {
             to: { kind: 'prompt_section' as const, prompt, section: wide[s] as string },
-            status: 'declared',
+            status: covering(seed, `${tag}status${s}`),
           },
         ],
       },
@@ -184,7 +192,7 @@ function runsOf(
   w: World,
   repeats: number,
   fails: (s: number, b: number, repeat: number) => boolean,
-  mode: 'T' | 'F' = 'T',
+  mode: Mode = 'T',
 ) {
   const specHash = need<(spec: unknown) => string>(product.core, 'core', 'specHash');
   const loaded = w.specs.map((raw) => loadSpec(product, raw));
@@ -221,19 +229,21 @@ function loadSpec(
   return result.spec as Record<string, unknown> & { id: string; blocks: unknown[] };
 }
 
+type Mode = 'T' | 'F' | 'P';
+
 type Ranked = {
-  sections: Array<{ section: string; score: number; linked: number }>;
+  sections: Array<{ section: string; score: number; linked: number; best: number; worst: number }>;
   failureWeight: number;
   inherited: number;
 };
 
 /**
  * Whether block b of spec s failed in run r only because an earlier block of its conversation failed in that
- * run: in mode F a block inherits every earlier block of its spec, in mode T it inherits nothing.
+ * run: in modes F and P a block inherits every earlier block of its spec, in mode T it inherits nothing.
  */
 function inheritedAt(
   fails: (s: number, b: number, repeat: number) => boolean,
-  mode: 'T' | 'F',
+  mode: Mode,
   s: number,
   b: number,
   r: number,
@@ -248,7 +258,7 @@ function inheritedOf(
   w: World,
   repeats: number,
   fails: (s: number, b: number, repeat: number) => boolean,
-  mode: 'T' | 'F',
+  mode: Mode,
 ): number {
   let count = 0;
   w.specs.forEach((spec, s) => {
@@ -269,8 +279,8 @@ function reference(
   fails: (s: number, b: number, repeat: number) => boolean,
   covers: (s: number, b: number) => string[],
   ranked: (section: string) => boolean,
-  mode: 'T' | 'F' = 'T',
-): Map<string, number> {
+  mode: Mode = 'T',
+): Map<string, Want> {
   const weights: Array<{ w: number; sections: string[] }> = [];
   w.specs.forEach((spec, s) => {
     spec.blocks.forEach((_, b) => {
@@ -285,17 +295,26 @@ function reference(
     });
   });
   const total = weights.reduce((sum, row) => sum + row.w, 0);
-  const out = new Map<string, number>();
+  const scores = new Map<string, { score: number; linked: number }>();
   for (const section of (w.registry.sections as Array<{ id: string }>).map((each) => each.id)) {
     if (!ranked(section)) continue;
     let nf = 0;
     let ns = 0;
+    let linked = 0;
     for (const row of weights) {
       if (!row.sections.includes(section)) continue;
       nf += row.w;
       ns += 1 - row.w;
+      linked += 1;
     }
-    out.set(section, nf === 0 || total === 0 ? 0 : nf / Math.sqrt(total * (nf + ns)));
+    scores.set(section, { score: nf === 0 || total === 0 ? 0 : nf / Math.sqrt(total * (nf + ns)), linked });
+  }
+  // Ties as a rank range: best = 1 + the sections above, worst = the sections above + the tied ones.
+  const out = new Map<string, Want>();
+  for (const [section, each] of scores) {
+    const above = [...scores.values()].filter((other) => other.score > each.score + 1e-12).length;
+    const tied = [...scores.values()].filter((other) => Math.abs(other.score - each.score) <= 1e-12).length;
+    out.set(section, { ...each, best: above + 1, worst: above + tied });
   }
   return out;
 }
@@ -305,7 +324,7 @@ function localize(
   loaded: unknown[],
   runs: unknown[],
   registry: unknown,
-  mode: 'T' | 'F' = 'T',
+  mode: Mode = 'T',
 ): Ranked {
   const localizeRuns = need<
     (specs: unknown[], runs: unknown[], registry: unknown, options: unknown) => { localization: Ranked }
@@ -313,12 +332,19 @@ function localize(
   return localizeRuns(loaded, runs, registry, { mode }).localization;
 }
 
-function compare(got: Ranked, want: Map<string, number>): string | undefined {
-  for (const [section, score] of want) {
+type Want = { score: number; linked: number; best: number; worst: number };
+
+/** The first difference of the ranking from the reference: score (NaN never matches), linked count, ranks. */
+function compare(got: Ranked, want: Map<string, Want>): string | undefined {
+  for (const [section, expected] of want) {
     const found = got.sections.find((each) => each.section === section);
     if (!found) return `the section ${section} is not ranked`;
-    if (Math.abs(found.score - score) > 1e-9)
-      return `the section ${section} scores ${found.score.toFixed(6)}, expected ${score.toFixed(6)}`;
+    if (!(Math.abs(found.score - expected.score) <= 1e-9))
+      return `the section ${section} scores ${Number(found.score).toFixed(6)}, expected ${expected.score.toFixed(6)}`;
+    if (found.linked !== expected.linked)
+      return `the section ${section} counts ${found.linked} linked blocks, expected ${expected.linked}`;
+    if (found.best !== expected.best || found.worst !== expected.worst)
+      return `the section ${section} ranks ${found.best} to ${found.worst}, expected ${expected.best} to ${expected.worst}`;
   }
   const extra = got.sections.find((each) => !want.has(each.section));
   return extra ? `the section ${extra.section} is ranked, though it is not a live local section` : undefined;
@@ -540,14 +566,14 @@ function localizeItems(): BankItem[] {
 // ---------------------------------------------------------------------------------------------------------
 // The chain items (family links2-localize): the rows of a conversation in modes T and F. In mode F a failure while an earlier block of
 // the same run failed is inherited and dropped; a block that passes after a failing one stays a row. In mode T
-// every block is a row.
+// every block is a row. Mode P inherits as mode F does.
 
 function chainItems(): BankItem[] {
   const out: BankItem[] = [];
   // One family with the other localize items: the conversation rows are part of the same ranking.
   const family = 'links2-localize';
   const shapes = ['passing-after-failing', 'failing-after-failing', 'mixed'] as const;
-  for (const mode of ['T', 'F'] as const)
+  for (const mode of ['T', 'F', 'P'] as const)
     for (const shape of shapes)
       for (const repeats of [1, 3]) {
         const id = `chain/${mode}/${shape}/${repeats}`;
@@ -560,9 +586,9 @@ function chainItems(): BankItem[] {
             shape === 'passing-after-failing'
               ? `mode ${mode}: a block that passes after a failing block of its conversation stays a row and clears its sections (${repeats} repeats)`
               : shape === 'failing-after-failing'
-                ? `mode ${mode}: a block that fails after a failing block of its conversation is ${mode === 'F' ? 'an inherited failure, dropped and counted' : 'a row of its own'} (${repeats} repeats)`
+                ? `mode ${mode}: a block that fails after a failing block of its conversation is ${mode !== 'T' ? 'an inherited failure, dropped and counted' : 'a row of its own'} (${repeats} repeats)`
                 : `mode ${mode}: three blocks failing on drawn repeats count rows and inherited failures run by run (${repeats} repeats)`,
-            mode === 'F'
+            mode !== 'T'
               ? 'radius localize drops a failure when an earlier block of the same conversation failed in the same run, and keeps a block that passes after a failing one as a row'
               : 'radius localize in mode T counts every block as a row: a block starts from its canonical Given and inherits nothing',
             async ({ seed, product }) => {
@@ -881,6 +907,35 @@ function schemaItems(): BankItem[] {
             [
               specHash(before) === specHash(after),
               `the spec hash moved when the link's ${change.field} changed`,
+            ],
+          ]);
+        },
+      ),
+    );
+  }
+  // A spec that gains its first links keeps its hash, with or without a metadata block left behind.
+  for (const leftover of ['no-metadata', 'empty-links'] as const) {
+    const id = `schema/out-of-hash/first-links/${leftover}`;
+    out.push(
+      item(
+        id,
+        family,
+        2,
+        IDENTITY,
+        `a spec that gains its first links keeps the spec hash of its form without them (${leftover.replace('-', ' ')})`,
+        'specHash leaves metadata.links out',
+        async ({ seed, product }) => {
+          const specHash = need<(spec: unknown) => string>(product.core, 'core', 'specHash');
+          const w = world(seed, id, 1, shapeOf(seed, id, [1, 1], [3, 6]).blocks);
+          const linked = loadSpec(product, w.specs[0]);
+          const bare = structuredClone(w.specs[0]) as Record<string, unknown>;
+          if (leftover === 'no-metadata') delete bare.metadata;
+          else bare.metadata = { links: [] };
+          const without = loadSpec(product, bare);
+          return expectAll([
+            [
+              specHash(linked) === specHash(without),
+              'the spec hash moved when the spec gained its first links',
             ],
           ]);
         },
