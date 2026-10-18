@@ -256,9 +256,9 @@ describe('the step classifier', () => {
     expect(back.map((verdict) => [verdict.id, verdict.outcome])).toEqual([['flow.order', 'fail']]);
     const on = flowVerdicts(spec, {}, { stage: 'b', source: 'tools', evidence: '' }, 'a');
     expect(on.map((verdict) => verdict.outcome)).toEqual(['pass']);
-    expect(flowVerdicts(spec, { stage: 'a' }, { stage: 'b', source: 'tools', evidence: '' }, 'a')).toHaveLength(
-      1,
-    );
+    expect(
+      flowVerdicts(spec, { stage: 'a' }, { stage: 'b', source: 'tools', evidence: '' }, 'a'),
+    ).toHaveLength(1);
   });
 
   // docs/concepts/drift.md: "A stage the runtime reports gets no flow verdict: the `stage` check judges it."
