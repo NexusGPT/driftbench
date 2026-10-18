@@ -14,7 +14,7 @@ The live bank grows from 904 to 910 items. Every family has at least 20 items an
 
 The current bank has 922 items. Twelve new cases check six normal-quantile callers at `Number.MIN_VALUE` and `1e-300`, using independent 100-digit log-erfc references. They share one cause; no existing item, cause, tolerance or floor changes. Product PR 777 at `dbfede4b2` repairs the six callers.
 
-A fresh seed-1 `--items --json` run passes all 922 items at level 7. The measured bank hash is `f7aa0436f8bf4e387b557c054ae550e350bddc79304df6b0a945ee2604ebd4e0`. This is a correctness run, not the requested ten-round pilot. The historical comparison below stays unchanged.
+A fresh seed-1 `--items --json` run passes all 922 items at level 7. The measured bank hash is `f7aa0436f8bf4e387b557c054ae550e350bddc79304df6b0a945ee2604ebd4e0`. A subsequent run on seeds 1 through 20 and the hidden seed at `c68c2ab0c` also passes all 922 items at level 7 on every seed. These are correctness runs, not the requested ten-round pilot. The historical comparison below stays unchanged.
 
 ## Both bars against the same historical journal
 

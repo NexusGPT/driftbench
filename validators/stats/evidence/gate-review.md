@@ -141,3 +141,5 @@ Red-first: the new positive tests fail all six minimum-alpha cases and pass all 
 The combined command runs `exact`, `exact-branches`, `exact-capabilities`, `exact-user-capabilities`, `exact-log-alpha`, `export-sensitivity` and `validate-bank-freshness` tests with `--maxWorkers=2`: 457 tests pass in seven files. `pnpm exec tsc --noEmit` passes. Biome reports only the existing non-null assertion warning in `exact-branches.test.ts`.
 
 `pnpm --silent driftbench validate stats --seed 1 --items --json` measures 922 of 922 passing, level 7, zero failing causes, and bank hash `f7aa0436f8bf4e387b557c054ae550e350bddc79304df6b0a945ee2604ebd4e0`. All heavy commands run through the shared slot wrapper. No pilot result is inferred from these checks.
+
+The follow-up `pnpm --silent driftbench validate stats --seeds 1..20 --hidden --items --json` run at `c68c2ab0c` passes all 922 items on all 21 seeds, each at level 7. The bank hash remains `f7aa0436f8bf4e387b557c054ae550e350bddc79304df6b0a945ee2604ebd4e0`. This is a correctness sweep of the repaired product, not an executor pilot.
