@@ -1617,7 +1617,7 @@ sessions:
       {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
       {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"Stopped: all work is on hold until you say go.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
     decisions: |
-      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"nudge","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"the user asked to stop\n","exitCode":0,"outcome":"completed"}
       {"at":"2026-10-12T09:00:03.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
     steps: ""
   - situation: reply-length-py-event
