@@ -73,10 +73,14 @@ describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
       const run = await estateRun(seed);
       const mutants = await agentMutants(run);
       // A reference mutant with complete tests on the follower: the follower reads each file once, so skipping
-      // the read is a real difference, whichever of the atoms that name the file is deleted.
+      // the read is a real difference, whichever of the atoms that name the file is deleted. A reference to a file
+      // the estate does not hold is untestable: its tests all wait on needs-existing-file, so none is complete.
       const judged = mutants.filter(
         (mutant) =>
-          mutant.kind === 'reference' && !mutant.equivalent && !mutant.reason?.startsWith('no complete test'),
+          mutant.kind === 'reference' &&
+          !mutant.equivalent &&
+          !mutant.untestable &&
+          !mutant.reason?.startsWith('no complete test'),
       );
       expect(judged.length, `seed ${seed}`).toBeGreaterThan(0);
       expect(
