@@ -2,8 +2,11 @@ import { type BankEntry, bankMeasure, defineLadder, type Ladder } from '../../..
 import { runItem } from './run';
 import { type BankDeps, type BankItem, LEVELS } from './types';
 
-/** The ladder version of the bank (docs/validators.md section 12.5); version 1 was the seven-level ladder. */
-export const MAP_LADDER_VERSION = 2;
+/**
+ * The ladder version of the bank (docs/validators.md section 12.5); version 1 was the seven-level ladder.
+ * Version 3 adds the cutter level: the pointer reader cuts the prompts the bank renders.
+ */
+export const MAP_LADDER_VERSION = 3;
 
 /**
  * The ladder of a bank: one level per entry of LEVELS, each the sub-bank of its items with threshold 1. Each

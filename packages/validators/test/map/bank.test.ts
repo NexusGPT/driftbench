@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { extractMap, ModelError, type Proposal, SYSTEM_PROMPT } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
@@ -87,6 +88,18 @@ describe('the map bank under section 12', () => {
         'semantics',
         'roles',
         'scale',
+        'cutter-slices',
+        'cutter-anchors',
+        'cutter-containers',
+        'cutter-invariance',
+        'cutter-ledger',
+        'cutter-scale',
+        'cutter-hostile',
+        'cutter-sentences',
+        'cutter-structure',
+        'cutter-masks',
+        'cutter-ledger-follow',
+        'cutter-growth',
       ]),
     );
   });
@@ -389,8 +402,16 @@ describe('the hardness measurement', () => {
     expect(total).toBe(bank.length);
   });
 
-  it('reads iteration 0 and the ten pilot rows from the journal; with the bar of GATE.md, only the audit (12.7) is left', () => {
-    const { rows, problems } = readJournal(ROOT, 'map');
+  it('reads iteration 0 and the ten pilot rows of ladder version 2; with the bar of GATE.md, only the audit (12.7) is left', () => {
+    // Ladder version 3 started a new journal: the version 2 rows sit, byte for byte, in journal-v2.jsonl.
+    // They are read through the same reader, from a scratch root whose journal is that file.
+    const scratch = mkdtempSync(join(tmpdir(), 'map-journal-v2-'));
+    mkdirSync(join(scratch, 'validators/map'), { recursive: true });
+    copyFileSync(
+      join(ROOT, 'validators/map/journal-v2.jsonl'),
+      join(scratch, 'validators/map/journal.jsonl'),
+    );
+    const { rows, problems } = readJournal(scratch, 'map');
     expect(problems).toEqual([]);
     const gate = readFileSync(join(ROOT, 'validators/map/GATE.md'), 'utf8');
     expect(measureHardness(rows).gate.reasons.some((reason) => /score after the pilot/.test(reason))).toBe(
@@ -403,6 +424,31 @@ describe('the hardness measurement', () => {
     expect(measured.forecast).toBeGreaterThanOrEqual(100);
     expect(measured.causes?.distinct).toBeGreaterThanOrEqual(100);
     for (const reason of measured.gate.reasons) expect(reason).toMatch(/audit/);
+    expect(measured.bankMinimum.holds).toBe(true);
+  });
+
+  it('reads ladder version 3 from the journal as it stands: the cutter level, its gate NOT MET', () => {
+    // Version 3 adds the cutter level to the 578 items of version 2. Iteration 0 fails 6 items of one cause,
+    // the builder's one pilot iteration fixed them, so the score after the pilot is 1, the forecast and the
+    // failing causes are 0, and the pilot holds 1 of its 10 iterations. These are the reasons the pull request
+    // states the gate of section 12.4 is not met; a later version 3 row changes them on purpose.
+    const { rows, problems } = readJournal(ROOT, 'map');
+    expect(problems).toEqual([]);
+    const gate = readFileSync(join(ROOT, 'validators/map/GATE.md'), 'utf8');
+    const measured = measureHardness(rows, { gate });
+    expect(measured.iteration0).toMatchObject({ bankSize: 879, passing: 873 });
+    expect(measured.pilot).toMatchObject({ iterations: 1, complete: false });
+    expect(measured.pilot.end).toMatchObject({ bankSize: 879, passing: 879 });
+    expect(measured.forecast).toBe(0);
+    expect(measured.causes?.distinct).toBe(0);
+    expect(measured.gate.holds).toBe(false);
+    for (const pattern of [
+      /1 of 10 iterations/,
+      /forecast 0 is under 100/,
+      /score after the pilot 1 is above 0.42/,
+      /0 distinct failing causes/,
+    ])
+      expect(measured.gate.reasons.some((reason) => pattern.test(reason))).toBe(true);
     expect(measured.bankMinimum.holds).toBe(true);
   });
 });

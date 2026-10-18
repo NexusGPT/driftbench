@@ -88,6 +88,11 @@ export const LEVELS = [
     what: 'polarity, conditions, priors, roles the prompt states',
   },
   { id: 'scale', name: 'scale', what: 'prompts of 100k characters and more, inside a time budget' },
+  {
+    id: 'cutter',
+    name: 'the pointer reader cuts the prompts',
+    what: 'exact slices, no sentence split, containers, fingerprints and ledger ids of every planted entry',
+  },
 ] as const;
 
 export function levelOf(id: (typeof LEVELS)[number]['id']): number {

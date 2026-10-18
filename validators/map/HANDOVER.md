@@ -7,28 +7,30 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 8 |
-| 2 | 8 |
-| 3 | 8 |
-| 4 | 8 |
-| 5 | 8 |
-| 6 | 8 |
-| 7 | 8 |
-| 8 | 8 |
-| 9 | 8 |
-| 10 | 8 |
-| 11 | 8 |
-| 12 | 8 |
-| 13 | 8 |
-| 14 | 8 |
-| 15 | 8 |
-| 16 | 8 |
-| 17 | 8 |
-| 18 | 8 |
-| 19 | 8 |
-| 20 | 8 |
-| hidden | 8 |
+| 1 | 9 |
+| 2 | 9 |
+| 3 | 9 |
+| 4 | 9 |
+| 5 | 9 |
+| 6 | 9 |
+| 7 | 9 |
+| 8 | 9 |
+| 9 | 9 |
+| 10 | 9 |
+| 11 | 9 |
+| 12 | 9 |
+| 13 | 9 |
+| 14 | 9 |
+| 15 | 9 |
+| 16 | 9 |
+| 17 | 9 |
+| 18 | 9 |
+| 19 | 9 |
+| 20 | 9 |
+| hidden | 9 |
 <!-- level-table:end -->
+
+Ladder version 3, 2026-10-18: the table above is iteration 1 of version 3, measured on the pilot branch `exec/map-cutter-pilot` at `a7f1ef2b6`, PR 692 plus one fix to the cutter. On the validator branch (PR 692 without that fix) the level is 8: 873 of 879, the six `cutter-masks.masks.link-text.*` items failing on one cause. Level 9, the cutter, holds 301 items in twelve families (`packages/validators/src/ladders/map/bank/families/cutter.ts` and `cutter-audit.ts`). The version 2 journal is `journal-v2.jsonl`; `journal.jsonl` starts at version 3.
 
 The bank is ladder version 2 of map: 578 items over 8 levels. After the ten pilot fixes and 45 executor iterations (11 to 55): 328 of 578 pass (score 0.5675), 31 distinct causes among the failing. Level 0 of 8 on every seed.
 
@@ -37,6 +39,9 @@ The bank is ladder version 2 of map: 578 items over 8 levels. After the ten pilo
 None in `validators/floors.json`, so CI reads 0. Under section 12.5 the bank is ladder version 2; its floor starts at the level the pilot reached, 0.
 
 ## Open items
+
+- Version 3: the hardness gate is not met. The pilot topped the ladder in one iteration (879 of 879); the forecast is 0. The audit (`audit.md`) found 15 of 20 planted bugs and 7 of 13 shortcuts uncaught on the first 188 items; 113 items now answer them and the audit runs again.
+- Version 3 depends on PR 692 (the pointer reader) and has to be measured again once it merges. The link-text fix lives only on `exec/map-cutter-pilot`.
 
 Level 1 (structured files) still fails on every seed, only because of the contradictions listed below. Failing items per family: adversarial 1, hostile-inputs 5, prompt-containers 2, roles 29, scale 36, schema-keywords 4, semantics 55, style-pairs 91, styles 21, transforms 6. Level 2 (prompt containers) has two items left (restructured-text, latex). The next bulk is level 3: style-pairs (89 on seed 1) and styles, then level 7 semantics and roles, level 8 scale. Run `pnpm driftbench validate map --seed 1 --all-levels` to list every failing item with its cause.
 
@@ -61,9 +66,11 @@ Rejected, not a pre-pass fault: schema-keywords.closed-object (additionalPropert
 
 ## Next actions
 
-1. Take the next failing level 1 item (tool-formats.legacy-functions, tier 2, then the schema-keywords tier 3 items such as any-of, one-of, all-of); never closed-object (see above).
-2. Write the test that reproduces it in `packages/generate/test/extract/` (on exec/map-pilot the pilot's file `tools-keywords.test.ts` shows the pattern: one property, its expected partitions), see it red, make the one change the cause names.
-3. Run `pnpm driftbench validate map --seeds 1..20 --hidden --items --json`, write the journal row with bankSize, passing, failingByFamily and bankByFamilyTier, append it with `--journal`, and rewrite this file.
+1. Version 3: once PR 692 merges, land the link-text mask fix of `exec/map-cutter-pilot` (commit `a7f1ef2b6`) through its own reviewed PR, then measure the map ladder on main.
+
+2. Take the next failing level 1 item (tool-formats.legacy-functions, tier 2, then the schema-keywords tier 3 items such as any-of, one-of, all-of); never closed-object (see above).
+3. Write the test that reproduces it in `packages/generate/test/extract/` (on exec/map-pilot the pilot's file `tools-keywords.test.ts` shows the pattern: one property, its expected partitions), see it red, make the one change the cause names.
+4. Run `pnpm driftbench validate map --seeds 1..20 --hidden --items --json`, write the journal row with bankSize, passing, failingByFamily and bankByFamilyTier, append it with `--journal`, and rewrite this file.
 
 ## Pitfalls
 
