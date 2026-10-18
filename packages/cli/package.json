@@ -40,7 +40,8 @@
   "files": [
     "NOTICE",
     "THIRD_PARTY_LICENSES.md",
-    "dist"
+    "dist",
+    "help"
   ],
   "scripts": {
     "build": "tsup src/index.ts src/bin.ts --format esm --dts --clean --target node22"

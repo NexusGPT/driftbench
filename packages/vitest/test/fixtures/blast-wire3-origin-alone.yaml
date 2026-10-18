@@ -1,0 +1,8 @@
+# Fictional data only. An origin with no prefix to describe: the spec is invalid.
+id: blast-wire3-origin-alone
+target: { adapter: function, agent: acme-sales }
+blocks:
+  - user: What is my reference?
+    given: { origin: recorded }
+    expect:
+      must: ['LD-4471']

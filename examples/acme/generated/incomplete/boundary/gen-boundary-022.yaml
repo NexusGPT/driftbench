@@ -79,6 +79,9 @@ metadata:
     path: order-named-plan
     cell:
       coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.below-minimum
+      coverage.check.out.found: coverage.check.out.found.true
+      coverage.check.out.address_id: coverage.check.out.address_id.present
+      coverage.check.out.five_g: coverage.check.out.five_g.true
       flow: order
       coverage_result: fiber
       plan_choice: names-one
@@ -91,7 +94,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address

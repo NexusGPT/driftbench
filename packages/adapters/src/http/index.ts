@@ -46,7 +46,7 @@ export type { ChatMessage, ChatToolCall } from './chat';
  * AgentFailure.
  */
 
-export const HTTP_ADAPTER_VERSION = '0.1.0';
+export const HTTP_ADAPTER_VERSION = '0.1.1';
 
 export type HttpAdapterOptions = {
   /** The endpoint that answers one block. */

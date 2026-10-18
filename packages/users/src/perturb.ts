@@ -104,6 +104,15 @@ export function createPerturbingDriver(options: PerturbingDriverOptions): Pertur
 
   return {
     id: `perturbing:${perturbation.id}`,
+    // The wrapper adds only the pack draw; unknown base randomness must stay unknown.
+    ...(base.seeds === undefined
+      ? {}
+      : {
+          seeds: {
+            ...Object.fromEntries(Object.entries(base.seeds).map(([name, seed]) => [`base:${name}`, seed])),
+            ...(resolved.source.kind === 'drawn' ? { perturbation: resolved.source.seed } : {}),
+          },
+        }),
     spec: runSpecOf,
     perturbation,
     source: resolved.source,
@@ -133,7 +142,12 @@ export function createPerturbingDriver(options: PerturbingDriverOptions): Pertur
       }
       // The injected block of a world change was block k itself; the runner only advances on spec blocks.
       const blockIndex = injected && worldOnly && ctx.blockIndex === k ? k + 1 : ctx.blockIndex;
-      return base.next({ ...ctx, blockIndex });
+      // The branch follows the block: block k + 1 reads what it follows, not what block k followed.
+      return base.next({
+        ...ctx,
+        blockIndex,
+        ...(ctx.branchOf ? { branch: ctx.branchOf(blockIndex) } : {}),
+      });
     },
   };
 }

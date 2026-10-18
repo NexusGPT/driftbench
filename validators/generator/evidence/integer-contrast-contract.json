@@ -1,0 +1,271 @@
+{
+  "base": "119802811739d45a85c3dda5d3402a5cd31bce2c",
+  "reportedSource": "3b12d6f13c15e0fe09f8dac1be72029768936e02",
+  "reportedSeed": 1,
+  "reportedFailures": [
+    {
+      "id": "contrast.read.integer.at-minimum-above-minimum",
+      "level": "contrast",
+      "n": 19,
+      "family": "contrast",
+      "component": "packages/generate/src/seed/values.ts#inputAssertion",
+      "cause": "contrast.read.integer.at-minimum-above-minimum",
+      "pass": false,
+      "detail": "quantity at-minimum is asserted as , 2, above-minimum as , 2, 3"
+    },
+    {
+      "id": "contrast.list.integer.at-minimum-above-minimum",
+      "level": "contrast",
+      "n": 19,
+      "family": "contrast",
+      "component": "packages/generate/src/seed/values.ts#inputAssertion",
+      "cause": "contrast.list.integer.at-minimum-above-minimum",
+      "pass": false,
+      "detail": "limit at-minimum is asserted as , 2, above-minimum as , 2, 3"
+    },
+    {
+      "id": "contrast.write.integer.at-minimum-above-minimum",
+      "level": "contrast",
+      "n": 19,
+      "family": "contrast",
+      "component": "packages/generate/src/seed/values.ts#inputAssertion",
+      "cause": "contrast.write.integer.at-minimum-above-minimum",
+      "pass": false,
+      "detail": "units at-minimum is asserted as nothing, above-minimum as nothing"
+    },
+    {
+      "id": "contrast.write.integer.below-maximum-at-maximum",
+      "level": "contrast",
+      "n": 19,
+      "family": "contrast",
+      "component": "packages/generate/src/seed/values.ts#inputAssertion",
+      "cause": "contrast.write.integer.below-maximum-at-maximum",
+      "pass": false,
+      "detail": "units below-maximum is asserted as nothing, at-maximum as nothing"
+    }
+  ],
+  "reportedExamples": [
+    {
+      "id": "gen-boundary-005",
+      "cell": {
+        "lookup_record.in.quantity": "lookup_record.in.quantity.at-minimum",
+        "flow": "new-request",
+        "lookup_record.in.kind": "lookup_record.in.kind.basic",
+        "submit_request.in.plan": "submit_request.in.plan.large",
+        "lookup_record.out.found": "lookup_record.out.found.false",
+        "lookup_record.out.status": "lookup_record.out.status.daily",
+        "submit_request.out.accepted": "submit_request.out.accepted.true",
+        "submit_request.out.route": "submit_request.out.route.coastal",
+        "channel": "messaging",
+        "user_type": "newcomer"
+      },
+      "blocks": [
+        {
+          "id": "b1-opening-to-intake",
+          "when": {
+            "user": "Hello, I would like to start a new request."
+          },
+          "expect": {
+            "stage": "intake",
+            "stage_reported": true,
+            "tools": [
+              {
+                "label": "lookup_record",
+                "count": 0
+              }
+            ],
+            "must": ["Which item is the request about\\?"],
+            "must_not": ["Step [0-9]+:", "lookup record says ", "list options says ", "submit request says "],
+            "lang": "EN",
+            "criteria": ["flow.new-request"]
+          }
+        },
+        {
+          "id": "b2-intake-to-check",
+          "when": {
+            "user": "It is about a basic item, please look it up."
+          },
+          "expect": {
+            "stage": "check",
+            "stage_reported": true,
+            "tools": [
+              {
+                "label": "lookup_record",
+                "count": 1,
+                "input": {
+                  "kind": "basic",
+                  "quantity": 2
+                },
+                "input_closed": true
+              }
+            ],
+            "must": [
+              "Shall I go on with the record I found\\?",
+              "lookup record says found is false\\.",
+              "lookup record says status is daily\\."
+            ],
+            "must_not": ["Step [0-9]+:", "list options says ", "submit request says "],
+            "lang": "EN"
+          }
+        },
+        {
+          "id": "b3-value",
+          "when": {
+            "user": "Please run lookup record with quantity set to 2."
+          },
+          "expect": {
+            "stage": "check",
+            "stage_reported": true,
+            "tools": [
+              {
+                "label": "lookup_record",
+                "count": 1,
+                "input": {
+                  "kind": "basic",
+                  "quantity": 2
+                },
+                "input_closed": true
+              },
+              {
+                "label": "list_options",
+                "count": 0
+              },
+              {
+                "label": "submit_request",
+                "count": 0
+              }
+            ],
+            "must": ["lookup record says found is false\\.", "lookup record says status is daily\\."],
+            "lang": "EN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gen-boundary-006",
+      "cell": {
+        "lookup_record.in.quantity": "lookup_record.in.quantity.above-minimum",
+        "flow": "change-request",
+        "lookup_record.in.kind": "lookup_record.in.kind.west",
+        "list_options.in.category": "list_options.in.category.east",
+        "submit_request.in.plan": "submit_request.in.plan.premium",
+        "lookup_record.out.found": "lookup_record.out.found.true",
+        "lookup_record.out.status": "lookup_record.out.status.daily",
+        "list_options.out.available": "list_options.out.available.false",
+        "list_options.out.order": "list_options.out.order.amber",
+        "channel": "messaging",
+        "user_type": "staff"
+      },
+      "blocks": [
+        {
+          "id": "b1-opening-to-intake",
+          "when": {
+            "user": "Hello, I would like to start a new request."
+          },
+          "expect": {
+            "stage": "intake",
+            "stage_reported": true,
+            "tools": [
+              {
+                "label": "lookup_record",
+                "count": 0
+              }
+            ],
+            "must": ["Which item is the request about\\?"],
+            "must_not": ["Step [0-9]+:", "lookup record says ", "list options says ", "submit request says "],
+            "lang": "EN",
+            "criteria": ["flow.change-request"]
+          }
+        },
+        {
+          "id": "b2-intake-to-check",
+          "when": {
+            "user": "It is about a west item, please look it up."
+          },
+          "expect": {
+            "stage": "check",
+            "stage_reported": true,
+            "tools": [
+              {
+                "label": "lookup_record",
+                "count": 1,
+                "input": {
+                  "kind": "west",
+                  "quantity": 2
+                },
+                "input_closed": true
+              }
+            ],
+            "must": [
+              "Shall I go on with the record I found\\?",
+              "lookup record says found is true\\.",
+              "lookup record says status is daily\\."
+            ],
+            "must_not": ["Step [0-9]+:", "list options says ", "submit request says "],
+            "lang": "EN"
+          }
+        },
+        {
+          "id": "b3-value",
+          "when": {
+            "user": "Please run lookup record with quantity set to 3."
+          },
+          "expect": {
+            "stage": "check",
+            "stage_reported": true,
+            "tools": [
+              {
+                "label": "lookup_record",
+                "count": 1,
+                "input": {
+                  "kind": "west",
+                  "quantity": 3
+                },
+                "input_closed": true
+              },
+              {
+                "label": "list_options",
+                "count": 0
+              },
+              {
+                "label": "submit_request",
+                "count": 0
+              }
+            ],
+            "must": ["lookup record says found is true\\.", "lookup record says status is daily\\."],
+            "lang": "EN"
+          }
+        }
+      ]
+    }
+  ],
+  "ruling": "Score every approved data-value request against its exact local call contract. Ignore preparatory calls; require exact numeric read-only calls and explicit refusal of direct side-effect calls.",
+  "redFirst": {
+    "base": "119802811739d45a85c3dda5d3402a5cd31bce2c",
+    "failed": 12,
+    "passed": 3,
+    "test": "packages/validators/test/generator/integer-contrast.test.ts",
+    "log": "integer-contrast-red-first.txt"
+  },
+  "exactAssertionRedFirst": {
+    "failed": 1,
+    "skipped": 19,
+    "log": "integer-contrast-red-first.txt"
+  },
+  "scope": "Only six integer-contrast items and adjacent invariance regressions. No full ladder or bank score is inferred.",
+  "verification": {
+    "focusedTests": {
+      "files": 2,
+      "passed": 26,
+      "failed": 0,
+      "command": "pnpm exec vitest run packages/validators/test/generator/integer-contrast.test.ts packages/validators/test/generator/invariance-context.test.ts --maxWorkers=1"
+    },
+    "freshSeeds": [1009, 2027, 4093, 8191],
+    "perSeed": {
+      "integerItemsPassing": 6,
+      "copiedDefaultMutantItemsFailing": 4,
+      "reference": "Every block of every generated scenario carrying the four valid integer requests passes the real reference."
+    },
+    "typecheck": "Focused TypeScript check passes with no emitted files."
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "source": "run-e/results.jsonl",
+  "sha256": "5ae7c979889e48dc17555fe0bd851cbbc9c286526eb86715b52af17c41319624",
+  "lines": 2700,
+  "redaction": {
+    "rule": "Recursively decode JSON strings and remove complete response headers blocks, request identifier fields, and provider message/request identifiers. Preserve judgments, predictions, gold labels, costs, usage and analytical data.",
+    "unredactedSourceSha256": "e03233a116b7a6d486a733cebc034d500a1f80c40e8f2c9d3e35c896f192677f",
+    "forbiddenTransportIdentifierSha256": [
+      "2db370bcc5ac45e74b952f28405e22015cd90f818b7175b23a2768237ae3bdb4",
+      "58678e6106c633daac579a75dd95e1ab2290f4675f2da6c8554543d388e73893"
+    ],
+    "removed": {
+      "providerMessageIdentifierFields": 6554,
+      "headerBlocks": 3277
+    }
+  },
+  "chunks": [
+    {
+      "file": "001.jsonl",
+      "sha256": "aaa3393c95ae60b7e5c7ec682ed973805f43ee6dbf2ef93e335aea947b8523b0",
+      "lines": 200,
+      "bytes": 3288936
+    },
+    {
+      "file": "002.jsonl",
+      "sha256": "f8db5dafdf9a459ba6933fbb672823d893f81dad8346d62a6288730e1e36ce13",
+      "lines": 200,
+      "bytes": 3060172
+    },
+    {
+      "file": "003.jsonl",
+      "sha256": "26fd5d8934c83df255c664dac0f62cf1218c2f49f1ebc73bd945b56ca36f76d5",
+      "lines": 200,
+      "bytes": 2948950
+    },
+    {
+      "file": "004.jsonl",
+      "sha256": "a05ccd3cc91503d9eca4b7afa6a30fc680ee5fdeee881c94b341252d6b8f2cc9",
+      "lines": 200,
+      "bytes": 2842464
+    },
+    {
+      "file": "005.jsonl",
+      "sha256": "4b70d0766216effebca3bbfcbaf2cf294a8c991454c8b50f757dadfa30454ecc",
+      "lines": 200,
+      "bytes": 2616698
+    },
+    {
+      "file": "006.jsonl",
+      "sha256": "f8417186625dc034b03486b55eed8532a36a221584a20e613896cf554c6199f5",
+      "lines": 200,
+      "bytes": 2551886
+    },
+    {
+      "file": "007.jsonl",
+      "sha256": "5266160fbe2f891304a9627925ef6c02a5d16c6560892fe147d2f57ee7859d7f",
+      "lines": 200,
+      "bytes": 2633302
+    },
+    {
+      "file": "008.jsonl",
+      "sha256": "b67ffd54d4becac4a37bf74d67efdcd39241d637a3de4e5491b2ab1566532569",
+      "lines": 200,
+      "bytes": 2577075
+    },
+    {
+      "file": "009.jsonl",
+      "sha256": "fb1caab5bc41c969d40e5f65d770c7015f6bf5939be2ff4e0ab2bf937dbfa41b",
+      "lines": 200,
+      "bytes": 2591988
+    },
+    {
+      "file": "010.jsonl",
+      "sha256": "272028afb824009a7f1d137ec535dd63737d2da0132580b16528dbca2baad881",
+      "lines": 200,
+      "bytes": 2549414
+    },
+    {
+      "file": "011.jsonl",
+      "sha256": "1d199f03dd2254b6d6b7682ef21bc8a8ff7139b08721403843464f75728c4257",
+      "lines": 200,
+      "bytes": 2627205
+    },
+    {
+      "file": "012.jsonl",
+      "sha256": "3bbb8ba860a776798065aec7ad11bf74f73bd5c44db37ac176ac24acb73bf86b",
+      "lines": 200,
+      "bytes": 2655686
+    },
+    {
+      "file": "013.jsonl",
+      "sha256": "03b8cad23c46f534f3afdb6f82e55d875ff0091a4a30b2642e93faf6c164e8f8",
+      "lines": 200,
+      "bytes": 2599454
+    },
+    {
+      "file": "014.jsonl",
+      "sha256": "1a5a1e8ef004dafacdab0ed1b03838c55dfaada97c5cff93418073f4d183efbf",
+      "lines": 100,
+      "bytes": 1312202
+    }
+  ]
+}

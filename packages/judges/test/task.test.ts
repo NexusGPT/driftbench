@@ -105,7 +105,7 @@ describe('the sheet_matches_catalog fixture pair is a real workbook', () => {
     expect(sheet.fixtures.pass.transcript.at(-1)?.text).toBe(good.reply);
   });
 
-  it('calibrates end to end: the rebuilt pair hits the cassette, and jev-a owns the criterion', async () => {
+  it('calibrates end to end: the rebuilt pair hits the cassette, and s1p-a owns the criterion', async () => {
     const rebuilt: LoadedCriterion = {
       ...sheet,
       fixtures: {
@@ -125,8 +125,8 @@ describe('the sheet_matches_catalog fixture pair is a real workbook', () => {
     });
     expect(report.errors).toBe(0);
     const [row] = report.criteria;
-    expect(row?.assignment).toMatchObject({ status: 'assigned', owner: 'jev-a', cls: 'system1' });
-    expect(row?.judges.find((j) => j.judge === 'jev-a')?.separation.separated).toBe(3);
+    expect(row?.assignment).toMatchObject({ status: 'assigned', owner: 's1p-a', cls: 'system1' });
+    expect(row?.judges.find((j) => j.judge === 's1p-a')?.separation.separated).toBe(3);
   });
 });
 
@@ -196,7 +196,7 @@ describe('judgeCheck on a task block', () => {
     const { judges, council } = await earnedCouncil(true);
     const verdicts = await judgeCheck(council).evaluate(buildContext(spec, good));
     const verdict = verdicts.find((v) => v.name === 'sheet_matches_catalog');
-    expect(verdict?.judge?.votes.map((v) => v.judge)).toEqual(['jev-a']);
+    expect(verdict?.judge?.votes.map((v) => v.judge)).toEqual(['s1p-a']);
     expect(judges[1]?.requests.filter((r) => r.criterion.name === 'sheet_matches_catalog')).toHaveLength(0);
   });
 

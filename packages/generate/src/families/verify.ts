@@ -4,12 +4,15 @@ import { isAbsolute, relative, resolve } from 'node:path';
 import {
   type AgentAdapter,
   type ArtifactReaderRegistry,
+  blockStatus,
+  blocksOutcome,
   type CheckSet,
   findSpecFiles,
   loadSpecFile,
   type RunResult,
   runSpec,
   type Spec,
+  skipReason,
   type TargetRef,
 } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
@@ -40,8 +43,9 @@ export type SpecVerdict = {
   specId: string;
   instance?: string;
   variant?: string;
-  state: 'pass' | 'fail' | 'failed' | 'invalid';
-  /** Gating verdicts that did not pass; for a run that did not complete, its error. */
+  /** `not_run`: no block failed but a block was not run or blocked; the reference could not run the spec. */
+  state: 'pass' | 'fail' | 'failed' | 'invalid' | 'not_run';
+  /** Gating verdicts that did not pass, and the blocks not run with their reason; for a run that did not complete, its error. */
   failing: FailedVerdict[];
   error?: string;
 };
@@ -54,6 +58,11 @@ export type VerifyReport = {
   shipped: string[];
   /** Instances the reference failed on at least one variant: an oracle or a reference defect, never shipped. */
   rejected: string[];
+  /**
+   * Instances the reference could not run (a variant not run, none failed): not verified, neither shipped nor
+   * rejected. Absent when none.
+   */
+  unverified?: string[];
   results: SpecVerdict[];
 };
 
@@ -109,6 +118,21 @@ function anchored(spec: Spec, cwd: string): Spec {
 
 function verdictOf(file: string, spec: Spec, run: RunResult): SpecVerdict {
   const where = familyOf(spec);
+  // A block not run or blocked has no verdicts: it is listed with its reason, so the spec never fails silently.
+  const unscored = run.blocks.flatMap((block) => {
+    const reason = skipReason(block);
+    if (reason === undefined) return [];
+    const status = blockStatus(block);
+    return [
+      {
+        block: block.index,
+        ...(block.blockId === undefined ? {} : { blockId: block.blockId }),
+        check: status,
+        id: status,
+        evidence: reason,
+      },
+    ];
+  });
   const failing = run.blocks.flatMap((block) =>
     block.verdicts
       .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')
@@ -130,9 +154,14 @@ function verdictOf(file: string, spec: Spec, run: RunResult): SpecVerdict {
       ...(run.error ? { error: withoutSandbox(run.error) } : {}),
     };
   }
-  const pass =
-    run.blocks.length > 0 && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
-  return { file, specId: spec.id, ...where, state: pass ? 'pass' : 'fail', failing };
+  const outcome = blocksOutcome(run);
+  return {
+    file,
+    specId: spec.id,
+    ...where,
+    state: outcome === 'pass' ? 'pass' : outcome === 'fail' ? 'fail' : 'not_run',
+    failing: [...failing, ...unscored],
+  };
 }
 
 /** Runs the reference on one spec, once, in free-running mode, with the cache off. */
@@ -190,19 +219,24 @@ export async function verifyInstances(dir: string, deps: VerifyDeps): Promise<Ve
   const lanes = Math.max(1, Math.min(deps.concurrency ?? 4, files.length));
   await Promise.all(Array.from({ length: lanes }, worker));
 
-  const byInstance = new Map<string, boolean>();
+  // An instance ships when every variant passes, is rejected when one fails, and is unverified when none fails
+  // but one was not run: the reference measured nothing there, so it is no reference failure.
+  const byInstance = new Map<string, 'pass' | 'not_run' | 'fail'>();
+  const rank = { pass: 0, not_run: 1, fail: 2 } as const;
   for (const result of results) {
     const key = result.instance ?? result.file;
-    byInstance.set(key, (byInstance.get(key) ?? true) && result.state === 'pass');
+    const state = result.state === 'pass' ? 'pass' : result.state === 'not_run' ? 'not_run' : 'fail';
+    const before = byInstance.get(key) ?? 'pass';
+    byInstance.set(key, rank[state] > rank[before] ? state : before);
   }
-  const shipped = [...byInstance]
-    .filter(([, ok]) => ok)
-    .map(([key]) => key)
-    .sort();
-  const rejected = [...byInstance]
-    .filter(([, ok]) => !ok)
-    .map(([key]) => key)
-    .sort();
+  const of = (state: 'pass' | 'not_run' | 'fail') =>
+    [...byInstance]
+      .filter(([, value]) => value === state)
+      .map(([key]) => key)
+      .sort();
+  const shipped = of('pass');
+  const rejected = of('fail');
+  const unverified = of('not_run');
   return {
     reference:
       deps.target.agent === undefined ? deps.target.adapter : `${deps.target.adapter}:${deps.target.agent}`,
@@ -210,6 +244,7 @@ export async function verifyInstances(dir: string, deps: VerifyDeps): Promise<Ve
     passed: results.filter((result) => result.state === 'pass').length,
     shipped,
     rejected,
+    ...(unverified.length > 0 ? { unverified } : {}),
     results,
   };
 }

@@ -98,6 +98,9 @@ it('maps the Acme offer quote, persists the anchor, and explains the selected bl
       ])
     ).code,
   ).toBe(0);
+  expect(parse(await readFile(manifest, 'utf8')).changes).toEqual([
+    expect.objectContaining({ kind: 'prompt', global: true }),
+  ]);
   const all = await cli(['radius', 'examples/acme/gated/specs', '--change', manifest, '--explain']);
   expect(all.code).toBe(1);
   expect(all.out).toContain('region');
@@ -108,3 +111,31 @@ it('maps the Acme offer quote, persists the anchor, and explains the selected bl
   expect(ambiguous.code).toBe(1);
   expect(ambiguous.out).toMatch(/ambiguous|overlapping/);
 }, 50_000);
+
+it.each([
+  ['schema', 'id: invalid\ndimensions: wrong\n', 'dimensions'],
+  ['syntax', 'dimensions: [', 'sequence'],
+])('refuses an invalid %s map with exit 2 and leaves the output untouched', async (_kind, text, detail) => {
+  dir = await mkdtemp(join(tmpdir(), 'radius-invalid-map-'));
+  const map = join(dir, 'invalid.yaml');
+  const output = join(dir, 'change.yaml');
+  await writeFile(map, text);
+  await writeFile(output, 'existing manifest\n');
+  const result = await cli([
+    'radius',
+    'auto',
+    '--prompt',
+    'old.txt',
+    'new.txt',
+    '--map',
+    map,
+    '--out',
+    output,
+  ]);
+  expect(result.code).toBe(2);
+  expect(result.out).toBe('');
+  expect(result.err).toContain(map);
+  expect(result.err).toContain(detail);
+  expect(result.err).not.toMatch(/ZodError|\n\s+at /);
+  expect(await readFile(output, 'utf8')).toBe('existing manifest\n');
+});

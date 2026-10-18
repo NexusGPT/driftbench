@@ -167,6 +167,18 @@ export const Message = z
   .describe('One message of a conversation prefix.');
 export type Message = z.infer<typeof Message>;
 
+/**
+ * Where a prefix comes from. A history copied from a real run is a different test from one a person wrote,
+ * and from the canonical replay of a spec: the agent trusts a recorded call and re-checks a fact it only
+ * finds in prose. So the origin enters the Given hash, and results with different origins are never pooled.
+ */
+export const GivenOrigin = z
+  .enum(['authored', 'recorded', 'canonical'])
+  .describe(
+    'Where the prefix comes from: authored (written by a person), recorded (copied from a real run, its tool calls with their real results) or canonical (the replay of a spec as it is written).',
+  );
+export type GivenOrigin = z.infer<typeof GivenOrigin>;
+
 /** A forced result or error for one tool, from the block where it is set onwards. */
 export const ToolOverride = z
   .strictObject({
@@ -197,6 +209,19 @@ export const WorldState = z
           .record(z.string(), z.string())
           .optional()
           .describe('Files the workspace starts with: path to content.'),
+        binary: z
+          .record(z.string(), z.base64())
+          .optional()
+          .describe(
+            'Files the workspace starts with, byte for byte: path to base64 content. For files that are not text, such as the xlsx a parent block left. A path may not be in both files and binary.',
+          ),
+        summary: z
+          .string()
+          .min(1)
+          .optional()
+          .describe(
+            'What the workspace holds, in words, so a reader of the spec sees it. spec lint --summaries warns when a folder named by from has none.',
+          ),
       })
       .optional()
       .describe('The files the agent starts from.'),

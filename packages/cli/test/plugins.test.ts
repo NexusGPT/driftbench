@@ -284,6 +284,7 @@ describe('plugins', () => {
     expect(run.code).toBe(2);
     expect(run.err).toContain(`The plugin ${join(dir, 'second.mjs')} registers the ${kind} duplicate`);
     expect(run.err).toContain(`the plugin ${join(dir, 'first.mjs')} already registered`);
+    expect(run.err).toContain(`never replaces ${kind === 'adapter' ? 'an' : 'a'} ${kind}:`);
     expect(pluginAdapterNames()).toEqual([]);
     expect(pluginPairwiseJudge('duplicate')).toBeUndefined();
     expect(defaultRegistry.get('duplicate')).toBeUndefined();

@@ -249,7 +249,7 @@ A tool a flow or a behaviour calls, the stage it is called at, and what feeds it
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `kind` | `uses_tool` | yes |  | Marks the relation as a tool call a flow or a behaviour makes. |
-| `subject` | [Proposal relations uses_tool subject](#proposal-relations-uses_tool-subject) | yes |  | The flow or behaviour value that calls the tool. |
+| `subject` | [Proposal relations uses_tool subject](#proposal-relations-uses_tool-subject) | yes |  | The flow or behaviour value that calls the tool. A flow's call is made on a move; a behaviour's call is made in the turn that asks for the behaviour, never on a move. |
 | `tool` | string, not empty | yes |  | The tool label. |
 | `stage` | string matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$` | yes |  | The stage the call is made at: the turn that leaves this stage. |
 | `to` | string matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$` | no |  | Only on the turn that reaches this stage. |
@@ -425,7 +425,7 @@ Write one of these forms.
 
 ## Proposal relations uses_tool subject
 
-The flow or behaviour value that calls the tool.
+The flow or behaviour value that calls the tool. A flow's call is made on a move; a behaviour's call is made in the turn that asks for the behaviour, never on a move.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
