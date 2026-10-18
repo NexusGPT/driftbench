@@ -1,0 +1,6 @@
+import assert from 'node:assert/strict';import {binaryLabellerPabak as p} from './candidate';
+assert.deepEqual(p(['x','x','x','y'],['x','x','y','y'],['x','y']),{total:4,agreement:.75,pabak:.5});
+assert.equal(p(['x'],['x'],['x','y']).pabak,1);assert.equal(p(['x','y'],['y','x'],['x','y']).pabak,-1);
+for(const cats of [['x','x'],['','x'],['x','y','z']])assert.throws(()=>p(['x'],['x'],cats as any));
+for(const answer of [null,'none','z',1])assert.throws(()=>p(['x'],[answer as any],['x','y']));
+assert.throws(()=>p([],[],['x','y']));console.log('binary PABAK regression passed');

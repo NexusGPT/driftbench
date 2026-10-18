@@ -16,6 +16,13 @@ fixtures, repository tests, previous handoffs, cause tags or each other's work.
 Their only bank feedback is the failing-item list with fix hints removed.
 Self-authored regression tests supply red/green evidence for each attempted fix.
 
+Each source-changing round chooses one cause from the first failing level,
+implements that complete capability, and measures it before choosing another.
+Independent missing statistical APIs are separate causes; they cannot be bundled
+as one generic “missing implementation” fix. Shared prerequisites may accompany
+the chosen capability. An algorithm is never deliberately incomplete to create
+extra rounds, and unrelated future implementations are not authored in advance.
+
 These are procedural access boundaries, not an operating-system sandbox.
 The inherited Codex runtime substitutes for the contract's Sonnet runtime;
 no Sonnet comparison is claimed. The explicit task requests at least ten
@@ -51,3 +58,9 @@ They establish repeatability only and contribute no observations to this
 pilot's forecast. The subsequent 300-item stub pilot reaches full score after
 two repairs and stops before round 3. Both experiments remain in `history/`;
 neither contributes rounds to the expanded bank's pilot.
+
+A subsequent broad-batch experiment implements all fourteen APIs in one repair.
+Both executors reach 334/334, but that repair bundles independent causes. Its
+actual history remains under `history/broad-batch-excluded/` and contributes
+nothing to the one-cause-per-round forecast. Fresh executors restart from the
+same untouched stub under the explicit rule above.

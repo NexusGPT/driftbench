@@ -76,3 +76,24 @@ tests unequal marginals and confidence levels but shares the first case's
 variance calculation. Item count and authored tags alone do not establish
 hardness; the expanded stub pilot and independent cause review provide that
 measurement.
+
+## Expanded one-cause pilot measurement
+
+Both isolated executors complete ten source-changing rounds from zero, ending
+at 327/334 and level 3. Their average gain is 32.7 items per round; the linear
+remaining-item forecast is 7/32.7 = 0.214067278287. Shared scoring/replay
+foundations account for the initial 300 items. The two remaining API stubs are
+exact permutation testing and sample planning, both present in production.
+
+A preceding broad implementation experiment reaches 334/334 in one repair
+but bundles independent APIs. It is archived and excluded, never reconstructed
+into intermediate fixes. The valid executors choose one observed capability
+per round and retain complete algorithms. During alpha implementation the
+public `pairable` field is clarified to mean retained ratings; both receive
+the identical clarification before measuring. The initial public contract is
+retained in `evidence/contracts/ADVANCED-initial.md`.
+
+Independent final cause review covers all seven failures. Its two inferred
+capability groups are not certified implementation root causes. The original
+hardness remains unmet; GATE.md records the provisional delivery thresholds
+only after this measurement.

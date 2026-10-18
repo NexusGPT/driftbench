@@ -1,0 +1,9 @@
+import assert from 'node:assert/strict';
+import {scoreLabeller as score} from './candidate';
+const set={name:'traffic',labels:[{name:'red',description:'stop'},{name:'green',description:'go'}]};
+assert.deepEqual(score(['red','green','none','red'],['red',null,'bad',3 as any],set),{total:4,correct:1,agreement:.25,kappa:1/7,abstentions:1,invalid:2,coverage:.25});
+assert.equal(score(['red','green'],['green','red'],set).kappa,-1);
+assert.equal(score(['red'],['red'],set).kappa,1);
+assert.throws(()=>score([],[],set)); assert.throws(()=>score(['bad'],['red'],set));
+assert.throws(()=>score(['red'],[],set));assert.throws(()=>score(['red'],['red'],{name:'x',labels:[]}));
+console.log('nominal scoring regression passed');
