@@ -136,6 +136,7 @@ export default defineConfig({
           { text: 'Generating tests', link: '/generating' },
           { text: 'Testing an estate', link: '/estate' },
           { text: 'Statistics capabilities', link: '/statistics/capabilities' },
+          { text: 'The variable store', link: '/variables' },
           { text: 'Datasets and prompts', link: '/datasets' },
           { text: 'Validators', link: '/validators' },
           { text: 'Benchmark floors', link: '/benchmarks' },
