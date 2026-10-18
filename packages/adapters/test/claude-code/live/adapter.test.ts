@@ -4,10 +4,11 @@ import {
   AdapterTransportError,
   type AgentAdapter,
   AgentFailure,
+  type Message,
   Observed,
   type Session,
-} from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
+} from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type ClaudeCodeLiveOptions, claudeCodeLiveAdapter } from '../../../src/claude-code/live';
 import {
@@ -16,6 +17,7 @@ import {
   callsOf,
   ESTATE,
   FAKE,
+  FAKE_RECORDINGS,
   givenOf,
   MAP_HASH,
   RUNTIME_FLAGS,
@@ -45,7 +47,7 @@ async function setup(extra: Partial<ClaudeCodeLiveOptions> = {}) {
     estateRoot: ESTATE,
     provider: localProvider({ dir: join(work.dir, 'sandboxes') }),
     stateDir: join(work.dir, 'state'),
-    env: { FAKE_CALLS: work.calls },
+    env: { ...FAKE_RECORDINGS, FAKE_CALLS: work.calls },
     retries: { max: 3, backoffMs: 0 },
     pins: [MAP_HASH],
     config: 'isolated',
@@ -62,6 +64,66 @@ async function openRun(adapter: AgentAdapter, vars: Record<string, unknown> = {}
 }
 
 describe('claudeCodeLiveAdapter', () => {
+  it('rejects sparse and accessor history arrays at open and send', async () => {
+    const { adapter } = await setup();
+    const { session, given } = await openRun(adapter);
+    let reads = 0;
+    const accessor = Object.defineProperty([], '0', {
+      enumerable: true,
+      get: () => {
+        reads++;
+        return { role: 'user', content: ASK_WEEKLY };
+      },
+    });
+    for (const prefix of [new Array(1), accessor]) {
+      await expect(adapter.open({ ...given, prefix })).rejects.toThrow(/history\[0\]/);
+      session.history = prefix;
+      await expect(adapter.send(session, turnOf(0, ASK_WEEKLY, given))).rejects.toThrow(/history\[0\]/);
+    }
+    expect(reads).toBe(0);
+  });
+
+  it('rejects accessor messages before starting a sandbox', async () => {
+    const create = vi.fn(() => {
+      throw new Error('sandbox must not start');
+    });
+    const { adapter } = await setup({ provider: { kind: 'local', available: async () => true, create } });
+    const given = givenOf({});
+    let reads = 0;
+    given.prefix.push({
+      role: 'user',
+      get content() {
+        reads++;
+        return 'before';
+      },
+    });
+    await expect(adapter.open(given)).rejects.toThrow(/content.*accessor/);
+    expect(create).not.toHaveBeenCalled();
+    expect(reads).toBe(0);
+  });
+
+  it('freezes direct caller messages at open and send without changing their arrays', async () => {
+    const { adapter } = await setup();
+    const given = givenOf({});
+    const prefix: Message = { role: 'user', content: 'earlier' };
+    given.prefix.push(prefix);
+    const opening = adapter.open(given);
+    const frozenOnEntry = Object.isFrozen(prefix);
+    const session = await opening;
+    cleanups.push(() => adapter.close(session));
+    expect(frozenOnEntry).toBe(true);
+    expect(session.history).not.toBe(given.prefix);
+    expect(session.history[0]).toBe(prefix);
+    expect(() => {
+      prefix.content = 'changed';
+    }).toThrow(TypeError);
+    const added: Message = { role: 'user', content: ASK_WEEKLY };
+    session.history.push(added);
+    await adapter.send(session, turnOf(0, ASK_WEEKLY, given));
+    expect(Object.isFrozen(added)).toBe(true);
+    expect(given.prefix).toHaveLength(1);
+  });
+
   it('maps one turn of the stream into one Observed: calls, skills, guards, stages, diff, cost', async () => {
     const { adapter } = await setup();
     const { session, given } = await openRun(adapter);
@@ -145,6 +207,43 @@ describe('claudeCodeLiveAdapter', () => {
     });
   });
 
+  it('leaves out of the diff what the runtime writes in the estate folder, and keeps what the agent edits there', async () => {
+    const { adapter } = await setup();
+    const { session, given } = await openRun(adapter);
+    const observed = await adapter.send(session, turnOf(0, 'Add a note to the memory file.', given));
+    expect(observed.workspaceDiff).toEqual({
+      created: [],
+      changed: ['.claude/memory/MEMORY.md'],
+      deleted: [],
+    });
+    expect((observed.raw as { live: { runtimeWrites: string[] } }).live.runtimeWrites).toEqual([
+      '.claude/hooks/__pycache__/guard.cpython-312.pyc',
+      '.claude/hooks/state/last-sweep',
+    ]);
+  });
+
+  it('counts a new file under the estate folder as written by the runtime when the estate files are listed one by one', async () => {
+    const { adapter } = await setup({
+      estateFiles: [
+        'CLAUDE.md',
+        '.claude/settings.json',
+        '.claude/memory/MEMORY.md',
+        '.claude/skills/weekly-report/SKILL.md',
+      ],
+    });
+    const { session, given } = await openRun(adapter);
+    const observed = await adapter.send(session, turnOf(0, 'Add a note to the memory file.', given));
+    expect(observed.workspaceDiff).toEqual({
+      created: [],
+      changed: ['.claude/memory/MEMORY.md'],
+      deleted: [],
+    });
+    expect((observed.raw as { live: { runtimeWrites: string[] } }).live.runtimeWrites).toEqual([
+      '.claude/hooks/__pycache__/guard.cpython-312.pyc',
+      '.claude/hooks/state/last-sweep',
+    ]);
+  });
+
   it('resumes the session the runtime named on the next turn, and gives each turn its own rows', async () => {
     const { adapter, work } = await setup();
     const { session, given } = await openRun(adapter);
@@ -180,7 +279,7 @@ describe('claudeCodeLiveAdapter', () => {
       estateRoot: ESTATE,
       provider: localProvider({ dir: join(work.dir, 'sandboxes') }),
       stateDir: join(work.dir, 'state'),
-      env: { FAKE_CALLS: calls, HOME: home.dir },
+      env: { ...FAKE_RECORDINGS, FAKE_CALLS: calls, HOME: home.dir },
       retries: { max: 3, backoffMs: 0 },
       pins: [MAP_HASH],
     });

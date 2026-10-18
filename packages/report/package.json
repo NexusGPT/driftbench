@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/report",
+  "name": "@agent-nexus/driftbench-report",
   "version": "0.1.0",
   "description": "Scorecards, run comparisons, spread views, HTML, text and JUnit output from a stored driftbench campaign.",
   "keywords": [
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/report"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22.13"
@@ -35,16 +35,21 @@
     }
   },
   "files": [
-    "dist"
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
+    "dist",
+    "fonts"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
-    "@driftbench/stats": "workspace:*",
-    "@driftbench/store": "workspace:*",
+    "@agent-nexus/driftbench-core": "workspace:*",
+    "@agent-nexus/driftbench-stats": "workspace:*",
     "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@agent-nexus/driftbench-store": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

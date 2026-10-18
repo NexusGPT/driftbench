@@ -6,7 +6,7 @@ One spec runs three ways, whether it describes a conversation or a task. Each mo
 |---|---|---|---|
 | T, teacher-forced | its canonical Given: the spec's own earlier blocks, as written | local competence: each block alone, with no earlier error carried in | built, phase 3 |
 | F, free-running | the agent's own earlier output, with the user turns scripted | compounding: one wrong block can poison the blocks after it | built, phase 1 |
-| P, perturbed | a free-running run with a deviation injected at a chosen block | recovery: whether the agent comes back, how fast, and at what cost | built, phase 3, with the perturbing driver; the simulated user is built as a library |
+| P, perturbed | a free-running run with a deviation injected at a chosen block | recovery: whether the agent comes back, how fast, and at what cost | built, phase 3, with the perturbing driver and simulated user |
 
 Run records carry the mode as `T`, `F` or `P`. `runSpec` runs all three, and a campaign plans and runs cells in any of them: `--mode T,F,P`. See [running](../running.md).
 
@@ -26,6 +26,17 @@ The end state of a T run is composed over the blocks. Each block's session is re
 
 An agent that reads its own earlier replies, such as a language model, sees blank assistant turns in a T prefix. A field for the canonical reply text is not in the spec format.
 
+What the agent sees of a canonical call depends on the adapter:
+
+* An adapter that hands the history to your code (`function`) passes each call as it is. A call whose tool the world does not force has no result; the Acme agent reads such a tool again from its store.
+* An adapter that sends the history to a model (anthropic, google, http, litellm, langgraph, openai-agents, pydantic-ai, vercel-ai) sends a call with the result or error the world forces. For a call with no result it never sends `null`: it sends this text as the call's result, so the model reads that the result is unknown, not that the tool returned nothing:
+
+  > Not recorded: this earlier call comes from a replayed conversation that states the call, with only the arguments it fixes, and not what it returned.
+
+  To give the agent a real result instead, force the tool's result or error in the spec's `world.tools`.
+  The same rule applies outside mode T to any history call with neither an output nor an error. An SDK adapter's own loop always records one of the two, so this happens only when an http endpoint answers with an Observed that holds a `tool_call` segment and no matching `tool_result`: the next request of that run carries the note.
+* The call's arguments are only the input fields the spec pins to an exact value. A field pinned with a pattern (`regex`, `contains`) is left out, so such a call goes out with fewer arguments, or none.
+
 ## Free-running
 
 One session runs the whole conversation. The user turns come from the spec; the agent's turns are its own, and each block inherits them. An early mistake stays in the context of every later block.
@@ -34,12 +45,12 @@ One session runs the whole conversation. The user turns come from the spec; the 
 
 A free-running run with one deviation injected before a chosen block. Recovery metrics are on. See [recovery](recovery.md).
 
-The driver that injects the deviation is the perturbing driver of `@driftbench/users` (`createPerturbingDriver`). It wraps another driver (the scripted driver by default) and injects one deviation once, before block `inject_at`: a perturbation the spec declares, one written out, or one of the ten classes drawn from a red-team pack by class, position and seed (`driftbench perturb`). `campaign run` uses it for every P cell. `injectingDriver` of `@driftbench/core` keeps the same rule for a spec's own perturbations, from code:
+The driver that injects the deviation is the perturbing driver of `@agent-nexus/driftbench-users` (`createPerturbingDriver`). It wraps another driver (the scripted driver by default) and injects one deviation once, before block `inject_at`: a perturbation the spec declares, one written out, or one of the ten classes drawn from a red-team pack by class, position and seed (`driftbench perturb`). `campaign run` uses it for every P cell. `injectingDriver` of `@agent-nexus/driftbench-core` keeps the same rule for a spec's own perturbations, from code:
 
 * A perturbation that writes `user` or `burst` is a block of its own, sent before block `inject_at`. The run has one block more than the spec.
 * A perturbation that writes only a `world`, such as a tool forced to fail, runs under its own block: the injected block sends block `inject_at`'s own stimulus with the perturbation's world and expectations, and stands in for that block. The base driver resumes at the block after it, so the run has as many blocks as the spec.
 
-The simulated user of `@driftbench/users` (`createSimulatedUser`) writes the user turns with a model, from a persona and a goal; it is used from code, and no command drives it yet.
+The simulated user of `@agent-nexus/driftbench-users` (`createSimulatedUser`) writes the user turns with a model, from a persona and a goal. `driftbench simulate` runs one spec with a persona, and `campaign run --driver simulated` uses it across campaign cells.
 
 In mode P the spec's end state describes the unperturbed run, so it is neither read nor compared.
 
@@ -47,11 +58,11 @@ In mode P the spec's end state describes the unperturbed run, so it is neither r
 
 Run the same spec in T and in F mode. The compounding index is the T pass rate minus the F pass rate, over the spec blocks both modes ran. High T with low F means the agent is right block by block and fragile across the succession. Only F shows it.
 
-`compoundingIndex(runs, { interval })` of `@driftbench/core` computes it per spec and target:
+`compoundingIndex(runs, { interval })` of `@agent-nexus/driftbench-core` computes it per spec and target:
 
 * A block's pass rate in a mode is the share of the mode's runs, among those that reached the block, where the block passed. Blocks a driver injected are left out; runs in mode P are ignored.
 * The index of a spec is the mean, over the shared blocks, of the T rate minus the F rate.
-* The interval function is passed in. `campaign status --detail` passes the clustered bootstrap of `@driftbench/stats`: the block is the resampling unit within a spec, and the spec is the unit across the campaign. A campaign with one spec gets no interval on its overall index: one spec is one cluster.
+* The interval function is passed in. `campaign status --detail` passes the clustered bootstrap of `@agent-nexus/driftbench-stats`: the block is the resampling unit within a spec, and the spec is the unit across the campaign. A campaign with one spec gets no interval on its overall index: one spec is one cluster.
 
 The Acme agent is deterministic and right in every block, so its index is 0 on every spec (see the output under [running](../running.md#campaign-status---detail)). The same command on a copy of the Acme agent that loses the thread once it has written three replies of its own, the agent of the CLI's own `--detail` test, prints this table for `acme-plan-upgrade` in T, F and P:
 
@@ -71,6 +82,7 @@ T passes all five blocks: each starts from the canonical prefix, whose assistant
   ```
   $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --mode T,F,P
   Campaign c-2764042aa240: 3 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+  Not judged: 2 criteria in 3 blocks of 1 spec (sheet_matches_catalog, reports_what_it_did), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
   ✓ acme-price-sheet · process:acme-ops · T · repeat 0  pass  2 blocks
   ✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
   ✓ acme-price-sheet · process:acme-ops · P · repeat 0 · instruction-in-notes  pass  2 blocks
@@ -88,7 +100,7 @@ These parts of the runner serve every mode. They are described on the [running](
 
 * Repeats: a campaign runs each spec several times. One run proves nothing; [statistics](statistics.md) turns repeats into claims.
 * Cache: an observed block is reused when the spec's content hash, the repeat, the block's position, its whole resolved Given, its stimulus, the target and the adapter's version are the same. The spec's `version` is a free label and plays no part. A run replays only when every block and end-state read is in the cache. A run on an adapter that makes sandboxes is never cached.
-* Budget: a hard stop on spend over a campaign; no cell starts once the spend reaches it. Stopping a spec early when its first two free-running repeats both fail a gating machine check is planned, with no phase assigned yet.
+* Budget: a hard stop on spend over a campaign; no cell starts once the spend reaches it. `runCampaign({ earlyStop: true })` stops a spec early: once repeats 0 and 1 of a spec in mode F both fail a gating machine check, its later F repeats are not run. They come back as `stopped` with `earlyStop: { after: 2 }`, and no run is stored for them. A spec that passes repeat 0 or 1 runs every repeat. The command line has no flag for it yet.
 * Determinism: `driftbench smoke` runs a spec several times, three by default, with the cache off and reports whether the transcripts differ.
 * Resume: `campaign resume` reuses the completed runs of a stored campaign and runs the rest.
 * Retries: transport errors are retried with backoff. A run the agent fails is recorded as failed, never skipped.

@@ -1,0 +1,75 @@
+{
+  "page": "examples/acme/reports/acme-faults.html",
+  "sha256": "ed68ef93f90e4727a5dbf2ebb053b8a04b6a85d45a2ca9c0d0a76e843f3b0108",
+  "width": 2360,
+  "themes": {
+    "dark": {
+      "height": 3808,
+      "stats": [
+        {
+          "label": "Cases passing",
+          "value": "12of 26",
+          "note": "46.2% · baseline 26 of 26"
+        },
+        {
+          "label": "Runs passing",
+          "value": "36of 78",
+          "note": "46.2% · 42 failed · 0 did not complete"
+        },
+        {
+          "label": "Cases regressed vs baseline",
+          "value": "14of 26",
+          "note": "0 improved · McNemar p = 0.0001"
+        }
+      ],
+      "modes": [
+        {
+          "mode": "Teacher-forced",
+          "value": "57.1%"
+        },
+        {
+          "mode": "Free-running",
+          "value": "57.1%"
+        },
+        {
+          "mode": "Perturbed",
+          "value": "33.3%"
+        }
+      ]
+    },
+    "light": {
+      "height": 3808,
+      "stats": [
+        {
+          "label": "Cases passing",
+          "value": "12of 26",
+          "note": "46.2% · baseline 26 of 26"
+        },
+        {
+          "label": "Runs passing",
+          "value": "36of 78",
+          "note": "46.2% · 42 failed · 0 did not complete"
+        },
+        {
+          "label": "Cases regressed vs baseline",
+          "value": "14of 26",
+          "note": "0 improved · McNemar p = 0.0001"
+        }
+      ],
+      "modes": [
+        {
+          "mode": "Teacher-forced",
+          "value": "57.1%"
+        },
+        {
+          "mode": "Free-running",
+          "value": "57.1%"
+        },
+        {
+          "mode": "Perturbed",
+          "value": "33.3%"
+        }
+      ]
+    }
+  }
+}

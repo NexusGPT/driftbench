@@ -1,0 +1,110 @@
+[
+  {
+    "votes": ["pass", "pass", "pass"],
+    "outcome": "pass"
+  },
+  {
+    "votes": ["pass", "pass", "fail"],
+    "outcome": "pass"
+  },
+  {
+    "votes": ["pass", "pass", "inconclusive"],
+    "outcome": "pass"
+  },
+  {
+    "votes": ["pass", "fail", "pass"],
+    "outcome": "pass"
+  },
+  {
+    "votes": ["pass", "fail", "fail"],
+    "outcome": "fail"
+  },
+  {
+    "votes": ["pass", "fail", "inconclusive"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["pass", "inconclusive", "pass"],
+    "outcome": "pass"
+  },
+  {
+    "votes": ["pass", "inconclusive", "fail"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["pass", "inconclusive", "inconclusive"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["fail", "pass", "pass"],
+    "outcome": "pass"
+  },
+  {
+    "votes": ["fail", "pass", "fail"],
+    "outcome": "fail"
+  },
+  {
+    "votes": ["fail", "pass", "inconclusive"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["fail", "fail", "pass"],
+    "outcome": "fail"
+  },
+  {
+    "votes": ["fail", "fail", "fail"],
+    "outcome": "fail"
+  },
+  {
+    "votes": ["fail", "fail", "inconclusive"],
+    "outcome": "fail"
+  },
+  {
+    "votes": ["fail", "inconclusive", "pass"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["fail", "inconclusive", "fail"],
+    "outcome": "fail"
+  },
+  {
+    "votes": ["fail", "inconclusive", "inconclusive"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["inconclusive", "pass", "pass"],
+    "outcome": "pass"
+  },
+  {
+    "votes": ["inconclusive", "pass", "fail"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["inconclusive", "pass", "inconclusive"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["inconclusive", "fail", "pass"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["inconclusive", "fail", "fail"],
+    "outcome": "fail"
+  },
+  {
+    "votes": ["inconclusive", "fail", "inconclusive"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["inconclusive", "inconclusive", "pass"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["inconclusive", "inconclusive", "fail"],
+    "outcome": "inconclusive"
+  },
+  {
+    "votes": ["inconclusive", "inconclusive", "inconclusive"],
+    "outcome": "inconclusive"
+  }
+]

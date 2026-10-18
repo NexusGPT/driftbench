@@ -1,4 +1,4 @@
-# @driftbench/stats
+# @agent-nexus/driftbench-stats
 
 Statistics for agent evaluation: intervals, reliability, paired tests, multiple comparisons, power, non-inferiority, drift, agreement and variance components.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install @driftbench/stats
+npm install @agent-nexus/driftbench-stats
 ```
 
 Node.js 22 or newer. ESM only, with TypeScript types.
@@ -32,4 +32,4 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## License
 
-Apache-2.0
+MIT

@@ -1,4 +1,4 @@
-import { type Assertion, DeviationClass } from '@driftbench/core';
+import { type Assertion, DeviationClass } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import type { AcmeAgent } from '../src/agent';
 import { createStore } from '../src/store';

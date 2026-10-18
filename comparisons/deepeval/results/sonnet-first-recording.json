@@ -1,0 +1,711 @@
+{
+  "model": "sonnet",
+  "sets": ["knowledge2"],
+  "cost_usd": 0.6715,
+  "calls": 200,
+  "replays": 0,
+  "fails": 0,
+  "seconds": 245,
+  "rows": [
+    {
+      "set": "knowledge2",
+      "id": "K023",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K062",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K002",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K032",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K048",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K084",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K060",
+      "label": "forget",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K077",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K029",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K003",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K099",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K065",
+      "label": "forget",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K004",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K000",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K063",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K019",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K097",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K033",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K025",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K039",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K031",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K043",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K066",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K009",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K093",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K006",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K072",
+      "label": "forget",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K021",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K030",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K074",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K089",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K013",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K055",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K007",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K056",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K090",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K026",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K014",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K078",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K076",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K086",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K067",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K071",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K081",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K012",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K022",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K040",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K016",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K010",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K073",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K042",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K020",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K017",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K053",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K034",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K038",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K054",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K095",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K028",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K047",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K080",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K027",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K035",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K052",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K049",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K061",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K059",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K044",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K092",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K041",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K085",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K064",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K015",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K045",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K008",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K037",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K058",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K005",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K024",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K075",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K068",
+      "label": "forget",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K057",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K001",
+      "label": "keep",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K091",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K098",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K050",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K011",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K088",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K087",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K082",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K079",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K094",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K069",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K051",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K018",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K070",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K083",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K046",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K036",
+      "label": "keep",
+      "ours": "pass",
+      "deepeval_kr": "keep"
+    },
+    {
+      "set": "knowledge2",
+      "id": "K096",
+      "label": "forget",
+      "ours": "fail",
+      "deepeval_kr": "forget"
+    }
+  ]
+}

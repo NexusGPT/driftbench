@@ -1,0 +1,737 @@
+{
+  "analysis": "item unit; missing verdict wrong; exact two-sided binomial; Holm over five peers per contestant; alpha 0.05",
+  "selection": "post-review question-overlap exclusion, independent of labels and verdicts; not a new preregistration",
+  "indexSha256": "d2316e12d9032a196fa3c11788da301ba105f46a875c3184d5030c6352b6e665",
+  "decisionSha256": {
+    "driftbench-v5": "381e62e7cd8ddde8325a079ad98c4b2781d8c570ca5bd07cd537b3d5e3c26b34",
+    "promptfoo": "aecf22752f2cf1fecd411bfa81768efcdd3bf125d000e7c91b3762beaf76c33f",
+    "deepeval": "c78e9facf54fff42ced4d30ecf756aa5a1818ddd327c773bee2002c9f6ca8b5a",
+    "inspect": "909ede6ff51f92a0769c9d6af67681f4c8313ae0fa662433068e09742bcca777",
+    "langfuse": "2579fd041faf6b9f633f0ace87afbd5bcf3903623f5a2bf3a73d6316b0543ec8",
+    "langwatch": "5e3fb4928145bc0d5a1859f2bf6eabbb3dfd6ae7f842f6b71aedab2dcb7028d0"
+  },
+  "primary": {
+    "driftbench-v5": {
+      "own": {
+        "contestant": "driftbench-v5",
+        "correct": 422,
+        "n": 536,
+        "missing": 0
+      },
+      "peers": [
+        {
+          "peer": "promptfoo",
+          "correct": 412,
+          "wins": 40,
+          "losses": 30,
+          "p": 0.2819789217936561,
+          "missing": 1,
+          "holm": 0.2819789217936561,
+          "verdict": "tie"
+        },
+        {
+          "peer": "deepeval",
+          "correct": 323,
+          "wins": 113,
+          "losses": 14,
+          "p": 2.0723909491809205e-20,
+          "missing": 40,
+          "holm": 1.0361954745904602e-19,
+          "verdict": "win"
+        },
+        {
+          "peer": "inspect",
+          "correct": 410,
+          "wins": 32,
+          "losses": 20,
+          "p": 0.12634707581392135,
+          "missing": 0,
+          "holm": 0.2526941516278427,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langfuse",
+          "correct": 406,
+          "wins": 39,
+          "losses": 23,
+          "p": 0.05589722669971113,
+          "missing": 0,
+          "holm": 0.16769168009913338,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langwatch",
+          "correct": 403,
+          "wins": 41,
+          "losses": 22,
+          "p": 0.022574972673257185,
+          "missing": 1,
+          "holm": 0.09029989069302874,
+          "verdict": "tie"
+        }
+      ]
+    },
+    "promptfoo": {
+      "own": {
+        "contestant": "promptfoo",
+        "correct": 412,
+        "n": 536,
+        "missing": 1
+      },
+      "peers": [
+        {
+          "peer": "driftbench-v5",
+          "correct": 422,
+          "wins": 30,
+          "losses": 40,
+          "p": 0.2819789217936561,
+          "missing": 0,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "deepeval",
+          "correct": 323,
+          "wins": 110,
+          "losses": 21,
+          "p": 9.43200455562353e-16,
+          "missing": 40,
+          "holm": 4.716002277811765e-15,
+          "verdict": "win"
+        },
+        {
+          "peer": "inspect",
+          "correct": 410,
+          "wins": 24,
+          "losses": 22,
+          "p": 0.8829959121223965,
+          "missing": 0,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langfuse",
+          "correct": 406,
+          "wins": 32,
+          "losses": 26,
+          "p": 0.5118423084381689,
+          "missing": 0,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langwatch",
+          "correct": 403,
+          "wins": 31,
+          "losses": 22,
+          "p": 0.27167916606550335,
+          "missing": 1,
+          "holm": 1.0,
+          "verdict": "tie"
+        }
+      ]
+    },
+    "deepeval": {
+      "own": {
+        "contestant": "deepeval",
+        "correct": 323,
+        "n": 536,
+        "missing": 40
+      },
+      "peers": [
+        {
+          "peer": "driftbench-v5",
+          "correct": 422,
+          "wins": 14,
+          "losses": 113,
+          "p": 2.0723909491809205e-20,
+          "missing": 0,
+          "holm": 1.0361954745904602e-19,
+          "verdict": "loss"
+        },
+        {
+          "peer": "promptfoo",
+          "correct": 412,
+          "wins": 21,
+          "losses": 110,
+          "p": 9.43200455562353e-16,
+          "missing": 1,
+          "holm": 2.8296013666870593e-15,
+          "verdict": "loss"
+        },
+        {
+          "peer": "inspect",
+          "correct": 410,
+          "wins": 18,
+          "losses": 105,
+          "p": 3.964170474749823e-16,
+          "missing": 0,
+          "holm": 1.5856681898999292e-15,
+          "verdict": "loss"
+        },
+        {
+          "peer": "langfuse",
+          "correct": 406,
+          "wins": 24,
+          "losses": 107,
+          "p": 1.0474024386382981e-13,
+          "missing": 0,
+          "holm": 2.0948048772765961e-13,
+          "verdict": "loss"
+        },
+        {
+          "peer": "langwatch",
+          "correct": 403,
+          "wins": 25,
+          "losses": 105,
+          "p": 7.380343677887176e-13,
+          "missing": 1,
+          "holm": 7.380343677887176e-13,
+          "verdict": "loss"
+        }
+      ]
+    },
+    "inspect": {
+      "own": {
+        "contestant": "inspect",
+        "correct": 410,
+        "n": 536,
+        "missing": 0
+      },
+      "peers": [
+        {
+          "peer": "driftbench-v5",
+          "correct": 422,
+          "wins": 20,
+          "losses": 32,
+          "p": 0.12634707581392135,
+          "missing": 0,
+          "holm": 0.5053883032556854,
+          "verdict": "tie"
+        },
+        {
+          "peer": "promptfoo",
+          "correct": 412,
+          "wins": 22,
+          "losses": 24,
+          "p": 0.8829959121223965,
+          "missing": 1,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "deepeval",
+          "correct": 323,
+          "wins": 105,
+          "losses": 18,
+          "p": 3.964170474749823e-16,
+          "missing": 40,
+          "holm": 1.9820852373749114e-15,
+          "verdict": "win"
+        },
+        {
+          "peer": "langfuse",
+          "correct": 406,
+          "wins": 23,
+          "losses": 19,
+          "p": 0.6439689563703723,
+          "missing": 0,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langwatch",
+          "correct": 403,
+          "wins": 24,
+          "losses": 17,
+          "p": 0.34888887944907765,
+          "missing": 1,
+          "holm": 1.0,
+          "verdict": "tie"
+        }
+      ]
+    },
+    "langfuse": {
+      "own": {
+        "contestant": "langfuse",
+        "correct": 406,
+        "n": 536,
+        "missing": 0
+      },
+      "peers": [
+        {
+          "peer": "driftbench-v5",
+          "correct": 422,
+          "wins": 23,
+          "losses": 39,
+          "p": 0.05589722669971113,
+          "missing": 0,
+          "holm": 0.22358890679884452,
+          "verdict": "tie"
+        },
+        {
+          "peer": "promptfoo",
+          "correct": 412,
+          "wins": 26,
+          "losses": 32,
+          "p": 0.5118423084381689,
+          "missing": 1,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "deepeval",
+          "correct": 323,
+          "wins": 107,
+          "losses": 24,
+          "p": 1.0474024386382981e-13,
+          "missing": 40,
+          "holm": 5.23701219319149e-13,
+          "verdict": "win"
+        },
+        {
+          "peer": "inspect",
+          "correct": 410,
+          "wins": 19,
+          "losses": 23,
+          "p": 0.6439689563703723,
+          "missing": 0,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langwatch",
+          "correct": 403,
+          "wins": 25,
+          "losses": 22,
+          "p": 0.7708669945730264,
+          "missing": 1,
+          "holm": 1.0,
+          "verdict": "tie"
+        }
+      ]
+    },
+    "langwatch": {
+      "own": {
+        "contestant": "langwatch",
+        "correct": 403,
+        "n": 536,
+        "missing": 1
+      },
+      "peers": [
+        {
+          "peer": "driftbench-v5",
+          "correct": 422,
+          "wins": 22,
+          "losses": 41,
+          "p": 0.022574972673257185,
+          "missing": 0,
+          "holm": 0.09029989069302874,
+          "verdict": "tie"
+        },
+        {
+          "peer": "promptfoo",
+          "correct": 412,
+          "wins": 22,
+          "losses": 31,
+          "p": 0.27167916606550335,
+          "missing": 1,
+          "holm": 0.8150374981965101,
+          "verdict": "tie"
+        },
+        {
+          "peer": "deepeval",
+          "correct": 323,
+          "wins": 105,
+          "losses": 25,
+          "p": 7.380343677887176e-13,
+          "missing": 40,
+          "holm": 3.690171838943588e-12,
+          "verdict": "win"
+        },
+        {
+          "peer": "inspect",
+          "correct": 410,
+          "wins": 17,
+          "losses": 24,
+          "p": 0.34888887944907765,
+          "missing": 0,
+          "holm": 0.8150374981965101,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langfuse",
+          "correct": 406,
+          "wins": 22,
+          "losses": 25,
+          "p": 0.7708669945730264,
+          "missing": 0,
+          "holm": 0.8150374981965101,
+          "verdict": "tie"
+        }
+      ]
+    }
+  },
+  "sensitivity": {
+    "driftbench-v5": {
+      "own": {
+        "contestant": "driftbench-v5",
+        "correct": 429,
+        "n": 544,
+        "missing": 0
+      },
+      "peers": [
+        {
+          "peer": "promptfoo",
+          "correct": 420,
+          "wins": 40,
+          "losses": 31,
+          "p": 0.3424709984198679,
+          "missing": 1,
+          "holm": 0.3424709984198679,
+          "verdict": "tie"
+        },
+        {
+          "peer": "deepeval",
+          "correct": 331,
+          "wins": 113,
+          "losses": 15,
+          "p": 8.930153081103964e-20,
+          "missing": 40,
+          "holm": 4.465076540551982e-19,
+          "verdict": "win"
+        },
+        {
+          "peer": "inspect",
+          "correct": 418,
+          "wins": 32,
+          "losses": 21,
+          "p": 0.16897782228771874,
+          "missing": 0,
+          "holm": 0.3379556445754375,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langfuse",
+          "correct": 413,
+          "wins": 40,
+          "losses": 24,
+          "p": 0.05994118956699923,
+          "missing": 0,
+          "holm": 0.1798235687009977,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langwatch",
+          "correct": 409,
+          "wins": 42,
+          "losses": 22,
+          "p": 0.01685819004428113,
+          "missing": 1,
+          "holm": 0.06743276017712452,
+          "verdict": "tie"
+        }
+      ]
+    },
+    "promptfoo": {
+      "own": {
+        "contestant": "promptfoo",
+        "correct": 420,
+        "n": 544,
+        "missing": 1
+      },
+      "peers": [
+        {
+          "peer": "driftbench-v5",
+          "correct": 429,
+          "wins": 31,
+          "losses": 40,
+          "p": 0.3424709984198679,
+          "missing": 0,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "deepeval",
+          "correct": 331,
+          "wins": 110,
+          "losses": 21,
+          "p": 9.43200455562353e-16,
+          "missing": 40,
+          "holm": 4.716002277811765e-15,
+          "verdict": "win"
+        },
+        {
+          "peer": "inspect",
+          "correct": 418,
+          "wins": 24,
+          "losses": 22,
+          "p": 0.8829959121223965,
+          "missing": 0,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langfuse",
+          "correct": 413,
+          "wins": 33,
+          "losses": 26,
+          "p": 0.4349928051221534,
+          "missing": 0,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langwatch",
+          "correct": 409,
+          "wins": 33,
+          "losses": 22,
+          "p": 0.17700136477035816,
+          "missing": 1,
+          "holm": 0.7080054590814326,
+          "verdict": "tie"
+        }
+      ]
+    },
+    "deepeval": {
+      "own": {
+        "contestant": "deepeval",
+        "correct": 331,
+        "n": 544,
+        "missing": 40
+      },
+      "peers": [
+        {
+          "peer": "driftbench-v5",
+          "correct": 429,
+          "wins": 15,
+          "losses": 113,
+          "p": 8.930153081103964e-20,
+          "missing": 0,
+          "holm": 4.465076540551982e-19,
+          "verdict": "loss"
+        },
+        {
+          "peer": "promptfoo",
+          "correct": 420,
+          "wins": 21,
+          "losses": 110,
+          "p": 9.43200455562353e-16,
+          "missing": 1,
+          "holm": 2.8296013666870593e-15,
+          "verdict": "loss"
+        },
+        {
+          "peer": "inspect",
+          "correct": 418,
+          "wins": 18,
+          "losses": 105,
+          "p": 3.964170474749823e-16,
+          "missing": 0,
+          "holm": 1.5856681898999292e-15,
+          "verdict": "loss"
+        },
+        {
+          "peer": "langfuse",
+          "correct": 413,
+          "wins": 25,
+          "losses": 107,
+          "p": 2.7976456925235367e-13,
+          "missing": 0,
+          "holm": 5.595291385047073e-13,
+          "verdict": "loss"
+        },
+        {
+          "peer": "langwatch",
+          "correct": 409,
+          "wins": 27,
+          "losses": 105,
+          "p": 4.65686863837048e-12,
+          "missing": 1,
+          "holm": 4.65686863837048e-12,
+          "verdict": "loss"
+        }
+      ]
+    },
+    "inspect": {
+      "own": {
+        "contestant": "inspect",
+        "correct": 418,
+        "n": 544,
+        "missing": 0
+      },
+      "peers": [
+        {
+          "peer": "driftbench-v5",
+          "correct": 429,
+          "wins": 21,
+          "losses": 32,
+          "p": 0.16897782228771874,
+          "missing": 0,
+          "holm": 0.675911289150875,
+          "verdict": "tie"
+        },
+        {
+          "peer": "promptfoo",
+          "correct": 420,
+          "wins": 22,
+          "losses": 24,
+          "p": 0.8829959121223965,
+          "missing": 1,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "deepeval",
+          "correct": 331,
+          "wins": 105,
+          "losses": 18,
+          "p": 3.964170474749823e-16,
+          "missing": 40,
+          "holm": 1.9820852373749114e-15,
+          "verdict": "win"
+        },
+        {
+          "peer": "langfuse",
+          "correct": 413,
+          "wins": 24,
+          "losses": 19,
+          "p": 0.542384011856484,
+          "missing": 0,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langwatch",
+          "correct": 409,
+          "wins": 26,
+          "losses": 17,
+          "p": 0.2220528201560228,
+          "missing": 1,
+          "holm": 0.675911289150875,
+          "verdict": "tie"
+        }
+      ]
+    },
+    "langfuse": {
+      "own": {
+        "contestant": "langfuse",
+        "correct": 413,
+        "n": 544,
+        "missing": 0
+      },
+      "peers": [
+        {
+          "peer": "driftbench-v5",
+          "correct": 429,
+          "wins": 24,
+          "losses": 40,
+          "p": 0.05994118956699923,
+          "missing": 0,
+          "holm": 0.23976475826799692,
+          "verdict": "tie"
+        },
+        {
+          "peer": "promptfoo",
+          "correct": 420,
+          "wins": 26,
+          "losses": 33,
+          "p": 0.4349928051221534,
+          "missing": 1,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "deepeval",
+          "correct": 331,
+          "wins": 107,
+          "losses": 25,
+          "p": 2.7976456925235367e-13,
+          "missing": 40,
+          "holm": 1.3988228462617684e-12,
+          "verdict": "win"
+        },
+        {
+          "peer": "inspect",
+          "correct": 418,
+          "wins": 19,
+          "losses": 24,
+          "p": 0.542384011856484,
+          "missing": 0,
+          "holm": 1.0,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langwatch",
+          "correct": 409,
+          "wins": 26,
+          "losses": 22,
+          "p": 0.6654658120766186,
+          "missing": 1,
+          "holm": 1.0,
+          "verdict": "tie"
+        }
+      ]
+    },
+    "langwatch": {
+      "own": {
+        "contestant": "langwatch",
+        "correct": 409,
+        "n": 544,
+        "missing": 1
+      },
+      "peers": [
+        {
+          "peer": "driftbench-v5",
+          "correct": 429,
+          "wins": 22,
+          "losses": 42,
+          "p": 0.01685819004428113,
+          "missing": 0,
+          "holm": 0.06743276017712452,
+          "verdict": "tie"
+        },
+        {
+          "peer": "promptfoo",
+          "correct": 420,
+          "wins": 22,
+          "losses": 33,
+          "p": 0.17700136477035816,
+          "missing": 1,
+          "holm": 0.5310040943110745,
+          "verdict": "tie"
+        },
+        {
+          "peer": "deepeval",
+          "correct": 331,
+          "wins": 105,
+          "losses": 27,
+          "p": 4.65686863837048e-12,
+          "missing": 40,
+          "holm": 2.32843431918524e-11,
+          "verdict": "win"
+        },
+        {
+          "peer": "inspect",
+          "correct": 418,
+          "wins": 17,
+          "losses": 26,
+          "p": 0.2220528201560228,
+          "missing": 0,
+          "holm": 0.5310040943110745,
+          "verdict": "tie"
+        },
+        {
+          "peer": "langfuse",
+          "correct": 413,
+          "wins": 22,
+          "losses": 26,
+          "p": 0.6654658120766186,
+          "missing": 0,
+          "holm": 0.6654658120766186,
+          "verdict": "tie"
+        }
+      ]
+    }
+  }
+}

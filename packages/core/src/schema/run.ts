@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { DriftClass, Message, TargetRef, WorldState } from './common';
+import { DriftClass, GivenOrigin, Message, TargetRef, WorldState } from './common';
+import { BlockProvenance, CampaignProvenance, RejudgedFrom, RunProvenance } from './provenance';
 
 /**
  * Run records written by the runner. Keys are camelCase. A run is one spec, on one target, in one
@@ -9,12 +10,21 @@ import { DriftClass, Message, TargetRef, WorldState } from './common';
 export const RunMode = z.enum(['T', 'F', 'P']);
 export type RunMode = z.infer<typeof RunMode>;
 
-export const Outcome = z.enum(['pass', 'fail', 'inconclusive']);
+/** `not_applicable`: a check whose subject the run never produced (a stage check with no stage record). */
+export const Outcome = z.enum(['pass', 'fail', 'inconclusive', 'not_applicable']);
 export type Outcome = z.infer<typeof Outcome>;
 
 /** The fully resolved initial conditions of a block. */
 export const ResolvedGiven = z.strictObject({
   prefix: z.array(Message),
+  /** The origin of the latest prefix, when the spec states one; it is hashed only when present. */
+  origin: GivenOrigin.optional(),
+  /**
+   * With `origin`: how many of the first prefix messages the origin covers, the ones the spec wrote. Messages
+   * after them (a run's own turns, a teacher-forced replay's canonical turns) are not covered. Outside the
+   * Given hash; inside the block cache key, which reads the whole resolved Given.
+   */
+  originLength: z.number().int().nonnegative().optional(),
   ledger: z.record(z.string(), z.unknown()),
   world: WorldState,
   vars: z.record(z.string(), z.unknown()),
@@ -25,6 +35,8 @@ export type ResolvedGiven = z.infer<typeof ResolvedGiven>;
 
 export const ToolCall = z.strictObject({
   id: z.string().optional(),
+  /** The trace span the call ran in, when the adapter has one (an OpenTelemetry span id). */
+  spanId: z.string().optional(),
   label: z.string().min(1),
   input: z.unknown(),
   output: z.unknown().optional(),
@@ -35,6 +47,10 @@ export const ToolCall = z.strictObject({
 export type ToolCall = z.infer<typeof ToolCall>;
 
 export const Cost = z.strictObject({
+  /** Exact pricing key; otherwise the runner uses target.options.model. */
+  model: z.string().min(1).optional(),
+  /** Cache reads, included in inputTokens (not additional input tokens). */
+  cachedInputTokens: z.number().int().nonnegative().optional(),
   usd: z.number().nonnegative().optional(),
   inputTokens: z.number().int().nonnegative().optional(),
   outputTokens: z.number().int().nonnegative().optional(),
@@ -101,6 +117,16 @@ export const ExecutionRecord = z.strictObject({
   startedAt: z.string().optional(),
   latencyMs: z.number().nonnegative().optional(),
   truncated: z.boolean().optional(),
+  /** The approval policy's decision on this command and its cwd. Absent when no policy is set. */
+  approval: z
+    .strictObject({
+      decision: z.enum(['allow', 'deny']),
+      by: z.enum(['rule', 'default', 'approver', 'no-approver']),
+      match: z.enum(['command', 'path']),
+      subject: z.string(),
+      pattern: z.string().optional(),
+    })
+    .optional(),
 });
 export type ExecutionRecord = z.infer<typeof ExecutionRecord>;
 
@@ -111,11 +137,36 @@ export type ExecutionRecord = z.infer<typeof ExecutionRecord>;
 export const RuntimeTrace = z.strictObject({
   skills: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
   guards: z
-    .array(z.strictObject({ name: z.string(), verdict: z.string(), at: z.string().optional() }))
+    .array(
+      z.strictObject({
+        name: z.string(),
+        verdict: z.string(),
+        at: z.string().optional(),
+        /** What the guard printed and how it ended, when the runtime reports its output. */
+        stdout: z.string().optional(),
+        stderr: z.string().optional(),
+        exitCode: z.number().int().optional(),
+        /** The runtime's own word for how the run ended: success, blocking, cancelled, no_response. */
+        outcome: z.string().optional(),
+      }),
+    )
     .optional(),
-  stages: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
+  stages: z
+    .array(
+      z.strictObject({
+        name: z.string(),
+        at: z.string().optional(),
+        carried: z
+          .boolean()
+          .optional()
+          .describe('True marks a stage carried into this block, not reported during it.'),
+      }),
+    )
+    .optional(),
   /** Files the agent read during the block, by path. Absent when the runtime does not report them. */
   references: z.array(z.strictObject({ path: z.string(), at: z.string().optional() })).optional(),
+  /** Why the model stopped, such as stop or length. Absent when the runtime does not report it. */
+  finishReason: z.string().optional(),
   /** The tools the runtime offered the agent in the block, by name. Absent when the runtime does not report them. */
   offered: z.array(z.string()).optional(),
   /** Helpers the agent dispatched during the block. Absent when the runtime does not report them. */
@@ -139,6 +190,26 @@ export const RetryEvent = z.strictObject({
 });
 export type RetryEvent = z.infer<typeof RetryEvent>;
 
+/** A history turn a wire serializer omits because its text is empty. */
+export const HistoryNormalization = z.strictObject({
+  wire: z
+    .string()
+    .min(1)
+    .describe('The adapter wire that normalizes the history, such as anthropic or google.'),
+  historyIndex: z
+    .number()
+    .int()
+    .nonnegative()
+    .describe('Zero-based index in the session history sent for this block, including system messages.'),
+  role: z
+    .enum(['system', 'user', 'assistant', 'tool'])
+    .describe('The original role of the omitted text-only turn.'),
+  kind: z
+    .literal('omitted-empty-turn')
+    .describe('An empty text-only turn is absent from the model input; no placeholder text replaces it.'),
+});
+export type HistoryNormalization = z.infer<typeof HistoryNormalization>;
+
 /** Everything observed in one block. */
 export const Observed = z.strictObject({
   segments: z.array(Segment),
@@ -156,6 +227,8 @@ export const Observed = z.strictObject({
   latencyMs: z.number().nonnegative(),
   /** Every retry the block's calls took, the adapter's own and the runner's, in order. Absent when none. */
   retries: z.array(RetryEvent).optional(),
+  /** Wire differences, absent when no empty text-only turn was omitted. */
+  historyNormalizations: z.array(HistoryNormalization).optional(),
   raw: z.unknown().optional(),
 });
 export type Observed = z.infer<typeof Observed>;
@@ -163,6 +236,8 @@ export type Observed = z.infer<typeof Observed>;
 export const Vote = z.strictObject({
   judge: z.string().min(1),
   outcome: Outcome,
+  /** The explicitly named candidate on a pairwise request. A tie differs from missing evidence. */
+  winner: z.enum(['A', 'B', 'tie', 'inconclusive']).optional(),
   score: z.number().optional(),
   reasoning: z.string().optional(),
   /** Every retry the judge's call took. Absent when none. */
@@ -183,18 +258,87 @@ export const Verdict = z.strictObject({
 });
 export type Verdict = z.infer<typeof Verdict>;
 
-export const BlockResult = z.strictObject({
-  index: z.number().int().min(0),
-  blockId: z.string().optional(),
-  injected: z.boolean().optional(),
-  givenHash: z.string().min(1),
-  observed: Observed,
-  verdicts: z.array(Verdict),
-  stageObserved: z.string().optional(),
-  ledgerCheck: z.strictObject({ ok: z.boolean(), contradictions: z.array(z.string()) }),
-  drift: z.array(DriftClass),
-  pass: z.boolean(),
+/** Provenance of a copy whose realized text was removed by its destination's privacy policy. */
+const RealizedTextStripped = z.strictObject({
+  fromRun: z.string().min(1),
+  fromCampaign: z.string().min(1).optional(),
 });
+/**
+ * A block's verdict. `pass` and `fail` are measurements. `not_run`: the block was never sent, because its
+ * Given could not be applied (a layer the adapter cannot apply, an unmet or failed setup). `blocked`: an
+ * ancestor the block depends on failed, so the block was not run. Neither is a pass or a fail.
+ */
+export const BlockStatus = z.enum(['pass', 'fail', 'not_run', 'blocked']);
+export type BlockStatus = z.infer<typeof BlockStatus>;
+
+/** Why a block was not run: the check that refused its Given, on which layer, what it expected and what it got. */
+export const NotRun = z.strictObject({
+  /** given_unmet: the Given is wrong; unsupported: the adapter cannot apply a layer; setup_failed: setup broke. */
+  kind: z.enum(['given_unmet', 'unsupported', 'setup_failed']),
+  layer: z.string().min(1),
+  check: z.string().min(1),
+  expected: z.string(),
+  got: z.string(),
+});
+export type NotRun = z.infer<typeof NotRun>;
+
+/** Why a block was blocked: the ancestor that failed (`by`) and the earliest failing ancestor (`root`). */
+export const Blocked = z.strictObject({
+  by: z.string().min(1),
+  root: z.string().min(1),
+  reason: z.string().optional(),
+});
+export type Blocked = z.infer<typeof Blocked>;
+
+export const BlockResult = z
+  .strictObject({
+    realizedTextStripped: RealizedTextStripped.optional(),
+    provenance: BlockProvenance.optional(),
+    carried: z.lazy(() => CarriedFrom.extend({ measuredAt: z.string().optional() })).optional(),
+    rejudged: RejudgedFrom.optional(),
+    index: z.number().int().min(0),
+    blockId: z.string().optional(),
+    parent: z.string().optional(),
+    /** Authored index when parent scheduling changes execution order. */
+    specIndex: z.number().int().min(0).optional(),
+    injected: z.boolean().optional(),
+    /**
+     * Present when the text the driver sent differs from the text the spec block wrote (a simulated user, a
+     * red-team attacker). The sent text is the user messages the agent received, joined by newlines; `hash`
+     * is its SHA-256 (of its canonical JSON). `text` holds it only when the run asked for it
+     * (`recordRealizedText`): what a driver writes may be private, so by default only the hash is kept. Only
+     * the text is compared; a change of form alone (the same text as an injection) is in `injected`. Absent
+     * means the authored text was sent. The provenance digest covers it.
+     */
+    realized: z
+      .strictObject({ hash: z.string().regex(/^[0-9a-f]{64}$/), text: z.string().optional() })
+      .optional(),
+    givenHash: z.string().min(1),
+    /** The key the block's observed record is cached under: what a replay looked up. */
+    cacheKey: z.string().min(1).optional(),
+    observed: Observed,
+    verdicts: z.array(Verdict),
+    stageObserved: z.string().optional(),
+    ledgerCheck: z.strictObject({ ok: z.boolean(), contradictions: z.array(z.string()) }),
+    drift: z.array(DriftClass),
+    /** False on a not_run or blocked block: an old reader never counts one as a pass. */
+    pass: z.boolean(),
+    /** Written only on a not_run or blocked block; absent, the status is pass or fail as `pass` says. */
+    status: BlockStatus.optional(),
+    notRun: NotRun.optional(),
+    blocked: Blocked.optional(),
+  })
+  .superRefine((block, context) => {
+    // A record that says two things is refused: `status` pass needs `pass` true; fail, not_run and blocked need
+    // it false. A missing status is the runner's normal form for a pass or a fail.
+    if (block.status !== undefined && block.pass !== (block.status === 'pass')) {
+      context.addIssue({
+        code: 'custom',
+        path: ['status'],
+        message: `status ${block.status} contradicts pass ${block.pass}: ${block.status === 'pass' ? 'a passing block has pass true' : 'a block that did not pass has pass false'}`,
+      });
+    }
+  });
 export type BlockResult = z.infer<typeof BlockResult>;
 
 export const Succession = z.strictObject({
@@ -214,7 +358,83 @@ export const Recovery = z.strictObject({
   clarified: z.boolean().optional(),
 });
 
+/**
+ * What the runner reports as a run goes, in order. A model call carries its tokens, cost and latency when the adapter
+ * gives them; its start is the reply time less its latency.
+ */
+export const RunEvent = z.discriminatedUnion('type', [
+  z.strictObject({ type: z.literal('block_start'), index: z.number().int().min(0), at: z.string().min(1) }),
+  z.strictObject({
+    type: z.literal('model_call'),
+    index: z.number().int().min(0),
+    inputTokens: z.number().int().nonnegative().optional(),
+    outputTokens: z.number().int().nonnegative().optional(),
+    usd: z.number().nonnegative().optional(),
+    latencyMs: z.number().nonnegative().optional(),
+    startedAt: z.string().min(1),
+    at: z.string().min(1),
+  }),
+  z.strictObject({
+    type: z.literal('tool_call'),
+    index: z.number().int().min(0),
+    label: z.string().min(1),
+    spanId: z.string().optional(),
+    error: z.string().optional(),
+    at: z.string().min(1),
+  }),
+  z.strictObject({ type: z.literal('retry'), index: z.number().int().min(0), at: z.string().min(1) }),
+  z.strictObject({
+    type: z.literal('block_end'),
+    index: z.number().int().min(0),
+    pass: z.boolean(),
+    /** Set on a not_run or blocked block. */
+    status: BlockStatus.optional(),
+    at: z.string().min(1),
+  }),
+  z.strictObject({
+    type: z.literal('run_end'),
+    status: z.enum(['completed', 'failed', 'stopped']),
+    at: z.string().min(1),
+  }),
+]);
+export type RunEvent = z.infer<typeof RunEvent>;
+
+/**
+ * Where a carried run comes from. A campaign that runs the blast radius of a change copies the stored run
+ * of every cell outside the radius: the copy is the baseline result, not a new measurement.
+ */
+export const CarriedFrom = z.strictObject({
+  /** The campaign that ran the cell fresh, however many campaigns carried it since. */
+  fromCampaign: z.string().min(1),
+  /** The run id of that fresh run. */
+  fromRun: z.string().min(1),
+  /** The agent version that produced the result, when the fresh run named one. */
+  agentVersion: z.string().min(1).optional(),
+  age: z.strictObject({
+    /** Consecutive campaigns that carried the result: 1 on its first carry. */
+    campaigns: z.number().int().min(1),
+    /** Days between the end of the fresh run and the start of the campaign that carries it. */
+    days: z.number().nonnegative(),
+  }),
+});
+export type CarriedFrom = z.infer<typeof CarriedFrom>;
+
 export const RunResult = z.strictObject({
+  realizedTextStripped: RealizedTextStripped.optional(),
+  provenance: RunProvenance.optional(),
+  blockRerun: z
+    .strictObject({
+      selected: z.array(z.number().int().nonnegative()),
+      downstreamNotRerun: z.array(z.number().int().nonnegative()),
+      reason: z.string(),
+    })
+    .optional(),
+  rejudged: RejudgedFrom.optional(),
+  /** Integrity of the run stamp and every block stamp, including the resolved Given hash. */
+  provenanceDigest: z
+    .string()
+    .regex(/^[0-9a-f]{64}$/)
+    .optional(),
   runId: z.string().min(1),
   specId: z.string().min(1),
   specHash: z.string().min(1),
@@ -223,6 +443,8 @@ export const RunResult = z.strictObject({
   repeat: z.number().int().min(0),
   perturbationId: z.string().optional(),
   status: z.enum(['completed', 'failed', 'stopped']),
+  /** The driver or spec's end verdict. Inconclusive means the run could not be judged. */
+  endVerdict: z.enum(['success', 'failure', 'inconclusive']).optional(),
   error: z.string().optional(),
   blocks: z.array(BlockResult),
   succession: Succession,
@@ -233,11 +455,20 @@ export const RunResult = z.strictObject({
       diff: z.array(z.strictObject({ field: z.string(), expected: z.unknown(), observed: z.unknown() })),
     })
     .optional(),
+  /**
+   * The end state the adapter returned for `endState`, as the checks saw it (null when its source recorded
+   * nothing). Absent when no end state was read, and in runs stored before this field existed.
+   */
+  endStateValue: z.unknown().optional(),
   cost: z.number().nonnegative(),
   latencyMs: z.number().nonnegative(),
   startedAt: z.string().min(1),
   finishedAt: z.string().min(1),
   cacheHit: z.boolean(),
+  /** The events the run reported, in order, when the run recorded them. Absent otherwise. */
+  events: z.array(RunEvent).optional(),
+  /** Set on a run carried from an earlier campaign: no agent ran for it in this campaign. Absent on a fresh run. */
+  carried: CarriedFrom.optional(),
 });
 export type RunResult = z.infer<typeof RunResult>;
 
@@ -256,8 +487,51 @@ export const RegistrySource = z.strictObject({
 });
 export type RegistrySource = z.infer<typeof RegistrySource>;
 
+/** What a radius campaign ran fresh and what it carried, and from where. */
+export const CampaignRadius = z.strictObject({
+  /** The content hash of the change manifest. */
+  manifest: z.string().min(1),
+  /** The agent versions the manifest goes from and to. */
+  fromVersion: z.string().min(1),
+  toVersion: z.string().min(1),
+  /** The changes of the manifest, as the radius prints them. */
+  changes: z.array(z.string()),
+  /** The campaign the carried runs were read from. */
+  from: z.string().min(1),
+  /** Set when the radius was the whole suite, with the reason. */
+  whole: z.strictObject({ change: z.string(), reason: z.string() }).optional(),
+  /** Cells run fresh, cells carried, and cells outside the radius (carried, or refused and run fresh). */
+  fresh: z.number().int().min(0),
+  carried: z.number().int().min(0),
+  outside: z.number().int().min(0),
+  /** Why cells outside the radius ran fresh all the same, with how many. */
+  refused: z.array(z.strictObject({ reason: z.string().min(1), cells: z.number().int().min(1) })),
+  /**
+   * The audit sample, when one was asked for: cells about to be carried, run fresh and compared with the
+   * stored run. One miss fails closed: the campaign then carried nothing.
+   */
+  audit: z
+    .strictObject({
+      sampled: z.number().int().min(0),
+      misses: z.number().int().min(0),
+      seed: z.number().int(),
+      /** The cells whose fresh run disagreed with the stored one, with what differed. */
+      missed: z.array(
+        z.strictObject({
+          specId: z.string().min(1),
+          cellId: z.string().min(1),
+          differing: z.array(z.string()),
+        }),
+      ),
+    })
+    .optional(),
+});
+export type CampaignRadius = z.infer<typeof CampaignRadius>;
+
 /** A campaign pins spec versions, targets, modes and repeats. A re-run is a new campaign. */
 export const Campaign = z.strictObject({
+  provenance: CampaignProvenance.optional(),
+  rejudged: z.array(RejudgedFrom).optional(),
   campaignId: z.string().min(1),
   specs: z
     .array(
@@ -279,7 +553,11 @@ export const Campaign = z.strictObject({
   budgetUsd: z.number().nonnegative(),
   judge: JudgeConfig,
   createdAt: z.string().min(1),
+  /** The explicit agent version used by the block cache, retained when the campaign resumes. */
+  agentVersion: z.string().optional(),
   /** The registry versions the campaign ran: the dataset its specs came from, the prompts it pinned. */
   sources: z.array(RegistrySource).optional(),
+  /** Set when the campaign ran the blast radius of a change and carried the rest. Absent on a full campaign. */
+  radius: CampaignRadius.optional(),
 });
 export type Campaign = z.infer<typeof Campaign>;

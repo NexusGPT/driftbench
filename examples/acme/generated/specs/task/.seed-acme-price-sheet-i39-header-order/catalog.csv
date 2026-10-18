@@ -1,0 +1,6 @@
+category,name,monthly_usd,plan_id,allowance
+mobile,Acme Mobile 1,46,mobile-1,20 GB
+home,Acme Home 1,95,home-1,1000 Mbps
+mobile,Acme Mobile 2,62,mobile-2,5 GB
+home,Acme Home 2,30,home-2,1000 Mbps
+mobile,Acme Mobile 3,37,mobile-3,unlimited

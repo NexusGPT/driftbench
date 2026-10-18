@@ -4,7 +4,7 @@ import {
   collectRetries,
   type Message,
   type Session,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { WireNames } from '../src/anthropic/common';
 import { GOOGLE_NAME, toGoogleContents } from '../src/google/contents';
@@ -54,6 +54,40 @@ function scripted(...answers: { parts: unknown[]; finishReason?: string; usageMe
 }
 
 describe('google adapter', () => {
+  it('validates and freezes messages before the tools factory receives the Given', async () => {
+    let called = 0;
+    const adapter = googleAdapter({
+      client: fakeGoogle(),
+      model: MODEL,
+      tools: (start) => {
+        called++;
+        const message = start.prefix[0];
+        if (!message) throw new Error('missing prefix');
+        expect(() => {
+          message.content = 'setup-mutated';
+        }).toThrow(TypeError);
+        return [];
+      },
+    });
+    const session = await adapter.open({ ...given, prefix: [{ role: 'user', content: 'before' }] });
+    expect(session.history[0]?.content).toBe('before');
+    await adapter.close(session);
+    await expect(
+      adapter.open({
+        ...given,
+        prefix: [
+          {
+            role: 'user',
+            get content() {
+              return 'before';
+            },
+          },
+        ],
+      }),
+    ).rejects.toThrow(/content.*accessor/);
+    expect(called).toBe(1);
+  });
+
   it('replays a recorded exchange: the contents, instruction and declarations the real SDK sent, and the whole turn', async () => {
     const client = recordedGoogle(recorded.exchanges.map((exchange) => exchange.response));
     const adapter = googleAdapter({ client, model: MODEL, system: SYSTEM, tools: () => acmeTools().tools });

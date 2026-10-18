@@ -1,5 +1,10 @@
 import { readFileSync } from 'node:fs';
-import { AdapterTransportError, AgentFailure, type Message, type Session } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  type Message,
+  type Session,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { ToolLabels } from '../src/anthropic/common';
 import { PYDANTIC_AI_BRIDGE } from '../src/pydantic-ai/bridge-source';

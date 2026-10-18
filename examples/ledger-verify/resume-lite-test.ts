@@ -1,0 +1,33 @@
+/** Runtime continuation: retain every completed item, including returned parse failures. */
+import assert from 'node:assert/strict';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {pathToFileURL} from 'node:url';
+const base=resolve('examples/ledger-verify/lite'),source=resolve('examples/judge-benchmarks/src');
+const generated=resolve(base,'cache/test-continuation');await mkdir(generated,{recursive:true});
+const model='gemini-3.5-flash-lite';
+const prior=JSON.parse(await readFile(resolve(base,'results',`${model}.pre-test-network-recovery.json`),'utf8'));
+const first=new Map();
+for(const c of prior.contestants)for(const d of c.decisions)if(!d.missing)first.set(c.contestant+'|'+d.id,d);
+assert.equal(first.size,117);
+const entries=(await readFile(resolve(base,'recordings/flash-lite-medium-20261013/test/longjudge-verify',`${model}.jsonl`),'utf8')).trim().split('\n').filter(Boolean).map(JSON.parse);
+(globalThis as any).__testContinuation={first,entries};
+const mapImports=(s:string,callPath?:string)=>s.replace(/from '\.\/([^']+)'/g,(_all,name)=>`from '${callPath&&name==='call'?callPath:resolve(source,name)}'`);
+let call=await readFile(resolve(source,'call.ts'),'utf8');
+const hit='      const hit = recordings.get(key);';assert.equal(call.split(hit).length,2);
+call=call.replace(hit,`      const ctx=(globalThis as any).__testContinuation;
+      const own=ctx.entries.filter((r:any)=>r.key===key&&r.item===labels.item&&r.contestant===labels.contestant&&r.order===labels.order).at(-1);
+      const hit=own??recordings.get(key);`);
+await writeFile(resolve(generated,'call.ts'),mapImports(call));
+let run=await readFile(resolve(source,'run.ts'),'utf8');
+const anchor="        const r = await point(item, item.response, 'single');";assert.equal(run.split(anchor).length,2);
+run=run.replace(anchor,`        const first=(globalThis as any).__testContinuation.first.get(contestant.id+'|'+item.id);
+        if(first){const {id,correct,responseChars,missing,...decision}=first;return {item,decision,missing};}
+${anchor}`);
+await writeFile(resolve(generated,'run.ts'),mapImports(run,resolve(generated,'call')));
+let runner=await readFile(resolve('examples/ledger-verify/lite-run.ts'),'utf8');
+runner=runner.replace("from '../judge-benchmarks/src/run'",`from '${resolve(generated,'run')}'`);
+runner=runner.replace(/from '\.\.\/judge-benchmarks\/src\/([^']+)'/g,(_all,name)=>`from '${resolve(source,name)}'`);
+await writeFile(resolve(generated,'runner.ts'),runner);
+process.argv=[process.argv[0]!,process.argv[1]!,model,'--resume-interrupted',...(process.argv.includes('--replay-only')?['--replay-only']:[])];
+await import(pathToFileURL(resolve(generated,'runner.ts')).href);

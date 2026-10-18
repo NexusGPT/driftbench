@@ -1,20 +1,189 @@
 /**
- * @driftbench/adapters: the agent adapters (function, http, nexus, process, claude-code, the SDK adapters for
+ * @agent-nexus/driftbench-adapters: the agent adapters (function, http, nexus, process, claude-code, the SDK adapters for
  * OpenAI Agents, Anthropic, Google and LangGraph, and the framework adapters for CrewAI, the Vercel AI SDK,
  * Pydantic AI and LiteLLM) and the contract suite every adapter passes.
  */
-export const packageName = '@driftbench/adapters';
-export * from './anthropic';
-export * from './claude-code';
-export * from './crewai';
-export * from './function';
-export * from './google';
-export * from './http';
-export * from './langgraph';
-export * from './litellm';
-export * from './nexus';
-export * from './openai-agents';
-export * from './process';
-export * from './pydantic-ai';
-export * from './traces';
-export * from './vercel-ai';
+export const packageName = '@agent-nexus/driftbench-adapters';
+export {
+  ANTHROPIC_ADAPTER_VERSION,
+  type AnthropicAdapterOptions,
+  type AnthropicClientLike,
+  type AnthropicCreateParams,
+  type AnthropicMessage,
+  type AnthropicMessageParam,
+  anthropicAdapter,
+  type SdkTool,
+  type SdkTools,
+  type ToolContext,
+} from './anthropic';
+export {
+  applySessionOps,
+  type BlockMeta,
+  CLAUDE_CODE_LIVE_VERSION,
+  CLAUDE_CODE_REPLAY_VERSION,
+  type ClaudeCodeLiveOptions,
+  claudeCodeLiveAdapter,
+  DEFAULT_ESTATE_FILES,
+  type DecisionRow,
+  decisionRow,
+  diffTrees,
+  fitRecords,
+  type HookRow,
+  hookDecisions,
+  isOverloaded,
+  type JsonlLine,
+  type KeptRecord,
+  type LiveOp,
+  loadedByRuntime,
+  loadStateLibrary,
+  type Marker,
+  mapSession,
+  type NormaliseInput,
+  NotATranscriptError,
+  normaliseStream,
+  type OrderedPair,
+  type OutsideWrite,
+  OWNER_CONFIG_ENTRIES,
+  opsForTurn,
+  orderedCheck,
+  type ParsedStream,
+  parseJsonl,
+  parseStream,
+  projectFolderName,
+  type ReplayAdapterOptions,
+  type ReplayBlock,
+  type ReplayRaw,
+  type ReplaySession,
+  RUNTIME_FLAGS,
+  readSession,
+  readSessionRecords,
+  replayAdapter,
+  type SessionFile,
+  type SessionInput,
+  type SessionMeta,
+  type SessionPaths,
+  type SessionRecord,
+  type StateLibrary,
+  type StepRow,
+  type StreamResult,
+  sessionFileText,
+  stepRow,
+  type Tree,
+  treeOf,
+} from './claude-code';
+export {
+  CREWAI_ADAPTER_VERSION,
+  type CrewaiAdapterOptions,
+  type CrewaiHttpOptions,
+  type CrewaiProcessOptions,
+  type CrewRun,
+  type CrewToolUse,
+  type CrewTransport,
+  crewaiAdapter,
+  crewaiHttp,
+  crewaiInputs,
+  crewaiProcess,
+} from './crewai';
+export {
+  type AgentContext,
+  type AgentFunction,
+  FUNCTION_ADAPTER_VERSION,
+  type FunctionAdapterOptions,
+  functionAdapter,
+  type ToolPayload,
+} from './function';
+export {
+  GOOGLE_ADAPTER_VERSION,
+  type GoogleAdapterOptions,
+  type GoogleClientLike,
+  type GoogleContent,
+  type GoogleGenerateParams,
+  type GoogleGenerateResponse,
+  type GooglePart,
+  googleAdapter,
+} from './google';
+export {
+  type ChatMessage,
+  type ChatToolCall,
+  type FetchLike,
+  HTTP_ADAPTER_VERSION,
+  type HttpAdapterOptions,
+  type HttpTurnRequest,
+  httpAdapter,
+} from './http';
+export {
+  type GraphConfigLike,
+  type GraphLike,
+  type GraphMessageLike,
+  LANGGRAPH_ADAPTER_VERSION,
+  type LangChainMessageLike,
+  type LanggraphAdapterOptions,
+  langgraphAdapter,
+} from './langgraph';
+export {
+  type ChatCompletionParams,
+  LITELLM_ADAPTER_VERSION,
+  type LitellmAdapterOptions,
+  litellmAdapter,
+  type OpenAIChatClientLike,
+} from './litellm';
+export { NEXUS_ADAPTER_VERSION, type NexusAdapterOptions, nexusAdapter } from './nexus';
+export {
+  type AgentInputItemLike,
+  type GuardrailResultLike,
+  OPENAI_AGENTS_ADAPTER_VERSION,
+  type OpenAIAgentsAdapterOptions,
+  openaiAgentsAdapter,
+  type RunItemLike,
+  type RunnerLike,
+  type RunOptionsLike,
+  type RunResultLike,
+} from './openai-agents';
+export {
+  type ProcessAdapter,
+  type ProcessAdapterOptions,
+  processAdapter,
+  processProtocolFiles,
+  STIMULUS_FILE_PLACEHOLDER,
+} from './process';
+export {
+  PYDANTIC_AI_ADAPTER_VERSION,
+  type PydanticAiAdapterOptions,
+  pydanticAiAdapter,
+  pydanticSegments,
+  toPydanticMessages,
+} from './pydantic-ai';
+export { runtimeLoaded } from './runtimes';
+export {
+  anyValue,
+  nexusEntries,
+  type OtelSpan,
+  type PriceTable,
+  parseOtlp,
+  priced,
+  type ReadTraces,
+  type Rollup,
+  readTraces,
+  readTracesText,
+  rollUp,
+  type SubtreeTotals,
+  TRACE_SOURCES,
+  type Trace,
+  type TraceObservation,
+  type TraceSource,
+  type TraceTurn,
+  traceFromClaudeCode,
+  tracesFromNexus,
+  tracesFromNexusEntries,
+  tracesFromOtel,
+} from './traces';
+export {
+  type GenerateTextLike,
+  type ModelMessageLike,
+  type StepLike,
+  toModelMessages,
+  VERCEL_AI_ADAPTER_VERSION,
+  type VercelAiAdapterOptions,
+  type VercelToolLike,
+  vercelAiAdapter,
+} from './vercel-ai';

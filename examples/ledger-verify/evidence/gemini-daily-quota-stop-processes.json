@@ -1,0 +1,33 @@
+{
+  "runner": {
+    "pid": 25881,
+    "at": "2026-10-13T10:48:06.008Z"
+  },
+  "descendants": [
+    {
+      "pid": 25881,
+      "ppid": 25863,
+      "command": "/opt/homebrew/Cellar/node@24/24.18.0/bin/node"
+    },
+    {
+      "pid": 33959,
+      "ppid": 25881,
+      "command": "node"
+    },
+    {
+      "pid": 34000,
+      "ppid": 33959,
+      "command": "/opt/homebrew/Cellar/node@24/24.18.0/bin/node"
+    },
+    {
+      "pid": 35923,
+      "ppid": 25881,
+      "command": "node"
+    },
+    {
+      "pid": 35958,
+      "ppid": 35923,
+      "command": "/opt/homebrew/Cellar/node@24/24.18.0/bin/node"
+    }
+  ]
+}

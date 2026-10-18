@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-13T07:08:21.416842+00:00",
+  "sourceDirectoryUrl": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized",
+  "sourceFile": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/verify_bench_hard.jsonl",
+  "sourceGitBlob": "15b83decfa254612b6812151c5f07eacb9d2e236",
+  "sourceSha256": "92f7a99e91ee8067d5397042e2104b0e82deaa81fcffcb66a70eac614f7c20af",
+  "sourceItems": 316,
+  "testItems": 221,
+  "devItems": 95,
+  "exposure": "previously evaluated split",
+  "unseenItems": 0,
+  "alternateVerifyFiles": [],
+  "referenceFileIsNotAnIndependentPool": true,
+  "corrections": 23,
+  "normalizedPopulationSha256": "dd608c4e8c79051fae172fbd5a272889f927bec4b364a3d2d15c8e847906f2e3",
+  "frozenCascade": "558d75de017ecbf243852f5669a1bffeb8d511b9",
+  "frozenSourceHead": "f13242f29ad0ced947907a84ffbb19abaa32f190",
+  "sourceHashes": {
+    "examples/judge-benchmarks/src/verify-domain.ts": "269cdce5bf8e12154741f4b9c07466653219130821fe5b97d633e1cdb99f85c9",
+    "examples/judge-benchmarks/src/score.ts": "6edd315117e69756cb0705e4335dfb7675805374a1d3aee357ac477123f6e827",
+    "examples/judge-benchmarks/src/data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
+    "examples/judge-benchmarks/src/call.ts": "d8a69d68ab0fbf54e0dd9696878037706305b1ae9b28e04e94ccf42225a855af",
+    "examples/judge-benchmarks/src/verify.ts": "bfa07110400973fbce2e93752c0a88ed192bb2a37142d59197ae7e8a8d1cf35d",
+    "examples/judge-benchmarks/src/verify-tools.py": "92b52ba7027a6970b2c734dc3652472db7a80d34962f5dbd0655ba6d4f4ae045",
+    "examples/judge-benchmarks/src/verify-tools.ts": "b6ddaae7e150fc3ad18872e23e25ddb7613ea5ac03c46bfe3a8270783db35c23",
+    "examples/judge-benchmarks/src/verify-extraction.ts": "f1f2717b7815f9aa44da283e3360e5c87b42be63d6b17d0012f2f86a79d76cce",
+    "examples/judge-benchmarks/src/verify-dossier.ts": "33dcafaf06990eb37cb1e4502d35d033c00fc00fb201ebf9ef1fb54835b5dafb",
+    "examples/judge-benchmarks/src/contestants.ts": "7f6c6e9a3ab8b7f6ff49ce5b032fce1bfd6c8d5e04e1c949444d0110d040f43a",
+    "examples/judge-benchmarks/src/run.ts": "41d295290938673a96c796be95391ef2a6b1b71039145d3a18cfcc77507dfed0",
+    "examples/judge-benchmarks/src/extras.ts": "ecfffad279bbe7a99e95a5761a18a577dbf9fad1122cd35777418c97dd9f54fa"
+  },
+  "evidenceHashes": {
+    "pool.json": "f569c72a5e701366d232b619a623c09abddcf69cfc4379e849dbdef76b9559c5",
+    "dev.json": "c3b0847f6bb584781fd39ee81afb2cd8cc6a704f431a2fecac85c3d20fe5848e",
+    "audit-map.json": "3de476f85d4ce54ed88260f62d4ccab8c0fad36cddf50c1e74e2035055541eb6",
+    "upstream-test-label-audit.json": "bb292c36cb01d843bb7af52c4654045dac9ae3eed2c8e64181f007d613d78efb",
+    "upstream-listing.json": "4276169f08d9b719a8a1f5db9b795935772abfb7c5024c570c5bed5bd1121541",
+    "recorded-id-union.json": "79708e954ba2e0a9d41aaec17b715155ab25eb5da01895312c9284a3c44a7d6b",
+    "recording-inventory.json": "579179f3679438e96ce124f661b521dcd6bc9f0cf125658d693bb9c8f0d052c5"
+  },
+  "budgetUsd": 25,
+  "concurrency": 6,
+  "models": [
+    "haiku",
+    "gpt-6-luna"
+  ],
+  "gemini": "pending: billing blocked",
+  "paidGate": "Pushed research/pair-ledger-core contract and PR named in dossier-ledger-core.md"
+}

@@ -2,9 +2,9 @@
 
 An adapter connects driftbench to the agent under test. The runner, the checks and the judges never call an agent directly; they go through an adapter. The core package imports no vendor SDK, and Nexus is one adapter among others.
 
-The contract lives in `packages/core/src/contracts/adapter.ts`. Every adapter ships in `@driftbench/adapters`. The function, http, nexus and process adapters (phase 1) and the openai-agents, anthropic, google and langgraph adapters (release phase) each pass the contract suite. The Claude Code adapter replays a recorded session, with no model call.
+The contract lives in `packages/core/src/contracts/adapter.ts`. Every adapter ships in `@agent-nexus/driftbench-adapters`. The function, http, nexus and process adapters (phase 1) and the openai-agents, anthropic, google and langgraph adapters (release phase) each pass the contract suite. The Claude Code adapter replays a recorded session, with no model call.
 
-`@driftbench/adapters` imports no vendor SDK either. The four SDK adapters take the vendor's client, runner or graph from you, and `@driftbench/adapters` declares `@openai/agents`, `@anthropic-ai/sdk`, `@google/genai` and `@langchain/langgraph` as optional peer dependencies, with the versions the shapes were proven against.
+`@agent-nexus/driftbench-adapters` imports no vendor SDK either. The four SDK adapters take the vendor's client, runner or graph from you, and `@agent-nexus/driftbench-adapters` declares `@openai/agents`, `@anthropic-ai/sdk`, `@google/genai` and `@langchain/langgraph` as optional peer dependencies, with the versions the shapes were proven against.
 
 ## The contract
 
@@ -50,9 +50,25 @@ type Turn = {
 
 ## The history belongs to the runner
 
-`session.history` holds the messages so far. The runner appends the block's user message, or every message of a burst, before `send`, and the agent's reply after it: the text, and each tool call with its output or error. At send time the history ends with the current user turn. An adapter reads the history and never appends to it.
+`session.history` holds the messages so far. The runner appends the block's user message, or every message of a burst, before `send`, and the agent's reply after it: the text, and each tool call with its output or error. At send time the history ends with the current user turn. An adapter reads the history and never appends to it or changes a message.
 
-A session's history starts as a copy of the prefix, whatever the adapter can do with it. The `seedPrefix` capability says whether the agent itself sees the prefix.
+A session's history starts as a fresh array of the prefix's shared, deeply frozen messages, whatever the adapter can do with it. The runner freezes each message once when it enters history, including nested content, tool calls and metadata. Adapters must copy a message before changing it; a write to a received message throws in strict mode. Adapters also freeze messages from direct callers at `open` and `send`. A caller editing the same object afterwards gets a strict-mode error; copy before handing it over to retain an editable original. The `seedPrefix` capability says whether the agent itself sees the prefix.
+
+History must be an ordinary dense array of non-null plain message objects. Array subclasses, accessor entries, extra own properties, holes and `undefined` entries are rejected. Entries are captured once from data descriptors; validation and delivery use those same values. Messages and nested values must be plain JSON data: objects with `Object.prototype` or null prototype, ordinary dense arrays, strings, finite numbers, booleans and `null`. Properties must be enumerable string-keyed data properties; arrays have indexed entries only. Boundaries reject accessor properties, class instances, `Date`, `Map`, `Set`, typed arrays, functions, `undefined`, non-finite numbers, symbols, bigints and cycles with a path-specific `TypeError`. Convert special values explicitly and omit absent optional properties; the adapter never invokes getters or `toJSON` to convert them. Validation shares the once-per-message freeze cache. Adapters validate and freeze prefixes before invoking user-supplied setup factories, including tool, agent and context factories.
+
+### Tool history on the wire
+
+An adapter that sends the history to a model sends each recorded tool call as the wire's own tool records, never as text: Anthropic `tool_use` and `tool_result` blocks, Responses `function_call` and `function_call_result` items, Chat Completions `tool_calls` and `tool` messages, and the shapes of Gemini, LangGraph, Pydantic AI and the Vercel AI SDK. One compiler pairs every call of the history with its result before any adapter renders it (`anthropic`, `http`, `litellm`, `openai-agents`, `google`, `langgraph`, `pydantic-ai`, `vercel-ai`):
+
+* Every call goes with a result: its recorded output, its recorded error, or, when the history recorded neither, the value the adapter sends for an unrecorded result. A result follows its own call, in order.
+* The calls of one assistant turn have distinct ids, as every wire requires. A recorded id that repeats one of the same turn, after the wire's own character rules, gets a fresh id, so the result still answers its call; an id repeated in another turn is kept, which the wires accept. A call recorded with no id gets the adapter's fallback id, except on Gemini, whose ids are optional: there such a call goes without one, and Gemini pairs it by name and order.
+* A `tool` message that answers no call (a free tool note) goes as user text, also on Chat Completions, which refuses a `tool` message without its call.
+
+The crewai adapter takes the history as text inputs: the earlier turns as `role: text` lines, and the whole history, tool calls included, as one JSON string. With its default inputs, it refuses with an `AgentFailure` a Given whose prefix holds tool calls the spec states as a record (`given.origin: recorded` or `authored`): the crew's agents would read them as data in a text field, not as tool results, which is a different test (see [Given](../concepts/given-when-then.md#tool-history-records-not-prose)). The origin covers only the messages the spec wrote (`ResolvedGiven.originLength`): the canonical calls mode T adds after them, a canonical prefix and a prefix whose origin the spec does not state go to the crew as before. Pass `inputs` to hand the calls to the crew your own way.
+
+The write-error guarantee applies to shared host `Message` objects. SDK adapters can build separate wire representations, and processes receive serialized copies; writes to those independent copies need not throw and cannot change host history.
+
+Proxies are rejected. A Proxy history array, a Proxy message or a Proxy nested value fails with a path-specific `TypeError` before any setup factory runs; no `get` trap is called during the check.
 
 ## What `send` returns
 
@@ -62,6 +78,14 @@ The Observed of a block validates against the schema, and:
 * `toolCalls` lists the same calls in the same order, with the same input, output and error;
 * `text` is the text segments joined by a newline;
 * `cost` and `latencyMs` are present.
+
+## Optional observation assertions
+
+The shared checks apply `tools[].input_closed: true` and `expect.stage_reported: true` to every adapter. Adapters preserve all tool input keys in `toolCalls`; they never filter inputs to the keys a spec expects. Missing, null or malformed input is not evidence of an empty argument object.
+
+`stage_reported` reads only `observed.runtime.stages` for this block and excludes entries marked `carried: true`. The optional `carried` flag preserves an earlier stage for `expect.stage` without claiming a current-block report. Function and HTTP Observed replies can supply stages directly. The process adapter reads current-block runtime events, including stages written by Python `Reply.stage`. OpenAI Agents handoffs, CrewAI task results and Claude Code step-feed events supply their runtime stages. An adapter or turn with no stage report fails this assertion; the runner never creates a report from tool calls or history. The Python `run_specs` wrapper uses this same CLI runner and checks.
+
+Both assertions are optional. Omitted or false preserves the existing checks. See [the spec fields](../reference/spec.md#expect) and [check semantics](../reference/checks.md#stage-and-facts).
 
 ## End-state sources
 
@@ -76,7 +100,7 @@ Each adapter page says where the payloads come from.
 
 | Error | Means | The runner |
 |---|---|---|
-| `AdapterTransportError` | the transport failed: a 429, a 5xx, or a network error | retries the call under the [shared retry policy](../retries.md) (4 attempts, backoff from 500 ms with jitter, Retry-After honoured), records each retry in the block, then fails the run; one marked `exhausted` (the adapter already retried it) is not retried again |
+| `AdapterTransportError` | the transport failed: a 408, a 429, a 5xx, or a network error | retries the call under the [shared retry policy](../retries.md) (4 attempts, backoff from 500 ms with jitter, Retry-After honoured), records each retry in the block, then fails the run; one marked `exhausted` (the adapter already retried it) is not retried again |
 | `AgentFailure` | the agent itself failed: an error it threw, an answer that is not an Observed, a failing status | fails the run at once, with no retry |
 
 Any other error fails the run at once too. A failed run is recorded with status `failed` and the error; it is never skipped. See [running](../running.md).
@@ -86,7 +110,7 @@ Any other error fails the run at once too. A failed run is recorded with status 
 | Capability | The adapter can |
 |---|---|
 | `variants` | run a named variant of the agent, such as a prompt version |
-| `seedPrefix` | let the agent see a session's prefix, which teacher-forced mode needs |
+| `seedPrefix` | let the agent see a session's prefix, which teacher-forced mode needs. A built-in adapter that sends the prefix to a model sends a past call with no recorded result with a note saying so, never `null`; see [run modes](../concepts/run-modes.md#teacher-forced) |
 | `toolStubs` | force tool results and errors from `world.tools` |
 | `trace` | offer `trace` |
 | `sandbox` | run the agent in a sandboxed workspace, which task specs need; it then offers `readArtifact` |
@@ -96,7 +120,7 @@ Any other error fails the run at once too. A failed run is recorded with status 
 | Capability | function | http | nexus | process |
 |---|---|---|---|---|
 | `variants` | no | as declared | yes | no |
-| `seedPrefix` | yes | yes | no | no |
+| `seedPrefix` | yes | yes | no | yes: the history file |
 | `toolStubs` | yes | as declared | no | no |
 | `trace` | no | no | yes | no |
 | `sandbox` | no | no | no | yes |
@@ -125,18 +149,18 @@ Any other error fails the run at once too. A failed run is recorded with status 
 
 The four SDK adapters report tokens, never a cost in USD.
 
-The runner uses `trace` and `endState` today. It does not act on the others yet: a forced tool result in `world.tools` on an adapter without `toolStubs` is not applied, and a spec's `prefix` on an adapter without `seedPrefix` is not replayed to the agent.
+The runner uses `trace`, `endState`, `seedPrefix` and `toolStubs` today. A forced tool result in `world.tools` on an adapter without `toolStubs`, and a spec's `prefix` on an adapter without `seedPrefix`, give `not_run: unsupported`: the block is not sent, it is neither a pass nor a fail, and `ci` fails with exit 3 (see [running](../running.md)). The layer is never dropped silently.
 
 ## The contract suite
 
-`packages/adapters/test/contract.ts` exports `adapterContract(name, makeAdapter, options)`, the suite every adapter passes. `makeAdapter` builds a fresh adapter for each test. The suite plays the runner: it appends each user message before `send` and the reply after it.
+`@agent-nexus/driftbench-adapters/contract` exports `adapterContract(name, makeAdapter, options)`, the suite every adapter passes; its source is `packages/adapters/src/contract.ts`, and `packages/adapters/test/contract.ts` re-exports it for the adapters' own tests. `makeAdapter` builds a fresh adapter for each test. The suite plays the runner: it appends each user message before `send`, checks that the adapter freezes it, and appends a frozen reply afterwards.
 
 It runs in one of two modes. A chat adapter holds the conversation of the Acme Telecom example agent ([`examples/acme`](../../examples/acme/README.md)), tool calls and end states included. An adapter that runs a code agent in a sandbox names a `task` instead: a workspace, two instructions or more, and the file the first one produces. The suite then runs its generic tests on the task's blocks and skips the Acme ones, saying why.
 
 | Test | What it holds |
 |---|---|
 | names itself and declares every capability | `id` equals the name, `version` is set, the seven capabilities are booleans, and `trace`, `endState` and `readArtifact` exist when `trace`, `endState` and `sandbox` are declared |
-| opens a session for the Given | the session carries the adapter, the target and the Given, and its history is a copy of the prefix |
+| opens a session for the Given | the session carries the adapter, the target and the Given, and its history is a fresh array of the same frozen prefix messages |
 | sends a block and returns the whole turn | chat: the Observed follows the rules above, and the Acme agent's two tool calls and its reply all arrive |
 | sends a task block | task: the Observed follows the rules above, the workspace diff lists the produced file as created, the artifacts hold it, and `readArtifact` reads it back |
 | never appends to the history | `send` leaves the history as it was, and a second send on the same session carries it forward |
@@ -152,6 +176,25 @@ The function, http and nexus adapters, the four SDK adapters and the four framew
 ```sh
 pnpm vitest run packages/adapters
 ```
+
+
+### Run it on your own adapter
+
+The suite is a second entry of the adapters package, so a team proves its own adapter with the tests the built-in ones pass. It registers vitest tests: import it in a vitest test file. `vitest` (3 or later) and `@agent-nexus/driftbench-checks` are optional peers of the package, needed for this entry only.
+
+```ts
+// my-adapter.contract.test.ts
+import { adapterContract, createAcmeAgent, createStore } from '@agent-nexus/driftbench-adapters/contract';
+import { myAdapter } from './my-adapter';
+
+adapterContract('my-adapter', () => myAdapter({ agent: createAcmeAgent(createStore()) }), {
+  brokenTransport: () => myAdapter({ endpoint: 'http://127.0.0.1:1' }),
+});
+```
+
+In chat mode the adapter must reach the reference agent, the Acme Telecom sales assistant: the entry exports it as `createAcmeAgent(store)` and `createStore()`, so you put it behind your transport (a function, a local endpoint, a bridge) the way your adapter reaches a real agent. In task mode (`options.task`) no reference agent is needed. The entry also exports the helpers the built-in tests use: `acmeGiven`, `userTurn`, `sendUser`, `converse`, `replyMessage`, `expectWholeObserved`, and the conversation constants.
+
+[`examples/adapter-contract`](https://github.com/achammah/driftbench/tree/main/examples/adapter-contract) holds a hand-written adapter and the test that runs the suite on it: `pnpm vitest run examples/adapter-contract` reports 10 tests passed and 4 skipped (the capabilities it does not declare).
 
 ## The adapters
 
@@ -211,3 +254,7 @@ target:
 ```
 
 The command line reaches the Acme example agents: `function:acme-sales` (or `function:acme`), the sales assistant behind the function adapter, and `process:acme-ops`, the ops agent behind the process adapter. `driftbench pilot` adds its control agent, `function:acme-random`, and `driftbench replay` runs specs on the claude-code replay adapter. The other adapters are used from code. See [running](../running.md).
+
+## Exporting parent end state
+
+A parent-linked child is opened from the parent's recorded conversation, ledger, world and variables. If an adapter owns mutable world state, implement optional `snapshotGiven(session)` to return `{ world, vars }` after each block, and restore those values in `open(given)`. The function adapter exposes the same callback over its agent state; `create(given)` restores it. Snapshots must be JSON data. A sandbox must include its changed workspace. The process adapter implements the hook: its export carries the parent's files byte for byte, text in `world.workspace.files` and every other file (xlsx, docx, pdf, png) in `world.workspace.binary` as base64. A workspace past `exportMaxBytes` (default 50 MB in all) leaves the children `not_run: setup_failed` with the reason. `.git`, `node_modules`, empty folders and file modes do not carry, and a link inside the workspace arrives as a plain copy. See [parent blocks](../concepts/given-when-then.md#parent-blocks). An adapter with a sandbox and no hook leaves its children `not_run: unsupported`. Adapters without private mutable world state inherit the runner-managed Given and recorded history directly. See [parent blocks](../concepts/given-when-then.md#parent-blocks).

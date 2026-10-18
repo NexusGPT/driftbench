@@ -7,43 +7,67 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
+| 1 | 1 |
 <!-- level-table:end -->
+The stats validator is ladder version 2: 651 items in seven levels (four items for the clustered intervals of the suite headline, `simulation.hierarchical.*` and `simulation.wilson-effective.*`, were added later and pass on every seed tried; the counts below are those of the measured runs), each with threshold 1. The bank score is the share of items passing on every seed (seeds 1 to 20 and the hidden seed).
 
-No executor iteration has run yet, so the table is empty. The frame lane's own run (`pnpm driftbench validate stats --seeds 1..20 --hidden`, before the first executor) reached level 2 of 2 on seeds 1 to 20 and on the hidden seed.
+## State (executor exec/stats-v3, PR 107): final report
+
+* Final sweep (seeds 1 to 20 and the hidden seed) at commit 4867887a: 647 of 651 items pass on every seed (0.9939), level 3 on all 21 seeds. The row is in `bank-scores.jsonl` (iteration 41).
+* The four failing items are all chaoCoverage richness: `analytic.unseen.chao1-near.s20-even.x1.5`, `s40-tail5.x1.5`, `s80-tail10.x1.5` on every seed, and `s20-even.x3` on the hidden seed only. A maintainer is fixing them in a separate PR into main.
+* Iteration 41 (d0c14cbf) fixed `degenerate.bootstrapCI.equal`, which failed on seeds 11, 14, 17 and 19 in the earlier sweep.
+* Seed 1 went from 592 of 651 (iteration 30) to 648 in iterations 31 to 41 (647 on every seed). Causes fixed, one per iteration: varianceComponents names `observations`; cusum and pageHinkley name the option they refuse; non-finite and out-of-range scalars are named; special functions return the scipy limit at the domain edge; agreement, paired, ksTest, bootstrapCI and quantileSorted refusals name their argument; mean is exact on equal values and overflow safe; varianceComponents centres values before the sums of squares; hillNumber is continuous at q = 1; betaQuantile stops on relative width; neymanAllocation uses a heap; bootstrapCI is exact on equal values.
+
+## Validator item defects (for the maintainer)
+
+* `analytic.unseen.chao1-near.s20-even.x1.5`, `.s40-tail5.x1.5`, `.s80-tail10.x1.5` (3 items): they read `chaoCoverage(counts).chao1` and want it within 10 percent of the true class count at 1.5 draws per class. Chao1 is a lower bound and at that sample size it is far below the truth by construction. `packages/stats/test/reference/fixtures.json` pins `chao1` to the classic estimator (for example 13.851851851851851 for the counts [5,3,1,1,2,1,2,4,1,7]), so the reference level and these items cannot both pass with one `chao1` field. Fixing it needs a new field (for example `iChao1`) that the items read, or a changed fixture. Executor branches may not change either. Not attempted.
+* `neymanAllocation` reference fixture versus `analytic.allocation.neyman-optimal.*`: now resolved on this branch (integer optimum by greedy gain, all items pass on seed 1).
 
 ## Floor
 
-See `validators/floors.json`; `pnpm driftbench validate floors` prints it.
+See `validators/floors.json`; `pnpm driftbench validate floors` prints it. Ladder version 2 has no floor yet; the maintainer sets it.
 
 ## Open items
 
-None: levels 1 and 2 pass on seeds 1 to 20 and the hidden seed. Levels 3 to 6 of docs/validators.md section 7 are not built yet; the V6 lane adds them, and each new level's first failing items become the open items here.
+1. The seven missing methods are built. The remaining failing items are degenerate inputs, neymanAllocation (maintainer), numerical stability and chaoCoverage.
+2. Degenerate inputs (about 130 items): per function, a RangeError that names the argument, the scipy limit at the edge of the special functions, exact answers on one or all-equal values. A shared finiteness helper fixes many at once (say so in the journal).
+3. chaoCoverage richness (4 items, a maintainer fixes them in a separate PR). Everything else passes on every seed.
+4. `simulation.newcombe.n30` fails on one seed of 21 (pairedRateDifference coverage); not touched yet.
 
 ## Hypotheses tried
 
-None yet. Each entry: the hypothesis, the evidence, and why it was rejected.
+* A scaled percentile bootstrap (interval widened by t / z): coverage 0.898 at 6 x 5, short of 0.95. Rejected.
+* Student t interval on the spec rates: 0.889. Rejected.
+* Wilson on the effective runs with the t quantile: 0.972 and 0.950. Kept.
 
 ## Next actions
 
-1. Add level 3 (clustered bootstrap coverage at least 0.93 when blocks cluster, with the naive interval failing the same bar on the same data) as a new level after `wilson-coverage` in `packages/validators/src/ladders/stats.ts`, on a maintainer branch: the ladder is protected on `exec/` branches.
-2. Run `pnpm driftbench validate stats --seeds 1..20 --hidden` and record the level per seed with `--journal`.
-3. Raise the floor to 2 with `pnpm driftbench validate floors --raise stats 2 --evidence <run.json>` once a `--json` run on seeds 1 to 20 and the hidden seed reaches level 2 on every seed.
+1. Degenerate inputs, a few functions per iteration, test first in `packages/stats/test/`. Each item names the function and the argument its RangeError must name.
+2. Run the sweep one at a time: `pnpm -s driftbench validate stats --seeds 1..20 --hidden --items --json > out.json` from a copy of the tree (a sweep takes 30 to 50 minutes at a load of 140).
+3. Build the journal row from the json (`bank` block) and append it with `pnpm -s driftbench validate stats --journal row.json`.
 
 ## Pitfalls
 
-* Level 2 has a narrow margin. Over seeds 1 to 100, the lowest of the three coverages per seed averaged 0.9447 and its minimum was 0.931, against the bar 0.93. A hidden seed can therefore fail level 2 on a correct Wilson interval with a small probability; none of the 100 seeds did.
-* Level 1 compares 153 reference cases at 1e-6, with two exceptions taken from the statistics tests: the numpy cluster bootstrap (`bootstrap.independent`) uses another generator, so it is matched to the tolerance the fixture carries (0.01); the published Krippendorff values (three decimals) are not compared, the coincidence-matrix reference values are.
-* The validator never edits the reference fixtures: they are regenerated by `make_fixtures.py` on a maintainer branch only.
+* Never edit the bank: `packages/validators/src/ladders/stats/**` and `packages/validators/fixtures/stats/**`.
+* Memory is tight: vitest with `--maxWorkers=2`, only on the packages you touch; one sweep at a time.
+* The degenerate contract: Rule 1, a procedure throws a RangeError naming the argument for input it cannot answer; Rule 2, `special.ts` returns NaN or throws, and returns the scipy limit at the domain edge; Rule 3, one value or all-equal values return the defined answer, never NaN.
+* The report snapshot `packages/report/test/__snapshots__/acme-x3-scorecard.html` moved with the new interval; update it with `vitest -u` only for an interval change.
+* github.com may be unreachable; retry the push every 60 s.
 
 ## How to run
 
 ```
+pnpm driftbench validate stats --seed 1
 pnpm driftbench validate stats --seeds 1..20 --hidden
-pnpm driftbench validate stats --seed 1 --json
-pnpm driftbench validate stats --brief
+pnpm exec tsx packages/validators/src/ladders/stats/bank/score-cli.ts --seeds 1..20 --hidden
+pnpm exec tsx packages/validators/src/ladders/stats/bank/score-cli.ts --seeds 1..20 --hidden --record <iteration> --note "<one line>"
 ```
+
+The score command prints the bank size, the items passing on every seed, the score, the level per seed and the split by family and tier; with `--record` it appends the row to `validators/stats/bank-scores.jsonl` and prints the forecast of section 12.4.
 
 ## Fixtures
 
-* Level 1: `packages/stats/test/reference/fixtures.json`, written by `packages/stats/test/reference/make_fixtures.py` from scipy and numpy. The fixed table from each fixture group to the source file an item points at is `STATS_COMPONENTS` in `packages/validators/src/ladders/stats.ts`.
-* Level 2: no file. The validator draws, per seed and per n of 20, 50 and 200, 1000 true rates uniform on 0.1 to 0.9 and a binomial count at each, with the seeded generator `mulberry32` from the statistics package.
+* `packages/stats/test/reference/fixtures.json`: the scipy and numpy reference values of level `reference` (version 1's level 1), written by `make_fixtures.py` next to it.
+* `packages/validators/fixtures/stats/designs.json`: the planted designs of level `simulation` (version 1's levels 2 to 6): clustered designs, the pilot design, the populations, the planned campaigns.
+* `packages/validators/fixtures/stats/roadmap.json`: the roadmap methods (signature, definition, source, cases with scipy values), written by `make_roadmap.py` next to it (`python3 packages/validators/fixtures/stats/make_roadmap.py` from the repository root, scipy 1.18 and numpy 2.5).
+* The bank: `packages/validators/src/ladders/stats/bank/`: `reference.ts`, `degenerate.ts`, `reproducibility.ts`, `analytic.ts`, `simulation.ts`, `scale.ts`, `roadmap.ts`; `isolate.ts` and `child.ts` run it; `hardness.ts` and `score-cli.ts` score it.

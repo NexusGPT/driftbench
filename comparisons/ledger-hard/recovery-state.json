@@ -1,0 +1,21 @@
+{
+  "stamp": "2026-10-13T11:16:50.398193+00:00",
+  "fresh_completed": 123,
+  "remaining": {
+    "('dialect', 'gemini-3.8-flash')": 262,
+    "('dialect', 'haiku')": 0
+  },
+  "inflight": 0,
+  "measured_usd": 8.997640300000002,
+  "lost_reserve_usd": 0.4,
+  "stop_reason": "Gemini daily quota pending; 262 requests not run",
+  "global_limit": 12,
+  "limits": {
+    "gpt-6-luna": 8,
+    "gemini-3.8-flash": 2,
+    "haiku": 2
+  },
+  "provider_holds": [
+    "gemini-3.8-flash"
+  ]
+}

@@ -3,12 +3,13 @@ import {
   type AgentAdapter,
   AgentFailure,
   contentHash,
+  copyHistory,
   isPlainObject,
   type RetryPolicy,
   type Segment,
   type Session,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   addUsage,
   answerTool,
@@ -59,7 +60,7 @@ export type {
  * up to a step cap. Thought parts are reasoning, never customer-visible text, and are left out of the text.
  */
 
-export const GOOGLE_ADAPTER_VERSION = '0.1.0';
+export const GOOGLE_ADAPTER_VERSION = '0.1.1';
 
 export type GoogleAdapterOptions = RetryOption & {
   /** The client. The adapter calls `client.models.generateContent(params)` and nothing else. */
@@ -123,6 +124,8 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
     capabilities: () => ({ ...capabilities }),
 
     async open(given) {
+      // Validate and freeze before user-supplied setup receives the Given.
+      copyHistory(given.prefix);
       const list = typeof options.tools === 'function' ? options.tools(given) : (options.tools ?? []);
       const state: GoogleState = {
         kind: 'google',
@@ -134,9 +137,10 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
     },
 
     async send(session: Session, turn: Turn) {
+      const sharedHistory = copyHistory(session.history);
       const state = ownState<GoogleState>(session, id, 'google');
       const names = new WireNames(state.tools.keys(), GOOGLE_NAME, 128);
-      const history = toGoogleContents(session.history, names);
+      const history = toGoogleContents(sharedHistory, names);
       // A prompt version from the registry replaces the configured system prompt.
       const system = [session.target.prompt?.text ?? options.system ?? '', ...history.system]
         .filter((part) => part !== '')
@@ -196,7 +200,7 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
             const call = part.functionCall;
             const label = names.label(call.name as string);
             const segmentId = call.id ?? `fc-${turn.index}-${step}-${asked.length + 1}`;
-            const input = call.args ?? {};
+            const input = call.args ?? null;
             asked.push({
               id: segmentId,
               ...(call.id === undefined ? {} : { wireId: call.id }),
@@ -257,6 +261,7 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
       // The finish reason of each model call, in order: `MAX_TOKENS` on the last one means a cut reply.
       const observed = observedOf(segments, usage, latencyMs, `the ${options.model} agent`, {
         raw: { finishReasons },
+        ...(history.normalizations.length > 0 ? { historyNormalizations: history.normalizations } : {}),
       });
       recordPayloads(state, turn.index, observed.toolCalls, sideEffects);
       return observed;

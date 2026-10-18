@@ -2,16 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-023
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 23 of 154: Path home-address-not-found of new-home: needs > address > address"
-channel: chat
+title: "t-wise row 23 of 132: Path home-no-coverage of new-home: needs > address > callback > handover > closing"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:not-in-map
-  - task:catalog-only
+  - data:no-service
   - flow:new-home
 covers:
   - B-003
@@ -27,6 +26,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-003
     rubric: Check coverage at the street address before offering home internet
@@ -45,21 +46,70 @@ blocks:
       tools:
         - label: coverage.check
           count: 0
+        - label: notify_sales
+          count: 0
       lang: EN
       criteria:
         - behaviour.B-003
         - flow.new-home
-  - id: b2-address-to-address
+  - id: b2-address-to-callback
     when:
-      user: The address is 21 Willow Court, Acmeville.
+      user: The address is 7 Quarry Lane, Acmeville.
     expect:
-      stage: address
+      stage: callback
       tools:
         - label: coverage.check
           count: 1
           input:
-            address: 21 Willow Court, Acmeville
+            address: 7 Quarry Lane, Acmeville
+        - label: notify_sales
+          count: 0
       lang: EN
+  - id: b3-callback-to-handover
+    when:
+      user: You can reach me on +1 202 555 0131.
+    expect:
+      stage: handover
+      tools:
+        - label: notify_sales
+          count: 1
+          input:
+            reason: no_coverage
+            customer:
+              subset:
+                phone: "+12025550131"
+        - label: coverage.check
+          count: 0
+      lang: EN
+  - id: b4-handover-to-closing
+    when:
+      user: Great, thank you. Bye!
+    expect:
+      stage: closing
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+perturbations:
+  - id: p1-D5_language_switch
+    class: D5_language_switch
+    inject_at: 2
+    user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: callback
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: callback
 metadata:
   generated:
     by: driftbench generate
@@ -70,15 +120,15 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: home-address-not-found
+      hash: 6d29ed7a7539
+    path: home-no-coverage
     cell:
       behaviour: B-003
-      channel: chat
+      channel: whatsapp
       user_type: new-customer
-      coverage_result: not-in-map
-      workspace_start: catalog-only
+      coverage_result: no-service
       flow: new-home
+      callback_phone: given
     blocks:
       - block: b1-needs-to-address
         seeder: twise
@@ -89,16 +139,36 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-address
+      - block: b2-address-to-callback
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: address-to-address
-          coverage_result: not-in-map
-          stage: address
+          stage_transition: address-to-callback
+          coverage_result: no-service
+          stage: callback
         phrase:
           dimension: stage_transition
-          value: address-to-address
+          value: address-to-callback
+      - block: b3-callback-to-handover
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: callback-to-handover
+          callback_phone: given
+          coverage_result: no-service
+          stage: handover
+        phrase:
+          dimension: stage_transition
+          value: callback-to-handover
+      - block: b4-handover-to-closing
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: handover-to-closing
+          stage: closing
+        phrase:
+          dimension: stage_transition
+          value: handover-to-closing
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -107,13 +177,28 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-address-to-address
+      - block: b2-address-to-callback
         status: accepted
         pass_k: 1
         pass_probability: 0.615
+      - block: b3-callback-to-handover
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b4-handover-to-closing
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
 rules:
   forbidden_tools:
     - catalog.search
     - port.check
     - order.create
-    - notify_sales
+end_state:
+  source: tool:notify_sales
+  mode: subset
+  expect:
+    reason: no_coverage
+    customer:
+      subset:
+        phone: "+12025550131"

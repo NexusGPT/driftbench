@@ -1,0 +1,946 @@
+{
+  "competitor": "deepeval",
+  "row": "completeness",
+  "contestant": "default",
+  "model": "haiku",
+  "items": 72,
+  "complete": 72,
+  "results": [
+    {
+      "id": "completeness-long-input-2-b",
+      "kind": "long-input",
+      "pair": "long-input-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d310d319697f9fafe2822836f084213e00780823e75560ead86bad7e837baecb"
+      ],
+      "costUsd": 0.00038849999999999996
+    },
+    {
+      "id": "completeness-quote-only-1-b",
+      "kind": "quote-only",
+      "pair": "quote-only-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c837c478c53509e921fe79471cac57c6395f77fd80fad37eb1a27037d7520112"
+      ],
+      "costUsd": 0.0003106
+    },
+    {
+      "id": "completeness-promise-0-a",
+      "kind": "promise",
+      "pair": "promise-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "081290b230dcd3d706b1712020a21a62531c4f9526c9ce76229211ea4eb4b043"
+      ],
+      "costUsd": 0.0003059
+    },
+    {
+      "id": "completeness-explicit-unknown-2-b",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c060af264e34a8b3d18eb3fb15617453a70c85613d581059806dba46e12f0c6a"
+      ],
+      "costUsd": 0.0003137
+    },
+    {
+      "id": "completeness-single-turn-1-b",
+      "kind": "single-turn",
+      "pair": "single-turn-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9bf50e9bca39dafcf56590729547e368cc58253e0a66f1c81f2e5860796fa6b1"
+      ],
+      "costUsd": 0.0003599
+    },
+    {
+      "id": "completeness-explicit-unknown-1-b",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "11c1df9111752fce738981ec20f3169256ade8858fdca8c79b3cea7d6b7b8a99"
+      ],
+      "costUsd": 0.0003182
+    },
+    {
+      "id": "completeness-mixed-language-1-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6fac25f0ba2298fa458e43416c1e434075b34e9e8b385fc7a189c24fbe0bc76a"
+      ],
+      "costUsd": 0.0003991
+    },
+    {
+      "id": "completeness-three-requests-2-a",
+      "kind": "three-requests",
+      "pair": "three-requests-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7007ac0029a952d1de2aaf61fa8b2232a2d6da2eca5b683cd55c29edf89a4090"
+      ],
+      "costUsd": 0.00032
+    },
+    {
+      "id": "completeness-promise-2-a",
+      "kind": "promise",
+      "pair": "promise-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "97650fef5daf3c71b49b22a3a598df7bf615c8c1e8692dfa42e5bfde5bd1b175"
+      ],
+      "costUsd": 0.00030690000000000003
+    },
+    {
+      "id": "completeness-single-turn-1-a",
+      "kind": "single-turn",
+      "pair": "single-turn-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "393ffa6a749d85d78c9d0fafbe8074eafc9266e1149258a8bbf39e910ae509f1"
+      ],
+      "costUsd": 0.0003099
+    },
+    {
+      "id": "completeness-explicit-unknown-0-a",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5110985c1ee2aa96a47e21fbd06cc51c7d04a95b1529ac4ad391bcefee2f58ac"
+      ],
+      "costUsd": 0.000312
+    },
+    {
+      "id": "completeness-late-answer-2-b",
+      "kind": "late-answer",
+      "pair": "late-answer-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ef6d84d6c6f12e21a1376038287385956ae61d78f887e9fd9ad499c6b6a7d207"
+      ],
+      "costUsd": 0.0003843
+    },
+    {
+      "id": "completeness-correction-2-a",
+      "kind": "correction",
+      "pair": "correction-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "183dee1a0d9af3be6da1685473bd0cacce9da6e62e69a33ac82414bcab6918f6"
+      ],
+      "costUsd": 0.00048320000000000004
+    },
+    {
+      "id": "completeness-quote-only-0-a",
+      "kind": "quote-only",
+      "pair": "quote-only-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "081290b230dcd3d706b1712020a21a62531c4f9526c9ce76229211ea4eb4b043"
+      ],
+      "costUsd": 0.0003059
+    },
+    {
+      "id": "completeness-promise-2-b",
+      "kind": "promise",
+      "pair": "promise-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0992e80ba4aff26a6534ec7866d16d40bf5bf65782c74aecdb882ece44fe9f11"
+      ],
+      "costUsd": 0.0003932
+    },
+    {
+      "id": "completeness-three-requests-1-a",
+      "kind": "three-requests",
+      "pair": "three-requests-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8b721bbc68572b1976773b5d6730054e278be09a9e93980d1b64b0713ef2ef84"
+      ],
+      "costUsd": 0.00032
+    },
+    {
+      "id": "completeness-fluent-partial-0-a",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "081290b230dcd3d706b1712020a21a62531c4f9526c9ce76229211ea4eb4b043"
+      ],
+      "costUsd": 0.0003059
+    },
+    {
+      "id": "completeness-negation-1-a",
+      "kind": "negation",
+      "pair": "negation-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b2aa6074c0dba3511cba8b5f89546946fbf37406b3f67fc9cc6a50350e78a040"
+      ],
+      "costUsd": 0.00031820000000000004
+    },
+    {
+      "id": "completeness-reordered-2-b",
+      "kind": "reordered",
+      "pair": "reordered-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7b9afba1f414f7dd02cbfdc0ea9949b1e945162e627cab39b320d14148bb2be3"
+      ],
+      "costUsd": 0.00030690000000000003
+    },
+    {
+      "id": "completeness-promise-1-b",
+      "kind": "promise",
+      "pair": "promise-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7d00d12c78ac995ab4242e92e417fccd05d584cd9c3df782ff4754574f7adee6"
+      ],
+      "costUsd": 0.00031570000000000003
+    },
+    {
+      "id": "completeness-reordered-2-a",
+      "kind": "reordered",
+      "pair": "reordered-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0153af227620901d66ddb0b61ab82901e793d6d9ed3c01ed49da6669fdc86366"
+      ],
+      "costUsd": 0.00031170000000000004
+    },
+    {
+      "id": "completeness-long-input-2-a",
+      "kind": "long-input",
+      "pair": "long-input-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bbc5c865ee63901e56292162306fb7e63e707d174b4528ea57362ce7ae4951c1"
+      ],
+      "costUsd": 0.000352
+    },
+    {
+      "id": "completeness-three-requests-0-a",
+      "kind": "three-requests",
+      "pair": "three-requests-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "815c6a7497d76eed73f91941d8081769241c40dc7bddf2e022feb3f58528f5a5"
+      ],
+      "costUsd": 0.000324
+    },
+    {
+      "id": "completeness-single-turn-2-a",
+      "kind": "single-turn",
+      "pair": "single-turn-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "97650fef5daf3c71b49b22a3a598df7bf615c8c1e8692dfa42e5bfde5bd1b175"
+      ],
+      "costUsd": 0.00030690000000000003
+    },
+    {
+      "id": "completeness-single-turn-0-a",
+      "kind": "single-turn",
+      "pair": "single-turn-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "081290b230dcd3d706b1712020a21a62531c4f9526c9ce76229211ea4eb4b043"
+      ],
+      "costUsd": 0.0003059
+    },
+    {
+      "id": "completeness-fluent-partial-0-b",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "785709cb5b71a6aefdc81344da21b6af1374cb079e5354e97482a23bf57cca94"
+      ],
+      "costUsd": 0.00032250000000000003
+    },
+    {
+      "id": "completeness-quote-only-2-b",
+      "kind": "quote-only",
+      "pair": "quote-only-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f574b031768e21488796d718a6a040c909e929d3e27eac987275faa4720e1eb8"
+      ],
+      "costUsd": 0.0003266
+    },
+    {
+      "id": "completeness-late-answer-2-a",
+      "kind": "late-answer",
+      "pair": "late-answer-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e66731c3102188ddf0065e44661d8a92f072cca029cb4e5335314431710cb46a"
+      ],
+      "costUsd": 0.0003478
+    },
+    {
+      "id": "completeness-reordered-0-a",
+      "kind": "reordered",
+      "pair": "reordered-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "65404caba5a69f8febacf82ca96423e6a01ec38cf7408b67eec0ebe89c5f5969"
+      ],
+      "costUsd": 0.0003122
+    },
+    {
+      "id": "completeness-correction-1-b",
+      "kind": "correction",
+      "pair": "correction-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "298462e7650cd5dc6aa36ccc23d0bc848b8eaf6fb19fc524f1a1dc23a6983d35"
+      ],
+      "costUsd": 0.00042320000000000004
+    },
+    {
+      "id": "completeness-explicit-unknown-0-b",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0a56c530223783702f33b009a51503acd03acca3b3fb237359f02e9f4d2e002a"
+      ],
+      "costUsd": 0.00031919999999999995
+    },
+    {
+      "id": "completeness-correction-2-b",
+      "kind": "correction",
+      "pair": "correction-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5f57f819d8cb6cfe099f0e540f3931c23c09282a5a8df8ba49b52efed6aeddb7"
+      ],
+      "costUsd": 0.00038870000000000007
+    },
+    {
+      "id": "completeness-explicit-unknown-2-a",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "730071cc94b419a27cbb7b6753b0fc32a276ff77197a793866e05d7704e06448"
+      ],
+      "costUsd": 0.0002965
+    },
+    {
+      "id": "completeness-fluent-partial-2-a",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "97650fef5daf3c71b49b22a3a598df7bf615c8c1e8692dfa42e5bfde5bd1b175"
+      ],
+      "costUsd": 0.00030690000000000003
+    },
+    {
+      "id": "completeness-fluent-partial-1-b",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ad9ae741102dc9044f724a6f5e975f279ab7e8b0aa32590b6a6cf7602c815a4b"
+      ],
+      "costUsd": 0.000315
+    },
+    {
+      "id": "completeness-long-input-0-b",
+      "kind": "long-input",
+      "pair": "long-input-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8bd11b30ec5550b99c28af881a58654fa4a99c94934c8bad55aae083b7fcf31e"
+      ],
+      "costUsd": 0.00034349999999999995
+    },
+    {
+      "id": "completeness-correction-0-b",
+      "kind": "correction",
+      "pair": "correction-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "12f51d5e95530d15425f2a2885e48cd3b4b56e833b164855ee559b219ed01ce1"
+      ],
+      "costUsd": 0.00044720000000000003
+    },
+    {
+      "id": "completeness-quote-only-0-b",
+      "kind": "quote-only",
+      "pair": "quote-only-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "aaff268ee781c6054fc65327462052cd888a93b684032b39a2e0edd821907446"
+      ],
+      "costUsd": 0.00039460000000000005
+    },
+    {
+      "id": "completeness-three-requests-1-b",
+      "kind": "three-requests",
+      "pair": "three-requests-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1dda8244c07e595fb56c3c57aae1217d57960f0554deeaae4a7a00573927c9cd"
+      ],
+      "costUsd": 0.00030940000000000004
+    },
+    {
+      "id": "completeness-long-input-0-a",
+      "kind": "long-input",
+      "pair": "long-input-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8e0b7fca29b745f6693e7f7cfe8bdc0da82bbe423d6b9f0b510d89b3f7a321c6"
+      ],
+      "costUsd": 0.00031899999999999995
+    },
+    {
+      "id": "completeness-three-requests-0-b",
+      "kind": "three-requests",
+      "pair": "three-requests-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6eb63593cb5dd3b2752b9589abc31cf2d0a6bafb3ed14fce93fc28da91559b97"
+      ],
+      "costUsd": 0.0003169
+    },
+    {
+      "id": "completeness-fluent-partial-1-a",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "393ffa6a749d85d78c9d0fafbe8074eafc9266e1149258a8bbf39e910ae509f1"
+      ],
+      "costUsd": 0.0003099
+    },
+    {
+      "id": "completeness-fluent-partial-2-b",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "650b9577e278ebcde3eca6f7d32a5757e33c76125cc92676d9171f8cfbb2b528"
+      ],
+      "costUsd": 0.00031350000000000003
+    },
+    {
+      "id": "completeness-negation-1-b",
+      "kind": "negation",
+      "pair": "negation-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5e9caa38f126a81d6a24f56e9557412e7f49aabc1abc9c125e1238a7f6def070"
+      ],
+      "costUsd": 0.00031130000000000003
+    },
+    {
+      "id": "completeness-reordered-0-b",
+      "kind": "reordered",
+      "pair": "reordered-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ad7639ed46e3d97925e7e0946de56a317ddab42c14d3d78895f701c0c5a8a208"
+      ],
+      "costUsd": 0.0003214
+    },
+    {
+      "id": "completeness-promise-1-a",
+      "kind": "promise",
+      "pair": "promise-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "393ffa6a749d85d78c9d0fafbe8074eafc9266e1149258a8bbf39e910ae509f1"
+      ],
+      "costUsd": 0.0003099
+    },
+    {
+      "id": "completeness-late-answer-1-a",
+      "kind": "late-answer",
+      "pair": "late-answer-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "aae07f06610ca7ca906fcbbe5b0fe6a042aa6ee1a7ea91434d262188ba97b2bd"
+      ],
+      "costUsd": 0.00034330000000000005
+    },
+    {
+      "id": "completeness-long-input-1-a",
+      "kind": "long-input",
+      "pair": "long-input-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5519f27603f4633f25ab8ee8195fb9cc22b519bdf8cf389427653f6ecc715cdb"
+      ],
+      "costUsd": 0.000339
+    },
+    {
+      "id": "completeness-negation-2-a",
+      "kind": "negation",
+      "pair": "negation-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5afcc01f9a103e3616851300e488ee0566d8160eca032848f2605d626f48b25d"
+      ],
+      "costUsd": 0.0003622
+    },
+    {
+      "id": "completeness-long-input-1-b",
+      "kind": "long-input",
+      "pair": "long-input-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "84d92e71572a44c616d76ced51513791aaaf119d72dc5854adabe2c6716fedd8"
+      ],
+      "costUsd": 0.00035099999999999997
+    },
+    {
+      "id": "completeness-late-answer-0-b",
+      "kind": "late-answer",
+      "pair": "late-answer-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c29ec68b825c2501dc6c2c1a3ef8e7d17d4666b7ed61940b1ea34a58588697c6"
+      ],
+      "costUsd": 0.0003878
+    },
+    {
+      "id": "completeness-three-requests-2-b",
+      "kind": "three-requests",
+      "pair": "three-requests-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9b7542dfc313ad39007f7da5894731ff978dd6ee78e50862620651800c6ebc28"
+      ],
+      "costUsd": 0.00033190000000000004
+    },
+    {
+      "id": "completeness-mixed-language-2-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "bcb15f4f888ecc131c6a5f2a91bd50c1d7e330a9703f54d9e42bd7bf495c61a3"
+      ],
+      "costUsd": 0.00037810000000000003
+    },
+    {
+      "id": "completeness-single-turn-2-b",
+      "kind": "single-turn",
+      "pair": "single-turn-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7b9afba1f414f7dd02cbfdc0ea9949b1e945162e627cab39b320d14148bb2be3"
+      ],
+      "costUsd": 0.00030690000000000003
+    },
+    {
+      "id": "completeness-reordered-1-b",
+      "kind": "reordered",
+      "pair": "reordered-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9bf50e9bca39dafcf56590729547e368cc58253e0a66f1c81f2e5860796fa6b1"
+      ],
+      "costUsd": 0.0003599
+    },
+    {
+      "id": "completeness-quote-only-2-a",
+      "kind": "quote-only",
+      "pair": "quote-only-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "97650fef5daf3c71b49b22a3a598df7bf615c8c1e8692dfa42e5bfde5bd1b175"
+      ],
+      "costUsd": 0.00030690000000000003
+    },
+    {
+      "id": "completeness-mixed-language-1-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e9f73c0f853be546eddc8992014c8bb21b37613331e8a63e6399e0d2c87e802a"
+      ],
+      "costUsd": 0.0003167
+    },
+    {
+      "id": "completeness-late-answer-1-b",
+      "kind": "late-answer",
+      "pair": "late-answer-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f098a7e39d1fa7812b6a3fd28f62950d0b5a337549ac3ea93a23cce9e438b7a1"
+      ],
+      "costUsd": 0.00034480000000000003
+    },
+    {
+      "id": "completeness-mixed-language-0-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "695859b0334696c95da69b5985aee4b707fa91226e8d2986bc7f74fbc0e79c55"
+      ],
+      "costUsd": 0.00031810000000000003
+    },
+    {
+      "id": "completeness-single-turn-0-b",
+      "kind": "single-turn",
+      "pair": "single-turn-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ad7639ed46e3d97925e7e0946de56a317ddab42c14d3d78895f701c0c5a8a208"
+      ],
+      "costUsd": 0.0003214
+    },
+    {
+      "id": "completeness-explicit-unknown-1-a",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b63b521b6061f92cffdf6be82e1994d4516cbb9be1c75303df591aa21ddb312c"
+      ],
+      "costUsd": 0.000295
+    },
+    {
+      "id": "completeness-negation-2-b",
+      "kind": "negation",
+      "pair": "negation-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ea843ef42e0440d29799ea40732788bfe9773a0a5532d83fe98f1b33a81f4336"
+      ],
+      "costUsd": 0.0004303
+    },
+    {
+      "id": "completeness-mixed-language-2-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f71f06146cb822b870946b9275ecef2609eef0a66eba9c6daa26ecaba8aa5fe7"
+      ],
+      "costUsd": 0.0003147
+    },
+    {
+      "id": "completeness-negation-0-a",
+      "kind": "negation",
+      "pair": "negation-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "60485816e717bfdc536300772915a0470685ebc0ecff4b1c1ef5a4aa3a7fa7cc"
+      ],
+      "costUsd": 0.0003152
+    },
+    {
+      "id": "completeness-promise-0-b",
+      "kind": "promise",
+      "pair": "promise-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c23ac07a4a2516d999fffc863435e7952c795324d21d73adb4191572e3bfb0ec"
+      ],
+      "costUsd": 0.0003197
+    },
+    {
+      "id": "completeness-negation-0-b",
+      "kind": "negation",
+      "pair": "negation-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "833d4df7ee4bd5220b08fd682dba665c0a31be48a5f4fc71dc9efcf082846f02"
+      ],
+      "costUsd": 0.0003123
+    },
+    {
+      "id": "completeness-reordered-1-a",
+      "kind": "reordered",
+      "pair": "reordered-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3374011ec32ef8b9e63fd596f20048368e6bb94f494db1d7089149631fb059a4"
+      ],
+      "costUsd": 0.00031370000000000004
+    },
+    {
+      "id": "completeness-late-answer-0-a",
+      "kind": "late-answer",
+      "pair": "late-answer-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "81f06dc0d56f5992d7511670b3f431bc746a497f6480eca34cf46eaa4130cd77"
+      ],
+      "costUsd": 0.00044530000000000004
+    },
+    {
+      "id": "completeness-mixed-language-0-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fdeb8567233d2be79edf7bf8b1cb953fece92fb07ba20c4efe255e79a8f783f2"
+      ],
+      "costUsd": 0.0003187
+    },
+    {
+      "id": "completeness-quote-only-1-a",
+      "kind": "quote-only",
+      "pair": "quote-only-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "393ffa6a749d85d78c9d0fafbe8074eafc9266e1149258a8bbf39e910ae509f1"
+      ],
+      "costUsd": 0.0003099
+    },
+    {
+      "id": "completeness-correction-1-a",
+      "kind": "correction",
+      "pair": "correction-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ab8b28a71b26e9b8b4e8916569168a5338d373586c67a95553e8a5177dc7e77a"
+      ],
+      "costUsd": 0.00042870000000000007
+    },
+    {
+      "id": "completeness-correction-0-a",
+      "kind": "correction",
+      "pair": "correction-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "82327529d232fa89415a0078e8c0a8152997f405bc9733b5c9ade1586ed4ac02"
+      ],
+      "costUsd": 0.0004782
+    }
+  ]
+}

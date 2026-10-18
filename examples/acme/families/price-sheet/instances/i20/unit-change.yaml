@@ -5,7 +5,7 @@ version: "1"
 kind: task
 title: Build the Acme price sheet from the catalog file (i20, unit-change)
 description: |
-  A code agent works in a workspace seeded with the plan catalog. It builds an Excel price sheet, one sheet per category with a yearly price, and in instances with a summary adds a Summary sheet in a second block. No other file in the workspace may change.
+  A code agent works in a workspace seeded with the plan catalog. It builds an Excel price sheet, one sheet per category with a yearly price, and in instances with a summary adds a Summary sheet in a second block. In instances that start from an existing workbook, the price sheet is already there and the agent only adds the Summary sheet. No other file in the workspace may change.
 channel: chat
 lang: EN
 tier: generated
@@ -134,43 +134,43 @@ blocks:
             - formula:
                 sheet: Travel
                 cell: D2
-                regex: ^=C2\s*\*\s*12$
+                regex: ^=(?:C2\s*\*\s*12|12\s*\*\s*C2)$
             - formula:
                 sheet: Travel
                 cell: D3
-                regex: ^=C3\s*\*\s*12$
+                regex: ^=(?:C3\s*\*\s*12|12\s*\*\s*C3)$
             - formula:
                 sheet: Travel
                 cell: D4
-                regex: ^=C4\s*\*\s*12$
+                regex: ^=(?:C4\s*\*\s*12|12\s*\*\s*C4)$
             - formula:
                 sheet: Travel
                 cell: D5
-                regex: ^=C5\s*\*\s*12$
+                regex: ^=(?:C5\s*\*\s*12|12\s*\*\s*C5)$
             - formula:
                 sheet: Travel
                 cell: D6
-                regex: ^=C6\s*\*\s*12$
+                regex: ^=(?:C6\s*\*\s*12|12\s*\*\s*C6)$
             - formula:
                 sheet: Travel
                 cell: D7
-                regex: ^=C7\s*\*\s*12$
+                regex: ^=(?:C7\s*\*\s*12|12\s*\*\s*C7)$
             - formula:
                 sheet: Travel
                 cell: D8
-                regex: ^=C8\s*\*\s*12$
+                regex: ^=(?:C8\s*\*\s*12|12\s*\*\s*C8)$
             - formula:
                 sheet: Travel
                 cell: D9
-                regex: ^=C9\s*\*\s*12$
+                regex: ^=(?:C9\s*\*\s*12|12\s*\*\s*C9)$
             - formula:
                 sheet: Travel
                 cell: D10
-                regex: ^=C10\s*\*\s*12$
+                regex: ^=(?:C10\s*\*\s*12|12\s*\*\s*C10)$
             - formula:
                 sheet: Travel
                 cell: D11
-                regex: ^=C11\s*\*\s*12$
+                regex: ^=(?:C11\s*\*\s*12|12\s*\*\s*C11)$
             - header:
                 sheet: Office
                 row: 1
@@ -215,23 +215,23 @@ blocks:
             - formula:
                 sheet: Office
                 cell: D2
-                regex: ^=C2\s*\*\s*12$
+                regex: ^=(?:C2\s*\*\s*12|12\s*\*\s*C2)$
             - formula:
                 sheet: Office
                 cell: D3
-                regex: ^=C3\s*\*\s*12$
+                regex: ^=(?:C3\s*\*\s*12|12\s*\*\s*C3)$
             - formula:
                 sheet: Office
                 cell: D4
-                regex: ^=C4\s*\*\s*12$
+                regex: ^=(?:C4\s*\*\s*12|12\s*\*\s*C4)$
             - formula:
                 sheet: Office
                 cell: D5
-                regex: ^=C5\s*\*\s*12$
+                regex: ^=(?:C5\s*\*\s*12|12\s*\*\s*C5)$
             - formula:
                 sheet: Office
                 cell: D6
-                regex: ^=C6\s*\*\s*12$
+                regex: ^=(?:C6\s*\*\s*12|12\s*\*\s*C6)$
             - header:
                 sheet: Mobile
                 row: 1
@@ -282,31 +282,31 @@ blocks:
             - formula:
                 sheet: Mobile
                 cell: D2
-                regex: ^=C2\s*\*\s*12$
+                regex: ^=(?:C2\s*\*\s*12|12\s*\*\s*C2)$
             - formula:
                 sheet: Mobile
                 cell: D3
-                regex: ^=C3\s*\*\s*12$
+                regex: ^=(?:C3\s*\*\s*12|12\s*\*\s*C3)$
             - formula:
                 sheet: Mobile
                 cell: D4
-                regex: ^=C4\s*\*\s*12$
+                regex: ^=(?:C4\s*\*\s*12|12\s*\*\s*C4)$
             - formula:
                 sheet: Mobile
                 cell: D5
-                regex: ^=C5\s*\*\s*12$
+                regex: ^=(?:C5\s*\*\s*12|12\s*\*\s*C5)$
             - formula:
                 sheet: Mobile
                 cell: D6
-                regex: ^=C6\s*\*\s*12$
+                regex: ^=(?:C6\s*\*\s*12|12\s*\*\s*C6)$
             - formula:
                 sheet: Mobile
                 cell: D7
-                regex: ^=C7\s*\*\s*12$
+                regex: ^=(?:C7\s*\*\s*12|12\s*\*\s*C7)$
             - formula:
                 sheet: Mobile
                 cell: D8
-                regex: ^=C8\s*\*\s*12$
+                regex: ^=(?:C8\s*\*\s*12|12\s*\*\s*C8)$
             - no_error_cells: true
       workspace:
         created:
@@ -407,43 +407,43 @@ blocks:
             - formula:
                 sheet: Travel
                 cell: D2
-                regex: ^=C2\s*\*\s*12$
+                regex: ^=(?:C2\s*\*\s*12|12\s*\*\s*C2)$
             - formula:
                 sheet: Travel
                 cell: D3
-                regex: ^=C3\s*\*\s*12$
+                regex: ^=(?:C3\s*\*\s*12|12\s*\*\s*C3)$
             - formula:
                 sheet: Travel
                 cell: D4
-                regex: ^=C4\s*\*\s*12$
+                regex: ^=(?:C4\s*\*\s*12|12\s*\*\s*C4)$
             - formula:
                 sheet: Travel
                 cell: D5
-                regex: ^=C5\s*\*\s*12$
+                regex: ^=(?:C5\s*\*\s*12|12\s*\*\s*C5)$
             - formula:
                 sheet: Travel
                 cell: D6
-                regex: ^=C6\s*\*\s*12$
+                regex: ^=(?:C6\s*\*\s*12|12\s*\*\s*C6)$
             - formula:
                 sheet: Travel
                 cell: D7
-                regex: ^=C7\s*\*\s*12$
+                regex: ^=(?:C7\s*\*\s*12|12\s*\*\s*C7)$
             - formula:
                 sheet: Travel
                 cell: D8
-                regex: ^=C8\s*\*\s*12$
+                regex: ^=(?:C8\s*\*\s*12|12\s*\*\s*C8)$
             - formula:
                 sheet: Travel
                 cell: D9
-                regex: ^=C9\s*\*\s*12$
+                regex: ^=(?:C9\s*\*\s*12|12\s*\*\s*C9)$
             - formula:
                 sheet: Travel
                 cell: D10
-                regex: ^=C10\s*\*\s*12$
+                regex: ^=(?:C10\s*\*\s*12|12\s*\*\s*C10)$
             - formula:
                 sheet: Travel
                 cell: D11
-                regex: ^=C11\s*\*\s*12$
+                regex: ^=(?:C11\s*\*\s*12|12\s*\*\s*C11)$
             - header:
                 sheet: Office
                 row: 1
@@ -488,23 +488,23 @@ blocks:
             - formula:
                 sheet: Office
                 cell: D2
-                regex: ^=C2\s*\*\s*12$
+                regex: ^=(?:C2\s*\*\s*12|12\s*\*\s*C2)$
             - formula:
                 sheet: Office
                 cell: D3
-                regex: ^=C3\s*\*\s*12$
+                regex: ^=(?:C3\s*\*\s*12|12\s*\*\s*C3)$
             - formula:
                 sheet: Office
                 cell: D4
-                regex: ^=C4\s*\*\s*12$
+                regex: ^=(?:C4\s*\*\s*12|12\s*\*\s*C4)$
             - formula:
                 sheet: Office
                 cell: D5
-                regex: ^=C5\s*\*\s*12$
+                regex: ^=(?:C5\s*\*\s*12|12\s*\*\s*C5)$
             - formula:
                 sheet: Office
                 cell: D6
-                regex: ^=C6\s*\*\s*12$
+                regex: ^=(?:C6\s*\*\s*12|12\s*\*\s*C6)$
             - header:
                 sheet: Mobile
                 row: 1
@@ -555,31 +555,31 @@ blocks:
             - formula:
                 sheet: Mobile
                 cell: D2
-                regex: ^=C2\s*\*\s*12$
+                regex: ^=(?:C2\s*\*\s*12|12\s*\*\s*C2)$
             - formula:
                 sheet: Mobile
                 cell: D3
-                regex: ^=C3\s*\*\s*12$
+                regex: ^=(?:C3\s*\*\s*12|12\s*\*\s*C3)$
             - formula:
                 sheet: Mobile
                 cell: D4
-                regex: ^=C4\s*\*\s*12$
+                regex: ^=(?:C4\s*\*\s*12|12\s*\*\s*C4)$
             - formula:
                 sheet: Mobile
                 cell: D5
-                regex: ^=C5\s*\*\s*12$
+                regex: ^=(?:C5\s*\*\s*12|12\s*\*\s*C5)$
             - formula:
                 sheet: Mobile
                 cell: D6
-                regex: ^=C6\s*\*\s*12$
+                regex: ^=(?:C6\s*\*\s*12|12\s*\*\s*C6)$
             - formula:
                 sheet: Mobile
                 cell: D7
-                regex: ^=C7\s*\*\s*12$
+                regex: ^=(?:C7\s*\*\s*12|12\s*\*\s*C7)$
             - formula:
                 sheet: Mobile
                 cell: D8
-                regex: ^=C8\s*\*\s*12$
+                regex: ^=(?:C8\s*\*\s*12|12\s*\*\s*C8)$
             - header:
                 sheet: Summary
                 row: 1
@@ -630,9 +630,9 @@ blocks:
 metadata:
   family:
     id: acme-price-sheet
-    family_sha256: 2222640acdfb55641addd960011d87570ed387a613886dc5143f075267b522da
-    oracle_sha256: 2d8692b70af5c67ee9b8214b953506fed776b201308675b1cb3c151fda0ec257
-    review: pending
+    family_sha256: 1e37ebb12716364465b0bcc9b340c3231347e9cf9bcdcbb45b4bb406cc975847
+    oracle_sha256: 984c79bca3bd9204456a066b482560aa1d01b052b5e7dc0fff440349d5de667e
+    review: signed
     instance: i20
     instance_seed: 803147023
     run_seed: 1
@@ -645,6 +645,7 @@ metadata:
       planted: without
       readme_name: ABOUT.txt
       seed_format: csv
+      start: catalog-only
       summary: with
       wording: a
       workbook: out/acme-price-sheet.xlsx

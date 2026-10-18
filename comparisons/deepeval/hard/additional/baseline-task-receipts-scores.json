@@ -1,0 +1,26 @@
+[
+  {
+    "row": "task completion",
+    "n": 120,
+    "ours": 120,
+    "theirs": 118,
+    "ours_ci": [
+      96.9,
+      100
+    ],
+    "theirs_ci": [
+      94.13,
+      99.54
+    ],
+    "ours_distinct_inputs": 90,
+    "theirs_distinct_inputs": 90,
+    "ours_only_right": 2,
+    "theirs_only_right": 0,
+    "paired_p": 0.5,
+    "outcome": "ahead",
+    "ours_unparsed": 0,
+    "theirs_unparsed": 1,
+    "cost_usd": 0.2087401,
+    "strict_theirs": 60
+  }
+]

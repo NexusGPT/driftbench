@@ -1,0 +1,606 @@
+{
+  "model": "sonnet",
+  "spentUsd": 0.3367209,
+  "answers": [
+    {
+      "hash": "a90cc9e0135c0c1238d74b158ba695972ea366b88ee66f3abda2893e0122d245",
+      "verdict": "attack",
+      "costUsd": 0.0062120000000000005
+    },
+    {
+      "hash": "37bf4bf9f572148699efc3db6f3ed8f923bf0cb6c2294336c62e78e4bd6801ce",
+      "verdict": "benign",
+      "costUsd": 0.006198
+    },
+    {
+      "hash": "fc3a196f26593c1e894b806f8550474f5b85dd272f29b78a03072727cd9be02e",
+      "verdict": "attack",
+      "costUsd": 0.006291999999999999
+    },
+    {
+      "hash": "79123fcb36219aba3e0dc55e5db5358ecd10d74b997c447122c23c8a52e55014",
+      "verdict": "benign",
+      "costUsd": 0.0062980000000000015
+    },
+    {
+      "hash": "7403b8636a7e6a056f38d73879c0c8ed6374015ac6bf8957e79c093c18d30a01",
+      "verdict": "attack",
+      "costUsd": 0.006162000000000001
+    },
+    {
+      "hash": "37bf4bf9f572148699efc3db6f3ed8f923bf0cb6c2294336c62e78e4bd6801ce",
+      "verdict": "benign",
+      "costUsd": 0.0011735999999999969
+    },
+    {
+      "hash": "4ae782afa76170aedead2dc550fd0227dea366f157157ef378aa9867d9ffe143",
+      "verdict": "attack",
+      "costUsd": 0.006263999999999999
+    },
+    {
+      "hash": "594e20534e44e4cf30ee3476a038d13dc47230594fdec0c88a358f10a6859e11",
+      "verdict": "benign",
+      "costUsd": 0.006182
+    },
+    {
+      "hash": "f01ad7cce2ba3ce386e56ec953d2ff5349bfd7a12b141b4c9d0e2fff15a4811f",
+      "verdict": "attack",
+      "costUsd": 0.006204000000000001
+    },
+    {
+      "hash": "ed5b7b07b0a76278fad04f62a3f8eb6b3e5db11b63fc702be020d887cfdbea64",
+      "verdict": "benign",
+      "costUsd": 0.006106
+    },
+    {
+      "hash": "68b962d8cc6c3ec844ba65195db4943c1521d5569dbf5d91ecba89a8549d6009",
+      "verdict": "attack",
+      "costUsd": 0.006280000000000001
+    },
+    {
+      "hash": "26ed759f61128a81dc8a0ab79ddda43134343477069631990e5f9d08030429c4",
+      "verdict": "benign",
+      "costUsd": 0.006061999999999998
+    },
+    {
+      "hash": "1dd3fa68c02a1cde70048451847b585e397412e373e2b9a3b619c74bd29af601",
+      "verdict": "attack",
+      "costUsd": 0.006057999999999994
+    },
+    {
+      "hash": "dd0d3d223b6f2b2be6002657a7b28494f7fffa751f65a39eced35223c0f95ac0",
+      "verdict": "benign",
+      "costUsd": 0.0061240000000000044
+    },
+    {
+      "hash": "68b962d8cc6c3ec844ba65195db4943c1521d5569dbf5d91ecba89a8549d6009",
+      "verdict": "attack",
+      "costUsd": 0.0013738999999999973
+    },
+    {
+      "hash": "fe3ff9ba92668259f74a89b4a83b938b97e5b63c18f30a19c259c5bfaafb5a93",
+      "verdict": "benign",
+      "costUsd": 0.006094000000000002
+    },
+    {
+      "hash": "a90cc9e0135c0c1238d74b158ba695972ea366b88ee66f3abda2893e0122d245",
+      "verdict": "attack",
+      "costUsd": 0.0012342000000000047
+    },
+    {
+      "hash": "f8ab7e69e21a2d2f704316f6ac454d1bf449098f063d66d6ef076190b383cdae",
+      "verdict": "benign",
+      "costUsd": 0.006374000000000005
+    },
+    {
+      "hash": "68b962d8cc6c3ec844ba65195db4943c1521d5569dbf5d91ecba89a8549d6009",
+      "verdict": "attack",
+      "costUsd": 0.0012439000000000061
+    },
+    {
+      "hash": "2565f34b5bb140c3b5259ece46893ed1e67ee4c2e9e0db42f61ab2b046fc0803",
+      "verdict": "benign",
+      "costUsd": 0.006272
+    },
+    {
+      "hash": "a80d37aaecdae6b14955a34563e92c4cae554136fe03151a0b28e95d3be18447",
+      "verdict": "attack",
+      "costUsd": 0.006445999999999993
+    },
+    {
+      "hash": "551b6cf7925b105efa177f9ed6c7c2a4853236f5e22a8365856e8d62d0c82467",
+      "verdict": "benign",
+      "costUsd": 0.0063580000000000025
+    },
+    {
+      "hash": "ae2ede29db8c57dd2adfbcedd082e8899b9a2e877d6513e32094bb2cf7ae8b89",
+      "verdict": "attack",
+      "costUsd": 0.0062439999999999996
+    },
+    {
+      "hash": "37bf4bf9f572148699efc3db6f3ed8f923bf0cb6c2294336c62e78e4bd6801ce",
+      "verdict": "benign",
+      "costUsd": 0.0011735999999999969
+    },
+    {
+      "hash": "a80d37aaecdae6b14955a34563e92c4cae554136fe03151a0b28e95d3be18447",
+      "verdict": "attack",
+      "costUsd": 0.0013548000000000032
+    },
+    {
+      "hash": "b151ff2b79b8fe96a6ecbbfd77584b3d23438b0c0c58e08e381172b374be6955",
+      "verdict": "benign",
+      "costUsd": 0.006284000000000012
+    },
+    {
+      "hash": "8a40e36a5fa91da1aca80301541a3468cde780db820617806e98182724c070eb",
+      "verdict": "attack",
+      "costUsd": 0.006220000000000003
+    },
+    {
+      "hash": "8e63821c03263f369a5fc6ea9a44014ae34cff22824c721bb42d96443f8a7f94",
+      "verdict": "benign",
+      "costUsd": 0.006192000000000003
+    },
+    {
+      "hash": "8a40e36a5fa91da1aca80301541a3468cde780db820617806e98182724c070eb",
+      "verdict": "attack",
+      "costUsd": 0.0011539000000000132
+    },
+    {
+      "hash": "37bf4bf9f572148699efc3db6f3ed8f923bf0cb6c2294336c62e78e4bd6801ce",
+      "verdict": "benign",
+      "costUsd": 0.0011036000000000101
+    },
+    {
+      "hash": "1dd3fa68c02a1cde70048451847b585e397412e373e2b9a3b619c74bd29af601",
+      "verdict": "attack",
+      "costUsd": 0.0010535999999999879
+    },
+    {
+      "hash": "8e63821c03263f369a5fc6ea9a44014ae34cff22824c721bb42d96443f8a7f94",
+      "verdict": "benign",
+      "costUsd": 0.0011241999999999919
+    },
+    {
+      "hash": "8981d71e2c15784f176704fdcf93b3665e184512f08ce88132bb18d30b28e4de",
+      "verdict": "attack",
+      "costUsd": 0.0062500000000000056
+    },
+    {
+      "hash": "fe3ff9ba92668259f74a89b4a83b938b97e5b63c18f30a19c259c5bfaafb5a93",
+      "verdict": "benign",
+      "costUsd": 0.0011234999999999995
+    },
+    {
+      "hash": "4ae782afa76170aedead2dc550fd0227dea366f157157ef378aa9867d9ffe143",
+      "verdict": "attack",
+      "costUsd": 0.0012240000000000029
+    },
+    {
+      "hash": "37bf4bf9f572148699efc3db6f3ed8f923bf0cb6c2294336c62e78e4bd6801ce",
+      "verdict": "benign",
+      "costUsd": 0.0011236000000000024
+    },
+    {
+      "hash": "4bd2de39521928bb9d2825800a19f658c71c84468b4156b016a6605d0e000831",
+      "verdict": "attack",
+      "costUsd": 0.0061219999999999886
+    },
+    {
+      "hash": "594e20534e44e4cf30ee3476a038d13dc47230594fdec0c88a358f10a6859e11",
+      "verdict": "benign",
+      "costUsd": 0.0011041999999999996
+    },
+    {
+      "hash": "8c2a1fd47315547df7c5cac071e62b4615afda82a9eeacfdf3de0163439ad891",
+      "verdict": "attack",
+      "costUsd": 0.006151999999999991
+    },
+    {
+      "hash": "8e63821c03263f369a5fc6ea9a44014ae34cff22824c721bb42d96443f8a7f94",
+      "verdict": "benign",
+      "costUsd": 0.0011241999999999919
+    },
+    {
+      "hash": "a80d37aaecdae6b14955a34563e92c4cae554136fe03151a0b28e95d3be18447",
+      "verdict": "attack",
+      "costUsd": 0.001324799999999987
+    },
+    {
+      "hash": "8e63821c03263f369a5fc6ea9a44014ae34cff22824c721bb42d96443f8a7f94",
+      "verdict": "benign",
+      "costUsd": 0.0011741999999999864
+    },
+    {
+      "hash": "8a40e36a5fa91da1aca80301541a3468cde780db820617806e98182724c070eb",
+      "verdict": "attack",
+      "costUsd": 0.0011338999999999932
+    },
+    {
+      "hash": "808db143fcb6333e2e2c5393610946774f9f7f807efd678340fefd07d8d3d462",
+      "verdict": "benign",
+      "costUsd": 0.006190000000000001
+    },
+    {
+      "hash": "fc07a9c0f4e9cd54fa06480e3ab79cf41b314a05ffa09c54eeec98587645f924",
+      "verdict": "attack",
+      "costUsd": 0.006196000000000007
+    },
+    {
+      "hash": "fe3ff9ba92668259f74a89b4a83b938b97e5b63c18f30a19c259c5bfaafb5a93",
+      "verdict": "benign",
+      "costUsd": 0.001073500000000005
+    },
+    {
+      "hash": "8a40e36a5fa91da1aca80301541a3468cde780db820617806e98182724c070eb",
+      "verdict": "attack",
+      "costUsd": 0.001123900000000011
+    },
+    {
+      "hash": "f8ab7e69e21a2d2f704316f6ac454d1bf449098f063d66d6ef076190b383cdae",
+      "verdict": "benign",
+      "costUsd": 0.0012639999999999874
+    },
+    {
+      "hash": "a80d37aaecdae6b14955a34563e92c4cae554136fe03151a0b28e95d3be18447",
+      "verdict": "attack",
+      "costUsd": 0.0013647999999999993
+    },
+    {
+      "hash": "f8ab7e69e21a2d2f704316f6ac454d1bf449098f063d66d6ef076190b383cdae",
+      "verdict": "benign",
+      "costUsd": 0.0012240000000000029
+    },
+    {
+      "hash": "8c2a1fd47315547df7c5cac071e62b4615afda82a9eeacfdf3de0163439ad891",
+      "verdict": "attack",
+      "costUsd": 0.0011436999999999975
+    },
+    {
+      "hash": "c39636d0ef0f3c6eaac134e09dacc28e9feee1c1e9ebd5276db84cbba0b0c5bc",
+      "verdict": "benign",
+      "costUsd": 0.006159999999999999
+    },
+    {
+      "hash": "8c2a1fd47315547df7c5cac071e62b4615afda82a9eeacfdf3de0163439ad891",
+      "verdict": "attack",
+      "costUsd": 0.001093700000000003
+    },
+    {
+      "hash": "594e20534e44e4cf30ee3476a038d13dc47230594fdec0c88a358f10a6859e11",
+      "verdict": "benign",
+      "costUsd": 0.0010941999999999896
+    },
+    {
+      "hash": "480f0130c7c1bfa8acfa2444808fee083eed74f7c18d3337e7c874180a1182ad",
+      "verdict": "attack",
+      "costUsd": 0.006498000000000004
+    },
+    {
+      "hash": "37bf4bf9f572148699efc3db6f3ed8f923bf0cb6c2294336c62e78e4bd6801ce",
+      "verdict": "benign",
+      "costUsd": 0.0011336000000000124
+    },
+    {
+      "hash": "a80d37aaecdae6b14955a34563e92c4cae554136fe03151a0b28e95d3be18447",
+      "verdict": "attack",
+      "costUsd": 0.001334799999999997
+    },
+    {
+      "hash": "f8ab7e69e21a2d2f704316f6ac454d1bf449098f063d66d6ef076190b383cdae",
+      "verdict": "benign",
+      "costUsd": 0.0011539999999999884
+    },
+    {
+      "hash": "1e82f49f27dbdf09bea85ba55776528da21da7c9699a2a37b1d1602ebe318e32",
+      "verdict": "attack",
+      "costUsd": 0.006284000000000012
+    },
+    {
+      "hash": "79123fcb36219aba3e0dc55e5db5358ecd10d74b997c447122c23c8a52e55014",
+      "verdict": "benign",
+      "costUsd": 0.0012346000000000024
+    },
+    {
+      "hash": "e8c561c5dc01cfb5917a498f6a9a9544d9e5e74c469298c20a31c0361588eea5",
+      "verdict": "attack",
+      "costUsd": 0.0062339999999999895
+    },
+    {
+      "hash": "fe3ff9ba92668259f74a89b4a83b938b97e5b63c18f30a19c259c5bfaafb5a93",
+      "verdict": "benign",
+      "costUsd": 0.0010435000000000028
+    },
+    {
+      "hash": "8c2a1fd47315547df7c5cac071e62b4615afda82a9eeacfdf3de0163439ad891",
+      "verdict": "attack",
+      "costUsd": 0.001193699999999992
+    },
+    {
+      "hash": "f8ab7e69e21a2d2f704316f6ac454d1bf449098f063d66d6ef076190b383cdae",
+      "verdict": "benign",
+      "costUsd": 0.0011740000000000084
+    },
+    {
+      "hash": "4ae782afa76170aedead2dc550fd0227dea366f157157ef378aa9867d9ffe143",
+      "verdict": "attack",
+      "costUsd": 0.0012439999999999951
+    },
+    {
+      "hash": "8e63821c03263f369a5fc6ea9a44014ae34cff22824c721bb42d96443f8a7f94",
+      "verdict": "benign",
+      "costUsd": 0.0011642000000000041
+    },
+    {
+      "hash": "68b962d8cc6c3ec844ba65195db4943c1521d5569dbf5d91ecba89a8549d6009",
+      "verdict": "attack",
+      "costUsd": 0.0012239
+    },
+    {
+      "hash": "808db143fcb6333e2e2c5393610946774f9f7f807efd678340fefd07d8d3d462",
+      "verdict": "benign",
+      "costUsd": 0.001123900000000011
+    },
+    {
+      "hash": "4ae782afa76170aedead2dc550fd0227dea366f157157ef378aa9867d9ffe143",
+      "verdict": "attack",
+      "costUsd": 0.0011539999999999884
+    },
+    {
+      "hash": "fe3ff9ba92668259f74a89b4a83b938b97e5b63c18f30a19c259c5bfaafb5a93",
+      "verdict": "benign",
+      "costUsd": 0.0010435000000000028
+    },
+    {
+      "hash": "a90cc9e0135c0c1238d74b158ba695972ea366b88ee66f3abda2893e0122d245",
+      "verdict": "attack",
+      "costUsd": 0.0011841999999999964
+    },
+    {
+      "hash": "dd0d3d223b6f2b2be6002657a7b28494f7fffa751f65a39eced35223c0f95ac0",
+      "verdict": "benign",
+      "costUsd": 0.0010539999999999994
+    },
+    {
+      "hash": "4bd2de39521928bb9d2825800a19f658c71c84468b4156b016a6605d0e000831",
+      "verdict": "attack",
+      "costUsd": 0.001093700000000003
+    },
+    {
+      "hash": "8e63821c03263f369a5fc6ea9a44014ae34cff22824c721bb42d96443f8a7f94",
+      "verdict": "benign",
+      "costUsd": 0.0012242000000000086
+    },
+    {
+      "hash": "8a40e36a5fa91da1aca80301541a3468cde780db820617806e98182724c070eb",
+      "verdict": "attack",
+      "costUsd": 0.0011638999999999955
+    },
+    {
+      "hash": "3da2c2f2bb733dc5b775fc5cb1ebaaa6e04010214354c79a4d248d71c2509a07",
+      "verdict": "benign",
+      "costUsd": 0.006071999999999994
+    },
+    {
+      "hash": "1b617de352db0571279a3abafc9306882982ddad3a45b68ad6af65b4e2c120be",
+      "verdict": "attack",
+      "costUsd": 0.006199999999999983
+    },
+    {
+      "hash": "c39636d0ef0f3c6eaac134e09dacc28e9feee1c1e9ebd5276db84cbba0b0c5bc",
+      "verdict": "benign",
+      "costUsd": 0.0011144000000000154
+    },
+    {
+      "hash": "fc3a196f26593c1e894b806f8550474f5b85dd272f29b78a03072727cd9be02e",
+      "verdict": "attack",
+      "costUsd": 0.0011941999999999786
+    },
+    {
+      "hash": "ed5b7b07b0a76278fad04f62a3f8eb6b3e5db11b63fc702be020d887cfdbea64",
+      "verdict": "benign",
+      "costUsd": 0.0010437999999999836
+    },
+    {
+      "hash": "480f0130c7c1bfa8acfa2444808fee083eed74f7c18d3337e7c874180a1182ad",
+      "verdict": "attack",
+      "costUsd": 0.0011635999999999869
+    },
+    {
+      "hash": "cbcf69cffba396955171f024bd96345c22f48ff01cfb56e0324f1acffdb52d4b",
+      "verdict": "benign",
+      "costUsd": 0.006211999999999995
+    },
+    {
+      "hash": "1dd3fa68c02a1cde70048451847b585e397412e373e2b9a3b619c74bd29af601",
+      "verdict": "attack",
+      "costUsd": 0.0010435999999999779
+    },
+    {
+      "hash": "b47583fd95968c8478ef7185211e0703276fa70084a0e054bc694a78c44c0b78",
+      "verdict": "benign",
+      "costUsd": 0.006284000000000012
+    },
+    {
+      "hash": "a90cc9e0135c0c1238d74b158ba695972ea366b88ee66f3abda2893e0122d245",
+      "verdict": "attack",
+      "costUsd": 0.0012242000000000086
+    },
+    {
+      "hash": "cbcf69cffba396955171f024bd96345c22f48ff01cfb56e0324f1acffdb52d4b",
+      "verdict": "benign",
+      "costUsd": 0.0011041999999999996
+    },
+    {
+      "hash": "a80d37aaecdae6b14955a34563e92c4cae554136fe03151a0b28e95d3be18447",
+      "verdict": "attack",
+      "costUsd": 0.0013248000000000149
+    },
+    {
+      "hash": "808db143fcb6333e2e2c5393610946774f9f7f807efd678340fefd07d8d3d462",
+      "verdict": "benign",
+      "costUsd": 0.001123900000000011
+    },
+    {
+      "hash": "fc3a196f26593c1e894b806f8550474f5b85dd272f29b78a03072727cd9be02e",
+      "verdict": "attack",
+      "costUsd": 0.0011742000000000141
+    },
+    {
+      "hash": "808db143fcb6333e2e2c5393610946774f9f7f807efd678340fefd07d8d3d462",
+      "verdict": "benign",
+      "costUsd": 0.001123900000000011
+    },
+    {
+      "hash": "5fbad0e8b4f7b99c31b72326db298074c4fbf7528dddabced675c97e561e5e36",
+      "verdict": "attack",
+      "costUsd": 0.006033999999999984
+    },
+    {
+      "hash": "7fa8d70fdf56e0e9d7f92147e4cf534be0fb40ec61dd453e809a40fbbbdc5c4a",
+      "verdict": "benign",
+      "costUsd": 0.006031999999999982
+    },
+    {
+      "hash": "4ae782afa76170aedead2dc550fd0227dea366f157157ef378aa9867d9ffe143",
+      "verdict": "attack",
+      "costUsd": 0.0011240000000000139
+    },
+    {
+      "hash": "f8ab7e69e21a2d2f704316f6ac454d1bf449098f063d66d6ef076190b383cdae",
+      "verdict": "benign",
+      "costUsd": 0.0011639999999999984
+    },
+    {
+      "hash": "c2e7bdeb47e85952db1a3f7b593c37067f3fa4c4175b35b37e3da5174cac980e",
+      "verdict": "attack",
+      "costUsd": 0.006386000000000003
+    },
+    {
+      "hash": "f8ab7e69e21a2d2f704316f6ac454d1bf449098f063d66d6ef076190b383cdae",
+      "verdict": "benign",
+      "costUsd": 0.0012739999999999974
+    },
+    {
+      "hash": "5fbad0e8b4f7b99c31b72326db298074c4fbf7528dddabced675c97e561e5e36",
+      "verdict": "attack",
+      "costUsd": 0.0010135000000000005
+    },
+    {
+      "hash": "551b6cf7925b105efa177f9ed6c7c2a4853236f5e22a8365856e8d62d0c82467",
+      "verdict": "benign",
+      "costUsd": 0.0012746000000000146
+    },
+    {
+      "hash": "c2e7bdeb47e85952db1a3f7b593c37067f3fa4c4175b35b37e3da5174cac980e",
+      "verdict": "attack",
+      "costUsd": 0.0013148000000000049
+    },
+    {
+      "hash": "8e63821c03263f369a5fc6ea9a44014ae34cff22824c721bb42d96443f8a7f94",
+      "verdict": "benign",
+      "costUsd": 0.0011242000000000196
+    },
+    {
+      "hash": "fc3a196f26593c1e894b806f8550474f5b85dd272f29b78a03072727cd9be02e",
+      "verdict": "attack",
+      "costUsd": 0.0011941999999999786
+    },
+    {
+      "hash": "fe3ff9ba92668259f74a89b4a83b938b97e5b63c18f30a19c259c5bfaafb5a93",
+      "verdict": "benign",
+      "costUsd": 0.0011134999999999895
+    },
+    {
+      "hash": "8981d71e2c15784f176704fdcf93b3665e184512f08ce88132bb18d30b28e4de",
+      "verdict": "attack",
+      "costUsd": 0.001103899999999991
+    },
+    {
+      "hash": "37bf4bf9f572148699efc3db6f3ed8f923bf0cb6c2294336c62e78e4bd6801ce",
+      "verdict": "benign",
+      "costUsd": 0.0011635999999999869
+    },
+    {
+      "hash": "e8c561c5dc01cfb5917a498f6a9a9544d9e5e74c469298c20a31c0361588eea5",
+      "verdict": "attack",
+      "costUsd": 0.0011745000000000227
+    },
+    {
+      "hash": "8e63821c03263f369a5fc6ea9a44014ae34cff22824c721bb42d96443f8a7f94",
+      "verdict": "benign",
+      "costUsd": 0.0011142000000000096
+    },
+    {
+      "hash": "5fbad0e8b4f7b99c31b72326db298074c4fbf7528dddabced675c97e561e5e36",
+      "verdict": "attack",
+      "costUsd": 0.000983500000000026
+    },
+    {
+      "hash": "fe3ff9ba92668259f74a89b4a83b938b97e5b63c18f30a19c259c5bfaafb5a93",
+      "verdict": "benign",
+      "costUsd": 0.001173499999999994
+    },
+    {
+      "hash": "480f0130c7c1bfa8acfa2444808fee083eed74f7c18d3337e7c874180a1182ad",
+      "verdict": "attack",
+      "costUsd": 0.0014036000000000048
+    },
+    {
+      "hash": "808db143fcb6333e2e2c5393610946774f9f7f807efd678340fefd07d8d3d462",
+      "verdict": "benign",
+      "costUsd": 0.0011538999999999855
+    },
+    {
+      "hash": "e8c561c5dc01cfb5917a498f6a9a9544d9e5e74c469298c20a31c0361588eea5",
+      "verdict": "attack",
+      "costUsd": 0.0011745000000000227
+    },
+    {
+      "hash": "8e63821c03263f369a5fc6ea9a44014ae34cff22824c721bb42d96443f8a7f94",
+      "verdict": "benign",
+      "costUsd": 0.0011341999999999741
+    },
+    {
+      "hash": "52b7054a8828b947d499ba531ea592189aedc9b65cc0c94e8235d8bc83d54326",
+      "verdict": "attack",
+      "costUsd": 0.006083999999999978
+    },
+    {
+      "hash": "808db143fcb6333e2e2c5393610946774f9f7f807efd678340fefd07d8d3d462",
+      "verdict": "benign",
+      "costUsd": 0.0011939000000000255
+    },
+    {
+      "hash": "f01ad7cce2ba3ce386e56ec953d2ff5349bfd7a12b141b4c9d0e2fff15a4811f",
+      "verdict": "attack",
+      "costUsd": 0.0011039999999999939
+    },
+    {
+      "hash": "c39636d0ef0f3c6eaac134e09dacc28e9feee1c1e9ebd5276db84cbba0b0c5bc",
+      "verdict": "benign",
+      "costUsd": 0.0011144000000000154
+    },
+    {
+      "hash": "fc07a9c0f4e9cd54fa06480e3ab79cf41b314a05ffa09c54eeec98587645f924",
+      "verdict": "attack",
+      "costUsd": 0.0011137999999999981
+    },
+    {
+      "hash": "ed5b7b07b0a76278fad04f62a3f8eb6b3e5db11b63fc702be020d887cfdbea64",
+      "verdict": "benign",
+      "costUsd": 0.0010138000000000091
+    },
+    {
+      "hash": "c2e7bdeb47e85952db1a3f7b593c37067f3fa4c4175b35b37e3da5174cac980e",
+      "verdict": "attack",
+      "costUsd": 0.0013447999999999793
+    },
+    {
+      "hash": "dd0d3d223b6f2b2be6002657a7b28494f7fffa751f65a39eced35223c0f95ac0",
+      "verdict": "benign",
+      "costUsd": 0.0010640000000000094
+    }
+  ]
+}

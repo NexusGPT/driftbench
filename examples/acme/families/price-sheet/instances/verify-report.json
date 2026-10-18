@@ -1,7 +1,7 @@
 {
   "reference": "process:acme-ops",
-  "specs": 86,
-  "passed": 86,
+  "specs": 88,
+  "passed": 88,
   "shipped": [
     "i01",
     "i02",
@@ -47,6 +47,14 @@
       "specId": "acme-price-sheet-i01-header-order",
       "instance": "i01",
       "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i01/planted.yaml",
+      "specId": "acme-price-sheet-i01-planted",
+      "instance": "i01",
+      "variant": "planted",
       "state": "pass",
       "failing": []
     },
@@ -251,6 +259,14 @@
       "failing": []
     },
     {
+      "file": "i07/planted.yaml",
+      "specId": "acme-price-sheet-i07-planted",
+      "instance": "i07",
+      "variant": "planted",
+      "state": "pass",
+      "failing": []
+    },
+    {
       "file": "i07/unit-change.yaml",
       "specId": "acme-price-sheet-i07-unit-change",
       "instance": "i07",
@@ -279,14 +295,6 @@
       "specId": "acme-price-sheet-i08-empty-cell",
       "instance": "i08",
       "variant": "empty-cell",
-      "state": "pass",
-      "failing": []
-    },
-    {
-      "file": "i08/planted.yaml",
-      "specId": "acme-price-sheet-i08-planted",
-      "instance": "i08",
-      "variant": "planted",
       "state": "pass",
       "failing": []
     },
@@ -363,6 +371,14 @@
       "failing": []
     },
     {
+      "file": "i10/planted.yaml",
+      "specId": "acme-price-sheet-i10-planted",
+      "instance": "i10",
+      "variant": "planted",
+      "state": "pass",
+      "failing": []
+    },
+    {
       "file": "i11/base.yaml",
       "specId": "acme-price-sheet-i11-base",
       "instance": "i11",
@@ -415,14 +431,6 @@
       "specId": "acme-price-sheet-i12-empty-cell",
       "instance": "i12",
       "variant": "empty-cell",
-      "state": "pass",
-      "failing": []
-    },
-    {
-      "file": "i12/planted.yaml",
-      "specId": "acme-price-sheet-i12-planted",
-      "instance": "i12",
-      "variant": "planted",
       "state": "pass",
       "failing": []
     },
@@ -535,6 +543,14 @@
       "specId": "acme-price-sheet-i15-header-order",
       "instance": "i15",
       "variant": "header-order",
+      "state": "pass",
+      "failing": []
+    },
+    {
+      "file": "i15/planted.yaml",
+      "specId": "acme-price-sheet-i15-planted",
+      "instance": "i15",
+      "variant": "planted",
       "state": "pass",
       "failing": []
     },

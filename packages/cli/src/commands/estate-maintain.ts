@@ -1,5 +1,5 @@
-import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { dirname, join, relative, resolve } from 'node:path';
+import { readdir, readFile, stat } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 import {
   compareReplays,
   diffEstateMaps,
@@ -18,8 +18,9 @@ import {
   renderEstateDiff,
   renderImpact,
   writeRetirements,
-} from '@driftbench/estate';
+} from '@agent-nexus/driftbench-estate';
 import type { Command } from 'commander';
+import { show, writeOut } from '../files';
 import type { Io } from '../io';
 import { defaultReplayDeps, type ReplayDeps, replayCommand } from './replay';
 
@@ -282,20 +283,4 @@ async function readMap(path: string, io: Io): Promise<EstateMap | undefined> {
   for (const error of loaded.errors)
     io.err(`  ${error.code} ${error.path ? `${error.path}: ` : ''}${error.message}\n`);
   return undefined;
-}
-
-async function writeOut(path: string, text: string, io: Io): Promise<boolean> {
-  try {
-    await mkdir(dirname(path), { recursive: true });
-    await writeFile(path, text);
-    return true;
-  } catch (cause) {
-    io.err(`Cannot write ${show(path, io)}: ${cause instanceof Error ? cause.message : String(cause)}\n`);
-    return false;
-  }
-}
-
-function show(path: string, io: Io): string {
-  const rel = relative(io.cwd, path);
-  return rel === '' ? '.' : rel.startsWith('..') ? path : rel;
 }

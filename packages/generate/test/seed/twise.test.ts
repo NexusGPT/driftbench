@@ -1,4 +1,4 @@
-import { compileSpace, isForbidden, type SpaceMap } from '@driftbench/space';
+import { compileSpace, isForbidden, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { Feasibility } from '../../src/seed/feasible';
 import { rngFor } from '../../src/seed/random';

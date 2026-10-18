@@ -7,7 +7,7 @@
 <style>
   /* Left: block 4 of examples/acme/specs/conversations/plan-upgrade.yaml, with the Acme agent's real tool call and reply.
      Right: the first block of examples/acme/specs/tasks/price-sheet.yaml, drawn from its expect. */
-  #frame { width: 640px; height: 352px; }
+  #frame { width: 640px; height: 378px; }
   .side-k { top: 18px; }
   .side-t { position: absolute; top: 34px; font: 600 12.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
   .tool { left: 16px; top: 104px; gap: 8px; }
@@ -17,7 +17,7 @@
   .run .nx-node__title { font: 500 11.5px/1.25 var(--nx-mono); }
   .files { left: 336px; top: 180px; width: 270px; padding: 9px 12px; font: 400 11px/1.6 var(--nx-mono); color: var(--detail); }
   .files .add { color: var(--nx-done-ink); font-weight: 500; }
-  .checks { top: 234px; width: 286px; height: 84px; padding: 11px 12px; }
+  .checks { top: 234px; width: 286px; height: 110px; padding: 11px 12px; }
   .checks .nx-kind { position: static; display: block; margin-bottom: 9px; }
   .checks .row { display: flex; flex-wrap: wrap; gap: 6px; }
   .chk { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px; border-radius: 999px;
@@ -28,42 +28,42 @@
 <body>
 <div id="frame" class="nx-ill scene">
   <div class="nx-ill__glass">
-    <svg class="nx-edges" viewBox="0 0 620 332">
-      <path class="nx-edge" d="M310 20 L310 312" style="stroke-dasharray:2 5"/>
+    <svg class="nx-edges" viewBox="0 0 620 358">
+      <path class="nx-edge" d="M310 20 L310 338" style="stroke-dasharray:2 5"/>
     </svg>
 
     <!-- conversational agent -->
-    <span class="nx-kind nx-kind--ink side-k" style="left:16px">Conversational agent</span>
-    <span class="nx-kind side-k" style="left:268px">b4</span>
-    <div class="side-t" style="left:16px">A block is one exchange</div>
+    <span class="nx-kind nx-kind--ink side-k" style="left:16px">A chat agent</span>
+    <span class="nx-kind side-k" style="left:268px">step 4</span>
+    <div class="side-t" style="left:16px">A step is one exchange</div>
     <div class="nx-ibub nx-ibub--me" style="right:326px;top:62px">Confirm</div>
-    <span class="nx-ipill nx-ipill--flat tool"><span class="m">order.create</span><span class="ok">ORD-7B883C</span></span>
+    <span class="nx-ipill nx-ipill--flat tool"><span class="m">order placed</span><span class="ok">ORD-7B883C</span></span>
     <div class="nx-ibub nx-ibub--agent" style="left:16px;top:140px;width:262px">Done. Your order ORD-7B883C is placed: Acme Mobile L starts on your next billing cycle. Is there anything else I can help with?</div>
     <div class="nx-ill-panel checks" style="left:14px">
       <span class="nx-kind">Checked</span>
       <div class="row">
-        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>stage</span>
+        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>right step</span>
         <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>tool call</span>
-        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>guard</span>
+        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>asked first</span>
         <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>order id</span>
-        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>end state</span>
+        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>order saved</span>
       </div>
     </div>
 
     <!-- code interpreter agent -->
-    <span class="nx-kind nx-kind--ink side-k" style="left:336px">Code interpreter agent</span>
-    <span class="nx-kind side-k" style="left:590px">b1</span>
-    <div class="side-t" style="left:336px">A block is one task step</div>
+    <span class="nx-kind nx-kind--ink side-k" style="left:336px">An agent that writes files</span>
+    <span class="nx-kind side-k" style="left:574px">step 1</span>
+    <div class="side-t" style="left:336px">A step is one task</div>
     <div class="nx-ibub nx-ibub--me" style="right:14px;top:62px;white-space:nowrap">Build a price sheet from catalog.csv.</div>
-    <div class="nx-node run"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><span class="nx-node__kind">Skill: xlsx</span><span class="nx-node__title">runs code</span><span class="nx-node__detail">exit 0, 10 commands at most</span></div>
-    <div class="nx-ill-panel files"><div class="add">+ out/acme-price-sheet.xlsx</div><div>catalog.csv, README.txt untouched</div></div>
+    <div class="nx-node run"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><span class="nx-node__kind">Uses its spreadsheet skill</span><span class="nx-node__title">Runs its own code</span><span class="nx-node__detail">no error, within its step limit</span></div>
+    <div class="nx-ill-panel files"><div class="add">+ price-sheet.xlsx, created</div><div>the other files, untouched</div></div>
     <div class="nx-ill-panel checks" style="left:320px">
       <span class="nx-kind">Checked</span>
       <div class="row">
-        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>sheets and cells</span>
-        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>workspace diff</span>
+        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>sheets, cells</span>
+        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>others untouched</span>
         <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>yearly formula</span>
-        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>no destructive op</span>
+        <span class="chk"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>nothing deleted</span>
       </div>
     </div>
   </div>

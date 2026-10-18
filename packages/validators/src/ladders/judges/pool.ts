@@ -1,9 +1,9 @@
 import { join } from 'node:path';
-import type { CriterionDef, Message, Observed, WorldState } from '@driftbench/core';
-import { type FaultDef, type FaultSession, importFaultSet } from '@driftbench/generate';
-import type { CriterionText, JudgeRequest, TranscriptEntry } from '@driftbench/judges';
-import { type LoadedCriterion, loadCriteria } from '@driftbench/judges';
-import { mulberry32 } from '@driftbench/stats';
+import type { CriterionDef, Message, Observed, WorldState } from '@agent-nexus/driftbench-core';
+import { type FaultDef, type FaultSession, importFaultSet } from '@agent-nexus/driftbench-generate';
+import type { CriterionText, JudgeRequest, TranscriptEntry } from '@agent-nexus/driftbench-judges';
+import { type LoadedCriterion, loadCriteria } from '@agent-nexus/driftbench-judges';
+import { mulberry32 } from '@agent-nexus/driftbench-stats';
 
 /**
  * The labelled set of the judge validator, built by code from the fault family (docs/validators.md section 4).

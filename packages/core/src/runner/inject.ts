@@ -4,8 +4,8 @@ import type { PerturbationSpec, Spec, Stimulus } from '../schema/spec';
 /**
  * A driver that injects one of the spec's perturbations into the steps of another driver (the scripted
  * driver, usually), once, before block `inject_at`. The core's own minimal injector: the core cannot import
- * `@driftbench/users`, so its tests run mode P on this. The CLI runs mode P on `createPerturbingDriver` of
- * `@driftbench/users`, which injects the same way for a declared perturbation and adds drawn ones (the
+ * `@agent-nexus/driftbench-users`, so its tests run mode P on this. The CLI runs mode P on `createPerturbingDriver` of
+ * `@agent-nexus/driftbench-users`, which injects the same way for a declared perturbation and adds drawn ones (the
  * red-team pack), the base driver's words for a world change, and the changed block's own world. It decides
  * from its context alone, so one instance can drive any number of runs.
  *
@@ -34,7 +34,14 @@ export function injectingDriver(base: UserDriver, perturbationId: string): UserD
             beforeBlock: perturbation.inject_at,
           };
         }
-        if (replacesBlock(perturbation)) return base.next({ ...ctx, blockIndex: ctx.blockIndex + 1 });
+        if (replacesBlock(perturbation)) {
+          const blockIndex = ctx.blockIndex + 1;
+          return base.next({
+            ...ctx,
+            blockIndex,
+            ...(ctx.branchOf ? { branch: ctx.branchOf(blockIndex) } : {}),
+          });
+        }
       }
       return base.next(ctx);
     },

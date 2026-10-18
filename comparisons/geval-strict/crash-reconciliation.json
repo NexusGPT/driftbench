@@ -1,0 +1,12 @@
+{
+  "requestSha256": "3562026306e9b1ad24a59194d417d78de78db456607ea1371391a75852fdb43d",
+  "reserve": 0.05,
+  "phase": "tuning",
+  "mode": "feature",
+  "deadRunnerPid": 50762,
+  "noLiveRunnerObserved": true,
+  "recoveryCommit": "587b1498",
+  "promptsUnchangedAcrossMerge": true,
+  "costBasis": "conservative reservation; crash lost the response and cost envelope",
+  "resolution": "Recorded invocation error and charged the full reservation; do not retry this input."
+}

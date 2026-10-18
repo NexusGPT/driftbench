@@ -3,6 +3,9 @@
   "permissions": {
     "allow": ["Read", "Bash(./scripts/track.sh *)"]
   },
+  "env": {
+    "NORTHWIND_REGION": "eu-west"
+  },
   "hooks": {
     "PreToolUse": [
       {

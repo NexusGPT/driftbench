@@ -1,0 +1,18 @@
+[
+  {
+    "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+    "order": "blind-direct-program",
+    "receipt": "6ab5b67b-9b3f-4827-aa2d-fbe47b370693",
+    "key": "a2c2d66d38a34ae5a64b",
+    "failure": "Transport missing: exhausted 300-second pilot recovery; claude returned an error result; receipt 6ab5b67b-9b3f-4827-aa2d-fbe47b370693",
+    "derivation": "Frozen prompt function and cached extraction; next unrecorded step of the interrupted item"
+  },
+  {
+    "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+    "order": "program",
+    "receipt": "54a2039c-e91b-4fd8-95c4-d77da5e16bb1",
+    "key": "ba611676bf10cb49ed87",
+    "failure": "Transport missing: exhausted 300-second pilot recovery; claude returned an error result; receipt 54a2039c-e91b-4fd8-95c4-d77da5e16bb1",
+    "derivation": "Frozen prompt function and cached extraction; next unrecorded step of the interrupted item"
+  }
+]

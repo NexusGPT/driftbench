@@ -1,5 +1,5 @@
-import { functionAdapter } from '@driftbench/adapters';
-import { defaultChecks } from '@driftbench/checks';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type BlockSpec,
@@ -8,8 +8,8 @@ import {
   type Observed,
   type Spec,
   validateSpec,
-} from '@driftbench/core';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import {
   type Candidate,
   type FaultDef,

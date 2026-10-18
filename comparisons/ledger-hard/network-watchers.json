@@ -1,0 +1,53 @@
+{
+  "created": "2026-10-13T18:46:19.380202+00:00",
+  "supervisor": {
+    "pid": 76375,
+    "log": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-hard/comparisons/ledger-hard/detached-supervisor.log",
+    "state_file": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-hard/comparisons/ledger-hard/supervisor-state.json",
+    "source": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-hard/comparisons/ledger-hard/detached-supervisor.py",
+    "detached_session": true,
+    "target": "Sol then Sonnet; 6560 answers each; verify, report and push",
+    "stop_new_calls": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-hard/comparisons/ledger-hard/network-hold",
+    "self_terminates": "only on verified complete publication; guards leave supervisor waiting"
+  },
+  "retired_prior_watchers": {
+    "driver": {
+      "pid": 70781,
+      "exec_session": 90283,
+      "target": "gpt-6.1-sol then sonnet-5-5, both 6560 answered requests",
+      "stop_new_calls": "comparisons/ledger-hard/network-hold",
+      "source": "comparisons/ledger-hard/network-resume.py"
+    },
+    "finisher": {
+      "pid": 87223,
+      "exec_session": 36095,
+      "target": "the named serial driver releases network-runner.lock",
+      "source": "comparisons/ledger-hard/network-finish.py",
+      "completion_predicate": "both cells have 6560 answers, native parity and exact tables, verified runtime gates, unchanged official Luna files, matching remote branch HEAD",
+      "status_file": "comparisons/ledger-hard/network-finish-state.json",
+      "self_terminates": true
+    },
+    "reason": "Both host-attached processes stopped without completion; no process is killed by restart"
+  },
+  "freeze_commit": "42a45db5e93a4acc61383cd652efff3152cadbbf",
+  "detach_verification": {
+    "verified_at": "2026-10-13T18:46:56.692771+00:00",
+    "pid": 76375,
+    "parent_pid": 1,
+    "process_group": 76375,
+    "session_id": 76375,
+    "launcher_exited": true,
+    "first_probe_receipt": {
+      "stamp": "2026-10-13T18:46:52.860270+00:00",
+      "cell": "gpt-6.1-sol",
+      "url": "https://api.openai.com/v1/models",
+      "healthy": true,
+      "status": 200,
+      "elapsed_seconds": 0.9637760000186972,
+      "error": null,
+      "paid": false,
+      "interpretation": "Authenticated model-list receipt",
+      "consecutive_healthy": 2
+    }
+  }
+}

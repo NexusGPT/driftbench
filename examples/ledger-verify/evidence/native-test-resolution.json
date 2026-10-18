@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-13T08:22:55.895898+00:00",
+  "finding": "zsh resets PATH and selected the installed Claude command instead of the mocked executable.",
+  "failedDiagnostic": {
+    "arguments": [
+      "--model",
+      "fake"
+    ],
+    "stdin": "input",
+    "exitCode": 1,
+    "fee": "unknown; no receipt retained"
+  },
+  "capTreatment": "0.50 USD retained as an unknown-charge reservation. Not a benchmark call or accuracy result.",
+  "fix": "The test passes an absolute mock executable; provider transport pins the real executable. The corrected test passes."
+}

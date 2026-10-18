@@ -1,0 +1,6 @@
+{
+  "root": false,
+  "extends": ["../../biome.json"],
+  "files": { "maxSize": 16777216 },
+  "overrides": [{ "includes": ["**/*.json"], "formatter": { "enabled": false } }]
+}

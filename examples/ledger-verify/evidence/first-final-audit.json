@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-13T12:51:48.356341+00:00",
+  "reports": [
+    {
+      "file": "pilot/gemini-3.8-flash.partial-cd2c6735e0a3b2433c9c.json",
+      "compared": 11,
+      "changed": []
+    },
+    {
+      "file": "pilot/gpt-6-luna.partial-cd2c6735e0a3b2433c9c.json",
+      "compared": 8,
+      "changed": []
+    },
+    {
+      "file": "pilot/haiku.partial-300s-exhausted.json",
+      "compared": 9,
+      "changed": []
+    },
+    {
+      "file": "pilot/haiku.partial-cd2c6735e0a3b2433c9c.json",
+      "compared": 8,
+      "changed": []
+    },
+    {
+      "file": "noise-0/gemini-3.8-flash.pre-topup.partial.json",
+      "compared": 55,
+      "changed": []
+    },
+    {
+      "file": "noise-1/gemini-3.8-flash.pre-topup.partial.json",
+      "compared": 0,
+      "changed": []
+    },
+    {
+      "file": "noise-1/gpt-6-luna.pre-billing-release.partial.json",
+      "compared": 0,
+      "changed": []
+    },
+    {
+      "file": "noise-2/gemini-3.8-flash.pre-daily-quota.partial.json",
+      "compared": 50,
+      "changed": []
+    },
+    {
+      "file": "noise-2/haiku.pre-outage-recovery.partial.json",
+      "compared": 59,
+      "changed": []
+    }
+  ]
+}

@@ -1,0 +1,656 @@
+{
+  "generated": "2026-10-13T22:02:13.883748+00:00",
+  "model": "gpt-6.1-sol",
+  "cell": "gpt-6.1-sol",
+  "reasoning": "medium",
+  "unique_calls": 6560,
+  "planned_unique": 6560,
+  "complete": true,
+  "measured_usd": 12.446968,
+  "unknown_attempt_reserve_usd": 3.5,
+  "max_concurrent_calls": 8,
+  "seal_sha256": "5d15738876e4eb1d1d8f81875bf38394352ff31befa8337e895c51fe1268a623",
+  "experiments": {
+    "primary": {
+      "tables": [
+        {
+          "row": "rubric",
+          "comparator": "peer",
+          "n": 384,
+          "sealed_n": 384,
+          "complete": true,
+          "ours": 384,
+          "peer": 369,
+          "wins": 15,
+          "losses": 0,
+          "both_correct": 369,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "peer_wilson95": [
+            0.9365570797743691,
+            0.9761870117840848
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              1.0,
+              1.0
+            ],
+            "peer": [
+              0.8828125,
+              1.0
+            ],
+            "difference": [
+              0.0,
+              0.1171875
+            ]
+          },
+          "ours_inconclusive": 0,
+          "peer_inconclusive": 0,
+          "one_sided_p": 3.0517578125e-05,
+          "one_sided_exact": "1/32768",
+          "two_sided_p": 6.103515625e-05,
+          "two_sided_exact": "1/16384",
+          "ours_cost_usd": 0.769092,
+          "peer_cost_usd": 0.4308,
+          "nominal_verdict": "nominal lead"
+        },
+        {
+          "row": "factuality",
+          "comparator": "peer",
+          "n": 384,
+          "sealed_n": 384,
+          "complete": true,
+          "ours": 384,
+          "peer": 384,
+          "wins": 0,
+          "losses": 0,
+          "both_correct": 384,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "peer_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              1.0,
+              1.0
+            ],
+            "peer": [
+              1.0,
+              1.0
+            ],
+            "difference": [
+              0.0,
+              0.0
+            ]
+          },
+          "ours_inconclusive": 0,
+          "peer_inconclusive": 0,
+          "one_sided_p": 1.0,
+          "one_sided_exact": "1",
+          "two_sided_p": 1.0,
+          "two_sided_exact": "1",
+          "ours_cost_usd": 0.861148,
+          "peer_cost_usd": 0.631266,
+          "nominal_verdict": "TIE (not equivalence)"
+        },
+        {
+          "row": "pii",
+          "comparator": "peer",
+          "n": 384,
+          "sealed_n": 384,
+          "complete": true,
+          "ours": 384,
+          "peer": 384,
+          "wins": 0,
+          "losses": 0,
+          "both_correct": 384,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "peer_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              1.0,
+              1.0
+            ],
+            "peer": [
+              1.0,
+              1.0
+            ],
+            "difference": [
+              0.0,
+              0.0
+            ]
+          },
+          "ours_inconclusive": 0,
+          "peer_inconclusive": 0,
+          "one_sided_p": 1.0,
+          "one_sided_exact": "1",
+          "two_sided_p": 1.0,
+          "two_sided_exact": "1",
+          "ours_cost_usd": 0.69587,
+          "peer_cost_usd": 0.440346,
+          "nominal_verdict": "TIE (not equivalence)"
+        },
+        {
+          "row": "goal",
+          "comparator": "peer",
+          "n": 384,
+          "sealed_n": 384,
+          "complete": true,
+          "ours": 384,
+          "peer": 192,
+          "wins": 192,
+          "losses": 0,
+          "both_correct": 192,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "peer_wilson95": [
+            0.4502387845765474,
+            0.5497612154234526
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              1.0,
+              1.0
+            ],
+            "peer": [
+              0.5,
+              0.5
+            ],
+            "difference": [
+              0.5,
+              0.5
+            ]
+          },
+          "ours_inconclusive": 0,
+          "peer_inconclusive": 0,
+          "one_sided_p": 1.5930919111324523e-58,
+          "one_sided_exact": "1/6277101735386680763835789423207666416102355444464034512896",
+          "two_sided_p": 3.1861838222649046e-58,
+          "two_sided_exact": "1/3138550867693340381917894711603833208051177722232017256448",
+          "ours_cost_usd": 1.00535,
+          "peer_cost_usd": 0.480292,
+          "nominal_verdict": "nominal lead"
+        },
+        {
+          "row": "goal",
+          "comparator": "peer-full-state",
+          "n": 384,
+          "sealed_n": 384,
+          "complete": true,
+          "ours": 384,
+          "peer": 384,
+          "wins": 0,
+          "losses": 0,
+          "both_correct": 384,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "peer_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              1.0,
+              1.0
+            ],
+            "peer": [
+              1.0,
+              1.0
+            ],
+            "difference": [
+              0.0,
+              0.0
+            ]
+          },
+          "ours_inconclusive": 0,
+          "peer_inconclusive": 0,
+          "one_sided_p": 1.0,
+          "one_sided_exact": "1",
+          "two_sided_p": 1.0,
+          "two_sided_exact": "1",
+          "ours_cost_usd": 1.00535,
+          "peer_cost_usd": 0.669262,
+          "nominal_verdict": "TIE (not equivalence)"
+        },
+        {
+          "row": "pooled-default",
+          "comparator": "mixed",
+          "n": 1536,
+          "sealed_n": 1536,
+          "complete": true,
+          "ours": 1536,
+          "peer": 1329,
+          "wins": 207,
+          "losses": 0,
+          "both_correct": 1329,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9975052893928209,
+            1
+          ],
+          "peer_wilson95": [
+            0.8472433185169235,
+            0.8814031233442385
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              1.0,
+              1.0
+            ],
+            "peer": [
+              0.845703125,
+              0.875
+            ],
+            "difference": [
+              0.125,
+              0.154296875
+            ]
+          },
+          "ours_inconclusive": 0,
+          "peer_inconclusive": 0,
+          "one_sided_p": 4.861730685829017e-63,
+          "one_sided_exact": "1/205688069665150755269371147819668813122841983204197482918576128",
+          "two_sided_p": 9.723461371658034e-63,
+          "two_sided_exact": "1/102844034832575377634685573909834406561420991602098741459288064",
+          "ours_cost_usd": 3.33146,
+          "peer_cost_usd": 1.982704,
+          "nominal_verdict": "nominal lead"
+        },
+        {
+          "row": "pooled-equal-evidence",
+          "comparator": "mixed",
+          "n": 1536,
+          "sealed_n": 1536,
+          "complete": true,
+          "ours": 1536,
+          "peer": 1521,
+          "wins": 15,
+          "losses": 0,
+          "both_correct": 1521,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9975052893928209,
+            1
+          ],
+          "peer_wilson95": [
+            0.9839497414860764,
+            0.9940730227232909
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              1.0,
+              1.0
+            ],
+            "peer": [
+              0.970703125,
+              1.0
+            ],
+            "difference": [
+              0.0,
+              0.029296875
+            ]
+          },
+          "ours_inconclusive": 0,
+          "peer_inconclusive": 0,
+          "one_sided_p": 3.0517578125e-05,
+          "one_sided_exact": "1/32768",
+          "two_sided_p": 6.103515625e-05,
+          "two_sided_exact": "1/16384",
+          "ours_cost_usd": 3.33146,
+          "peer_cost_usd": 2.171674,
+          "nominal_verdict": "nominal lead"
+        }
+      ],
+      "native_peer_answers_checked": 1744,
+      "unique_calls": 3280,
+      "cost_by_contestant": {
+        "audit": 3.33146,
+        "peer": 1.982704,
+        "peer-full-state": 0.669262
+      }
+    },
+    "dialect": {
+      "tables": [
+        {
+          "row": "rubric",
+          "comparator": "peer",
+          "n": 384,
+          "sealed_n": 384,
+          "complete": true,
+          "ours": 384,
+          "peer": 368,
+          "wins": 16,
+          "losses": 0,
+          "both_correct": 368,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "peer_wilson95": [
+            0.933394916267659,
+            0.9741924290108036
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              1.0,
+              1.0
+            ],
+            "peer": [
+              0.875,
+              1.0
+            ],
+            "difference": [
+              0.0,
+              0.125
+            ]
+          },
+          "ours_inconclusive": 0,
+          "peer_inconclusive": 0,
+          "one_sided_p": 1.52587890625e-05,
+          "one_sided_exact": "1/65536",
+          "two_sided_p": 3.0517578125e-05,
+          "two_sided_exact": "1/32768",
+          "ours_cost_usd": 0.866578,
+          "peer_cost_usd": 0.42835,
+          "nominal_verdict": "nominal lead"
+        },
+        {
+          "row": "factuality",
+          "comparator": "peer",
+          "n": 384,
+          "sealed_n": 384,
+          "complete": true,
+          "ours": 381,
+          "peer": 384,
+          "wins": 0,
+          "losses": 3,
+          "both_correct": 381,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9772854879797644,
+            0.9973395589385846
+          ],
+          "peer_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              0.984375,
+              1.0
+            ],
+            "peer": [
+              1.0,
+              1.0
+            ],
+            "difference": [
+              -0.015625,
+              0.0
+            ]
+          },
+          "ours_inconclusive": 3,
+          "peer_inconclusive": 0,
+          "one_sided_p": 1.0,
+          "one_sided_exact": "1",
+          "two_sided_p": 0.25,
+          "two_sided_exact": "1/4",
+          "ours_cost_usd": 1.054196,
+          "peer_cost_usd": 0.632796,
+          "nominal_verdict": "TIE (not equivalence)"
+        },
+        {
+          "row": "pii",
+          "comparator": "peer",
+          "n": 384,
+          "sealed_n": 384,
+          "complete": true,
+          "ours": 384,
+          "peer": 384,
+          "wins": 0,
+          "losses": 0,
+          "both_correct": 384,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "peer_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              1.0,
+              1.0
+            ],
+            "peer": [
+              1.0,
+              1.0
+            ],
+            "difference": [
+              0.0,
+              0.0
+            ]
+          },
+          "ours_inconclusive": 0,
+          "peer_inconclusive": 0,
+          "one_sided_p": 1.0,
+          "one_sided_exact": "1",
+          "two_sided_p": 1.0,
+          "two_sided_exact": "1",
+          "ours_cost_usd": 0.785896,
+          "peer_cost_usd": 0.44119600000000003,
+          "nominal_verdict": "TIE (not equivalence)"
+        },
+        {
+          "row": "goal",
+          "comparator": "peer",
+          "n": 384,
+          "sealed_n": 384,
+          "complete": true,
+          "ours": 384,
+          "peer": 192,
+          "wins": 192,
+          "losses": 0,
+          "both_correct": 192,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "peer_wilson95": [
+            0.4502387845765474,
+            0.5497612154234526
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              1.0,
+              1.0
+            ],
+            "peer": [
+              0.5,
+              0.5
+            ],
+            "difference": [
+              0.5,
+              0.5
+            ]
+          },
+          "ours_inconclusive": 0,
+          "peer_inconclusive": 0,
+          "one_sided_p": 1.5930919111324523e-58,
+          "one_sided_exact": "1/6277101735386680763835789423207666416102355444464034512896",
+          "two_sided_p": 3.1861838222649046e-58,
+          "two_sided_exact": "1/3138550867693340381917894711603833208051177722232017256448",
+          "ours_cost_usd": 1.106776,
+          "peer_cost_usd": 0.478532,
+          "nominal_verdict": "nominal lead"
+        },
+        {
+          "row": "goal",
+          "comparator": "peer-full-state",
+          "n": 384,
+          "sealed_n": 384,
+          "complete": true,
+          "ours": 384,
+          "peer": 384,
+          "wins": 0,
+          "losses": 0,
+          "both_correct": 384,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "peer_wilson95": [
+            0.9900952857583228,
+            0.9999999999999999
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              1.0,
+              1.0
+            ],
+            "peer": [
+              1.0,
+              1.0
+            ],
+            "difference": [
+              0.0,
+              0.0
+            ]
+          },
+          "ours_inconclusive": 0,
+          "peer_inconclusive": 0,
+          "one_sided_p": 1.0,
+          "one_sided_exact": "1",
+          "two_sided_p": 1.0,
+          "two_sided_exact": "1",
+          "ours_cost_usd": 1.106776,
+          "peer_cost_usd": 0.669222,
+          "nominal_verdict": "TIE (not equivalence)"
+        },
+        {
+          "row": "pooled-default",
+          "comparator": "mixed",
+          "n": 1536,
+          "sealed_n": 1536,
+          "complete": true,
+          "ours": 1533,
+          "peer": 1328,
+          "wins": 208,
+          "losses": 3,
+          "both_correct": 1325,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9942732405327229,
+            0.9993355438234072
+          ],
+          "peer_wilson95": [
+            0.8465593226988154,
+            0.8807882841501166
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              0.99609375,
+              1.0
+            ],
+            "peer": [
+              0.84375,
+              0.875
+            ],
+            "difference": [
+              0.12174479166666667,
+              0.15494791666666666
+            ]
+          },
+          "ours_inconclusive": 3,
+          "peer_inconclusive": 0,
+          "one_sided_p": 4.757908427033138e-58,
+          "one_sided_exact": "195729/411376139330301510538742295639337626245683966408394965837152256",
+          "two_sided_p": 9.515816854066277e-58,
+          "two_sided_exact": "195729/205688069665150755269371147819668813122841983204197482918576128",
+          "ours_cost_usd": 3.813446,
+          "peer_cost_usd": 1.980874,
+          "nominal_verdict": "nominal lead"
+        },
+        {
+          "row": "pooled-equal-evidence",
+          "comparator": "mixed",
+          "n": 1536,
+          "sealed_n": 1536,
+          "complete": true,
+          "ours": 1533,
+          "peer": 1520,
+          "wins": 16,
+          "losses": 3,
+          "both_correct": 1517,
+          "both_wrong": 0,
+          "ours_wilson95": [
+            0.9942732405327229,
+            0.9993355438234072
+          ],
+          "peer_wilson95": [
+            0.9831458724803458,
+            0.9935780567167912
+          ],
+          "family_bootstrap95": {
+            "ours": [
+              0.99609375,
+              1.0
+            ],
+            "peer": [
+              0.96875,
+              1.0
+            ],
+            "difference": [
+              -0.0032552083333333335,
+              0.029947916666666668
+            ]
+          },
+          "ours_inconclusive": 3,
+          "peer_inconclusive": 0,
+          "one_sided_p": 0.0022125244140625,
+          "one_sided_exact": "145/65536",
+          "two_sided_p": 0.004425048828125,
+          "two_sided_exact": "145/32768",
+          "ours_cost_usd": 3.813446,
+          "peer_cost_usd": 2.171564,
+          "nominal_verdict": "nominal lead"
+        }
+      ],
+      "native_peer_answers_checked": 1744,
+      "unique_calls": 3280,
+      "cost_by_contestant": {
+        "audit": 3.813446,
+        "peer": 1.980874,
+        "peer-full-state": 0.669222
+      }
+    }
+  },
+  "lost_entries": 3,
+  "token_limited_entries": 3,
+  "lost_unique_requests": 3
+}

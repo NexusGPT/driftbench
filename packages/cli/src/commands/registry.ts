@@ -1,5 +1,5 @@
 import { relative, resolve } from 'node:path';
-import { loadSpecs } from '@driftbench/core';
+import { loadSpecs } from '@agent-nexus/driftbench-core';
 import {
   diffFiles,
   openStore,
@@ -10,8 +10,9 @@ import {
   readTree,
   restoreFiles,
   type SqliteStore,
-} from '@driftbench/store';
+} from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
+import { reason as describe } from '../files';
 import type { Io } from '../io';
 
 type StoreOption = { store: string; json?: boolean };
@@ -79,7 +80,7 @@ export function registerRegistryCommands(program: Command, io: Io, setExit: (cod
   }
 }
 
-async function pushCommand(
+export async function pushCommand(
   kind: RegistryKind,
   name: string,
   path: string,
@@ -141,6 +142,11 @@ async function pushCommand(
 async function listCommand(kind: RegistryKind, name: string | undefined, options: StoreOption, io: Io) {
   return withStore(options.store, io, async (store) => {
     const versions = await store.listVersions(kind, name);
+    // A name the store does not hold is bad input, exit 2, as for diff and restore; an empty registry is not.
+    if (name !== undefined && versions.length === 0) {
+      io.err(`No ${kind} ${name} in ${options.store}.\n`);
+      return 2;
+    }
     if (options.json) {
       io.out(`${JSON.stringify(versions, null, 2)}\n`);
       return 0;
@@ -316,8 +322,4 @@ function label(version: RegistryVersion): string {
 function show(io: Io, path: string): string {
   const rel = relative(io.cwd, path);
   return rel === '' || rel.startsWith('..') ? path : rel;
-}
-
-function describe(cause: unknown): string {
-  return cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
 }

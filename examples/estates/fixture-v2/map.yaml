@@ -1128,6 +1128,8 @@ atoms:
       first: .claude/skills/invoice-reconcile/references/matching-rules.md
       trigger: editing any invoice file
       path: .claude/skills/invoice-reconcile/references/matching-rules.md
+      spans:
+        - .claude/skills/invoice-reconcile/references/matching-rules.md
   - id: gate.standing.read-git-status-before-commit-to
     kind: gate
     title: Read git status before commit to git
@@ -1149,6 +1151,8 @@ atoms:
       form: not-until-read
       first: git status
       trigger: commit to git
+      spans:
+        - git status
   - id: hazard.standing.recover-from-a-compaction-of-the
     kind: hazard
     title: Recover from a compaction of the context
@@ -1270,6 +1274,8 @@ atoms:
       first: references/matching-rules.md
       trigger: matching any line
       path: .claude/skills/invoice-reconcile/references/matching-rules.md
+      spans:
+        - references/matching-rules.md
   - id: reference.supplier-email.read-claude-memory-supplier-languages-md
     kind: reference
     title: Read .claude/memory/supplier-languages.md
@@ -1355,6 +1361,8 @@ atoms:
       first: templates/report.md
       trigger: writing the report
       path: .claude/skills/weekly-report/templates/report.md
+      spans:
+        - templates/report.md
   - id: register.standing.answer-in-the-language-of-the
     kind: register
     title: Answer in the language of the user's latest message
@@ -1422,6 +1430,9 @@ atoms:
     enforcement: [ guard.settings.posttooluse-bash-guard-ledger-guard-py ]
     fields:
       polarity: prohibition
+      spans:
+        - ledger/
+        - ledger/archive/
   - id: instruction.standing.never-force-push
     kind: instruction
     title: Never force push
@@ -1439,6 +1450,8 @@ atoms:
     enforcement: [ guard.settings.pretooluse-bash-guard-block-force-push ]
     fields:
       polarity: prohibition
+      spans:
+        - git push --force
   - id: instruction.standing.tell-the-user-about-a-late
     kind: instruction
     title: Tell the user about a late shipment and propose a supplier email
@@ -1524,6 +1537,8 @@ atoms:
     enforcement: []
     fields:
       polarity: prohibition
+      spans:
+        - .env
   - id: gate.standing.write-a-helper-s-brief-before
     kind: gate
     title: Write a helper's brief before dispatching it
@@ -1736,6 +1751,8 @@ atoms:
     enforcement: []
     fields:
       polarity: obligation
+      spans:
+        - .claude/memory/MEMORY.md
   - id: instruction.inbox-triager.a-message-that-fits-no-folder
     kind: instruction
     title: A message that fits no folder goes to other
@@ -1975,6 +1992,8 @@ atoms:
     enforcement: []
     fields:
       polarity: obligation
+      spans:
+        - references/currency-table.md
   - id: instruction.invoice-reconcile.run-the-reconcile-script-and-show
     kind: instruction
     title: Run the reconcile script and show its summary
@@ -1992,6 +2011,8 @@ atoms:
     enforcement: []
     fields:
       polarity: obligation
+      spans:
+        - python3 scripts/reconcile.py <invoice> <order>
   - id: instruction.invoice-reconcile.never-change-an-invoice-amount-report
     kind: instruction
     title: Never change an invoice amount; report the difference
@@ -2027,6 +2048,8 @@ atoms:
     enforcement: []
     fields:
       polarity: obligation
+      spans:
+        - ledger-auditor
   - id: register.invoice-reconcile.one-closing-line-per-invoice
     kind: register
     title: One closing line per invoice
@@ -2128,6 +2151,8 @@ atoms:
     enforcement: [ guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh ]
     fields:
       polarity: obligation
+      spans:
+        - ./scripts/track.sh NWX 123
   - id: instruction.shipment-tracker.late-means-past-the-promised-date
     kind: instruction
     title: Late means past the promised date with no delivery scan
@@ -2197,6 +2222,8 @@ atoms:
     enforcement: []
     fields:
       polarity: obligation
+      spans:
+        - .claude/memory/supplier-languages.md
   - id: instruction.supplier-email.a-draft-has-a-subject-a
     kind: instruction
     title: A draft has a subject, a problem paragraph and an action sentence
@@ -2332,6 +2359,9 @@ atoms:
     enforcement: []
     fields:
       polarity: obligation
+      spans:
+        - references/kpi-definitions.md
+        - reports/<year>-W<week>.md
   - id: invariant.standing.the-standing-instructions-stay-under-40000
     kind: invariant
     title: The standing instructions stay under 40000 characters

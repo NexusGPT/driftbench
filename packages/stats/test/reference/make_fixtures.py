@@ -1,4 +1,4 @@
-"""Reference values for @driftbench/stats.
+"""Reference values for @agent-nexus/driftbench-stats.
 
 Run from the repository root:  python3 packages/stats/test/reference/make_fixtures.py
 Then format the output the way the repository does:  npx biome format --write packages/stats/test/reference/fixtures.json
@@ -238,7 +238,12 @@ def newcombe(a, b, c, d, alpha):
     assert abs(wilson_ci(a + b, n, z)[0] - l1) < 1e-12 and abs(wilson_ci(a + c, n, z)[1] - u2) < 1e-12
     p1, p2 = (a + b) / n, (a + c) / n
     prod = (a + b) * (c + d) * (a + c) * (b + d)
-    phi = 0.0 if prod == 0 else (a * d - b * c) / math.sqrt(prod)
+    # Newcombe's method 10 corrects positive covariance, not the Wilson limits.
+    # Independent implementation and pinned values: make_newcombe_fixtures.py.
+    cov = a * d - b * c
+    if cov > 0:
+        cov = max(0.0, cov - n / 2)
+    phi = 0.0 if prod == 0 else cov / math.sqrt(prod)
     delta = math.sqrt(max(0.0, (p1 - l1) ** 2 - 2 * phi * (p1 - l1) * (u2 - p2) + (u2 - p2) ** 2))
     eps = math.sqrt(max(0.0, (u1 - p1) ** 2 - 2 * phi * (u1 - p1) * (p2 - l2) + (p2 - l2) ** 2))
     d_hat = p1 - p2
@@ -646,10 +651,14 @@ def allocation_cases():
         if (w == 0).all():
             w = np.array(sizes, dtype=float)
         exact = total * w / w.sum()
-        alloc = np.floor(exact).astype(int)
-        left = total - alloc.sum()
-        frac = exact - np.floor(exact)
-        for i in sorted(range(len(sizes)), key=lambda i: (-frac[i], i))[:left]:
+        alloc = np.zeros(len(sizes), dtype=int)
+        positive = sorted([i for i in range(len(sizes)) if w[i] > 0], key=lambda i: (-w[i], i))
+        for i in positive[:total]:
+            alloc[i] = 1
+        left = total - min(total, len(positive))
+        # integer optimum of sum w^2 / n: one at a time where the marginal gain w^2 / (n (n + 1)) is largest
+        for _ in range(left):
+            i = max(positive, key=lambda i: (Fraction(w[i] * w[i]) / (int(alloc[i]) * (int(alloc[i]) + 1)), -i))
             alloc[i] += 1
         out.append({"sizes": sizes, "sds": sds, "total": total, "exact": [f(x) for x in exact], "allocated": [int(x) for x in alloc]})
     return out

@@ -1,0 +1,188 @@
+{
+  "stamp": "2026-10-13T07:50:42.186182+00:00",
+  "authorization": "Owner: Re-ask those 20 keys once, record the new answer as the only one, and keep the reserved cost for the lost attempt.",
+  "lost_attempt_reserve_usd": 0.4,
+  "reserve_per_lost_attempt_usd": 0.02,
+  "items": [
+    {
+      "experiment": "primary",
+      "request_sha256": "438891e62de0816e44e06852f49aa8fd55883ec0b9e0f56149b61fcfba4a8b58",
+      "id": "ledger-hard-factuality-g1-112",
+      "row": "factuality",
+      "side": "audit",
+      "model": "gpt-6-luna",
+      "started": "2026-10-13T07:37:04.219752+00:00"
+    },
+    {
+      "experiment": "primary",
+      "request_sha256": "ff8278c3970d750439ce77c9deab64e05c942d6af3fdc748bbfbfa45fded04b3",
+      "id": "ledger-hard-pii-g1-112",
+      "row": "pii",
+      "side": "audit",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:06.028834+00:00"
+    },
+    {
+      "experiment": "primary",
+      "request_sha256": "81c6bd280b0f428bf36192e31135e81c478d42458044c898f360035da5da0693",
+      "id": "ledger-hard-pii-g1-112",
+      "row": "pii",
+      "side": "audit",
+      "model": "gpt-6-luna",
+      "started": "2026-10-13T07:37:06.160671+00:00"
+    },
+    {
+      "experiment": "primary",
+      "request_sha256": "2dba0ad036d7163a79a08c6b32f4b4d77c35a386d0b017ae9f402ba13e904f1e",
+      "id": "ledger-hard-pii-g1-112",
+      "row": "pii",
+      "side": "peer",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:08.127725+00:00"
+    },
+    {
+      "experiment": "primary",
+      "request_sha256": "aa13f4e629e4448c465e7921fe86b7489d9a429c920873a31fc29cf06ddaa99f",
+      "id": "ledger-hard-pii-g1-112",
+      "row": "pii",
+      "side": "peer",
+      "model": "gpt-6-luna",
+      "started": "2026-10-13T07:37:08.654619+00:00"
+    },
+    {
+      "experiment": "primary",
+      "request_sha256": "62abfcf0dd651cf4c120d186cee8a289f8c440c389aecc68fcc8ee6038073f08",
+      "id": "ledger-hard-goal-g1-112",
+      "row": "goal",
+      "side": "audit",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:09.344038+00:00"
+    },
+    {
+      "experiment": "primary",
+      "request_sha256": "75054921e18feb825857c4dea247117ff1999f60b046ac8650984a98ef873e25",
+      "id": "ledger-hard-goal-g1-112",
+      "row": "goal",
+      "side": "audit",
+      "model": "gpt-6-luna",
+      "started": "2026-10-13T07:37:09.524916+00:00"
+    },
+    {
+      "experiment": "primary",
+      "request_sha256": "a3645f888564e96f00e53dfec26037a923a8b50851da47f6c848c5019d4fd5e6",
+      "id": "ledger-hard-goal-g1-112",
+      "row": "goal",
+      "side": "peer",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:11.642377+00:00"
+    },
+    {
+      "experiment": "primary",
+      "request_sha256": "ac7ce0533b2f052c0c155ef390f41c57333b3459c22eb31f64978085bfe1de93",
+      "id": "ledger-hard-goal-g1-112",
+      "row": "goal",
+      "side": "peer",
+      "model": "gpt-6-luna",
+      "started": "2026-10-13T07:37:11.740980+00:00"
+    },
+    {
+      "experiment": "primary",
+      "request_sha256": "c6431106dafa9f862565cc535f35887238b39c95449017c76954bc0964389297",
+      "id": "ledger-hard-goal-g1-112",
+      "row": "goal",
+      "side": "peer-full-state",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:12.457531+00:00"
+    },
+    {
+      "experiment": "primary",
+      "request_sha256": "c53d5d1fad72de2dd1bb38f0602b24ad612fdd1062cddeb9c520c7afaf921104",
+      "id": "ledger-hard-goal-g1-112",
+      "row": "goal",
+      "side": "peer-full-state",
+      "model": "gpt-6-luna",
+      "started": "2026-10-13T07:37:13.019352+00:00"
+    },
+    {
+      "experiment": "primary",
+      "request_sha256": "c02dc147ca5809e7d16346883fa26d56889a29093df65e83891cc04bf4b8930e",
+      "id": "ledger-hard-rubric-g1-113",
+      "row": "rubric",
+      "side": "audit",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:14.478074+00:00"
+    },
+    {
+      "experiment": "dialect",
+      "request_sha256": "37f631f4ad747b19dcbe42f8e4f3ae06236afbb525ed534561878488bc18f085",
+      "id": "ledger-hard-goal-g1-014",
+      "row": "goal",
+      "side": "peer-full-state",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:03.366163+00:00"
+    },
+    {
+      "experiment": "dialect",
+      "request_sha256": "5dc4c36604adbc654d484e2ff1c053c23283b05829d1b7f028a167eff08df3b3",
+      "id": "ledger-hard-goal-g1-015",
+      "row": "goal",
+      "side": "audit",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:05.857546+00:00"
+    },
+    {
+      "experiment": "dialect",
+      "request_sha256": "cb346872a3a35a21bc33ffef789822982e53b3a75f565d6cf4a63d21d335d376",
+      "id": "ledger-hard-goal-g1-015",
+      "row": "goal",
+      "side": "peer",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:06.377689+00:00"
+    },
+    {
+      "experiment": "dialect",
+      "request_sha256": "1dc46d5f271a5c72f1b76bee16db75c2414c40de984874d50ef2c7bf785bb52f",
+      "id": "ledger-hard-goal-g1-015",
+      "row": "goal",
+      "side": "peer-full-state",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:09.483133+00:00"
+    },
+    {
+      "experiment": "dialect",
+      "request_sha256": "88fceb4b04f16b79f0e4eb8603903c5c781c646d036ba0428ac58929b75407a9",
+      "id": "ledger-hard-goal-g1-015",
+      "row": "goal",
+      "side": "audit",
+      "model": "gemini-3.8-flash",
+      "started": "2026-10-13T07:37:10.603610+00:00"
+    },
+    {
+      "experiment": "dialect",
+      "request_sha256": "1ca775b8e7c8d91d767399d8520b63c67d86a4ec8193a60d9c6660aa3b2e8c34",
+      "id": "ledger-hard-goal-g1-016",
+      "row": "goal",
+      "side": "audit",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:11.941369+00:00"
+    },
+    {
+      "experiment": "dialect",
+      "request_sha256": "0eb042fc91a35341bf1859b8ef29a3a3516fe109ecc1d44e87318c3aa8e0292f",
+      "id": "ledger-hard-goal-g1-016",
+      "row": "goal",
+      "side": "peer",
+      "model": "haiku",
+      "started": "2026-10-13T07:37:11.942797+00:00"
+    },
+    {
+      "experiment": "dialect",
+      "request_sha256": "a0891e0f464fb6828464d1a10fe960da10dbc0a83ca307c52a939f87f357fc8f",
+      "id": "ledger-hard-goal-g1-015",
+      "row": "goal",
+      "side": "peer",
+      "model": "gemini-3.8-flash",
+      "started": "2026-10-13T07:37:13.964620+00:00"
+    }
+  ]
+}

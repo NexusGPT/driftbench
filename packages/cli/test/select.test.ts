@@ -69,23 +69,24 @@ describe('driftbench select', () => {
       const out = join(await temp(), 'golden');
       const result = await run(['select', '--cover', MAP, '--specs', GATED, '--k', '10', '--out', out]);
       expect(result.err).toBe('');
-      // The only spec covering the price-sheet deviation cell is sealed, so a required cell stays empty.
-      expect(result.code).toBe(1);
-      expect(result.out).toContain('Pool: 139 unsealed specs; 36 sealed specs left out');
+      // The price-sheet task family writes a dev-split spec with an instruction in data: every required cell
+      // has an unsealed spec.
+      expect(result.code).toBe(0);
+      expect(result.out).toContain('Pool: 200 unsealed specs; 58 sealed specs left out');
       expect(result.out).toContain('k = 10 is smaller than the cover');
-      expect(result.out).toContain('Required cells: 9 of 10; the pool covers 9.');
-      expect(result.out).toContain('✗ flow price-sheet · D6_instruction_in_data: no unsealed spec covers it');
-      expect(result.out).toMatch(/Cells covered: \d+ of 840 allowed pairs .*; the pool covers 592\./);
-      expect(result.out).toContain('Faults turned red: 9 of the 9 the pool turns red');
+      expect(result.out).toContain('Required cells: 10 of 10; the pool covers 10.');
+      expect(result.out).not.toContain('✗ flow price-sheet');
+      expect(result.out).toMatch(/Cells covered: \d+ of 708 allowed pairs .*; the pool covers 598\./);
+      expect(result.out).toContain('Faults turned red: 12 of the 13 the pool turns red');
 
       const golden = await manifest(out);
       expect(golden.golden).toHaveLength(10);
-      expect(golden.coverage.allowed).toBe(840);
-      expect(golden.coverage.pool_covered).toBe(592);
-      expect(golden.pool).toMatchObject({ specs: 139, sealed_left_out: 36, faults_red: 9 });
-      expect(golden.uncoverable_required).toEqual(['flow price-sheet · D6_instruction_in_data']);
+      expect(golden.coverage.allowed).toBe(708);
+      expect(golden.coverage.pool_covered).toBe(598);
+      expect(golden.pool).toMatchObject({ specs: 200, sealed_left_out: 58, faults_red: 13 });
+      expect(golden.uncoverable_required).toEqual([]);
       const faults = new Set(golden.golden.flatMap((pick) => pick.adds_faults));
-      expect(faults.size).toBe(9);
+      expect(faults.size).toBe(12);
 
       const seal = JSON.parse(await readFile(join(GATED, 'holdout/seal.json'), 'utf8')) as {
         specs: Array<{ id: string }>;
@@ -111,20 +112,20 @@ describe('driftbench select', () => {
       const second = join(await temp(), 'golden');
       expect(
         (await run(['select', '--cover', MAP, '--specs', GATED, '--k', '10', '--out', first])).code,
-      ).toBe(1);
+      ).toBe(0);
       expect(
         (await run(['select', '--cover', MAP, '--specs', GATED, '--k', '10', '--out', second])).code,
-      ).toBe(1);
+      ).toBe(0);
       expect(await readFile(join(first, 'golden.json'), 'utf8')).toBe(
         await readFile(join(second, 'golden.json'), 'utf8'),
       );
 
       const whole = join(await temp(), 'golden');
       const result = await run(['select', '--cover', MAP, '--specs', GATED, '--out', whole]);
-      expect(result.code).toBe(1);
+      expect(result.code).toBe(0);
       const cover = await manifest(whole);
       expect(cover.golden.map((pick) => pick.id)).toEqual(cover.cover);
-      expect(cover.coverage.covered).toBe(592);
+      expect(cover.coverage.covered).toBe(598);
       expect(result.out).not.toContain('is smaller than the cover');
     },
     SLOW,

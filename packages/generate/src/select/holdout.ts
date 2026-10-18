@@ -1,5 +1,5 @@
-import { contentHash, type Spec, validateSpec } from '@driftbench/core';
-import { type Interval, mulberry32, wilson } from '@driftbench/stats';
+import { type Spec, specHash, validateSpec } from '@agent-nexus/driftbench-core';
+import { type Interval, mulberry32, wilson } from '@agent-nexus/driftbench-stats';
 import { z } from 'zod';
 import { streamSeed } from '../seed/random';
 
@@ -92,7 +92,7 @@ export function openBundle(bundle: SealedBundle): { specs: OpenedSpec[]; problem
       problems.push(`${entry.id}: the sealed spec now has the id ${result.spec.id}`);
       continue;
     }
-    if (contentHash(result.spec) !== entry.hash) {
+    if (specHash(result.spec) !== entry.hash) {
       problems.push(`${entry.id}: the content hash changed since it was sealed (${entry.hash})`);
       continue;
     }

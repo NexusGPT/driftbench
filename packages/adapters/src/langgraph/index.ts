@@ -2,12 +2,13 @@ import {
   type AdapterCapabilities,
   type AgentAdapter,
   AgentFailure,
+  copyHistory,
   isPlainObject,
   type Message,
   type Segment,
   type Session,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   closeOpenCalls,
   newUsage,
@@ -41,7 +42,7 @@ export type { GraphConfigLike, GraphLike, GraphMessageLike, LangChainMessageLike
  * one of them.
  */
 
-export const LANGGRAPH_ADAPTER_VERSION = '0.1.0';
+export const LANGGRAPH_ADAPTER_VERSION = '0.1.1';
 
 export type LanggraphAdapterOptions = {
   /** The compiled graph. The adapter calls `invoke`, `getState` and the checkpointer's `deleteThread`. */
@@ -103,11 +104,12 @@ export function langgraphAdapter(options: LanggraphAdapterOptions): AgentAdapter
     },
 
     async send(session: Session, turn: Turn) {
+      const history = copyHistory(session.history);
       const state = ownState<GraphState>(session, id, 'langgraph');
       const sent =
         checkpointed && state.seeded
-          ? trailingUserMessages(session.history)
-          : promptMessages(session.history, session.target);
+          ? trailingUserMessages(history)
+          : promptMessages(history, session.target);
       const started = performance.now();
       let answer: unknown;
       try {

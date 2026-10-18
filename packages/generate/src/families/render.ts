@@ -5,6 +5,7 @@ import { FamilyError, type Knobs, meets, valuesOf } from './knobs';
 import type { LoadedFamily } from './load';
 import type { BlockDef, FamilyFile, Phrase, SeedFile } from './schema';
 import type { TableCell, Tables } from './tables';
+import { writeXlsx } from './xlsx';
 
 /** The workspace of one variant: text files as text, other files (a workbook) as bytes. */
 export type SeedFiles = { text: Record<string, string>; binary: Record<string, Uint8Array> };
@@ -116,6 +117,39 @@ export function renderFiles(loaded: LoadedFamily, tables: Tables, knobs: Knobs, 
         Object.fromEntries(order.map((name) => [name, row[name] ?? ''])),
       );
       put(path, `${JSON.stringify({ [file.json.root]: records }, null, 2)}\n`);
+    } else if ('xlsx' in file) {
+      const table = tables[file.xlsx.table];
+      if (!table) throw new FamilyError(`no table ${file.xlsx.table}`);
+      const groups: string[] = [];
+      for (const row of table.rows) {
+        const key = String(row[file.xlsx.sheet_by] ?? '');
+        if (!groups.includes(key)) groups.push(key);
+      }
+      const sheets = groups.map((key) => ({
+        name: file.xlsx.sheet_name === 'title' ? key.charAt(0).toUpperCase() + key.slice(1) : key,
+        rows: [
+          file.xlsx.columns.map((column) => column.header),
+          ...table.rows
+            .filter((row) => String(row[file.xlsx.sheet_by] ?? '') === key)
+            .map((row) =>
+              file.xlsx.columns.map((column) => {
+                const value = row[column.column];
+                if (column.times === undefined) return value ?? '';
+                if (typeof value !== 'number') {
+                  throw new FamilyError(
+                    `files.${index}: ${column.column} holds ${String(value)}, not a number to multiply`,
+                  );
+                }
+                return value * column.times;
+              }),
+            ),
+        ],
+      }));
+      try {
+        put(path, writeXlsx(sheets));
+      } catch (cause) {
+        throw new FamilyError(`files.${index}: ${cause instanceof Error ? cause.message : String(cause)}`);
+      }
     } else if ('text' in file) {
       put(
         path,

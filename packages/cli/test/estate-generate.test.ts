@@ -1,9 +1,11 @@
-import { copyFile, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseSpecText } from '@driftbench/core';
+import { parseSpecText } from '@agent-nexus/driftbench-core';
+import { REPLAY_CUSTOM_CHECKS } from '@agent-nexus/driftbench-generate';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { replayRegistry } from '../src/commands/replay';
 import { type Io, main } from '../src/index';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
@@ -54,15 +56,19 @@ describe('driftbench estate generate', () => {
     first = await generate(out);
   }, 60_000);
 
-  it('writes the suite and its report, and exits 1 while specs are incomplete', async () => {
+  it('writes the suite and its report, and exits 0 once every row gave complete specs', async () => {
     expect(first.err).toBe('');
-    expect(first.code).toBe(1);
-    expect(first.out).toMatch(/total\s+44\s+30\s+14/);
+    expect(first.code).toBe(0);
+    expect(first.out).toMatch(/total\s+44\s+44\s+0/);
     expect(first.out).toContain('Replay: 12 specs aligned to sessions, 10 planned to pass, 2 to fail.');
     const written = await files(out);
     expect(written).toContain('estate-generate-report.json');
-    expect(written.filter((path) => path.startsWith('specs/'))).toHaveLength(30);
-    expect(written.filter((path) => path.startsWith('incomplete/'))).toHaveLength(14);
+    expect(written.filter((path) => path.startsWith('specs/'))).toHaveLength(43);
+    expect(written.filter((path) => path.startsWith('static/'))).toEqual([
+      'static/invariant/estate.p32.json',
+    ]);
+    expect(written.filter((path) => path.startsWith('incomplete/'))).toHaveLength(0);
+    expect(written).toContain('run-order.txt');
   });
 
   it('finds the phrase bank and the session index beside the map', async () => {
@@ -124,7 +130,7 @@ describe('driftbench estate generate', () => {
   it('lints the complete specs clean', async () => {
     const lint = await run(['spec', 'lint', join(out, 'specs'), '--strict']);
     expect(lint.code).toBe(0);
-    expect(lint.out).toContain('Checked 30 specs: 30 valid, 0 invalid, 0 warnings.');
+    expect(lint.out).toContain('Checked 43 specs: 43 valid, 0 invalid, 0 warnings.');
   });
 
   it('refuses an earlier output without --force, and replaces it with --force', async () => {
@@ -132,9 +138,12 @@ describe('driftbench estate generate', () => {
     expect(again.code).toBe(2);
     expect(again.err).toMatch(/already exists: an earlier run wrote this folder/);
     await writeFile(join(out, 'keep.txt'), 'not ours');
+    await mkdir(join(out, 'unit', 'guard_positive'), { recursive: true });
+    await writeFile(join(out, 'unit', 'guard_positive', 'unit.stale.json'), '{}');
     const forced = await generate(out, '--force');
-    expect(forced.code).toBe(1);
+    expect(forced.code).toBe(0);
     expect(await files(out)).toContain('keep.txt');
+    expect(await files(out)).not.toContain('unit/guard_positive/unit.stale.json');
   });
 
   it('refuses a plan made from another map and writes nothing', async () => {
@@ -200,4 +209,153 @@ describe('driftbench estate generate', () => {
       report.gaps.find((entry: { marker: string }) => entry.marker === 'needs-recorded-session').specs,
     ).toBe(4);
   });
+
+  it('writes every ask by code when no phrase bank lies beside the map, and waits for one with --no-fallback', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-'));
+    await copyFile(MAP, join(dir, 'approved.yaml'));
+    const args = ['estate', 'generate', '--map', join(dir, 'approved.yaml'), '--plan', PLAN];
+    const result = await run([...args, '--out', join(dir, 'out'), '--json']);
+    expect(result.err).toBe('');
+    const report = JSON.parse(result.out);
+    expect(report.phrases).toMatchObject({ path: '(none)', situations: 0 });
+    expect(report.sources.asks.bank).toBe(0);
+    expect(report.sources.asks.code).toBeGreaterThan(20);
+    expect(report.invalid).toEqual([]);
+    expect(report.lint).toEqual([]);
+    const strict = await run([...args, '--out', join(dir, 'strict'), '--no-fallback', '--json']);
+    expect(strict.code).toBe(1);
+    const waiting = JSON.parse(strict.out);
+    expect(waiting.sources.asks.code).toBe(0);
+    expect(waiting.gaps.map((entry: { marker: string }) => entry.marker)).toContain('needs-approved-phrase');
+  });
+
+  it('judges no domain predicate with --no-judge: one no code checks waits for a registered check', async () => {
+    const plan = join(ROOT, 'packages/generate/test/estate/fixtures/planner-plan.approved.yaml');
+    const waiting = async (...extra: string[]) => {
+      const dir = await mkdtemp(join(tmpdir(), 'estate-generate-judge-'));
+      const result = await run([
+        'estate',
+        'generate',
+        '--map',
+        MAP,
+        '--plan',
+        plan,
+        '--out',
+        join(dir, 'out'),
+        '--json',
+        ...extra,
+      ]);
+      expect(result.err).toBe('');
+      const report = JSON.parse(result.out) as { gaps: Array<{ marker: string; specs: number }> };
+      return report.gaps.find((entry) => entry.marker === 'needs-registered-check')?.specs ?? 0;
+    };
+    const judged = await waiting();
+    const unjudged = await waiting('--no-judge');
+    expect(unjudged).toBeGreaterThan(judged);
+  }, 120_000);
+
+  it('puts the specs of the focus atoms first in the run order, then guards, gates and invariants', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-'));
+    const atom = 'subagent.route-planner.helper-route-planner';
+    await writeFile(join(dir, 'focus.txt'), `# the atoms a mutant targets\n${atom}\n`);
+    const result = await generate(join(dir, 'out'), '--focus', join(dir, 'focus.txt'));
+    expect(result.out).toMatch(
+      /Focus: [1-9]\d* complete specs name one of the 1 focus atoms; 0 focus atoms have none\./,
+    );
+    const order = (await readFile(join(dir, 'out', 'run-order.txt'), 'utf8')).trim().split('\n');
+    const kinds = await Promise.all(
+      order.map(async (path) => {
+        const loaded = parseSpecText(await readFile(join(dir, 'out', path), 'utf8'), 'yaml', path);
+        const estate = loaded.ok
+          ? (loaded.spec.metadata?.estate as { atoms?: string[] } | undefined)
+          : undefined;
+        const atoms = estate?.atoms ?? [];
+        if (atoms.includes(atom)) return 0;
+        return atoms.some((id) => /^(guard|gate|invariant)\./.test(id)) ? 1 : 2;
+      }),
+    );
+    expect(kinds[0]).toBe(0);
+    expect(kinds).toEqual([...kinds].sort());
+    expect(new Set(kinds)).toEqual(new Set([0, 1, 2]));
+    await writeFile(join(dir, 'bad.txt'), 'no.such.atom\n');
+    const bad = await generate(join(dir, 'bad'), '--focus', join(dir, 'bad.txt'));
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('no.such.atom');
+  });
+});
+
+describe('the custom checks the generator writes', () => {
+  it('are all registered by the replay and live runners', () => {
+    const names = replayRegistry().names();
+    for (const name of REPLAY_CUSTOM_CHECKS) expect(names, name).toContain(name);
+  });
+});
+
+describe('estate generate with no phrase bank (bench defect D7)', () => {
+  const CASES = join(ROOT, 'examples/estates/reader-cases');
+
+  it('generates with an empty bank when none sits beside the map, and refuses a named one that is missing', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-nobank-'));
+    await copyFile(join(CASES, 'approved.yaml'), join(dir, 'approved.yaml'));
+    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], dir)).code).toBe(0);
+    expect((await run(['estate', 'plan', 'approve', 'plan.yaml', '--all'], dir)).code).toBe(0);
+    const coded = await run(
+      ['estate', 'generate', '--map', 'approved.yaml', '--plan', 'plan.yaml', '--out', 'coded'],
+      dir,
+    );
+    expect(coded.err).toBe('');
+    expect(coded.out).toContain('No phrase bank at phrases.yaml: code writes every ask from the atoms.');
+    const result = await run(
+      [
+        'estate',
+        'generate',
+        '--map',
+        'approved.yaml',
+        '--plan',
+        'plan.yaml',
+        '--out',
+        'gen',
+        '--no-fallback',
+      ],
+      dir,
+    );
+    expect(result.err).toBe('');
+    expect(result.code).toBe(1);
+    expect(result.out).toContain(
+      'No phrase bank at phrases.yaml: generating with an empty one; each live row names the phrase it needs.',
+    );
+    expect(result.out).toMatch(/needs-approved-phrase\s+\d+ specs/);
+    const report = JSON.parse(await readFile(join(dir, 'gen', 'estate-generate-report.json'), 'utf8'));
+    expect(report.summary.specs).toBeGreaterThan(0);
+
+    const hash = /^hash: (\S+)$/m.exec(await readFile(join(dir, 'approved.yaml'), 'utf8'))?.[1];
+    await writeFile(
+      join(dir, 'phrases.yaml'),
+      `version: 1\nestate: reader-cases\nmapHash: ${hash}\nworkspaces: []\nsituations: []\n`,
+    );
+    const empty = await run(
+      ['estate', 'generate', '--map', 'approved.yaml', '--plan', 'plan.yaml', '--out', 'gen', '--force'],
+      dir,
+    );
+    expect(empty.err).toBe('');
+    expect(empty.code).toBe(1);
+
+    const named = await run(
+      [
+        'estate',
+        'generate',
+        '--map',
+        'approved.yaml',
+        '--plan',
+        'plan.yaml',
+        '--out',
+        'g2',
+        '--phrases',
+        'none.yaml',
+      ],
+      dir,
+    );
+    expect(named.code).toBe(2);
+    expect(named.err).toContain('the phrase bank cannot be read or is invalid');
+  }, 120_000);
 });

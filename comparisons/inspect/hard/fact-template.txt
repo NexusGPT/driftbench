@@ -1,0 +1,18 @@
+
+You are comparing a submitted answer to an expert answer on a given question. Here is the data:
+
+[BEGIN DATA]
+************
+[Question]: {question}
+************
+[Expert]: {criterion}
+************
+[Submission]: {answer}
+************
+[END DATA]
+
+Compare the factual content of the submitted answer with the expert answer. Ignore any differences in style, grammar, or punctuation.
+
+Does the submission contain the content in the expert answer?
+
+{instructions}

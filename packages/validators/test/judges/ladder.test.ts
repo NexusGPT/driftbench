@@ -8,7 +8,7 @@ import {
   type JudgeRequest,
   loadCassette,
   requestKey,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import { describe, expect, it } from 'vitest';
 import { runLadder, runSeeds } from '../../src/index';
 import {

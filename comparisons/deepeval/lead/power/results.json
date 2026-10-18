@@ -1,0 +1,150 @@
+{
+  "settings": {
+    "relevancy": "response-relevance",
+    "knowledge": "default"
+  },
+  "corpus_sha256": "52f3ded736dd8eaecc90050d128590a34f353dd98cbeb787898e8f9a8e084ea2",
+  "rows": [
+    {
+      "row": "knowledge retention",
+      "set": "knowledge",
+      "id": "knowledge-fluent-reask-12-b",
+      "truth": false,
+      "ours": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied their email address in entry 0 ('my email is mira4147@example.invalid'). The last assistant reply in entry 1 asks the user to supply their email address again, which is a re-ask of a known fact. The rest of the reply does not contradict other current facts, but the re-ask alone violates the criterion.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira4147@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"please supply your email address so the team can send the confirmation\"}],\"met\":false}]}",
+        "request_sha256s": [
+          "c10133a5215b98fd21df01f4ca93f5a87edf766dc24a0bc38141ee7b8eaeee15"
+        ]
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.0,
+        "request_sha256s": [
+          "d7cf46d586bb18939c9814b488180a046dc418e0dd3eff53dd4dd39bf45d5574",
+          "461258d09a760aa99efe0a200fe3a0e865ca2dec0b119aab569a2b4f42f71792"
+        ]
+      }
+    },
+    {
+      "row": "knowledge retention",
+      "set": "knowledge",
+      "id": "knowledge-fluent-reask-48-a",
+      "truth": true,
+      "ours": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The only assistant reply is entry 1, which comes after the user's only message (entry 0). The user supplied the owner's name (Mira Vale 3029), email (mira3029@example.invalid), address (829 Lantern Lane, Fiction Bay), monthly budget (93 USD), and a contact restriction (email only, never phone). The reply confirms the supplied email with the same value and does not restate it as a question. It asks which plan the user wants, and no plan was supplied earlier, so this is new information rather than a re-ask. The reply does not re-ask the name, address, or budget, does not contradict any supplied value, and does not propose phone contact, so the contact restriction is preserved.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira3029@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"I have saved mira3029@example.invalid; thanks for sharing it.\"},{\"source\":\"transcript.1\",\"quote\":\"Which plan do you want?\"}],\"met\":true}]}",
+        "request_sha256s": [
+          "73e4d87b5a62eee2ac6c0d2d7fc78e4c5e57f054268bed86b2780e7da58dbb73"
+        ]
+      },
+      "theirs": {
+        "prediction": null,
+        "error": "Command '['claude', '-p', '--output-format', 'json', '--model', 'haiku', '--system-prompt', 'You answer with one JSON object and nothing else.', '--tools', '', '--setting-sources', '', '--strict-mcp-config', '--no-session-persistence', '--max-turns', '1', '--max-budget-usd', '0.05']' timed out after 180 seconds",
+        "request_sha256s": [
+          "595de5f46c07f1be6cba1c2e532651efb2f1fa4ba9523e676f46ef1944c2e2a8",
+          "7b5d3c449e4d7d5fc72b8fadc8164c2a3b4ebf7982f2d13c6767de2d340fd8e2"
+        ]
+      }
+    },
+    {
+      "row": "knowledge retention",
+      "set": "knowledge",
+      "id": "knowledge-known-vs-new-21-b",
+      "truth": false,
+      "ours": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied a residence address, \\\"I live at 548 Lantern Lane, Fiction Bay.\\\" The last assistant reply asks for a postal address for delivery without saying the delivery address differs from the residence. Because the user gave no separate delivery address or purpose, this asks the user to supply a known postal address again, which is a re-ask. The reply's claim that it already has a delivery time is not a contradiction of any user fact, but the address re-ask violates the criterion regardless of the rest of the reply. The reply does not contradict the email-only contact restriction or the budget.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"I live at 548 Lantern Lane, Fiction Bay.\"},{\"source\":\"transcript.1\",\"quote\":\"What postal address should we deliver to?\"}],\"met\":false}]}",
+        "request_sha256s": [
+          "66a6a21121452c00a8f38d1d49ce7a5b42c538c142546fb5817e43eca53ae593"
+        ]
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.0,
+        "request_sha256s": [
+          "8959bed9b923112e67df1e4d25eeb2c95858dd4dd59e779fd6b8755108387846",
+          "19d93076fc42274909c0d9824d700ababc03a661e253e6feecb06869d117135a"
+        ]
+      }
+    },
+    {
+      "row": "knowledge retention",
+      "set": "knowledge",
+      "id": "knowledge-long-distractors-27-a",
+      "truth": true,
+      "ours": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The only user message is entry 0, and the last assistant reply is entry 1. Entry 1 does not ask for any fact the user already gave, such as name, address, budget, or contact details. Its one user-fact reference is the confirmation email, which matches the email the user supplied and does not conflict with it. The user's restriction to email-only contact is not violated, since the reply proposes no phone contact. The repeated archive-note lines add noise but do not contradict any current user fact.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira4796@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"},{\"source\":\"transcript.1\",\"quote\":\"The confirmation will go to mira4796@example.invalid.\"}],\"met\":true}]}",
+        "request_sha256s": [
+          "3decbefac8e709a48847a03e230e54e2ca5f8963919e086a969f48491bef1867"
+        ]
+      },
+      "theirs": {
+        "prediction": null,
+        "error": "Command '['claude', '-p', '--output-format', 'json', '--model', 'haiku', '--system-prompt', 'You answer with one JSON object and nothing else.', '--tools', '', '--setting-sources', '', '--strict-mcp-config', '--no-session-persistence', '--max-turns', '1', '--max-budget-usd', '0.05']' timed out after 180 seconds",
+        "request_sha256s": [
+          "460818a6495165d0c86cc45aca15a805cee94f9c4c81e99818704b9583753f8c"
+        ]
+      }
+    },
+    {
+      "row": "knowledge retention",
+      "set": "knowledge",
+      "id": "knowledge-long-distractors-34-a",
+      "truth": true,
+      "ours": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) does not re-ask any supplied fact. Its only user-fact reference is the email address, which it confirms as the destination for the confirmation, and confirming a supplied value is allowed. It does not ask for the name, address, budget, or contact preference again. It contradicts no current fact: the email matches the user's supplied address, and the reply does not mention phone contact, so the email-only restriction is preserved. The repeated 'Archive note' lines are odd but do not re-ask or contradict any user fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The confirmation will go to mira9040@example.invalid.\"},{\"source\":\"transcript.0\",\"quote\":\"my email is mira9040@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"}],\"met\":true}]}",
+        "request_sha256s": [
+          "0797fce25ee60aa499e5f5b808fbd671c5c1b32c3429280adf0a0d20923a5487"
+        ]
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 1.0,
+        "request_sha256s": [
+          "ed04b42e11814bc48c99c5c948e077e977a29aa7dc9c0819a075a415ed5127fd",
+          "41748a8b88845b5194ecb4a04d22d38945b1a041e621441dac8cb5c75dda6de0"
+        ]
+      }
+    },
+    {
+      "row": "knowledge retention",
+      "set": "knowledge",
+      "id": "knowledge-mixed-language-49-a",
+      "truth": true,
+      "ours": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single French sentence. It reuses the supplied email address exactly, so it does not re-ask for it or alter it. It also keeps the contact restriction from entry 0 ('Contact me by email only, never phone'): the reply says it will not phone the user. It does not re-ask for the name, address, or budget, and it does not contradict any current user fact. Unmentioned facts such as the address and budget need not be repeated.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira5387@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"je ne vous téléphonerai pas.\"}],\"met\":true}]}",
+        "request_sha256s": [
+          "75016844f49072ef82317a6c37809d5e74e68afb6525e0b159812ba80373a822"
+        ]
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 1.0,
+        "request_sha256s": [
+          "4b8072e9783a6547984de5db93da3db2a5bc723b416cd64b51f8e00bebca1097",
+          "23cf9ca85af1d1db55e8132d12880457556c65affa331acc42f0dba655532a05"
+        ]
+      }
+    },
+    {
+      "row": "knowledge retention",
+      "set": "knowledge",
+      "id": "knowledge-reask-address-2-a",
+      "truth": true,
+      "ours": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single short message. It acknowledges that the assistant has the user's address, which matches the supplied address (134 Lantern Lane, Fiction Bay), and it does not ask for the address, email, budget, or name again. It asks only about delivery time, which the user never supplied, so this is permitted new information. It does not mention phone contact or any other channel, so the email-only restriction is not violated. No supplied fact is contradicted.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"I have your address.\"},{\"source\":\"transcript.1\",\"quote\":\"Which delivery time works?\"}],\"met\":true}]}",
+        "request_sha256s": [
+          "e46cbb23a9bff619c3bd6f97a14b7e1b2f6a0d70173f980e2bcb3dc3aa857d0a"
+        ]
+      },
+      "theirs": {
+        "prediction": null,
+        "error": "Command '['claude', '-p', '--output-format', 'json', '--model', 'haiku', '--system-prompt', 'You answer with one JSON object and nothing else.', '--tools', '', '--setting-sources', '', '--strict-mcp-config', '--no-session-persistence', '--max-turns', '1', '--max-budget-usd', '0.05']' timed out after 180 seconds",
+        "request_sha256s": [
+          "a89fed17d992bb09cb91971782df02ea648f5ca78203385dbeade8b9385759d5"
+        ]
+      }
+    }
+  ],
+  "fresh_calls": 19,
+  "fresh_usd": 0.15874808,
+  "replays": 0
+}

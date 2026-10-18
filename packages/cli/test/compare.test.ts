@@ -1,7 +1,7 @@
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { openStore } from '@driftbench/store';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';
@@ -76,7 +76,7 @@ describe('driftbench compare', () => {
     ]);
     expect(err).toBe('');
     expect(code).toBe(1);
-    expect(out).toContain('Paired: 16 goldens');
+    expect(out).toContain('Paired: 17 goldens');
     expect(out).toMatch(/Both pass \d+, regressed [1-9]\d*, improved 0/);
     expect(out).toContain('Verdict: REGRESSED.');
     expect(out).toContain('all-pass dropped: McNemar exact p =');
@@ -205,6 +205,6 @@ describe('driftbench compare', () => {
     });
     expect(code).toBe(0);
     expect(out).toContain('--baseline <campaign>');
-    expect(out).toContain('--margin <points>');
+    expect(out).toContain('--margin <points|auto>');
   });
 });

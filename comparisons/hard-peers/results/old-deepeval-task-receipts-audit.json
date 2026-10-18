@@ -1,0 +1,946 @@
+{
+  "competitor": "deepeval",
+  "row": "task-receipts",
+  "contestant": "audit",
+  "model": "haiku",
+  "items": 72,
+  "complete": 72,
+  "results": [
+    {
+      "id": "task-refund-0-a",
+      "kind": "refund",
+      "pair": "refund-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "62d5ad325a43037f9d7b774acf968087f14229dddf45521a5b40f24c137f5976"
+      ],
+      "costUsd": 0.0005612
+    },
+    {
+      "id": "task-long-input-1-a",
+      "kind": "long-input",
+      "pair": "long-input-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fdbc3caa970596b586de98bac13f88c20085d88955c07be5fdb0095aae25c155"
+      ],
+      "costUsd": 0.0004973
+    },
+    {
+      "id": "task-queued-2-a",
+      "kind": "queued",
+      "pair": "queued-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "37ea93460802754065c07b5fe2410e5f6c621fdde628693c34ac31e4390b9d94"
+      ],
+      "costUsd": 0.0005005
+    },
+    {
+      "id": "task-long-input-1-b",
+      "kind": "long-input",
+      "pair": "long-input-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "30ce61e404913cf3c1fc22889fcf46b442596a9803f5756b7204286e0ab92906"
+      ],
+      "costUsd": 0.0007938
+    },
+    {
+      "id": "task-order-1-a",
+      "kind": "order",
+      "pair": "order-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d3018dac81d0c0ec90a3ff1b4517e0a51de1a6badb211191c355ddd1725827fd"
+      ],
+      "costUsd": 0.00045300000000000006
+    },
+    {
+      "id": "task-cancel-2-b",
+      "kind": "cancel",
+      "pair": "cancel-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "239d9fad410aaadb22a29222ef4594abbb960ac79503689ba7da54ddf29ec3ff"
+      ],
+      "costUsd": 0.0005705
+    },
+    {
+      "id": "task-queued-1-a",
+      "kind": "queued",
+      "pair": "queued-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "84fd1da850f37b394d65d173014252a8e7d495b6044b10a25af15012340299f7"
+      ],
+      "costUsd": 0.0005775
+    },
+    {
+      "id": "task-mixed-language-1-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d59d6d29d3b5ab701194596c57a9f6b89c3149d0b3d618bc9a49beaf3a3b27ea"
+      ],
+      "costUsd": 0.000519
+    },
+    {
+      "id": "task-refund-1-b",
+      "kind": "refund",
+      "pair": "refund-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "97193b8b7817b5ccd9122a565c222e3a1662115a03b1761aa514054f2d1eb68e"
+      ],
+      "costUsd": 0.0005722
+    },
+    {
+      "id": "task-multi-part-2-a",
+      "kind": "multi-part",
+      "pair": "multi-part-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a7e7c560a47b7a314d8211ed893cd2b8d857362c6706ffa25676ef61aba20e36"
+      ],
+      "costUsd": 0.00075
+    },
+    {
+      "id": "task-mixed-language-2-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "70e488c1579aeac771de61e0608fc4ce8eecd18ae63b94a8e09d3574491b69fe"
+      ],
+      "costUsd": 0.000545
+    },
+    {
+      "id": "task-order-0-b",
+      "kind": "order",
+      "pair": "order-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "624818939f654d9c50b8d8b45342fd72c85cdfc8cf4b72113329e93218e1a393"
+      ],
+      "costUsd": 0.0004009
+    },
+    {
+      "id": "task-conditional-0-b",
+      "kind": "conditional",
+      "pair": "conditional-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "624818939f654d9c50b8d8b45342fd72c85cdfc8cf4b72113329e93218e1a393"
+      ],
+      "costUsd": 0.0005804
+    },
+    {
+      "id": "task-cancel-1-a",
+      "kind": "cancel",
+      "pair": "cancel-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "84fd1da850f37b394d65d173014252a8e7d495b6044b10a25af15012340299f7"
+      ],
+      "costUsd": 0.0005775
+    },
+    {
+      "id": "task-callback-0-b",
+      "kind": "callback",
+      "pair": "callback-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "baaa37fc5c472245efd528608ceed012496b013a76331e42687485402415bb9b"
+      ],
+      "costUsd": 0.0005487000000000001
+    },
+    {
+      "id": "task-move-1-b",
+      "kind": "move",
+      "pair": "move-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "012f725d391d978ee467f1a932ad0e6c5bf7d3ffe7f4f5a165a0b9a0594d29b1"
+      ],
+      "costUsd": 0.0006028000000000001
+    },
+    {
+      "id": "task-refund-0-b",
+      "kind": "refund",
+      "pair": "refund-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e7c775ad8c06277c7ed9f171728a87819a1590e5770febb5ea37ac9402ef8131"
+      ],
+      "costUsd": 0.0005762
+    },
+    {
+      "id": "task-callback-1-a",
+      "kind": "callback",
+      "pair": "callback-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8a280fdda5494a629f79ad9ef30efd8596beab40ec767a838081a45aba3ca3ab"
+      ],
+      "costUsd": 0.0004904
+    },
+    {
+      "id": "task-long-input-0-a",
+      "kind": "long-input",
+      "pair": "long-input-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "69afa4beca6d9a8ca5f1a33453865f04a2c585e8b5a235a6f20a705da3d0de86"
+      ],
+      "costUsd": 0.0005513
+    },
+    {
+      "id": "task-move-0-a",
+      "kind": "move",
+      "pair": "move-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f746fe4aaf827b56e34772da855fd44a6d2d4d74ea0d199ffab5e1c1eb49279d"
+      ],
+      "costUsd": 0.0004345
+    },
+    {
+      "id": "task-cancel-0-a",
+      "kind": "cancel",
+      "pair": "cancel-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "03dcfcfbeaaeb708b7b8140ae0e4ba3f3a7542b4f31261daa174ea5d477230ac"
+      ],
+      "costUsd": 0.000536
+    },
+    {
+      "id": "task-order-2-b",
+      "kind": "order",
+      "pair": "order-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "69d8e536c7301c0c9e252584f20f437c5036bdbb31da18b5a302e7613faf48a2"
+      ],
+      "costUsd": 0.0006858999999999999
+    },
+    {
+      "id": "task-long-input-2-a",
+      "kind": "long-input",
+      "pair": "long-input-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "70e2a2652957ef36661873fb19b0d86017811f3e12500e2ae3dfec7e52e9380f"
+      ],
+      "costUsd": 0.0005817999999999999
+    },
+    {
+      "id": "task-conditional-2-a",
+      "kind": "conditional",
+      "pair": "conditional-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1077e782acb6ec115e8f6d290d9ef2bb8cc9c2ff047fd0a05d19756a452c80ed"
+      ],
+      "costUsd": 0.0006255
+    },
+    {
+      "id": "task-wrong-target-0-a",
+      "kind": "wrong-target",
+      "pair": "wrong-target-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "03dcfcfbeaaeb708b7b8140ae0e4ba3f3a7542b4f31261daa174ea5d477230ac"
+      ],
+      "costUsd": 0.000536
+    },
+    {
+      "id": "task-queued-2-b",
+      "kind": "queued",
+      "pair": "queued-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "038b083faf7c90181a7f7630a392a24612aec83d8d191b1d752704072cf65752"
+      ],
+      "costUsd": 0.0005526999999999999
+    },
+    {
+      "id": "task-draft-1-a",
+      "kind": "draft",
+      "pair": "draft-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d3018dac81d0c0ec90a3ff1b4517e0a51de1a6badb211191c355ddd1725827fd"
+      ],
+      "costUsd": 0.00045300000000000006
+    },
+    {
+      "id": "task-long-input-2-b",
+      "kind": "long-input",
+      "pair": "long-input-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3afc003265c956f110648eecd7938b4e7021f7e23557a3d2fe32036cf8a2b050"
+      ],
+      "costUsd": 0.0008033000000000001
+    },
+    {
+      "id": "task-draft-0-b",
+      "kind": "draft",
+      "pair": "draft-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "624818939f654d9c50b8d8b45342fd72c85cdfc8cf4b72113329e93218e1a393"
+      ],
+      "costUsd": 0.0005804
+    },
+    {
+      "id": "task-wrong-target-1-b",
+      "kind": "wrong-target",
+      "pair": "wrong-target-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5bcd32ae63efbb1241adf8179666aff79f6fbaea4aaf511a7996b2f2346df3e1"
+      ],
+      "costUsd": 0.0007876000000000001
+    },
+    {
+      "id": "task-order-1-b",
+      "kind": "order",
+      "pair": "order-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9a8573a073a4ffee2181ee808c31ac0ea28751ce85e162ea24043f61730e6de8"
+      ],
+      "costUsd": 0.0006159
+    },
+    {
+      "id": "task-order-0-a",
+      "kind": "order",
+      "pair": "order-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6238b1247a2569166119890419096488be705bdb8115a0a42c358d9c88e8568b"
+      ],
+      "costUsd": 0.0005305
+    },
+    {
+      "id": "task-draft-1-b",
+      "kind": "draft",
+      "pair": "draft-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9a8573a073a4ffee2181ee808c31ac0ea28751ce85e162ea24043f61730e6de8"
+      ],
+      "costUsd": 0.0006339
+    },
+    {
+      "id": "task-move-0-b",
+      "kind": "move",
+      "pair": "move-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "287b2959eba825da9a56635316e96c5630eeb38b025b8c246ed3b5289336095c"
+      ],
+      "costUsd": 0.00045730000000000006
+    },
+    {
+      "id": "task-mixed-language-2-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1983d45462029a0b172b0a332ab8fc40ba23ca7d6dbca37c1d74c3a27eaff935"
+      ],
+      "costUsd": 0.000678
+    },
+    {
+      "id": "task-multi-part-0-a",
+      "kind": "multi-part",
+      "pair": "multi-part-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bc6361e2d79fdd440e5c5c2b76afd55fd21f65db4a5ddaa589826847e3e6705d"
+      ],
+      "costUsd": 0.0007335
+    },
+    {
+      "id": "task-callback-0-a",
+      "kind": "callback",
+      "pair": "callback-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "53944fe06af2c6103cb2a8a8089eb8723202822675eaad540e8f7bdb22a80c4b"
+      ],
+      "costUsd": 0.0004724
+    },
+    {
+      "id": "task-queued-0-a",
+      "kind": "queued",
+      "pair": "queued-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "03dcfcfbeaaeb708b7b8140ae0e4ba3f3a7542b4f31261daa174ea5d477230ac"
+      ],
+      "costUsd": 0.000536
+    },
+    {
+      "id": "task-callback-2-a",
+      "kind": "callback",
+      "pair": "callback-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d89dc699af12acc3a3fe51627bc21a9e8b8e4995f3fbfa6b48ef3bf7507ab1b8"
+      ],
+      "costUsd": 0.0005024000000000001
+    },
+    {
+      "id": "task-queued-1-b",
+      "kind": "queued",
+      "pair": "queued-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a6fb720be2746c5bc0efea131259c8ea80dd60ee429bcdcc06a93eba0b167a7f"
+      ],
+      "costUsd": 0.0007232
+    },
+    {
+      "id": "task-cancel-1-b",
+      "kind": "cancel",
+      "pair": "cancel-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4f30790527ff6331121a16560df16843375875ecf6822af1c046085c4fda1ab6"
+      ],
+      "costUsd": 0.0006545
+    },
+    {
+      "id": "task-multi-part-1-b",
+      "kind": "multi-part",
+      "pair": "multi-part-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0846484d47b1732518493eaba8dee309c845a8013eee031fb664f9b6056d1eba"
+      ],
+      "costUsd": 0.0006789000000000001
+    },
+    {
+      "id": "task-mixed-language-1-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5ed0d5c6c9b7ee9f96250171f5583c29b3c7dc7b7b3514ca7b88c0144b67bc97"
+      ],
+      "costUsd": 0.0005645
+    },
+    {
+      "id": "task-order-2-a",
+      "kind": "order",
+      "pair": "order-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1077e782acb6ec115e8f6d290d9ef2bb8cc9c2ff047fd0a05d19756a452c80ed"
+      ],
+      "costUsd": 0.0006255
+    },
+    {
+      "id": "task-move-2-a",
+      "kind": "move",
+      "pair": "move-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "de9d5bce2ddcb2de7945dc2059388e1d62a7d1ea0e9c0f6c136c2a36b03baaf7"
+      ],
+      "costUsd": 0.0005239999999999999
+    },
+    {
+      "id": "task-callback-2-b",
+      "kind": "callback",
+      "pair": "callback-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1e42f6cf993fbe2228c9f904acff3cae31debae706f1a9965c0523c7f807b6c3"
+      ],
+      "costUsd": 0.0005527
+    },
+    {
+      "id": "task-refund-1-a",
+      "kind": "refund",
+      "pair": "refund-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8993029ffee101b32e4a3b5a7fd51dd03384085cc51faee7e7517cbf8eb2ed99"
+      ],
+      "costUsd": 0.0003272
+    },
+    {
+      "id": "task-move-1-a",
+      "kind": "move",
+      "pair": "move-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5b76b43bba2efd567c7ff6cea763ebcb1898f2960b449062454fadf7ef973dac"
+      ],
+      "costUsd": 0.0003885
+    },
+    {
+      "id": "task-long-input-0-b",
+      "kind": "long-input",
+      "pair": "long-input-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3ecd8b877916e5910feab383f590740c8d94759002d4394ef53ce6a836fcd4eb"
+      ],
+      "costUsd": 0.0007713
+    },
+    {
+      "id": "task-mixed-language-0-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "597146462ee5d92a8de87c5878bd8e20ea24604cff7a484b70bd78a486b425ee"
+      ],
+      "costUsd": 0.000643
+    },
+    {
+      "id": "task-draft-0-a",
+      "kind": "draft",
+      "pair": "draft-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6238b1247a2569166119890419096488be705bdb8115a0a42c358d9c88e8568b"
+      ],
+      "costUsd": 0.0005305
+    },
+    {
+      "id": "task-move-2-b",
+      "kind": "move",
+      "pair": "move-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b6339c9e88db5afb922c2d9755302ec6c5f0dd362a967c6f2e1c7e5b376414d1"
+      ],
+      "costUsd": 0.0005508
+    },
+    {
+      "id": "task-multi-part-2-b",
+      "kind": "multi-part",
+      "pair": "multi-part-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ba32c42219f6604ffeb15e9fb3fa676a20ab3b8e3caf8fc65fd05ee5f3e93cb7"
+      ],
+      "costUsd": 0.0008289
+    },
+    {
+      "id": "task-refund-2-b",
+      "kind": "refund",
+      "pair": "refund-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3dc7686a79c7f5a74a26c6ea5e14cbee7e9ee356038c8c85964bced7ce60c40e"
+      ],
+      "costUsd": 0.0005692000000000001
+    },
+    {
+      "id": "task-conditional-1-b",
+      "kind": "conditional",
+      "pair": "conditional-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9a8573a073a4ffee2181ee808c31ac0ea28751ce85e162ea24043f61730e6de8"
+      ],
+      "costUsd": 0.0006339
+    },
+    {
+      "id": "task-wrong-target-0-b",
+      "kind": "wrong-target",
+      "pair": "wrong-target-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "150607b1c5a0f1125e9fd0ce6c72b998860467ea3ebe34e32f818fba06bd8e80"
+      ],
+      "costUsd": 0.0007831000000000001
+    },
+    {
+      "id": "task-queued-0-b",
+      "kind": "queued",
+      "pair": "queued-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "46f5831e8e51ed88b1d483e2d1a5b401839c890ad9e4610111fc1d4dc5d9ee16"
+      ],
+      "costUsd": 0.0003862
+    },
+    {
+      "id": "task-multi-part-1-a",
+      "kind": "multi-part",
+      "pair": "multi-part-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e549f5d0f0b6aa77fc4b154c41fab907fd596484aee575472de816e5a5f16f00"
+      ],
+      "costUsd": 0.0007415
+    },
+    {
+      "id": "task-wrong-target-2-a",
+      "kind": "wrong-target",
+      "pair": "wrong-target-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "37ea93460802754065c07b5fe2410e5f6c621fdde628693c34ac31e4390b9d94"
+      ],
+      "costUsd": 0.0005005
+    },
+    {
+      "id": "task-callback-1-b",
+      "kind": "callback",
+      "pair": "callback-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3660c1160c92c32fa3530df9815360355d56f5d96a057a65e2d2d39c9f4c3715"
+      ],
+      "costUsd": 0.0005172
+    },
+    {
+      "id": "task-draft-2-b",
+      "kind": "draft",
+      "pair": "draft-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "69d8e536c7301c0c9e252584f20f437c5036bdbb31da18b5a302e7613faf48a2"
+      ],
+      "costUsd": 0.0006858999999999999
+    },
+    {
+      "id": "task-wrong-target-1-a",
+      "kind": "wrong-target",
+      "pair": "wrong-target-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "84fd1da850f37b394d65d173014252a8e7d495b6044b10a25af15012340299f7"
+      ],
+      "costUsd": 0.0005775
+    },
+    {
+      "id": "task-mixed-language-0-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "392680dc51ed4480f0d471e5c51ed7a3e91f5918bc9bff47435e5301eba27e61"
+      ],
+      "costUsd": 0.0005855000000000001
+    },
+    {
+      "id": "task-cancel-0-b",
+      "kind": "cancel",
+      "pair": "cancel-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "fb2863eec2fc78586d5caecaacd83a1e34c348eb8728b8a7e99401751bd91da7"
+      ],
+      "costUsd": 0.000626
+    },
+    {
+      "id": "task-conditional-2-b",
+      "kind": "conditional",
+      "pair": "conditional-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "69d8e536c7301c0c9e252584f20f437c5036bdbb31da18b5a302e7613faf48a2"
+      ],
+      "costUsd": 0.0006858999999999999
+    },
+    {
+      "id": "task-cancel-2-a",
+      "kind": "cancel",
+      "pair": "cancel-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "37ea93460802754065c07b5fe2410e5f6c621fdde628693c34ac31e4390b9d94"
+      ],
+      "costUsd": 0.0005005
+    },
+    {
+      "id": "task-conditional-1-a",
+      "kind": "conditional",
+      "pair": "conditional-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d3018dac81d0c0ec90a3ff1b4517e0a51de1a6badb211191c355ddd1725827fd"
+      ],
+      "costUsd": 0.00045300000000000006
+    },
+    {
+      "id": "task-draft-2-a",
+      "kind": "draft",
+      "pair": "draft-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1077e782acb6ec115e8f6d290d9ef2bb8cc9c2ff047fd0a05d19756a452c80ed"
+      ],
+      "costUsd": 0.0006255
+    },
+    {
+      "id": "task-multi-part-0-b",
+      "kind": "multi-part",
+      "pair": "multi-part-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "81c292a12552d9ea180cb997f49873cb2a80239588e406c81e233c8f02d517da"
+      ],
+      "costUsd": 0.00042290000000000003
+    },
+    {
+      "id": "task-wrong-target-2-b",
+      "kind": "wrong-target",
+      "pair": "wrong-target-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "fef3acef202fb666dcdb0284801cefe2f1a97c5a061f71690e8470e192ac71aa"
+      ],
+      "costUsd": 0.0007906
+    },
+    {
+      "id": "task-refund-2-a",
+      "kind": "refund",
+      "pair": "refund-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f47dc200911487636c4d00d1f91b17cebbe1f8e03004e290e92270997b22396c"
+      ],
+      "costUsd": 0.0004777
+    },
+    {
+      "id": "task-conditional-0-a",
+      "kind": "conditional",
+      "pair": "conditional-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6238b1247a2569166119890419096488be705bdb8115a0a42c358d9c88e8568b"
+      ],
+      "costUsd": 0.0005305
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+# The judged side of completeness: whether every request the user made in the conversation got its answer or its result. Fictional data.
+criterion:
+  name: conversation_completeness
+  rubric: Every question and request the user made in this conversation is answered or handled by its end. A request left open at the last reply is not complete.
+  pass: Each thing the user asked for has its answer or its result in the conversation.
+  fail: A question or request the user made has no answer or result by the end of the conversation.
+  judge_class: system1
+  scope: conversation
+fixtures:
+  pass:
+    note: The user asks for the price and the coverage of one address; the reply answers both.
+    transcript:
+      - { role: user, text: "What does Acme Fiber 1000 cost, and is my address covered?" }
+      - { role: agent, text: "Acme Fiber 1000 costs $60 a month, and yes, 14 Harbor Road is covered." }
+  fail:
+    note: The same two questions; the reply answers the price and leaves the coverage question open.
+    transcript:
+      - { role: user, text: "What does Acme Fiber 1000 cost, and is my address covered?" }
+      - { role: agent, text: "Acme Fiber 1000 is $60 a month." }

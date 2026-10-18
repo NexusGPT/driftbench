@@ -1,4 +1,4 @@
-import { collectRetries, type Message, type Session } from '@driftbench/core';
+import { collectRetries, type Message, type Session } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { ToolLabels } from '../src/anthropic/common';
 import { type GenerateTextLike, toModelMessages, vercelAiAdapter } from '../src/vercel-ai/index';
@@ -41,6 +41,40 @@ const given = acmeGiven({ adapter: 'vercel-ai' });
 const labels = new ToolLabels(ACME_TOOL_NAMES);
 
 describe('vercel-ai adapter', () => {
+  it('validates and freezes messages before the tools factory receives the Given', async () => {
+    let called = 0;
+    const adapter = vercelAiAdapter({
+      generateText: fakeGenerateText(),
+      model: acmeModel(),
+      tools: (start) => {
+        called++;
+        const message = start.prefix[0];
+        if (!message) throw new Error('missing prefix');
+        expect(() => {
+          message.content = 'setup-mutated';
+        }).toThrow(TypeError);
+        return {};
+      },
+    });
+    const session = await adapter.open({ ...given, prefix: [{ role: 'user', content: 'before' }] });
+    expect(session.history[0]?.content).toBe('before');
+    await adapter.close(session);
+    await expect(
+      adapter.open({
+        ...given,
+        prefix: [
+          {
+            role: 'user',
+            get content() {
+              return 'before';
+            },
+          },
+        ],
+      }),
+    ).rejects.toThrow(/content.*accessor/);
+    expect(called).toBe(1);
+  });
+
   it('reads recorded steps of the real SDK: text, a tool result, a tool error, and the usage of each step', async () => {
     const generateText: GenerateTextLike = async () => ({ steps: structuredClone(recorded.steps) as never });
     const adapter = vercelAiAdapter({ generateText, model: acmeModel() });
@@ -79,6 +113,33 @@ describe('vercel-ai adapter', () => {
     });
     expect(tools.coverage_check?.execute, "the caller's tool object is unchanged").toBe(original);
     expect(generateText.calls[0]?.maxRetries).toBe(0);
+  });
+
+  it('refuses a tool the policy denies before the call: the original execute never runs', async () => {
+    const tools = acmeVercelTools();
+    const original = tools.coverage_check?.execute;
+    let ran = 0;
+    if (tools.coverage_check) {
+      tools.coverage_check.execute = async (input, options) => {
+        ran += 1;
+        return original ? original(input, options) : null;
+      };
+    }
+    const generateText = fakeGenerateText();
+    const adapter = vercelAiAdapter({
+      generateText,
+      model: acmeModel(),
+      tools,
+      toolLabels: ACME_TOOL_NAMES,
+      toolPolicy: [{ pattern: 'coverage.check', action: 'deny' }],
+    });
+    const start = acmeGiven({ adapter: 'vercel-ai' });
+    const observed = await sendUser(adapter, await adapter.open(start), COVERAGE_QUESTION, 0, start);
+    expect(ran, 'the denied tool was not called').toBe(0);
+    expect(observed.toolCalls[0]).toMatchObject({
+      label: 'coverage.check',
+      error: 'denied by tool policy rule coverage.check',
+    });
   });
 
   it('retries a model call that fails twice under the shared policy, and records both retries', async () => {

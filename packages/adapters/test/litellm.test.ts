@@ -1,4 +1,9 @@
-import { AdapterTransportError, AgentFailure, collectRetries, type Session } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  collectRetries,
+  type Session,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { litellmAdapter } from '../src/litellm/index';
 import { acmeGiven, adapterContract, COVERAGE_QUESTION, expectWholeObserved, sendUser } from './contract';
@@ -28,6 +33,40 @@ adapterContract(
 const given = acmeGiven({ adapter: 'litellm' });
 
 describe('litellm adapter', () => {
+  it('validates and freezes messages before the tools factory receives the Given', async () => {
+    let called = 0;
+    const adapter = litellmAdapter({
+      client: fakeLitellm(),
+      model: MODEL,
+      tools: (start) => {
+        called++;
+        const message = start.prefix[0];
+        if (!message) throw new Error('missing prefix');
+        expect(() => {
+          message.content = 'setup-mutated';
+        }).toThrow(TypeError);
+        return [];
+      },
+    });
+    const session = await adapter.open({ ...given, prefix: [{ role: 'user', content: 'before' }] });
+    expect(session.history[0]?.content).toBe('before');
+    await adapter.close(session);
+    await expect(
+      adapter.open({
+        ...given,
+        prefix: [
+          {
+            role: 'user',
+            get content() {
+              return 'before';
+            },
+          },
+        ],
+      }),
+    ).rejects.toThrow(/content.*accessor/);
+    expect(called).toBe(1);
+  });
+
   it('sends the OpenAI chat shape with names the providers accept, the client retries off, and keeps the routed model', async () => {
     const client = fakeLitellm('openai/gpt-fake');
     const adapter = litellmAdapter({

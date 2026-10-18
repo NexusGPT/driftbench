@@ -1,4 +1,4 @@
-import { type RunResult, RunResult as RunSchema } from '@driftbench/core';
+import { type RunResult, RunResult as RunSchema } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { observationOf } from '../../src/pilot/run';
 
@@ -80,5 +80,24 @@ describe('observationOf', () => {
     const planted = observationOf(run([{ pFail: 0.05, verdicts: [['pilot_control', 'fail']] }]), FACTORS);
     expect(planted?.planted).toBeCloseTo(0.05, 12);
     expect(planted?.pass).toBe(false);
+  });
+
+  it('gives no observation for a run with a block not run and no failure: it is no measurement', () => {
+    const base = run([{ verdicts: [['must', 'pass']] }, { verdicts: [] }]);
+    const notRun: RunResult = {
+      ...base,
+      blocks: base.blocks.map((block, index) =>
+        index === 1
+          ? {
+              ...block,
+              pass: false,
+              status: 'not_run',
+              notRun: { kind: 'unsupported', layer: '5 world', check: 'capability', expected: 'e', got: 'g' },
+            }
+          : block,
+      ),
+    };
+    expect(observationOf(notRun, FACTORS)).toBeUndefined();
+    expect(observationOf(base, FACTORS)?.pass).toBe(true);
   });
 });

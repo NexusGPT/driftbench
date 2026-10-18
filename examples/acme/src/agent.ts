@@ -1,4 +1,6 @@
-import type { Message, Observed, Segment, ToolCall, WorldState } from '@driftbench/core';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import type { Message, Observed, Segment, ToolCall, WorldState } from '@agent-nexus/driftbench-core';
 import { type CallTool, initialState, type State, takeTurn } from './policy';
 import { type AcmeStore, createStore } from './store';
 import { callTool, type ToolOutcome } from './tools';
@@ -15,6 +17,9 @@ import { callTool, type ToolOutcome } from './tools';
  * Every tool call of the answered turn becomes a `tool_call` segment followed by its `tool_result`
  * segment; the reply is one `text` segment; `runtime.stages` names the flow stage the turn ends in, and
  * `runtime.guards` lists the guardrails that fired.
+ *
+ * The answered turn also reads the files of `world.workspace`, the documents the customer shares: the
+ * folder `from`, then `files` over it. Like tool answers they are data, never instructions (`takeTurn`).
  */
 export type AcmeAgent = {
   respond(messages: Message[], world?: WorldState): Promise<Observed>;
@@ -42,7 +47,7 @@ function respond(store: AcmeStore, messages: Message[], world: WorldState | unde
   }
 
   const live = liveTools(store, world);
-  const { state: next, reply, guards } = takeTurn(state, current.text, live.call);
+  const { state: next, reply, guards } = takeTurn(state, current.text, live.call, documents(world));
   const segments: Segment[] = [...live.segments, { type: 'text', text: reply }];
   return {
     segments,
@@ -76,6 +81,22 @@ function splitTurns(messages: Message[]): Turn[] {
     // System and tool messages carry nothing this agent replays.
   }
   return turns;
+}
+
+/** The workspace files, by path: the regular files of the folder `from`, then `files` over them. */
+function documents(world: WorldState | undefined): string[] {
+  const workspace = world?.workspace;
+  if (!workspace) return [];
+  const byPath = new Map<string, string>();
+  if (workspace.from !== undefined) {
+    for (const entry of readdirSync(workspace.from, { recursive: true, withFileTypes: true })) {
+      if (!entry.isFile()) continue;
+      const path = join(entry.parentPath, entry.name);
+      byPath.set(relative(workspace.from, path), readFileSync(path, 'utf8'));
+    }
+  }
+  for (const [path, content] of Object.entries(workspace.files ?? {})) byPath.set(path, content);
+  return [...byPath.keys()].sort().map((path) => byPath.get(path) ?? '');
 }
 
 /** Tools for an earlier turn: recorded results first, then a read of the store that records nothing. */

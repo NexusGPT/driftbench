@@ -1,0 +1,512 @@
+[
+  {
+    "competitor": "promptfoo",
+    "row": "rubric",
+    "items": 72,
+    "earlier_shipped_right": 71,
+    "earlier_shipped_items": 72,
+    "competitor_right": 69,
+    "default": {
+      "right": 68,
+      "complete": 72,
+      "wilson95": [
+        86.57,
+        97.82
+      ],
+      "only_ours": 2,
+      "only_theirs": 3,
+      "mcnemar_exact_p": 1.0
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 3,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 0.25
+    }
+  },
+  {
+    "competitor": "promptfoo",
+    "row": "factuality",
+    "items": 72,
+    "earlier_shipped_right": 70,
+    "earlier_shipped_items": 72,
+    "competitor_right": 70,
+    "default": {
+      "right": 71,
+      "complete": 72,
+      "wilson95": [
+        92.54,
+        99.75
+      ],
+      "only_ours": 2,
+      "only_theirs": 1,
+      "mcnemar_exact_p": 1.0
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 2,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 0.5
+    }
+  },
+  {
+    "competitor": "promptfoo",
+    "row": "pii",
+    "items": 72,
+    "earlier_shipped_right": 72,
+    "earlier_shipped_items": 72,
+    "competitor_right": 71,
+    "default": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 1,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 1.0
+    },
+    "audit": {
+      "right": 71,
+      "complete": 72,
+      "wilson95": [
+        92.54,
+        99.75
+      ],
+      "only_ours": 1,
+      "only_theirs": 1,
+      "mcnemar_exact_p": 1.0
+    }
+  },
+  {
+    "competitor": "promptfoo",
+    "row": "goal",
+    "items": 72,
+    "earlier_shipped_right": 72,
+    "earlier_shipped_items": 72,
+    "competitor_right": 71,
+    "default": {
+      "right": 64,
+      "complete": 72,
+      "wilson95": [
+        79.58,
+        94.26
+      ],
+      "only_ours": 0,
+      "only_theirs": 7,
+      "mcnemar_exact_p": 0.015625
+    },
+    "audit": {
+      "right": 69,
+      "complete": 72,
+      "wilson95": [
+        88.45,
+        98.57
+      ],
+      "only_ours": 1,
+      "only_theirs": 3,
+      "mcnemar_exact_p": 0.625
+    }
+  },
+  {
+    "competitor": "langfuse",
+    "row": "correctness",
+    "items": 120,
+    "earlier_shipped_right": 116,
+    "earlier_shipped_items": 120,
+    "competitor_right": 115,
+    "default": {
+      "right": 115,
+      "complete": 120,
+      "wilson95": [
+        90.62,
+        98.21
+      ],
+      "only_ours": 5,
+      "only_theirs": 5,
+      "mcnemar_exact_p": 1.0
+    },
+    "audit": {
+      "right": 118,
+      "complete": 120,
+      "wilson95": [
+        94.13,
+        99.54
+      ],
+      "only_ours": 5,
+      "only_theirs": 2,
+      "mcnemar_exact_p": 0.453125
+    }
+  },
+  {
+    "competitor": "deepeval",
+    "row": "turn relevancy",
+    "items": 72,
+    "earlier_shipped_right": 65,
+    "earlier_shipped_items": 72,
+    "competitor_right": 36,
+    "default": {
+      "right": 69,
+      "complete": 72,
+      "wilson95": [
+        88.45,
+        98.57
+      ],
+      "only_ours": 33,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 2.3283064365386963e-10
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 36,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 2.9103830456733704e-11
+    }
+  },
+  {
+    "competitor": "deepeval",
+    "row": "G-Eval strict",
+    "items": 72,
+    "earlier_shipped_right": 65,
+    "earlier_shipped_items": 72,
+    "competitor_right": 70,
+    "default": {
+      "right": 69,
+      "complete": 72,
+      "wilson95": [
+        88.45,
+        98.57
+      ],
+      "only_ours": 2,
+      "only_theirs": 3,
+      "mcnemar_exact_p": 1.0
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 2,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 0.5
+    }
+  },
+  {
+    "competitor": "deepeval",
+    "row": "DAG",
+    "items": 72,
+    "earlier_shipped_right": 65,
+    "earlier_shipped_items": 72,
+    "competitor_right": 65,
+    "default": {
+      "right": 69,
+      "complete": 72,
+      "wilson95": [
+        88.45,
+        98.57
+      ],
+      "only_ours": 5,
+      "only_theirs": 1,
+      "mcnemar_exact_p": 0.21875
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 7,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 0.015625
+    }
+  },
+  {
+    "competitor": "deepeval",
+    "row": "role adherence",
+    "items": 72,
+    "earlier_shipped_right": 72,
+    "earlier_shipped_items": 72,
+    "competitor_right": 63,
+    "default": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 9,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 0.00390625
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 9,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 0.00390625
+    }
+  },
+  {
+    "competitor": "deepeval",
+    "row": "conversation completeness",
+    "items": 72,
+    "earlier_shipped_right": 70,
+    "earlier_shipped_items": 72,
+    "competitor_right": 46,
+    "default": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 26,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 2.9802322387695312e-08
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 26,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 2.9802322387695312e-08
+    }
+  },
+  {
+    "competitor": "deepeval",
+    "row": "task completion",
+    "items": 72,
+    "earlier_shipped_right": 72,
+    "earlier_shipped_items": 72,
+    "competitor_right": 44,
+    "default": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 28,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 7.450580596923828e-09
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 28,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 7.450580596923828e-09
+    }
+  },
+  {
+    "competitor": "deepeval",
+    "row": "hallucination",
+    "items": 72,
+    "earlier_shipped_right": 71,
+    "earlier_shipped_items": 72,
+    "competitor_right": 36,
+    "default": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 36,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 2.9103830456733704e-11
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 36,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 2.9103830456733704e-11
+    }
+  },
+  {
+    "competitor": "deepeval",
+    "row": "faithfulness",
+    "items": 72,
+    "earlier_shipped_right": 71,
+    "earlier_shipped_items": 72,
+    "competitor_right": 36,
+    "default": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 36,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 2.9103830456733704e-11
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 36,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 2.9103830456733704e-11
+    }
+  },
+  {
+    "competitor": "deepeval",
+    "row": "knowledge retention",
+    "items": 72,
+    "earlier_shipped_right": 68,
+    "earlier_shipped_items": 72,
+    "competitor_right": 69,
+    "default": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 3,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 0.25
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 3,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 0.25
+    }
+  },
+  {
+    "competitor": "deepeval",
+    "row": "task completion (tool receipts, the README bar)",
+    "items": 72,
+    "earlier_shipped_right": 72,
+    "earlier_shipped_items": 72,
+    "competitor_right": 72,
+    "default": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 0,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 1.0
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 0,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 1.0
+    }
+  },
+  {
+    "competitor": "langwatch",
+    "row": "criterion labels, short cohort",
+    "items": 240,
+    "earlier_shipped_right": 238,
+    "earlier_shipped_items": 240,
+    "competitor_right": 240,
+    "default": {
+      "right": 240,
+      "complete": 240,
+      "wilson95": [
+        98.42,
+        100
+      ],
+      "only_ours": 0,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 1.0
+    },
+    "audit": {
+      "right": 227,
+      "complete": 240,
+      "wilson95": [
+        90.95,
+        96.81
+      ],
+      "only_ours": 0,
+      "only_theirs": 13,
+      "mcnemar_exact_p": 0.000244140625
+    }
+  },
+  {
+    "competitor": "langwatch",
+    "row": "criterion labels, long cohort",
+    "items": 240,
+    "earlier_shipped_right": 205,
+    "earlier_shipped_items": 240,
+    "competitor_right": 230,
+    "default": {
+      "right": 233,
+      "complete": 240,
+      "wilson95": [
+        94.1,
+        98.58
+      ],
+      "only_ours": 5,
+      "only_theirs": 2,
+      "mcnemar_exact_p": 0.453125
+    },
+    "audit": {
+      "right": 186,
+      "complete": 240,
+      "wilson95": [
+        71.81,
+        82.33
+      ],
+      "only_ours": 2,
+      "only_theirs": 46,
+      "mcnemar_exact_p": 8.363087999896379e-12
+    }
+  }
+]

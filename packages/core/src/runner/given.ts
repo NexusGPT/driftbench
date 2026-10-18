@@ -1,19 +1,25 @@
-import type { Assertion, Count, Message, TargetRef, WorldState } from '../schema/common';
+import { copyHistory, freezeHistory, readOnlyHistory } from '../contracts/history';
+import type { Assertion, Count, GivenOrigin, Message, TargetRef, WorldState } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
 import type { Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
-import { contentHash } from '../spec/hash';
+import { contentHashWithList } from '../spec/hash';
 import { deepEqual } from './assertion';
 
 /**
  * The Given of a free-running run, carried from block to block. The spec's `given` is the start. A block's
  * `given` merges into it from that block onwards, and so does the world of an injected perturbation. A
  * block's `ledger_add` joins the ledger after the block. For each tool, store key, fixture, variable and
- * fact the later value wins; a later workspace replaces the earlier one.
+ * fact the later value wins; a later workspace replaces the earlier one. `origin` is the one the latest
+ * prefix states: a block that writes a prefix sets it, or clears it when it states none. `originLength` is
+ * how many messages that prefix holds: the origin covers those first messages of the history, never the
+ * messages a run or a teacher-forced replay adds after them.
  */
 export type RunningGiven = {
   ledger: Record<string, unknown>;
   world: WorldState;
   vars: Record<string, unknown>;
+  origin?: GivenOrigin;
+  originLength?: number;
 };
 
 export function initialGiven(spec: Spec): RunningGiven {
@@ -30,27 +36,44 @@ export function enterBlock(
   given: GivenOverride | undefined,
   world?: WorldState,
 ): RunningGiven {
+  const written = given?.prefix !== undefined;
+  const origin = written ? given.origin : state.origin;
+  const originLength = written ? given.prefix?.length : state.originLength;
   return {
     ledger: { ...state.ledger, ...given?.ledger },
     world: mergeWorld(mergeWorld(state.world, given?.world), world),
     vars: { ...state.vars, ...given?.vars },
+    ...(origin === undefined ? {} : { origin, originLength: originLength ?? 0 }),
   };
 }
 
-/** The resolved Given of one block: what it starts from, and the content hash of all of it. */
+/**
+ * The resolved Given of one block: what it starts from, and the content hash of all of it. The prefix is a
+ * new list of the same message objects: the run owns them and never changes one after it joined the
+ * history, so the cost of a block does not grow with the messages before it. The origin of the prefix joins
+ * the hash only when the spec states one, so a Given without it hashes as it always did. `originLength`
+ * follows from the spec the hash already covers, so it stays out of the Given hash. The block cache key reads
+ * the whole resolved Given, so it does change that key: what an adapter receives decides a cache entry.
+ */
 export function resolveGiven(
   state: RunningGiven,
   prefix: readonly Message[],
   target: TargetRef,
 ): ResolvedGiven {
   const body = {
-    prefix: structuredClone([...prefix]),
+    // Read-only and shared with the run: an adapter copies it with copyHistory, which then reads no property.
+    prefix: readOnlyHistory(prefix) as Message[],
+    ...(state.origin === undefined ? {} : { origin: state.origin }),
     ledger: structuredClone(state.ledger),
     world: structuredClone(state.world),
     vars: structuredClone(state.vars),
     target: structuredClone(target),
   };
-  return { ...body, hash: contentHash(body) };
+  return {
+    ...body,
+    ...(state.origin === undefined ? {} : { originLength: state.originLength ?? 0 }),
+    hash: contentHashWithList(body, 'prefix'),
+  };
 }
 
 /** Merges a later world into an earlier one: tools, store keys and fixtures by name, the workspace whole. */
@@ -103,19 +126,45 @@ export function addFacts(
  * replays its past turns reads it again.
  */
 export function canonicalGiven(spec: Spec, blockIndex: number): { state: RunningGiven; prefix: Message[] } {
-  let state = initialGiven(spec);
-  let prefix: Message[] = [];
-  for (let index = 0; index <= blockIndex; index++) {
+  const frozen = canonicalGivenFrozen(spec, blockIndex);
+  return { state: frozen.state, prefix: copyHistory(frozen.prefix) };
+}
+
+/** `canonicalGiven` with the prefix as the run keeps it: a private read-only list, so the runner reads it without a copy. */
+export function canonicalGivenFrozen(
+  spec: Spec,
+  blockIndex: number,
+): { state: RunningGiven; prefix: readonly Message[] } {
+  // A run asks for block 0, 1, 2 in turn. The situation before block k's own given, kept from the last ask,
+  // lets the next ask build one block more, not the whole prefix again; its messages are the same objects,
+  // which the prefix cache and the hashes read once.
+  const kept = canonicalKept.get(spec);
+  const resume = kept && kept.blocks === spec.blocks && kept.next <= blockIndex ? kept : undefined;
+  let state = resume ? resume.state : initialGiven(spec);
+  // Retain immutable private arrays; callers receive a separate mutable array below.
+  let prefix: readonly Message[] = resume ? resume.prefix : [];
+  for (let index = resume ? resume.next : 0; index <= blockIndex; index++) {
     const block = spec.blocks[index];
     if (!block) break;
+    if (index === blockIndex) {
+      canonicalKept.set(spec, { blocks: spec.blocks, next: index, state, prefix });
+    }
     state = enterBlock(state, block.given);
-    if (block.given?.prefix) prefix = structuredClone(block.given.prefix);
+    if (block.given?.prefix) prefix = freezeHistory(block.given.prefix);
     if (index === blockIndex) break;
-    prefix.push(...stimulusMessages(block.when), canonicalReply(block.expect, state.world));
+    prefix = freezeHistory(prefix, [
+      ...stimulusMessages(block.when),
+      canonicalReply(block.expect, state.world),
+    ]);
     state = { ...state, ledger: { ...state.ledger, ...block.expect?.ledger_add } };
   }
   return { state, prefix };
 }
+
+const canonicalKept = new WeakMap<
+  Spec,
+  { blocks: Spec['blocks']; next: number; state: RunningGiven; prefix: readonly Message[] }
+>();
 
 /** The assistant message a teacher-forced prefix keeps for one earlier block: no text, the expected calls. */
 export function canonicalReply(expect: Expect | undefined, world: WorldState): Message {
@@ -171,7 +220,8 @@ export function assistantMessage(observed: Observed): Message {
     if (call.id !== undefined) recorded.id = call.id;
     if (call.input !== undefined) recorded.input = call.input as Json;
     if (call.error !== undefined) recorded.error = call.error;
-    else recorded.output = call.output as Json;
+    // An absent output stays absent: history holds plain JSON data, never an undefined value.
+    else if (call.output !== undefined) recorded.output = call.output as Json;
     return recorded;
   });
   return calls.length > 0

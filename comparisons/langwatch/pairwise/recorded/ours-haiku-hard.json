@@ -1,0 +1,969 @@
+{
+  "system": "ours",
+  "model": "haiku",
+  "set": "hard.json",
+  "spentUsd": 0.06249752,
+  "unanswered": 0,
+  "answers": [
+    {
+      "id": "h001",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006503
+    },
+    {
+      "id": "h002",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006319000000000002
+    },
+    {
+      "id": "h003",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006787
+    },
+    {
+      "id": "h004",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0005993999999999999
+    },
+    {
+      "id": "h005",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006226000000000001
+    },
+    {
+      "id": "h006",
+      "choice": "tie",
+      "ordered": "inconclusive",
+      "swapped": "fail",
+      "consistent": false,
+      "costUsd": 0.0006091999999999998
+    },
+    {
+      "id": "h007",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0007744000000000002
+    },
+    {
+      "id": "h008",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006103999999999997
+    },
+    {
+      "id": "h009",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006037000000000004
+    },
+    {
+      "id": "h010",
+      "choice": "tie",
+      "ordered": "fail",
+      "swapped": "inconclusive",
+      "consistent": false,
+      "costUsd": 0.0006255000000000002
+    },
+    {
+      "id": "h011",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006037000000000004
+    },
+    {
+      "id": "h012",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006284000000000003
+    },
+    {
+      "id": "h013",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0007641999999999996
+    },
+    {
+      "id": "h014",
+      "choice": "tie",
+      "ordered": "pass",
+      "swapped": "pass",
+      "consistent": false,
+      "costUsd": 0.0005982999999999995
+    },
+    {
+      "id": "h015",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0007209
+    },
+    {
+      "id": "h016",
+      "choice": "tie",
+      "ordered": "inconclusive",
+      "swapped": "inconclusive",
+      "consistent": true,
+      "costUsd": 0.0006490999999999997
+    },
+    {
+      "id": "h017",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006781999999999986
+    },
+    {
+      "id": "h018",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0007379999999999991
+    },
+    {
+      "id": "h019",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006173000000000012
+    },
+    {
+      "id": "h020",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006374999999999992
+    },
+    {
+      "id": "h021",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006670000000000009
+    },
+    {
+      "id": "h022",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.000732
+    },
+    {
+      "id": "h023",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0004585800000000001
+    },
+    {
+      "id": "h024",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0005395199999999999
+    },
+    {
+      "id": "h025",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00032481999999999997
+    },
+    {
+      "id": "h026",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0003081000000000021
+    },
+    {
+      "id": "h027",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0004336200000000026
+    },
+    {
+      "id": "h028",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0004070599999999973
+    },
+    {
+      "id": "h029",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.000283000000000002
+    },
+    {
+      "id": "h030",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00028974000000000014
+    },
+    {
+      "id": "h031",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0003055200000000001
+    },
+    {
+      "id": "h032",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00039706000000000116
+    },
+    {
+      "id": "h033",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00031033999999999923
+    },
+    {
+      "id": "h034",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00034694000000000044
+    },
+    {
+      "id": "h035",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00028567999999999996
+    },
+    {
+      "id": "h036",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00041485999999999953
+    },
+    {
+      "id": "h037",
+      "choice": "tie",
+      "ordered": "fail",
+      "swapped": "fail",
+      "consistent": false,
+      "costUsd": 0.00033421999999999966
+    },
+    {
+      "id": "h038",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0004446399999999996
+    },
+    {
+      "id": "h039",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00034925999999999707
+    },
+    {
+      "id": "h040",
+      "choice": "tie",
+      "ordered": "fail",
+      "swapped": "fail",
+      "consistent": false,
+      "costUsd": 0.00038296000000000163
+    },
+    {
+      "id": "h041",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00030648000000000133
+    },
+    {
+      "id": "h042",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0003178
+    },
+    {
+      "id": "h043",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.000285259999999999
+    },
+    {
+      "id": "h044",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0002986599999999992
+    },
+    {
+      "id": "h045",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0003290199999999993
+    },
+    {
+      "id": "h046",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.000304539999999999
+    },
+    {
+      "id": "h047",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00029215999999999964
+    },
+    {
+      "id": "h048",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00030629999999999893
+    },
+    {
+      "id": "h049",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0004346799999999998
+    },
+    {
+      "id": "h050",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00029464000000000226
+    },
+    {
+      "id": "h051",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0004289999999999988
+    },
+    {
+      "id": "h052",
+      "choice": "tie",
+      "ordered": "fail",
+      "swapped": "inconclusive",
+      "consistent": false,
+      "costUsd": 0.00029324000000000017
+    },
+    {
+      "id": "h053",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0002934199999999991
+    },
+    {
+      "id": "h054",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.000308120000000002
+    },
+    {
+      "id": "h055",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0002981200000000024
+    },
+    {
+      "id": "h056",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0002946000000000025
+    },
+    {
+      "id": "h057",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00044282
+    },
+    {
+      "id": "h058",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00042825999999999975
+    },
+    {
+      "id": "h059",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0003011800000000016
+    },
+    {
+      "id": "h060",
+      "choice": "tie",
+      "ordered": "fail",
+      "swapped": "fail",
+      "consistent": false,
+      "costUsd": 0.0003751199999999996
+    },
+    {
+      "id": "h061",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0004502399999999976
+    },
+    {
+      "id": "h062",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00029055999999999874
+    },
+    {
+      "id": "h063",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00031787999999999955
+    },
+    {
+      "id": "h064",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00030846
+    },
+    {
+      "id": "h065",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00030830000000000093
+    },
+    {
+      "id": "h066",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0002931200000000009
+    },
+    {
+      "id": "h067",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00031555999999999945
+    },
+    {
+      "id": "h068",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0003134799999999979
+    },
+    {
+      "id": "h069",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00028923999999999964
+    },
+    {
+      "id": "h070",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0003960400000000003
+    },
+    {
+      "id": "h071",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0002905600000000022
+    },
+    {
+      "id": "h072",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00028751999999999944
+    },
+    {
+      "id": "h073",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00041947999999999985
+    },
+    {
+      "id": "h074",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0003873399999999999
+    },
+    {
+      "id": "h075",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0002874399999999999
+    },
+    {
+      "id": "h076",
+      "choice": "tie",
+      "ordered": "inconclusive",
+      "swapped": "pass",
+      "consistent": false,
+      "costUsd": 0.0003529599999999994
+    },
+    {
+      "id": "h077",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006677000000000002
+    },
+    {
+      "id": "h078",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006245000000000001
+    },
+    {
+      "id": "h079",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006246000000000029
+    },
+    {
+      "id": "h080",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006488000000000049
+    },
+    {
+      "id": "h081",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006147999999999987
+    },
+    {
+      "id": "h082",
+      "choice": "tie",
+      "ordered": "pass",
+      "swapped": "pass",
+      "consistent": false,
+      "costUsd": 0.0006462999999999955
+    },
+    {
+      "id": "h083",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006291000000000005
+    },
+    {
+      "id": "h084",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006403999999999993
+    },
+    {
+      "id": "h085",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006136999999999948
+    },
+    {
+      "id": "h086",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006351999999999955
+    },
+    {
+      "id": "h087",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006359999999999977
+    },
+    {
+      "id": "h088",
+      "choice": "tie",
+      "ordered": "fail",
+      "swapped": "fail",
+      "consistent": false,
+      "costUsd": 0.000678999999999999
+    },
+    {
+      "id": "h089",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0007015000000000007
+    },
+    {
+      "id": "h090",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006343000000000043
+    },
+    {
+      "id": "h091",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006532999999999956
+    },
+    {
+      "id": "h092",
+      "choice": "tie",
+      "ordered": "inconclusive",
+      "swapped": "pass",
+      "consistent": false,
+      "costUsd": 0.0006723999999999966
+    },
+    {
+      "id": "h093",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0007884000000000016
+    },
+    {
+      "id": "h094",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0008243
+    },
+    {
+      "id": "h095",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006161000000000014
+    },
+    {
+      "id": "h096",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006094999999999989
+    },
+    {
+      "id": "h097",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006250000000000006
+    },
+    {
+      "id": "h098",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.000733599999999994
+    },
+    {
+      "id": "h099",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0007455000000000031
+    },
+    {
+      "id": "h100",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006392999999999954
+    },
+    {
+      "id": "h101",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006475999999999982
+    },
+    {
+      "id": "h102",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0008270000000000013
+    },
+    {
+      "id": "h103",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0007127999999999995
+    },
+    {
+      "id": "h104",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006021000000000012
+    },
+    {
+      "id": "h105",
+      "choice": "tie",
+      "ordered": "inconclusive",
+      "swapped": "pass",
+      "consistent": false,
+      "costUsd": 0.0006164000000000031
+    },
+    {
+      "id": "h106",
+      "choice": "tie",
+      "ordered": "fail",
+      "swapped": "fail",
+      "consistent": false,
+      "costUsd": 0.0006572000000000036
+    },
+    {
+      "id": "h107",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.000650700000000004
+    },
+    {
+      "id": "h108",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006180000000000005
+    },
+    {
+      "id": "h109",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.000694199999999999
+    },
+    {
+      "id": "h110",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006627999999999981
+    },
+    {
+      "id": "h111",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0007997000000000004
+    },
+    {
+      "id": "h112",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0008126000000000036
+    },
+    {
+      "id": "h113",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006493000000000054
+    },
+    {
+      "id": "h114",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006238000000000007
+    },
+    {
+      "id": "h115",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006236999999999979
+    },
+    {
+      "id": "h116",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0007887999999999992
+    },
+    {
+      "id": "h117",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0006267000000000009
+    },
+    {
+      "id": "h118",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006483000000000044
+    },
+    {
+      "id": "h119",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0006137999999999977
+    },
+    {
+      "id": "h120",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0007204999999999989
+    }
+  ]
+}

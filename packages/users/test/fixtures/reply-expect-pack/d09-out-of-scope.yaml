@@ -1,0 +1,9 @@
+# Fictional fixture: a billing request whose reply must route to care and must not promise a refund.
+class: D9_out_of_scope
+title: out of scope
+conversation:
+  - id: fx-d9-billing
+    approved: true
+    user: I was charged twice on my last invoice. Can you refund it?
+    must: ['Acme Care']
+    must_not: ['I refunded']

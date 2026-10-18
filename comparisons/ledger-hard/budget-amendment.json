@@ -1,0 +1,12 @@
+{
+  "stamp": "2026-10-13T11:06:08.431586+00:00",
+  "authorization": "Approved: the cap for the hard-rows cell rises to 12 USD, solely to finish the same sealed requests. Log it in the freeze record as a runtime amendment. Nothing else changes.",
+  "original_cap_usd": 10,
+  "cap_usd": 12,
+  "lost_attempt_reserve_usd": 0.4,
+  "scope": "Only the already sealed primary and dialect requests. No additional cases, repetitions, tuning or scored calls.",
+  "drained_at": "2026-10-13T11:05:12.638177+00:00",
+  "sha256": {
+    "comparisons/ledger-hard/resume.py": "ebc64f42ecc23e967f1aa367643d9afb04da9962a18922ff9441218109f0cc09"
+  }
+}

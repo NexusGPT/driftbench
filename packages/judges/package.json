@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/judges",
+  "name": "@agent-nexus/driftbench-judges",
   "version": "0.1.0",
   "description": "Judge clients, the judge council, calibration, the prompt kit and cassettes for judged criteria in driftbench.",
   "keywords": [
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/judges"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -35,17 +35,20 @@
     }
   },
   "files": [
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
     "dist"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
-    "@driftbench/stats": "workspace:*",
-    "@driftbench/artifacts": "workspace:*",
+    "@agent-nexus/driftbench-core": "workspace:*",
+    "@agent-nexus/driftbench-stats": "workspace:*",
+    "@agent-nexus/driftbench-artifacts": "workspace:*",
     "zod": "^4.6.5",
-    "yaml": "^2.9.1"
+    "yaml": "^2.9.1",
+    "@agent-nexus/driftbench-checks": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

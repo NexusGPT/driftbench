@@ -1,0 +1,23 @@
+{
+  "created": "2026-10-13T18:36:19.531445+00:00",
+  "model": "gemini-3.8-flash",
+  "authority": "Owner decision by card: Drop Gemini 3.8",
+  "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+  "resume_allowed": false,
+  "pending_requests": 0,
+  "archival_unrun_requests": 262,
+  "partial_data_kept": true,
+  "report_score": false,
+  "replacement_gemini_result": "gemini-3.5-flash-lite",
+  "preserved_sha256": {
+    "dialect/calls.jsonl": "13f1b355359ebc50964415c861f6cb3958281aaec947fc12ed975723abf64948",
+    "dialect/attempts.jsonl": "9c9b8104e4b8087cc74e3bba2dd17321cf0ce715d6330b93bc61f43206535495",
+    "dialect/starts.jsonl": "c1dbf643f651ecbd8061d6be0e6c82dd04b48e08690b25507fd5f70782b25ee5",
+    "dialect/billing-rejections.jsonl": "c7997026847a53ab3b85457e40db93ce8bef46f8eac93f78c404401fe432d454",
+    "dialect/quota-pending.jsonl": "bbc5b62e223c858603bff1d126f2f2f275ae883d3b9397c3587cd1f9baa7e2fb",
+    "dialect/scores.json": "9e58f4119738185580324969d5ff0f84332d50149d738a92fd7d2961d10920ad",
+    "dialect/REPORT.md": "47f73ee0b5123c0ace406ca23e2678023900e4fa97d508227233dc088c0dbfdc"
+  },
+  "financial_rule": "Keep recorded costs and all applicable holds; no budget reallocation.",
+  "sonnet_and_sol": "Continue under existing caps and network gates."
+}

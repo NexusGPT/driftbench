@@ -1,4 +1,4 @@
-import { type Check, machineVerdict, type Verdict } from '@driftbench/core';
+import { type Check, machineVerdict, type Verdict } from '@agent-nexus/driftbench-core';
 import { listed } from '../support/values';
 
 const NAME = 'tools_offered';

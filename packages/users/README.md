@@ -1,4 +1,4 @@
-# @driftbench/users
+# @agent-nexus/driftbench-users
 
 User drivers for driftbench: scripted, perturbing and simulated users, the red-team pack and the deviation classes for recovery.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install @driftbench/users
+npm install @agent-nexus/driftbench-users
 ```
 
 Node.js 22 or newer. ESM only, with TypeScript types.
@@ -28,4 +28,4 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## License
 
-Apache-2.0
+MIT

@@ -1,0 +1,1247 @@
+{
+  "provenance": {
+    "sourceCommit": "68e7a455a70fa4414c4b879906d3a4fe0b110222",
+    "measuredAt": "2026-10-13T03:35:53.136Z",
+    "node": "v24.18.0",
+    "mapPath": "comparisons/budget/numeric/approved.yaml",
+    "mapHash": "d1cb91852e1f"
+  },
+  "policy": {
+    "budgets": [20, 50, 100, 200],
+    "seeds": [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+      29, 30
+    ],
+    "settings": [
+      {
+        "id": "temperature",
+        "min": 0,
+        "max": 1,
+        "evidence": {
+          "source": "prompt.md",
+          "quote": "Temperature ranges from 0 to 1."
+        },
+        "produced_by": "code",
+        "approved": true
+      },
+      {
+        "id": "delay",
+        "min": 0,
+        "max": 100,
+        "unit": "milliseconds",
+        "evidence": {
+          "source": "prompt.md",
+          "quote": "Delay ranges from 0 to 100 milliseconds."
+        },
+        "produced_by": "code",
+        "approved": true
+      },
+      {
+        "id": "iterations",
+        "min": 1,
+        "max": 5,
+        "integer": true,
+        "unit": "attempts",
+        "evidence": {
+          "source": "prompt.md",
+          "quote": "Iterations range from 1 to 5 integer attempts."
+        },
+        "produced_by": "code",
+        "approved": true
+      }
+    ],
+    "categoricalPool": "six flow/channel/persona cells, repeated by production budgetSeeder with numeric ranges enabled",
+    "comparison": "production sliced LHS versus independent uniform quantiles on identical ordered categorical rows; same numeric rngFor seed/setting stream",
+    "strata": "equal-width quantile bands; N global bands and n_cell bands in each categorical cell; each setting scored separately",
+    "integer": "stratification scored on latent quantiles, not integer levels; integer values may repeat",
+    "scope": "sampling and given.vars delivery only; no numeric fault-detection inference",
+    "modelCalls": 0,
+    "usd": 0,
+    "interval": "two-sided 95% Student t interval for the seed mean, df=29; assumes independent seed trials",
+    "pairedTest": "exact two-sided within-seed label swaps of the mean difference; integer-sum dynamic programming",
+    "null": "exchangeable method labels within each seed pair; independent swaps across pairs",
+    "multiplicity": "unadjusted tests; budgets and outcomes are dependent; no generalisation claim"
+  },
+  "summaries": [
+    {
+      "budget": 20,
+      "method": "sliced-lhs",
+      "metrics": {
+        "pairsCovered": {
+          "n": 30,
+          "mean": 11,
+          "sampleStandardDeviation": 0,
+          "min": 11,
+          "max": 11,
+          "meanCI95": [11, 11]
+        },
+        "globalBandsHit": {
+          "n": 30,
+          "mean": 60,
+          "sampleStandardDeviation": 0,
+          "min": 60,
+          "max": 60,
+          "meanCI95": [60, 60]
+        },
+        "sliceBandsHit": {
+          "n": 30,
+          "mean": 60,
+          "sampleStandardDeviation": 0,
+          "min": 60,
+          "max": 60,
+          "meanCI95": [60, 60]
+        },
+        "perfectSliceSettings": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "sliceSettingsTotal": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "allGlobalSettingsPerfect": {
+          "n": 30,
+          "mean": 1,
+          "sampleStandardDeviation": 0,
+          "min": 1,
+          "max": 1,
+          "meanCI95": [1, 1]
+        },
+        "allSliceSettingsPerfect": {
+          "n": 30,
+          "mean": 1,
+          "sampleStandardDeviation": 0,
+          "min": 1,
+          "max": 1,
+          "meanCI95": [1, 1]
+        }
+      }
+    },
+    {
+      "budget": 20,
+      "method": "uniform",
+      "metrics": {
+        "pairsCovered": {
+          "n": 30,
+          "mean": 11,
+          "sampleStandardDeviation": 0,
+          "min": 11,
+          "max": 11,
+          "meanCI95": [11, 11]
+        },
+        "globalBandsHit": {
+          "n": 30,
+          "mean": 38.06666666666667,
+          "sampleStandardDeviation": 2.638355461311057,
+          "min": 33,
+          "max": 43,
+          "meanCI95": [37.08148854646387, 39.05184478686947]
+        },
+        "sliceBandsHit": {
+          "n": 30,
+          "mean": 42.166666666666664,
+          "sampleStandardDeviation": 2.5472545509089657,
+          "min": 36,
+          "max": 47,
+          "meanCI95": [41.21550618547226, 43.11782714786107]
+        },
+        "perfectSliceSettings": {
+          "n": 30,
+          "mean": 6.733333333333333,
+          "sampleStandardDeviation": 1.4840144374549435,
+          "min": 1,
+          "max": 9,
+          "meanCI95": [6.179193235350038, 7.287473431316629]
+        },
+        "sliceSettingsTotal": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "allGlobalSettingsPerfect": {
+          "n": 30,
+          "mean": 0,
+          "sampleStandardDeviation": 0,
+          "min": 0,
+          "max": 0,
+          "meanCI95": [0, 0]
+        },
+        "allSliceSettingsPerfect": {
+          "n": 30,
+          "mean": 0,
+          "sampleStandardDeviation": 0,
+          "min": 0,
+          "max": 0,
+          "meanCI95": [0, 0]
+        }
+      }
+    },
+    {
+      "budget": 50,
+      "method": "sliced-lhs",
+      "metrics": {
+        "pairsCovered": {
+          "n": 30,
+          "mean": 11,
+          "sampleStandardDeviation": 0,
+          "min": 11,
+          "max": 11,
+          "meanCI95": [11, 11]
+        },
+        "globalBandsHit": {
+          "n": 30,
+          "mean": 150,
+          "sampleStandardDeviation": 0,
+          "min": 150,
+          "max": 150,
+          "meanCI95": [150, 150]
+        },
+        "sliceBandsHit": {
+          "n": 30,
+          "mean": 150,
+          "sampleStandardDeviation": 0,
+          "min": 150,
+          "max": 150,
+          "meanCI95": [150, 150]
+        },
+        "perfectSliceSettings": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "sliceSettingsTotal": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "allGlobalSettingsPerfect": {
+          "n": 30,
+          "mean": 1,
+          "sampleStandardDeviation": 0,
+          "min": 1,
+          "max": 1,
+          "meanCI95": [1, 1]
+        },
+        "allSliceSettingsPerfect": {
+          "n": 30,
+          "mean": 1,
+          "sampleStandardDeviation": 0,
+          "min": 1,
+          "max": 1,
+          "meanCI95": [1, 1]
+        }
+      }
+    },
+    {
+      "budget": 50,
+      "method": "uniform",
+      "metrics": {
+        "pairsCovered": {
+          "n": 30,
+          "mean": 11,
+          "sampleStandardDeviation": 0,
+          "min": 11,
+          "max": 11,
+          "meanCI95": [11, 11]
+        },
+        "globalBandsHit": {
+          "n": 30,
+          "mean": 95.73333333333333,
+          "sampleStandardDeviation": 3.4031763391576257,
+          "min": 90,
+          "max": 103,
+          "meanCI95": [94.46256640382191, 97.00410026284476]
+        },
+        "sliceBandsHit": {
+          "n": 30,
+          "mean": 98.93333333333334,
+          "sampleStandardDeviation": 3.5226687897528564,
+          "min": 92,
+          "max": 104,
+          "meanCI95": [97.6179471894734, 100.24871947719328]
+        },
+        "perfectSliceSettings": {
+          "n": 30,
+          "mean": 5.633333333333334,
+          "sampleStandardDeviation": 1.5421286974634216,
+          "min": 0,
+          "max": 7,
+          "meanCI95": [5.057493014029717, 6.2091736526369505]
+        },
+        "sliceSettingsTotal": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "allGlobalSettingsPerfect": {
+          "n": 30,
+          "mean": 0,
+          "sampleStandardDeviation": 0,
+          "min": 0,
+          "max": 0,
+          "meanCI95": [0, 0]
+        },
+        "allSliceSettingsPerfect": {
+          "n": 30,
+          "mean": 0,
+          "sampleStandardDeviation": 0,
+          "min": 0,
+          "max": 0,
+          "meanCI95": [0, 0]
+        }
+      }
+    },
+    {
+      "budget": 100,
+      "method": "sliced-lhs",
+      "metrics": {
+        "pairsCovered": {
+          "n": 30,
+          "mean": 11,
+          "sampleStandardDeviation": 0,
+          "min": 11,
+          "max": 11,
+          "meanCI95": [11, 11]
+        },
+        "globalBandsHit": {
+          "n": 30,
+          "mean": 300,
+          "sampleStandardDeviation": 0,
+          "min": 300,
+          "max": 300,
+          "meanCI95": [300, 300]
+        },
+        "sliceBandsHit": {
+          "n": 30,
+          "mean": 300,
+          "sampleStandardDeviation": 0,
+          "min": 300,
+          "max": 300,
+          "meanCI95": [300, 300]
+        },
+        "perfectSliceSettings": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "sliceSettingsTotal": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "allGlobalSettingsPerfect": {
+          "n": 30,
+          "mean": 1,
+          "sampleStandardDeviation": 0,
+          "min": 1,
+          "max": 1,
+          "meanCI95": [1, 1]
+        },
+        "allSliceSettingsPerfect": {
+          "n": 30,
+          "mean": 1,
+          "sampleStandardDeviation": 0,
+          "min": 1,
+          "max": 1,
+          "meanCI95": [1, 1]
+        }
+      }
+    },
+    {
+      "budget": 100,
+      "method": "uniform",
+      "metrics": {
+        "pairsCovered": {
+          "n": 30,
+          "mean": 11,
+          "sampleStandardDeviation": 0,
+          "min": 11,
+          "max": 11,
+          "meanCI95": [11, 11]
+        },
+        "globalBandsHit": {
+          "n": 30,
+          "mean": 189.83333333333334,
+          "sampleStandardDeviation": 6.42239257884331,
+          "min": 179,
+          "max": 201,
+          "meanCI95": [187.43517253172357, 192.23149413494312]
+        },
+        "sliceBandsHit": {
+          "n": 30,
+          "mean": 193.7,
+          "sampleStandardDeviation": 5.059303482114703,
+          "min": 176,
+          "max": 200,
+          "meanCI95": [191.81082503205673, 195.58917496794325]
+        },
+        "perfectSliceSettings": {
+          "n": 30,
+          "mean": 5.6,
+          "sampleStandardDeviation": 1.5222487902147745,
+          "min": 0,
+          "max": 6,
+          "meanCI95": [5.031582960061209, 6.16841703993879]
+        },
+        "sliceSettingsTotal": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "allGlobalSettingsPerfect": {
+          "n": 30,
+          "mean": 0,
+          "sampleStandardDeviation": 0,
+          "min": 0,
+          "max": 0,
+          "meanCI95": [0, 0]
+        },
+        "allSliceSettingsPerfect": {
+          "n": 30,
+          "mean": 0,
+          "sampleStandardDeviation": 0,
+          "min": 0,
+          "max": 0,
+          "meanCI95": [0, 0]
+        }
+      }
+    },
+    {
+      "budget": 200,
+      "method": "sliced-lhs",
+      "metrics": {
+        "pairsCovered": {
+          "n": 30,
+          "mean": 11,
+          "sampleStandardDeviation": 0,
+          "min": 11,
+          "max": 11,
+          "meanCI95": [11, 11]
+        },
+        "globalBandsHit": {
+          "n": 30,
+          "mean": 600,
+          "sampleStandardDeviation": 0,
+          "min": 600,
+          "max": 600,
+          "meanCI95": [600, 600]
+        },
+        "sliceBandsHit": {
+          "n": 30,
+          "mean": 600,
+          "sampleStandardDeviation": 0,
+          "min": 600,
+          "max": 600,
+          "meanCI95": [600, 600]
+        },
+        "perfectSliceSettings": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "sliceSettingsTotal": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "allGlobalSettingsPerfect": {
+          "n": 30,
+          "mean": 1,
+          "sampleStandardDeviation": 0,
+          "min": 1,
+          "max": 1,
+          "meanCI95": [1, 1]
+        },
+        "allSliceSettingsPerfect": {
+          "n": 30,
+          "mean": 1,
+          "sampleStandardDeviation": 0,
+          "min": 1,
+          "max": 1,
+          "meanCI95": [1, 1]
+        }
+      }
+    },
+    {
+      "budget": 200,
+      "method": "uniform",
+      "metrics": {
+        "pairsCovered": {
+          "n": 30,
+          "mean": 11,
+          "sampleStandardDeviation": 0,
+          "min": 11,
+          "max": 11,
+          "meanCI95": [11, 11]
+        },
+        "globalBandsHit": {
+          "n": 30,
+          "mean": 379.8666666666667,
+          "sampleStandardDeviation": 8.084610042558014,
+          "min": 364,
+          "max": 400,
+          "meanCI95": [376.84782366347935, 382.885509669854]
+        },
+        "sliceBandsHit": {
+          "n": 30,
+          "mean": 384.06666666666666,
+          "sampleStandardDeviation": 7.820985621515618,
+          "min": 366,
+          "max": 398,
+          "meanCI95": [381.14626264009587, 386.98707069323746]
+        },
+        "perfectSliceSettings": {
+          "n": 30,
+          "mean": 5.6,
+          "sampleStandardDeviation": 1.5222487902147745,
+          "min": 0,
+          "max": 6,
+          "meanCI95": [5.031582960061209, 6.16841703993879]
+        },
+        "sliceSettingsTotal": {
+          "n": 30,
+          "mean": 18,
+          "sampleStandardDeviation": 0,
+          "min": 18,
+          "max": 18,
+          "meanCI95": [18, 18]
+        },
+        "allGlobalSettingsPerfect": {
+          "n": 30,
+          "mean": 0,
+          "sampleStandardDeviation": 0,
+          "min": 0,
+          "max": 0,
+          "meanCI95": [0, 0]
+        },
+        "allSliceSettingsPerfect": {
+          "n": 30,
+          "mean": 0,
+          "sampleStandardDeviation": 0,
+          "min": 0,
+          "max": 0,
+          "meanCI95": [0, 0]
+        }
+      }
+    }
+  ],
+  "pairedTests": [
+    {
+      "budget": 20,
+      "metrics": {
+        "pairsCovered": {
+          "pairedSeeds": 30,
+          "differences": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ],
+          "observedSum": 0,
+          "meanDifference": 0,
+          "wins": 0,
+          "ties": 30,
+          "losses": 0,
+          "extremeAssignments": "1073741824",
+          "totalAssignments": "1073741824",
+          "pValue": 1,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 0,
+            "sampleStandardDeviation": 0,
+            "min": 0,
+            "max": 0,
+            "meanCI95": [0, 0]
+          }
+        },
+        "globalBandsHit": {
+          "pairedSeeds": 30,
+          "differences": [
+            25, 18, 22, 19, 24, 21, 24, 26, 18, 24, 20, 19, 22, 23, 19, 21, 23, 27, 24, 20, 23, 23, 22, 26,
+            20, 17, 22, 22, 19, 25
+          ],
+          "observedSum": 658,
+          "meanDifference": 21.933333333333334,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 21.933333333333334,
+            "sampleStandardDeviation": 2.6383554613110576,
+            "min": 17,
+            "max": 27,
+            "meanCI95": [20.948155213130537, 22.91851145353613]
+          }
+        },
+        "sliceBandsHit": {
+          "pairedSeeds": 30,
+          "differences": [
+            23, 20, 16, 16, 19, 16, 16, 24, 20, 17, 19, 17, 13, 16, 17, 18, 18, 18, 19, 16, 20, 19, 16, 14,
+            18, 16, 17, 23, 15, 19
+          ],
+          "observedSum": 535,
+          "meanDifference": 17.833333333333332,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 17.833333333333332,
+            "sampleStandardDeviation": 2.5472545509089657,
+            "min": 13,
+            "max": 24,
+            "meanCI95": [16.882172852138925, 18.78449381452774]
+          }
+        },
+        "perfectSliceSettings": {
+          "pairedSeeds": 30,
+          "differences": [
+            12, 11, 11, 12, 11, 10, 11, 12, 11, 10, 11, 12, 10, 9, 10, 11, 12, 11, 12, 11, 10, 11, 9, 11, 12,
+            14, 11, 17, 11, 12
+          ],
+          "observedSum": 338,
+          "meanDifference": 11.266666666666667,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 11.266666666666667,
+            "sampleStandardDeviation": 1.4840144374549435,
+            "min": 9,
+            "max": 17,
+            "meanCI95": [10.712526568683373, 11.820806764649962]
+          }
+        },
+        "sliceSettingsTotal": {
+          "pairedSeeds": 30,
+          "differences": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ],
+          "observedSum": 0,
+          "meanDifference": 0,
+          "wins": 0,
+          "ties": 30,
+          "losses": 0,
+          "extremeAssignments": "1073741824",
+          "totalAssignments": "1073741824",
+          "pValue": 1,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 0,
+            "sampleStandardDeviation": 0,
+            "min": 0,
+            "max": 0,
+            "meanCI95": [0, 0]
+          }
+        },
+        "allGlobalSettingsPerfect": {
+          "pairedSeeds": 30,
+          "differences": [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+          ],
+          "observedSum": 30,
+          "meanDifference": 1,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 1,
+            "sampleStandardDeviation": 0,
+            "min": 1,
+            "max": 1,
+            "meanCI95": [1, 1]
+          }
+        },
+        "allSliceSettingsPerfect": {
+          "pairedSeeds": 30,
+          "differences": [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+          ],
+          "observedSum": 30,
+          "meanDifference": 1,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 1,
+            "sampleStandardDeviation": 0,
+            "min": 1,
+            "max": 1,
+            "meanCI95": [1, 1]
+          }
+        }
+      }
+    },
+    {
+      "budget": 50,
+      "metrics": {
+        "pairsCovered": {
+          "pairedSeeds": 30,
+          "differences": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ],
+          "observedSum": 0,
+          "meanDifference": 0,
+          "wins": 0,
+          "ties": 30,
+          "losses": 0,
+          "extremeAssignments": "1073741824",
+          "totalAssignments": "1073741824",
+          "pValue": 1,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 0,
+            "sampleStandardDeviation": 0,
+            "min": 0,
+            "max": 0,
+            "meanCI95": [0, 0]
+          }
+        },
+        "globalBandsHit": {
+          "pairedSeeds": 30,
+          "differences": [
+            55, 53, 55, 56, 51, 51, 56, 54, 55, 49, 56, 52, 55, 59, 56, 55, 58, 59, 52, 52, 60, 60, 50, 57,
+            48, 56, 52, 53, 47, 56
+          ],
+          "observedSum": 1628,
+          "meanDifference": 54.266666666666666,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 54.266666666666666,
+            "sampleStandardDeviation": 3.4031763391576257,
+            "min": 47,
+            "max": 60,
+            "meanCI95": [52.99589973715524, 55.53743359617809]
+          }
+        },
+        "sliceBandsHit": {
+          "pairedSeeds": 30,
+          "differences": [
+            48, 48, 57, 46, 50, 52, 48, 55, 47, 48, 54, 53, 50, 47, 48, 56, 50, 58, 50, 52, 56, 51, 51, 48,
+            51, 54, 49, 58, 50, 47
+          ],
+          "observedSum": 1532,
+          "meanDifference": 51.06666666666667,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 51.06666666666667,
+            "sampleStandardDeviation": 3.522668789752856,
+            "min": 46,
+            "max": 58,
+            "meanCI95": [49.751280522806724, 52.382052810526616]
+          }
+        },
+        "perfectSliceSettings": {
+          "pairedSeeds": 30,
+          "differences": [
+            12, 12, 12, 12, 12, 12, 12, 11, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+            12, 18, 12, 18, 12, 12
+          ],
+          "observedSum": 371,
+          "meanDifference": 12.366666666666667,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 12.366666666666667,
+            "sampleStandardDeviation": 1.5421286974634216,
+            "min": 11,
+            "max": 18,
+            "meanCI95": [11.79082634736305, 12.942506985970285]
+          }
+        },
+        "sliceSettingsTotal": {
+          "pairedSeeds": 30,
+          "differences": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ],
+          "observedSum": 0,
+          "meanDifference": 0,
+          "wins": 0,
+          "ties": 30,
+          "losses": 0,
+          "extremeAssignments": "1073741824",
+          "totalAssignments": "1073741824",
+          "pValue": 1,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 0,
+            "sampleStandardDeviation": 0,
+            "min": 0,
+            "max": 0,
+            "meanCI95": [0, 0]
+          }
+        },
+        "allGlobalSettingsPerfect": {
+          "pairedSeeds": 30,
+          "differences": [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+          ],
+          "observedSum": 30,
+          "meanDifference": 1,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 1,
+            "sampleStandardDeviation": 0,
+            "min": 1,
+            "max": 1,
+            "meanCI95": [1, 1]
+          }
+        },
+        "allSliceSettingsPerfect": {
+          "pairedSeeds": 30,
+          "differences": [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+          ],
+          "observedSum": 30,
+          "meanDifference": 1,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 1,
+            "sampleStandardDeviation": 0,
+            "min": 1,
+            "max": 1,
+            "meanCI95": [1, 1]
+          }
+        }
+      }
+    },
+    {
+      "budget": 100,
+      "metrics": {
+        "pairsCovered": {
+          "pairedSeeds": 30,
+          "differences": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ],
+          "observedSum": 0,
+          "meanDifference": 0,
+          "wins": 0,
+          "ties": 30,
+          "losses": 0,
+          "extremeAssignments": "1073741824",
+          "totalAssignments": "1073741824",
+          "pValue": 1,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 0,
+            "sampleStandardDeviation": 0,
+            "min": 0,
+            "max": 0,
+            "meanCI95": [0, 0]
+          }
+        },
+        "globalBandsHit": {
+          "pairedSeeds": 30,
+          "differences": [
+            109, 102, 107, 117, 106, 104, 117, 121, 118, 102, 109, 99, 106, 121, 106, 109, 114, 120, 112, 108,
+            115, 106, 108, 119, 107, 108, 112, 118, 101, 104
+          ],
+          "observedSum": 3305,
+          "meanDifference": 110.16666666666667,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 110.16666666666667,
+            "sampleStandardDeviation": 6.42239257884331,
+            "min": 99,
+            "max": 121,
+            "meanCI95": [107.7685058650569, 112.56482746827645]
+          }
+        },
+        "sliceBandsHit": {
+          "pairedSeeds": 30,
+          "differences": [
+            109, 107, 124, 101, 104, 106, 108, 115, 101, 106, 102, 104, 108, 104, 104, 109, 104, 107, 111,
+            105, 106, 101, 105, 100, 110, 100, 111, 111, 100, 106
+          ],
+          "observedSum": 3189,
+          "meanDifference": 106.3,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 106.3,
+            "sampleStandardDeviation": 5.059303482114699,
+            "min": 100,
+            "max": 124,
+            "meanCI95": [104.41082503205675, 108.18917496794325]
+          }
+        },
+        "perfectSliceSettings": {
+          "pairedSeeds": 30,
+          "differences": [
+            12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+            12, 18, 12, 18, 12, 12
+          ],
+          "observedSum": 372,
+          "meanDifference": 12.4,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 12.4,
+            "sampleStandardDeviation": 1.5222487902147745,
+            "min": 12,
+            "max": 18,
+            "meanCI95": [11.83158296006121, 12.96841703993879]
+          }
+        },
+        "sliceSettingsTotal": {
+          "pairedSeeds": 30,
+          "differences": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ],
+          "observedSum": 0,
+          "meanDifference": 0,
+          "wins": 0,
+          "ties": 30,
+          "losses": 0,
+          "extremeAssignments": "1073741824",
+          "totalAssignments": "1073741824",
+          "pValue": 1,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 0,
+            "sampleStandardDeviation": 0,
+            "min": 0,
+            "max": 0,
+            "meanCI95": [0, 0]
+          }
+        },
+        "allGlobalSettingsPerfect": {
+          "pairedSeeds": 30,
+          "differences": [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+          ],
+          "observedSum": 30,
+          "meanDifference": 1,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 1,
+            "sampleStandardDeviation": 0,
+            "min": 1,
+            "max": 1,
+            "meanCI95": [1, 1]
+          }
+        },
+        "allSliceSettingsPerfect": {
+          "pairedSeeds": 30,
+          "differences": [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+          ],
+          "observedSum": 30,
+          "meanDifference": 1,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 1,
+            "sampleStandardDeviation": 0,
+            "min": 1,
+            "max": 1,
+            "meanCI95": [1, 1]
+          }
+        }
+      }
+    },
+    {
+      "budget": 200,
+      "metrics": {
+        "pairsCovered": {
+          "pairedSeeds": 30,
+          "differences": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ],
+          "observedSum": 0,
+          "meanDifference": 0,
+          "wins": 0,
+          "ties": 30,
+          "losses": 0,
+          "extremeAssignments": "1073741824",
+          "totalAssignments": "1073741824",
+          "pValue": 1,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 0,
+            "sampleStandardDeviation": 0,
+            "min": 0,
+            "max": 0,
+            "meanCI95": [0, 0]
+          }
+        },
+        "globalBandsHit": {
+          "pairedSeeds": 30,
+          "differences": [
+            220, 211, 231, 229, 200, 217, 226, 217, 223, 207, 221, 221, 212, 216, 223, 223, 226, 214, 231,
+            225, 218, 224, 225, 236, 212, 224, 225, 226, 206, 215
+          ],
+          "observedSum": 6604,
+          "meanDifference": 220.13333333333333,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 220.13333333333333,
+            "sampleStandardDeviation": 8.084610042558014,
+            "min": 200,
+            "max": 236,
+            "meanCI95": [217.114490330146, 223.15217633652065]
+          }
+        },
+        "sliceBandsHit": {
+          "pairedSeeds": 30,
+          "differences": [
+            227, 213, 229, 211, 211, 218, 215, 234, 212, 222, 203, 228, 216, 219, 202, 214, 215, 215, 207,
+            213, 212, 205, 213, 231, 217, 217, 215, 214, 220, 210
+          ],
+          "observedSum": 6478,
+          "meanDifference": 215.93333333333334,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 215.93333333333334,
+            "sampleStandardDeviation": 7.820985621515618,
+            "min": 202,
+            "max": 234,
+            "meanCI95": [213.01292930676254, 218.85373735990413]
+          }
+        },
+        "perfectSliceSettings": {
+          "pairedSeeds": 30,
+          "differences": [
+            12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+            12, 18, 12, 18, 12, 12
+          ],
+          "observedSum": 372,
+          "meanDifference": 12.4,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 12.4,
+            "sampleStandardDeviation": 1.5222487902147745,
+            "min": 12,
+            "max": 18,
+            "meanCI95": [11.83158296006121, 12.96841703993879]
+          }
+        },
+        "sliceSettingsTotal": {
+          "pairedSeeds": 30,
+          "differences": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ],
+          "observedSum": 0,
+          "meanDifference": 0,
+          "wins": 0,
+          "ties": 30,
+          "losses": 0,
+          "extremeAssignments": "1073741824",
+          "totalAssignments": "1073741824",
+          "pValue": 1,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 0,
+            "sampleStandardDeviation": 0,
+            "min": 0,
+            "max": 0,
+            "meanCI95": [0, 0]
+          }
+        },
+        "allGlobalSettingsPerfect": {
+          "pairedSeeds": 30,
+          "differences": [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+          ],
+          "observedSum": 30,
+          "meanDifference": 1,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 1,
+            "sampleStandardDeviation": 0,
+            "min": 1,
+            "max": 1,
+            "meanCI95": [1, 1]
+          }
+        },
+        "allSliceSettingsPerfect": {
+          "pairedSeeds": 30,
+          "differences": [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+          ],
+          "observedSum": 30,
+          "meanDifference": 1,
+          "wins": 30,
+          "ties": 0,
+          "losses": 0,
+          "extremeAssignments": "2",
+          "totalAssignments": "1073741824",
+          "pValue": 1.862645149230957e-9,
+          "alternative": "two-sided",
+          "differenceSummary": {
+            "n": 30,
+            "mean": 1,
+            "sampleStandardDeviation": 0,
+            "min": 1,
+            "max": 1,
+            "meanCI95": [1, 1]
+          }
+        }
+      }
+    }
+  ],
+  "rawFiles": [
+    "comparisons/budget/numeric-20-samples.json",
+    "comparisons/budget/numeric-50-samples.json",
+    "comparisons/budget/numeric-100-samples.json",
+    "comparisons/budget/numeric-200-samples.json"
+  ]
+}

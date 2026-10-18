@@ -1,9 +1,9 @@
 import { isMap, isPair, isScalar, isSeq, parseDocument, visit } from 'yaml';
 import { type Proposal, type ProposalIssue, parseProposalText, relationLabel } from './proposal';
 
-/** A decision a person has not made yet: a dimension, a constraint, a phrase or a relation. */
+/** A decision a person has not made yet, including a numeric runtime range. */
 export type PendingEntry = {
-  kind: 'dimension' | 'constraint' | 'phrase' | 'relation';
+  kind: 'dimension' | 'constraint' | 'phrase' | 'relation' | 'numeric_setting';
   /** Where it sits in the file, such as `dimensions.3` or `constraints.0`. */
   path: string;
   /** What it is: the dimension id, `behaviour=B-001 + channel=whatsapp`, or the phrase's value. */
@@ -65,6 +65,17 @@ export function pendingEntries(proposal: Proposal): PendingEntry[] {
       detail: relationLabel(relation),
       source: relation.evidence.source,
       quote: relation.evidence.quote,
+    });
+  });
+  (proposal.numeric_settings ?? []).forEach((setting, index) => {
+    if (setting.approved) return;
+    pending.push({
+      kind: 'numeric_setting',
+      path: `numeric_settings.${index}`,
+      label: setting.id,
+      detail: `${setting.min} to ${setting.max}${setting.integer ? ', integer' : ''}${setting.unit ? ` ${setting.unit}` : ''}`,
+      source: setting.evidence.source,
+      quote: setting.evidence.quote,
     });
   });
   return pending;

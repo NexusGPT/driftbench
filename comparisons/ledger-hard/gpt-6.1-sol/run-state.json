@@ -1,0 +1,13 @@
+{
+  "stamp": "2026-10-13T22:02:11.272564+00:00",
+  "model": "gpt-6.1-sol",
+  "completed": 6560,
+  "planned": 6560,
+  "inflight": 0,
+  "measured_usd": 12.446968000000027,
+  "unknown_attempt_reserve_usd": 3.5,
+  "phase": "complete",
+  "concurrency": 2,
+  "score_status": "eligible only when all requests have model answers",
+  "stop_reason": null
+}

@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/space",
+  "name": "@agent-nexus/driftbench-space",
   "version": "0.1.0",
   "description": "The declared map of situations an agent can face: dimensions, values, constraints, a prior, and coverage counted per cell.",
   "keywords": [
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/space"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -35,13 +35,15 @@
     }
   },
   "files": [
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
     "dist"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
+    "@agent-nexus/driftbench-core": "workspace:*",
     "zod": "^4.6.5",
     "yaml": "^2.9.1"
   },

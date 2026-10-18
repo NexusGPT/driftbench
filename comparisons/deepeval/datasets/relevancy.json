@@ -1,0 +1,602 @@
+[
+  {
+    "id": "A054",
+    "label": "irrelevant",
+    "ask": "Why was I charged twice this month?",
+    "reply": "Hold the reset button on the back for ten seconds, then log in with the default password."
+  },
+  {
+    "id": "A090",
+    "label": "irrelevant",
+    "ask": "Why was I charged twice this month?",
+    "reply": "I recommend a good recipe for pasta tonight."
+  },
+  {
+    "id": "A005",
+    "label": "relevant",
+    "ask": "Do you have a family plan with a discount?",
+    "reply": "Yes, the family bundle gives 20 percent off each extra line."
+  },
+  {
+    "id": "A048",
+    "label": "relevant",
+    "ask": "Which plan gives me more data, and what does it cost per month?",
+    "reply": "Acme Mobile S gives 10 GB for $15 a month."
+  },
+  {
+    "id": "A049",
+    "label": "relevant",
+    "ask": "How do I pay my bill?",
+    "reply": "Pay by card on the Billing page of the Acme app, or by bank transfer."
+  },
+  {
+    "id": "A078",
+    "label": "irrelevant",
+    "ask": "Why was I charged twice this month?",
+    "reply": "Your technician is booked for Tuesday between 8 and 12."
+  },
+  {
+    "id": "A042",
+    "label": "relevant",
+    "ask": "Why was I charged twice this month?",
+    "reply": "I see a duplicate charge from the 13th and I have flagged it for a refund."
+  },
+  {
+    "id": "A097",
+    "label": "irrelevant",
+    "ask": "How do I pay my bill?",
+    "reply": "The weather in Acmeville is sunny today."
+  },
+  {
+    "id": "A027",
+    "label": "relevant",
+    "ask": "Can I change my data plan?",
+    "reply": "Yes, switch plans on the Plans page; it applies on your next bill."
+  },
+  {
+    "id": "A022",
+    "label": "relevant",
+    "ask": "What are the store hours?",
+    "reply": "Stores open 9 to 5, Monday to Saturday."
+  },
+  {
+    "id": "A082",
+    "label": "irrelevant",
+    "ask": "What are the store hours?",
+    "reply": "Hold the reset button on the back for ten seconds, then log in with the default password."
+  },
+  {
+    "id": "A079",
+    "label": "irrelevant",
+    "ask": "How do I move house and keep my service?",
+    "reply": "Fibre is live on your street, from $60 a month."
+  },
+  {
+    "id": "A025",
+    "label": "relevant",
+    "ask": "How do I pay my bill?",
+    "reply": "Pay by card on the Billing page of the Acme app, or by bank transfer."
+  },
+  {
+    "id": "A018",
+    "label": "relevant",
+    "ask": "Why was I charged twice this month?",
+    "reply": "I see a duplicate charge from the 8th and I have flagged it for a refund."
+  },
+  {
+    "id": "A039",
+    "label": "relevant",
+    "ask": "Can I change my data plan?",
+    "reply": "Yes, you can change plan any time; the new plan starts on your next bill."
+  },
+  {
+    "id": "A091",
+    "label": "irrelevant",
+    "ask": "How do I move house and keep my service?",
+    "reply": "The weather in Acmeville is sunny today."
+  },
+  {
+    "id": "A038",
+    "label": "relevant",
+    "ask": "Is my street covered for fibre?",
+    "reply": "Fibre is live on your street, from $60 a month."
+  },
+  {
+    "id": "A045",
+    "label": "relevant",
+    "ask": "Can you reset my router password?",
+    "reply": "Hold the reset button on the back for ten seconds, then log in with the default password."
+  },
+  {
+    "id": "A072",
+    "label": "irrelevant",
+    "ask": "Which plan gives me more data, and what does it cost per month?",
+    "reply": "We can transfer your service; send us the move date and the new postcode."
+  },
+  {
+    "id": "A071",
+    "label": "irrelevant",
+    "ask": "Can I get a callback about home internet?",
+    "reply": "Yes, switch plans on the Plans page; it applies on your next bill."
+  },
+  {
+    "id": "A099",
+    "label": "irrelevant",
+    "ask": "Can I change my data plan?",
+    "reply": "Our football club won the match last night."
+  },
+  {
+    "id": "A030",
+    "label": "relevant",
+    "ask": "Why was I charged twice this month?",
+    "reply": "I see a duplicate charge from the 28th and I have flagged it for a refund."
+  },
+  {
+    "id": "A047",
+    "label": "relevant",
+    "ask": "Can I get a callback about home internet?",
+    "reply": "A callback is booked for Monday morning, reference CB-06EA04."
+  },
+  {
+    "id": "A019",
+    "label": "relevant",
+    "ask": "How do I move house and keep my service?",
+    "reply": "We can transfer your service; send us the move date and the new postcode."
+  },
+  {
+    "id": "A067",
+    "label": "irrelevant",
+    "ask": "How do I move house and keep my service?",
+    "reply": "Your line is cancelled effective today, reference CAN-047C87."
+  },
+  {
+    "id": "A080",
+    "label": "irrelevant",
+    "ask": "Please cancel my line 0412 345 678.",
+    "reply": "I see a duplicate charge from the 1th and I have flagged it for a refund."
+  },
+  {
+    "id": "A056",
+    "label": "irrelevant",
+    "ask": "Please cancel my line 0412 345 678.",
+    "reply": "We can transfer your service; send us the move date and the new postcode."
+  },
+  {
+    "id": "A096",
+    "label": "irrelevant",
+    "ask": "Which plan gives me more data, and what does it cost per month?",
+    "reply": "The weather in Acmeville is sunny today."
+  },
+  {
+    "id": "A006",
+    "label": "relevant",
+    "ask": "Why was I charged twice this month?",
+    "reply": "I see a duplicate charge from the 27th and I have flagged it for a refund."
+  },
+  {
+    "id": "A060",
+    "label": "irrelevant",
+    "ask": "Which plan gives me more data, and what does it cost per month?",
+    "reply": "Yes, the family bundle gives 20 percent off each extra line."
+  },
+  {
+    "id": "A009",
+    "label": "relevant",
+    "ask": "Can you reset my router password?",
+    "reply": "Hold the reset button on the back for ten seconds, then log in with the default password."
+  },
+  {
+    "id": "A066",
+    "label": "irrelevant",
+    "ask": "Why was I charged twice this month?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "A053",
+    "label": "irrelevant",
+    "ask": "Do you have a family plan with a discount?",
+    "reply": "I see a duplicate charge from the 19th and I have flagged it for a refund."
+  },
+  {
+    "id": "A050",
+    "label": "irrelevant",
+    "ask": "Is my street covered for fibre?",
+    "reply": "Stores open 9 to 6, Monday to Saturday."
+  },
+  {
+    "id": "A015",
+    "label": "relevant",
+    "ask": "Can I change my data plan?",
+    "reply": "Yes, switch plans on the Plans page; it applies on your next bill."
+  },
+  {
+    "id": "A007",
+    "label": "relevant",
+    "ask": "How do I move house and keep my service?",
+    "reply": "We can transfer your service; send us the move date and the new postcode."
+  },
+  {
+    "id": "A033",
+    "label": "relevant",
+    "ask": "Can you reset my router password?",
+    "reply": "Hold the reset button on the back for ten seconds, then log in with the default password."
+  },
+  {
+    "id": "A075",
+    "label": "irrelevant",
+    "ask": "Can I change my data plan?",
+    "reply": "Fibre is live on your street, from $60 a month."
+  },
+  {
+    "id": "A068",
+    "label": "irrelevant",
+    "ask": "Please cancel my line 0412 345 678.",
+    "reply": "Yes, the family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "A061",
+    "label": "irrelevant",
+    "ask": "How do I pay my bill?",
+    "reply": "Fibre is live on your street, from $60 a month."
+  },
+  {
+    "id": "A087",
+    "label": "irrelevant",
+    "ask": "Can I change my data plan?",
+    "reply": "We can transfer your service; send us the move date and the new postcode."
+  },
+  {
+    "id": "A076",
+    "label": "irrelevant",
+    "ask": "When will my technician arrive?",
+    "reply": "Fibre is not on your street yet; 5G home internet is available."
+  },
+  {
+    "id": "A034",
+    "label": "relevant",
+    "ask": "What are the store hours?",
+    "reply": "Stores open 9 to 5, Monday to Saturday."
+  },
+  {
+    "id": "A069",
+    "label": "irrelevant",
+    "ask": "Can you reset my router password?",
+    "reply": "Fibre is not on your street yet; 5G home internet is available."
+  },
+  {
+    "id": "A003",
+    "label": "relevant",
+    "ask": "Can I change my data plan?",
+    "reply": "Yes, switch plans on the Plans page; it applies on your next bill."
+  },
+  {
+    "id": "A084",
+    "label": "irrelevant",
+    "ask": "Which plan gives me more data, and what does it cost per month?",
+    "reply": "Fibre is live on your street, from $60 a month."
+  },
+  {
+    "id": "A028",
+    "label": "relevant",
+    "ask": "When will my technician arrive?",
+    "reply": "Your technician is booked for Tuesday between 8 and 12."
+  },
+  {
+    "id": "A062",
+    "label": "irrelevant",
+    "ask": "Is my street covered for fibre?",
+    "reply": "I see a duplicate charge from the 7th and I have flagged it for a refund."
+  },
+  {
+    "id": "A046",
+    "label": "relevant",
+    "ask": "What are the store hours?",
+    "reply": "Stores open 10 to 8, Monday to Saturday."
+  },
+  {
+    "id": "A017",
+    "label": "relevant",
+    "ask": "Do you have a family plan with a discount?",
+    "reply": "Yes, the family bundle gives 20 percent off each extra line."
+  },
+  {
+    "id": "A001",
+    "label": "relevant",
+    "ask": "How do I pay my bill?",
+    "reply": "You can pay by bank transfer or card in the Acme app under Billing."
+  },
+  {
+    "id": "A035",
+    "label": "relevant",
+    "ask": "Can I get a callback about home internet?",
+    "reply": "A callback is booked for Monday morning, reference CB-0CDC7F."
+  },
+  {
+    "id": "A026",
+    "label": "relevant",
+    "ask": "Is my street covered for fibre?",
+    "reply": "Fibre is live on your street, from $60 a month."
+  },
+  {
+    "id": "A081",
+    "label": "irrelevant",
+    "ask": "Can you reset my router password?",
+    "reply": "We can transfer your service; send us the move date and the new postcode."
+  },
+  {
+    "id": "A070",
+    "label": "irrelevant",
+    "ask": "What are the store hours?",
+    "reply": "We can transfer your service; send us the move date and the new postcode."
+  },
+  {
+    "id": "A065",
+    "label": "irrelevant",
+    "ask": "Do you have a family plan with a discount?",
+    "reply": "Hold the reset button on the back for ten seconds, then log in with the default password."
+  },
+  {
+    "id": "A037",
+    "label": "relevant",
+    "ask": "How do I pay my bill?",
+    "reply": "Pay by card on the Billing page of the Acme app, or by bank transfer."
+  },
+  {
+    "id": "A013",
+    "label": "relevant",
+    "ask": "How do I pay my bill?",
+    "reply": "You can pay by bank transfer or card in the Acme app under Billing."
+  },
+  {
+    "id": "A098",
+    "label": "irrelevant",
+    "ask": "Is my street covered for fibre?",
+    "reply": "I recommend a good recipe for pasta tonight."
+  },
+  {
+    "id": "A023",
+    "label": "relevant",
+    "ask": "Can I get a callback about home internet?",
+    "reply": "A callback is booked for Monday morning, reference CB-0C0535."
+  },
+  {
+    "id": "A093",
+    "label": "irrelevant",
+    "ask": "Can you reset my router password?",
+    "reply": "Our football club won the match last night."
+  },
+  {
+    "id": "A036",
+    "label": "relevant",
+    "ask": "Which plan gives me more data, and what does it cost per month?",
+    "reply": "Acme Mobile L gives unlimited data for $35 a month."
+  },
+  {
+    "id": "A032",
+    "label": "relevant",
+    "ask": "Please cancel my line 0412 345 678.",
+    "reply": "Your line is cancelled effective today, reference CAN-05F29E."
+  },
+  {
+    "id": "A088",
+    "label": "irrelevant",
+    "ask": "When will my technician arrive?",
+    "reply": "Fibre is not on your street yet; 5G home internet is available."
+  },
+  {
+    "id": "A063",
+    "label": "irrelevant",
+    "ask": "Can I change my data plan?",
+    "reply": "Acme Mobile S gives 10 GB for $15 a month."
+  },
+  {
+    "id": "A044",
+    "label": "relevant",
+    "ask": "Please cancel my line 0412 345 678.",
+    "reply": "Your line is cancelled effective today, reference CAN-0ECF30."
+  },
+  {
+    "id": "A094",
+    "label": "irrelevant",
+    "ask": "What are the store hours?",
+    "reply": "Our football club won the match last night."
+  },
+  {
+    "id": "A092",
+    "label": "irrelevant",
+    "ask": "Please cancel my line 0412 345 678.",
+    "reply": "I recommend a good recipe for pasta tonight."
+  },
+  {
+    "id": "A008",
+    "label": "relevant",
+    "ask": "Please cancel my line 0412 345 678.",
+    "reply": "Your line is cancelled effective today, reference CAN-0DB1AB."
+  },
+  {
+    "id": "A083",
+    "label": "irrelevant",
+    "ask": "Can I get a callback about home internet?",
+    "reply": "Acme Mobile S gives 10 GB for $15 a month."
+  },
+  {
+    "id": "A000",
+    "label": "relevant",
+    "ask": "Which plan gives me more data, and what does it cost per month?",
+    "reply": "Acme Mobile M gives 40 GB for $25 a month."
+  },
+  {
+    "id": "A031",
+    "label": "relevant",
+    "ask": "How do I move house and keep my service?",
+    "reply": "We can transfer your service; send us the move date and the new postcode."
+  },
+  {
+    "id": "A011",
+    "label": "relevant",
+    "ask": "Can I get a callback about home internet?",
+    "reply": "A callback is booked for Tuesday, reference CB-05164F."
+  },
+  {
+    "id": "A085",
+    "label": "irrelevant",
+    "ask": "How do I pay my bill?",
+    "reply": "Yes, switch plans on the Plans page; it applies on your next bill."
+  },
+  {
+    "id": "A024",
+    "label": "relevant",
+    "ask": "Which plan gives me more data, and what does it cost per month?",
+    "reply": "Acme Mobile M gives 40 GB for $25 a month."
+  },
+  {
+    "id": "A077",
+    "label": "irrelevant",
+    "ask": "Do you have a family plan with a discount?",
+    "reply": "Your line is cancelled effective today, reference CAN-08C8DC."
+  },
+  {
+    "id": "A010",
+    "label": "relevant",
+    "ask": "What are the store hours?",
+    "reply": "Stores open 9 to 5, Monday to Saturday."
+  },
+  {
+    "id": "A089",
+    "label": "irrelevant",
+    "ask": "Do you have a family plan with a discount?",
+    "reply": "Acme Mobile S gives 10 GB for $15 a month."
+  },
+  {
+    "id": "A064",
+    "label": "irrelevant",
+    "ask": "When will my technician arrive?",
+    "reply": "I see a duplicate charge from the 14th and I have flagged it for a refund."
+  },
+  {
+    "id": "A014",
+    "label": "relevant",
+    "ask": "Is my street covered for fibre?",
+    "reply": "Fibre is live on your street, from $60 a month."
+  },
+  {
+    "id": "A002",
+    "label": "relevant",
+    "ask": "Is my street covered for fibre?",
+    "reply": "Fibre is live on your street, from $60 a month."
+  },
+  {
+    "id": "A059",
+    "label": "irrelevant",
+    "ask": "Can I get a callback about home internet?",
+    "reply": "I see a duplicate charge from the 17th and I have flagged it for a refund."
+  },
+  {
+    "id": "A029",
+    "label": "relevant",
+    "ask": "Do you have a family plan with a discount?",
+    "reply": "Yes, the family bundle gives 15 percent off each extra line."
+  },
+  {
+    "id": "A021",
+    "label": "relevant",
+    "ask": "Can you reset my router password?",
+    "reply": "Hold the reset button on the back for ten seconds, then log in with the default password."
+  },
+  {
+    "id": "A055",
+    "label": "irrelevant",
+    "ask": "How do I move house and keep my service?",
+    "reply": "Fibre is not on your street yet; 5G home internet is available."
+  },
+  {
+    "id": "A012",
+    "label": "relevant",
+    "ask": "Which plan gives me more data, and what does it cost per month?",
+    "reply": "Acme Mobile M gives 40 GB for $25 a month."
+  },
+  {
+    "id": "A016",
+    "label": "relevant",
+    "ask": "When will my technician arrive?",
+    "reply": "Your technician is booked for Monday morning between 8 and 12."
+  },
+  {
+    "id": "A043",
+    "label": "relevant",
+    "ask": "How do I move house and keep my service?",
+    "reply": "We can transfer your service; send us the move date and the new postcode."
+  },
+  {
+    "id": "A004",
+    "label": "relevant",
+    "ask": "When will my technician arrive?",
+    "reply": "Your technician is booked for Tuesday between 8 and 12."
+  },
+  {
+    "id": "A051",
+    "label": "irrelevant",
+    "ask": "Can I change my data plan?",
+    "reply": "Acme Mobile M gives 40 GB for $25 a month."
+  },
+  {
+    "id": "A040",
+    "label": "relevant",
+    "ask": "When will my technician arrive?",
+    "reply": "Your technician is booked for Tuesday between 8 and 12."
+  },
+  {
+    "id": "A074",
+    "label": "irrelevant",
+    "ask": "Is my street covered for fibre?",
+    "reply": "Acme Mobile M gives 40 GB for $25 a month."
+  },
+  {
+    "id": "A086",
+    "label": "irrelevant",
+    "ask": "Is my street covered for fibre?",
+    "reply": "Yes, switch plans on the Plans page; it applies on your next bill."
+  },
+  {
+    "id": "A057",
+    "label": "irrelevant",
+    "ask": "Can you reset my router password?",
+    "reply": "Pay by card on the Billing page of the Acme app, or by bank transfer."
+  },
+  {
+    "id": "A058",
+    "label": "irrelevant",
+    "ask": "What are the store hours?",
+    "reply": "Your line is cancelled effective today, reference CAN-022BFD."
+  },
+  {
+    "id": "A052",
+    "label": "irrelevant",
+    "ask": "When will my technician arrive?",
+    "reply": "Fibre is not on your street yet; 5G home internet is available."
+  },
+  {
+    "id": "A095",
+    "label": "irrelevant",
+    "ask": "Can I get a callback about home internet?",
+    "reply": "I recommend a good recipe for pasta tonight."
+  },
+  {
+    "id": "A073",
+    "label": "irrelevant",
+    "ask": "How do I pay my bill?",
+    "reply": "Fibre is live on your street, from $60 a month."
+  },
+  {
+    "id": "A041",
+    "label": "relevant",
+    "ask": "Do you have a family plan with a discount?",
+    "reply": "Yes, the family bundle gives 10 percent off each extra line."
+  },
+  {
+    "id": "A020",
+    "label": "relevant",
+    "ask": "Please cancel my line 0412 345 678.",
+    "reply": "Your line is cancelled effective today, reference CAN-02B882."
+  }
+]

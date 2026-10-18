@@ -2,16 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-002
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 2 of 154: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer, D1_off_topic at identify"
+title: "t-wise row 2 of 132: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer, D1_off_topic at offer"
 channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:existing-customer
-  - data:5g-only
-  - task:existing-workbook
   - flow:upgrade
 covers:
   - B-001
@@ -27,6 +25,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-001
     rubric: Identify an existing customer by the email on the account before quoting their plan
@@ -53,22 +53,7 @@ blocks:
       criteria:
         - behaviour.B-001
         - flow.upgrade
-  - id: b2-D1_off_topic
-    when:
-      injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
-    expect:
-      stage: identify
-      tools:
-        - label: catalog.search
-          count: 0
-      must:
-        - Monday to Saturday
-      lang: EN
-      criteria:
-        - deviation.D1_off_topic
-  - id: b3-identify-to-offer
+  - id: b2-identify-to-offer
     when:
       user: It's lee.jensen@example.com.
     expect:
@@ -79,7 +64,26 @@ blocks:
           input:
             category: mobile
             customer_email: lee.jensen@example.com
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
+  - id: b3-D1_off_topic
+    when:
+      injection:
+        class: D1_off_topic
+        user: Are your stores open on Saturday?
+    expect:
+      stage: offer
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+      criteria:
+        - deviation.D1_off_topic
 metadata:
   generated:
     by: driftbench generate
@@ -90,14 +94,13 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: upgrade-plan-not-in-catalog
     cell:
       behaviour: B-001
       channel: chat
       user_type: existing-customer
-      coverage_result: 5g-only
-      workspace_start: existing-workbook
+      coverage_result: none
       flow: upgrade
       account_lookup: plan-not-in-catalog
     blocks:
@@ -110,16 +113,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-D1_off_topic
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: identify
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
-      - block: b3-identify-to-offer
+      - block: b2-identify-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -129,6 +123,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: identify-to-offer
+      - block: b3-D1_off_topic
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: offer
+        phrase:
+          dimension: deviation
+          value: D1_off_topic
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -137,11 +140,11 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D1_off_topic
+      - block: b2-identify-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.692
-      - block: b3-identify-to-offer
+        pass_probability: 0.615
+      - block: b3-D1_off_topic
         status: accepted
         pass_k: 1
         pass_probability: 0.692

@@ -3,6 +3,7 @@ export {
   type ApproveResult,
   type ApproveSelection,
   approveAtoms,
+  type LoadEstateMapOptions,
   type LoadedMap,
   loadEstateMap,
   type MapIssue,

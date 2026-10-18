@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { Assertion, Count, DeviationClass, GuardExpect, isPlainObject } from '@driftbench/core';
+import { Assertion, Count, DeviationClass, GuardExpect, isPlainObject } from '@agent-nexus/driftbench-core';
 import { Document, isMap, isSeq, parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { QuoteIndex } from './quote';
@@ -93,11 +93,42 @@ export const Role = z
   );
 export type Role = z.infer<typeof Role>;
 
+export const When = z
+  .record(DimensionId, z.array(ValueId).min(1))
+  .describe('The values the entry applies to, per dimension: { coverage_result: [fiber, 5g-only] }.');
+export type When = z.infer<typeof When>;
+
+/** What a rule or a value states beyond its text; every key is optional. */
+export const ValueFields = {
+  polarity: z
+    .enum(['must', 'must_not'])
+    .optional()
+    .describe('Whether the agent must or must not do what a rule says.'),
+  when: When.optional().describe('The cell a rule applies in.'),
+  unless: When.optional().describe('The cell a rule does not hold in.'),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('The most times the action may happen in a conversation.'),
+  within: z
+    .strictObject({
+      minutes: z.number().positive().describe('The number of minutes the action has to happen in.'),
+    })
+    .optional()
+    .describe('The time within which the action happens.'),
+  priority: z.literal('first').optional().describe('The rule comes first when rules collide.'),
+  weight: z.number().min(0).max(1).optional().describe('The share of users the value stands for.'),
+  required: z.boolean().optional().describe('Whether a test plan must include the value.'),
+};
+
 export const ProposalValue = z
   .strictObject({
-    id: ValueId,
+    id: ValueId.describe('A short id, unique among the values of its dimension.'),
     title: z.string().min(1).describe('What the value means, in a few words.'),
     evidence: Evidence,
+    ...ValueFields,
     produced_by: Origin,
     approved: Approved.optional().describe(
       "Overrides the dimension's flag for this value. Absent: the value inherits it.",
@@ -108,7 +139,9 @@ export type ProposalValue = z.infer<typeof ProposalValue>;
 
 export const ProposalDimension = z
   .strictObject({
-    id: DimensionId,
+    id: DimensionId.describe(
+      'A short id, unique among the dimensions, such as stage or coverage.check.in.address.',
+    ),
     title: z.string().min(1).describe('What the dimension varies.'),
     kind: DimensionKind,
     role: Role,
@@ -118,6 +151,40 @@ export const ProposalDimension = z
   })
   .describe('One axis a situation varies on, with its values.');
 export type ProposalDimension = z.infer<typeof ProposalDimension>;
+
+/** Approved numeric runtime variables, separate from the categorical coverage dimensions. */
+export const NumericSetting = z
+  .strictObject({
+    id: DimensionId.describe('The key written into the generated spec given.vars.'),
+    min: z.number().describe('Inclusive lower bound.'),
+    max: z.number().describe('Inclusive upper bound.'),
+    integer: z.boolean().optional().describe('Map Latin quantiles to inclusive integer levels.'),
+    unit: z.string().min(1).optional().describe('Unit label, retained in the sampling report.'),
+    evidence: Evidence,
+    produced_by: Origin,
+    approved: Approved,
+  })
+  .superRefine((setting, ctx) => {
+    if (setting.max < setting.min || !Number.isFinite(setting.max - setting.min))
+      ctx.addIssue({
+        code: 'custom',
+        path: ['max'],
+        message: 'max must be at least min and the range must be finite',
+      });
+    if (
+      setting.integer &&
+      (!Number.isSafeInteger(Math.ceil(setting.min)) ||
+        !Number.isSafeInteger(Math.floor(setting.max)) ||
+        Math.ceil(setting.min) > Math.floor(setting.max) ||
+        !Number.isSafeInteger(Math.floor(setting.max) - Math.ceil(setting.min) + 1))
+    )
+      ctx.addIssue({
+        code: 'custom',
+        path: ['integer'],
+        message: 'an integer range needs representable integer levels between min and max',
+      });
+  });
+export type NumericSetting = z.infer<typeof NumericSetting>;
 
 export const ProposalConstraint = z
   .strictObject({
@@ -150,21 +217,17 @@ export type Slots = z.infer<typeof Slots>;
  * The cell values an entry applies to: per dimension, the values it holds for. Every dimension named must
  * hold one of its listed values; a dimension not named is free.
  */
-export const When = z
-  .record(DimensionId, z.array(ValueId).min(1))
-  .describe('The values the entry applies to, per dimension: { coverage_result: [fiber, 5g-only] }.');
-export type When = z.infer<typeof When>;
 
 export const ProposalPhrase = z
   .strictObject({
-    dimension: DimensionId,
-    value: ValueId,
+    dimension: DimensionId.describe('The dimension of the value the phrase expresses.'),
+    value: ValueId.describe('The value the phrase expresses: a value of that dimension.'),
     text: z
       .string()
       .min(1)
       .max(500)
       .describe('One user message that expresses the value. `{slot}` takes a value the cell binds.'),
-    lang: Lang,
+    lang: Lang.describe('The language the phrase is written in, such as en or pt-BR.'),
     when: When.optional().describe('The cell values the phrase fits; absent: every cell of its value.'),
     binds: Slots.optional().describe('Slot values the phrase itself states, such as the plan it names.'),
     evidence: Evidence.optional().describe('The source example the phrase copies, when there is one.'),
@@ -178,7 +241,10 @@ export type ProposalPhrase = z.infer<typeof ProposalPhrase>;
 
 /** A value of a dimension. */
 export const ValueRef = z
-  .strictObject({ dimension: DimensionId, value: ValueId })
+  .strictObject({
+    dimension: DimensionId.describe('The id of the dimension.'),
+    value: ValueId.describe('The id of a value of that dimension.'),
+  })
   .describe('One value of one dimension.');
 export type ValueRef = z.infer<typeof ValueRef>;
 
@@ -213,7 +279,7 @@ export type EndStateTemplate = z.infer<typeof EndStateTemplate>;
 
 export const PathRelation = z
   .strictObject({
-    kind: z.literal('path'),
+    kind: z.literal('path').describe("Marks the relation as a path: a flow's stage order on one branch."),
     id: ValueId.describe('A short id, unique among the paths.'),
     flow: ValueId.describe('The flow the path belongs to: a value of the flow dimension.'),
     when: When.optional(),
@@ -230,8 +296,10 @@ export type PathRelation = z.infer<typeof PathRelation>;
 
 export const UsesToolRelation = z
   .strictObject({
-    kind: z.literal('uses_tool'),
-    subject: ValueRef.describe('The flow or behaviour value that calls the tool.'),
+    kind: z.literal('uses_tool').describe('Marks the relation as a tool call a flow or a behaviour makes.'),
+    subject: ValueRef.describe(
+      "The flow or behaviour value that calls the tool. A flow's call is made on a move; a behaviour's call is made in the turn that asks for the behaviour, never on a move.",
+    ),
     tool: z.string().min(1).describe('The tool label.'),
     stage: ValueId.describe('The stage the call is made at: the turn that leaves this stage.'),
     to: ValueId.optional().describe('Only on the turn that reaches this stage.'),
@@ -246,9 +314,77 @@ export const UsesToolRelation = z
   .describe('A tool a flow or a behaviour calls, the stage it is called at, and what feeds its inputs.');
 export type UsesToolRelation = z.infer<typeof UsesToolRelation>;
 
+export const StatesRelation = z
+  .strictObject({
+    kind: z
+      .literal('states')
+      .describe('Marks the relation as what the reply of one turn must and must not state.'),
+    subject: ValueRef.describe('The flow or behaviour value whose reply states it.'),
+    stage: ValueId.describe('The turn that leaves this stage.'),
+    to: ValueId.optional().describe('Only on the turn that reaches this stage.'),
+    when: When.optional(),
+    must: z
+      .array(z.string().min(1))
+      .min(1)
+      .optional()
+      .describe(
+        'Patterns the reply of that turn holds, such as a quoted price; `{slot}` reads a bound value.',
+      ),
+    must_not: z
+      .array(z.string().min(1))
+      .min(1)
+      .optional()
+      .describe('Patterns the reply must not hold; `{slot}` reads a bound value.'),
+    ...relationCommon,
+  })
+  .refine((entry) => entry.must !== undefined || entry.must_not !== undefined, {
+    message: 'a states relation needs must or must_not patterns',
+  })
+  .describe('What the reply of one turn must and must not state, read from the values the cell binds.');
+export type StatesRelation = z.infer<typeof StatesRelation>;
+
+export const TaskFamilyRelation = z
+  .strictObject({
+    kind: z
+      .literal('task_family')
+      .describe('Marks the relation as a code-agent task family that writes the specs of a flow.'),
+    flow: ValueId.describe('The flow whose specs the family writes: a value of the flow dimension.'),
+    family: z
+      .string()
+      .min(1)
+      .describe('The family file or its folder, relative to the folder of the proposal.'),
+    stages: z
+      .array(ValueId)
+      .min(1)
+      .describe("The stages of the family's blocks, in order, as its specs declare them."),
+    holds: When.optional().describe('The cell values every instance of the family holds, per dimension.'),
+    instances: z
+      .record(
+        z.string().regex(/^[A-Za-z][A-Za-z0-9_]*$/),
+        z.union([z.string().min(1), z.array(z.string().min(1)).min(1)]),
+      )
+      .optional()
+      .describe(
+        'The family knob values of the instances this relation places, when the family writes several branches of the flow; without it, every instance.',
+      ),
+    deviations: z
+      .array(DeviationClass)
+      .optional()
+      .describe(
+        "The deviation classes the family's variants carry, such as an instruction planted in a file.",
+      ),
+    ...relationCommon,
+  })
+  .describe(
+    'A code-agent task family that writes the specs of a flow, with an oracle in code (docs/generating.md).',
+  );
+export type TaskFamilyRelation = z.infer<typeof TaskFamilyRelation>;
+
 export const BindsRelation = z
   .strictObject({
-    kind: z.literal('binds'),
+    kind: z
+      .literal('binds')
+      .describe('Marks the relation as the concrete slot values a data or persona value stands for.'),
     subject: ValueRef.describe('The data or persona value the slots stand for.'),
     slots: Slots,
     ...relationCommon,
@@ -258,16 +394,21 @@ export type BindsRelation = z.infer<typeof BindsRelation>;
 
 export const RecoveryTool = z
   .strictObject({
-    tool: z.string().min(1),
+    tool: z.string().min(1).describe('The tool label.'),
     count: Count.optional(),
-    input: z.record(z.string(), TemplateAssertion).optional(),
+    input: z
+      .record(z.string(), TemplateAssertion)
+      .optional()
+      .describe('The arguments, by name; `{slot}` reads the value a data value of the cell binds.'),
   })
   .describe('A tool call the recovery turn makes, or must not make (count 0).');
 export type RecoveryTool = z.infer<typeof RecoveryTool>;
 
 export const RecoveryRelation = z
   .strictObject({
-    kind: z.literal('recovery'),
+    kind: z
+      .literal('recovery')
+      .describe('Marks the relation as how a flow recovers from one deviation class.'),
     class: DeviationClass,
     flows: z.array(ValueId).min(1).describe('The flows the recovery holds in.'),
     at: z
@@ -292,30 +433,103 @@ export type RecoveryRelation = z.infer<typeof RecoveryRelation>;
 
 export const ReplyLanguageRelation = z
   .strictObject({
-    kind: z.literal('reply_language'),
+    kind: z.literal('reply_language').describe('Marks the relation as the language every reply is in.'),
     subject: ValueRef.describe('The rule value that fixes the language of every reply.'),
-    lang: Lang,
+    lang: Lang.describe('The language tag of every reply, such as en or nl.'),
     ...relationCommon,
   })
   .describe('The language every reply is in, whatever the user writes.');
 export type ReplyLanguageRelation = z.infer<typeof ReplyLanguageRelation>;
 
+export const ToolOrderRelation = z
+  .strictObject({
+    kind: z.literal('tool_order').describe('Marks the relation as two tools called in a stated order.'),
+    before: z.string().min(1).describe('The tool called first.'),
+    after: z.string().min(1).describe('The tool called after it.'),
+    ...relationCommon,
+  })
+  .describe('Two tools called in a stated order.');
+export type ToolOrderRelation = z.infer<typeof ToolOrderRelation>;
+
+export const RouteRelation = z
+  .strictObject({
+    kind: z.literal('route').describe('Marks the relation as a rule that sends a topic to a team.'),
+    subject: ValueRef.describe('The rule value that sends a topic to a team.'),
+    to: z.string().min(1).describe('The team the topic goes to.'),
+    ...relationCommon,
+  })
+  .describe('A rule that sends a topic to a team.');
+export type RouteRelation = z.infer<typeof RouteRelation>;
+
+export const ReplyTextRelation = z
+  .strictObject({
+    kind: z
+      .literal('reply_text')
+      .describe('Marks the relation as a rule that fixes the exact words of a reply.'),
+    subject: ValueRef.describe('The rule value that fixes the exact words of a reply.'),
+    text: z.string().min(1).describe('The exact words of the reply.'),
+    ...relationCommon,
+  })
+  .describe('A rule that fixes the exact words of a reply.');
+export type ReplyTextRelation = z.infer<typeof ReplyTextRelation>;
+
+export const REPLIES_PER_TURN = ['one', 'any'] as const;
+
+export const ReplyCountRelation = z
+  .strictObject({
+    kind: z
+      .literal('reply_count')
+      .describe('Marks the relation as how many replies the agent sends to one user turn.'),
+    per_turn: z
+      .enum(REPLIES_PER_TURN)
+      .describe(
+        'one: a single reply to every user turn. any: the agent may send several replies to one turn. Without this relation a map means one.',
+      ),
+    ...relationCommon,
+  })
+  .describe(
+    'How many replies the agent sends to one user turn. A map without it means one reply per user turn.',
+  );
+export type ReplyCountRelation = z.infer<typeof ReplyCountRelation>;
+
 export const ProposalRelation = z
   .discriminatedUnion('kind', [
     PathRelation,
     UsesToolRelation,
+    StatesRelation,
+    TaskFamilyRelation,
     BindsRelation,
     RecoveryRelation,
     ReplyLanguageRelation,
+    ToolOrderRelation,
+    RouteRelation,
+    ReplyTextRelation,
+    ReplyCountRelation,
   ])
-  .describe('A relation between values: a path, a tool call, concrete values, a recovery, a reply language.');
+  .describe(
+    'A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language, the replies per turn.',
+  );
 export type ProposalRelation = z.infer<typeof ProposalRelation>;
-export const RELATION_KINDS = ['path', 'uses_tool', 'binds', 'recovery', 'reply_language'] as const;
+export const RELATION_KINDS = [
+  'path',
+  'uses_tool',
+  'states',
+  'task_family',
+  'binds',
+  'recovery',
+  'reply_language',
+  'tool_order',
+  'route',
+  'reply_text',
+  'reply_count',
+] as const;
 export type RelationKind = (typeof RELATION_KINDS)[number];
 
 export const ProposalSource = z
   .strictObject({
-    kind: SourceKind,
+    kind: SourceKind.describe(
+      'What the file is: the prompt or policy, the behaviour inventory, or the tool schemas.',
+    ),
     path: z.string().min(1).describe('The path of the file, relative to the folder of the proposal.'),
   })
   .describe('A file the entries quote.');
@@ -332,13 +546,17 @@ export type ProducedBy = z.infer<typeof ProducedBy>;
 
 export const Proposal = z
   .strictObject({
-    version: z.literal(PROPOSAL_VERSION),
+    version: z.literal(PROPOSAL_VERSION).describe('The version of the proposal format, 1.'),
     agent: z.string().min(1).describe('The agent the map describes.'),
     produced_by: ProducedBy,
     sources: z.array(ProposalSource).min(1, { error: 'a proposal quotes at least one source' }),
     dimensions: z.array(ProposalDimension),
     constraints: z.array(ProposalConstraint),
     phrases: z.array(ProposalPhrase),
+    numeric_settings: z
+      .array(NumericSetting)
+      .optional()
+      .describe('Approved numeric ranges sampled by --budget into given.vars.'),
     relations: z
       .array(ProposalRelation)
       .optional()
@@ -482,6 +700,9 @@ export function evidences(proposal: Proposal): Array<{ path: string; evidence: E
   (proposal.relations ?? []).forEach((relation, r) => {
     found.push({ path: `relations.${r}`, evidence: relation.evidence });
   });
+  (proposal.numeric_settings ?? []).forEach((setting, index) => {
+    found.push({ path: `numeric_settings.${index}`, evidence: setting.evidence });
+  });
   return found;
 }
 
@@ -492,12 +713,24 @@ export function relationLabel(relation: ProposalRelation): string {
       return `path ${relation.id} (${relation.flow}: ${relation.stages.join(' > ')})`;
     case 'uses_tool':
       return `${relation.subject.dimension}=${relation.subject.value} uses ${relation.tool} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
+    case 'states':
+      return `${relation.subject.dimension}=${relation.subject.value} states ${(relation.must ?? []).join(', ')}${relation.must_not ? `; forbids ${relation.must_not.join(', ')}` : ''} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
+    case 'task_family':
+      return `task family ${relation.family} writes ${relation.flow} (${relation.stages.join(' > ')})`;
     case 'binds':
       return `${relation.subject.dimension}=${relation.subject.value} binds ${Object.keys(relation.slots).join(', ')}`;
     case 'recovery':
       return `recovery ${relation.class}${relation.tool ? ` of ${relation.tool}` : ''} in ${relation.flows.join(', ')}`;
     case 'reply_language':
       return `${relation.subject.dimension}=${relation.subject.value} sets the reply language ${relation.lang}`;
+    case 'tool_order':
+      return `${relation.before} is called before ${relation.after}`;
+    case 'reply_text':
+      return `${relation.subject.dimension}=${relation.subject.value} fixes the reply text`;
+    case 'route':
+      return `${relation.subject.dimension}=${relation.subject.value} routes to ${relation.to}`;
+    case 'reply_count':
+      return relation.per_turn === 'one' ? 'one reply per user turn' : 'any number of replies per user turn';
   }
 }
 
@@ -516,6 +749,7 @@ export function countEntries(proposal: Proposal): {
   constraints: number;
   phrases: number;
   relations: number;
+  numeric_settings?: number;
   total: number;
   approved: number;
   valuesApproved: number;
@@ -526,6 +760,7 @@ export function countEntries(proposal: Proposal): {
     ...proposal.constraints.map((constraint) => constraint.approved),
     ...proposal.phrases.map((phrase) => phrase.approved),
     ...relations.map((relation) => relation.approved),
+    ...(proposal.numeric_settings ?? []).map((setting) => setting.approved),
   ];
   return {
     dimensions: proposal.dimensions.length,
@@ -533,6 +768,9 @@ export function countEntries(proposal: Proposal): {
     constraints: proposal.constraints.length,
     phrases: proposal.phrases.length,
     relations: relations.length,
+    ...(proposal.numeric_settings === undefined
+      ? {}
+      : { numeric_settings: proposal.numeric_settings.length }),
     total: flags.length,
     approved: flags.filter(Boolean).length,
     valuesApproved: proposal.dimensions.reduce(
@@ -614,6 +852,19 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
   };
 
   const dimensions = new Map<string, Set<string>>();
+  const numericIds = new Set<string>();
+  (proposal.numeric_settings ?? []).forEach((setting, index) => {
+    if (numericIds.has(setting.id))
+      issues.push(
+        issue(
+          'PROPOSAL_DUPLICATE',
+          `numeric_settings.${index}.id`,
+          `numeric setting "${setting.id}" is listed twice`,
+        ),
+      );
+    numericIds.add(setting.id);
+    checkSource(setting.evidence, `numeric_settings.${index}`);
+  });
   proposal.dimensions.forEach((dimension, d) => {
     const path = `dimensions.${d}`;
     if (dimensions.has(dimension.id)) {
@@ -721,6 +972,7 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
         if (relation.when) checkWhen(relation.when, `${path}.when`);
         break;
       case 'uses_tool':
+      case 'states':
         reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
         checkStage(relation.stage, `${path}.stage`);
         if (relation.to !== undefined) checkStage(relation.to, `${path}.to`);
@@ -728,6 +980,14 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
         break;
       case 'binds':
       case 'reply_language':
+        reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
+        break;
+      case 'tool_order':
+        break;
+      case 'reply_text':
+        reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
+        break;
+      case 'route':
         reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
         break;
       case 'recovery':
@@ -749,6 +1009,23 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
         if (relation.stage_after !== undefined && relation.stage_after !== PENDING_STAGE) {
           checkStage(relation.stage_after, `${path}.stage_after`);
         }
+        break;
+      case 'task_family':
+        checkFlow(relation.flow, `${path}.flow`);
+        relation.stages.forEach((stage, index) => {
+          checkStage(stage, `${path}.stages.${index}`);
+        });
+        if (relation.holds) checkWhen(relation.holds, `${path}.holds`);
+        (relation.deviations ?? []).forEach((deviation, index) => {
+          if (!deviations.has(deviation))
+            issues.push(
+              issue(
+                'PROPOSAL_UNKNOWN_VALUE',
+                `${path}.deviations.${index}`,
+                `"${deviation}" is not a value of the deviation dimension`,
+              ),
+            );
+        });
         break;
     }
   });

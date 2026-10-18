@@ -2,10 +2,11 @@ import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { findSpecFiles, loadSpecs } from '@driftbench/core';
-import { faultAdapter, importFaultSet } from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
+import { findSpecFiles, loadSpecs } from '@agent-nexus/driftbench-core';
+import { faultAdapter, importFaultSet } from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterAll, describe, expect, it } from 'vitest';
+import { acmeAdapter } from '../../core/test/runner/support';
 import {
   defaultHoldoutDeps,
   type HoldoutDeps,
@@ -103,7 +104,7 @@ describe('driftbench holdout seal', () => {
       expect(result.err).toBe('');
       expect(result.code).toBe(0);
       expect(result.out).toContain('the gate sealed its split at seed 1, share 0.2; that split is kept');
-      expect(result.out).toContain("Sealed 36 of 175 gated specs: the gate's split (seed 1, share 0.2)");
+      expect(result.out).toContain("Sealed 58 of 258 gated specs: the gate's split (seed 1, share 0.2)");
 
       const bundle = await json<Bundle>(join(out, 'sealed.json'));
       expect(bundle).toMatchObject({ split: 'gate', seed: 1, share: 0.2 });
@@ -190,6 +191,19 @@ describe('driftbench holdout seal', () => {
     const missing = await run(['holdout', 'seal', '--specs', join(out, 'none'), '--out', out]);
     expect(missing.code).toBe(2);
     expect(missing.err).toContain('Cannot find');
+  });
+
+  it('names the gate output folder when --specs is the specs folder inside it', async () => {
+    const out = join(await temp(), 'sealed');
+    const result = await run(['holdout', 'seal', '--specs', join(GATED, 'specs'), '--out', out]);
+    expect(result.code).toBe(2);
+    expect(result.err).toBe(
+      "--specs examples/acme/gated/specs is the specs folder inside a gate output. The specs the gate sealed are beside it, in examples/acme/gated/holdout. Pass the gate's output folder: --specs examples/acme/gated\n",
+    );
+    // The folder the message names seals as it is.
+    const fixed = await run(['holdout', 'seal', '--specs', GATED, '--out', out]);
+    expect(fixed.err).toBe('');
+    expect(fixed.code).toBe(0);
   });
 });
 
@@ -281,7 +295,40 @@ describe('driftbench holdout score', () => {
       expect(scored.output.err).toBe('');
       expect(code).toBe(0);
       // Every gated block reads the reply language, so the fault that answers in French fails all 35.
-      expect(scored.output.out).toMatch(/\n\s+35\s+0\s+0\.0%\s+0\.0% to 9\.9%/);
+      expect(scored.output.out).toMatch(/\n\s+47\s+0\s+0\.0%\s+0\.0% to 7\.6%/);
+    },
+    SLOW,
+  );
+
+  it(
+    'leaves a conversation with a block not run out of the rate, and lists it as not run',
+    async () => {
+      const sealed = join(await temp(), 'sealed');
+      const { io } = capture();
+      expect(await holdoutSealCommand({ specs: GATED, out: sealed }, io, defaultHoldoutDeps)).toBe(0);
+      const deps: HoldoutDeps = {
+        ...defaultHoldoutDeps,
+        // The Acme agent on an adapter that cannot force a tool result: a spec that forces one is not run.
+        adapterFor: async () => acmeAdapter({ capabilities: { toolStubs: false } }),
+        now: FIXED_DAY,
+      };
+      const scored = capture();
+      const code = await holdoutScoreCommand(
+        { sealed, target: 'function:acme-sales', budget: '1', json: true },
+        scored.io,
+        deps,
+      );
+      expect(scored.output.err).toBe('');
+      expect(code).toBe(0);
+      const result = JSON.parse(scored.output.out) as {
+        conversations: number;
+        passed: number;
+        not_run: string[];
+      };
+      const notRun = result.not_run.filter((entry) => entry.endsWith('(a block not run)'));
+      expect(notRun.length).toBeGreaterThan(0);
+      // The 47 sealed conversations the fault test scores: those not run are out of the rate, not failures.
+      expect(result.conversations + notRun.length).toBe(47);
     },
     SLOW,
   );

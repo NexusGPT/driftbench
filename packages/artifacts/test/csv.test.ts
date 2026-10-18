@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import { csvReader } from '@driftbench/artifacts';
-import { type ArtifactDocument, loadSpecFile } from '@driftbench/core';
+import { csvReader } from '@agent-nexus/driftbench-artifacts';
+import { type ArtifactDocument, loadSpecFile } from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { detectDelimiter, parseCsv } from '../src/csv';
 import { bytesOf, runCases } from './fixtures';

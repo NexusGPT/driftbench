@@ -1,0 +1,37 @@
+{
+  "at": "2026-10-13T07:47:22.077216+00:00",
+  "priorRuntime": "b4e4305a2426e0bb7589",
+  "priorCore": "2bb0a7a787ca4466ff69d204f2380a7ad19cc056",
+  "settledCalls": 71,
+  "spentUsd": 0.3117912600000001,
+  "unknownCharges": {
+    "2d8f81fb-4a46-414f-829c-ff390b92f9ec": {
+      "usd": 0.5,
+      "model": "haiku",
+      "at": "2026-10-13T07:36:20.681606+00:00"
+    },
+    "c36e35fd-39b4-4607-bf07-648a668b3c28": {
+      "usd": 0.5,
+      "model": "haiku",
+      "at": "2026-10-13T07:36:27.922704+00:00"
+    },
+    "8e218109-a8da-4949-9a79-a3e3eb1856f8": {
+      "usd": 0.5,
+      "model": "gpt-6-luna",
+      "at": "2026-10-13T07:36:56.342180+00:00"
+    },
+    "d185530c-3fe3-4940-9441-46a5ba38d1f4": {
+      "usd": 1.0,
+      "model": "gemini-3.8-flash",
+      "at": "2026-10-13T07:37:08.644708+00:00"
+    },
+    "344c89ea-364e-438a-9f60-c5654e972fc6": {
+      "usd": 0.5,
+      "model": "gpt-6-luna",
+      "at": "2026-10-13T07:37:13.574949+00:00"
+    }
+  },
+  "unknownMaximumUsd": 3.0,
+  "processesSurvived": false,
+  "authorization": "User requests crash recovery, core 35f07309, medium and 180s for API models, post-pilot concurrency 4/4/2. No prompt or label changes."
+}

@@ -1,0 +1,21 @@
+{
+ "branch": "origin/research/ledger-wp",
+ "commit": "110c2fec78a8883fe1bfe7ec48d34105fb617152",
+ "files": {
+  "pool": [
+   "examples/ledger-wp/seals/test.json",
+   "178754731d81f74abd2f6c001eca58ef4d16df7bbcd22bb702611e7bd09e7f0a"
+  ],
+  "recorded": [
+   "examples/ledger-wp/results/decisions.jsonl",
+   "fe9cd5ed4e8678ac4785050532c1209e8ad868ee59fb3f94af1bab5aab0b8d0f"
+  ]
+ },
+ "recordedCheck": {
+  "driftbench": 212,
+  "driftbench-reader-first": 234,
+  "promptfoo": 197
+ },
+ "items": 173,
+ "itemsSha256": "c76aa707d6ab319d12d777990bca0dfcfd364702d12052b09c4978e4e2f39146"
+}

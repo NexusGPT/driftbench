@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { readdir, readlink } from 'node:fs/promises';
 import { join, posix } from 'node:path';
-import type { WorkspaceDiff, WorkspaceSnapshot } from '@driftbench/core';
+import type { WorkspaceDiff, WorkspaceSnapshot } from '@agent-nexus/driftbench-core';
 import { SandboxLimitError, SKIPPED_NAMES, type SnapshotLimits } from './limits';
 
 /**

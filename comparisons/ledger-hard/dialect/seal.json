@@ -1,0 +1,28 @@
+{
+  "created": "2026-10-13T07:32:30.473621+00:00",
+  "core_commit": "2bb0a7a787ca4466ff69d204f2380a7ad19cc056",
+  "original_seal_sha256": "5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4",
+  "reasoning": {
+    "gpt-6-luna": "medium, both contestants",
+    "gemini-3.8-flash": "medium, both contestants",
+    "haiku": "unset"
+  },
+  "authority": "Owner: primary stays provider default; dialect uses medium for both candidate and peer.",
+  "output": "Native core payload builder, strict checks schema on OpenAI candidate, scratchpad-then-last-JSON on Haiku candidate; peer unchanged.",
+  "cap_usd_shared_with_primary": 10,
+  "concurrency": 12,
+  "luna_concurrency": "4, drops to 2 when failures exceed 5% over any 50 attempts",
+  "primary_reuse": "None. Variant request fingerprints are disjoint from primary. Same sealed case payloads, independently recorded experiment, not independent data replication.",
+  "sha256": {
+    "comparisons/ledger-hard/dialect/vendor/prompt.ts": "bcf8d49723e667100d52e0903456a0b113f0ffcec9232a46df6cdd39aa18dca6",
+    "comparisons/ledger-hard/dialect/vendor/http.ts": "a9452be52d7b259a44041cd2e8ec04641f231f3a78dc4c2a3d9e2ab0e8e10fa1",
+    "comparisons/ledger-hard/dialect/vendor/dialects.ts": "40dc6351ffcf8884f0c0022729cb012ea5ef65740ab9e3e06478dc5c4d43af59",
+    "comparisons/ledger-hard/dialect/vendor/hash.ts": "08ef6c9e5965ad2d5e3e4680a26b281a0200e3e69c5ffd6accdc0223dd675f4d",
+    "comparisons/ledger-hard/dialect/vendor/transport.ts": "8f449672f9e4eb75c8f5f0a43c4f9563750f7fa2c1d9235c2a23fc97be60c56a",
+    "comparisons/ledger-hard/dialect/prompts.json": "2fe5c23508da1f5ee542d9c6ceb10313a96336e64f45182df74ae3d72a756bef",
+    "comparisons/ledger-hard/dialect/schema.json": "bbe89605746273f80555f2018bb866d44a3f65bc3d3a8cab54678d8ba3e0963b",
+    "comparisons/ledger-hard/dialect-render.mts": "2cba40a29ee133b99a74784db27954b263a8a5469bd66aeeecffa77d979c8a16",
+    "comparisons/ledger-hard/dialect-run.py": "28a020031d43288debe04c297b3662d61a81301c3461a4d15c49c72d2e349254",
+    "comparisons/ledger-hard/dialect-score.py": "98092ff0d7d5876a829eaaa08af5eca68d078afda5926bfdbeadb0c0aa31e917"
+  }
+}

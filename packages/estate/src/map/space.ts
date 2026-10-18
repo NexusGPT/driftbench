@@ -1,5 +1,5 @@
-import { DeviationClass } from '@driftbench/core';
-import { DEVIATION_TITLES, NONE, type SpaceDimension, type SpaceMap } from '@driftbench/space';
+import { DeviationClass } from '@agent-nexus/driftbench-core';
+import { DEVIATION_TITLES, NONE, type SpaceDimension, type SpaceMap } from '@agent-nexus/driftbench-space';
 import type { AtomKind, EstateMap } from '../schema';
 
 /**

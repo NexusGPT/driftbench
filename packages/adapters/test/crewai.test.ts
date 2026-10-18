@@ -1,6 +1,14 @@
 import { readFileSync } from 'node:fs';
-import { AdapterTransportError, AgentFailure, type Session } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  canonicalGiven,
+  type Message,
+  resolveGiven,
+  type Session,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import { acmeSpec, loadAcmeConversations } from '../../core/test/runner/support';
 import { CREWAI_BRIDGE } from '../src/crewai/bridge-source';
 import { type CrewRun, crewaiAdapter, crewaiHttp, crewaiInputs, crewaiProcess } from '../src/crewai/index';
 import { readBridgeReply } from '../src/shared/bridge';
@@ -90,6 +98,108 @@ describe('crewai adapter', () => {
         userTurn(0, 'b', given),
       ).message,
     ).toBe('a\nb');
+  });
+
+  it('refuses a prefix whose tool calls the spec states as a record, on the default text inputs', async () => {
+    const prefix = [
+      { role: 'user' as const, content: 'Is fiber available at 3 Orchard Way?' },
+      {
+        role: 'assistant' as const,
+        content: 'Yes.',
+        tool_calls: [
+          { id: 'c1', label: 'coverage.check', input: { address: '3 Orchard Way' }, output: { found: true } },
+        ],
+      },
+    ];
+    const exec = fakeCrewBridge();
+    const plain = crewaiAdapter({ transport: crewaiProcess({ crew: 'acme.crew:build', exec }) });
+    for (const origin of ['recorded', 'authored'] as const) {
+      const refused = plain.open({ ...acmeGiven({ adapter: 'crewai' }, {}, prefix), origin });
+      await expect(refused).rejects.toBeInstanceOf(AgentFailure);
+      await expect(refused).rejects.toThrow(/1 recorded tool call.*as prose, not as tool results/);
+    }
+    expect(exec.requests).toHaveLength(0);
+    // A canonical prefix, or one whose origin the spec does not state, goes to the crew as it always did.
+    await expect(
+      plain.open({ ...acmeGiven({ adapter: 'crewai' }, {}, prefix), origin: 'canonical' }),
+    ).resolves.toBeDefined();
+    await expect(plain.open(acmeGiven({ adapter: 'crewai' }, {}, prefix))).resolves.toBeDefined();
+    // A crew given its own inputs takes the history its own way.
+    const own = crewaiAdapter({
+      transport: crewaiProcess({ crew: 'acme.crew:build', exec }),
+      inputs: (history) => ({ message: 'x', messages: JSON.stringify(history) }),
+    });
+    await expect(
+      own.open({ ...acmeGiven({ adapter: 'crewai' }, {}, prefix), origin: 'recorded' }),
+    ).resolves.toBeDefined();
+  });
+
+  it('opens every mode T block of a tool spec: the canonical calls of earlier blocks are not refused', async () => {
+    // The Acme plan upgrade: its blocks expect catalog.search and order.create, so the mode T prefixes of the
+    // later blocks hold canonical calls. Mode T opens a session per block from its canonical Given.
+    const spec = acmeSpec(await loadAcmeConversations(), 'acme-plan-upgrade');
+    const adapter = crewaiAdapter({
+      transport: crewaiProcess({ crew: 'acme.crew:build', exec: fakeCrewBridge() }),
+      toolLabels: ACME_TOOL_NAMES,
+    });
+    const target = { adapter: 'crewai' };
+    let canonicalCalls = 0;
+    for (let index = 0; index < spec.blocks.length; index++) {
+      const canonical = canonicalGiven(spec, index);
+      canonicalCalls += canonical.prefix.reduce((n, message) => n + (message.tool_calls?.length ?? 0), 0);
+      const session = await adapter.open(resolveGiven(canonical.state, canonical.prefix, target));
+      await adapter.close(session);
+    }
+    // The spec is a real case: its canonical prefixes hold calls.
+    expect(canonicalCalls).toBeGreaterThan(0);
+  });
+
+  it('in mode T, an origin covers only the prefix the spec wrote, never the canonical calls appended after it', async () => {
+    const base = acmeSpec(await loadAcmeConversations(), 'acme-plan-upgrade');
+    const target = { adapter: 'crewai' };
+    const adapter = crewaiAdapter({
+      transport: crewaiProcess({ crew: 'acme.crew:build', exec: fakeCrewBridge() }),
+      toolLabels: ACME_TOOL_NAMES,
+    });
+    const opens = async (prefix: Message[], origin: 'recorded' | 'authored') => {
+      // Block 0 writes the prefix and states its origin; every later block's mode T prefix starts with it.
+      const spec = {
+        ...base,
+        blocks: base.blocks.map((block, index) =>
+          index === 0 ? { ...block, given: { ...block.given, prefix, origin } } : block,
+        ),
+      };
+      const outcomes: string[] = [];
+      for (let index = 0; index < spec.blocks.length; index++) {
+        const canonical = canonicalGiven(spec, index);
+        const opened = await adapter.open(resolveGiven(canonical.state, canonical.prefix, target)).then(
+          () => 'open',
+          (cause: Error) => (cause instanceof AgentFailure ? 'refused' : String(cause)),
+        );
+        outcomes.push(opened);
+      }
+      return outcomes;
+    };
+    const prose: Message[] = [
+      { role: 'user', content: 'Hi, I am an existing customer.' },
+      { role: 'assistant', content: 'Welcome back. What is the email address on your account?' },
+    ];
+    const withCall: Message[] = [
+      prose[0] as Message,
+      {
+        role: 'assistant',
+        content: 'Welcome back.',
+        tool_calls: [
+          { id: 'c1', label: 'catalog.search', input: { category: 'mobile' }, output: { plans: [] } },
+        ],
+      },
+    ];
+    for (const origin of ['recorded', 'authored'] as const) {
+      // A call-free prefix stated as a record: the canonical calls of later blocks are not the spec's record.
+      expect(new Set(await opens(prose, origin)), origin).toEqual(new Set(['open']));
+      // A prefix that holds a call the spec wrote is refused at every block that starts from it.
+      expect(new Set(await opens(withCall, origin)), origin).toEqual(new Set(['refused']));
+    }
   });
 
   it('kicks off a deployed crew over HTTP, polls its status until it completes, and never prints the token', async () => {

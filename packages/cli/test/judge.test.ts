@@ -1,9 +1,9 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defaultChecks } from '@driftbench/checks';
-import type { Store } from '@driftbench/core';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import type { Store } from '@agent-nexus/driftbench-core';
 import {
   type Cassette,
   type CassetteJudge,
@@ -18,8 +18,8 @@ import {
   loadCassette,
   recordingClient,
   saveCassette,
-} from '@driftbench/judges';
-import { openMemoryStore } from '@driftbench/store';
+} from '@agent-nexus/driftbench-judges';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ACME_JUDGES } from '../../judges/test/support/scripted';
 import { type CampaignDeps, campaignRunCommand, defaultDeps } from '../src/commands/campaign';
@@ -112,7 +112,7 @@ describe('driftbench judge run', () => {
     const cassette = JSON.parse(await readFile(join(ROOT, CASSETTE), 'utf8'));
     cassette.entries = cassette.entries.filter(
       (entry: { criterion: string; judge: string }) =>
-        !(entry.criterion === 'plain_language' && entry.judge === 'jev-a'),
+        !(entry.criterion === 'plain_language' && entry.judge === 's1p-a'),
     );
     const path = join(scratch, 'missing.json');
     await writeFile(path, JSON.stringify(cassette));
@@ -206,7 +206,7 @@ describe('driftbench judge calibrate', () => {
       'plain_language: owned by google-chat (system2: google-chat, openai-chat, anthropic-chat',
     );
     expect(text).toMatch(
-      /jev-b {14}system1 {2}separation 3\/3 {2}kappa {2}0\.40 {2}agreement 2\/3 \[0\.21, 0\.94\] {2}misses/,
+      /s1p-b {14}system1 {2}separation 3\/3 {2}kappa {2}0\.40 {2}agreement 2\/3 \[0\.21, 0\.94\] {2}misses/,
     );
     expect(text).toContain('ledger_intact: UNASSIGNED, judged but not gating');
     expect(text).toContain('11 of 12 criteria assigned in mode hybrid (3 repeats, kappa at least 0.8).');
@@ -215,19 +215,15 @@ describe('driftbench judge calibrate', () => {
 
   it('exits 1 when a gating criterion stays unassigned, and still writes the table', async () => {
     const cassette = JSON.parse(await readFile(join(ROOT, CALIBRATION), 'utf8'));
-    // jev-a and google-chat now pass the care_redirect fail fixture: neither class seats three at the bar.
-    const fixtureKeys = new Set(
-      cassette.entries
-        .filter(
-          (e: { judge: string; criterion: string; answer?: { outcome: string }; raw?: string }) =>
-            e.judge === 'jev-a' && e.criterion === 'care_redirect' && e.answer?.outcome === 'fail',
-        )
-        .map((e: { key: string }) => e.key),
-    );
+    // s1p-a and google-chat now pass every care_redirect block they failed: neither class seats three at the bar.
     for (const entry of cassette.entries) {
-      if (entry.criterion !== 'care_redirect' || !fixtureKeys.has(entry.key)) continue;
-      if (entry.judge === 'jev-a') entry.answer = { outcome: 'pass', score: 0.9, reasoning: 'flipped' };
-      if (entry.judge === 'google-chat') entry.raw = '{"outcome":"pass","reasoning":"flipped"}';
+      if (entry.criterion !== 'care_redirect') continue;
+      if (entry.judge === 's1p-a' && entry.answer?.outcome === 'fail') {
+        entry.answer = { outcome: 'pass', score: 0.9, reasoning: 'flipped' };
+      }
+      if (entry.judge === 'google-chat' && entry.raw?.includes('"outcome":"fail"')) {
+        entry.raw = '{"outcome":"pass","reasoning":"flipped"}';
+      }
     }
     const path = join(scratch, 'unassigned.json');
     await writeFile(path, JSON.stringify(cassette));
@@ -449,7 +445,7 @@ describe('the judge check in the default check set', () => {
     // The cascade stops on a sure pass with a score: one system 1 vote.
     const one = judged.find((verdict) => verdict.name === 'one_question_per_turn');
     expect(one?.judge).toMatchObject({ cls: 'system1' });
-    expect(one?.judge?.votes.map((vote) => vote.judge)).toEqual(['jev-a']);
+    expect(one?.judge?.votes.map((vote) => vote.judge)).toEqual(['s1p-a']);
     // Calibration gave no_invented_data to system 2, led by google-chat, which gives no score: all three vote.
     const invented = judged.find((verdict) => verdict.name === 'no_invented_data');
     expect(invented?.judge?.cls).toBe('system2');
@@ -471,5 +467,298 @@ describe('the judge check in the default check set', () => {
     expect(request?.artifact).toContain('File out/acme-price-sheet.xlsx (xlsx)');
     expect(request?.artifact).toContain('| 3 | Acme Mobile M | 40 GB | 25 | 300 (=C3*12) |');
     expect(request?.artifact).toMatch(/Workspace changes: created out\/acme-price-sheet\.xlsx/);
+    // The criterion names catalog.csv as an input: the judge reads the seed the agent started from.
+    expect(request?.inputs?.map((input) => input.path)).toEqual(['catalog.csv']);
+    expect(request?.inputs?.[0]?.text).toContain('mobile-m,Acme Mobile M,mobile,40 GB,25');
   }, 120_000);
+});
+
+describe('driftbench judge calibrate with a live judge on the claude command', () => {
+  /** A fake claude command: every answer is pass, each call costs 0.001 USD. No model is called. */
+  async function fakeClaude(legacy = false): Promise<string> {
+    const path = join(scratch, 'fake-claude.mjs');
+    const calls = join(scratch, 'fake-claude.calls.jsonl');
+    await writeFile(calls, '');
+    await writeFile(
+      path,
+      `#!/usr/bin/env node
+import { appendFileSync } from 'node:fs';
+let input = '';
+process.stdin.on('data', (c) => { input += c; });
+process.stdin.on('end', () => {
+  const system = process.argv[process.argv.indexOf('--system-prompt') + 1] ?? '';
+  const route = system.includes('"route":"criterion"');
+  const budgetAt = process.argv.indexOf('--max-budget-usd');
+  const budget = budgetAt < 0 ? null : Number(process.argv[budgetAt + 1]);
+  const affordable = budget === null || budget >= 0.001 - 1e-12;
+  const cost = affordable ? 0.001 : 0;
+  appendFileSync(${JSON.stringify(calls)}, JSON.stringify({ route, budget, cost }) + '\\n');
+  const block = input.match(/<transcript_data>\\n([\\s\\S]*?)\\n<\\/transcript_data>/)?.[1] ?? '';
+  const entries = block.trim().startsWith('[') && block.trim().endsWith(']') ? JSON.parse(block) : [];
+  const observed = entries.find((entry) => entry.role === 'agent')?.text ?? entries.find((entry) => entry.role === 'user')?.text ?? '';
+  process.stdout.write(JSON.stringify({ type: 'result', subtype: affordable ? 'success' : 'error_max_budget_usd', is_error: !affordable, total_cost_usd: cost,
+    result: affordable ? JSON.stringify(route ? { route: 'criterion' } : ${legacy ? "{ outcome: 'pass', reasoning: 'fake: always pass' }" : "{ checks: [{ id: input.match(/^CRITERION: ([^\\n]+)/)?.[1] ?? 'missing', reasoning: 'fake: always pass', evidence: observed || null, met: true }] }"}) : 'Insufficient budget.' }));
+});
+`,
+    );
+    await chmod(path, 0o755);
+    return path;
+  }
+
+  async function liveCalls(): Promise<Array<{ route: boolean; budget: number | null; cost: number }>> {
+    return (await readFile(join(scratch, 'fake-claude.calls.jsonl'), 'utf8'))
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => JSON.parse(line));
+  }
+
+  function liveArgs(command: string, out: string, extra: string[] = []): string[] {
+    return [
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--claude',
+      'haiku',
+      '--claude-command',
+      command,
+      '--out',
+      out,
+      ...extra,
+    ];
+  }
+
+  it('runs the judge, reports its spend, and records a cassette that replays to the same report', async () => {
+    const command = await fakeClaude();
+    const record = join(scratch, 'live.cassette.json');
+    const first = await run(liveArgs(command, join(scratch, 'live.yaml'), ['--record', record, '--json']));
+    expect(first.err).toBe('');
+    const report = JSON.parse(first.out);
+    // 112 criterion evaluations plus 50 distinct cached routing inputs.
+    const calls = await liveCalls();
+    expect(calls.filter((call) => call.route)).toHaveLength(50);
+    expect(calls.filter((call) => !call.route)).toHaveLength(112);
+    expect(report.spentUsd).toBeCloseTo(0.162, 9);
+    expect(report.spentUsd).toBeCloseTo(
+      calls.reduce((sum, call) => sum + call.cost, 0),
+      9,
+    );
+    const row = report.criteria.find((c: { criterion: string }) => c.criterion === 'care_redirect').judges[0];
+    expect(row).toMatchObject({ judge: 'claude-haiku', cls: 'system2' });
+    expect(row.separation.separated).toBe(0);
+    // One judge cannot seat a council of three: every criterion stays unassigned, exit 1.
+    expect(first.code).toBe(1);
+    const replay = await run([
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      record,
+      '--out',
+      join(scratch, 'replay.yaml'),
+      '--json',
+    ]);
+    const again = JSON.parse(replay.out);
+    expect(again.criteria).toEqual(report.criteria);
+    expect(again.spentUsd).toBeCloseTo(0.162, 9);
+    expect(await liveCalls()).toEqual(calls);
+  }, 120_000);
+
+  it('retries old binary JSON once, then abstains under the default ledger contract', async () => {
+    const command = await fakeClaude(true);
+    const { code, out } = await run(
+      liveArgs(command, join(scratch, 'legacy-rejected.yaml'), ['--spend-cap-usd', '0.003']),
+    );
+    expect(code).toBe(1);
+    expect(out).toContain('Spent 0.0030 USD.');
+    expect(out).toContain('111 judge call(s) gave no answer.');
+    expect(out).toContain('0 of 12 criteria assigned');
+    const calls = await liveCalls();
+    expect(calls.map((call) => call.route)).toEqual([true, false, false]);
+    expect(calls.map((call) => call.cost)).toEqual([0.001, 0.001, 0.001]);
+  });
+
+  it('stops calling once the spend cap is reached: the rest give no answer', async () => {
+    const command = await fakeClaude();
+    const { code, out } = await run(
+      liveArgs(command, join(scratch, 'capped.yaml'), ['--spend-cap-usd', '0.004']),
+    );
+    expect(code).toBe(1);
+    expect(out).toContain('Spent 0.0040 USD.');
+    expect(out).toContain('109 judge call(s) gave no answer.');
+    const calls = await liveCalls();
+    // Both fixtures have the same user question, so all three evaluations reuse one routing call.
+    expect(calls.map((call) => call.route)).toEqual([true, false, false, false]);
+    expect(calls.map((call) => call.cost)).toEqual([0.001, 0.001, 0.001, 0.001]);
+    expect(calls.map((call) => call.budget)).toEqual([0.004, 0.003, 0.002, 0.001]);
+  });
+
+  it('runs a cascade: the recorded haiku answers everything, the live judges only its unsure items', async () => {
+    const command = await fakeClaude();
+    const out = join(scratch, 'cascade.json');
+    // A copy of the haiku recording where its answer on the labelled block explicit_confirmation.3 is unsure.
+    const haiku = JSON.parse(
+      await readFile(join(ROOT, 'examples/acme/criteria/calibration/claude-haiku.cassette.json'), 'utf8'),
+    );
+    for (const entry of haiku.entries) {
+      if (
+        entry.criterion === 'explicit_confirmation' &&
+        /no order\.create appears after it/.test(entry.answer?.reasoning ?? '')
+      ) {
+        entry.answer = { ...entry.answer, score: 0.5 };
+      }
+    }
+    const unsure = join(scratch, 'haiku-unsure.json');
+    await writeFile(unsure, JSON.stringify(haiku));
+    const {
+      code,
+      out: text,
+      err,
+    } = await run([
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      unsure,
+      '--claude',
+      'sonnet',
+      '--claude',
+      'opus',
+      '--claude-command',
+      command,
+      '--cascade',
+      '--only',
+      'explicit_confirmation',
+      '--out',
+      out,
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    expect(text).toContain('Cascade: claude-haiku answers everything; claude-sonnet and claude-opus answer');
+    expect(text).toMatch(
+      /explicit_confirmation: separation 3\/3, kappa .*escalated: explicit_confirmation\.3 \(unsure\)/,
+    );
+    const report = JSON.parse(await readFile(out, 'utf8'));
+    expect(report.criteria).toHaveLength(1);
+    expect(report.criteria[0].escalated).toEqual([{ item: 'explicit_confirmation.3', why: 'unsure' }]);
+  }, 60_000);
+
+  it('refuses a cascade judge of the agent family, and --assign or --mode with --cascade', async () => {
+    const command = await fakeClaude();
+    const base = [
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      'examples/acme/criteria/calibration/claude-haiku.cassette.json',
+      '--claude',
+      'sonnet',
+      '--claude-command',
+      command,
+      '--cascade',
+      '--only',
+      'explicit_confirmation',
+      '--out',
+      join(scratch, 'refused-cascade.json'),
+    ];
+    const family = await run([...base, '--agent-family', 'anthropic']);
+    expect(family.code).toBe(2);
+    expect(family.err).toMatch(/the family of the agent under test: refused/);
+    const assign = await run([...base, '--assign', 'cheapest']);
+    expect(assign.code).toBe(2);
+    expect(assign.err).toContain('--assign');
+    const mode = await run([...base, '--mode', 'llm']);
+    expect(mode.code).toBe(2);
+    expect(mode.err).toContain('--mode');
+  }, 60_000);
+
+  it('assigns the one cheapest judge at the bar with --assign cheapest, and prints its cost per call', async () => {
+    const out = join(scratch, 'cheapest.yaml');
+    const { code, out: text } = await run([
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      'examples/acme/criteria/calibration/claude-council.cassette.json',
+      '--mode',
+      'llm',
+      '--assign',
+      'cheapest',
+      '--out',
+      out,
+    ]);
+    expect(code).toBe(0);
+    expect(text).toMatch(
+      /explicit_confirmation \[gating\]: owned by claude-haiku alone \(system2\), 0\.\d{4} USD per call/,
+    );
+    expect(text).toContain('12 of 12 criteria assigned');
+    expect(await readFile(out, 'utf8')).toContain('rule: cheapest');
+    expect(
+      (
+        await run([
+          'judge',
+          'calibrate',
+          '--criteria',
+          CRITERIA,
+          '--labels',
+          LABELS,
+          '--cassette',
+          CALIBRATION,
+          '--assign',
+          'x',
+          '--out',
+          out,
+        ])
+      ).code,
+    ).toBe(2);
+  });
+
+  it('refuses --only with a name that is not a criterion', async () => {
+    const { code, err } = await run([
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      'examples/acme/criteria/calibration/claude-haiku.cassette.json',
+      '--only',
+      'nobody',
+      '--out',
+      join(scratch, 'n.yaml'),
+    ]);
+    expect(code).toBe(2);
+    expect(err).toContain('--only names no criterion nobody');
+  });
+
+  it('exits 2 without a cassette or a live judge, and on a bad cap', async () => {
+    const base = [
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--out',
+      join(scratch, 'x.yaml'),
+    ];
+    expect((await run(base)).code).toBe(2);
+    expect((await run([...base, '--claude', 'haiku', '--spend-cap-usd', '0'])).code).toBe(2);
+  });
 });

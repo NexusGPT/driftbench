@@ -1,0 +1,11 @@
+# A project config for the Acme sales assistant. Run from the repository root:
+#   pnpm driftbench campaign run --config examples/acme/ci/campaign.yaml --store acme.db
+# Every setting under campaign is the flag of campaign run it names; a flag on the command line wins.
+campaign:
+  specs: [examples/acme/specs/conversations]
+  targets: [function:acme-sales]
+  modes: [T, F]
+  repeats: 2
+  concurrency: 2
+aggregates:
+  - pass-rate:>=0.8

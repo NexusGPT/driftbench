@@ -1,6 +1,7 @@
-import { AgentFailure, type CostUnit, RunResult } from '@driftbench/core';
-import { openMemoryStore, projectCost, cellId as storeCellId } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+import { AgentFailure, type CostUnit, RunResult } from '@agent-nexus/driftbench-core';
+import { mde } from '@agent-nexus/driftbench-stats';
+import { openMemoryStore, projectCost, cellId as storeCellId } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import {
   type CellOutcome,
@@ -129,23 +130,42 @@ describe('planCampaign', () => {
     expect(plan.cost.byAdapter[0]?.usdPerBlock).toBe(0.02);
   });
 
-  it('prints the minimum detectable effect of the two-proportion normal approximation', () => {
+  it('prints the minimum detectable effect of stats.mde, with the specs as the units', () => {
     const plan = planCampaign(loaded, [acme, { adapter: 'http', agent: 'acme' }], ['F'], 3);
     expect(plan.mde).toHaveLength(1);
     expect(plan.mde[0]).toMatchObject({
       mode: 'F',
       runsPerArm: 18,
+      specs: 6,
       baselineRate: 0.5,
+      rho: 0,
+      designEffect: 1,
       alpha: 0.05,
       power: 0.8,
     });
-    // (1.959964 + 0.841621) * sqrt(2 * 0.5 * 0.5 / 18)
-    expect(plan.mde[0]?.effect).toBeCloseTo(0.466931, 5);
-    // 100 goldens x 5 repeats on a 90% pass rate: a drop of 5.3 points, the design note's "5-point drop".
+    expect(plan.mde[0]?.effect).toBe(mde({ n: 6, repeats: 3, baselineRate: 0.5 }).effect);
+    // 6 specs x 5 repeats on a 90% pass rate: 30.9 points.
+    const five = planCampaign(loaded, [acme], ['F'], 5, { baselineRate: 0.9 });
+    expect(five.mde[0]?.effect).toBeCloseTo(0.308915, 5);
+  });
+
+  it('counts repeats through the design effect of a measured rho', () => {
+    const plan = planCampaign(loaded, [acme], ['F'], 5, { baselineRate: 0.9, rho: 0.3 });
+    const want = mde({ n: 6, repeats: 5, baselineRate: 0.9, rho: 0.3 });
+    expect(plan.mde[0]).toMatchObject({ rho: 0.3, designEffect: want.designEffect });
+    expect(plan.mde[0]?.effect).toBe(want.effect);
+    expect(plan.mde[0]?.designEffect).toBeCloseTo(2.2, 12);
+    expect(() => planCampaign(loaded, [acme], ['F'], 5, { rho: 1.5 })).toThrow(/rho/);
+    expect(() => planCampaign(loaded, [acme], ['F'], 5, { rho: -0.1 })).toThrow(RangeError);
+  });
+
+  it('leaves the effect out when no drop below the baseline is detectable', () => {
+    const plan = planCampaign(loaded, [acme], ['F'], 1, { baselineRate: 0.5 });
+    expect(plan.mde[0]?.effect).toBeUndefined();
+    expect(plan.mde[0]?.runsPerArm).toBe(6);
+    // The independent-run approximation stays exported.
     expect(minimumDetectableEffect(500, 0.9)).toBeCloseTo(0.053157, 5);
     expect(minimumDetectableEffect(0)).toBeUndefined();
-    // More runs, smaller effect.
-    expect(minimumDetectableEffect(200) ?? 1).toBeLessThan(minimumDetectableEffect(50) ?? 0);
   });
 });
 
@@ -462,3 +482,42 @@ function specOf(cell: PlannedCell) {
   if (!found) throw new Error(`no spec ${cell.specId}`);
   return found.spec;
 }
+
+describe('runCampaign earlyStop', () => {
+  const plan = planCampaign(loaded, [acme], ['F'], 4);
+  const run = async (wrap: typeof dropsFirstToolCall | undefined, earlyStop: boolean, concurrency = 1) => {
+    const store = openMemoryStore();
+    await putCampaign(store, 'c-early', loaded);
+    const outcomes = await runCampaign({
+      campaignId: 'c-early',
+      cells: plan.cells.filter((cell) => cell.specId === 'acme-plan-upgrade'),
+      specFor: (cell) => specOf(cell),
+      adapterFor: () => acmeAdapter(wrap ? { wrap } : {}),
+      driver: () => createScriptedDriver(),
+      checks: minimalChecks,
+      store,
+      concurrency,
+      earlyStop,
+    });
+    return { outcomes, stored: await store.listRuns({ campaignId: 'c-early' }) };
+  };
+
+  it('stops repeats 2 and 3 of a spec whose first two repeats failed a gating machine check', async () => {
+    for (const concurrency of [1, 4]) {
+      const { outcomes, stored } = await run(dropsFirstToolCall, true, concurrency);
+      expect(outcomes.map((o) => o.state)).toEqual(['fail', 'fail', 'stopped', 'stopped']);
+      expect(outcomes[2]?.earlyStop).toEqual({ after: 2 });
+      expect(outcomes[2]?.run).toBeUndefined();
+      expect(stored).toHaveLength(2);
+    }
+  });
+
+  it('runs every repeat of a passing spec, and every repeat without the option', async () => {
+    const passing = await run(undefined, true);
+    expect(passing.outcomes.map((o) => o.state)).toEqual(['pass', 'pass', 'pass', 'pass']);
+    expect(passing.stored).toHaveLength(4);
+    const off = await run(dropsFirstToolCall, false);
+    expect(off.outcomes.map((o) => o.state)).toEqual(['fail', 'fail', 'fail', 'fail']);
+    expect(off.stored).toHaveLength(4);
+  });
+});

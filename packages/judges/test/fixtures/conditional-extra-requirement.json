@@ -1,0 +1,19 @@
+{
+  "case": {
+    "id": "qa-conditional-4",
+    "family": "conditional",
+    "label": "pass",
+    "question": "State the upload limit, setup fee, and booking duration for Room 75 at Luma Annex. All three must be stated without any current contradiction or extra condition. Equivalent unit conversions are accepted. Only the final submitted answer counts; quotations and superseded drafts are context.",
+    "expert": "Room 75 at Luma Annex has an upload limit of 352 megabits per second, a setup fee of 28 USD, and a booking duration of 10 hours.",
+    "criterion": {
+      "name": "factual_content",
+      "rubric": "State the upload limit, setup fee, and booking duration for Room 75 at Luma Annex. All three must be stated without any current contradiction or extra condition. Equivalent unit conversions are accepted. Only the final submitted answer counts; quotations and superseded drafts are context. Trusted reference: Room 75 at Luma Annex has an upload limit of 352 megabits per second, a setup fee of 28 USD, and a booking duration of 10 hours.",
+      "pass": "All three requested facts are present and correct for the requested entity, without a current contradiction or added condition.",
+      "fail": "Any requested fact is wrong, missing, negated, attributed only to a quotation, or limited by an extra condition. A correct quotation does not repair a wrong final answer."
+    },
+    "submission": "Room 75 at Luma Annex has an upload limit of 352 megabits per second, a setup fee of 28 USD, and a booking duration of 10 hours. No extra membership or survey is required."
+  },
+  "recordingHash": "a8b4049fbfe8607c7c5b829aed192077ec9e449958ff0fabff7269e32b060a42",
+  "text": "{\"checks\":[{\"requirement\":\"States the upload limit for Room 75 at Luma Annex as 352 megabits per second.\",\"status\":\"satisfied\",\"evidence\":\"Room 75 at Luma Annex has an upload limit of 352 megabits per second\",\"reasoning\":\"The submission gives the upload limit as 352 megabits per second for the requested entity, matching the trusted reference.\"},{\"requirement\":\"States the setup fee for Room 75 at Luma Annex as 28 USD.\",\"status\":\"satisfied\",\"evidence\":\"a setup fee of 28 USD\",\"reasoning\":\"The submission gives the setup fee as 28 USD for Room 75 at Luma Annex, matching the trusted reference.\"},{\"requirement\":\"States the booking duration for Room 75 at Luma Annex as 10 hours.\",\"status\":\"satisfied\",\"evidence\":\"a booking duration of 10 hours\",\"reasoning\":\"The submission gives the booking duration as 10 hours for Room 75 at Luma Annex, matching the trusted reference.\"},{\"requirement\":\"Contains no current contradiction of the three requested facts.\",\"status\":\"satisfied\",\"evidence\":\"Room 75 at Luma Annex has an upload limit of 352 megabits per second, a setup fee of 28 USD, and a booking duration of 10 hours.\",\"reasoning\":\"The submission contains only one set of values for the three facts, and none of them conflicts with another statement in the submission.\"},{\"requirement\":\"Does not limit the requested facts by an added condition.\",\"status\":\"satisfied\",\"evidence\":\"No extra membership or survey is required.\",\"reasoning\":\"This sentence states the absence of a condition rather than imposing one, so it does not add a condition to the three facts.\"},{\"requirement\":\"Establishes that no extra membership or survey is required, which the trusted reference does not address.\",\"status\":\"unknown\",\"evidence\":\"No extra membership or survey is required.\",\"reasoning\":\"The supplied reference covers only the upload limit, setup fee, and booking duration, so it cannot confirm or refute this additional claim about access requirements.\"}]}",
+  "source": "Inspect hard audit recording"
+}

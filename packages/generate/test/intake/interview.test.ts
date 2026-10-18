@@ -50,7 +50,7 @@ describe('renderQuestionnaire', () => {
     const loaded = await loadIntakeMap(`${ACME}map/approved.yaml`);
     if (!loaded.ok) throw new Error(loaded.errors.join('\n'));
     const raw = parseYaml(renderQuestionnaire(loaded.map, '../map/approved.yaml')) as Record<string, unknown>;
-    expect((raw.examples as unknown[]).length).toBe(11);
+    expect((raw.examples as unknown[]).length).toBe(13);
     expect((raw.intents as Array<{ value: string }>).map((entry) => entry.value)).toContain('price-sheet');
   });
 });

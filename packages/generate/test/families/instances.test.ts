@@ -1,7 +1,8 @@
 import { mkdtemp, readdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { canonicalJson, loadSpecFile, type Spec, validateSpec } from '@driftbench/core';
+import { readWorkbook } from '@agent-nexus/driftbench-artifacts';
+import { canonicalJson, loadSpecFile, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   type BuildOptions,
@@ -138,6 +139,29 @@ describe('family instances', () => {
   });
 });
 
+describe('blocks that hold in some instances only', () => {
+  it('builds an instance from the blocks its knobs keep, and refuses knobs that keep none', async () => {
+    const only = await load(
+      await writeFamily(
+        TOY_FAMILY.replace(
+          '  - id: total\n    stage: total',
+          '  - id: total\n    when: { format: [csv, json] }\n    stage: total',
+        ),
+      ),
+    );
+    expect((await buildInstances(only, options({ n: 2 }))).length).toBe(2);
+    const none = await load(
+      await writeFamily(
+        TOY_FAMILY.replace(
+          '  - id: total\n    stage: total',
+          '  - id: total\n    when: { format: csv }\n    stage: total',
+        ),
+      ),
+    );
+    await expect(buildInstances(none, options({ n: 12 }))).rejects.toThrow(/leave it no block/);
+  });
+});
+
 describe('the Acme price-sheet family', () => {
   it('builds 20 instances whose every style alternative keeps the expected outcome', async () => {
     const loaded = await load(ACME_FAMILY);
@@ -174,6 +198,65 @@ describe('the Acme price-sheet family', () => {
       expect(base.blocks[0]?.user).toContain(listed);
       expect(base.blocks[0]?.user).toContain(String(instance.knobs.workbook));
       expect(base.blocks.length).toBe(instance.knobs.summary === 'with' ? 2 : 1);
+    }
+  });
+});
+
+describe('the Acme price-sheet family, starting from an existing workbook', () => {
+  it('seeds the workbook the oracle expects and asks only for the summary, on the add_summary stage', async () => {
+    const loaded = await load(ACME_FAMILY);
+    const instances = await buildInstances(loaded, options({ n: 20, seed: 1 }));
+    const existing = instances.filter((instance) => instance.knobs.start === 'existing-workbook');
+    expect(existing.length).toBeGreaterThan(0);
+    expect(instances.some((instance) => instance.knobs.start === 'catalog-only')).toBe(true);
+    const { expected } = (await import(join(ACME_FAMILY, 'oracle.mjs'))) as {
+      expected: (input: unknown) => {
+        blocks: Record<
+          string,
+          {
+            files: Array<{
+              path: string;
+              sheets: Array<{ name: string; header: string[]; rows: unknown[][] }>;
+            }>;
+            workspace: unknown;
+          }
+        >;
+      };
+    };
+    for (const instance of existing) {
+      expect(instance.knobs.summary).toBe('with');
+      expect(instance.knobs.planted).toBe('without');
+      const workbook = String(instance.knobs.workbook);
+      for (const variant of instance.variants) {
+        const spec = variant.spec as {
+          blocks: Array<{ id: string }>;
+          stages: string[];
+          workspace_seed: unknown;
+        };
+        expect(spec.blocks.map((block) => block.id)).toEqual(['summary']);
+        expect(variant.blocks.map((block) => block.stage)).toEqual(['add_summary']);
+        expect(spec.workspace_seed).toEqual({ from: `generated/${instance.name}/.seed-${variant.id}` });
+        const bytes = variant.seed.binary[workbook];
+        expect(bytes, `${instance.name}/${variant.id} seeds ${workbook}`).toBeDefined();
+        const oracle = expected({
+          files: variant.seed.text,
+          binary: variant.seed.binary,
+          knobs: instance.knobs,
+          blocks: ['summary'],
+        });
+        expect(oracle.blocks.summary?.workspace).toEqual({ created: [], changed: [workbook], deleted: [] });
+        const want = (oracle.blocks.summary?.files[0]?.sheets ?? []).slice(0, -1);
+        const read = await readWorkbook(bytes as Uint8Array);
+        expect(read.map((sheet) => sheet.label)).toEqual(want.map((sheet) => sheet.name));
+        for (const [index, sheet] of want.entries()) {
+          const got = read[index];
+          const cells = (row: number, width: number) =>
+            Array.from({ length: width }, (_, column) => got?.cell(row, column + 1)?.value ?? '');
+          expect(cells(1, sheet.header.length)).toEqual(sheet.header);
+          for (const [at, row] of sheet.rows.entries()) expect(cells(at + 2, row.length)).toEqual(row);
+          expect(got?.rowCount).toBe(sheet.rows.length + 1);
+        }
+      }
     }
   });
 });

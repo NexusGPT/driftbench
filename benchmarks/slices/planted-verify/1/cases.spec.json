@@ -1,0 +1,4384 @@
+{
+  "id": "planted-verify",
+  "version": "1",
+  "kind": "conversation",
+  "blocks": [
+    {
+      "user": "Benchmark cases are in metadata.bench."
+    }
+  ],
+  "metadata": {
+    "bench": [
+      {
+        "id": "verify-bank-000/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( [ { ("
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: ) } ] )"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-000/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( [ { ("
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: ) } ] ]"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-001/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 10 marbles numbered 10 through 19 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 29"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-001/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 10 marbles numbered 10 through 19 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 30"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-002/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 13013, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 7, 11, 13, 13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-002/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 13013, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 7, 11, 13, 15"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-003/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 2 different integers are chosen uniformly from 10 through 39, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 20/29"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-003/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 2 different integers are chosen uniformly from 10 through 39, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2029/2900"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-004/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 70% of its original price. It then reduces the sale price by 10%, then reduces that price by 15%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 1071/20%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-004/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 70% of its original price. It then reduces the sale price by 10%, then reduces that price by 15%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 1091/20%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-005/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 9 and 9^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 15/16"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-005/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 9 and 9^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 19/16"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-006/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (2,0) and the line x=-2. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 8x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-006/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (2,0) and the line x=-2. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 12x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-007/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(2,3). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(4/9,9/16)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-007/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(2,3). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(13/9,9/16)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-008/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma0 is a yellow swan. Nori0 is a rhino. No color rule is stated. What color is Nori0?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is not specified."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-008/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma0 is a yellow swan. Nori0 is a rhino. No color rule is stated. What color is Nori0?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is yellow."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-009/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 24 = 5*n. Suppose 0 = -4*f + 2*q + 20, and f + 2*q = 0. Let b be (f/n)/(1/4). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 4/3"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-009/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 24 = 5*n. Suppose 0 = -4*f + 2*q + 20, and f + 2*q = 0. Let b be (f/n)/(1/4). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 7/3"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-010/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( [ { < <"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: > > } ] )"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-010/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( [ { < <"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: > > } ] ]"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-011/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 10 marbles numbered 3 through 12 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 15"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-011/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 10 marbles numbered 3 through 12 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 16"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-012/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 3465, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 3, 3, 5, 7, 11"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-012/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 3465, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 3, 3, 5, 7, 13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-013/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3 different integers are chosen uniformly from 10 through 49, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 100/247"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-013/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3 different integers are chosen uniformly from 10 through 49, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 10247/24700"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-014/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 71% of its original price. It then reduces the sale price by 11%, then reduces that price by 16%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 132699/2500%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-014/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 71% of its original price. It then reduces the sale price by 11%, then reduces that price by 16%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 135199/2500%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-015/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 27 and 27^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 20/9"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-015/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 27 and 27^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 89/36"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-016/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (3,0) and the line x=-3. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 12x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-016/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (3,0) and the line x=-3. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 16x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-017/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(3,4). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(9/16,16/25)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-017/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(3,4). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(25/16,16/25)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-018/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma1 is a yellow swan. Nori1 is a rhino. No color rule is stated. What color is Nori1?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is not specified."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-018/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma1 is a yellow swan. Nori1 is a rhino. No color rule is stated. What color is Nori1?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is yellow."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-019/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 32 = 5*n. Suppose 0 = -4*f + 2*q + 30, and f + 2*q = 0. Let b be (f/n)/(1/14). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 21/4"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-019/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 32 = 5*n. Suppose 0 = -4*f + 2*q + 30, and f + 2*q = 0. Let b be (f/n)/(1/14). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 25/4"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-020/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { { [ { < ["
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: ] > } ] } }"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-020/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { { [ { < ["
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: ] > } ] } )"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-021/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 5 marbles numbered 15 through 19 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 34"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-021/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 5 marbles numbered 15 through 19 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 35"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-022/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 55770, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2, 3, 5, 11, 13, 13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-022/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 55770, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2, 3, 5, 11, 13, 15"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-023/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 2 different integers are chosen uniformly from 10 through 59, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 40/49"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-023/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 2 different integers are chosen uniformly from 10 through 59, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 4049/4900"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-024/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 72% of its original price. It then reduces the sale price by 12%, then reduces that price by 17%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 32868/625%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-024/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 72% of its original price. It then reduces the sale price by 12%, then reduces that price by 17%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 33493/625%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-025/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 81 and 81^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 255/64"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-025/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 81 and 81^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 271/64"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-026/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (4,0) and the line x=-4. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 16x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-026/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (4,0) and the line x=-4. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 20x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-027/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(4,5). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(16/25,25/36)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-027/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(4,5). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(41/25,25/36)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-028/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma2 is a yellow swan. Nori2 is a rhino. No color rule is stated. What color is Nori2?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is not specified."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-028/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma2 is a yellow swan. Nori2 is a rhino. No color rule is stated. What color is Nori2?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is yellow."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-029/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 28 = 5*n. Suppose 0 = -4*f + 2*q + 25, and f + 2*q = 0. Let b be (f/n)/(1/13). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 65/14"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-029/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 28 = 5*n. Suppose 0 = -4*f + 2*q + 25, and f + 2*q = 0. Let b be (f/n)/(1/13). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 79/14"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-030/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: [ [ ( [ < ( ("
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: ) ) > ] ) ] ]"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-030/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: [ [ ( [ < ( ("
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: ) ) > ] ) ] )"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-031/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 9 marbles numbered 5 through 13 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 18"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-031/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 9 marbles numbered 5 through 13 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 19"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-032/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 858, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2, 3, 11, 13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-032/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 858, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2, 3, 11, 15"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-033/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3 different integers are chosen uniformly from 10 through 69, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 1000/1711"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-033/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3 different integers are chosen uniformly from 10 through 69, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 101711/171100"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-034/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 73% of its original price. It then reduces the sale price by 13%, then reduces that price by 18%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 260391/5000%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-034/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 73% of its original price. It then reduces the sale price by 13%, then reduces that price by 18%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 265391/5000%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-035/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 243 and 243^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 156/25"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-035/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 243 and 243^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 649/100"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-036/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (5,0) and the line x=-5. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 20x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-036/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (5,0) and the line x=-5. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 24x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-037/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(5,6). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(25/36,36/49)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-037/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(5,6). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(61/36,36/49)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-038/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma3 is a yellow swan. Nori3 is a rhino. No color rule is stated. What color is Nori3?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is not specified."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-038/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma3 is a yellow swan. Nori3 is a rhino. No color rule is stated. What color is Nori3?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is yellow."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-039/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 32 = 5*n. Suppose 0 = -4*f + 2*q + 40, and f + 2*q = 0. Let b be (f/n)/(1/2). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 1"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-039/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 32 = 5*n. Suppose 0 = -4*f + 2*q + 40, and f + 2*q = 0. Let b be (f/n)/(1/2). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-040/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { ( ( < < < ( {"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: } ) > > > ) ) }"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-040/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { ( ( < < < ( {"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: } ) > > > ) ) )"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-041/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 11 marbles numbered 7 through 17 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 24"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-041/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 11 marbles numbered 7 through 17 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 25"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-042/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 10725, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 3, 5, 5, 11, 13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-042/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 10725, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 3, 5, 5, 11, 15"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-043/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 2 different integers are chosen uniformly from 10 through 79, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 20/23"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-043/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 2 different integers are chosen uniformly from 10 through 79, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2023/2300"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-044/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 74% of its original price. It then reduces the sale price by 14%, then reduces that price by 19%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 128871/2500%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-044/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 74% of its original price. It then reduces the sale price by 14%, then reduces that price by 19%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 131371/2500%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-045/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 729 and 729^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 1295/144"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-045/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 729 and 729^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 1331/144"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-046/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (6,0) and the line x=-6. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 24x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-046/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (6,0) and the line x=-6. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 28x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-047/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(6,7). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(36/49,49/64)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-047/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(6,7). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(85/49,49/64)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-048/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma4 is a yellow swan. Nori4 is a rhino. No color rule is stated. What color is Nori4?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is not specified."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-048/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma4 is a yellow swan. Nori4 is a rhino. No color rule is stated. What color is Nori4?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is yellow."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-049/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 36 = 5*n. Suppose 0 = -4*f + 2*q + 20, and f + 2*q = 0. Let b be (f/n)/(1/6). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 4/3"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-049/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 36 = 5*n. Suppose 0 = -4*f + 2*q + 20, and f + 2*q = 0. Let b be (f/n)/(1/6). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 7/3"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-050/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { ( < ( < < { { ["
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: ] } } > > ) > ) }"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-050/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { ( < ( < < { { ["
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: ] } } > > ) > ) )"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-051/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 8 marbles numbered 11 through 18 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 29"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-051/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 8 marbles numbered 11 through 18 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 30"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-052/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 38025, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 3, 3, 5, 5, 13, 13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-052/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 38025, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 3, 3, 5, 5, 13, 15"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-053/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3 different integers are chosen uniformly from 10 through 89, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 700/1027"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-053/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3 different integers are chosen uniformly from 10 through 89, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 71027/102700"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-054/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 75% of its original price. It then reduces the sale price by 15%, then reduces that price by 20%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 51%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-054/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 75% of its original price. It then reduces the sale price by 15%, then reduces that price by 20%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 52%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-055/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 2187 and 2187^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 600/49"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-055/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 2187 and 2187^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2449/196"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-056/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (7,0) and the line x=-7. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 28x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-056/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (7,0) and the line x=-7. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 32x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-057/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(7,8). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(49/64,64/81)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-057/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(7,8). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(113/64,64/81)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-058/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma5 is a yellow swan. Nori5 is a rhino. No color rule is stated. What color is Nori5?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is not specified."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-058/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma5 is a yellow swan. Nori5 is a rhino. No color rule is stated. What color is Nori5?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is yellow."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-059/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 44 = 5*n. Suppose 0 = -4*f + 2*q + 60, and f + 2*q = 0. Let b be (f/n)/(1/5). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 30/11"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-059/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 44 = 5*n. Suppose 0 = -4*f + 2*q + 60, and f + 2*q = 0. Let b be (f/n)/(1/5). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 41/11"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-060/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { [ { ( < ( [ { ( {"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: } ) } ] ) > ) } ] }"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-060/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { [ { ( < ( [ { ( {"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: } ) } ] ) > ) } ] )"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-061/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 14 marbles numbered 12 through 25 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 37"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-061/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 14 marbles numbered 12 through 25 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 38"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-062/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 770, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2, 5, 7, 11"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-062/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 770, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2, 5, 7, 13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-063/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 2 different integers are chosen uniformly from 10 through 39, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 20/29"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-063/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 2 different integers are chosen uniformly from 10 through 39, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2029/2900"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-064/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 76% of its original price. It then reduces the sale price by 16%, then reduces that price by 21%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 31521/625%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-064/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 76% of its original price. It then reduces the sale price by 16%, then reduces that price by 21%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 32146/625%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-065/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 6561 and 6561^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 4095/256"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-065/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 6561 and 6561^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 4159/256"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-066/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (8,0) and the line x=-8. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 32x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-066/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (8,0) and the line x=-8. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 36x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-067/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(8,9). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(64/81,81/100)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-067/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(8,9). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(145/81,81/100)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-068/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma6 is a yellow swan. Nori6 is a rhino. No color rule is stated. What color is Nori6?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is not specified."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-068/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma6 is a yellow swan. Nori6 is a rhino. No color rule is stated. What color is Nori6?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is yellow."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-069/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 34 = 5*n. Suppose 0 = -4*f + 2*q + 40, and f + 2*q = 0. Let b be (f/n)/(1/7). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 56/17"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-069/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 34 = 5*n. Suppose 0 = -4*f + 2*q + 40, and f + 2*q = 0. Let b be (f/n)/(1/7). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 73/17"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-070/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: [ [ < [ ( { { [ ( ( ["
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: ] ) ) ] } } ) ] > ] ]"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-070/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: [ [ < [ ( { { [ ( ( ["
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: ] ) ) ] } } ) ] > ] )"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-071/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 12 marbles numbered 9 through 20 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 29"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-071/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 12 marbles numbered 9 through 20 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 30"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-072/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 7623, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 3, 3, 7, 11, 11"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-072/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 7623, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 3, 3, 7, 11, 13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-073/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3 different integers are chosen uniformly from 10 through 49, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 100/247"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-073/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3 different integers are chosen uniformly from 10 through 49, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 10247/24700"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-074/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 77% of its original price. It then reduces the sale price by 17%, then reduces that price by 22%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 249249/5000%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-074/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 77% of its original price. It then reduces the sale price by 17%, then reduces that price by 22%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 254249/5000%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-075/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 19683 and 19683^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 1640/81"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-075/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 19683 and 19683^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 6641/324"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-076/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (9,0) and the line x=-9. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 36x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-076/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (9,0) and the line x=-9. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 40x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-077/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(9,10). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(81/100,100/121)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-077/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(9,10). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(181/100,100/121)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-078/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma7 is a yellow swan. Nori7 is a rhino. No color rule is stated. What color is Nori7?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is not specified."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-078/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma7 is a yellow swan. Nori7 is a rhino. No color rule is stated. What color is Nori7?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is yellow."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-079/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 46 = 5*n. Suppose 0 = -4*f + 2*q + 50, and f + 2*q = 0. Let b be (f/n)/(1/2). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 20/23"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-079/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 46 = 5*n. Suppose 0 = -4*f + 2*q + 50, and f + 2*q = 0. Let b be (f/n)/(1/2). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 43/23"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-080/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: [ < ( [ ( { < ( ( [ < <"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: > > ] ) ) > } ) ] ) > ]"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-080/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: [ < ( [ ( { < ( ( [ < <"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: > > ] ) ) > } ) ] ) > )"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-081/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 13 marbles numbered 17 through 29 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 46"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-081/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 13 marbles numbered 17 through 29 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 47"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-082/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 53235, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 3, 3, 5, 7, 13, 13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-082/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 53235, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 3, 3, 5, 7, 13, 15"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-083/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 2 different integers are chosen uniformly from 10 through 59, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 40/49"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-083/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 2 different integers are chosen uniformly from 10 through 59, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 4049/4900"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-084/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 78% of its original price. It then reduces the sale price by 18%, then reduces that price by 23%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 123123/2500%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-084/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 78% of its original price. It then reduces the sale price by 18%, then reduces that price by 23%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 125623/2500%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-085/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 59049 and 59049^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 9999/400"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-085/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "If 3^(x+y) = 59049 and 59049^(x-y) = 3, what is xy? Express the answer as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 10099/400"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-086/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (10,0) and the line x=-10. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 40x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-086/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A moving point (x,y) is equally distant from the point (10,0) and the line x=-10. Find its locus equation."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: y^2 = 44x"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-087/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(10,11). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(100/121,121/144)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-087/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A^(-1) is the diagonal matrix diag(10,11). Find the inverse of (A+I)^2."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: diag(221/121,121/144)"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-088/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma8 is a yellow swan. Nori8 is a rhino. No color rule is stated. What color is Nori8?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is not specified."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-088/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "In a fictional world, Luma8 is a yellow swan. Nori8 is a rhino. No color rule is stated. What color is Nori8?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: The color is yellow."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-089/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 26 = 5*n. Suppose 0 = -4*f + 2*q + 20, and f + 2*q = 0. Let b be (f/n)/(1/3). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 12/13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-089/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3*n + 26 = 5*n. Suppose 0 = -4*f + 2*q + 20, and f + 2*q = 0. Let b be (f/n)/(1/3). Give the value of b as a fraction."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 25/13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-090/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( ( < < < [ < [ ( [ < [ {"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: } ] > ] ) ] > ] > > > ) )"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-090/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( ( < < < [ < [ ( [ < [ {"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: } ] > ] ) ] > ] > > > ) ]"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-091/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 8 marbles numbered 20 through 27 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 47"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-091/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "I have 8 marbles numbered 20 through 27 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 48"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-092/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 2002, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2, 7, 11, 13"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-092/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "List all prime factors of 2002, including repetitions, in ascending order."
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 2, 7, 11, 15"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-093/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3 different integers are chosen uniformly from 10 through 69, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 1000/1711"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-093/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Suppose 3 different integers are chosen uniformly from 10 through 69, inclusive. What is the probability that they each have a different tens digit?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 101711/171100"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-094/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 79% of its original price. It then reduces the sale price by 19%, then reduces that price by 24%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 121581/2500%"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "verify-bank-094/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-verify",
+            "rubric": "The response correctly and completely satisfies the objective requirements in the user request.",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "A fictional shop sells a shirt at 79% of its original price. It then reduces the sale price by 19%, then reduces that price by 24%. What is the final price as a percentage of the original price?"
+            },
+            {
+              "role": "agent",
+              "text": "Final answer: 124081/2500%"
+            }
+          ],
+          "inputs": []
+        }
+      }
+    ]
+  }
+}

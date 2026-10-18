@@ -1,0 +1,27 @@
+{
+  "base": "71c2603998ad438bc83e665a3d615a93a321bf46",
+  "requests": 1440,
+  "promptFingerprint": "398673b792c1",
+  "defaultSystemBytesIdentical": true,
+  "renderedPromptsAndKeysIdentical": true,
+  "featureSourceCommit": "b97fe578",
+  "focusedTests": {
+    "files": 3,
+    "passed": 77,
+    "command": "pnpm exec vitest run packages/judges/test/response-relevance.test.ts packages/judges/test/legacy-main.test.ts packages/judges/test/cassette.test.ts --maxWorkers=2 --testTimeout=30000"
+  },
+  "legacyCassetteEntries": 1028,
+  "redFirst": {
+    "initialFeatureFailures": 28,
+    "initialFeatureTests": 48,
+    "symbolFailures": 3,
+    "providerTruncationFailures": 1
+  },
+  "packageBuild": true,
+  "repositoryTypecheck": true,
+  "builtPackageSmoke": {
+    "builtPackageApi": true,
+    "calls": 1,
+    "outcome": "pass"
+  }
+}

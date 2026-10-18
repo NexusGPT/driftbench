@@ -1,5 +1,5 @@
-import { openMemoryStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import { analysePilot, type PlantedCheck } from '../../src/pilot/analyse';
 import { designPilot, pilotFactors } from '../../src/pilot/design';

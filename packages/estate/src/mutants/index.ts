@@ -8,4 +8,5 @@ export {
   type MutantResult,
   type MutationOp,
   mutateEstate,
+  parseJsonRanges,
 } from './mutate';

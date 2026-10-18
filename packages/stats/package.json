@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/stats",
+  "name": "@agent-nexus/driftbench-stats",
   "version": "0.1.0",
   "description": "Statistics for agent evaluation: intervals, reliability, paired tests, multiple comparisons, power, non-inferiority, drift, agreement and variance components.",
   "keywords": [
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/stats"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -35,6 +35,8 @@
     }
   },
   "files": [
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
     "dist"
   ],
   "scripts": {

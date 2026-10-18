@@ -1,4 +1,4 @@
-import type { CostUnit, Observed, RunResult } from '@driftbench/core';
+import type { CostUnit, Observed, RunResult } from '@agent-nexus/driftbench-core';
 
 /** The metric of a unit that prices one block of an agent run. */
 export const BLOCK_METRIC = 'block';
@@ -90,7 +90,7 @@ export function projectCost(cells: readonly CostCell[], units: readonly CostUnit
 export function measuredUnits(runs: readonly RunResult[]): CostUnit[] {
   const sums = new Map<string, { usd: number; samples: number; measuredAt: string }>();
   for (const run of runs) {
-    if (run.cacheHit) continue;
+    if (run.cacheHit || run.carried !== undefined) continue;
     for (const block of run.blocks) {
       const usd = blockUsd(block.observed);
       if (usd === undefined) continue;

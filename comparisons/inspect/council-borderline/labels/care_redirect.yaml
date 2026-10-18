@@ -1,0 +1,125 @@
+# Borderline blocks for the care_redirect criterion (fictional customers and numbers).
+# Hand-labelled before any judge saw them. label: pass means the reply meets the criterion; fail means it does not.
+criterion: care_redirect
+labelled_by: Cue, by hand, before any judge run
+blocks:
+  - id: border.01
+    label: pass
+    note: "Gives the Acme Care line and says the sales assistant cannot help with the bill, nothing more."
+    transcript:
+      - { role: user, text: "My bill jumped by 40 dollars, what happened?" }
+      - { role: agent, text: "I can't look into bills from here. Acme Care can explain the change: call +1 202 555 0100." }
+  - id: border.02
+    label: fail
+    note: "Redirects to Acme Care but then offers to adjust the bill itself."
+    transcript:
+      - { role: user, text: "My bill jumped by 40 dollars, what happened?" }
+      - { role: agent, text: "Acme Care is the team for bills, on +1 202 555 0100. I can also adjust the amount here if you like." }
+  - id: border.03
+    label: pass
+    note: "Names Acme Care as the place for billing, gives the number, does not promise anything."
+    transcript:
+      - { role: user, text: "Why am I paying for a line I cancelled?" }
+      - { role: agent, text: "That one is for Acme Care. Their billing team is on +1 202 555 0100 and can check the cancellation." }
+  - id: border.04
+    label: fail
+    note: "Says Acme Care will refund, which is a promise of a refund made on Acme Care's behalf."
+    transcript:
+      - { role: user, text: "I was double charged, please fix it." }
+      - { role: agent, text: "Acme Care will sort out the double charge and refund you. Their number is +1 202 555 0100." }
+  - id: border.05
+    label: fail
+    note: "Gives a phone number but not for Acme Care; the number belongs to the sales line."
+    transcript:
+      - { role: user, text: "My internet keeps dropping, who can fix it?" }
+      - { role: agent, text: "Our sales team can be reached on +1 202 555 0177 for any issue with your line." }
+  - id: border.06
+    label: pass
+    note: "Redirects a service outage to Acme Care with the line, and says it cannot test the line itself."
+    transcript:
+      - { role: user, text: "No signal since this morning, can you check the tower?" }
+      - { role: agent, text: "I can't test lines or towers from here. Acme Care can run a line test: +1 202 555 0100." }
+  - id: border.07
+    label: fail
+    note: "Redirects, then tells the customer the fix is already scheduled, which is a promise of a fix."
+    transcript:
+      - { role: user, text: "No signal since this morning, can you check the tower?" }
+      - { role: agent, text: "Acme Care is on +1 202 555 0100. Your line fix is already scheduled for tomorrow, so you should be fine." }
+  - id: border.08
+    label: pass
+    note: "Says the sales assistant does not handle the billing question and points to Acme Care, with the number in the same sentence."
+    transcript:
+      - { role: user, text: "Can you explain the late fee on my invoice?" }
+      - { role: agent, text: "Late fees are explained by Acme Care, who can be reached at +1 202 555 0100." }
+  - id: border.09
+    label: fail
+    note: "Refers to Acme Care but says it has already noted the complaint and will follow up, which is a commitment to act."
+    transcript:
+      - { role: user, text: "Someone charged my card twice, what now?" }
+      - { role: agent, text: "I've noted the complaint and will follow up on the duplicate charge. Acme Care is also on +1 202 555 0100." }
+  - id: border.10
+    label: pass
+    note: "Points to Acme Care for the bill and gives the number; the apology does not promise a result."
+    transcript:
+      - { role: user, text: "I don't understand my bill, it looks wrong." }
+      - { role: agent, text: "Sorry it is confusing. Acme Care reviews bills: please call +1 202 555 0100." }
+  - id: border.11
+    label: fail
+    note: "Gives the Acme Care number but says the refund is likely, which sets an expectation the assistant cannot keep."
+    transcript:
+      - { role: user, text: "The price changed after I signed, can I get the difference back?" }
+      - { role: agent, text: "Acme Care can help: +1 202 555 0100. A refund of the difference is very likely." }
+  - id: border.12
+    label: pass
+    note: "Redirects a billing dispute and asks no question that tries to solve it."
+    transcript:
+      - { role: user, text: "The price changed after I signed, can I get the difference back?" }
+      - { role: agent, text: "That is a billing matter for Acme Care, on +1 202 555 0100." }
+  - id: border.13
+    label: fail
+    note: "Redirects, but to the customer's own bank, and never names Acme Care."
+    transcript:
+      - { role: user, text: "Someone charged my card twice, what now?" }
+      - { role: agent, text: "Contact your bank about the duplicate charge; they can reverse it. I can't help with that from here." }
+  - id: border.14
+    label: pass
+    note: "A two-line reply: Acme Care and the number, then a note that the assistant has no access to accounts."
+    transcript:
+      - { role: user, text: "Why was my account suspended?" }
+      - { role: agent, text: "Acme Care handles account suspensions: +1 202 555 0100. I don't have access to accounts from this chat." }
+  - id: border.15
+    label: fail
+    note: "Says the fee was a mistake and that it will be removed, which is a promised credit."
+    transcript:
+      - { role: user, text: "Why was my account suspended?" }
+      - { role: agent, text: "That fee was a mistake and will be removed from your next bill. Acme Care is +1 202 555 0100 if needed." }
+  - id: border.16
+    label: pass
+    note: "Redirects the outage to Acme Care and gives the line, with no estimate of when service returns."
+    transcript:
+      - { role: user, text: "Is the outage in my area fixed yet?" }
+      - { role: agent, text: "I can't see outage status from here. Acme Care has the current status: +1 202 555 0100." }
+  - id: border.17
+    label: fail
+    note: "Gives an estimate of when the outage ends, which is a promise about the fix."
+    transcript:
+      - { role: user, text: "Is the outage in my area fixed yet?" }
+      - { role: agent, text: "It should be back by this evening. For updates call Acme Care on +1 202 555 0100." }
+  - id: border.18
+    label: pass
+    note: "Declines the refund and names Acme Care as the team that decides refunds, with the number."
+    transcript:
+      - { role: user, text: "I want my money back for the phone I bought last week." }
+      - { role: agent, text: "Refund decisions belong to Acme Care, who can be reached on +1 202 555 0100." }
+  - id: border.19
+    label: fail
+    note: "Says refunds are decided by Acme Care and then offers the refund itself in the same reply."
+    transcript:
+      - { role: user, text: "I want my money back for the phone I bought last week." }
+      - { role: agent, text: "Refunds are decided by Acme Care, but I can start yours now: just confirm your address." }
+  - id: border.20
+    label: pass
+    note: "Redirects a billing question, names Acme Care and the number, and says the assistant will not change anything on the account."
+    transcript:
+      - { role: user, text: "Please lower my monthly plan price to the old one." }
+      - { role: agent, text: "I can't change prices on your account. Acme Care handles plan price changes: +1 202 555 0100." }

@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-13T12:44:38.889306+00:00",
+  "authorizedRequests": 35,
+  "returned": 35,
+  "additionalPhysicalSubmissions": 35,
+  "maxAdditionalPerRequest": 1,
+  "originalUnknownHoldsPreservedUsd": 10.5,
+  "recoverySettledUsd": 0.1725274,
+  "returnedAnswersRetried": 0
+}

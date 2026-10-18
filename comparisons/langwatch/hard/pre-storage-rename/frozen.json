@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-10-12T22:04:29.608Z",
+  "label": "not yet the shipped default",
+  "seed": 20261013,
+  "minimumCases": 60,
+  "noHeldoutTuning": true,
+  "sourceHashes": {
+    "detector-audit.mts": "ded0d536355386e86fe5f645a470dbcc08edf6e827d42fb1048e4822e71837a0",
+    "judges.mts": "7794acf09c37455dcdf14935a443fc9a51fd0640ac2a62db42ac63cea2b4a88e",
+    "simulator.mts": "f31d573f49faa01502032d07b19d6676a1b58df5a368e3c8bd8177e69b39c4a3",
+    "pairwise.mts": "ad431ee8812f56baff4271cf169f03196f9c6c75726e504f05b944b9a51d6725",
+    "../pairwise/audit.ts": "ced25ba89cfa65a6d9c1b890fc036fd8880aeb378b8d4145e3eaac8563f7a7d1",
+    "../pairwise/audit-runner.mts": "5462628d57c856961ec1065231b98723b51f650053019ae6b2b0e2a42e4c89bb"
+  },
+  "fixtureHashes": {
+    "judges-heldout-v4.json": "14867e06cbad34b2a437a5d84883de201c781b869babd4fcc25bdb6e5f46b60f",
+    "simulator-heldout.json": "1bf95dd578ce28f74801bf8c9adcd924b3ef5fd1c510d95adadbdfe5568b7fce",
+    "pii/heldout.json": "645947560b8055bd6ed053b6f36ae93d0dca107158972e692e40d5168ce22dc5",
+    "injection/heldout.json": "50968b8daad23a62bf372e4725417068b50151b522b32475ec1e581f71d5f9a5",
+    "pairwise-heldout.json": "5272f7332d61e8dc434fe13db2df239a4f04d119e034360111d5d40de7704d88"
+  },
+  "promptHashes": {
+    "pii": "5d32922c5268261ae79727e8a2d15024666c4e6c8814912cd691641ab5a5ead0",
+    "injection": "39899ceb9568885884dcdcc9a6870feecae885f53e1ae3e0e7e3141fe9b07fcf",
+    "judges": "e9ef2c7ff4379803690ddc89fef8e7c89d2de484618aab2684caea71632020b5",
+    "simulatorIntent": "31b42affb32efa7290cc224bc5826eb70a04cd9a8f8b6e4fec71c759f89fb588",
+    "pairwiseAudit": "3af0b400ba654e4ea1315249d30aa2f857fee3116dfe24ff97a3cf732dfbc4b2",
+    "pairwiseLedger": "cab22b30959c623ad4bccce8c06fdf3b2086e3e5d8f730b92b8056d1895b3c25"
+  },
+  "decoderHashes": {
+    "detectorPrediction": "47eb572c1933401b650cd6f68164d0d8d7b13ebb2959123ea9b32594c8cb5e6c",
+    "auditPrediction": "a93081dd51e64f020c4e43aff3d40eb4bbd1fdb469adbc84cf187cfa36fbac4f",
+    "combineAudit": "be46c4c11fd2832e9108d9111c5117fdca4a1d0099baee318d2c8f43801fef81",
+    "parseAudit": "b94044383083fe8d997445fa69240376b1a4100d05599f99c82d764aa69e399c",
+    "parseLedger": "c78c7ea896076cace9d83d6f3ecac2473e326c22d908797eeec20d43b76ba102"
+  },
+  "note": "Frozen before any generative held-out calls. The immutable native Presidio CPU result is separate and was not used to revise these procedures. Candidate prompt/decoder sources are fixed; no held-out model answer is observed at freeze."
+}

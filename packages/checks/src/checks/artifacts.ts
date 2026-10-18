@@ -7,7 +7,7 @@ import {
   type CheckContext,
   machineVerdict,
   type Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { message } from '../support/assert';
 import { entryKeys } from '../support/values';
 

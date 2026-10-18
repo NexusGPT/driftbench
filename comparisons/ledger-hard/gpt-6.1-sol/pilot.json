@@ -1,0 +1,18 @@
+{
+  "stamp": "2026-10-13T13:41:18.811079+00:00",
+  "recorded": 5,
+  "planned": 6560,
+  "measured_usd": 0.007008,
+  "unknown_attempt_reserve_usd": 0,
+  "projected_usd": 9.194496000000001,
+  "method": "prefix mean; family mix may change",
+  "outcomes_used": false,
+  "requests": [
+    "bac03d394bf81b90add1ed232b93b7f4070b1f7e446169ceb017484ffed38835",
+    "a3e053ad389dd173de6b379daccba7577f0b01fbbcecf8aece198277d96e0093",
+    "d3b0f9805fc92219614aba8f9c80150512739599b0838c0ab540948b8bdf1383",
+    "165ae9f3d4a3dba72979c4fbe4413b8978964d266c2e077651b2c3ad46b25f8c",
+    "670daa18729c6f920e8dc4ac2a97c29e005fd28b9c36e51c9714d8846e3dba37"
+  ],
+  "retained_once": true
+}

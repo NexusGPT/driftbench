@@ -1,0 +1,1 @@
+{"stamp": "2026-10-14T00:15:32.733549+00:00", "reason": "three consecutive connection-class failures", "key": "b5419be359a2b77c86178dca1b1a2761e2c98467c4ebeaa5f4b443225af53793", "pause_seconds": 600, "probe_count": 10, "probe_spacing_seconds": 30}

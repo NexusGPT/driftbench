@@ -1,0 +1,23 @@
+# Rebuild these exact paths with export-recordings.mts.
+/calls/part-0000.jsonl
+/calls/part-0001.jsonl
+/calls/part-0002.jsonl
+/calls/part-0003.jsonl
+/calls/part-0004.jsonl
+/calls/part-0005.jsonl
+/calls/part-0006.jsonl
+/practice/fact-split.json
+/practice/panel-split.json
+/practice/panel-theirs.json
+/practice/qa-split.json
+/practice-panel/panel-split-r2.json
+/practice-panel/panel-split.json
+/practice-panel/panel-theirs.json
+/heldout-480/fact-split.json
+/heldout-480/fact-theirs.json
+/heldout-480/panel-split.json
+/heldout-480/panel-theirs.json
+/heldout-480/qa-split.json
+/heldout-480/qa-theirs.json
+/heldout-panel/panel-split-r2.json
+/heldout-panel/panel-theirs.json

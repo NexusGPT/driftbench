@@ -78,3 +78,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: weekly-report-update
     phrase: 2
+    ask: bank
+    outcome: bank

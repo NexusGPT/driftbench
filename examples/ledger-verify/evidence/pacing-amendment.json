@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-13T09:27:36.280118+00:00",
+  "authorization": "Pacing amendment, runtime only, log it in the freeze record: replace the global cap of 4 with per-model limits. gpt-6-luna 8 calls at a time (plain HTTP), Gemini 2 with the 429 waits, Haiku 2. Sealed order, cap and contract unchanged.",
+  "previousRuntime": "2869d4d1f750545a2c7d",
+  "runtime": "ee96e47757aa837860fe",
+  "recordingsId": "2869d4d1f750545a2c7d",
+  "modelLimits": {
+    "haiku": 2,
+    "gpt-6-luna": 8,
+    "gemini-3.8-flash": 2
+  },
+  "currentPhasePolicy": "Existing in-flight phase keeps its workers; next phase reads new worker limit. No returned answer retried."
+}

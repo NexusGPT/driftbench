@@ -1,0 +1,9 @@
+<div class="table-wrap"><table>
+<caption>Criteria across repeats</caption>
+<thead><tr><th scope="col">Spec</th><th scope="col">Criterion</th><th scope="col">Mode</th><th scope="col">Perturbation</th><th scope="col">Reducer</th><th scope="col">Repeats</th><th scope="col">Verdict</th></tr></thead>
+<tbody>
+<tr><td class="mono">spec-a</td><td class="mono">tone</td><td>F</td><td class="mono"></td><td class="mono">mode</td><td class="mono">P F P</td><td>pass</td></tr>
+<tr><td class="mono">spec-a</td><td class="mono">facts</td><td>F</td><td class="mono"></td><td class="mono">at_least:2</td><td class="mono">- P P</td><td>pass</td></tr>
+</tbody>
+</table></div>
+<p class="note">A repeat is P (pass), F (fail) or - (undecided). A run folds its blocks: any fail is a fail. Each criterion is reduced by its own repeat reducer.</p>

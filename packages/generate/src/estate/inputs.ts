@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /**
  * What the estate generator reads. The estate map and the plan follow the estate contract
- * (`@driftbench/estate`, schema.ts); that package depends on this one, so the generator reads the parts it
+ * (`@agent-nexus/driftbench-estate`, schema.ts); that package depends on this one, so the generator reads the parts it
  * needs structurally and the command validates both files with the estate's own schemas first. The phrase
  * bank and the session index are this module's own formats, validated here.
  */
@@ -36,6 +36,8 @@ export type EstateAtom = {
   situation?: string;
   evidence: EstateEvidence[];
   fields?: Record<string, unknown>;
+  /** The passage the atom is read from; the generator reads the paths a hazard passage names from it. */
+  provenance?: { quote: string; file?: string };
 };
 
 export type EstateMapInput = { runtime: string; hash: string; atoms: EstateAtom[] };
@@ -49,6 +51,8 @@ export type EstatePlanRow = {
   status: 'proposed' | 'approved' | 'struck';
   weight?: number;
   note?: string;
+  /** A focus variant of this plan row (generator only): the row it varies. */
+  variantOf?: string;
 };
 
 export type EstatePlanInput = { mapHash: string; rows: EstatePlanRow[] };
@@ -58,8 +62,8 @@ const Slug = z
   .regex(/^[a-z0-9][a-z0-9._-]*$/, 'lower-case letters, digits, dots, underscores and hyphens');
 
 export const BankPhrase = z.strictObject({
-  text: z.string().min(1),
-  lang: z.string().min(2).max(8),
+  text: z.string().min(1).describe('The ask, word for word, as the user writes it.'),
+  lang: z.string().min(2).max(8).describe('The language code of the phrase, such as en or de.'),
   approved: z.boolean().describe('Only approved phrases reach a spec'),
 });
 export type BankPhrase = z.infer<typeof BankPhrase>;
@@ -83,17 +87,19 @@ export type SituationUse = z.infer<typeof SituationUse>;
 
 export const Touches = z
   .strictObject({
-    created: z.array(z.string().min(1)).default([]),
-    changed: z.array(z.string().min(1)).default([]),
-    deleted: z.array(z.string().min(1)).default([]),
+    created: z.array(z.string().min(1)).default([]).describe('The workspace paths the ask may create.'),
+    changed: z.array(z.string().min(1)).default([]).describe('The workspace paths the ask may change.'),
+    deleted: z.array(z.string().min(1)).default([]).describe('The workspace paths the ask may delete.'),
   })
   .describe('The workspace paths the ask may touch; every other path stays untouched');
 export type Touches = z.infer<typeof Touches>;
 
 export const Situation = z.strictObject({
-  id: Slug,
-  title: z.string().min(1),
-  use: SituationUse,
+  id: Slug.describe('A short id, unique among the situations of the bank.'),
+  title: z.string().min(1).describe('What the situation is, in a few words.'),
+  use: SituationUse.describe(
+    'What the situation is for, such as setting the atom off or tempting the agent to skip a gate.',
+  ),
   atoms: z.array(z.string().min(1)).min(1).describe('The atoms this situation exercises'),
   cell: z
     .record(z.string(), z.string())
@@ -101,48 +107,77 @@ export const Situation = z.strictObject({
     .describe('Situation axis values the phrases express; a plan row must agree with each of them'),
   workspace: Slug.optional().describe('The workspace seed the ask starts from'),
   touches: Touches.optional(),
-  phrases: z.array(BankPhrase).min(1),
+  phrases: z
+    .array(BankPhrase)
+    .min(1)
+    .describe('The asks that put the agent in the situation, each approved or not.'),
 });
 export type Situation = z.infer<typeof Situation>;
 
 export const WorkspaceSeed = z.strictObject({
-  id: Slug,
-  title: z.string().min(1),
-  files: z.record(z.string(), z.string()),
+  id: Slug.describe('A short id, unique among the seeds; a situation names it under workspace.'),
+  title: z.string().min(1).describe('What the workspace holds, in a few words.'),
+  files: z
+    .record(z.string(), z.string())
+    .describe(
+      'The files of the workspace, as path and content; a spec inlines them as world.workspace.files.',
+    ),
 });
 export type WorkspaceSeed = z.infer<typeof WorkspaceSeed>;
 
 export const DeviationPhrases = z.strictObject({
-  class: z.string().min(1),
-  phrases: z.array(BankPhrase).min(1),
+  class: z
+    .string()
+    .min(1)
+    .describe('The deviation class the phrases inject, as a cell names it under deviation.'),
+  phrases: z
+    .array(BankPhrase)
+    .min(1)
+    .describe('The messages that inject the deviation before the ask, each approved or not.'),
 });
 
 export const PhraseBank = z.strictObject({
-  version: z.literal(1),
-  estate: z.string().min(1),
+  version: z.literal(1).describe('The version of the phrase bank format, 1.'),
+  estate: z.string().min(1).describe('The name of the estate the bank is written for.'),
   mapHash: z.string().min(1).describe('The hash of the approved map the bank was written against'),
-  workspaces: z.array(WorkspaceSeed).default([]),
-  situations: z.array(Situation).min(1),
-  deviations: z.array(DeviationPhrases).default([]),
+  workspaces: z.array(WorkspaceSeed).default([]).describe('The workspace seeds a situation can start from.'),
+  situations: z
+    .array(Situation)
+    .default([])
+    .describe(
+      'May be empty: a model-free run still gets the gap report, each row naming the phrase it needs',
+    ),
+  deviations: z
+    .array(DeviationPhrases)
+    .default([])
+    .describe('The phrases for each deviation class a plan cell can carry.'),
 });
 export type PhraseBank = z.infer<typeof PhraseBank>;
 
 export const SessionEntry = z.strictObject({
   name: z.string().min(1).describe("The transcript's file name without .jsonl"),
-  situation: Slug,
+  situation: Slug.describe('The situation of the bank the session was recorded in.'),
   ask: z.string().min(1).describe('The recorded ask: one approved phrase of the situation'),
-  from_block: z.number().int().min(0).default(0),
+  from_block: z
+    .number()
+    .int()
+    .min(0)
+    .default(0)
+    .describe("The session block a generated spec's first block replays from; 0 is the first block."),
   violates: z
     .array(z.string().min(1))
     .default([])
     .describe('The atoms the session breaks: a spec on any of them is planned to fail'),
-  note: z.string().optional(),
+  note: z
+    .string()
+    .optional()
+    .describe('A free remark about the session, for a person; the generator does not read it.'),
 });
 export type SessionEntry = z.infer<typeof SessionEntry>;
 
 export const SessionIndex = z.strictObject({
-  version: z.literal(1),
-  sessions: z.array(SessionEntry).min(1),
+  version: z.literal(1).describe('The version of the session index format, 1.'),
+  sessions: z.array(SessionEntry).min(1).describe('The recorded sessions, one entry per transcript.'),
 });
 export type SessionIndex = z.infer<typeof SessionIndex>;
 

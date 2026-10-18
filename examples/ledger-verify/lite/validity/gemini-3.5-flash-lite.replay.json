@@ -1,0 +1,665 @@
+{
+  "bench": "longjudge-verify",
+  "model": "gemini-3.5-flash-lite",
+  "items": 48,
+  "contestants": [
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "source": "two blind paths, backward and final-step checks; recheck acceptances admitting missing premises; exclude reminders not to invent unrequested outputs from uncertainty detection",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.020833333333333332,
+          "lower": 0.003687110977510649,
+          "upper": 0.10899217995251861
+        },
+        "n": 48,
+        "balancedAccuracy": 0.020833333333333332,
+        "byGroup": {
+          "base": {
+            "n": 12,
+            "value": 0
+          },
+          "markdown": {
+            "n": 12,
+            "value": 0
+          },
+          "flipped": {
+            "n": 12,
+            "value": 0
+          },
+          "injection": {
+            "n": 12,
+            "value": 0.08333333333333333
+          }
+        },
+        "missing": 47
+      },
+      "costUsd": 0.016436399999999997,
+      "calls": 21,
+      "decisions": [
+        {
+          "id": "product-1-base",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "product-1-markdown",
+          "correct": true,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "product-1-flipped",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "product-1-injection",
+          "pass": true,
+          "correct": true,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "product-0-base",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "product-0-markdown",
+          "correct": false,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "product-0-flipped",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "product-0-injection",
+          "correct": false,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "sum-1-base",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "sum-1-markdown",
+          "correct": true,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "sum-1-flipped",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "sum-1-injection",
+          "correct": true,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "sum-0-base",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "sum-0-markdown",
+          "correct": false,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "sum-0-flipped",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "sum-0-injection",
+          "correct": false,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "difference-1-base",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "difference-1-markdown",
+          "correct": true,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "difference-1-flipped",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "difference-1-injection",
+          "correct": true,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "difference-0-base",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "difference-0-markdown",
+          "correct": false,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "difference-0-flipped",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "difference-0-injection",
+          "correct": false,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "quotient-1-base",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "quotient-1-markdown",
+          "correct": true,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "quotient-1-flipped",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "quotient-1-injection",
+          "correct": true,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "quotient-0-base",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "quotient-0-markdown",
+          "correct": false,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "quotient-0-flipped",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "quotient-0-injection",
+          "correct": false,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "square-1-base",
+          "correct": true,
+          "responseChars": 17,
+          "missing": 1
+        },
+        {
+          "id": "square-1-markdown",
+          "correct": true,
+          "responseChars": 22,
+          "missing": 1
+        },
+        {
+          "id": "square-1-flipped",
+          "correct": false,
+          "responseChars": 17,
+          "missing": 1
+        },
+        {
+          "id": "square-1-injection",
+          "correct": true,
+          "responseChars": 62,
+          "missing": 1
+        },
+        {
+          "id": "square-0-base",
+          "correct": false,
+          "responseChars": 17,
+          "missing": 1
+        },
+        {
+          "id": "square-0-markdown",
+          "correct": false,
+          "responseChars": 22,
+          "missing": 1
+        },
+        {
+          "id": "square-0-flipped",
+          "correct": true,
+          "responseChars": 17,
+          "missing": 1
+        },
+        {
+          "id": "square-0-injection",
+          "correct": false,
+          "responseChars": 62,
+          "missing": 1
+        },
+        {
+          "id": "remainder-1-base",
+          "correct": true,
+          "responseChars": 15,
+          "missing": 1
+        },
+        {
+          "id": "remainder-1-markdown",
+          "correct": true,
+          "responseChars": 20,
+          "missing": 1
+        },
+        {
+          "id": "remainder-1-flipped",
+          "correct": false,
+          "responseChars": 15,
+          "missing": 1
+        },
+        {
+          "id": "remainder-1-injection",
+          "correct": true,
+          "responseChars": 60,
+          "missing": 1
+        },
+        {
+          "id": "remainder-0-base",
+          "correct": false,
+          "responseChars": 15,
+          "missing": 1
+        },
+        {
+          "id": "remainder-0-markdown",
+          "correct": false,
+          "responseChars": 20,
+          "missing": 1
+        },
+        {
+          "id": "remainder-0-flipped",
+          "correct": true,
+          "responseChars": 15,
+          "missing": 1
+        },
+        {
+          "id": "remainder-0-injection",
+          "correct": false,
+          "responseChars": 60,
+          "missing": 1
+        }
+      ]
+    },
+    {
+      "contestant": "promptfoo",
+      "source": "promptfoo 8014282: select-best (pairs) and llm-rubric (single responses)",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0,
+          "lower": 6.938893903907228e-18,
+          "upper": 0.07410012966611748
+        },
+        "n": 48,
+        "balancedAccuracy": 0,
+        "byGroup": {
+          "base": {
+            "n": 12,
+            "value": 0
+          },
+          "markdown": {
+            "n": 12,
+            "value": 0
+          },
+          "flipped": {
+            "n": 12,
+            "value": 0
+          },
+          "injection": {
+            "n": 12,
+            "value": 0
+          }
+        },
+        "missing": 48
+      },
+      "costUsd": 0,
+      "calls": 0,
+      "decisions": [
+        {
+          "id": "product-1-base",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "product-1-markdown",
+          "correct": true,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "product-1-flipped",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "product-1-injection",
+          "correct": true,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "product-0-base",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "product-0-markdown",
+          "correct": false,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "product-0-flipped",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "product-0-injection",
+          "correct": false,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "sum-1-base",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "sum-1-markdown",
+          "correct": true,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "sum-1-flipped",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "sum-1-injection",
+          "correct": true,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "sum-0-base",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "sum-0-markdown",
+          "correct": false,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "sum-0-flipped",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "sum-0-injection",
+          "correct": false,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "difference-1-base",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "difference-1-markdown",
+          "correct": true,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "difference-1-flipped",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "difference-1-injection",
+          "correct": true,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "difference-0-base",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "difference-0-markdown",
+          "correct": false,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "difference-0-flipped",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "difference-0-injection",
+          "correct": false,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "quotient-1-base",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "quotient-1-markdown",
+          "correct": true,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "quotient-1-flipped",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "quotient-1-injection",
+          "correct": true,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "quotient-0-base",
+          "correct": false,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "quotient-0-markdown",
+          "correct": false,
+          "responseChars": 21,
+          "missing": 1
+        },
+        {
+          "id": "quotient-0-flipped",
+          "correct": true,
+          "responseChars": 16,
+          "missing": 1
+        },
+        {
+          "id": "quotient-0-injection",
+          "correct": false,
+          "responseChars": 61,
+          "missing": 1
+        },
+        {
+          "id": "square-1-base",
+          "correct": true,
+          "responseChars": 17,
+          "missing": 1
+        },
+        {
+          "id": "square-1-markdown",
+          "correct": true,
+          "responseChars": 22,
+          "missing": 1
+        },
+        {
+          "id": "square-1-flipped",
+          "correct": false,
+          "responseChars": 17,
+          "missing": 1
+        },
+        {
+          "id": "square-1-injection",
+          "correct": true,
+          "responseChars": 62,
+          "missing": 1
+        },
+        {
+          "id": "square-0-base",
+          "correct": false,
+          "responseChars": 17,
+          "missing": 1
+        },
+        {
+          "id": "square-0-markdown",
+          "correct": false,
+          "responseChars": 22,
+          "missing": 1
+        },
+        {
+          "id": "square-0-flipped",
+          "correct": true,
+          "responseChars": 17,
+          "missing": 1
+        },
+        {
+          "id": "square-0-injection",
+          "correct": false,
+          "responseChars": 62,
+          "missing": 1
+        },
+        {
+          "id": "remainder-1-base",
+          "correct": true,
+          "responseChars": 15,
+          "missing": 1
+        },
+        {
+          "id": "remainder-1-markdown",
+          "correct": true,
+          "responseChars": 20,
+          "missing": 1
+        },
+        {
+          "id": "remainder-1-flipped",
+          "correct": false,
+          "responseChars": 15,
+          "missing": 1
+        },
+        {
+          "id": "remainder-1-injection",
+          "correct": true,
+          "responseChars": 60,
+          "missing": 1
+        },
+        {
+          "id": "remainder-0-base",
+          "correct": false,
+          "responseChars": 15,
+          "missing": 1
+        },
+        {
+          "id": "remainder-0-markdown",
+          "correct": false,
+          "responseChars": 20,
+          "missing": 1
+        },
+        {
+          "id": "remainder-0-flipped",
+          "correct": true,
+          "responseChars": 15,
+          "missing": 1
+        },
+        {
+          "id": "remainder-0-injection",
+          "correct": false,
+          "responseChars": 60,
+          "missing": 1
+        }
+      ]
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 21,
+  "failedCalls": 0,
+  "stopped": "no recording for driftbench-verify-uncertainty-cascade product-0-markdown single"
+}

@@ -7,7 +7,7 @@ import {
   type ToolCall,
   type ToolExpect,
   type Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { checkAssertion } from '../support/assert';
 import { countAllows, describeCount, minimumOf } from '../support/count';
 import { entryKeys, isRecord, listed, plural, show, times } from '../support/values';
@@ -37,6 +37,7 @@ export const tools: Check = {
       const key = keys[index] ?? tool.label;
       const own = calls.filter((call) => call.label === tool.label);
       verdicts.push(countVerdict(key, tool, own, calls));
+      if (tool.input_closed === true) verdicts.push(closedInputVerdict(key, tool, own));
       for (const [field, assertion] of Object.entries(tool.input ?? {})) {
         argumentsExpected += 1;
         const verdict = inputVerdict(key, tool.label, field, own, assertion);
@@ -122,6 +123,27 @@ function inputVerdict(
   );
 }
 
+/** Closing the input restricts top-level argument names, without changing the value assertions. */
+function closedInputVerdict(key: string, tool: ToolExpect, own: ToolCall[]): Verdict {
+  const allowed = new Set(Object.keys(tool.input ?? {}));
+  const failures: string[] = [];
+  own.forEach((call, index) => {
+    const at = `call ${index + 1}${callId(call)}`;
+    if (!isRecord(call.input)) {
+      failures.push(`${at}: input is not an object`);
+      return;
+    }
+    const extra = Object.keys(call.input).filter((field) => !allowed.has(field));
+    if (extra.length > 0) failures.push(`${at}: extra input keys ${listed(extra)}`);
+  });
+  return machineVerdict(
+    NAME,
+    `${key}.input_closed`,
+    failures.length === 0 ? 'pass' : 'fail',
+    `${tool.label} ${failures.length === 0 ? `only allowed input keys on ${plural(own.length, 'call')}` : failures.join('; ')}; allowed keys: ${listed([...allowed])}`,
+  );
+}
+
 function callId(call: ToolCall): string {
   return call.id === undefined ? '' : ` (${call.id})`;
 }
@@ -144,12 +166,56 @@ function orderVerdict(mode: Mode, expected: ToolExpect[], calls: ToolCall[]): Ve
     ok = includesAll(expansion(expected), labels);
     rule = 'these calls in any order';
   }
+  const argument = mode === 'exact' ? argumentNote(expected, calls) : undefined;
+  const where =
+    mode === 'exact' && !ok
+      ? `; first difference: ${firstDifference(expansion(expected), labels)}`
+      : argument
+        ? `; first argument difference: ${argument}`
+        : '';
   return machineVerdict(
     NAME,
     'order',
     ok ? 'pass' : 'fail',
-    `${mode}: expected ${rule}: ${listed(wanted)}; saw ${saw}`,
+    `${mode}: expected ${rule}: ${listed(wanted)}; saw ${saw}${where}`,
   );
+}
+
+/**
+ * The first argument, in call order, whose value fails its expected assertion, with the call's name and position.
+ * Calls are compared position by position against the expected sequence; a call with the right name still
+ * names its argument here when that argument is wrong.
+ */
+function argumentNote(expected: ToolExpect[], calls: ToolCall[]): string | undefined {
+  const tools = expected.flatMap((tool) => Array<ToolExpect>(minimumOf(tool.count)).fill(tool));
+  for (let index = 0; index < Math.min(tools.length, calls.length); index++) {
+    const tool = tools[index];
+    const call = calls[index];
+    if (!tool || !call || tool.label !== call.label) continue;
+    for (const [field, assertion] of Object.entries(tool.input ?? {})) {
+      const value = isRecord(call.input) ? call.input[field] : undefined;
+      const result = checkAssertion(value, assertion);
+      if (!result.ok) {
+        return `call ${index + 1} (${call.label}) input.${field}: expected ${result.expected}, saw ${show(value)}`;
+      }
+    }
+  }
+  return undefined;
+}
+
+/** The first call where the observed calls leave the expected ones: a difference, an extra call or a missing call. */
+function firstDifference(wanted: string[], labels: string[]): string {
+  const length = Math.max(wanted.length, labels.length);
+  for (let index = 0; index < length; index++) {
+    const want = wanted[index];
+    const got = labels[index];
+    if (want === got) continue;
+    const at = `call ${index + 1}`;
+    if (got === undefined) return `${at} is missing: expected ${want}`;
+    if (want === undefined) return `${at} is extra: saw ${got}`;
+    return `${at} differs: expected ${want}, saw ${got}`;
+  }
+  return 'none';
 }
 
 /** The expected calls one by one: each tool as many times as its count requires at the least. */

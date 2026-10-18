@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-13T11:55:37.157412+00:00",
+  "reason": "Owner authorizes four Haiku workers with load/failure fallback; drain existing calls before changing admission",
+  "priorRuntime": "ee96e47757aa837860fe",
+  "authorization": "raise Haiku to 4 workers; fall back to 2 only when host load passes 60 or on two transport failures within ten minutes; parse errors do not change pacing"
+}

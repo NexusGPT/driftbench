@@ -1,6 +1,11 @@
 import { join } from 'node:path';
-import { AdapterTransportError, type AgentAdapter, AgentFailure, type Observed } from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
+import {
+  AdapterTransportError,
+  type AgentAdapter,
+  AgentFailure,
+  type Observed,
+} from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   applySessionOps,
@@ -17,6 +22,7 @@ import {
   callsOf,
   ESTATE,
   FAKE,
+  FAKE_RECORDINGS,
   givenOf,
   MAP_HASH,
   RUNTIME_FLAGS,
@@ -55,7 +61,7 @@ async function run(
     estateRoot: ESTATE,
     provider: localProvider({ dir: join(work.dir, 'sandboxes') }),
     stateDir: join(work.dir, 'state'),
-    env: { FAKE_CALLS: work.calls },
+    env: { ...FAKE_RECORDINGS, FAKE_CALLS: work.calls },
     retries: { max: 3, backoffMs: 0 },
     pins: [MAP_HASH],
     library,
@@ -121,6 +127,24 @@ describe('session states on the fake command', () => {
     expect(calls[0]?.compacted).toBe(true);
     expect(calls[0]?.records).toBe(14);
     expect(live(observed[0]).notes).toContain('compact: a compaction boundary and its summary were appended');
+  });
+
+  it('marks a planted compaction in the trace, at the start of the turn, so a hazard check can read it', async () => {
+    // Seen on the Cue bench: the runtime does not stream a boundary it found in the file it resumed.
+    const { observed } = await run({ session_state: 'long', event: 'compaction_mid_task' });
+    const raw = observed[0]?.raw as { markers: Array<Record<string, unknown>> };
+    expect(raw.markers).toEqual([
+      expect.objectContaining({
+        kind: 'compaction',
+        afterToolCalls: 0,
+        planted: true,
+        trigger: 'auto',
+        preTokens: 150000,
+      }),
+    ]);
+    const fresh = await run({});
+    const freshRaw = fresh.observed[0]?.raw as { markers: unknown[] } | undefined;
+    expect(freshRaw?.markers).toEqual([]);
   });
 
   it('after restart: the session file is cut with a torn record and reopened', async () => {

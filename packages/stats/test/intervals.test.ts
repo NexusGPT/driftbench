@@ -33,6 +33,21 @@ describe('special functions against scipy', () => {
     for (const c of s.normalQuantile) near(normalQuantile(c.p), c.expected, `ppf(${c.p})`, 1e-9);
     for (const c of s.normalCdf) near(normalCdf(c.z), c.expected, `cdf(${c.z})`, 1e-12);
   });
+  it('normalQuantile keeps its digits for p near 1 (scipy.stats.norm.ppf, 1e-11 relative)', () => {
+    const cases: [number, number][] = [
+      [0.999, 3.090232306167813],
+      [0.99999, 4.264890793923841],
+      [0.999999, 4.753424308817087],
+      [0.99999999, 5.612001243305505],
+      [0.9999999975823887, 5.8527460071154005],
+      [0.9999999999, 6.361340889697422],
+      [0.999999999999, 7.0344869100478356],
+    ];
+    for (const [p, expected] of cases)
+      expect(Math.abs(normalQuantile(p) - expected) / expected, `ppf(${p})`).toBeLessThan(1e-11);
+    // The quantile is odd about one half whenever 1 - p is exact (p >= 0.5).
+    for (const [p] of cases) expect(normalQuantile(1 - p) + normalQuantile(p)).toBeCloseTo(0, 11);
+  });
   it('chiSquareSf and binomialCdf match scipy.stats', () => {
     for (const c of s.chiSquareSf)
       near(chiSquareSf(c.x, c.df), c.expected, `chi2.sf(${c.x}, ${c.df})`, 1e-10);
@@ -154,5 +169,35 @@ describe('bootstrapCI', () => {
   });
   it('refuses a cluster list of the wrong length', () => {
     expect(() => bootstrapCI([1, 2, 3], { clusters: ['a', 'b'] })).toThrow(RangeError);
+  });
+});
+
+describe('design effect bound', () => {
+  it('throws below the bound rho = -1 / (m - 1), where the design effect is zero or less', () => {
+    expect(() => designEffect(10, -0.5)).toThrow(RangeError);
+    expect(() => designEffect(10, -1 / 9)).toThrow(RangeError);
+    expect(() => effectiveSampleSize(100, 10, -0.2)).toThrow(RangeError);
+    expect(designEffect(10, -0.1)).toBeCloseTo(0.1, 12);
+    expect(designEffect(1, -1)).toBe(1);
+  });
+});
+
+describe('zeroFailureBound at a tiny p', () => {
+  it('keeps the digits of ln(1 - p) for p = 1e-9', () => {
+    expect(zeroFailureBound(1e-9)).toBe(2995732273);
+    expect(zeroFailureBound(1e-12)).toBe(2995732273553);
+    expect(zeroFailureBound(0.05)).toBe(59);
+  });
+});
+
+describe('bootstrapCI on equal values', () => {
+  it('returns that value exactly for estimate and both limits', () => {
+    for (const x of [0.1, 0.3, 0.7, 0.9]) {
+      const r = bootstrapCI(
+        Array.from({ length: 7 }, () => x),
+        { iterations: 20, method: 'basic' },
+      );
+      expect([r.estimate, r.lower, r.upper]).toEqual([x, x, x]);
+    }
   });
 });

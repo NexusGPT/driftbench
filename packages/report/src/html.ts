@@ -1,10 +1,33 @@
-import type { DriftClass, Verdict } from '@driftbench/core';
+import { blockStatus, type DriftClass, type RunEvent, type Verdict } from '@agent-nexus/driftbench-core';
+import { parentCausesHtml } from './causes';
 import type { CompareResult } from './compare';
 import type { Estimate } from './estimate';
-import { count, esc, fixed, interval, json, pct, points, pValue, usd } from './format';
+import { CASLON_DISPLAY, CASLON_TEXT, GEIST, GEIST_MONO } from './fonts';
+import {
+  carriedLines,
+  count,
+  effectiveNote,
+  esc,
+  fixed,
+  headlineNote,
+  historyNormalizationsHtml,
+  interval,
+  json,
+  pct,
+  points,
+  pValue,
+  runDetailStatus,
+  unscoredReason,
+  unscoredRuns,
+  usd,
+  verdictOf,
+} from './format';
+import type { SuiteHeadline } from './headline';
+import { chartsZone, overview, pageModel, runsZone, testsZone, versionsZone } from './html-zones';
 import type { PilotReport } from './pilot';
 import type { RecoverySummary, ReliabilityLine } from './reliability';
-import type { BlockDetail, RunDetail, Scorecard } from './scorecard';
+import type { CriterionRepeat } from './repeats';
+import { type BlockDetail, notStored, type RunDetail, type Scorecard, type StoppedRun } from './scorecard';
 import type { CellSpread, Spread } from './spread';
 
 const DRIFT_NAMES: Record<DriftClass, string> = {
@@ -16,26 +39,63 @@ const DRIFT_NAMES: Record<DriftClass, string> = {
 };
 
 /**
- * The scorecard as one HTML file: inline styles, no script, no external asset, light and dark themes. The
- * same scorecard gives the same bytes.
+ * The scorecard as one HTML file: inline styles and fonts, no script, no external asset, dark by default with a
+ * light theme one click away. Three zones open it: the numbers and charts, the tests, the runs with a panel per
+ * run. Every detailed table follows, folded. The same scorecard gives the same bytes.
  */
 export function renderHtml(card: Scorecard, options: RenderOptions = {}): string {
   const c = card.campaign;
-  const sections = [
-    options.nav ?? '',
+  const m = pageModel(card);
+  const details = [
     header(card),
     summary(card),
     card.compare ? compareSection(card.compare) : '',
     reliabilitySection(card.lines),
+    repeatsSection(card.criterionRepeats),
     successionSection(card),
     compoundingSection(card),
     recoverySection(card),
     spreadSection(card.spread),
     card.pilot ? pilotSection(card.pilot) : '',
-    drilldownSection(card, options),
+    drilldownIndex(card, options),
     methodSection(),
+  ].filter((section) => section !== '');
+  const sections = [
+    options.nav ?? '',
+    overview(m),
+    versionsZone(m),
+    chartsZone(m),
+    testsZone(m),
+    runsZone(m, {
+      ...(options.runHref ? { runHref: options.runHref } : {}),
+      verdictTable: (rows) =>
+        table(
+          'Verdicts with evidence: every one that did not pass, every judged one',
+          ['outcome', 'verdict', 'kind', 'gating', 'evidence', 'judge reasoning'],
+          rows.map(verdictRow),
+        ),
+      stopped: (run) => stoppedSection(run.stopped),
+    }),
+    `<section class="zone wrap" id="details" aria-labelledby="h-details">
+<div class="zone-h"><h2 id="h-details">All details</h2><span class="kicker">Every table behind the numbers</span></div>
+${details
+  .map(
+    (section) => `<details class="more"><summary>${esc(sectionName(section))}</summary>
+${section}
+</details>`,
+  )
+  .join('\n')}
+</section>`,
   ];
   return renderPage(`Scorecard ${c.campaignId}`, sections);
+}
+
+/** The heading of a detailed section, for the fold that holds it. */
+function sectionName(section: string): string {
+  const heading = /<h2[^>]*>([^<]*)<\/h2>/.exec(section)?.[1];
+  if (heading) return heading.replace(/&amp;/g, '&');
+  if (section.startsWith('<header>')) return 'Campaign';
+  return /<caption>([^<]*)<\/caption>/.exec(section)?.[1] ?? 'Details';
 }
 
 /** How a page links out, for a server that serves the scorecard: the viewer of `driftbench view`. */
@@ -46,7 +106,10 @@ export type RenderOptions = {
   runHref?: (runId: string) => string;
 };
 
-/** A page of sections with the scorecard's style: one file, no script, no external asset, light and dark. */
+/**
+ * A page of sections with the scorecard's style: one file, no script, no external asset. Dark by default; the
+ * checkbox first in the page switches to the light theme.
+ */
 export function renderPage(title: string, sections: readonly string[]): string {
   return `<!doctype html>
 <html lang="en">
@@ -55,9 +118,10 @@ export function renderPage(title: string, sections: readonly string[]): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="driftbench report">
 <title>${esc(title)}</title>
-<style>${STYLE}</style>
+<style>${FONTS}${STYLE}</style>
 </head>
 <body>
+<input type="checkbox" id="theme-light" class="theme-input" aria-label="Light theme">
 <main>
 ${sections.filter((section) => section !== '').join('\n')}
 </main>
@@ -70,15 +134,15 @@ function header(card: Scorecard): string {
   const c = card.campaign;
   const repeats = c.modes.map((mode) => `${mode} ${c.repeats[mode]}`).join(', ');
   return `<header>
-<p class="eyebrow">driftbench scorecard</p>
-<h1>${esc(c.campaignId)}</h1>
+<h2>Campaign facts</h2>
+<p class="mono">${esc(c.campaignId)}</p>
 <dl class="facts">
 ${fact('Created', c.createdAt)}
 ${fact('Targets', c.targets.join(', ') || 'none')}
 ${fact('Modes', c.modes.join(', '))}
 ${fact('Repeats', repeats)}
 ${fact('Specs', String(c.specs))}
-${fact('Runs', `${c.runs}: ${c.passing} pass, ${c.failing} fail, ${c.broken} did not complete`)}
+${fact('Runs', `${c.runs}: ${c.passing} pass, ${c.failing} fail, ${unscoredRuns(c)}${c.broken} did not complete`)}
 ${fact('Spent', usd(card.cost.totalUsd))}
 </dl>
 </header>`;
@@ -91,6 +155,9 @@ function fact(label: string, value: string): string {
 function summary(card: Scorecard): string {
   const tiles: string[] = [];
   for (const mode of card.modes) {
+    if (mode.headline) {
+      tiles.push(tile(`Suite pass rate, ${mode.mode}`, mode.headline, pct, headlineNote(mode.headline)));
+    }
     if (mode.runPass) tiles.push(tile(`Runs passing, ${mode.mode}`, mode.runPass, pct, `${mode.runs} runs`));
     if (mode.blockAccuracy)
       tiles.push(tile(`Block accuracy, ${mode.mode}`, mode.blockAccuracy, pct, 'blocks'));
@@ -130,9 +197,13 @@ function summary(card: Scorecard): string {
     );
   }
   const verdict = card.compare ? verdictBanner(card.compare) : '';
+  // A campaign that carried results says so above every rate: the rates below merge fresh and carried.
+  const merged = carriedLines(card.carried)
+    .map((line) => `<p class="note">${esc(line.trim())}</p>`)
+    .join('\n');
   return `<section id="summary">
 <h2>Summary</h2>
-${verdict}
+${verdict}${merged === '' ? '' : `\n${merged}`}
 <div class="tiles">
 ${tiles.join('\n')}
 </div>
@@ -164,7 +235,14 @@ function verdictBanner(compare: CompareResult): string {
 /** A rate cell: the value, its interval, and a bar drawn to scale on [0, 1]. */
 function rateCell(estimate: Estimate | undefined): string {
   if (!estimate) return '<td class="num muted">none</td>';
-  return `<td class="num"><span class="val">${esc(pct(estimate.estimate))}</span> <span class="ci">${esc(interval(estimate, pct))}</span>${bar(estimate)}</td>`;
+  const effective = effectiveNote(estimate);
+  return `<td class="num"><span class="val">${esc(pct(estimate.estimate))}</span> <span class="ci">${esc(interval(estimate, pct))}</span>${effective === '' ? '' : ` <span class="ci">${esc(effective)}</span>`}${bar(estimate)}</td>`;
+}
+
+/** A suite headline cell: the mean over goldens, its hierarchical interval, and what stands behind it. */
+function headlineCell(headline: SuiteHeadline | undefined): string {
+  if (!headline) return '<td class="num muted">none</td>';
+  return `<td class="num"><span class="val">${esc(pct(headline.estimate))}</span> <span class="ci">${esc(interval(headline, pct))}</span> <span class="ci">${esc(headlineNote(headline))}</span>${bar(headline)}</td>`;
 }
 
 function bar(estimate: Estimate): string {
@@ -257,7 +335,18 @@ ${table(
 )}
 ${table('New gating flags: fire for the candidate, not for the baseline', ['golden', 'family'], flagRows)}
 ${table('Goldens that changed', ['golden', 'baseline', 'candidate', 'drift baseline', 'drift candidate', 'criteria lost', 'criteria gained'], unitRows)}
-${unpairedRows.length > 0 ? table('Not paired', ['golden', 'reason'], unpairedRows) : ''}
+${unpairedRows.length > 0 ? table('Not paired', ['golden', 'reason'], unpairedRows) : ''}${
+  compare.excluded
+    ? table(
+        'Runs left out of a pair: a block not run or blocked, no failure',
+        ['golden', 'side', 'runs'],
+        compare.excluded.map(
+          (entry) =>
+            `<tr>${textCell(entry.unit, 'mono')}${textCell(entry.side)}${numCell(String(entry.runs))}</tr>`,
+        ),
+      )
+    : ''
+}
 </section>`;
 }
 
@@ -278,7 +367,7 @@ function atKText(line: ReliabilityLine, which: 'passK' | 'passAtK'): string {
 function reliabilitySection(lines: readonly ReliabilityLine[]): string {
   const rows = lines.map(
     (line) =>
-      `<tr${line.passRate.k < line.passRate.n ? ' class="row-warn"' : ''}>${textCell(line.specId, 'mono')}${textCell(lineTarget(line), 'mono')}${textCell(line.mode)}${textCell(line.perturbationId ?? '', 'mono')}${numCell(`${line.passRate.k} of ${line.runs}`)}${rateCell(line.passRate)}${numCell(`k=${line.runs}: ${atKText(line, 'passK')}`)}${numCell(`k=${line.runs}: ${atKText(line, 'passAtK')}`)}${numCell(`${pct(line.unreliability.estimate)} ${interval(line.unreliability, pct)}`)}${rateCell(line.blockAccuracy)}</tr>`,
+      `<tr${line.passRate.k < line.passRate.n ? ' class="row-warn"' : ''}>${textCell(line.specId, 'mono')}${textCell(lineTarget(line), 'mono')}${textCell(line.mode)}${textCell(line.perturbationId ?? '', 'mono')}${numCell(`${line.passRate.k} of ${line.runs}${line.unscored ? ` (${line.unscored} not run or blocked)` : ''}`)}${rateCell(line.passRate)}${numCell(`k=${line.runs}: ${atKText(line, 'passK')}`)}${numCell(`k=${line.runs}: ${atKText(line, 'passAtK')}`)}${numCell(`${pct(line.unreliability.estimate)} ${interval(line.unreliability, pct)}`)}${rateCell(line.blockAccuracy)}</tr>`,
   );
   const ks = lines.flatMap((line) =>
     line.runs < 2
@@ -313,6 +402,29 @@ ${ks.length > 0 ? table('pass^k for every k', ['golden', 'mode', 'perturbation',
 </section>`;
 }
 
+/** One row per reduced criterion and line: each repeat's outcome, then the reduced verdict. Empty when none. */
+export function repeatsSection(lines: readonly CriterionRepeat[]): string {
+  if (lines.length === 0) return '';
+  const rows = lines.map(
+    (line) =>
+      `<tr>${textCell(line.specId, 'mono')}${textCell(line.criterion, 'mono')}${textCell(line.mode)}${textCell(line.perturbationId ?? '', 'mono')}${textCell(line.reducer, 'mono')}${textCell(line.outcomes.map(outcomeWord).join(' '), 'mono')}${textCell(verdictText(line.verdict))}</tr>`,
+  );
+  return table(
+    'Criteria across repeats',
+    ['Spec', 'Criterion', 'Mode', 'Perturbation', 'Reducer', 'Repeats', 'Verdict'],
+    rows,
+    'A repeat is P (pass), F (fail) or - (undecided). A run folds its blocks: any fail is a fail. Each criterion is reduced by its own repeat reducer.',
+  );
+}
+
+export function outcomeWord(outcome: 0 | 1 | undefined): string {
+  return outcome === 1 ? 'P' : outcome === 0 ? 'F' : '-';
+}
+
+export function verdictText(verdict: 0 | 1 | undefined): string {
+  return verdict === 1 ? 'pass' : verdict === 0 ? 'fail' : 'undecided';
+}
+
 function lineTarget(line: ReliabilityLine): string {
   const t = line.target;
   return t.agent === undefined ? t.adapter : `${t.adapter}:${t.agent}${t.variant ? ` (${t.variant})` : ''}`;
@@ -336,7 +448,7 @@ function successionSection(card: Scorecard): string {
   });
   const modeRows = card.modes.map(
     (mode) =>
-      `<tr>${textCell(mode.mode)}${numCell(String(mode.lines))}${numCell(String(mode.runs))}${rateCell(mode.runPass)}${rateCell(mode.blockAccuracy)}${rateCell(mode.allBlocksPass)}${numCell(mode.passK ? `k=${mode.passK.k}: ${pct(mode.passK.mean)}` : '')}${numCell(mode.driftCount ? `${fixed(mode.driftCount.estimate, 2)} ${interval(mode.driftCount, (v) => fixed(v, 2))}` : '')}${textCell(classes(mode.classes), 'mono')}</tr>`,
+      `<tr>${textCell(mode.mode)}${numCell(String(mode.lines))}${numCell(String(mode.runs))}${headlineCell(mode.headline)}${rateCell(mode.runPass)}${rateCell(mode.blockAccuracy)}${rateCell(mode.allBlocksPass)}${numCell(mode.passK ? `k=${mode.passK.k}: ${pct(mode.passK.mean)}` : '')}${numCell(mode.driftCount ? `${fixed(mode.driftCount.estimate, 2)} ${interval(mode.driftCount, (v) => fixed(v, 2))}` : '')}${textCell(classes(mode.classes), 'mono')}</tr>`,
   );
   return `<section id="succession">
 <h2>Blocks and their succession</h2>
@@ -346,6 +458,7 @@ ${table(
     'mode',
     'goldens',
     'runs',
+    'suite pass rate',
     'runs passing',
     'block accuracy',
     'every block passes',
@@ -467,7 +580,7 @@ function spreadSection(s: Spread): string {
         : 'no generated cell in these specs: one golden is one cell';
   return `<section id="spread">
 <h2>Spread</h2>
-<p>Mode ${esc(s.mode)}, ${esc(source)}. A cell rate takes its conversations as clusters when it holds two or more, else the Wilson interval over its runs. A cell is undecided when its interval straddles its reference minus the margin (${esc(fixed(s.margin * 100, 1))} points); the reference is the baseline cell rate when a baseline is given, else 100%.</p>
+<p>Mode ${esc(s.mode)}, ${esc(source)}.${s.unscored ? ` ${esc(count(s.unscored, 'run'))} left out: a block not run or blocked, no failure.` : ''} A cell rate takes its conversations as clusters when it holds two or more, else the Wilson interval over its runs. A cell is undecided when its interval straddles its reference minus the margin (${esc(fixed(s.margin * 100, 1))} points); the reference is the baseline cell rate when a baseline is given, else 100%.</p>
 ${quantiles}
 ${table('Five worst cells', head, s.worst.map(cellRow))}
 ${table('Undecided cells', head, s.undecided.map(cellRow))}
@@ -543,31 +656,20 @@ function blockDetail(block: BlockDetail, extra = ''): string {
           )
           .join('');
   const tools =
-    block.pass && block.toolCalls.length > 0
+    blockStatus(block) === 'pass' && block.toolCalls.length > 0
       ? `<details><summary>${esc(block.toolCalls.map((call) => call.label).join(', '))}</summary>${calls}</details>`
       : calls;
   const verdictHead = ['outcome', 'verdict', 'kind', 'gating', 'evidence', 'judge reasoning'];
-  return `<div class="block ${block.pass ? 'block-pass' : 'block-fail'}" id="block-${block.index}">
-<p class="block-head"><span class="badge ${block.pass ? 'ok' : 'bad'}">${block.pass ? 'pass' : 'fail'}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
-${block.stimulus === undefined ? '' : `<p class="label">User</p><pre class="msg">${esc(block.stimulus)}</pre>`}
+  const verdict = verdictOf(blockStatus(block));
+  const reason = unscoredReason(block);
+  return `<div class="block ${verdict.cls === 'ok' ? 'block-pass' : verdict.cls === 'skip' ? 'block-skip' : 'block-fail'}" id="block-${block.index}">
+${block.rejudged ? `<p>Re-judged: ${esc(block.rejudged.criteria.join(', '))}; observations from ${esc(block.rejudged.fromCampaign)}.</p>\n` : block.carried ? `<p>carried from ${esc(block.carried.fromCampaign)}</p>\n` : ''}<p class="block-head"><span class="badge ${verdict.cls}">${verdict.text}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
+${historyNormalizationsHtml(block.historyNormalizations)}${reason === undefined ? '' : `<p class="skip-reason">${esc(reason)}</p>\n`}${block.stimulus === undefined ? '' : `<p class="label">${block.realized === undefined ? 'User' : 'User, as written'}</p><pre class="msg">${esc(block.stimulus)}</pre>`}${block.realized === undefined ? '' : `\n<p class="label">User, as sent</p><pre class="msg">${esc(block.realized.text ?? notStored(block.realized.hash))}</pre>`}
 <p class="label">Agent</p><pre class="msg">${esc(block.text || '(no text)')}</pre>
+<p class="label">Cache key</p><pre class="mono">${esc(block.cacheKey ?? 'not cached')}</pre>
 <p class="label">Tool calls</p>${tools}
 ${shown.length > 0 ? table('Verdicts with evidence: every one that did not pass, every judged one', verdictHead, shown.map(verdictRow)) : ''}
 ${passed.length > 0 ? `<p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">${esc(passed.map((v) => v.id).join(', '))}</span></p>` : ''}${extra === '' ? '' : `\n${extra}`}
-</div>`;
-}
-
-/** A passing run in brief: per block, the user turn, the reply and the tool labels. */
-function blockBrief(block: BlockDetail): string {
-  const where = block.specBlock === undefined ? 'injected block' : `spec block ${block.specBlock}`;
-  const tools =
-    block.toolCalls.length === 0 ? 'no tool call' : block.toolCalls.map((call) => call.label).join(', ');
-  const judged = block.verdicts.filter((v) => v.kind === 'judge');
-  return `<div class="block block-pass">
-<p class="block-head">Block ${block.index}, ${esc(where)}, stage ${esc(block.observedStage ?? 'none')}, ${count(block.verdicts.length, 'verdict')} passed. Tools: <span class="mono">${esc(tools)}</span>.</p>
-${block.stimulus === undefined ? '' : `<pre class="msg">${esc(block.stimulus)}</pre>`}
-<pre class="msg">${esc(block.text || '(no text)')}</pre>
-${judged.length > 0 ? table('Judged verdicts', ['outcome', 'verdict', 'kind', 'gating', 'evidence', 'judge reasoning'], judged.map(verdictRow)) : ''}
 </div>`;
 }
 
@@ -582,6 +684,11 @@ function runDetail(run: RunDetail, options: RenderOptions = {}): string {
   const s = run.succession;
   const facts = [
     `status ${run.status}`,
+    ...(run.carried
+      ? [
+          `carried from ${run.carried.fromCampaign}${run.carried.agentVersion === undefined ? '' : `, agent version ${run.carried.agentVersion}`}, age ${count(run.carried.age.campaigns, 'campaign')}`,
+        ]
+      : []),
     `${count(run.blocks.length, 'block')}`,
     `first drift ${s.firstDriftBlock === undefined ? 'none' : `block ${s.firstDriftBlock}`}`,
     `${s.driftCount} drifting`,
@@ -604,22 +711,38 @@ function runDetail(run: RunDetail, options: RenderOptions = {}): string {
           ),
         )
       : '';
-  return `<details class="run ${run.pass ? 'run-pass' : 'run-fail'}" id="run-${esc(run.runId)}"${run.pass ? '' : ' open'}>
-<summary><span class="badge ${run.pass ? 'ok' : 'bad'}">${run.pass ? 'pass' : 'fail'}</span> <span class="mono">${esc(name)}</span>${options.runHref ? ` <a class="open" href="${esc(options.runHref(run.runId))}">open the run</a>` : ''}</summary>
+  const verdict = verdictOf(runDetailStatus(run));
+  return `<details class="run ${verdict.cls === 'ok' ? 'run-pass' : verdict.cls === 'skip' ? 'run-skip' : 'run-fail'}" id="run-${esc(run.runId)}"${verdict.cls === 'ok' ? '' : ' open'}>
+<summary><span class="badge ${verdict.cls}">${verdict.text}</span> <span class="mono">${esc(name)}</span>${options.runHref ? ` <a class="open" href="${esc(options.runHref(run.runId))}">open the run</a>` : ''}</summary>
 <p class="run-facts">${esc(facts.join(', '))}.${run.title ? ` ${esc(run.title)}.` : ''}</p>
 ${run.error ? `<p class="bad">${esc(run.error)}</p>` : ''}
 ${diff}
-${run.blocks.map((block) => (run.pass ? blockBrief(block) : blockDetail(block))).join('\n')}
+${run.blocks.map((block) => blockDetail(block)).join('\n')}
 </details>`;
 }
 
-function drilldownSection(card: Scorecard, options: RenderOptions = {}): string {
-  const failing = card.drilldown.filter((run) => !run.pass).length;
-  const passing = card.drilldown.length - failing;
-  return `<section id="drilldown">
+/**
+ * Every run of the drilldown in one list, failing runs first: its name, its facts, and a link to its panel,
+ * which holds every block. Says how many runs the run limit left out.
+ */
+function drilldownIndex(card: Scorecard, options: RenderOptions): string {
+  // A run not run or blocked is neither failing nor passing: it is counted on its own.
+  const unscored = card.drilldown.filter((run) => !['pass', 'fail'].includes(runDetailStatus(run))).length;
+  const failing = card.drilldown.filter((run) => runDetailStatus(run) === 'fail').length;
+  const passing = card.drilldown.length - failing - unscored;
+  const runs = card.drilldown.map((run) =>
+    runDetail({ ...run, blocks: [] }, options)
+      .replace(/ id="run-[^"]*"/, '')
+      .replace(' open>', '>')
+      .replace(
+        '</details>',
+        `<p><a href="#run-${esc(run.runId)}">Open the run panel: every block in full</a></p>\n</details>`,
+      ),
+  );
+  return `<section id="drilldown-index">
 <h2>Drilldown</h2>
-<p>Failing runs first, open and in full: each block with what the user sent, what the agent said and called, every verdict that did not pass and every judged verdict with its evidence and the judge's reasoning. Passing runs follow in brief. Shown: ${count(failing, 'failing run')} and ${count(passing, 'passing run')}.${card.omittedRuns > 0 ? ` ${count(card.omittedRuns, 'more run')} left out by the run limit.` : ''}</p>
-${card.drilldown.map((run) => runDetail(run, options)).join('\n')}
+<p>Failing runs first. Each run opens its panel, with every block: what the user sent, what the agent said and called, and every check with its evidence. Shown: ${count(failing, 'failing run')}${unscored > 0 ? `, ${count(unscored, 'run')} not run or blocked,` : ''} and ${count(passing, 'passing run')}.${card.omittedRuns > 0 ? ` ${count(card.omittedRuns, 'more run')} left out by the run limit.` : ''}</p>
+${runs.join('\n')}
 </section>`;
 }
 
@@ -639,9 +762,67 @@ export function renderRun(run: RunDetail, blockExtra: (block: BlockDetail) => st
   return `<section id="run">
 <h2 class="mono">${esc(name)}</h2>
 ${header.replace('</details>', '')}
+${parentCausesHtml(run.causes)}${timelineSection(run.events)}
 ${run.blocks.map((block) => blockDetail(block, blockExtra(block))).join('\n')}
+${stoppedSection(run.stopped)}
 </details>
 </section>`;
+}
+
+/** A verdict that stopped the run early: where it stopped, and the blocks it skipped. Empty when none did. */
+export function stoppedSection(stopped: StoppedRun | undefined): string {
+  if (stopped === undefined) return '';
+  const reason = stopped.reason === undefined ? '' : ` (${esc(stopped.reason)})`;
+  const rows = stopped.skipped
+    .map(
+      (block) =>
+        `<li><span class="mono">${esc(block.id)}</span>${block.stimulus === undefined ? '' : `: ${esc(block.stimulus)}`}</li>`,
+    )
+    .join('');
+  return `<section class="stopped">
+<h3>Stopped by verdict: ${esc(stopped.verdict)}${reason}</h3>
+<p>The run stopped after block ${stopped.after + 1}. These blocks were skipped by the verdict, so they did not run and do not count.</p>
+<ol start="${stopped.after + 2}">${rows}</ol>
+</section>`;
+}
+
+/** The events a run reported, in order, as a list. Plain HTML: no script, so it reads with scripts off. */
+export function timelineSection(events: readonly RunEvent[] | undefined): string {
+  if (events === undefined)
+    return '<h3>Timeline</h3>\n<p class="muted">No events were recorded for this run.</p>';
+  const items = events.map((event) => `<li class="event ${event.type}">${esc(eventText(event))}</li>`);
+  return `<h3>Timeline</h3>\n<ol class="timeline">\n${items.join('\n')}\n</ol>`;
+}
+
+function eventText(event: RunEvent): string {
+  switch (event.type) {
+    case 'block_start':
+      return `${event.at} block ${event.index} starts`;
+    case 'model_call': {
+      const tokens = [
+        event.inputTokens === undefined ? undefined : `${event.inputTokens} in`,
+        event.outputTokens === undefined ? undefined : `${event.outputTokens} out`,
+      ]
+        .filter(Boolean)
+        .join(', ');
+      const parts = [
+        `model call on block ${event.index}`,
+        `starts ${event.startedAt}, ends ${event.at}`,
+        tokens,
+        event.usd === undefined ? undefined : `${event.usd} USD`,
+        event.latencyMs === undefined ? undefined : `${event.latencyMs} ms`,
+      ];
+      return parts.filter(Boolean).join('; ');
+    }
+    case 'tool_call':
+      return `${event.at} tool ${event.label} on block ${event.index}${event.error === undefined ? '' : `, refused: ${event.error}`}`;
+    case 'retry':
+      return `${event.at} a retry on block ${event.index}`;
+    case 'block_end':
+      return `${event.at} block ${event.index} ${{ pass: 'passes', fail: 'fails', not_run: 'was not run', blocked: 'was blocked' }[blockStatus(event)]}`;
+    case 'run_end':
+      return `${event.at} run ends: ${event.status}`;
+  }
 }
 
 /** The compare section of a scorecard, on its own. */
@@ -661,6 +842,8 @@ function methodSection(): string {
 <li>Every interval is two-sided at 95%.</li>
 <li>Wilson: the score interval on k of n, used for a rate over independent units (the repeats of one golden, the goldens of a campaign).</li>
 <li>Cluster bootstrap: 2000 percentile resamples of whole clusters, seed 1, so the same store gives the same page. Anything pooled over blocks takes one run (one conversation) as one cluster; anything pooled over the runs of a mode takes one golden as one cluster.</li>
+<li>Hierarchical: the suite pass rate is the mean over goldens (every golden weighs the same, whatever its repeats). Its interval comes from a Beta-Bernoulli model that learns from the spread between goldens how far the runs of one golden move together; it needs no sampling, so the same store gives the same page. Next to it: the effective runs (n_eff, the runs divided by the design effect), the smallest drop two suites like this one detect at 80% power, and the share of runs that gave no verdict.</li>
+<li>Wilson on n_eff: a pass rate over clusters (the repeats of a golden, the blocks of a conversation) takes the Wilson interval on the effective number of units, the units divided by the design effect the spread of the cluster rates implies, with the Student t quantile on the clusters less one. The cell prints n_eff and the design effect.</li>
 <li>Wilson over clusters: a pass rate whose values all agree (every block passes, or none does) leaves a bootstrap no width, so it takes the Wilson interval with each cluster counted once.</li>
 <li>Newcombe: the paired difference of two rates, for baseline against candidate.</li>
 <li>No interval: a bootstrap over a single cluster has none; the page says so instead of drawing one.</li>
@@ -669,52 +852,228 @@ function methodSection(): string {
 </section>`;
 }
 
+/** The four faces, embedded so the page needs nothing outside itself (SIL Open Font License, fonts/OFL.txt). */
+const FONTS = [
+  ['Geist', GEIST, '300 600'],
+  ['Geist Mono', GEIST_MONO, '400 500'],
+  ['Libre Caslon Display', CASLON_DISPLAY, '400'],
+  ['Libre Caslon Text', CASLON_TEXT, '400'],
+]
+  .map(
+    ([family, data, weight]) =>
+      `@font-face{font-family:'${family}';font-weight:${weight};font-display:swap;src:url(data:font/woff2;base64,${data}) format('woff2')}`,
+  )
+  .join('\n');
+
+/*
+ * Nexus design system v1: page #F6F8FB, blue silk under frosted glass, Libre Caslon titles, Geist text, Geist
+ * Mono labels, cool neutrals, orange only for the focus ring. Fail takes the stop colours of the Nexus platform.
+ * Dark is the default; the checkbox #theme-light switches every token to the light set.
+ */
+const DARK = `--page:#0B0B0C;--card:#161618;--card-2:#1C1C1F;--ink:#F5F3F0;--ink-2:rgba(245,243,240,.72);--ink-3:rgba(245,243,240,.5);--line:rgba(255,255,255,.10);--line-2:rgba(255,255,255,.18);--blue:#7FA3F2;--blue-soft:#1A2238;--navy:#C9D6F0;--ok:#4DB97F;--ok-bg:#14301F;--ok-ink:#7FD9A4;--wait:#E0A62E;--wait-bg:#33290F;--wait-ink:#F0C060;--fail:color-mix(in srgb,#B42318 72%,#FECDCA);--fail-bg:color-mix(in srgb,#B42318 24%,#161618);--fail-ink:#FECDCA;--bubble:linear-gradient(180deg,#2A3F6A,#1C2C4E);--s-b:#C9D6F0;--s-c:#7FA3F2;--s-band:#4A5EA8;--grid:rgba(255,255,255,.08);--axis:rgba(255,255,255,.2);--label:rgba(245,243,240,.55);--glass:rgba(7,11,20,.38);--glass-line:rgba(255,255,255,.2);--shadow:0 20px 40px -28px rgba(0,0,0,.6);--chip-shadow:0 1px 0 rgba(0,0,0,.3),0 6px 16px -10px rgba(0,0,0,.6);--silk:radial-gradient(120% 90% at 78% 8%,rgba(141,178,240,.42),rgba(141,178,240,0) 55%),radial-gradient(90% 80% at 12% 30%,rgba(28,63,140,.85),rgba(28,63,140,0) 70%),linear-gradient(160deg,#06122B,#1C3F8C 60%,#06122B);--track:rgba(255,255,255,.10);--ci:#4A5EA8;--pt:#F5F3F0;color-scheme:dark`;
+const LIGHT = `--page:#F6F8FB;--card:#FFFFFF;--card-2:#EEF1F6;--ink:#0E1116;--ink-2:rgba(14,17,22,.68);--ink-3:rgba(14,17,22,.5);--line:rgba(14,17,22,.10);--line-2:rgba(14,17,22,.18);--blue:#2F5FD0;--blue-soft:#EEF3FB;--navy:#1B2A44;--ok:#2E9B63;--ok-bg:#E3F4EA;--ok-ink:#1F7A4A;--wait:#C98A00;--wait-bg:#FBF1DA;--wait-ink:#7A5300;--fail:#B42318;--fail-bg:#FEF3F2;--fail-ink:#B42318;--bubble:linear-gradient(180deg,#22345A,#16233F);--s-b:#1B2A44;--s-c:#2F5FD0;--s-band:#9DBDF2;--grid:rgba(14,17,22,.07);--axis:rgba(14,17,22,.18);--label:rgba(14,17,22,.55);--glass:rgba(255,255,255,.66);--glass-line:rgba(255,255,255,.6);--shadow:0 20px 40px -28px rgba(14,30,60,.35);--chip-shadow:0 1px 0 rgba(14,17,22,.06),0 6px 16px -10px rgba(14,30,60,.35);--silk:radial-gradient(120% 90% at 78% 8%,rgba(47,95,208,.16),rgba(47,95,208,0) 55%),radial-gradient(90% 80% at 12% 30%,rgba(228,238,253,.9),rgba(228,238,253,0) 70%),linear-gradient(160deg,#F7FAFF,#DCE6F4 55%,#BCD0EF);--track:rgba(14,17,22,.10);--ci:#9DBDF2;--pt:#0E1116;color-scheme:light`;
+
 const STYLE = `
-:root{--bg:#fbfbfa;--panel:#ffffff;--ink:#1d1f23;--muted:#61656e;--line:#e3e4e8;--accent:#3a5bd9;--ok:#1d7a46;--ok-bg:#e6f4ec;--bad:#b42318;--bad-bg:#fdecea;--warn:#8a5a00;--warn-bg:#fff6e0;--track:#e3e4e8;--ci:#9db0f0;--pt:#1d1f23;color-scheme:light}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121316;--panel:#1a1c20;--ink:#e8e9ec;--muted:#a1a5ae;--line:#2c2f36;--accent:#8ea6ff;--ok:#5cc98a;--ok-bg:#16301f;--bad:#ff8a7a;--bad-bg:#3a1a17;--warn:#f0c060;--warn-bg:#33290f;--track:#2c2f36;--ci:#4a5ea8;--pt:#e8e9ec;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#121316;--panel:#1a1c20;--ink:#e8e9ec;--muted:#a1a5ae;--line:#2c2f36;--accent:#8ea6ff;--ok:#5cc98a;--ok-bg:#16301f;--bad:#ff8a7a;--bad-bg:#3a1a17;--warn:#f0c060;--warn-bg:#33290f;--track:#2c2f36;--ci:#4a5ea8;--pt:#e8e9ec;color-scheme:dark}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:1200px;margin:0 auto;padding:24px 16px 64px}
-h1{font-size:24px;margin:4px 0 12px;word-break:break-all}
-h2{font-size:18px;margin:0 0 8px}
+:root{${DARK};--serif:'Libre Caslon Display',Georgia,serif;--serif-text:'Libre Caslon Text',Georgia,serif;--sans:'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;--mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--ease:cubic-bezier(.2,.7,.2,1);--gutter:clamp(16px,4.2vw,60px)}
+:root:has(#theme-light:checked){${LIGHT}}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page);color:var(--ink);font:400 15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+h1,h2,h3,p,figure{margin:0}
+a{color:var(--blue)}
+:focus-visible{outline:2px solid #FF6600;outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.theme-input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.theme-input:focus-visible~main .theme-btn{outline:2px solid #FF6600;outline-offset:2px}
+.theme-btn{display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:999px;border:1px solid var(--line-2);cursor:pointer;font:450 14px/1 var(--sans);transition:border-color .25s var(--ease)}
+.theme-btn:hover{border-color:var(--ink)}
+.theme-btn .to-dark,:root:has(#theme-light:checked) .theme-btn .to-light{display:none}
+:root:has(#theme-light:checked) .theme-btn .to-dark{display:inline}
+main{padding:0 0 64px}
+.wrap{max-width:1176px;margin-left:auto;margin-right:auto;padding-left:var(--gutter);padding-right:var(--gutter)}
+.kicker{font:500 12.5px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.mono{font-family:var(--mono)}.small{font-size:12.5px}.soft{color:var(--ink-2)}.nowrap{white-space:nowrap}
+.hero{position:relative;isolation:isolate;padding:0 0 48px;background:var(--silk)}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,transparent 65%,var(--page))}
+.hero .top{display:flex;justify-content:flex-end;padding:24px 0 24px}
+.hero h1{font-family:var(--serif);font-weight:400;letter-spacing:-.012em;font-size:clamp(30px,3.4vw,44px);line-height:1.06;margin:12px 0 0;overflow-wrap:anywhere}
+.hero .facts{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:16px}
+.hero .facts span{font:500 12.5px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.hero .facts b{font-weight:500;color:var(--ink)}
+.glass{margin-top:32px;border-radius:20px;background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);position:relative;padding:32px}
+.stat-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px}
+.stat .n{font-family:var(--serif-text);font-size:clamp(40px,4.4vw,56px);line-height:1.05;white-space:nowrap;font-variant-numeric:tabular-nums}
+.stat .n small{font-size:.42em;color:var(--ink-2);margin-left:6px}
+.stat .l{display:block;border-top:1px solid var(--line-2);margin-top:12px;padding-top:12px;font-size:16px;color:var(--ink);text-decoration:underline 1px dotted var(--ink-3);text-underline-offset:4px}
+.stat span.l{text-decoration:none}
+.stat .s{margin-top:4px;font:400 12.5px/1.35 var(--mono);letter-spacing:.04em;color:var(--ink-2)}
+.path{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;gap:8px;font:500 12.5px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.path i{font-style:normal;color:var(--ink-3)}.path b{font-weight:500;color:var(--ink)}.path-end{margin-left:auto}
+.zone{margin-top:48px}
+.zone-h{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.zone-h h2{font-family:var(--serif);font-weight:400;letter-spacing:-.012em;font-size:clamp(24px,2.2vw,30px);line-height:1.1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:24px}
+.card.tight{padding:8px 24px 16px}
+.charts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.chart h3{font:500 15px/1.3 var(--sans);display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.chart h3 span{font:500 11.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
+.chart svg{display:block;width:100%;height:auto;margin-top:12px}
+.chart figcaption{margin-top:12px;font:400 11.5px/1.4 var(--mono);color:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:8px;font-size:13px;color:var(--ink-2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.ser-b-fill{background:var(--s-b)}.ser-c-fill{background:var(--s-c)}.band-fill{background:var(--s-band)}
+svg .gridline{stroke:var(--grid);stroke-width:1}svg .axis{stroke:var(--axis);stroke-width:1}
+svg .tick{font:600 11px var(--sans);fill:var(--label)}svg .lab{font:400 11.5px var(--sans);fill:var(--ink)}svg .val{font:600 11.5px var(--sans);fill:var(--ink)}
+svg .ser-b .fill{fill:var(--s-b)}svg .ser-c .fill{fill:var(--s-c)}svg .band{fill:var(--s-band);opacity:.75}
+svg .hl{fill:var(--card-2);opacity:0}svg .row:hover .hl{opacity:1}
+:root:has(#vis-b:not(:checked)) .ser-b,:root:has(#vis-c:not(:checked)) .ser-c{display:none}
+.check{appearance:none;-webkit-appearance:none;display:inline-grid;place-items:center;width:20px;height:20px;margin:0;border:1px solid var(--line-2);border-radius:7px;background:var(--card);cursor:pointer;vertical-align:-4px}
+.check:checked{background:var(--ink);border-color:var(--ink)}
+.check:checked::after{content:"";width:10px;height:6px;border:2px solid var(--page);border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px}
+.vtag{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:var(--blue-soft);color:var(--ink);font:500 12px/1.3 var(--sans)}
+.delta{margin-left:8px;font:500 12.5px/1 var(--mono)}.delta.down{color:var(--fail-ink)}.delta.up{color:var(--ok-ink)}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px}
+.seg{display:inline-flex;padding:4px;border-radius:999px;background:var(--card-2);max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;color:var(--ink-2);font:450 14px/1 var(--sans);cursor:pointer;white-space:nowrap;transition:background-color .25s var(--ease),color .25s var(--ease)}
+.seg label:hover{color:var(--ink)}
+.seg input:checked+label{background:var(--card);color:var(--ink);box-shadow:var(--chip-shadow)}
+.seg input:focus-visible+label{outline:2px solid #FF6600;outline-offset:2px}
+.seg .c{font:500 12px/1 var(--mono);margin-left:6px;color:var(--ink-3)}
+.seg .mono-label{font-family:var(--mono);font-size:12.5px}
+.count{margin-left:auto;font:500 12.5px/1 var(--mono);color:var(--ink-2)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font:500 13px/1.3 var(--sans);white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.ok{background:var(--ok-bg);color:var(--ok-ink)}.chip.fail{background:var(--fail-bg);color:var(--fail-ink)}.chip.skip{background:var(--wait-bg);color:var(--wait-ink)}
+.move{display:block;font:500 12.5px/1.3 var(--mono);white-space:nowrap}
+.move.down{color:var(--fail-ink)}.move.up{color:var(--ok-ink)}.move.same{color:var(--ink-3)}
+td .move{display:inline}
+.test{border-top:1px solid var(--line)}
+.test>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:72px minmax(0,1fr) 150px var(--cks) 24px;gap:12px;align-items:center;padding:14px 8px;border-radius:12px;transition:background-color .25s var(--ease)}
+.test>summary::-webkit-details-marker{display:none}
+.test>summary:hover{background:var(--card-2)}
+.test .name{font:500 15.5px/1.35 var(--sans)}
+.test .id{font:400 12.5px/1.4 var(--mono);color:var(--ink-2);overflow-wrap:anywhere}
+.test .score{font-size:15px;font-variant-numeric:tabular-nums}
+.test .score small{display:block;font:400 12.5px/1.3 var(--mono);color:var(--ink-2)}
+.chev{width:16px;height:16px;fill:none;stroke:var(--ink-2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s var(--ease)}
+.test[open]>summary .chev,.fold[open]>summary .chev{transform:rotate(180deg)}
+.thead{display:grid;grid-template-columns:72px minmax(0,1fr) 150px var(--cks) 24px;gap:12px;padding:0 8px 10px;border-bottom:1px solid var(--ink);align-items:end}
+.thead>span,.grid-table th{font:500 12px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.ckrow{display:grid;grid-template-columns:repeat(var(--nck),64px);gap:4px;justify-content:end}
+.cph{font:500 11px/1.2 var(--mono);letter-spacing:.02em;text-align:center;color:var(--ink-2)}
+.cp{display:inline-flex;justify-content:center;padding:2px 6px;border-radius:999px;font:500 12.5px/1.4 var(--sans);white-space:nowrap}
+.cp.ok{background:var(--ok-bg);color:var(--ok-ink)}.cp.none{background:var(--card-2);color:var(--ink-3);font-size:11.5px}.cp.fail{background:var(--fail-bg);color:var(--fail-ink)}
+:root:has(#tf-fail:checked) .test:not(.t-fail),:root:has(#tf-pass:checked) .test:not(.t-pass),:root:has(#tf-reg:checked) .test:not(.t-reg),:root:has(#rf-fail:checked) .run-row:not(.r-fail),:root:has(#rf-pass:checked) .run-row:not(.r-pass){display:none}
+.cases{padding:4px 8px 20px 92px}
+.grid-table{width:100%;border-collapse:collapse;font:400 14px/1.4 var(--sans);font-variant-numeric:tabular-nums}
+.grid-table th{text-align:left;padding:12px 10px 10px;border-bottom:1px solid var(--ink);white-space:nowrap}
+.grid-table td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.grid-table .num{text-align:right}
+.link{color:var(--blue);text-decoration:none;font:450 14px/1.3 var(--sans)}.link:hover{text-decoration:underline}
+.anchor{display:block;position:relative;top:-16px}
+.pill{display:none;align-items:center;gap:8px;height:32px;padding:0 6px 0 12px;border-radius:999px;background:var(--blue-soft);font:450 13.5px/1 var(--sans)}
+.pill a{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;color:var(--ink-2)}
+.pill svg,.x svg,.chk .m svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.runs tbody tr{position:relative;transition:background-color .25s var(--ease)}
+.runs tbody tr:hover{background:var(--card-2)}
+.runs td.t{max-width:440px}
+.rowlink{color:var(--ink);text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rowlink::after{content:"";position:absolute;inset:0}
+.runs td.t small{display:block;font:400 12.5px/1.3 var(--mono);color:var(--ink-2)}
+.sq{display:inline-flex;gap:3px;vertical-align:middle}
+.sq i{display:block;width:12px;height:12px;border-radius:3px;background:var(--ok)}
+.sq i.f{background:var(--fail)}.sq i.s{background:var(--wait)}.sq i.inj{box-shadow:inset 0 0 0 2px var(--card)}
+.firstfail{font:400 12.5px/1.35 var(--mono);color:var(--ink-2)}.firstfail b{font-weight:500;color:var(--fail-ink)}
+.scrim{display:none;position:fixed;inset:0;z-index:40;background:rgba(14,17,22,.4)}
+#drilldown:has(.drawer:target) .scrim{display:block}
+.drawer{display:none;position:fixed;top:0;right:0;bottom:0;z-index:41;width:min(820px,100vw);background:var(--page);box-shadow:-20px 0 50px -20px rgba(0,0,0,.5);flex-direction:column}
+.drawer:target{display:flex}
+.dh{padding:20px 24px 16px;border-bottom:1px solid var(--line);background:var(--card)}
+.dh .row{display:flex;gap:12px;align-items:flex-start}
+.dtitle{flex:1;font-family:var(--serif);font-size:24px;line-height:1.15;letter-spacing:-.012em}
+.x{display:grid;place-items:center;width:36px;height:36px;flex:none;border-radius:50%;border:1px solid var(--line-2);color:var(--ink)}
+.dstatus{margin-top:8px}.open{font-size:13px;margin-left:8px}
+.dfacts{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:12px;font:400 12.5px/1.4 var(--mono);color:var(--ink-2)}
+.dfacts b{font-weight:500;color:var(--ink)}
+.dtabs{margin-top:16px}
+.db{flex:1;overflow:auto;padding:24px}
+.pane{display:none}
+.drawer:has(.tab-conv:checked) .pane-conv,.drawer:has(.tab-checks:checked) .pane-checks,.drawer:has(.tab-data:checked) .pane-data{display:block}
+.blk{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px}
+.blk.bad{border-color:color-mix(in srgb,var(--fail) 45%,transparent)}
+.bh{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-bottom:12px}.bh .kicker{flex:1}
+.stage{font:400 12.5px/1.3 var(--mono);color:var(--ink-2)}.stage.miss{color:var(--fail-ink)}
+.who{font:500 11.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:4px 0 6px}.who.r{text-align:right}
+.msg{white-space:pre-wrap;overflow-wrap:anywhere;font:400 15px/1.5 var(--sans);padding:10px 14px;max-width:88%;margin:0 0 8px}
+.msg.user{background:var(--bubble);color:#fff;border-radius:16px 16px 16px 4px}
+.msg.agent{background:var(--card-2);border-radius:16px 16px 4px 16px;margin-left:auto}
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px;justify-content:flex-end}
+.tool>summary{list-style:none;cursor:pointer;display:inline-flex;padding:3px 10px;border:1px solid var(--line-2);border-radius:7px;font:400 13px/1.4 var(--mono)}
+.tool>summary::-webkit-details-marker{display:none}
+.tool.err>summary{border-color:var(--fail);color:var(--fail-ink)}
+.tool[open]{flex-basis:100%}
+.chk{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.chk .m{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;margin-top:1px}
+.chk.f .m{background:var(--fail);color:#fff}.chk.p .m{background:var(--ok-bg);color:var(--ok-ink)}.chk.i .m{background:var(--wait-bg);color:var(--wait-ink)}
+.chk .cid{font:500 13px/1.4 var(--mono);overflow-wrap:anywhere}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--card-2);color:var(--ink-2);font-size:12px}
+.chk .ev{color:var(--ink-2);font-size:13.5px;overflow-wrap:anywhere;margin-top:2px}
+.fold>summary{list-style:none;cursor:pointer;padding:8px 0;border-top:1px solid var(--line);font-size:14px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+.fold>summary::-webkit-details-marker{display:none}
+.ids{margin:0 0 8px;font:400 12.5px/1.5 var(--mono);color:var(--ink-2);overflow-wrap:anywhere}
+.kv{display:grid;grid-template-columns:200px minmax(0,1fr);margin:0;font-size:14px}
+.kv dt,.kv dd{margin:0;padding:10px 0;border-bottom:1px solid var(--line)}
+.kv dt{font:500 12px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.kv dd{font:400 14px/1.4 var(--mono);overflow-wrap:anywhere}
+.empty{padding:16px 0;color:var(--ink-2)}
+details.more{background:var(--card);border:1px solid var(--line);border-radius:16px;margin:8px 0}
+details.more>summary{cursor:pointer;padding:14px 20px;font:500 15px/1.3 var(--sans)}
+details.more>section,details.more>.table-wrap,details.more>p{margin:0 20px 16px}
+main>section:not(.zone),details.more>section,details.more>header{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:16px auto;max-width:1176px}
+details.more>section,details.more>header{border:0;padding:0 20px 16px;margin:0}
+main>section:not(.zone) h2,details.more h2{font:500 17px/1.3 var(--sans);margin:0 0 8px}
 h3{font-size:15px;margin:16px 0 6px}
-section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin:16px 0}
-.eyebrow{margin:0;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:12px}
-.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px 16px;margin:0}
-.facts dt{color:var(--muted);font-size:12px}.facts dd{margin:0}
+dl.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px 16px;margin:8px 0 0}
+dl.facts dt{color:var(--ink-2);font:500 12px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.08em}dl.facts dd{margin:0}
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
-.tile{border:1px solid var(--line);border-radius:8px;padding:10px}
-.tile p{margin:0}.tile-label{color:var(--muted);font-size:12px}.tile-value{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
-.tile-ci{font-size:12px;font-variant-numeric:tabular-nums}.tile-note{color:var(--muted);font-size:12px}
-.verdict{border-radius:8px;padding:10px 12px;margin:0 0 12px}.verdict p{margin:0}.verdict-label{font-weight:700;font-size:16px}
-.verdict-non-inferior{background:var(--ok-bg);color:var(--ok)}.verdict-regressed{background:var(--bad-bg);color:var(--bad)}.verdict-unproven{background:var(--warn-bg);color:var(--warn)}
+.tile{border:1px solid var(--line);border-radius:12px;padding:12px}
+.tile p{margin:0}.tile-label{color:var(--ink-2);font-size:12.5px}.tile-value{font:400 26px/1.2 var(--serif-text);font-variant-numeric:tabular-nums}
+.tile-ci{font-size:12.5px;font-variant-numeric:tabular-nums}.tile-note{color:var(--ink-2);font-size:12.5px}
+.verdict{border-radius:12px;padding:10px 12px;margin:0 0 12px}.verdict p{margin:0}.verdict-label{font-weight:600;font-size:16px}
+.verdict-non-inferior{background:var(--ok-bg);color:var(--ok-ink)}.verdict-regressed{background:var(--fail-bg);color:var(--fail-ink)}.verdict-unproven{background:var(--wait-bg);color:var(--wait-ink)}
 .table-wrap{overflow-x:auto;margin:8px 0}
-table{border-collapse:collapse;width:100%;font-size:13px}
-caption{text-align:left;font-weight:600;padding:4px 0}
-th,td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:left;vertical-align:top}
-th{color:var(--muted);font-weight:500;white-space:nowrap}
-td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
-.ci{color:var(--muted);font-size:12px}
-.mono,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+caption{text-align:left;font-weight:500;padding:4px 0}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{color:var(--ink-2);font-weight:500;white-space:nowrap}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.ci{color:var(--ink-2);font-size:12px}
+pre{font-family:var(--mono);font-size:12.5px;background:var(--card-2);border-radius:12px;padding:10px 12px;margin:6px 0 0;white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto}
 td.mono{overflow-wrap:anywhere;min-width:12ch}span.mono{overflow-wrap:anywhere}
 .evidence{white-space:pre-wrap;max-width:420px;word-break:break-word}
-.muted,.note{color:var(--muted)}.note{font-size:12px}
-.row-bad td{background:var(--bad-bg)}.row-warn td{background:var(--warn-bg)}.row-total td{font-weight:600}
-.bad{color:var(--bad)}
-.bar{display:block;width:96px;height:6px;margin-top:2px}.bar.wide{display:inline-block;width:160px;vertical-align:middle}
+.muted,.note{color:var(--ink-2)}.note{font-size:12.5px}
+.row-bad td{background:var(--fail-bg)}.row-warn td{background:var(--wait-bg)}.row-total td{font-weight:600}
+.bad{color:var(--fail-ink)}
+svg.bar{display:block;width:96px;height:6px;margin-top:2px}svg.bar.wide{display:inline-block;width:160px;vertical-align:middle}
 .bar-track{fill:var(--track)}.bar-ci{fill:var(--ci)}.bar-pt{fill:var(--pt)}
 table.compact{width:auto}
-.stats,.reasons{margin:8px 0;padding-left:20px}
-details.run{border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:6px 0}
+ul.stats,.reasons{margin:8px 0;padding-left:20px}
+details.run{border:1px solid var(--line);border-radius:12px;padding:6px 10px;margin:6px 0}
 details.run>summary{cursor:pointer}
-.run-facts{color:var(--muted);margin:6px 0}
-.badge{display:inline-block;border-radius:4px;padding:0 6px;font-size:12px;font-weight:600}
-.badge.ok{background:var(--ok-bg);color:var(--ok)}.badge.bad{background:var(--bad-bg);color:var(--bad)}
+.run-facts{color:var(--ink-2);margin:6px 0}
+.badge{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;font-weight:500}
+.badge.ok{background:var(--ok-bg);color:var(--ok-ink)}.badge.bad{background:var(--fail-bg);color:var(--fail-ink)}.badge.skip{background:var(--wait-bg);color:var(--wait-ink)}
 .block{border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:10px 0}
-.block-fail{border-left-color:var(--bad)}.block-pass{border-left-color:var(--ok)}
-.block-head{margin:0 0 4px}a{color:var(--accent)}.open{font-size:12px;margin-left:6px}nav.top{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin:0 0 8px}nav.top a{text-decoration:none}.labels{border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}.labels form{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.labels select,.labels input,.labels button{font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);max-width:100%}.labels input[name=note]{flex:1 1 180px;min-width:0}.saved{background:var(--ok-bg);color:var(--ok);border-radius:8px;padding:8px 12px}.passed{margin:6px 0;font-size:12px;word-break:break-word}.label{margin:6px 0 2px;color:var(--muted);font-size:12px}
-pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin:0;white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto}
+.block-fail{border-left-color:var(--fail)}.block-pass{border-left-color:var(--ok)}.block-skip{border-left-color:var(--wait)}
+.block-head{margin:0 0 4px}.label{margin:6px 0 2px;color:var(--ink-2);font-size:12.5px}.passed{margin:6px 0;font-size:12.5px;word-break:break-word}
 .call{margin:4px 0}.call p{margin:0 0 2px}
-@media (max-width:600px){main{padding:16px 16px 48px}section{padding:12px}.tile-value{font-size:18px}}
+nav.top{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;max-width:1176px;margin:0 auto;padding:16px var(--gutter)}nav.top a{text-decoration:none}
+.labels{border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}.labels form{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.labels select,.labels input,.labels button{font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);max-width:100%}.labels input[name=note]{flex:1 1 180px;min-width:0}
+.saved{background:var(--ok-bg);color:var(--ok-ink);border-radius:8px;padding:8px 12px}
+@media (max-width:980px){.charts{grid-template-columns:1fr}}
+@media (max-width:760px){.stat-row{grid-template-columns:1fr;gap:20px}.glass{padding:20px}.card{padding:16px;border-radius:20px}.test>summary,.thead{grid-template-columns:72px minmax(0,1fr) 24px}.hide-s{display:none}.cases{padding:4px 0 16px}.kv{grid-template-columns:1fr}.kv dt{border-bottom:0;padding-bottom:0}.msg{max-width:100%}.path-end{margin-left:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 `;

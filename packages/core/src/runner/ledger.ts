@@ -58,12 +58,11 @@ export function ledgerContradictions(
     }
   }
 
-  const said = userMessages.map((message) => message.content).join('\n');
   for (const { fact, value } of facts.values()) {
     if (typeof value !== 'string') continue;
     const kind = kindOf(value);
     if (!kind) continue;
-    const others = valuesOf(kind, said).filter((other) => !sameValue(other, value));
+    const others = saidValues(kind, userMessages).filter((other) => !sameValue(other, value));
     if (others.length === 0) continue;
     const stated = valuesOf(kind, observed.text);
     if (stated.length === 0) continue;
@@ -141,6 +140,48 @@ function kindOf(value: string): 'email' | 'phone' | undefined {
   if (new RegExp(`^${PHONE.source}$`).test(value.trim()) && digits(value).length >= PHONE_DIGITS)
     return 'phone';
   return undefined;
+}
+
+const saidOf = new WeakMap<Message, { email?: string[]; phone?: string[] }>();
+
+/** The values a list of user messages names so far, per kind, and how many of its messages they cover. */
+type Said = { count: number; last: Message | undefined; values: string[] };
+const saidOfList = new WeakMap<readonly Message[], { email?: Said; phone?: Said }>();
+
+/**
+ * The values of a kind the user messages name, in order. A message is read once for the life of the message
+ * (a newline ends a value, so reading the messages one by one finds what reading them joined finds). A list
+ * the runner passes again after appending to it is read from where the last call stopped, so the cost of a
+ * block does not grow with the conversation before it. A list that shrank, or whose last read message was
+ * replaced, is read again from the start.
+ */
+function saidValues(kind: 'email' | 'phone', messages: readonly Message[]): string[] {
+  let lists = saidOfList.get(messages);
+  if (!lists) {
+    lists = {};
+    saidOfList.set(messages, lists);
+  }
+  let said = lists[kind];
+  if (!said || said.count > messages.length || (said.count > 0 && messages[said.count - 1] !== said.last)) {
+    said = { count: 0, last: undefined, values: [] };
+  }
+  for (let index = said.count; index < messages.length; index += 1) {
+    const message = messages[index] as Message;
+    let read = saidOf.get(message);
+    if (!read) {
+      read = {};
+      saidOf.set(message, read);
+    }
+    read[kind] ??= valuesOf(
+      kind,
+      typeof message.content === 'string' ? message.content : String(message.content ?? ''),
+    );
+    said.values.push(...read[kind]);
+  }
+  said.count = messages.length;
+  said.last = messages.at(-1);
+  lists[kind] = said;
+  return said.values;
 }
 
 function valuesOf(kind: 'email' | 'phone', text: string): string[] {

@@ -2,9 +2,11 @@ criterion:
   name: no_invented_data
   rubric: >
     Every plan, price, order number and account fact in the reply comes from a tool result or from the
-    customer. Nothing is guessed.
+    customer. Nothing is guessed. Judge from the slice: a fact that no tool result in the slice holds and
+    the customer never gave is invented, also when the slice has no tool call at all. A missing tool
+    result is evidence of invention, not a reason for inconclusive.
   pass: Each plan and price in the reply appears in a tool result of the slice.
-  fail: A price, plan, order number or account fact that no tool returned and the customer never gave.
+  fail: A price, plan, order number or account fact that no tool result in the slice holds and the customer never gave, with or without a tool call in the slice.
   gating: true
   judge_class: system2
 fixtures:

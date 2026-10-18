@@ -1,4 +1,4 @@
-# @driftbench/vitest
+# @agent-nexus/driftbench-vitest
 
 Run a driftbench spec inside a vitest suite: `describeSpec(path, target)` registers one test per block, with the evidence of each failing verdict.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install --save-dev @driftbench/vitest @driftbench/adapters vitest
+npm install --save-dev @agent-nexus/driftbench-vitest @agent-nexus/driftbench-adapters vitest
 ```
 
 Node.js 22 or newer, vitest 3 or newer. ESM only, with TypeScript types.
@@ -15,8 +15,8 @@ Node.js 22 or newer, vitest 3 or newer. ESM only, with TypeScript types.
 ## Use
 
 ```ts
-import { functionAdapter } from '@driftbench/adapters';
-import { describeSpec } from '@driftbench/vitest';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { describeSpec } from '@agent-nexus/driftbench-vitest';
 import { respond } from './my-agent';
 
 describeSpec('specs/plan-upgrade.yaml', functionAdapter({ respond }));
@@ -30,4 +30,4 @@ The spec runs once, free-running, with the scripted driver and the default machi
 
 ## License
 
-Apache-2.0
+MIT

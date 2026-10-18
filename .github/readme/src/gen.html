@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: tests written by code</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* A toy example of synthetic test generation for a reader with no context: three settings, the eight
+     combinations, the four tests that hold every pair of settings (an orthogonal array, the smallest covering
+     array here), and one planted bug that one of the four tests catches. No measured number is drawn. */
+  #frame { width: 640px; height: 360px; }
+  .p { top: 40px; height: 250px; padding: 12px; }
+  .p .nx-kind { position: static; display: block; }
+  .p .t { margin-top: 6px; font: 600 13px/1.25 var(--nx-sans); color: var(--nx-ink); }
+  .s1 { left: 16px; width: 158px; }
+  .s2 { left: 190px; width: 196px; }
+  .s3 { left: 402px; width: 204px; }
+  .set { margin-top: 12px; }
+  .set .n { font: 500 10.5px/1 var(--nx-mono); color: var(--kind); text-transform: uppercase; letter-spacing: .6px; }
+  .set .v { margin-top: 6px; display: flex; gap: 5px; }
+  .chip { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--pill-border); background: var(--nx-card); font: 500 11px/1 var(--nx-sans); color: var(--pill-ink); }
+  .grid { margin-top: 10px; display: grid; grid-template-columns: 1fr; gap: 4px; }
+  .cell { height: 19px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font: 500 10.5px/1 var(--nx-sans); color: var(--miss-ink); background: var(--miss-bg); }
+  .cell.pick { background: var(--tile); color: var(--tile-ink); font-weight: 600; box-shadow: 0 0 0 1.5px var(--nx-blue); }
+  .tests { margin-top: 12px; display: grid; gap: 6px; }
+  .test { display: flex; align-items: center; gap: 7px; height: 30px; padding: 0 9px; border-radius: 9px; border: 1px solid var(--nx-ill-panel-border); font: 500 11px/1 var(--nx-sans); color: var(--nx-ink); }
+  .test .num { font: 500 10px/1 var(--nx-mono); color: var(--kind); }
+  .test .r { margin-left: auto; }
+  .test.caught { box-shadow: 0 0 0 2px var(--nx-blue); }
+  .x { display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 999px; background: var(--nx-ink); color: var(--nx-card); font: 600 10px/1 var(--nx-sans); }
+  .bug { margin-top: 10px; font: 400 11px/1.4 var(--nx-sans); color: var(--detail); }
+  .bug b { color: var(--nx-ink); font-weight: 600; }
+  .foot { left: 16px; top: 304px; width: 590px; height: 40px; display: flex; align-items: center; padding: 0 14px; font: 500 12px/1.3 var(--nx-sans); color: var(--nx-ink); }
+  .nx-done { height: 18px; }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <svg class="nx-edges" viewBox="0 0 620 340">
+      <path class="nx-edge" d="M174 160 L190 160"/>
+      <path class="nx-edge--new" d="M386 160 L402 160"/>
+    </svg>
+    <span class="nx-kind" style="left:16px;top:16px">Tests written by code, a small example</span>
+
+    <div class="nx-ill-panel p s1">
+      <span class="nx-kind">1 · You list</span>
+      <div class="t">What can vary</div>
+      <div class="set"><div class="n">Language</div><div class="v"><span class="chip">English</span><span class="chip">French</span></div></div>
+      <div class="set"><div class="n">Customer</div><div class="v"><span class="chip">New</span><span class="chip">Returning</span></div></div>
+      <div class="set"><div class="n">Payment</div><div class="v"><span class="chip">Card</span><span class="chip">Transfer</span></div></div>
+    </div>
+
+    <div class="nx-ill-panel p s2">
+      <span class="nx-kind">2 · Code picks</span>
+      <div class="t">4 of the 8 combinations</div>
+      <div class="grid">
+        <div class="cell pick">English, new, card</div><div class="cell">English, new, transfer</div>
+        <div class="cell">English, returning, card</div><div class="cell pick">English, returning, transfer</div>
+        <div class="cell">French, new, card</div><div class="cell pick">French, new, transfer</div>
+        <div class="cell pick">French, returning, card</div><div class="cell">French, returning, transfer</div>
+      </div>
+    </div>
+
+    <div class="nx-ill-panel p s3">
+      <span class="nx-kind">3 · The tests run</span>
+      <div class="t">A hidden bug: French plus transfer</div>
+      <div class="tests">
+        <div class="test"><span class="num">1</span>English, new, card<span class="r nx-done">pass</span></div>
+        <div class="test"><span class="num">2</span>English, returning, transfer<span class="r nx-done">pass</span></div>
+        <div class="test caught"><span class="num">3</span>French, new, transfer<span class="r x">caught</span></div>
+        <div class="test"><span class="num">4</span>French, returning, card<span class="r nx-done">pass</span></div>
+      </div>
+    </div>
+
+    <div class="nx-ill-panel foot">Half the tests, every pair of settings still meets, and the bug is caught.</div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 11px Geist', '500 11px Geist', '600 13px Geist', '500 10.5px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

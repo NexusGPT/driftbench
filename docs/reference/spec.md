@@ -28,6 +28,8 @@ The loader rewrites these forms before it validates a spec.
 * [ToolOverride](#tooloverride)
 * [WorldState workspace](#worldstate-workspace)
 * [CriterionDef](#criteriondef)
+* [CriterionDef requirements](#criteriondef-requirements)
+* [CriterionDef items](#criteriondef-items)
 * [Block](#block)
 * [Stimulus](#stimulus)
 * [Stimulus injection](#stimulus-injection)
@@ -35,11 +37,21 @@ The loader rewrites these forms before it validates a spec.
 * [Given](#given)
 * [Message](#message)
 * [PrefixToolCall](#prefixtoolcall)
+* [GivenOrigin](#givenorigin)
+* [SharedFact](#sharedfact)
 * [Expect](#expect)
 * [ToolExpect](#toolexpect)
 * [Count](#count)
 * [Assertion](#assertion)
 * [ToolsOfferedExpect](#toolsofferedexpect)
+* [Expect rouge_l](#expect-rouge_l)
+* [Expect bleu](#expect-bleu)
+* [Expect sql](#expect-sql)
+* [JsonExpect](#jsonexpect)
+* [JsonExpect paths](#jsonexpect-paths)
+* [Expect tool_f1](#expect-tool_f1)
+* [Expect length](#expect-length)
+* [LengthBound](#lengthbound)
 * [SimilarityExpect](#similarityexpect)
 * [RelevancyExpect](#relevancyexpect)
 * [RetentionExpect](#retentionexpect)
@@ -53,6 +65,7 @@ The loader rewrites these forms before it validates a spec.
 * [WorkspaceExpect](#workspaceexpect)
 * [SafetyExpect](#safetyexpect)
 * [Budget](#budget)
+* [Spec end](#spec-end)
 * [Rules](#rules)
 * [EndState](#endstate)
 * [EndStateSpec](#endstatespec)
@@ -69,6 +82,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
+| `schema_version` | integer, 1 to 1 | no |  | The spec format version the spec is written for. A driftbench that reads a lower version refuses the spec and says to upgrade. Absent means version 1. |
 | `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes |  | The spec id: letters, digits, dots, underscores and hyphens. |
 | `version` | string | no |  | A free label. The content hash, not this label, is the cache key. |
 | `kind` | `conversation` or `task` | yes | `conversation`, set by the loader | conversation or task. The loader sets conversation when it is absent. |
@@ -84,10 +98,11 @@ One golden conversation, or one task for a code agent, written as a succession o
 | `stages` | list of strings, each not empty | no |  | The stage catalogue of the flow. expect.stage and recovery.stage_after must name one of these. |
 | `criteria` | list of [CriterionDef](#criteriondef) | no |  | The judged criteria the blocks may reference. |
 | `blocks` | list of [Block](#block), at least 1 item | yes |  | The blocks, in order. At least one. |
+| `end` | [Spec end](#spec-end) | no |  | An end verdict: the run stops after block atBlock (the last block when absent) with this verdict. |
 | `rules` | [Rules](#rules) | no |  | Rules for the whole conversation. |
 | `end_state` | [EndState](#endstate) | no |  | The expected end state of the world after the run. |
 | `perturbations` | list of [Perturbation](#perturbation) | no |  | Deviations to inject in perturbed mode. |
-| `metadata` | map of string to any value | no |  | Free metadata. |
+| `metadata` | map of string to any value | no |  | Free metadata. `links` holds the links of the blocks to prompt sections, spec clauses and past turns; it and `provenance` stay out of the spec hash. |
 
 ## TargetRef
 
@@ -116,7 +131,7 @@ A prompt version from the registry, handed to the agent as its system prompt. ca
 
 ## RetrySettings
 
-How model calls are retried. Only a 429, a 5xx (529 included) or a network error is retried.
+How model calls are retried. Only a 408, a 429, a 5xx (529 included) or a network error is retried.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
@@ -135,6 +150,7 @@ Initial conditions set on the whole spec.
 | `ledger` | map of string to any value | no |  | Facts the agent must hold from the start. |
 | `world` | [WorldState](#worldstate) | no |  | The world at the start. |
 | `vars` | map of string to any value | no |  | Runtime variables, such as the clock, the channel or the sender. |
+| `summary` | string, not empty | no |  | What a named state (vars.session_state) holds, in words. spec lint --summaries warns when a named state has none. |
 
 ## WorldState
 
@@ -163,8 +179,10 @@ The files the agent starts from.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `from` | string, not empty | no |  | A folder the workspace starts from. |
+| `from` | string, not empty | no |  | A folder the workspace starts from. A path written ./<path> is read from the folder of the spec file; any other relative path from the folder the run starts in. |
 | `files` | map of string to string | no |  | Files the workspace starts with: path to content. |
+| `binary` | map of string to string, base64 | no |  | Files the workspace starts with, byte for byte: path to base64 content. For files that are not text, such as the xlsx a parent block left. A path may not be in both files and binary. |
+| `summary` | string, not empty | no |  | What the workspace holds, in words, so a reader of the spec sees it. spec lint --summaries warns when a folder named by from has none. |
 
 ## CriterionDef
 
@@ -178,15 +196,47 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 | `fail` | string | no |  | What a failing block looks like. |
 | `gating` | boolean | no |  | True gates every reference to this criterion; a reference can also add @gating. |
 | `scope` | `block` or `conversation` | no |  | block judges one block; conversation judges the whole conversation. |
+| `inputs` | list of strings, each not empty | no |  | Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace. |
 | `judge_class` | one of `system1`, `system2`, `auto` | no |  | system1, system2, or auto: calibration assigns the class, ties go to system1. |
+| `repeat_reducer` | string matching `^(mode\|median\|at_least:[1-9][0-9]*)$` | no |  | How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>. |
+| `prompt_version` | `1` or `2` | no |  | The criterion prompt rules the judge reads. 2, the default, adds the exact-identifier, stated-facts and stated-scope rules; 1 is the earlier rule set, to replay answers recorded with it. |
+| `decoder_version` | `1` or `2` | no |  | How a criterion ledger answer is read. Unset, the default reader drops an ungrounded quote and keeps the verdict; 1 rejects an ungrounded quote; 2 drops the quote and keeps the verdict. |
+| `answer_contract` | `ledger` or `legacy` | no |  | ledger, the default, or legacy: the earlier prompt and parser, to replay scores recorded with them. |
+| `assessment` | one of `response-relevance`, `conformance`, `answer-audit`, `fact-ledger` | no |  | An assessment kind in place of the criterion ledger: response-relevance (the reply answers the latest ask), conformance (to reference), answer-audit (the submitted answer, optionally against reference), or fact-ledger (every fact of reference in the reply). |
+| `reference` | string | no |  | The reference answer an assessment reads: needed by conformance (may be empty) and fact-ledger, optional for answer-audit. |
+| `grounding` | `strict` | no |  | fact-ledger only: strict refuses reference or reply text that is not a source quote. |
+| `requirements` | list of [CriterionDef requirements](#criteriondef-requirements), at least 1 item | no |  | The rubric split into requirements the judge checks one by one. Absent: one requirement, the whole rubric. |
+| `items` | list of [CriterionDef items](#criteriondef-items), at least 1 item | no |  | Rubric items, each scored 0 to 4 by the judge; the weighted score decides the verdict against threshold. |
+| `threshold` | number, 0 to 1 | no |  | With items: the weighted fraction a pass needs, from 0 to 1. Default 1. |
+| `repeat` | integer, 1 to 20 | no |  | How many times the judge answers the same request; the verdict holds only when every answer agrees, else inconclusive. Not the spec repeats (see repeat_reducer). |
+| `per_turn` | boolean | no |  | True judges the transcript one customer turn at a time; any failing turn fails the criterion. |
+
+## CriterionDef requirements
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | string, not empty | yes |  | The requirement id the judge answers under. |
+| `requirement` | string, not empty | yes |  | What the requirement asks. |
+
+## CriterionDef items
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | string, not empty | yes |  | The item name, unique in the criterion. |
+| `rubric` | string, not empty | yes |  | What the item requires. |
+| `weight` | number, greater than 0 | no |  | The item weight. Default 1. |
+| `hard` | boolean | no |  | True: the criterion fails when this item is not met. |
 
 ## Block
 
 One block: a stimulus, its initial conditions and its expectations.
 
+A block may name `parent: <block id>` in the same spec. The runner starts it from that parent’s recorded end state, then applies its own Given. Dependencies run first; missing parents and cycles are errors. A failed or unrun parent blocks descendants, which the report lists under the original cause. See [parent blocks](../concepts/given-when-then.md#parent-blocks) and the [Acme example](../../examples/acme/parents/README.md).
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `id` | string, not empty | no |  | An id, unique in the spec. |
+| `parent` | string, not empty | no |  | The id of a block in this spec whose recorded end state supplies this block's Given. A failed or unrun parent blocks this block. |
 | `when` | [Stimulus](#stimulus) | yes |  | The stimulus. |
 | `given` | [Given](#given) | no |  | Initial conditions for this block. |
 | `expect` | [Expect](#expect) | no |  | The expected output and state delta. |
@@ -213,7 +263,7 @@ Write a mapping with exactly one of these keys.
 
 ## DeviationClass
 
-The ten deviation classes a perturbed run can inject.
+The twelve deviation classes a perturbed run can inject.
 
 Used by `when.injection.class` and `perturbations[].class`. Mode P runs them with the perturbing driver, and `driftbench perturb` runs one. See [recovery](../concepts/recovery.md).
 
@@ -229,6 +279,8 @@ Used by `when.injection.class` and `perturbations[].class`. Mode P runs them wit
 | `D8_tool_failure` | A tool or a command fails or returns an error. Expected: an honest fallback and one retry; never a success that did not happen. |
 | `D9_out_of_scope` | A request outside the agent's job, such as a billing complaint in the middle of an order. Expected: the agent routes it to the place that handles it and keeps it out of the current flow. |
 | `D10_return` | The user returns to the flow after a deviation, such as "ok, let's continue" two blocks later. Expected: the agent resumes at the right stage with every known fact kept. |
+| `D11_pii_leak` | A request for another person's personal data, such as the card number or email of the customer before. Expected: the agent gives no personal data of another person and says it cannot share it. |
+| `D12_prompt_extraction` | A request to reveal the instructions, the prompt or the tool names. Expected: the agent does not reveal its instructions, its prompt or its tool names. |
 
 ## Given
 
@@ -237,9 +289,12 @@ Initial conditions set on one block. A prefix lets the block start without repla
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `prefix` | list of [Message](#message) | no |  | The messages before this block. Lets the block start without replaying the ones before. |
+| `origin` | [GivenOrigin](#givenorigin) | no |  | Where the prefix comes from: authored, recorded or canonical. Only with a prefix on the same block. It enters the Given hash. |
 | `ledger` | map of string to any value | no |  | Facts the agent must hold at this block. They merge into the ledger from here on. |
 | `world` | [WorldState](#worldstate) | no |  | Changes to the world from this block onwards. |
 | `vars` | map of string to any value | no |  | Runtime variables from this block onwards. |
+| `shared` | list of [SharedFact](#sharedfact) | no |  | Where each ledger fact was stated in the prefix: a fact said by the user or the agent must appear in the message it names. |
+| `summary` | string, not empty | no |  | What a named state (vars.session_state) holds from this block onwards, in words. |
 
 ## Message
 
@@ -264,6 +319,28 @@ A tool call written in a spec prefix.
 | `output` | JSON value | no |  | What the tool returned. |
 | `error` | string | no |  | The error the tool returned. |
 
+## GivenOrigin
+
+Where the prefix comes from: authored (written by a person), recorded (copied from a real run, its tool calls with their real results) or canonical (the replay of a spec as it is written).
+
+Used by `blocks[].given.origin`, beside a `prefix`. The origin enters the Given hash: an agent trusts a recorded call and tends to call a tool again when its earlier result is only in prose, so the three are different tests and their results are never pooled. See [Given](../concepts/given-when-then.md#tool-history-records-not-prose).
+
+| Value | Meaning |
+|---|---|
+| `authored` | A person wrote the prefix. |
+| `recorded` | The prefix is copied from a real run: its tool calls carry the results the tools really returned. `import traces` writes it. |
+| `canonical` | The prefix is the replay of a spec as it is written, such as a teacher-forced history: the calls the blocks expect, with the results the world forces. |
+
+## SharedFact
+
+Where a ledger fact was stated before the block, checked by spec lint and before the block runs.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `fact` | string, not empty | yes |  | The ledger key of the fact. |
+| `by` | one of `user`, `agent`, `record` | yes |  | Who stated it: user or agent in a prefix message, record when it comes from a system of record and was never said. |
+| `in` | integer, at least 0 | no |  | The index of the prefix message that states it, from 0. Needed for user and agent. |
+
 ## Expect
 
 The expected output and state delta of a block. Every field is optional.
@@ -271,16 +348,32 @@ The expected output and state delta of a block. Every field is optional.
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `stage` | string, not empty | no |  | The stage the agent must reach after the block, one of the spec stages. |
+| `stage_reported` | boolean | no |  | True requires the runtime to report a non-empty stage in this block. A carried or inferred stage does not count. False or absent leaves reporting optional. |
 | `ledger_add` | map of string to any value | no |  | Facts the block establishes. They join the ledger. |
 | `tools` | list of [ToolExpect](#toolexpect) | no |  | The tool calls expected in the block. |
 | `tools_offered` | [ToolsOfferedExpect](#toolsofferedexpect) | no |  | The tools the runtime must offer and must not offer, whether or not the agent calls them. |
 | `tool_order` | one of `exact`, `in_order`, `any_order` | no |  | How the expected tools line up with the observed calls: exact, in_order or any_order. |
 | `must` | list of strings, each not empty | no |  | Patterns the visible text must match. |
 | `must_not` | list of strings, each not empty | no |  | Patterns the visible text must not match. |
+| `rouge_l` | [Expect rouge_l](#expect-rouge_l) | no |  | The reply must overlap a reference text: its word-level ROUGE-L F measure must reach min. |
+| `bleu` | [Expect bleu](#expect-bleu) | no |  | The reply must overlap a reference text: its BLEU score over words must reach min. |
+| `sql` | [Expect sql](#expect-sql) | no |  | The SQL the agent ran must return the same rows as the golden query on the database. |
+| `regex` | list of strings, each not empty | no |  | Regular expressions the visible text must match, case-sensitive; must ignores case instead. |
+| `injection` | boolean | no |  | True when the block is a prompt-injection or jailbreak attempt: the reply must not obey it. |
+| `exact` | string, not empty | no |  | The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. A dot or comma between two digits counts, except a strictly grouped thousands comma. |
+| `exact_strict` | boolean | no |  | Compare exact byte for byte after trimming the ends, instead of ignoring case, punctuation and spacing. |
+| `json` | [JsonExpect](#jsonexpect) | no |  | The reply is valid JSON, optionally with a schema and paths. |
+| `tool_f1` | [Expect tool_f1](#expect-tool_f1) | no |  | Precision, recall and F1 of the tool calls against the expected ones. |
+| `refusal` | `refuses` or `answers` | no |  | Whether the reply must be a refusal, read from refusal phrases in seven languages. |
+| `markup` | one of `xml`, `html`, `sql` | no |  | The reply is well-formed XML, HTML or SQL (syntax only). |
+| `starts_with` | string, not empty | no |  | The reply, without leading space, starts with this text. |
+| `finish_reason` | string, not empty | no |  | The reason the model stopped, as the runtime reports it. |
+| `length` | [Expect length](#expect-length) | no |  | Word and character bounds on the customer-visible text of the block. |
 | `similarity` | list of [SimilarityExpect](#similarityexpect) | no |  | Reference texts the reply must be close to, each with its lowest passing score. |
 | `relevancy` | [RelevancyExpect](#relevancyexpect) | no |  | The reply addresses the ask of the block. |
 | `knowledge_retention` | list of [RetentionExpect](#retentionexpect) | no |  | Facts given earlier that the block must not ask for again, and may have to use. |
 | `lang` | string, 2 to 8 characters | no |  | The language of the reply. |
+| `pii_judge` | boolean | no |  | Opt in to judged detection of personal names and addresses in the visible reply. Requires a configured personal-data judge; absent or false makes no model calls. Missing or failed judging is gating inconclusive. |
 | `cards` | list of [CardExpect](#cardexpect) | no |  | The cards expected in the block. |
 | `criteria` | list of strings, each not empty | no |  | Judged criteria by name. name@gating makes a fail fail the block. |
 | `skills` | list of [SkillExpect](#skillexpect) | no |  | The skills expected in the block. |
@@ -301,6 +394,7 @@ One expected tool call.
 | `label` | string, not empty | yes |  | The tool name. |
 | `count` | [Count](#count) | no |  | How many calls are expected. 0 means the tool must not be called. |
 | `input` | map of string to [Assertion](#assertion) | no |  | Assertions on the arguments, by argument name. |
+| `input_closed` | boolean | no |  | True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed. |
 
 ## Count
 
@@ -346,6 +440,77 @@ The tools the runtime offers the agent, read from the runtime trace; calls do no
 |---|---|---|---|---|
 | `include` | list of strings, each not empty | no |  | Tools the runtime must offer. |
 | `exclude` | list of strings, each not empty | no |  | Tools the runtime must not offer, such as a tool a setting denies. |
+
+## Expect rouge_l
+
+The reply must overlap a reference text: its word-level ROUGE-L F measure must reach min.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `reference` | string, not empty | yes |  | The reference text the reply is compared with. |
+| `profile` | `driftbench` or `ragas` | no |  | The overlap profile: driftbench (default) or ragas, the reference implementation of this score. |
+| `min` | number, 0 to 1 | yes |  | The lowest ROUGE-L F measure that passes, from 0 to 1. |
+
+## Expect bleu
+
+The reply must overlap a reference text: its BLEU score over words must reach min.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `reference` | string, not empty | yes |  | The reference text the reply is compared with. |
+| `profile` | `driftbench` or `ragas` | no |  | The overlap profile: driftbench (default) or ragas, the reference implementation of this score. |
+| `min` | number, 0 to 1 | yes |  | The lowest BLEU score that passes, from 0 to 1. |
+
+## Expect sql
+
+The SQL the agent ran must return the same rows as the golden query on the database.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `tool` | string, not empty | yes |  | The tool whose call input holds the query, in its query field. |
+| `golden` | string, not empty | yes |  | The golden query: one read statement. |
+| `database` | string, not empty | yes |  | The SQLite database both queries run on, read-only. |
+
+## JsonExpect
+
+The reply is JSON, optionally with a schema and paths.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `embedded` | boolean | no |  | When true, the reply may hold JSON among its prose: the first JSON value found is read. Off by default. |
+| `schema` | map of string to JSON value | no |  | A JSON Schema the reply must match; an undeclared key fails. |
+| `paths` | list of [JsonExpect paths](#jsonexpect-paths) | no |  | Paths of the reply, each with its assertion. |
+
+## JsonExpect paths
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `path` | string, not empty | yes |  | A dotted path; a number indexes an array. |
+| `assert` | [Assertion](#assertion) | yes |  | What the value at the path must be, in the spec assertion vocabulary. |
+
+## Expect tool_f1
+
+Precision, recall and F1 of the tool calls against the expected ones.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `min` | number, 0 to 1 | yes |  | The least F1 that passes, from 0 to 1. |
+
+## Expect length
+
+Word and character bounds on the customer-visible text of the block.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `words` | [LengthBound](#lengthbound) | no |  | Bounds on the words of the visible text. |
+| `chars` | [LengthBound](#lengthbound) | no |  | Bounds on the characters (code points) of the visible text. |
+
+## LengthBound
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `min` | integer, at least 0 | no |  | The least the count may be. |
+| `max` | integer, at least 0 | no |  | The most the count may be. |
 
 ## SimilarityExpect
 
@@ -472,6 +637,16 @@ Limits for one block.
 | `cost_usd` | number, at least 0 | no |  | The most cost, in US dollars. |
 | `latency_ms` | number, at least 0 | no |  | The most latency, in milliseconds. |
 
+## Spec end
+
+An end verdict: the run stops after block atBlock (the last block when absent) with this verdict.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `verdict` | `success` or `failure` | yes |  | success when the script ends the conversation well, failure when it ends it badly. |
+| `reason` | string, not empty | no |  | Why the script ends here. |
+| `atBlock` | integer, at least -1 | no |  | The index of the last block that runs, -1 for none. The blocks after it are skipped by the verdict. Absent means the last block. |
+
 ## Rules
 
 Rules that hold for the whole conversation.
@@ -482,6 +657,7 @@ Rules that hold for the whole conversation.
 | `forbidden_tools` | list of strings, each not empty | no |  | Tools that must never be called. |
 | `lang_stable` | boolean | no |  | True when the reply language must stay the same across blocks. |
 | `one_message_per_turn` | boolean | no |  | True when each block may send one message only. |
+| `match_case` | boolean | no |  | True makes must and must_not patterns case-sensitive and the trailing punctuation count. Default false: a pattern ignores the case of the reply and a trailing punctuation mark. |
 | `custom` | map of string to any value | no |  | Maps a registered custom check name to its options; the checks package runs it. |
 
 ## EndState

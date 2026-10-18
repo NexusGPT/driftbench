@@ -1,5 +1,5 @@
-import { defaultChecks } from '@driftbench/checks';
-import * as core from '@driftbench/core';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import * as core from '@agent-nexus/driftbench-core';
 import {
   AdapterTransportError,
   AgentFailure,
@@ -12,9 +12,9 @@ import {
   RunResult,
   type Spec,
   type UserDriver,
-} from '@driftbench/core';
-import { openMemoryStore, cellId as storeCellId } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { openMemoryStore, cellId as storeCellId } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import * as runner from '../../src/runner';
 import { blockCacheKey, cellId, runSpec } from '../../src/runner';
@@ -125,7 +125,7 @@ describe('runSpec on the Acme conversations, free-running, with the real Acme ag
   });
 });
 
-describe('the real stack: the function adapter of @driftbench/adapters, defaultChecks of @driftbench/checks', () => {
+describe('the real stack: the function adapter of @agent-nexus/driftbench-adapters, defaultChecks of @agent-nexus/driftbench-checks', () => {
   it.each(loaded.map((entry) => ({ id: entry.spec.id, spec: entry.spec })))(
     '$id passes every machine check',
     async ({ spec }) => {
@@ -485,7 +485,9 @@ describe('the end state', () => {
       plan_id: 'mobile-l',
     });
     expect(adapter.calls.endState).toBe(1);
+    // The run keeps the value read, so a later reader compares end states without reading them again.
     expect(run.endState).toEqual({ match: true, diff: [] });
+    expect(run.endStateValue).toEqual({ type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' });
   });
 
   it('reports a diff per field, and every unexpected field in exact mode', async () => {
@@ -506,6 +508,7 @@ describe('the end state', () => {
         { field: 'customer_id', expected: { absent: true }, observed: 'cust-001' },
       ],
     });
+    expect(run.endStateValue).toEqual({ type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' });
   });
 
   it('reads every source of a list and names fields by source', async () => {
@@ -533,6 +536,10 @@ describe('the end state', () => {
       match: false,
       diff: [{ field: 'tool:notify_sales.reason', expected: { nonempty: true }, observed: { absent: true } }],
     });
+    expect(run.endStateValue).toEqual({
+      'tool:order.create': { type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' },
+      'tool:notify_sales': undefined,
+    });
   });
 
   it('reads source * for end_state none: an empty list passes, a recorded payload fails', async () => {
@@ -548,6 +555,7 @@ describe('the end state', () => {
     expect(quiet.calls.endState).toBe(1);
     expect(watch.seen.at(-1)?.endState).toEqual([]);
     expect(run.endState).toEqual({ match: true, diff: [] });
+    expect(run.endStateValue).toEqual([]);
 
     const ordered = await runSpec(
       { ...acmeSpec(loaded, 'acme-plan-upgrade'), end_state: 'none' },
@@ -566,6 +574,9 @@ describe('the end state', () => {
         },
       ],
     });
+    expect(ordered.endStateValue).toEqual([
+      { tool: 'order.create', input: { type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' } },
+    ]);
   });
 
   it('gives one diff entry per payload found under end_state none', async () => {
@@ -739,7 +750,7 @@ describe('failures', () => {
     expect(attempts, 'the run settings win over the spec target').toBe(3);
   });
 
-  it('waits what Retry-After asks, and never retries a 408 or a call the adapter already retried in full', async () => {
+  it('waits what Retry-After asks, retries a 408 like a 429, and never retries a call the adapter already retried in full', async () => {
     const waits: number[] = [];
     const run = async (errors: AdapterTransportError[]) => {
       const adapter = acmeAdapter();
@@ -771,8 +782,9 @@ describe('failures', () => {
     });
 
     const timeout = await run([new AdapterTransportError('request timeout', { status: 408 })]);
-    expect(timeout.attempts).toBe(1);
-    expect(timeout.result.error).toBe('send on block 0 failed: AdapterTransportError: request timeout');
+    expect(timeout.attempts).toBe(2);
+    expect(timeout.result.status).toBe('completed');
+    expect(timeout.result.blocks[0]?.observed.retries?.[0]).toMatchObject({ status: 408 });
 
     const spent = await run([
       new AdapterTransportError('messages.create failed after 4 attempts', { status: 503, exhausted: true }),
@@ -835,6 +847,8 @@ describe('failures', () => {
         { field: 'plan_id', expected: 'mobile-l', observed: { absent: true } },
       ],
     });
+    // Read, and nothing was recorded: null, unlike an end state no read reached (no value).
+    expect(run.endStateValue).toBeNull();
   });
 
   it('carries an end state that says why when no block ran', async () => {
@@ -1039,7 +1053,10 @@ describe('injected blocks', () => {
       next: () => steps.shift() ?? { kind: 'stop', reason: 'empty' },
     };
     const watch = spy();
-    await runSpec(spec, { adapter: echoAdapter(), driver: scripted, checks: [watch], mode: 'P', repeat: 0 });
+    // Forced tool results need toolStubs: on an adapter without it the blocks are not run.
+    const echo = echoAdapter();
+    const adapter = { ...echo, capabilities: () => ({ ...echo.capabilities(), toolStubs: true }) };
+    await runSpec(spec, { adapter, driver: scripted, checks: [watch], mode: 'P', repeat: 0 });
     expect(watch.seen.map((ctx) => ctx.given.world.tools?.lookup)).toEqual([
       { result: { ok: true } },
       { error: 'timeout' },
@@ -1126,6 +1143,16 @@ describe('workspace reads and traces', () => {
 });
 
 describe('the cache', () => {
+  it('replays a spec whose version label alone changed', async () => {
+    const cache = memoryCache();
+    await runSpec(spec(), { adapter: acmeAdapter(), driver, checks: [], mode: 'F', repeat: 0, cache });
+    const relabelled = await runSpec(
+      { ...spec(), version: 'relabelled' },
+      { adapter: acmeAdapter(), driver, checks: [], mode: 'F', repeat: 0, cache },
+    );
+    expect(relabelled.cacheHit).toBe(true);
+  });
+
   const spec = () => acmeSpec(loaded, 'acme-plan-upgrade');
 
   it('returns the same Observed for the same key', async () => {
@@ -1144,8 +1171,10 @@ describe('the cache', () => {
     const key = (index: number) => {
       const ctx = watch.seen[index];
       if (!ctx) throw new Error('no context');
+      // The key carries the spec's hash without its version label, which plays no part in the cache.
+      const { version: _version, ...unlabelled } = spec();
       return blockCacheKey({
-        specHash: first.specHash,
+        specHash: contentHash(unlabelled),
         repeat: 0,
         position: index,
         given: ctx.given,
@@ -1159,6 +1188,79 @@ describe('the cache', () => {
     for (const block of first.blocks) {
       expect(await cache.cacheGet(key(block.index))).toEqual(block.observed);
     }
+  });
+
+  it('a script that ends with a failure verdict records it on the run, and the run is not passed', async () => {
+    const ended = { ...spec(), end: { verdict: 'failure' as const, reason: 'the agent refused' } };
+    const result = await runSpec(ended, {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+    });
+    expectValid(result);
+    expect(result.endVerdict).toBe('failure');
+    expect(result.status).toBe('completed');
+  });
+
+  it('a script that ends mid-spec runs only the blocks before its stop, and the run keeps its verdict', async () => {
+    const full = spec();
+    expect(full.blocks.length).toBeGreaterThan(1);
+    const stopped = { ...full, end: { verdict: 'success' as const, reason: 'served', atBlock: 0 } };
+    const result = await runSpec(stopped, {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+    });
+    expectValid(result);
+    expect(result.blocks).toHaveLength(1);
+    expect(result.endVerdict).toBe('success');
+    expect(result.status).toBe('completed');
+  });
+
+  it('each block of a cached run records the key it was stored under', async () => {
+    const cache = memoryCache();
+    const first = await runSpec(spec(), {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache,
+    });
+    for (const block of first.blocks) {
+      expect(block.cacheKey).toMatch(/^block:[0-9a-f]{64}$/);
+      expect(await cache.cacheGet(block.cacheKey as string)).toEqual(block.observed);
+    }
+  });
+
+  it('a run in another suite does not replay the cache of the first suite', async () => {
+    const cache = memoryCache();
+    await runSpec(spec(), {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache,
+      suite: 'nightly-1',
+    });
+    const adapter = acmeAdapter();
+    const other = await runSpec(spec(), {
+      adapter,
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache,
+      suite: 'nightly-2',
+    });
+    expectValid(other);
+    expect(other.cacheHit).toBe(false);
+    expect(adapter.calls.send).toBeGreaterThan(0);
   });
 
   it('replays a whole run from the cache without reaching the agent', async () => {

@@ -74,6 +74,44 @@ describe('alias tables', () => {
     ]);
   });
 
+  it('reads an alias a file defines inline, and resolves gates and references through it', async () => {
+    // Northwind-shaped: a helper names the skill's references folder once, then names files under it.
+    const root = await estate({
+      'CLAUDE.md': '# Rules\n\nBe brief.\n',
+      '.claude/agents/ledger-auditor.md':
+        '---\nname: ledger-auditor\ndescription: Audits the ledger.\n---\n\n' +
+        '`REF` = `.claude/skills/invoice-reconcile/references` · `CHK` = `REF/scripts/check.mjs`\n\n' +
+        'Before booking a credit note: read `REF/credit-notes.md`.\n' +
+        'Before closing a month: read `rules/rounding.md`.\n' +
+        'Keep `REF/vat.md` open while you work.\n' +
+        'Write your findings to `STATE.md`.\n',
+      '.claude/skills/invoice-reconcile/SKILL.md':
+        '---\nname: invoice-reconcile\ndescription: Reconcile a supplier invoice.\n---\n\n# Reconcile\n',
+      '.claude/skills/invoice-reconcile/references/credit-notes.md': '# Credit notes\n',
+      '.claude/skills/invoice-reconcile/references/vat.md': '# VAT\n',
+      '.claude/skills/invoice-reconcile/rules/rounding.md': '# Rounding\n',
+      '.claude/skills/shipment-tracker/references/vat.md': '# VAT for customs\n',
+    });
+    const raw = await new ClaudeCodeReader().read(root);
+    expect(raw.aliases).toEqual({ REF: ['.claude/skills/invoice-reconcile/references'] });
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const paths = (kind: string) =>
+      map.atoms
+        .filter((atom) => atom.kind === kind && atom.provenance.file === '.claude/agents/ledger-auditor.md')
+        .map((atom) => [atom.fields?.path, atom.fields?.resolvedBy]);
+    expect(paths('gate')).toEqual([
+      ['.claude/skills/invoice-reconcile/references/credit-notes.md', 'alias'],
+      ['.claude/skills/invoice-reconcile/rules/rounding.md', 'suffix'],
+    ]);
+    expect(paths('reference')).toEqual(
+      expect.arrayContaining([['.claude/skills/invoice-reconcile/references/vat.md', 'alias']]),
+    );
+    // A file the agent writes at run time is no file of the estate: it stays where the helper's folder puts it.
+    expect(paths('reference').map(([path]) => path)).not.toContain(
+      '.claude/skills/invoice-reconcile/STATE.md',
+    );
+  });
+
   it('notes aliases that are not a map of folders', async () => {
     const root = await estate({ 'CLAUDE.md': '# Rules\n', [ESTATE_CONFIG]: 'aliases: [REF]\n' });
     const raw = await new ClaudeCodeReader().read(root);
@@ -84,7 +122,7 @@ describe('alias tables', () => {
 });
 
 describe('the reader-cases names', () => {
-  it('resolves the bare name and the alias, and reports the shared name as ambiguous', async () => {
+  it('resolves a shared bare name in the local subtree before other skills, and resolves the alias', async () => {
     const { map, raw } = await scanEstate({ root: CASES, reader: new ClaudeCodeReader(), now: NOW });
     const references = Object.fromEntries(
       map.atoms
@@ -104,9 +142,32 @@ describe('the reader-cases names', () => {
     const ambiguous = lintEstate(map, raw).findings.filter(
       (finding) => finding.code === 'AMBIGUOUS_REFERENCE',
     );
-    expect(ambiguous.map((finding) => finding.message)).toEqual([
-      '.claude/skills/shipment-tracker/SKILL.md:12 names .claude/skills/shipment-tracker/notes.md, which several files could be: .claude/skills/parcel-claims/references/notes.md, .claude/skills/shipment-tracker/references/notes.md',
-    ]);
+    expect(references['.claude/skills/shipment-tracker/SKILL.md:12']).toMatchObject({
+      path: '.claude/skills/shipment-tracker/references/notes.md',
+      exists: true,
+      resolvedBy: 'suffix',
+    });
+    expect(ambiguous).toEqual([]);
     expect(lintEstate(map, raw).counts.MISSING_REFERENCE).toBe(0);
+  });
+
+  it('never offers a skipped file as a candidate for a name: the estate file alone resolves it', () => {
+    const skipped = new Set([
+      '.claude/hooks/tests/fixtures/section-scan.md',
+      '.claude/node_modules/x/notes.md',
+    ]);
+    expect(locateNamed('section-scan.md', FROM, FILES, { skipped })).toEqual({
+      path: '.claude/skills/b/rules/section-scan.md',
+      via: 'suffix',
+    });
+    expect(locateNamed('notes.md', FROM, FILES, { skipped }).candidates).toEqual([
+      '.claude/skills/c/notes.md',
+      '.claude/skills/d/notes.md',
+    ]);
+    // Named by its place, a skipped file is still found.
+    expect(locateNamed('.claude/node_modules/x/notes.md', FROM, FILES, { skipped })).toEqual({
+      path: '.claude/node_modules/x/notes.md',
+      via: 'place',
+    });
   });
 });

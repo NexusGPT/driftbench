@@ -1,4 +1,10 @@
-import { type Check, machineVerdict, type ToolCall, type Verdict } from '@driftbench/core';
+import {
+  type Check,
+  machineVerdict,
+  parseCriterionRef,
+  type ToolCall,
+  type Verdict,
+} from '@agent-nexus/driftbench-core';
 import { quote, visibleText } from '../support/text';
 import { isRecord } from '../support/values';
 
@@ -17,6 +23,7 @@ export const knowledgeRetention: Check = {
   evaluate(ctx) {
     const reply = visibleText(ctx.observed);
     const questions = (reply.match(/[^.!?\n]*\?/g) ?? []).map((sentence) => sentence.trim());
+    const lines = (reply.match(/[^\n?]*\?/g) ?? []).map((line) => line.trim());
     const verdicts: Verdict[] = [];
     for (const entry of ctx.expect.knowledge_retention ?? []) {
       const key = entry.fact;
@@ -36,7 +43,16 @@ export const knowledgeRetention: Check = {
       const pattern = entry.ask
         ? new RegExp(entry.ask, 'm')
         : new RegExp(`\\b${key.split(/[_\-\s]+/).join('\\W+')}\\b`, 'i');
-      const asked = questions.find((question) => pattern.test(question));
+      // A question that repeats the given value is a confirmation, never a re-ask. Without a judge, only a
+      // clear re-ask gates; with the judged knowledge_retention criterion on the block, the judge decides.
+      // The question is cut at its last dot, so the value is read from the whole line the question sits in.
+      const asked = questions.find(
+        (question) =>
+          pattern.test(question) && !holds(lines.find((line) => line.endsWith(question)) ?? question, value),
+      );
+      const judged = (ctx.expect.criteria ?? []).some(
+        (ref) => parseCriterionRef(ref)?.name === 'knowledge_retention',
+      );
       verdicts.push(
         machineVerdict(
           NAME,
@@ -45,6 +61,7 @@ export const knowledgeRetention: Check = {
           asked
             ? `${key} is in the ledger (${JSON.stringify(value)}), yet the reply asks for it again: ${quote(asked, 120)}`
             : `${key} is in the ledger (${JSON.stringify(value)}), and the reply does not ask for it again`,
+          { gating: !(asked && judged) },
         ),
       );
       if (!entry.use) continue;

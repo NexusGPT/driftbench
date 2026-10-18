@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/validators",
+  "name": "@agent-nexus/driftbench-validators",
   "version": "0.1.0",
   "description": "Validators that prove driftbench works: each plants a known truth, runs one part of the framework and scores a ladder of levels.",
   "keywords": [
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/validators"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22.13"
@@ -35,24 +35,26 @@
     }
   },
   "files": [
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
     "dist"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
-    "@driftbench/stats": "workspace:*",
-    "@driftbench/checks": "workspace:*",
-    "@driftbench/adapters": "workspace:*",
-    "@driftbench/generate": "workspace:*",
-    "@driftbench/judges": "workspace:*",
-    "@driftbench/estate": "workspace:*",
-    "@driftbench/space": "workspace:*",
-    "@driftbench/store": "workspace:*",
-    "@driftbench/users": "workspace:*",
-    "@driftbench/sandbox": "workspace:*",
-    "@driftbench/artifacts": "workspace:*",
+    "@agent-nexus/driftbench-core": "workspace:*",
+    "@agent-nexus/driftbench-stats": "workspace:*",
+    "@agent-nexus/driftbench-checks": "workspace:*",
+    "@agent-nexus/driftbench-adapters": "workspace:*",
+    "@agent-nexus/driftbench-generate": "workspace:*",
+    "@agent-nexus/driftbench-judges": "workspace:*",
+    "@agent-nexus/driftbench-estate": "workspace:*",
+    "@agent-nexus/driftbench-space": "workspace:*",
+    "@agent-nexus/driftbench-store": "workspace:*",
+    "@agent-nexus/driftbench-users": "workspace:*",
+    "@agent-nexus/driftbench-sandbox": "workspace:*",
+    "@agent-nexus/driftbench-artifacts": "workspace:*",
     "zod": "^4.6.5",
     "yaml": "^2.9.1"
   },

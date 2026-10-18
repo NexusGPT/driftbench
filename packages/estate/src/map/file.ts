@@ -1,9 +1,10 @@
-import { readFile } from 'node:fs/promises';
-import { isPlainObject } from '@driftbench/core';
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
 import { Document, isMap, isSeq, parseDocument, parse as parseYaml } from 'yaml';
-import type { z } from 'zod';
+import { describe, fromZod } from '../file-issues';
 import { EVENT_PREFIX } from '../graph/edges';
-import { provenanceHash, quoteAtSpan } from '../scan/text';
+import { provenanceHash, quoteAtSpan, sha256 } from '../scan/text';
 import { type Atom, AtomKind, EstateMap } from '../schema';
 import { mapHash } from './build';
 
@@ -108,15 +109,46 @@ export type LoadedMap =
   | { ok: true; path: string; text: string; map: EstateMap }
   | { ok: false; path: string; errors: MapIssue[] };
 
-export async function loadEstateMap(path: string): Promise<LoadedMap> {
+export type LoadEstateMapOptions = {
+  /**
+   * A folder for a JSON copy of the parsed map, keyed by the SHA-256 of the map file's text. A map that
+   * was loaded once is then read from JSON (milliseconds) instead of YAML (seconds for a large map). The
+   * copy is checked like the YAML (schema, provenance hashes, map hash) on every read, and a text that
+   * changed by one byte has another key, so a stale copy is never read.
+   */
+  cacheDir?: string;
+};
+
+export async function loadEstateMap(path: string, options: LoadEstateMapOptions = {}): Promise<LoadedMap> {
   let text: string;
   try {
     text = await readFile(path, 'utf8');
   } catch (cause) {
     return { ok: false, path, errors: [issue('MAP_PARSE', '', `cannot read the file: ${describe(cause)}`)] };
   }
+  const cached = options.cacheDir === undefined ? undefined : join(options.cacheDir, `${sha256(text)}.json`);
+  if (cached !== undefined) {
+    const json = await readFile(cached, 'utf8').catch(() => undefined);
+    if (json !== undefined) {
+      try {
+        const parsed = validateEstateMap(JSON.parse(json));
+        if (parsed.ok) return { ok: true, path, text, map: parsed.map };
+      } catch {
+        // An unreadable copy is parsed again from the YAML below, and replaced.
+      }
+    }
+  }
   const parsed = parseEstateMapText(text);
-  return parsed.ok ? { ok: true, path, text, map: parsed.map } : { ok: false, path, errors: parsed.errors };
+  if (!parsed.ok) return { ok: false, path, errors: parsed.errors };
+  if (cached !== undefined) {
+    // Written aside and renamed, so a reader never sees half a copy. A cache that cannot be written is no error.
+    const partial = `${cached}.${process.pid}.tmp`;
+    await mkdir(dirname(cached), { recursive: true })
+      .then(() => writeFile(partial, JSON.stringify(parsed.map)))
+      .then(() => rename(partial, cached))
+      .catch(() => undefined);
+  }
+  return { ok: true, path, text, map: parsed.map };
 }
 
 /** Atoms whose quote is no longer in their file at their span: the estate changed since the scan. */
@@ -195,17 +227,4 @@ export function approveAtoms(text: string, selection: ApproveSelection): Approve
 
 function issue(code: MapIssueCode, path: string, message: string): MapIssue {
   return { code, path, message };
-}
-
-function fromZod(zodIssue: z.core.$ZodIssue): MapIssue {
-  let message = zodIssue.message;
-  if (zodIssue.code === 'unrecognized_keys')
-    message = `unknown key${zodIssue.keys.length > 1 ? 's' : ''}: ${zodIssue.keys.join(', ')}`;
-  else if (zodIssue.code === 'invalid_type') message = message.replace(/received undefined$/, 'missing');
-  return issue(`SCHEMA_${zodIssue.code.toUpperCase()}`, zodIssue.path.map(String).join('.'), message);
-}
-
-function describe(cause: unknown): string {
-  if (cause instanceof Error) return cause.message.split('\n').slice(0, 3).join(' ').trim();
-  return String(cause);
 }

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "cmal6wart007lynrdtpv6olvc",
+    "created_at": "2025-05-12T10:15:07.670Z",
+    "updated_at": "2025-05-12T10:15:07.670Z",
+    "name": "Correctness",
+    "version": 1,
+    "outputDefinition": {
+      "score": "Score between 0 and 1. Score 0 if false or negative and 1 if true or positive",
+      "reasoning": "One sentence reasoning for the score"
+    },
+    "prompt": "Evaluate the correctness of the generation on a continuous scale from 0 to 1. A generation can be considered correct (Score: 1) if it includes all the key facts from the ground truth and if every fact presented in the generation is factually supported by the ground truth or common sense.\n\nExample:\nQuery: Can eating carrots improve your vision?\nGeneration: Yes, eating carrots significantly improves your vision, especially at night. This is why people who eat lots of carrots never need glasses. Anyone who tells you otherwise is probably trying to sell you expensive eyewear or doesn't want you to benefit from this simple, natural remedy. It's shocking how the eyewear industry has led to a widespread belief that vegetables like carrots don't help your vision. People are so gullible to fall for these money-making schemes.\nGround truth: Well, yes and no. Carrots won't improve your visual acuity if you have less than perfect vision. A diet of carrots won't give a blind person 20/20 vision. But, the vitamins found in the vegetable can help promote overall eye health. Carrots contain beta-carotene, a substance that the body converts to vitamin A, an important nutrient for eye health.  An extreme lack of vitamin A can cause blindness. Vitamin A can prevent the formation of cataracts and macular degeneration, the world's leading cause of blindness. However, if your vision problems aren't related to vitamin A, your vision won't change no matter how many carrots you eat.\nScore: 0.1\nReasoning: While the generation mentions that carrots can improve vision, it fails to outline the reason for this phenomenon and the circumstances under which this is the case. The rest of the response contains misinformation and exaggerations regarding the benefits of eating carrots for vision improvement. It deviates significantly from the more accurate and nuanced explanation provided in the ground truth.\n\nInput:\nQuery: {{query}}\nGeneration: {{generation}}\nGround truth: {{ground_truth}}\n\nThink step by step."
+  }
+]

@@ -1,0 +1,71 @@
+import assert from 'node:assert/strict';
+import { QuotaPending, withQuotaBackoff } from './lite-quota';
+
+const waits: number[] = [],
+  events: unknown[] = [];
+let calls = 0;
+const answer = await withQuotaBackoff(
+  async () => {
+    if (++calls <= 3) throw { status: 429 };
+    return 'returned';
+  },
+  async (e) => {
+    events.push(e);
+  },
+  async (ms) => {
+    waits.push(ms);
+  },
+);
+assert.equal(answer, 'returned');
+assert.equal(calls, 4);
+assert.deepEqual(waits, [20_000, 60_000, 180_000]);
+calls = 0;
+await assert.rejects(
+  () =>
+    withQuotaBackoff(
+      async () => {
+        calls++;
+        throw { status: 429 };
+      },
+      async () => {},
+      async () => {},
+    ),
+  QuotaPending,
+);
+assert.equal(calls, 4);
+calls = 0;
+await assert.rejects(
+  () =>
+    withQuotaBackoff(
+      async () => {
+        calls++;
+        throw new Error('timeout');
+      },
+      async () => {},
+      async () => {},
+    ),
+  /timeout/,
+);
+assert.equal(calls, 1);
+calls = 0;
+assert.equal(
+  await withQuotaBackoff(
+    async () => {
+      calls++;
+      return '';
+    },
+    async () => {},
+    async () => {},
+  ),
+  '',
+);
+assert.equal(calls, 1, 'A returned empty answer is never retried');
+console.log(
+  JSON.stringify({
+    quotaWaitsMs: waits,
+    exhaustion: 'pending transport',
+    returnedAnswerAttempts: calls,
+    checks: 4,
+    providerCalls: 0,
+  }),
+);

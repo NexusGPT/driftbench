@@ -20,6 +20,7 @@ export {
   type KeptRecord,
   type Marker,
   mapSession,
+  NotATranscriptError,
   type ReplayBlock,
   type ReplayRaw,
   type ReplaySession,

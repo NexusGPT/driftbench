@@ -8,7 +8,7 @@ import {
   SpaceMapIssueCodes,
   type SpaceMapResult,
   validateSpaceMap,
-} from '@driftbench/space';
+} from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { HAND } from './support';
 

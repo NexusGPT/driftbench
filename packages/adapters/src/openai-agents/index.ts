@@ -2,13 +2,14 @@ import {
   type AdapterCapabilities,
   type AgentAdapter,
   AgentFailure,
+  copyHistory,
   isPlainObject,
   type Observed,
   type ResolvedGiven,
   type RuntimeTrace,
   type Session,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   addUsage,
   closeOpenCalls,
@@ -58,7 +59,7 @@ export type {
  * block from the first agent.
  */
 
-export const OPENAI_AGENTS_ADAPTER_VERSION = '0.1.0';
+export const OPENAI_AGENTS_ADAPTER_VERSION = '0.1.1';
 
 export type OpenAIAgentsAdapterOptions = {
   /** The runner. The adapter calls `runner.run(agent, items, { maxTurns, context })` and nothing else. */
@@ -112,6 +113,8 @@ export function openaiAgentsAdapter(options: OpenAIAgentsAdapterOptions): AgentA
     capabilities: () => ({ ...capabilities }),
 
     async open(given) {
+      // Validate and freeze before user-supplied setup receives the Given.
+      copyHistory(given.prefix);
       const agent =
         typeof options.agent === 'function'
           ? (options.agent as (given: ResolvedGiven) => unknown)(given)
@@ -128,8 +131,9 @@ export function openaiAgentsAdapter(options: OpenAIAgentsAdapterOptions): AgentA
     },
 
     async send(session: Session, turn: Turn) {
+      const history = copyHistory(session.history);
       const state = ownState<AgentsState>(session, id, 'openai-agents');
-      const input = toInputItems(promptMessages(session.history, session.target), labels);
+      const input = toInputItems(promptMessages(history, session.target), labels);
       const agent = state.startedFrom.has(turn.index) ? state.startedFrom.get(turn.index) : state.agent;
       state.startedFrom.set(turn.index, agent);
       const turns = stepCap(maxTurns, turn.budget?.steps);

@@ -1,7 +1,7 @@
 import { readFile, stat, writeFile } from 'node:fs/promises';
 import { relative } from 'node:path';
-import { findSpecFiles, isPlainObject, loadSpecFile, parseSpecText } from '@driftbench/core';
-import { shortQuote } from '@driftbench/generate';
+import { findSpecFiles, isPlainObject, loadSpecFile, parseSpecText } from '@agent-nexus/driftbench-core';
+import { shortQuote } from '@agent-nexus/driftbench-generate';
 import { parseDocument } from 'yaml';
 import { z } from 'zod';
 import { AtomKind } from '../schema';
@@ -12,13 +12,14 @@ import { Regression, regressionNeeds, renderRegression } from './regression';
 /**
  * The impact of an estate diff on the tests written for the estate. Tests index by atom id: a spec names the
  * atoms it covers under `metadata.estate.atoms`. For the diff:
- * - regenerate: every test that names a changed atom (white space or semantic), a restated atom, or a
+ * - regenerate: every test that names an atom whose meaning changed (semantic), a restated atom, or a
  *   removed atom while it still names others; the generator writes it again;
  * - re-approve: every atom whose meaning changed (a semantic change); its phrasings wait for a person;
  * - retire: every test whose atoms are all removed, with the reason `atom <id> removed` written into the
  *   spec's metadata as `retired` (on `--write`);
  * - new: every added atom no live test names; its tests are generated and wait for approval.
- * A moved atom (the same quote at another span) touches no test. A spec already carrying `metadata.retired`
+ * A moved atom (the same quote at another span) and an atom whose quote changed in white space only touch
+ * no test: a change reruns only what it can affect. A spec already carrying `metadata.retired`
  * is not a live test: it is counted and left alone.
  */
 
@@ -166,7 +167,12 @@ export function estateImpact(
   options: ImpactOptions = {},
 ): ImpactReport {
   const why = new Map<string, RegenerateWhy>();
-  for (const change of diff.atoms.changed) why.set(change.id, change.change);
+  // A change of white space alone changes nothing a test checks: its tests stay as they are. Respaced and
+  // restated at once, the atom is restated.
+  for (const change of diff.atoms.changed) {
+    if (change.change === 'semantic') why.set(change.id, 'semantic');
+    else if (change.fields.length > 0) why.set(change.id, 'restated');
+  }
   for (const entry of diff.atoms.restated) if (!why.has(entry.id)) why.set(entry.id, 'restated');
   const removed = new Set(diff.atoms.removed.map((atom) => atom.id));
   for (const id of removed) why.set(id, 'removed');

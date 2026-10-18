@@ -9,7 +9,7 @@ import {
   loadSpecs,
   validateInventory,
   validateSpec,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 function inventory(raw: unknown): Inventory {
@@ -51,6 +51,24 @@ const TWO_CHANNELS = inventory({
 });
 
 describe('behaviour x channel cells', () => {
+  it('preserves first-seen spec order and deduplicates ids after channel selection', () => {
+    const result = computeCoverage(
+      [
+        spec({ id: 'z', channel: 'whatsapp', covers: ['B-001'] }),
+        spec({ id: 'same', channel: 'chat', covers: ['B-001', 'B-002'] }),
+        spec({ id: 'a', covers: ['B-001'] }),
+        spec({ id: 'same', channel: 'whatsapp', covers: ['B-001'] }),
+        spec({ id: 'last', channel: 'chat', covers: ['B-001'] }),
+      ],
+      TWO_CHANNELS,
+    );
+    expect(result.behaviours[0]?.cells.map((cell) => cell.specs)).toEqual([
+      ['same', 'a', 'last'],
+      ['z', 'a', 'same'],
+    ]);
+    expect(result.behaviours[1]?.cells.map((cell) => cell.specs)).toEqual([['same'], []]);
+  });
+
   it('is covered on a channel when a valid spec on that channel lists the behaviour, else missing', () => {
     const result = computeCoverage([spec({ id: 'a', channel: 'chat', covers: ['B-001'] })], TWO_CHANNELS);
     expect(grid(result)['B-001']).toEqual({ chat: 'covered', whatsapp: 'missing' });

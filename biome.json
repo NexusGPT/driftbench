@@ -1,23 +1,114 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
     "includes": [
       "**",
       "!**/dist",
       "!**/node_modules",
       "!coverage",
+      "!benchmarks/slices",
+      "!benchmarks/cassettes",
+      "!benchmarks/evidence",
       "!packages/*/coverage",
       "!.worktrees",
       "!.lane-inputs",
       "!docs/lanes",
       "!docs/lane-dag.json",
-      "!.github/readme"
+      "!.github/readme",
+      "!comparisons/deepeval/judge/ours-prompts.json",
+      "!comparisons/hard-peers/**/*.json",
+      "!comparisons/hard-peers/**/*.jsonl",
+      "!packages/validators/fixtures/generator/seed-1/oracle.mjs",
+      "!comparisons/ledger-hard/**/*.json",
+      "!comparisons/ledger-hard/**/*.jsonl",
+      "!comparisons/ledger-hard/*.mts",
+      "!comparisons/default-on/dev-v*/*.json",
+      "!research/moj/results/sealed/report.json",
+      "!research/moj/sealed/freeze.json",
+      "!comparisons/inspect/hard/shipped/heldout-480/*-audit.json",
+      "!comparisons/inspect/hard/shipped/heldout-480/*-default.json",
+      "!comparisons/inspect/hard/shipped/heldout-480/*-theirs.json",
+      "!examples/all-peers-public/data",
+      "!examples/judgebench-fresh/work",
+      "!examples/judgebench-fresh/freeze.json",
+      "!examples/judgebench-fresh/judge-freeze.json",
+      "!docs/comparison/benchmarks/*-all-peers.json",
+      "!examples/ledger-verify/evidence",
+      "!examples/ledger-verify/lite",
+      "!examples/ledger-verify/receipts",
+      "!examples/ledger-verify/sol61",
+      "!examples/ledger-verify/sonnet",
+      "!examples/ledger-verify/tsconfig.json",
+      "!examples/judge-benchmarks/src/call.ts",
+      "!examples/judge-benchmarks/src/score.ts",
+      "!examples/ledger-verify/continue-sonnet-quota.ts",
+      "!examples/ledger-verify/haiku-test-timeout-transport.generated.ts",
+      "!examples/ledger-verify/lite-connectivity.mjs",
+      "!examples/ledger-verify/lite-network.ts",
+      "!examples/ledger-verify/lite-quota.ts",
+      "!examples/ledger-verify/lite-run.ts",
+      "!examples/ledger-verify/lite-trace-requests.ts",
+      "!examples/ledger-verify/lite-transport.ts",
+      "!examples/ledger-verify/luna-addendum-transport.generated.ts",
+      "!examples/ledger-verify/new-cell-run.ts",
+      "!examples/ledger-verify/new-cell-trace.ts",
+      "!examples/ledger-verify/new-cell-transport.ts",
+      "!examples/ledger-verify/outage-transport.generated.ts",
+      "!examples/ledger-verify/prepare-luna-addendum.ts",
+      "!examples/ledger-verify/prepare-sonnet-remeasure.ts",
+      "!examples/ledger-verify/preserve-exhausted.ts",
+      "!examples/ledger-verify/preserve-lite-first-finals.ts",
+      "!examples/ledger-verify/quota.ts",
+      "!examples/ledger-verify/replay-frozen.ts",
+      "!examples/ledger-verify/replay-item-history.ts",
+      "!examples/ledger-verify/replay-stable.ts",
+      "!examples/ledger-verify/responses-adapter.ts",
+      "!examples/ledger-verify/resume-lite-test.ts",
+      "!examples/ledger-verify/run.ts",
+      "!examples/ledger-verify/schemas.ts",
+      "!examples/ledger-verify/terminal-response.ts",
+      "!examples/ledger-verify/test-billing.ts",
+      "!examples/ledger-verify/test-quota.ts",
+      "!examples/ledger-verify/test-transport-failure.ts",
+      "!examples/ledger-verify/trace-requests.ts",
+      "!examples/ledger-verify/transport.ts"
     ]
   },
-  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 110 },
-  "javascript": { "formatter": { "quoteStyle": "single", "trailingCommas": "all", "semicolons": "always" } },
-  "json": { "formatter": { "lineWidth": 110 } },
-  "linter": { "enabled": true, "rules": { "preset": "recommended" } },
-  "assist": { "enabled": true, "actions": { "source": { "organizeImports": "on" } } }
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 110
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "trailingCommas": "all",
+      "semicolons": "always"
+    }
+  },
+  "json": {
+    "formatter": {
+      "lineWidth": 110
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
 }

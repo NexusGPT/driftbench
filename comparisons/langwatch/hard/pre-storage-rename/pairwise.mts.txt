@@ -1,0 +1,147 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import type { JudgeClient } from '../../../packages/judges/src/client.ts';
+import { parseAnswerText } from '../../../packages/judges/src/contract.ts';
+import { judgePairwise } from '../../../packages/judges/src/pairwise.ts';
+import { buildPrompt } from '../../../packages/judges/src/prompt.ts';
+import {
+  AUDIT_SYSTEM,
+  auditUser,
+  combineAudit,
+  LEDGER_SYSTEM,
+  parseAudit,
+  parseLedger,
+} from '../pairwise/audit.ts';
+import { here, Runner } from './runner.mts';
+
+type Item = {
+  id: string;
+  task: string;
+  golden: string;
+  candidate_a: string;
+  candidate_b: string;
+  better: 'A' | 'B';
+};
+// Same verbatim native template and outcome adapter as the preceding comparison.
+export const nativePairwise = (input: string, golden: string, a: string, b: string) =>
+  `Compare two candidate outputs against a known-good reference (golden answer).
+
+Task:           ${input}
+Golden answer:  ${golden}
+
+Candidate A:    ${a}
+Candidate B:    ${b}
+
+Reason step-by-step about how closely each candidate matches the
+golden answer in correctness, completeness, and style. Then pick
+the better candidate, or "tie" if equivalent.
+Prefer cheaper/faster only when quality is comparable.
+`;
+const CONTRACT = [
+  'Answer with one JSON object and nothing else, with exactly these keys:',
+  '{"outcome": "pass" or "fail" or "inconclusive", "reasoning": "two sentences at most"}',
+  'Use "pass" when Candidate A is the better one, "fail" when Candidate B is the better one, and "inconclusive" for a tie.',
+].join('\n');
+export async function measurePairwise(variant: string, runner: Runner) {
+  if (!['ours', 'theirs', 'checked'].includes(variant)) throw new Error('Unknown pairwise variant');
+  const items = JSON.parse(readFileSync(join(here, 'pairwise-heldout.json'), 'utf8')) as Item[];
+  const answers: unknown[] = [];
+  const path = join(here, 'recorded', `pairwise-${variant}-heldout.json`);
+  const save = () =>
+    writeFileSync(
+      path,
+      `${JSON.stringify({ variant, set: 'heldout', candidateLabel: variant === 'checked' ? 'not yet the shipped default' : undefined, expected: items.length, complete: answers.length === items.length, answers }, null, 2)}\n`,
+    );
+  try {
+    for (const item of items) {
+      const keys: string[] = [];
+      let costUsd = 0;
+      let answer: ReturnType<typeof combineAudit> | { choice: string };
+      if (variant === 'ours') {
+        const client: JudgeClient = {
+          id: 'hard-haiku',
+          family: 'anthropic',
+          cls: 'system2',
+          model: 'haiku',
+          cost: 10,
+          async judge(request) {
+            const prompt = buildPrompt(request);
+            const call = await runner.ask(prompt.system, prompt.user);
+            keys.push(call.key);
+            costUsd += call.costUsd;
+            return call.failed
+              ? {
+                  answer: { outcome: 'inconclusive', reasoning: 'transport failed' },
+                  raw: call.text,
+                  unparsed: true,
+                  costUsd: call.costUsd,
+                }
+              : { ...parseAnswerText(call.text), costUsd: call.costUsd };
+          },
+        };
+        answer = await judgePairwise(
+          client,
+          {
+            name: 'matches_golden',
+            rubric:
+              'The reply gives the same facts as the golden answer: the price, the data allowance and the availability.',
+            pass: 'The reply states the same facts as the golden answer.',
+            fail: 'The reply states a fact that differs from the golden answer.',
+            scope: 'block',
+          },
+          [{ role: 'user', text: item.task }],
+          item.candidate_a,
+          item.candidate_b,
+          { reference: item.golden },
+        );
+      } else {
+        const pairs = [
+          [item.candidate_a, item.candidate_b],
+          [item.candidate_b, item.candidate_a],
+        ] as const;
+        const outcomes: Array<'pass' | 'fail' | 'inconclusive'> = [];
+        for (const [a, b] of pairs) {
+          const call = await runner.ask(
+            variant === 'checked' ? AUDIT_SYSTEM : CONTRACT,
+            variant === 'checked'
+              ? auditUser(item.task, item.golden, a, b)
+              : nativePairwise(item.task, item.golden, a, b),
+          );
+          keys.push(call.key);
+          costUsd += call.costUsd;
+          outcomes.push(
+            call.failed
+              ? 'inconclusive'
+              : variant === 'checked'
+                ? parseAudit(call.text).outcome
+                : parseAnswerText(call.text).answer.outcome,
+          );
+        }
+        answer = combineAudit(outcomes[0] ?? 'inconclusive', outcomes[1] ?? 'inconclusive');
+        if (variant === 'checked' && answer.choice === 'tie') {
+          const fallback: Array<'pass' | 'fail' | 'inconclusive'> = [];
+          for (const [a, b] of pairs) {
+            const call = await runner.ask(LEDGER_SYSTEM, auditUser(item.task, item.golden, a, b));
+            keys.push(call.key);
+            costUsd += call.costUsd;
+            fallback.push(call.failed ? 'inconclusive' : parseLedger(call.text).outcome);
+          }
+          answer = combineAudit(fallback[0] ?? 'inconclusive', fallback[1] ?? 'inconclusive');
+        }
+      }
+      answers.push({ id: item.id, ...answer, keys, costUsd });
+      save();
+      if (answers.length % 10 === 0)
+        console.log(
+          `pairwise ${variant} heldout: ${answers.length}/${items.length}, new USD ${runner.fresh.toFixed(6)}`,
+        );
+    }
+  } finally {
+    save();
+  }
+}
+if (process.argv[1] && new URL(import.meta.url).pathname === process.argv[1])
+  measurePairwise(process.argv[2] ?? 'ours', new Runner(process.argv.includes('--replay'))).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });

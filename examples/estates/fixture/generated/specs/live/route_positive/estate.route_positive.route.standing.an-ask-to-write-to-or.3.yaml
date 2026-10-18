@@ -65,6 +65,7 @@ metadata:
       - route.standing.an-ask-to-write-to-or
       - skill.supplier-email.skill-supplier-email
     planRow: route_positive.route.standing.an-ask-to-write-to-or.3
+    focusVariant: 2
     cell:
       atoms.route: route.standing.an-ask-to-write-to-or
     seeder: estate
@@ -76,3 +77,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: supplier-email
     phrase: 1
+    ask: bank
+    outcome: bank

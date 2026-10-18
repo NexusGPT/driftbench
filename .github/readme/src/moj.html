@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: the Mixture of Judges</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* The Mixture of Judges for a reader with no context: a quick judge reads every answer; when it is sure, it
+     decides; when it is not, the answer goes to the expert that fits it. The bottom line is computed from the
+     sealed confirmation in research/moj/RESULTS.md: promptfoo uses 200 reasoning calls per 100 pairs, MoJ 57,
+     21 and 10, so 3.5 to 19.4 times fewer; accuracy ties on two benchmarks and is higher on the third, so at least as accurate on all three. */
+  #frame { width: 640px; height: 340px; }
+  .q { left: 16px; top: 74px; width: 170px; height: 112px; align-content: start; padding: 11px 12px; row-gap: 5px; }
+  .x { left: 404px; width: 202px; height: 52px; align-content: center; padding: 8px 11px; row-gap: 3px; }
+  .x .nx-node__title { font-size: 12.5px; }
+  .x .nx-node__kind { font-size: 11px; }
+  .fin { left: 404px; top: 214px; width: 202px; height: 52px; align-content: center; padding: 8px 11px; row-gap: 3px; }
+  .sure { left: 214px; top: 214px; }
+  .unsure { left: 222px; top: 98px; }
+  .bottom { left: 16px; top: 280px; width: 590px; height: 34px; display: flex; align-items: center; padding: 0 14px; font: 500 11.5px/1.3 var(--nx-sans); color: var(--nx-ink); }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <svg class="nx-edges" viewBox="0 0 620 320">
+      <path class="nx-edge" d="M186 112 C300 112, 300 36, 404 36"/>
+      <path class="nx-edge" d="M186 120 C300 120, 300 98, 404 98"/>
+      <path class="nx-edge" d="M186 128 C300 128, 300 160, 404 160"/>
+      <path class="nx-edge--new" d="M101 186 C101 240, 300 240, 404 240"/>
+      <path class="nx-edge" d="M505 186 L505 214"/>
+    </svg>
+    <span class="nx-kind" style="left:16px;top:16px">One answer to judge</span>
+    <span class="nx-kind" style="left:404px;top:16px;display:none"></span>
+
+    <div class="nx-node q nx-node--noico">
+      <span class="nx-node__kind">First</span>
+      <span class="nx-node__title">A quick, cheap judge reads it</span>
+      <span class="nx-node__detail">It says how sure it is, and what kind of answer this is.</span>
+    </div>
+
+    <span class="nx-ipill unsure">Not sure</span>
+    <div class="nx-node x" style="top:12px"><span class="nx-node__kind">A fact or a sum to check</span><span class="nx-node__title">Solve it once, compare</span></div>
+    <div class="nx-node x" style="top:74px"><span class="nx-node__kind">Anything else unclear</span><span class="nx-node__title">A careful reasoning judge</span></div>
+    <div class="nx-node x" style="top:136px"><span class="nx-node__kind">Still unclear</span><span class="nx-node__title">A panel of models votes</span></div>
+
+    <span class="nx-ipill sure"><span class="nx-done">Sure</span>decided at once</span>
+    <div class="nx-node fin nx-ring"><span class="nx-node__kind">Verdict</span><span class="nx-node__title">Pass or fail, with the reason</span></div>
+
+    <div class="nx-ill-panel bottom">At least as accurate as promptfoo on three public benchmarks, with 3.5 to 19.4 times fewer costly calls.</div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 11px Geist', '600 13px Geist', '500 10.5px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

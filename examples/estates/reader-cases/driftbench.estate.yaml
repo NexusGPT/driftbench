@@ -9,3 +9,9 @@ externals:
   - docs
   - _meta
   - companies
+# Fixtures of the scripts, run by driftbench estate unit: arguments, stdin, files in the working folder,
+# and the exit code and stdout each must give.
+scripts:
+  .claude/skills/shipment-tracker/scripts/track.sh:
+    - { args: [], expect: { exitCode: 2 } }
+    - { args: ["NWX", "999"], expect: { exitCode: 1 } }

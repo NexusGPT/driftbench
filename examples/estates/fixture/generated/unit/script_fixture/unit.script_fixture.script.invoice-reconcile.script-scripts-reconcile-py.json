@@ -1,0 +1,33 @@
+{
+  "id": "unit.script_fixture.script.invoice-reconcile.script-scripts-reconcile-py",
+  "planRow": "script_fixture.script.invoice-reconcile.script-scripts-reconcile-py",
+  "testType": "script_fixture",
+  "atom": "script.invoice-reconcile.script-scripts-reconcile-py",
+  "title": "Script scripts/reconcile.py",
+  "mapHash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10",
+  "target": {
+    "kind": "script",
+    "path": ".claude/skills/invoice-reconcile/scripts/reconcile.py",
+    "skill": "invoice-reconcile"
+  },
+  "cases": [
+    {
+      "id": "case-01",
+      "payload": {
+        "args": []
+      },
+      "material": "no argument"
+    },
+    {
+      "id": "case-02",
+      "payload": {
+        "args": ["invoice", "order"],
+        "files": {
+          "invoice": "",
+          "order": ""
+        }
+      },
+      "material": "invoice order"
+    }
+  ]
+}

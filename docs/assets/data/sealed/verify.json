@@ -1,0 +1,1099 @@
+{
+  "cells": [
+    {
+      "model": "haiku",
+      "status": "pending",
+      "reason": "authorized; execution and validation pending",
+      "official": null,
+      "audited": null,
+      "outputLimitErrors": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 10,
+            "affectedItems": 6,
+            "items": [
+              {
+                "phase": "noise-0",
+                "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+              },
+              {
+                "phase": "noise-0",
+                "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec"
+              },
+              {
+                "phase": "noise-0",
+                "id": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539"
+              },
+              {
+                "phase": "noise-1",
+                "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec"
+              },
+              {
+                "phase": "noise-1",
+                "id": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539"
+              },
+              {
+                "phase": "pilot",
+                "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec"
+              }
+            ]
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      },
+      "validation": {
+        "model": "haiku",
+        "mutationChecks": {
+          "driftbench-verify-uncertainty-cascade": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          },
+          "promptfoo": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          }
+        },
+        "noise": {},
+        "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy."
+      },
+      "phaseCoverage": {
+        "pilot": {
+          "items": 20,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 115,
+          "uniquePromptKeys": 115,
+          "terminalNoAnswerRecords": 3,
+          "recordedExecutionUsd": 0.32489078,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 1.5880079,
+            "promptfoo": 0.21103
+          },
+          "report": "examples/ledger-verify/pilot/haiku.json",
+          "recording": "examples/ledger-verify/recordings/b4e4305a2426e0bb7589/pilot/longjudge-verify/haiku.jsonl"
+        },
+        "validity": {
+          "items": 48,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 109,
+          "uniquePromptKeys": 83,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.03593517,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.0328115,
+            "promptfoo": 0.021495833333333336
+          },
+          "report": "examples/ledger-verify/validity/haiku.json",
+          "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/validity/longjudge-verify/haiku.jsonl"
+        },
+        "noise-0": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 174,
+          "uniquePromptKeys": 174,
+          "terminalNoAnswerRecords": 5,
+          "recordedExecutionUsd": 0.51420498,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 2.0898072666666665,
+            "promptfoo": 0.1977144
+          },
+          "report": "examples/ledger-verify/noise-0/haiku.json",
+          "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/noise-0/longjudge-verify/haiku.jsonl"
+        },
+        "noise-1": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 173,
+          "uniquePromptKeys": 173,
+          "terminalNoAnswerRecords": 4,
+          "recordedExecutionUsd": 0.44911331,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 1.7791975666666668,
+            "promptfoo": 0.16250119999999998
+          },
+          "report": "examples/ledger-verify/noise-1/haiku.json",
+          "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/noise-1/longjudge-verify/haiku.jsonl"
+        },
+        "noise-2": {
+          "status": "pending"
+        },
+        "results": {
+          "status": "pending"
+        }
+      },
+      "validityPassedScope": "Planted mutation checks only; predeclared cheater margin not established"
+    },
+    {
+      "model": "gpt-6-luna",
+      "status": "measured",
+      "official": {
+        "sealedItems": 221,
+        "matchedItems": 221,
+        "missing": [0, 0],
+        "correct": [165, 160],
+        "accuracy": [0.746606334841629, 0.7239819004524887],
+        "balancedAccuracy": [0.6682562973832233, 0.6771826852531181],
+        "wilson95": [[0.685384081936647, 0.7994019560641337], [0.6615990556573178, 0.7787111990406389]],
+        "delta": 0.02262443438914027,
+        "deltaRequestClusterBootstrap95": [-0.02727272727272727, 0.07207207207207207],
+        "bootstrapReplicates": 10000,
+        "bootstrapSeed": 20261013,
+        "requestClusters": 219,
+        "wins": 18,
+        "losses": 13,
+        "twoSidedExactMcNemarP": 0.47312965989112854,
+        "holmP": null,
+        "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+        "bonferroni18UpperBound": 1.0,
+        "verdict": "TIE",
+        "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+        "provisional": false,
+        "validVerdictCoverageComplete": true
+      },
+      "audited": {
+        "sealedItems": 221,
+        "matchedItems": 221,
+        "missing": [0, 0],
+        "correct": [188, 181],
+        "accuracy": [0.8506787330316742, 0.8190045248868778],
+        "balancedAccuracy": [0.8158284023668638, 0.8084319526627219],
+        "wilson95": [[0.7977178267401317, 0.891656814453639], [0.7629346391025311, 0.8641739054672861]],
+        "delta": 0.03167420814479638,
+        "deltaRequestClusterBootstrap95": [-0.018018018018018018, 0.08108108108108109],
+        "bootstrapReplicates": 10000,
+        "bootstrapSeed": 20261013,
+        "requestClusters": 219,
+        "wins": 19,
+        "losses": 12,
+        "twoSidedExactMcNemarP": 0.28104151505976915,
+        "holmP": null,
+        "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+        "bonferroni18UpperBound": 1.0,
+        "verdict": "TIE",
+        "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+        "provisional": false,
+        "validVerdictCoverageComplete": true
+      },
+      "costUsd": [0.9187803000000002, 0.14981810000000004],
+      "costPer100SealedItems": [0.4157376923076924, 0.06779099547511314],
+      "report": "results/gpt-6-luna.json",
+      "outputLimitErrors": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      },
+      "validation": {
+        "model": "gpt-6-luna",
+        "mutationChecks": {
+          "driftbench-verify-uncertainty-cascade": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          },
+          "promptfoo": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          }
+        },
+        "noise": {
+          "driftbench-verify-uncertainty-cascade": {
+            "items": 30,
+            "repeats": 3,
+            "itemsWithAnyFlip": 4,
+            "itemsWithAnyMissing": 2
+          },
+          "promptfoo": {
+            "items": 30,
+            "repeats": 3,
+            "itemsWithAnyFlip": 9,
+            "itemsWithAnyMissing": 2
+          }
+        },
+        "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy."
+      },
+      "phaseCoverage": {
+        "pilot": {
+          "items": 20,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 114,
+          "uniquePromptKeys": 114,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.12809498,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.5666369,
+            "promptfoo": 0.073838
+          },
+          "report": "examples/ledger-verify/pilot/gpt-6-luna.json",
+          "recording": "examples/ledger-verify/recordings/b4e4305a2426e0bb7589/pilot/longjudge-verify/gpt-6-luna.jsonl"
+        },
+        "validity": {
+          "items": 48,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 108,
+          "uniquePromptKeys": 82,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.0078059,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.007909166666666667,
+            "promptfoo": 0.004173125
+          },
+          "report": "examples/ledger-verify/validity/gpt-6-luna.json",
+          "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/validity/longjudge-verify/gpt-6-luna.jsonl"
+        },
+        "noise-0": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 2,
+            "promptfoo": 2
+          },
+          "cassetteRows": 172,
+          "uniquePromptKeys": 172,
+          "terminalNoAnswerRecords": 6,
+          "recordedExecutionUsd": 0.1850573,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.5419113333333333,
+            "promptfoo": 0.07494633333333334
+          },
+          "report": "examples/ledger-verify/noise-0/gpt-6-luna.json",
+          "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/noise-0/longjudge-verify/gpt-6-luna.jsonl"
+        },
+        "noise-1": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 172,
+          "uniquePromptKeys": 172,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.19069173,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.5847664333333334,
+            "promptfoo": 0.05087266666666667
+          },
+          "report": "examples/ledger-verify/noise-1/gpt-6-luna.json",
+          "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/noise-1/longjudge-verify/gpt-6-luna.jsonl"
+        },
+        "noise-2": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 172,
+          "uniquePromptKeys": 172,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.17548593,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.5354463333333332,
+            "promptfoo": 0.04950676666666667
+          },
+          "report": "examples/ledger-verify/noise-2/gpt-6-luna.json",
+          "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/noise-2/longjudge-verify/gpt-6-luna.jsonl"
+        },
+        "results": {
+          "items": 221,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 1242,
+          "uniquePromptKeys": 1242,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 1.0660403,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.4145801809954751,
+            "promptfoo": 0.06779099547511312
+          },
+          "report": "examples/ledger-verify/results/gpt-6-luna.json",
+          "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/test/longjudge-verify/gpt-6-luna.jsonl"
+        }
+      },
+      "productFinal": {
+        "official": {
+          "sealedItems": 221,
+          "matchedItems": 221,
+          "missing": [0, 0],
+          "correct": [165, 160],
+          "accuracy": [0.746606334841629, 0.7239819004524887],
+          "balancedAccuracy": [0.6682562973832233, 0.6771826852531181],
+          "wilson95": [[0.685384081936647, 0.7994019560641337], [0.6615990556573178, 0.7787111990406389]],
+          "delta": 0.02262443438914027,
+          "deltaRequestClusterBootstrap95": [-0.02727272727272727, 0.07207207207207207],
+          "bootstrapReplicates": 10000,
+          "bootstrapSeed": 20261013,
+          "requestClusters": 219,
+          "wins": 18,
+          "losses": 13,
+          "twoSidedExactMcNemarP": 0.47312965989112854,
+          "holmP": null,
+          "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+          "bonferroni18UpperBound": 1.0,
+          "verdict": "TIE",
+          "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+          "provisional": false,
+          "validVerdictCoverageComplete": true
+        },
+        "audited": {
+          "sealedItems": 221,
+          "matchedItems": 221,
+          "missing": [0, 0],
+          "correct": [188, 181],
+          "accuracy": [0.8506787330316742, 0.8190045248868778],
+          "balancedAccuracy": [0.8158284023668638, 0.8084319526627219],
+          "wilson95": [[0.7977178267401317, 0.891656814453639], [0.7629346391025311, 0.8641739054672861]],
+          "delta": 0.03167420814479638,
+          "deltaRequestClusterBootstrap95": [-0.018018018018018018, 0.08108108108108109],
+          "bootstrapReplicates": 10000,
+          "bootstrapSeed": 20261013,
+          "requestClusters": 219,
+          "wins": 19,
+          "losses": 12,
+          "twoSidedExactMcNemarP": 0.28104151505976915,
+          "holmP": null,
+          "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+          "bonferroni18UpperBound": 1.0,
+          "verdict": "TIE",
+          "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+          "provisional": false,
+          "validVerdictCoverageComplete": true
+        }
+      },
+      "headline": "strict",
+      "strictDecisions": "results/gpt-6-luna.strict.json",
+      "productFinalDecisions": "results/gpt-6-luna.json",
+      "costPer100UniqueKeys": {
+        "driftbench-verify-uncertainty-cascade": 0.4145801809954751,
+        "promptfoo": 0.06779099547511312
+      },
+      "validityPassed": true,
+      "claimStatus": "Pending prespecified 18-cell Holm correction",
+      "validityPassedScope": "Planted mutation checks only; predeclared cheater margin not established"
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "status": "dropped by the owner",
+      "reason": "dropped by the owner; completed partial results are labelled dropped",
+      "official": null,
+      "audited": null,
+      "outputLimitErrors": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      },
+      "validation": {
+        "model": "gemini-3.8-flash",
+        "mutationChecks": {
+          "driftbench-verify-uncertainty-cascade": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          },
+          "promptfoo": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          }
+        },
+        "noise": {},
+        "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy."
+      },
+      "phaseCoverage": {
+        "pilot": {
+          "items": 20,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 115,
+          "uniquePromptKeys": 115,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.963,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 3.9238500000000003,
+            "promptfoo": 0.89115
+          },
+          "report": "examples/ledger-verify/pilot/gemini-3.8-flash.json",
+          "recording": "examples/ledger-verify/recordings/b4e4305a2426e0bb7589/pilot/longjudge-verify/gemini-3.8-flash.jsonl"
+        },
+        "validity": {
+          "items": 48,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 112,
+          "uniquePromptKeys": 82,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.08589525,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.07216093750000001,
+            "promptfoo": 0.057915625
+          },
+          "report": "examples/ledger-verify/validity/gemini-3.8-flash.json",
+          "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/validity/longjudge-verify/gemini-3.8-flash.jsonl"
+        },
+        "noise-0": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 173,
+          "uniquePromptKeys": 173,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 1.40058525,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 3.82725,
+            "promptfoo": 0.8413675
+          },
+          "report": "examples/ledger-verify/noise-0/gemini-3.8-flash.json",
+          "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/noise-0/longjudge-verify/gemini-3.8-flash.jsonl"
+        },
+        "noise-1": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 173,
+          "uniquePromptKeys": 173,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 1.5661485,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 4.300515000000001,
+            "promptfoo": 0.9199800000000001
+          },
+          "report": "examples/ledger-verify/noise-1/gemini-3.8-flash.json",
+          "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/noise-1/longjudge-verify/gemini-3.8-flash.jsonl"
+        },
+        "noise-2": {
+          "status": "dropped by the owner"
+        },
+        "results": {
+          "status": "dropped by the owner"
+        }
+      },
+      "validityPassedScope": "Planted mutation checks only; predeclared cheater margin not established"
+    }
+  ],
+  "exposure": "previously evaluated split",
+  "unit": "item",
+  "auditedCorrections": 23,
+  "cheaters": {
+    "alwaysPassOfficial": 0.21266968325791855,
+    "alwaysFailOfficial": 0.7873303167420814,
+    "alwaysPassAudited": 0.23529411764705882,
+    "alwaysFailAudited": 0.7647058823529411
+  },
+  "noiseFloor": {
+    "haiku": {},
+    "gpt-6-luna": {
+      "driftbench-verify-uncertainty-cascade": {
+        "items": 30,
+        "repeats": 3,
+        "itemsWithAnyFlip": 4,
+        "itemsWithAnyMissing": 2
+      },
+      "promptfoo": {
+        "items": 30,
+        "repeats": 3,
+        "itemsWithAnyFlip": 9,
+        "itemsWithAnyMissing": 2
+      }
+    },
+    "gemini-3.8-flash": {}
+  },
+  "primaryEndpoint": "Official labels; audited labels are a separately reported sensitivity analysis",
+  "outputLimitErrors": {
+    "counts": {
+      "haiku": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 10,
+            "affectedItems": 6,
+            "items": [
+              {
+                "phase": "noise-0",
+                "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+              },
+              {
+                "phase": "noise-0",
+                "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec"
+              },
+              {
+                "phase": "noise-0",
+                "id": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539"
+              },
+              {
+                "phase": "noise-1",
+                "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec"
+              },
+              {
+                "phase": "noise-1",
+                "id": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539"
+              },
+              {
+                "phase": "pilot",
+                "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec"
+              }
+            ]
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      },
+      "gpt-6-luna": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      },
+      "gemini-3.8-flash": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      }
+    },
+    "limits": [
+      {
+        "receipt": "81b2aa72-eb26-4bf4-8fad-8226342cc521",
+        "model": "haiku",
+        "phase": "pilot",
+        "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+        "at": "2026-10-13T08:50:24.851Z",
+        "consumers": [
+          {
+            "phase": "pilot",
+            "model": "haiku",
+            "cellId": "c1fe1cecf23d005dd6a9",
+            "fingerprint": "e2ec83f4c83e0392f953a03e728ffc77f2e5659d61a56272be233462871057da",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+            "order": "program"
+          }
+        ]
+      },
+      {
+        "receipt": "7524b74b-9d4e-4440-875b-bd3294798db7",
+        "model": "haiku",
+        "phase": "noise-0",
+        "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+        "at": "2026-10-13T09:22:42.745Z",
+        "consumers": [
+          {
+            "phase": "noise-0",
+            "model": "haiku",
+            "cellId": "cf3e86f5e9160b696214",
+            "fingerprint": "960ecc99d608c34a39257a1ab1285cc1bd36c1df7f85f961470b3dfd6b8a8d16",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+            "order": "program"
+          }
+        ]
+      },
+      {
+        "receipt": "b35b5cf6-97ee-41e9-af77-66129087d795",
+        "model": "haiku",
+        "phase": "noise-0",
+        "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+        "at": "2026-10-13T09:28:36.245Z",
+        "consumers": [
+          {
+            "phase": "noise-0",
+            "model": "haiku",
+            "cellId": "a2c2d66d38a34ae5a64b",
+            "fingerprint": "4ff942e054cdd4f650d8f33c09174410401395ec7acd5fa384761526f98e2bad",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+            "order": "blind-direct-program"
+          }
+        ]
+      },
+      {
+        "receipt": "0dda06b2-a47d-47f4-8c06-6d0519115bef",
+        "model": "haiku",
+        "phase": "noise-0",
+        "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+        "at": "2026-10-13T09:33:20.938Z",
+        "consumers": [
+          {
+            "phase": "noise-0",
+            "model": "haiku",
+            "cellId": "c1fe1cecf23d005dd6a9",
+            "fingerprint": "e2ec83f4c83e0392f953a03e728ffc77f2e5659d61a56272be233462871057da",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+            "order": "program"
+          }
+        ]
+      },
+      {
+        "receipt": "67a0e1c7-ad90-4886-afef-bfe4f131b38c",
+        "model": "haiku",
+        "phase": "noise-0",
+        "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+        "at": "2026-10-13T09:49:39.129Z",
+        "consumers": [
+          {
+            "phase": "noise-0",
+            "model": "haiku",
+            "cellId": "94a38c7377005697ff19",
+            "fingerprint": "f4c02c1e933a99751c8ce0421ff11fc734a9c30fd8584d1a8b1683ef66f96028",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+            "order": "blind-direct-program"
+          }
+        ]
+      },
+      {
+        "receipt": "1cab2014-457e-4ad6-a4b0-da1144b77c1a",
+        "model": "haiku",
+        "phase": "noise-0",
+        "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+        "at": "2026-10-13T09:54:24.145Z",
+        "consumers": [
+          {
+            "phase": "noise-0",
+            "model": "haiku",
+            "cellId": "2d62e8d0702da910610c",
+            "fingerprint": "2523041527cd0cac51b8f2f449b29fd820f557c3651e6d705056d12acf129df8",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+            "order": "program"
+          }
+        ]
+      },
+      {
+        "receipt": "1998e572-09d2-491e-b0ba-fff82d9cd869",
+        "model": "haiku",
+        "phase": "noise-1",
+        "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+        "at": "2026-10-13T10:14:22.642Z",
+        "consumers": [
+          {
+            "phase": "noise-1",
+            "model": "haiku",
+            "cellId": "a2c2d66d38a34ae5a64b",
+            "fingerprint": "4ff942e054cdd4f650d8f33c09174410401395ec7acd5fa384761526f98e2bad",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+            "order": "blind-direct-program"
+          }
+        ]
+      },
+      {
+        "receipt": "1d90e4e6-75b5-47d9-9c15-97c83dbb98d8",
+        "model": "haiku",
+        "phase": "noise-1",
+        "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+        "at": "2026-10-13T10:19:00.744Z",
+        "consumers": [
+          {
+            "phase": "noise-1",
+            "model": "haiku",
+            "cellId": "c1fe1cecf23d005dd6a9",
+            "fingerprint": "e2ec83f4c83e0392f953a03e728ffc77f2e5659d61a56272be233462871057da",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+            "order": "program"
+          }
+        ]
+      },
+      {
+        "receipt": "177ffc4b-8079-480c-a2e3-54a785002470",
+        "model": "haiku",
+        "phase": "noise-1",
+        "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+        "at": "2026-10-13T10:31:43.503Z",
+        "consumers": [
+          {
+            "phase": "noise-1",
+            "model": "haiku",
+            "cellId": "94a38c7377005697ff19",
+            "fingerprint": "f4c02c1e933a99751c8ce0421ff11fc734a9c30fd8584d1a8b1683ef66f96028",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+            "order": "blind-direct-program"
+          }
+        ]
+      },
+      {
+        "receipt": "ea3062a9-d749-45d6-91ef-fc53201c59cc",
+        "model": "haiku",
+        "phase": "noise-1",
+        "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+        "at": "2026-10-13T10:36:34.460Z",
+        "consumers": [
+          {
+            "phase": "noise-1",
+            "model": "haiku",
+            "cellId": "2d62e8d0702da910610c",
+            "fingerprint": "2523041527cd0cac51b8f2f449b29fd820f557c3651e6d705056d12acf129df8",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+            "order": "program"
+          }
+        ]
+      }
+    ],
+    "unmappedLimits": [],
+    "unclassifiedHistoricalNativeErrors": [
+      {
+        "receipt": "6ab5b67b-9b3f-4827-aa2d-fbe47b370693",
+        "model": "haiku",
+        "reason": "Historical native error body unavailable; output-limit cause is not inferred"
+      },
+      {
+        "receipt": "54a2039c-e91b-4fd8-95c4-d77da5e16bb1",
+        "model": "haiku",
+        "reason": "Historical native error body unavailable; output-limit cause is not inferred"
+      }
+    ],
+    "rule": "Strict is primary; any confirmed output limit makes every consuming contestant/item an error. Product-final preserves the original verdict, including fallback.",
+    "source": "evidence/scoring-freeze.json; evidence/request-attribution.json; receipts/calls.jsonl; receipts/errors.jsonl; receipts/native/*.json"
+  },
+  "fees": {
+    "settledUsd": 7.871660720000004,
+    "unresolvedMaximumUsd": 17.5,
+    "maximumAccountedUsd": 25.371660720000005,
+    "capUsd": 40.0,
+    "providerReceipts": 3204,
+    "byModel": {
+      "haiku": 1.73173583,
+      "gpt-6-luna": 1.75300614,
+      "gemini-3.8-flash": 4.38691875
+    },
+    "unknownCharges": {
+      "2d8f81fb-4a46-414f-829c-ff390b92f9ec": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T07:36:20.681606+00:00"
+      },
+      "c36e35fd-39b4-4607-bf07-648a668b3c28": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T07:36:27.922704+00:00"
+      },
+      "8e218109-a8da-4949-9a79-a3e3eb1856f8": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T07:36:56.342180+00:00"
+      },
+      "d185530c-3fe3-4940-9441-46a5ba38d1f4": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T07:37:08.644708+00:00"
+      },
+      "344c89ea-364e-438a-9f60-c5654e972fc6": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T07:37:13.574949+00:00"
+      },
+      "e9556acf-05aa-4015-a58d-737fb17013c2": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T07:50:35.300702+00:00"
+      },
+      "1ea848b4-6b6a-40b7-923f-17ef60871da4": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T07:51:15.812657+00:00"
+      },
+      "6b4925f6-de61-4077-8a3d-0903ecb4c93c": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T07:53:18.560058+00:00"
+      },
+      "6ab5b67b-9b3f-4827-aa2d-fbe47b370693": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T08:10:48.928832+00:00"
+      },
+      "54a2039c-e91b-4fd8-95c4-d77da5e16bb1": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T08:13:59.851557+00:00"
+      },
+      "native-capture-mock-resolution-failure": {
+        "usd": 0.5,
+        "model": "native-diagnostic-fake",
+        "at": "2026-10-13T08:22:55.870724+00:00"
+      },
+      "93006ce1-8b24-452e-b378-31da6664f669": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T09:30:01.258521+00:00"
+      },
+      "29e30d26-92bc-429c-9a11-0708da740e8d": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T09:30:12.439294+00:00"
+      },
+      "e8fe9072-f32d-457f-a8ce-28744e87040f": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:16.575414+00:00"
+      },
+      "c62451ca-0e40-4a3f-9d2c-c0fa9ffa7c4e": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T09:30:17.433629+00:00"
+      },
+      "1dca995b-3479-41ad-b352-49b153f2f61e": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T09:30:23.703950+00:00"
+      },
+      "359cc0d8-5ed1-446a-97a8-b97db9a6659c": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:24.303840+00:00"
+      },
+      "a3771bff-2502-46ba-8b00-818f6954b3e1": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:27.847348+00:00"
+      },
+      "d7cc1b79-6257-4acc-8b8b-d2d0b9f3e904": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T09:30:28.607989+00:00"
+      },
+      "48ff8412-a7f9-4e8d-8ef5-da100ee7660a": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:39.185003+00:00"
+      },
+      "0bfa1273-d2c6-467d-a59a-ebdc7ba5088b": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:50.626492+00:00"
+      },
+      "ca2480bc-a5e2-437a-b706-5e33cd7a0cc9": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:50.648056+00:00"
+      },
+      "9eb06b89-f66c-4654-90d8-87d6b3bd8c98": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T10:52:07.226233+00:00"
+      },
+      "6238d066-b766-429d-bb79-c4e94d168906": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T10:53:51.058388+00:00"
+      },
+      "f1fdc362-f5f4-45fa-a222-fbdd00071adc": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T10:53:56.070703+00:00"
+      },
+      "9646fb1b-3388-4ac4-9bda-0479bccb7ad0": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T10:54:22.367302+00:00"
+      }
+    },
+    "source": "receipts/budget.json and receipts/calls.jsonl"
+  },
+  "freeze": {
+    "runtime": "ee96e47757aa837860fe",
+    "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
+    "hashes": {
+      "evidence/seal.json": "54fc167420330d25eb2d8874a0784bd9aa4ec4ff06fbcae82ffaa26d5fc42155",
+      "evidence/runtime-freeze.json": "c1da047e74647cd9f61318b63e6bd5a11ecb5dc2a4c51a1887b5f039a411e52e",
+      "evidence/pilot-runtime-freeze.json": "b374d2982c6d3673c07c1f72dd4ebf96cf068981ee4e416d4a1a3311cfc3c6df",
+      "evidence/scoring-freeze.json": "e1c0ce28e0dc259b6fe3e3bf98e16e7e0bc20c05e621d09522f43576752fe40b",
+      "evidence/pool.json": "f569c72a5e701366d232b619a623c09abddcf69cfc4379e849dbdef76b9559c5",
+      "evidence/audit-map.json": "3de476f85d4ce54ed88260f62d4ccab8c0fad36cddf50c1e74e2035055541eb6",
+      "stats.py": "53aa9de5e9c869e3dce17e597ba8fa7efe0a022861b99f7fd60f48d6ad3ad3ac",
+      "validate.py": "2b9cf4a86344562f4f4b71363a695c14893b4550f1611682e11cdf5686ce4040",
+      "run.ts": "4dba10340b086fa8ffdecf55dde7bae9a75d1d535cb4233dfb468040f0d24767",
+      "transport.ts": "c621bb49d72cd20d7aa23e8b6d974026bbdae1ca6461680324098be849a3226a",
+      "summarize.py": "1cd18ffa8da398404528c3ffd71c351c6f67248e67b2110cd612789168dcf840",
+      "output_limits.py": "e497c931f8a4f395cd5edb9d3bf7ec8250b334d358d758d605cb3a23dfa2d8c6",
+      "trace-requests.ts": "72e5253798d6d3b23f7a866a51b450027b23ce71fe240d775b3709d5318dd33e"
+    }
+  },
+  "at": "2026-10-13T10:54:25.665936+00:00",
+  "cheaterGateAuditFile": "evidence/cheater-gate-audit.json",
+  "predeclaredCheaterMarginEstablished": false
+}

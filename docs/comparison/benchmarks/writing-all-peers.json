@@ -1,0 +1,189 @@
+{
+ "bench": "writing",
+ "title": "LongJudgeBench writing preference",
+ "model": "claude-haiku-5-5",
+ "kind": "pair",
+ "unit": "game",
+ "final": true,
+ "contestants": [
+  {
+   "contestant": "driftbench",
+   "items": 173,
+   "present": 173,
+   "transportMissing": 0,
+   "all": {
+    "correct": 212,
+    "n": 346,
+    "score": 0.6127167630057804,
+    "wilson95": [
+     0.5604186571366688,
+     0.6625394801376722
+    ],
+    "driftbenchMinusThis": 0.0
+   }
+  },
+  {
+   "contestant": "promptfoo",
+   "items": 173,
+   "present": 173,
+   "transportMissing": 0,
+   "all": {
+    "correct": 197,
+    "n": 346,
+    "score": 0.569364161849711,
+    "wilson95": [
+     0.5167094311442219,
+     0.6204955764092187
+    ],
+    "driftbenchMinusThis": 0.04335260115606936,
+    "driftbenchWins": 49,
+    "driftbenchLosses": 34,
+    "exactTwoSidedP": 0.12385305946180145,
+    "holmP": 0.8669714162326101
+   }
+  },
+  {
+   "contestant": "driftbench-reader-first",
+   "items": 173,
+   "present": 173,
+   "transportMissing": 0,
+   "all": {
+    "correct": 234,
+    "n": 346,
+    "score": 0.6763005780346821,
+    "wilson95": [
+     0.6252974641923758,
+     0.7234319300059525
+    ],
+    "driftbenchMinusThis": -0.06358381502890173,
+    "driftbenchWins": 60,
+    "driftbenchLosses": 82,
+    "exactTwoSidedP": 0.07765321401762205
+   }
+  },
+  {
+   "contestant": "deepeval",
+   "items": 173,
+   "present": 173,
+   "transportMissing": 0,
+   "grader": "ArenaGEval (DeepEval 4.2.8)",
+   "mode": "native",
+   "graderErrors": 0,
+   "ties": 0,
+   "spend": {
+    "usd": 0.47398109999999977,
+    "attempts": 347,
+    "answered": 347,
+    "noAnswer": 0,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 202,
+    "n": 346,
+    "score": 0.5838150289017341,
+    "wilson95": [
+     0.5312337629267745,
+     0.6345556212002994
+    ],
+    "driftbenchMinusThis": 0.028901734104046242,
+    "driftbenchWins": 46,
+    "driftbenchLosses": 36,
+    "exactTwoSidedP": 0.32029336363801414,
+    "holmP": 1.0
+   }
+  },
+  {
+   "contestant": "inspect",
+   "items": 173,
+   "present": 173,
+   "transportMissing": 0,
+   "grader": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+   "mode": "pointwise grader, higher score wins",
+   "graderErrors": 0,
+   "ties": 138,
+   "spend": {
+    "usd": 0.3846551999999997,
+    "attempts": 346,
+    "answered": 346,
+    "noAnswer": 0,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 40,
+    "n": 346,
+    "score": 0.11560693641618497,
+    "wilson95": [
+     0.0860566380143063,
+     0.153598945127044
+    ],
+    "driftbenchMinusThis": 0.49710982658959535,
+    "driftbenchWins": 178,
+    "driftbenchLosses": 6,
+    "exactTwoSidedP": 4.1883336298312285e-45,
+    "holmP": 9.633167348611825e-44
+   }
+  },
+  {
+   "contestant": "langfuse",
+   "items": 173,
+   "present": 173,
+   "transportMissing": 0,
+   "grader": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+   "mode": "pointwise grader, higher score wins",
+   "graderErrors": 0,
+   "ties": 128,
+   "spend": {
+    "usd": 0.2047361,
+    "attempts": 346,
+    "answered": 346,
+    "noAnswer": 0,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 50,
+    "n": 346,
+    "score": 0.14450867052023122,
+    "wilson95": [
+     0.1113619269606474,
+     0.1854624093279698
+    ],
+    "driftbenchMinusThis": 0.4682080924855491,
+    "driftbenchWins": 172,
+    "driftbenchLosses": 10,
+    "exactTwoSidedP": 2.957410515079597e-39,
+    "holmP": 6.506303133175113e-38
+   }
+  },
+  {
+   "contestant": "langwatch",
+   "items": 173,
+   "present": 173,
+   "transportMissing": 0,
+   "grader": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+   "mode": "native",
+   "graderErrors": 0,
+   "ties": 0,
+   "spend": {
+    "usd": 0.30890880000000004,
+    "attempts": 346,
+    "answered": 346,
+    "noAnswer": 0,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 182,
+    "n": 346,
+    "score": 0.5260115606936416,
+    "wilson95": [
+     0.4734019984141171,
+     0.5780498794184232
+    ],
+    "driftbenchMinusThis": 0.08670520231213873,
+    "driftbenchWins": 42,
+    "driftbenchLosses": 12,
+    "exactTwoSidedP": 5.2094472007935266e-05,
+    "holmP": 0.0006772281361031585
+   }
+  }
+ ]
+}

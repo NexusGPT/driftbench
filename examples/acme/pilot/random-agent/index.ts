@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import type { Message, Observed, ResolvedGiven, WorldState } from '@driftbench/core';
-import { PILOT_CONTROL_MARKER } from '@driftbench/generate';
+import type { Message, Observed, ResolvedGiven, WorldState } from '@agent-nexus/driftbench-core';
+import { PILOT_CONTROL_MARKER } from '@agent-nexus/driftbench-generate';
 import { createAcmeAgent, createStore } from '../../src/index';
 
 /**

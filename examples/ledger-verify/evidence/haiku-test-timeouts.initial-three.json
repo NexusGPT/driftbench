@@ -1,0 +1,39 @@
+{
+  "at": "2026-10-13T13:21:18.906421+00:00",
+  "authorization": "Approved, logged: one missing-only recovery for those three Haiku timeouts after initial TEST finishes. Output-limit answer stays as cascade error.",
+  "unknownHoldsRetainedUsd": 1.5,
+  "maxAdditionalSubmissionsEach": 1,
+  "maxTotalSubmissionsEach": 2,
+  "calls": [
+    {
+      "id": "4e6aab15-7d7b-40c5-8e6d-5ee653260dab",
+      "model": "haiku",
+      "at": "2026-10-13T13:03:55.555Z",
+      "message": "claude ran past 300000 ms and was stopped",
+      "fingerprint": "9a935f6394bb6cfa8438700ccb7feaefaf6657c8de2774c853d1a8c1e64c6d6c",
+      "phase": "test",
+      "reservationRetained": true,
+      "nativeReceipt": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/receipts/native/4e6aab15-7d7b-40c5-8e6d-5ee653260dab.json"
+    },
+    {
+      "id": "2ad67c5b-301a-45f8-95cb-56a86dcc4cd8",
+      "model": "haiku",
+      "at": "2026-10-13T13:04:52.322Z",
+      "message": "claude ran past 300000 ms and was stopped",
+      "fingerprint": "2d2b648ee7db9348f7966f8717c3c20ab83fff1615410ad1759388d37f8d6cc1",
+      "phase": "test",
+      "reservationRetained": true,
+      "nativeReceipt": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/receipts/native/2ad67c5b-301a-45f8-95cb-56a86dcc4cd8.json"
+    },
+    {
+      "id": "b7df3b9a-b5e4-4104-9d9f-4e6c6b0f1166",
+      "model": "haiku",
+      "at": "2026-10-13T13:09:18.621Z",
+      "message": "claude ran past 300000 ms and was stopped",
+      "fingerprint": "ec31b95c0f02344e6b85e0b7d644645b463ee2a2ec2fcdb40a408c778adbf14a",
+      "phase": "test",
+      "reservationRetained": true,
+      "nativeReceipt": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/receipts/native/b7df3b9a-b5e4-4104-9d9f-4e6c6b0f1166.json"
+    }
+  ]
+}

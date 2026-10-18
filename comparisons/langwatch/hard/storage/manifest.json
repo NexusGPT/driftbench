@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "originalCommit": "73939d09686bd7d214acc6dfcc74b831d1ed991d",
+  "modelInputsResponsesLabelsCostsUnchanged": true,
+  "files": [
+    {
+      "path": "recorded/calls.jsonl",
+      "originalSha256": "a0224d6880c772c9e7d58f9bec7aeef48de64ae99aa8d1cb5244366960dbc59c",
+      "originalBytes": 44921938,
+      "lineCount": 5577,
+      "provenSyntheticFindings": 33,
+      "parts": [
+        {
+          "path": "storage/recorded-calls.jsonl-part-0000.jsonl",
+          "sha256": "c9f13401168bb2424383f8e813e23b0e1022a5e14616e8ca5fdb38eee801c851",
+          "bytes": 6289916
+        },
+        {
+          "path": "storage/recorded-calls.jsonl-part-0001.jsonl",
+          "sha256": "1885c6139334cc1f7d05b6b26c3d6c5dda0a00e34909579e07794028becb94d1",
+          "bytes": 6288036
+        },
+        {
+          "path": "storage/recorded-calls.jsonl-part-0002.jsonl",
+          "sha256": "2085f8bd70169f5128a4f2d28e9dc974e5407ff5fd3ccfce67733f77f82df9e8",
+          "bytes": 6291431
+        },
+        {
+          "path": "storage/recorded-calls.jsonl-part-0003.jsonl",
+          "sha256": "27e0b59d4edcc4c84acf853da2fd9a39d8ff6d762fd30e1e18632b99a86864b0",
+          "bytes": 6277204
+        },
+        {
+          "path": "storage/recorded-calls.jsonl-part-0004.jsonl",
+          "sha256": "a63d8345822c2aeb67b9ad89dd7733057caa5b10a0163d9295acbcbffaadc0de",
+          "bytes": 6279772
+        },
+        {
+          "path": "storage/recorded-calls.jsonl-part-0005.jsonl",
+          "sha256": "c0227346bc5d487f3e9c648007d045f90b82e18d705ccc4e5a4d0980cc02657b",
+          "bytes": 6265637
+        },
+        {
+          "path": "storage/recorded-calls.jsonl-part-0006.jsonl",
+          "sha256": "60465cc65e6c0242fd2c791258f8130174fcfda79bb1d27aa01c679878ca26e8",
+          "bytes": 6274988
+        },
+        {
+          "path": "storage/recorded-calls.jsonl-part-0007.jsonl",
+          "sha256": "1cd0b5abfd4be2482c10912a2e65f355c25adca546b02c20bc1bf18a430f482b",
+          "bytes": 6086699
+        }
+      ]
+    },
+    {
+      "path": "pii/hard.json",
+      "originalSha256": "f4ddff11f445d8d92abde17ef05b6d70defb8848243f5abd5ff411703c587cf3",
+      "originalBytes": 112805,
+      "lineCount": 1322,
+      "provenSyntheticFindings": 5,
+      "parts": [
+        {
+          "path": "storage/pii-hard.json-part-0000.jsonl",
+          "sha256": "e3ffd25b53dc660f000a617b7f23fa696fea6a40794c2544c7416106766dfa16",
+          "bytes": 134821
+        }
+      ]
+    },
+    {
+      "path": "pii/heldout.json",
+      "originalSha256": "645947560b8055bd6ed053b6f36ae93d0dca107158972e692e40d5168ce22dc5",
+      "originalBytes": 62667,
+      "lineCount": 722,
+      "provenSyntheticFindings": 3,
+      "parts": [
+        {
+          "path": "storage/pii-heldout.json-part-0000.jsonl",
+          "sha256": "cc9dc9bc592ee23bf84761a62c4a63d404f9764065a99740da8156f364f1a882",
+          "bytes": 75343
+        }
+      ]
+    }
+  ]
+}

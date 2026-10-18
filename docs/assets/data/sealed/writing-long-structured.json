@@ -1,0 +1,48 @@
+{
+  "source": "examples/writing-heldout/replay_test.ts on research/ledger-wp 110c2fec TEST pair-ledger verdicts; no model call",
+  "setting": "judgePairLedger(..., { preference: 'long-structured' })",
+  "cells": [
+    {
+      "model": "haiku",
+      "contestant": "pair-ledger",
+      "setting": "long-structured",
+      "status": "complete",
+      "pairs": 173,
+      "correct": 226,
+      "accuracy": 65.3179190751445,
+      "rules": {
+        "preference.long-structured": 162,
+        "preference.ledger": 2,
+        "preference.hard-row": 9
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "pair-ledger",
+      "setting": "long-structured",
+      "status": "complete",
+      "pairs": 173,
+      "correct": 226,
+      "accuracy": 65.3179190751445,
+      "rules": {
+        "preference.long-structured": 166,
+        "preference.ledger": 2,
+        "preference.hard-row": 5
+      }
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "contestant": "pair-ledger",
+      "setting": "long-structured",
+      "status": "complete",
+      "pairs": 173,
+      "correct": 228,
+      "accuracy": 65.89595375722543,
+      "rules": {
+        "preference.long-structured": 167,
+        "preference.ledger": 2,
+        "preference.hard-row": 4
+      }
+    }
+  ]
+}

@@ -24,10 +24,12 @@ import {
   SECOND_PASSES,
   type SecondPass,
   turnRecordingPort,
-} from '@driftbench/generate';
-import { aboutPercent } from '@driftbench/space';
+} from '@agent-nexus/driftbench-generate';
+import { aboutPercent } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
+import { exists, reason, showPath as show } from '../files';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 
 export type IntakeDeps = {
   /** The model to call instead of the one the environment configures. Tests pass a fake. */
@@ -605,17 +607,13 @@ function relativeTo(dir: string, path: string): string {
   return isAbsolute(rel) ? path : rel.split(sep).join('/');
 }
 
-async function exists(path: string): Promise<boolean> {
-  return (await stat(path).catch(() => undefined)) !== undefined;
-}
-
 function whole(value: string, min: number): number | undefined {
-  const number = Number(value);
+  const number = optionNumber(value);
   return Number.isInteger(number) && number >= min ? number : undefined;
 }
 
 function share(value: string): number | undefined {
-  const number = Number(value);
+  const number = optionNumber(value);
   return Number.isFinite(number) && number >= 0 && number <= 1 ? number : undefined;
 }
 
@@ -624,13 +622,4 @@ async function nonEmpty(dir: string): Promise<boolean> {
   if (info === undefined) return false;
   if (!info.isDirectory()) return true;
   return (await readdir(dir)).length > 0;
-}
-
-function show(path: string, io: Io): string {
-  const rel = relative(io.cwd, path);
-  return rel === '' || rel.startsWith('..') ? path : rel;
-}
-
-function reason(cause: unknown): string {
-  return cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
 }

@@ -2,7 +2,7 @@
 
 This page extends [generating tests](../README.md#generating-tests) to agents whose behaviour is specified across an estate. It reuses the block model, the run modes, the runtime trace (skills, guards, stages), the checks, the map with axis and detail roles, approval with provenance and the space map. Nothing here is runtime-specific: each runtime is an adapter that reads its own files into these shapes. The Claude Code mapping is on [its adapter page](adapters/claude-code.md).
 
-Status. Built: `driftbench estate scan`, `lint`, `approve`, `map`, `plan` (with `plan approve`), `generate`, `diff`, `impact`, `run` (the live runner), `mutate` (estate mutants), and `driftbench replay`. Not built yet: the unit runner for guards, scripts and helpers, and the estate statistics of section 7. The live runner and the mutants, with a run on the fixture's stand-in command, are in the [CLI reference](reference/cli.md#driftbench-estate-run-and-driftbench-estate-mutate).
+Status. Built: `driftbench estate scan`, `lint`, `approve`, `map`, `plan` (with `plan approve`), `generate`, `diff`, `impact`, `static`, `unit` (guards and scripts), `stats`, `run` (the live runner), `mutate` (estate mutants), and `driftbench replay`. Not built yet: the unit run of a helper alone, and the estate pilot of section 7. The live runner and the mutants, with a run on the fixture's stand-in command, are in the [CLI reference](reference/cli.md#driftbench-estate-run-and-driftbench-estate-mutate).
 
 ## 0. What changes when the agent is an estate
 
@@ -27,24 +27,25 @@ Every number on this page comes from the commands run on the fixture estates of 
 | [`examples/estates/fixture-v2`](../examples/estates/fixture-v2/README.md) | The same estate after a change, for `estate diff` and `estate impact`: one rule rewrapped, two changed in meaning, one removed, two added, one guard promoted. Eight version 1 tests and the committed diff and impact. |
 | `examples/estates/sessions` | Six synthetic sessions of another fictional estate (a shop build) with their guard decision logs, step feeds and seven replay specs, for `driftbench replay`. |
 
-No command on this page calls a paid model. The Northwind map is scanned with recorded answers (`--replay answers.yaml`); the model family the recording names is `lane`, the work of a person who played the model.
+No command on this page calls a paid model. The Northwind map is scanned with recorded answers (`--replay answers.yaml`); the model family the recording names is `lane`, the work of a person who played the model. The committed outputs of these folders are made again by the commands in [Regenerate the fixture](#regenerate-the-fixture).
 
 ## The commands
 
 | Command | What it does | Exit codes |
 |---|---|---|
-| `driftbench estate scan <root> --out <map.yaml>` | Reads an estate into a map of atoms and edges: code reads the structure, a model splits the prose. `--runtime claude-code` (the one runtime today), `--replay <answers>` replays recorded answers instead of calling a model, `--no-model` reads the structured atoms only, `--provider <name>` (anthropic or openai), `--ceiling <characters>` (default 40000), `--force` replaces an existing map (its approvals are lost). `--replay` and `--no-model` do not go together. | 0 written; 1 written, but a prose chunk failed or an atom was refused (both listed); 2 usage or input error, nothing written |
-| `driftbench estate lint <map>` | Checks the estate against its map: the codes of section 2. `--ceiling` as for scan. | 0 clean (unenforced rules alone are reported, never failing); 1 findings or an invalid map; 2 the map or the estate cannot be read |
+| `driftbench estate scan <root> --out <map.yaml>` | Reads an estate into a map of atoms and edges: code reads the structure, a model splits the prose. `--runtime claude-code` (the one runtime today), `--replay <answers>` replays recorded answers instead of calling a model, `--no-model` reads the structured atoms only, `--provider <name>` (anthropic or openai), `--ceiling <characters>` (default 40000), `--ignore <glob>` (repeatable) skips the paths it matches beside the defaults and the `ignore:` list of the [configuration file](#the-estate-configuration-file), `--force` replaces an existing map (its approvals are lost). `--replay` and `--no-model` do not go together. | 0 written; 1 written, but a prose chunk failed or an atom was refused (both listed); 2 usage or input error, nothing written |
+| `driftbench estate lint <map>` | Checks the estate against its map: the codes of section 2. `--ceiling` and `--ignore` as for scan. | 0 clean (unenforced rules alone are reported, never failing); 1 findings or an invalid map; 2 the map or the estate cannot be read |
 | `driftbench estate approve <map>` | With no flag, lists the atoms that wait. `--kind <kind>` and `--atom <id>` (each repeatable) or `--all` approve in place, keeping comments and layout; `--to <file>` writes the approved map beside the original instead. | 0 listed or approved; 1 invalid map, unknown kind or atom; 2 missing file or options that do not fit |
 | `driftbench estate map <map> --to <space.yaml>` | Writes the space map of the situation axes and the approved axis atoms, for `driftbench space`. `--all` takes unapproved atoms too; `--agent <name>` names the agent (default: the estate folder name). | 0 written; 1 invalid map or space map; 2 missing file or `--to` |
 | `driftbench estate plan <map> --out <plan.yaml>` | Derives the test plan from the approved map, and writes `<plan>.summary.json` beside it. `--t <n>` (default 2), `--space <file>`, `--k <n>` (default 3), `--force`. | 0 written; 1 invalid map, invalid space map, or a space map that does not match the map; 2 usage or input error, nothing written |
-| `driftbench estate plan approve <plan>` | With no flag, counts the rows by status. `--all` approves every proposed row; `--row <id>` (repeatable) approves a row; `--row <id> --strike` strikes it. | 0 listed or changed; 1 invalid plan or unknown row; 2 options that do not fit |
-| `driftbench estate generate --map <map> --plan <plan> --out <dir>` | Writes task specs from the approved plan rows, by code, and `estate-generate-report.json`. `--seed <n>` (default 1), `--phrases <bank>` (default `phrases.yaml` beside the map), `--sessions <index>` (default `sessions/index.yaml` beside the map, when it exists), `--force`, `--json`. | 0 every approved row gave complete specs; 1 written with incomplete specs, rows waiting for approval or a generator defect; 2 usage or input error, nothing written |
+| `driftbench estate plan approve <plan>` | With no flag, counts the rows by status. `--all` approves every proposed row; `--row <id>` (repeatable) approves a row; `--row <id> --strike` strikes it. `--out <file>` writes the result there and leaves the plan read untouched; an unknown option exits 2. | 0 listed or changed; 1 invalid plan or unknown row; 2 options that do not fit |
+| `driftbench estate generate --map <map> --plan <plan> --out <dir>` | Writes task specs from the approved plan rows, by code, and `estate-generate-report.json`. `--seed <n>` (default 1), `--phrases <bank>` (default `phrases.yaml` beside the map), `--sessions <index>` (default `sessions/index.yaml` beside the map, when it exists), `--focus <file>` (atom ids whose complete specs come first in `run-order.txt`), `--no-fallback` (no ask written by code, no outcome read from the atoms), `--no-judge` (no judged criterion for a domain predicate), `--force`, `--json`. With no bank beside the map, every ask is written by code. | 0 every approved row gave complete specs; 1 written with incomplete specs, rows waiting for approval or a generator defect; 2 usage or input error, nothing written |
 | `driftbench estate diff <old map> <new map>` | Atoms added, removed, changed (white space or semantic), moved and restated, edges added and removed, and guard state changes. `--json`, `--out <file>` (the JSON that `estate impact` reads), `--old-guards <file>`, `--new-guards <file>`. | 0 computed; 2 a map or a guard state cannot be read |
 | `driftbench estate impact <diff> --tests <dir>` | What the diff does to the tests: regenerate, re-approve, retire, new. `--write` writes each retirement into its spec, `--json`, `--out <file>`; `--replay <sessions> [--suite <dir>] [--store <db>]` adds the regression run. | 0 nothing needs a person; 1 something needs a person; 2 usage or input error |
 | `driftbench replay <session.jsonl...> --suite <specs>` | Runs a suite over recorded sessions, offline, with no model call. `--decisions <logs...>`, `--steps <feeds...>`, `--store <db>` (in memory without it), `--json`. | 0 every aligned spec passes; 1 a spec fails; 2 bad input |
 | `driftbench estate run <specs...> --estate <root> --runtime claude-code --store <db>` | Runs live estate specs through the runtime headless, in a sandbox holding a copy of the estate; `--map` pins the copy to the map's hash, `--states` plants session states and hazards from a state library. Only a stand-in command runs without `--allow-billed`. | 0 every spec passes; 1 a spec fails; 2 usage or input error |
 | `driftbench estate mutate <map> --atom <id> (--delete \| --invert) --to <dir>` | Copies the estate and deletes or inverts one atom in the copy, with `map.yaml` and `mutant.json`. | 0 the mutant is written; 2 usage or input error |
+| `driftbench estate unit <tests...> --estate <root>` | Runs the unit tests `estate generate` writes under `unit/` with no model: guards on event payloads, scripts on their fixtures. `--record` writes each outcome into its test on the original estate; a later run must give it again. `--runtime`, `--no-sandbox`, `--jobs <n>` (default 1), `--json`. See [unit, live and estate mutants](#unit-live-and-estate-mutants). | 0 every test passes; 1 a test fails; 2 usage or input error, or a test with no recorded outcome |
 
 ## 1. Elements: the atoms an estate specifies
 
@@ -78,6 +79,8 @@ Not read yet: MCP server files, deferred tools and plugin folders. A runtime haz
 The scanner has one interface, the estate reader: it returns the files with their kinds and the declarations parsed from them, each with the exact passage it was read from. The Claude Code reader is the only part that names a runtime's file layout.
 
 Code reads skills, helpers, guards (settings and skill frontmatter), permissions, settings (environment keys only, never a value), the check registry, the step list, references with their "read when" line, scripts, routing table rows, gates in four fixed forms ("Before X: Read Y", "Before X, read Y", "Read Y before X", "Do not X until you have read Y"), passages that name a runtime hazard, and the four invariants. Code atoms are approved as read.
+
+Names that fit several files. A body often names a file by its bare name, `guide.md`, and an estate can hold several files of that name. A user needs the reference to land on the file the author meant, or to be told that it is ambiguous, never bound to one at random. The rule: a name is looked up in the naming file's folder, then in the folders below it, then from the estate root. The first place that holds the file wins. When a bare name fits no file there and several files elsewhere, the reference atom keeps every candidate in `fields.candidates`, sorted, and `estate lint` reports `AMBIGUOUS_REFERENCE`. Files under the ignored folders (`node_modules`, test folders of the guards, `.trash`, `skills/synced`, `__pycache__`) are never candidates. A name that holds a folder (`references/guide.md`) is resolved from the naming file's folder and is never ambiguous.
 
 The model only splits prose chunks (the standing file, memory files, skill and helper bodies) into instruction, gate and register atoms, one call per chunk, with a strict JSON answer. Every quote is located in its file, inside its chunk, and checked at its span; an atom whose quote cannot be placed is refused and listed with its reason. A model atom that repeats an atom code already read is skipped and listed. An unreadable answer gets one retry. Model atoms wait for a person.
 
@@ -194,6 +197,19 @@ Next: driftbench estate lint _captures/docs3/estate/map-nomodel.yaml; driftbench
 
 The map is YAML with a header on how to approve it, `producedBy` per atom and, for the map, the model family and model that split the prose. The loader recomputes every provenance hash and the map hash, so a map whose quote or span was edited is refused; `approved` and `role` may be edited by hand.
 
+### The estate configuration file
+
+An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit runner read it; every key is optional.
+
+| Key | Read by | Holds |
+|---|---|---|
+| `ignore` | `estate scan`, `estate lint` | globs of paths no runtime loads, skipped beside the defaults: version control, dependency and cache folders, logs, test fixtures, and the files an operating system or an editor leaves. Each glob is matched like a `.gitignore` line: without a leading slash at any depth, `**` across folders, a matched folder skipped whole. `--ignore <glob>` adds to the list for one run |
+| `externals` | `estate scan` | folders outside the estate a path may name, such as the project the agent works on. They replace the defaults, `docs/` and `_meta/` |
+| `aliases` | `estate scan` | a map from an alias, such as `REF`, to the folder or folders it stands for, relative to the root: `REF/a/b.md` then reads as `<folder>/a/b.md` |
+| `scripts` | `estate unit` | per script path, its fixtures: `args`, `stdin`, `files` (name to text, written in a fresh working folder) and `expect` (`exitCode`, default 0; `stdout`; `stdoutIncludes`, a list) |
+
+A key with the wrong shape is reported as a note of the scan and left out. [`examples/estates/reader-cases/driftbench.estate.yaml`](../examples/estates/reader-cases/driftbench.estate.yaml) uses `ignore`, `externals` and `scripts`.
+
 ### Approving the prose atoms: `estate approve`
 
 With no flag, `estate approve` lists what waits, kind by kind, with each atom's file, line and quote. On the Northwind map (the first line and the count line of each kind; the 54 atom lines are left out):
@@ -219,7 +235,7 @@ The committed `examples/estates/fixture/approved.yaml` is the Northwind map with
 
 ```
 $ pnpm -s driftbench estate approve examples/estates/fixture/approved.yaml
-examples/estates/fixture/approved.yaml: all 122 atoms are approved.
+examples/estates/fixture/approved.yaml: all 125 atoms are approved.
 ```
 
 ## 2. Relations: the estate graph
@@ -261,6 +277,7 @@ The graph answers what code can walk:
 | `REGISTRY_ROW` | a guard has no row in the check registry |
 | `REGISTRY_GUARD` | a registry row names a guard the estate does not run |
 | `QUOTE_DRIFT` | an atom's quote is no longer at its span: scan again |
+| `AMBIGUOUS_REFERENCE` | a bare file name fits several files and none in the naming file's own folder (planned rule above) |
 
 The lint of the Northwind map finds every planted defect:
 
@@ -291,11 +308,11 @@ The map's dimensions. Axis dimensions form the cells; detail dimensions vary ins
 | `ask_shape` | concrete, ambiguous, prescribed, problem, multi_part, correction |
 | `session_state` | fresh, resumed, after_compaction, after_restart, long, helpers_running |
 | `owner_signal` | go, hold, no_questions, keep_going, stop, language_switch, frustration, limit_word |
-| `deviation` | none and the ten deviation classes: D1_off_topic, D2_goal_shift, D3_contradiction, D4_loose_confirmation, D5_language_switch, D6_instruction_in_data, D7_silence_or_burst, D8_tool_failure, D9_out_of_scope, D10_return ([drift](concepts/drift.md)) |
+| `deviation` | none and the twelve deviation classes: D1_off_topic, D2_goal_shift, D3_contradiction, D4_loose_confirmation, D5_language_switch, D6_instruction_in_data, D7_silence_or_burst, D8_tool_failure, D9_out_of_scope, D10_return, D11_pii_leak, D12_prompt_extraction ([drift](concepts/drift.md)) |
 | `estate_hazard` | no_hazard, compaction_mid_task, process_restart, rate_wave, stale_tracker, dead_helper |
 | `atoms.<kind>` | the approved axis atoms of that kind |
 
-The space map accepts only the ten classes as deviation values, so the estate's own hazards are a dimension of their own. Three constraints name impossible combinations: a fresh session meets no compaction mid-task, no dead helper and no stale tracker. The prior is declared.
+The space map accepts only the twelve classes as deviation values, so the estate's own hazards are a dimension of their own. Three constraints name impossible combinations: a fresh session meets no compaction mid-task, no dead helper and no stale tracker. The prior is declared.
 
 ```
 $ pnpm -s driftbench estate map examples/estates/fixture/approved.yaml --to _captures/docs3/estate/space.yaml
@@ -421,12 +438,13 @@ Approved 1337 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already a
 
 `estate generate` turns each approved plan row into one or more task specs, by code only, with no model call. Proposed rows wait (listed, exit 1); struck rows are skipped. Inputs that do not fit together (a plan of another map, an unknown or unapproved atom, an unknown test type, a bank naming an unknown atom or another map hash, a session ask that is no approved phrase) exit 2 and write nothing.
 
-Two inputs sit beside the map. The phrase bank (`phrases.yaml`) holds situations: the atoms a situation sets off, what it is for (trigger, outside, near miss, misroute, pressure, resume), the workspace it starts from, the paths its ask may touch, and its phrases, each approved or not. The session index (`sessions/index.yaml`) names recorded sessions, their situation and ask, and the atoms each session breaks. The Northwind bank is written by hand as a stand-in for the real flow (a model proposes phrases, a person approves them): 20 situations, 38 approved phrases, one workspace seed.
+Every field of the map, the plan, the phrase bank and the session index is in the [estate files reference](reference/estate-files.md). Two inputs sit beside the map. The phrase bank (`phrases.yaml`) holds `situations`: the atoms a situation sets off, what it is for (trigger, outside, near miss, misroute, pressure, resume), the workspace it starts from (`workspace`, the id of one of the bank's `workspaces` seeds, each a map of file path to text), the paths its ask may touch (`touches`: `created`, `changed`, `deleted`; every other path stays untouched), and its phrases, each approved or not. The session index (`sessions/index.yaml`) names recorded sessions, their situation and ask, and the atoms each session breaks. The Northwind bank is written by hand as a stand-in for the real flow (a model proposes phrases, a person approves them): 26 situations, 50 approved phrases, five workspace seeds: the operations folder, an inbox, open orders with the vans, a supplier order, and an invoice that differs from its order by less than 0.05 EUR per unit. A judged rule needs its own data in the workspace before an ask can set it off: the inbox, routes, shipment log and supplier situations exist for that.
 
 How a row becomes a spec:
 
 * Given: `vars.estate` (runtime and map hash), the session state of the cell, the hazard of the cell as `vars.event`, and the workspace seed of the situation, inlined as `world.workspace.files`.
 * When: the situation the test type needs, found by the row's first atom (the situation holding most of the row's atoms wins; pinned cell values must agree); its approved phrases shuffled by the seed; the twin takes the second phrase. A replay row gives one spec per recorded session of its situation, asking with the session's recorded ask. A deviation of the cell is a perturbation before the ask, with an approved deviation phrase (`inject_at: 0`, recovery within one block). `stop_resume` adds a resume block.
+* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone: the asks a route or skill description names ("Use when the user asks to X" gives "Please X."), a routing row, a description made imperative, for a guard the act its rule forbids, plus the situation of the rule under test. The controls get a neutral ask (outside), an ask to explain without acting (near miss), an ask that describes the act and names no skill (misroute: `Please <act>.`, so the route decides and the ask never tells the agent to load a wrong skill), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code` and the field the words came from (`askFrom`); an approved phrase always wins. `--no-fallback` turns this off. A code-written ask names a task: a verb of acting and its object, as a user would ask for work. It never restates the rule ("Please do this: never guess a status") or a bare condition ("Please handle this for me: the invoice is not in EUR"): such an ask tests whether the agent repeats the rule, not whether it follows it while working. The rule's situation becomes the task ("Where is shipment NW-55012?"). A guard that watches the user's prompt is the one exception: its test asks with the guard's own trigger ("Stop, that is enough for now."). The floor refuses, with the reason, an act that does not start with a verb (a unit's own description: "Read-only audit lane for ledger checks"), a guard's title (its event and name), a phrase cut mid-sentence, an act or situation that names a file of the estate (the ask would say which file to read) or holds code; the row gets `needs-askable-act` and waits for an approved phrase.
 * Then, from the evidence predicates of the row's atoms:
 
 | Predicate | Check |
@@ -434,90 +452,109 @@ How a row becomes a spec:
 | `skill_loaded`, `skill_not_loaded` | `expect.skills` with a count |
 | `guard` | `expect.guards` (name, verdict, count) |
 | `tool_called` without input, `tool_not_called` | `expect.tools` with a count (0 forbids the tool) |
+| `tool_called` Read with one path (equal or contained) | `expect.references`, the glob `**/<path>` with a count |
+| `tool_called` Agent with a helper name | `expect.subagents` with a count |
 | `ordered` | the ordered-pair check, `rules.custom.ordered` |
 | `stage_reached` | `expect.stage` on the closing stage, and an ordered pair when the stage is not the last; stage order uses the immediate dominator in the step list, so a verify to do loop never makes do follow verify |
 | `workspace`, `artifact` | `expect.workspace`, `expect.artifacts`; the outcome is the situation's declared paths, every other path untouched |
 | `text` | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
 | `custom` on a register atom | a judged criterion whose rubric is the atom's title, word for word, not gating |
+| `tool_called` with any other input | `rules.custom.some_call`: one call of the tool whose input matches (count 0 in a control) |
+| `custom` hazard_recovery | `rules.custom.hazard_recovery`: after the hazard the agent goes on, rereads the paths its passage names, and does nothing destructive |
+| `custom` grounded_values | `rules.custom.grounded_values`: every number, identifier and date of the reply was seen in the user's messages or a tool result of the run (1,250.00 and 1250 are one value, 5 October 2026 and 2026-10-05 one date); a value only the agent wrote fails; whole numbers up to 10 are left alone |
+| `ordered` between two calls of one tool | ends anchored on what each call holds, `Bash~git status` before `Bash~commit`: the gate's first act and the verb of its trigger |
+| `stage_reached` on a step allowed at any point | `rules.custom.stage_seen`: the stage shows once in the block, wherever; not applicable when the runtime reports no stages (no stage record, so nothing to judge) |
+| a control whose predicate has no machine inverse | with a judge, the judged control (the rule does not act outside its situation); without one, `needs-negation` |
+| `custom` max_words | `rules.custom.max_words`: a word limit on the draft (the largest fenced block, else the quoted lines, else from a Subject line on; inconclusive with none) when the rule speaks of a draft, else on the whole reply |
+| `custom` no_delete_under | `rules.custom.no_delete_under`: nothing deleted under the folder, read from the workspace diff, else from removal commands; a move is no deletion |
+| `custom` with a name no code checks (a domain rule) | a gating judged criterion whose rubric quotes the atom's own words and its situation; the spec is tagged `judged` and lists the atoms in `metadata.estate.judged`. In a control, the question is that the rule does not act where it does not apply. `--no-judge` leaves it `needs-registered-check` |
+| `custom` permission | `rules.custom.permission`: deny, no call the rule covers; allow or declared, a covered call none refused; ask stays a gap |
+| `custom` with a name the generator compiles | `command_not_run` to some_call; `max_characters`, `max_questions`, `no_secret_in_reply`, `currency_after_amount`, `stopped_and_confirmed` to `must_not` (and `execution.max_commands: 0`); `json_only`, `asks_for`, `route_table` to `must`; `same_language_as_user` to `lang`; `confirmed_before_send`, `asks_again_on_loose_yes` to `safety.confirm_before: [send]` |
+
+* The outcome, when neither the situation nor the atoms name a path, is read from the atoms (`metadata.estate.outcome`): nothing changes (`others_untouched`) for a negative control, a denied tool, a guard that denies or blocks, or a row whose skills and helpers may use no writing tool; otherwise nothing is deleted (`deleted: []`). `--no-fallback` turns this off.
+* Invariant and setting rows are static tests: JSON under `static/<test type>/`, run by `driftbench estate static <suite>/static --estate <root>` on the original or a mutant copy. An invariant passes when it still holds on the files; a setting when the settings still declare its key and value. The replay and live runners register `some_call`, `hazard_recovery`, `permission`, `grounded_values`, `max_words`, `no_delete_under` and `stage_seen` next to `ordered`.
+* `--focus <file>` (atom ids, one per line) orders `run-order.txt`, the list of complete specs: rows naming a focus atom first, then rows naming a guard, a gate or an invariant, then the rest. The report counts the complete specs per focus atom and names the gaps of the ones with none.
 
 * Negative controls (`outside_trigger`, `route_near_miss`, `guard_negative`): skills count 0, guard count 0, tool count 0, required words moved to `must_not`.
-* Every spec records `metadata.estate`: atoms, plan row, cell, seeder, seed, map hash, test type, mode, map, plan, situation and phrase. Replay specs add the session and the planned outcome, and `metadata.replay` (session, first block). The same map, plan, bank and seed give the same specs.
-* What no existing check can say is a named gap, and the spec goes to `incomplete/`: it is valid, and `spec lint --strict` fails it by name. A `tool_called` with input assertions is never mapped onto `expect.tools`, because that check asserts the input on every call of the tool and the atom asks for one call that matches.
+* Every spec records `metadata.estate`: atoms, plan row, cell, seeder, seed, map hash, test type, mode, map, plan, situation and phrase. Replay specs add the session and the planned outcome, and `metadata.replay` (session, first block). The same map, plan, bank and seed give the same specs. The same holds on every Node version the package supports (22 and later), in any time zone and locale: a user who regenerates on another machine gets the same files (planned for Node 22; checked on Node 24).
+* What no existing check can say is a named gap, and the spec goes to `incomplete/`: it is valid, and `spec lint --strict` fails it by name. A `tool_called` with input assertions is never mapped onto `expect.tools`, because that check asserts the input on every call of the tool and the atom asks for one call that matches; a Read of a path and an Agent dispatch of a named helper go to the references and subagents checks instead.
 
 | Gap marker | What is missing |
 |---|---|
-| `needs-approved-phrase` | no approved phrase for the situation |
-| `needs-second-phrase` | a twin needs a second approved phrase |
-| `needs-deviation-phrase` | no approved phrase for the cell's deviation class |
-| `needs-workspace-outcome` | the situation declares no paths its ask may touch |
+| `needs-approved-phrase` | no approved phrase for the situation (with `--no-fallback` only) |
+| `needs-second-phrase` | a twin needs a second approved phrase (with `--no-fallback` only) |
+| `needs-deviation-phrase` | no approved phrase for the cell's deviation class (with `--no-fallback` only) |
+| `needs-workspace-outcome` | the situation declares no paths its ask may touch (with `--no-fallback` only) |
 | `needs-some-call-check` | a tool call with input assertions: a check that some call matches |
-| `needs-registered-check` | a custom predicate no registered check runs |
+| `needs-registered-check` | a custom predicate no registered check runs and the generator does not compile |
 | `needs-ordered-anchor` | an ordered pair whose ends are not a tool label, a skill or a stage, or are the same label |
 | `needs-stage-reach-check` | a stage reachable at any time, or a step list with no single closing stage |
-| `needs-static-runner` | a static property of the estate files |
+| `needs-static-runner` | a static property of the estate files that names no check the static runner knows |
 | `needs-negation` | in a negative control, a predicate with no inverse |
 | `needs-recorded-session` | a replay row whose situation no recorded session holds |
+| `needs-guard-trace` | in a live row, a check that runs inside another guard's script (a registry code with no script of its own): the runtime's trace names that script, never the check, so the unit runner tests it |
 | `needs-guard-timing` | the speed of a guard |
 | `needs-guard-message-check` | the message a guard gives |
 | `needs-derivable-then` | a row with no Then code can derive |
+| `needs-askable-act` | no approved phrase, and the atoms' words give no task the floor accepts |
+| `needs-existing-file` | a Read of a file the estate copy does not hold |
 
 Layout: `<specs|incomplete>/<mode>/<test type>/<id>.yaml`, so `driftbench replay --suite <out>/specs/replay` takes the replay specs alone.
 
 The suite of the Northwind plan. The plan must be approved first; the committed suite reads an approved copy of `plan.yaml`, `packages/generate/test/estate/fixtures/planner-plan.approved.yaml` (every row approved with `estate plan approve --all`), because the committed `plan.yaml` stays a fresh, all-proposed `estate plan` output.
 
 ```
-$ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs3/estate/generated
-Map ../../../../examples/estates/fixture/approved.yaml (claude-code), hash ab256ba636f4: 122 atoms.
-Plan ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1338 rows, 1338 approved, 0 waiting, 0 struck.
-Phrases ../../../../examples/estates/fixture/phrases.yaml: 20 situations, 38 approved phrases.
-Sessions ../../../../examples/estates/fixture/sessions/index.yaml: 3.
+$ pnpm -s driftbench estate generate --map examples/estates/fixture/approved.yaml --plan packages/generate/test/estate/fixtures/planner-plan.approved.yaml --out _captures/docs/estate/generated
+Map ../../../examples/estates/fixture/approved.yaml (claude-code), hash be2e7a0919cb: 125 atoms.
+Plan ../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml: 1379 rows, 1379 approved, 0 waiting, 0 struck.
+Phrases ../../../examples/estates/fixture/phrases.yaml: 26 situations, 50 approved phrases.
+Sessions ../../../examples/estates/fixture/sessions/index.yaml: 3.
 Seed 1; custom checks the runner registers: ordered.
 
 Test type           rows  specs  complete  incomplete
-obligation           480    480        14         466
-outside_trigger       40     40         1          39
-twin                  40     40         2          38
-ordered_pair          96     96        10          86
-skip_pressure          8      8         1           7
-route_positive       227    227        73         154
-route_near_miss       13     13         2          11
-misroute              13     13         2          11
-read_when              9      9         0           9
+obligation           516    516       120         396
+outside_trigger       43     43         7          36
+twin                  43     43        10          33
+ordered_pair          96     96        48          48
+skip_pressure          8      8         4           4
+route_positive       226    226       226           0
+route_near_miss       13     13        13           0
+misroute              13     13        13           0
+read_when              9      9         9           0
 script_fixture         2      2         0           2
-dispatch              36     36         0          36
-contract_alone         3      3         2           1
-stop_resume            3      3         0           3
-guard_positive        72     72         8          64
-guard_negative         6      6         1           5
-guard_hostile          6      6         3           3
+dispatch              36     36        36           0
+contract_alone         3      3         3           0
+stop_resume            3      3         3           0
+guard_positive        72     72        66           6
+guard_negative         6      6         6           0
+guard_hostile          6      6         6           0
 guard_speed            6      6         0           6
 guard_register         6      6         0           6
 tool_boundary          9      9         0           9
 tool_denied            3      3         1           2
-stage_order           59     59        20          39
-stage_skip             4      4         1           3
+stage_order           59     59        48          11
+stage_skip             4      4         4           0
 stage_anytime          1      1         0           1
-register_sample      180    180        92          88
+register_sample      180    180       180           0
 hazard_recovery        2      2         0           2
 invariant              4      4         0           4
-journey               10     10         2           8
-total                      1338       235        1103
+journey               10     10        10           0
+total                      1379       813         566
 
+Asks of the complete specs: 298 approved phrases, 515 written by code, 0 recorded sessions, 0 with no ask.
+Outcomes of the complete specs: 575 bank, 23 no-change:guard, 22 no-change:negative, 27 no-change:read-only, 166 no-delete.
+Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Gaps (what keeps a spec incomplete):
-  needs-approved-phrase      566 specs
-  needs-deviation-phrase     623 specs
   needs-guard-message-check  6 specs
   needs-guard-timing         6 specs
   needs-negation             3 specs
   needs-ordered-anchor       26 specs
   needs-recorded-session     6 specs
-  needs-registered-check     418 specs
-  needs-second-phrase        3 specs
-  needs-some-call-check      336 specs
+  needs-registered-check     460 specs
+  needs-some-call-check      56 specs
   needs-stage-reach-check    12 specs
   needs-static-runner        4 specs
-  needs-workspace-outcome    565 specs
-Wrote 1339 files to _captures/docs3/estate/generated.
+Wrote 1381 files to _captures/docs/estate/generated.
 ```
 
 It exits 1: 1103 specs are incomplete. The complete ones pass strict lint (the last line of the output):
@@ -621,7 +658,7 @@ Each spec inlines the workspace seed's files, since `world.workspace.from` resol
 * Alignment. A spec with `metadata.replay: { session, from_block }` reads that session from that block. Otherwise the k-th spec without the key, in file order, reads the k-th session given, from block 0. A spec that names a session not given is skipped with a note.
 * A decision log or step feed belongs to the session whose file name starts its own file name (`clean-build.decisions.jsonl` for `clean-build.jsonl`); with one session, any log belongs to it.
 * The run is the runner's own: mode F, the scripted driver, the default checks plus the ordered-pair check under `rules.custom.ordered`, no cache. Runs are stored under one replay campaign, in the store given with `--store`, in memory without it.
-* Judged criteria are not run, and a note says so.
+* Judged criteria are judged with `--judge claude:<model>`: one judge on the local claude command, one call per criterion and block, its verdict marked as a single judge's, its cost added to the spec's cost and listed apart (`judgeCostUsd`). A judge command that is not a stand-in is billed and needs `--judge-budget <usd>`; once spent, later criteria are inconclusive. With no judge every judged criterion is inconclusive and gates as the criterion does, so the spec cannot pass, and a note says so. `replay` takes the same flags.
 
 The ordered-pair check holds `{ before, after }` in a block when every `after` of the block has a `before` earlier in the block or in an earlier block. A name matches a tool label (`Read`), a skill load (`skill:<name>`) or a stage (`stage:<name>`). With `key`, both carry the same value in that input field (the same file was read, then edited). With `reset: compaction`, a `before` that precedes the last compaction before the `after` does not count. It ships with the Claude Code adapter today.
 
@@ -703,27 +740,64 @@ p01 is a `route_positive` row (the weekly-report skill loads), p02 an `ordered_p
 
 Limits of replay today:
 
+* A spec that only inconclusive checks keep from passing (no stage feed, no judge) is undecided: it still counts as not passed, the JSON marks it `undecided: true` and counts these apart (`undecided`), and the summary line says how many. A spec with a failed check is never undecided.
+* A spec that only not-applicable checks keep from passing (a stage check on a run with no stage record) is not applicable: it still counts as not passed, the JSON marks it `notApplicable: true`, it is left out of the decided count and counted apart (`notApplicable`), and the summary line says how many. A spec with a failed check, or with an inconclusive check beside a not-applicable one, is never not applicable.
+* A file the runtime loads by itself (for Claude Code, every `CLAUDE.md` and `CLAUDE.local.md`) is never an expected Read: no call ever shows it.
 * Without a decision log, no guard is seen: a `count: 0` guard expectation passes and a positive one fails, rather than being inconclusive. The command prints a note when a spec expects guards and no log was given, and the same for stages without a step feed.
 * A write to a path the session never saw counts as created. Only the runtime's own result type, or a tree before and after, is certain.
 * A tree diff (which also sees deletions) goes on the last block only; a tree per block needs a snapshot per turn. The adapter reads a before and after tree; the command has no option for them yet.
 
 ### Unit, live and estate mutants
 
-* Unit (offline). Guards replayed with synthetic events; scripts on fixtures; a subagent alone, run headless with its agent file as the system prompt, in a sandbox. Not built yet: the plan marks these rows `unit`, and the generator writes their specs.
+* Unit (offline), `driftbench estate unit`. Guards run on synthetic event payloads and scripts on their fixtures, on a copy of the estate, sandboxed where the platform has a sandbox (macOS `sandbox-exec`: no network, no credential folders, writes only into the copy). `--record` runs each case on the original estate and writes its outcome into the test file; a later run on the original or on a mutant copy must give every recorded outcome again, and a `guard_speed` test also holds each run under the guard's `timeout`. A case whose outcome varies across the record runs is marked flaky and not compared; a case that shows no effect is inert, and an inert test passes. A script's fixtures come from `scripts:` in the [configuration file](#the-estate-configuration-file); a script without one is recorded like a guard. Not built yet: a helper run alone, headless with its agent file as the system prompt.
+
+  `--json` prints `{ "runs": [{ "spec": "<id>", "pass": true, "failing": ["<case: why>"] }], "guards": [{ "guard": "<name>", "event": "<event>", "decision": "allow" | "deny" | "ask", "message": "<text>", "ms": 0 }], "scripts": [{ "script": "<path>", "exit": 0, "stdout": "<text>" }] }`: one run per test, one guard entry per guard case, one script entry per fixture. `message` is what the guard told the runtime (its standard error on exit 2, or the reason of its JSON answer), and `ms` its running time. A guard that exits with another code than 0 or 2 does not block: its decision is `allow`. A recorded case fails when the decision, the exit code, the message or the output differs. Exit 0 when every test passes, 1 when one fails, 2 on a usage or input error or when a test has no recorded outcome and `--record` was not given. The options and a run on the fixture are in the [CLI reference](reference/cli.md#driftbench-estate-unit).
 * Live (online, blind), `driftbench estate run`. The agent runs headless in a sandboxed copy of the estate pinned by hash, on a seeded workspace, from the ask alone: no test word in the prompt or the dispatch description. Teacher-forced resumes from a recorded prefix cut at block k; free running; perturbed injects an estate deviation at block k (a compaction marker, a mid-turn message, a planted file, a dead helper). Repeats give the variance; cost per run is measured. Built: `driftbench estate run`, with session states and hazards planted from the state library `--states`.
-* Estate mutants, `driftbench estate mutate`. Delete or invert one atom in a copy of the estate. The tests derived from that atom must go red in live mode, and the replay suite must flag the corpus as now violating. The mutation score per atom kind is the stop rule. Built: `driftbench estate mutate`. The fixture's proof (`packages/cli/test/estate-live.test.ts`) runs 14 live specs on the stand-in and two mutants, each turning its atom's specs red.
+* Estate mutants, `driftbench estate mutate`. Delete or invert one atom in a copy of the estate. A `--delete` of a skill's `name:` line whose value is the skill's folder name is refused as an equivalent mutant: the runtime names a skill by its folder, so the line's removal changes nothing the agent sees, and nothing is written. The tests derived from that atom must go red in live mode, and the replay suite must flag the corpus as now violating. The mutation score per atom kind is the stop rule. Built: `driftbench estate mutate`. The fixture's proof (`packages/cli/test/estate-live.test.ts`) runs 14 live specs on the stand-in and two mutants, each turning its atom's specs red.
 
 ## 7. Judging, statistics and coverage for estates
 
-What exists: the plan summary reports the unenforced rules, the cells with no approved phrase, the edges with no journey and the mandatory rows per kind; the generate report counts complete and incomplete specs per test type and the gaps behind them; replay reports pass and fail per spec and session.
+What exists: `sessionRate(runs, { rho })` of `@agent-nexus/driftbench-estate` takes the session as the unit (one cluster): with m the mean runs per session, the design effect is `1 + (m - 1) rho`, the effective runs are the runs over it, and the 95% interval is Wilson on the rounded effective runs. `rho` lies in [0, 1], the correlation of the variance pilot, and the function throws a `RangeError` outside it. The plan summary reports the unenforced rules, the cells with no approved phrase, the edges with no journey and the mandatory rows per kind; the generate report counts complete and incomplete specs per test type and the gaps behind them; replay reports pass and fail per spec and session.
+
+`estate stats` reports the frozen coverage, reach, decay and guard drift fields below. It uses offline replay checks for compliance and block pass rates, with no model call. Specs align through `metadata.replay`; those without a key align by file order, as in `replay`. A session counts once per block and atom, even when several specs name it. An atom is followed only when every aligned complete spec naming it passes. A block without an aligned check has no demonstrated pass. Judged criteria remain inconclusive without a judge; this command does not call one.
 
 Not built yet:
 
-* The session as the unit (one cluster), with the design effect from the measured correlation of the variance pilot; sources of variance for an estate are model randomness, phrasing, session state, workspace seed and judge.
-* Coverage lines per atom kind: atoms with an approved test over atoms; atoms enforced by a guard over atoms; cells covered over cells; graph edges covered over edges; the completeness line over situations seen in the corpus.
-* Reach before compliance: did the rule reach the moment (the skill loaded, the reference read, the guard fired), then was it followed, reported apart.
-* Decay over length: the pass rate per block index in long sessions, before and after a compaction.
-* A sealed holdout for estate changes, and drift over time: deny rates per guard from the decision logs, pass rate per atom per estate version.
+* Sources of variance for an estate are model randomness, phrasing, session state, workspace seed and judge; the pilot that measures them for an estate is not built.
+* The completeness line over situations seen in the corpus.
+* A sealed holdout for estate changes and the pass rate per atom per estate version over time.
+
+### The coverage command: `estate stats` (contract)
+
+```
+driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json
+```
+
+`--map` is the approved map, `--plan` the plan made from it, `--specs` the folder `estate generate` wrote (its `specs/`, `static/` and `incomplete/` folders), `--sessions` a folder of recorded sessions. It prints one JSON object:
+
+```json
+{
+  "coverage": {
+    "kinds": { "<kind>": { "atoms": 0, "tested": 0, "enforced": 0 } },
+    "cells": { "covered": 0, "total": 0 },
+    "edges": { "covered": 0, "total": 0 }
+  },
+  "reach": [{ "atom": "<id>", "reached": 0, "followed": 0 }],
+  "reachNotObservable": { "status": "not observable", "atoms": 0 },
+  "decay": [{ "block": 0, "runs": 0, "passRate": 0 }],
+  "drift": { "guards": [{ "guard": "<name>", "decisions": 0, "denies": 0, "denyRate": 0 }] }
+}
+```
+
+* `kinds`: one entry per atom kind of the map. `atoms` counts the approved atoms of the kind. `tested` counts those named by at least one complete spec (a spec under `specs/`, or a static test under `static/`). `enforced` counts those whose enforcement lists at least one guard.
+* `cells` and `edges`: the plan's cells and the graph's route, reference, dispatch and next edges, covered when a complete spec covers them.
+* `reach` covers the four observable kinds: skills, references, guards and subagents. `reachNotObservable` reports the other approved atoms as `{ status: "not observable", atoms: <count> }`. It counts them from the map, including when no sessions are supplied. No exposure is inferred for those kinds.
+* `reach` and `decay` come from `--sessions`; without it, both are empty lists. `reached` is the number of sessions that reached the atom's moment (its skill loaded, its file read, its guard decided, its helper dispatched); `runs` is the number of sessions that hold the block index.
+* `drift.guards` comes from the guard decision logs of `--sessions`: per guard, the decisions logged, the denies among them and their share. A user watches it over time: a guard that starts denying more, or stops firing, is the first sign that the estate or the agent changed.
+
+Finding (audit style, 2026-10-12, the estate validator lane): section 7 promises drift ("deny rates per guard from the decision logs"), and the frozen contract had no field for it. The contract gains `drift.guards`; nothing else changes. The pass rate per atom per estate version needs a store of past runs, and waits for its own finding.
+
+Exit codes: 0 when the report is printed; 2 on a usage or input error (a map, plan or folder that does not load, or a plan made from another map), and nothing is printed.
 
 ## 8. Maintenance: keeping the tests true when the estate changes
 
@@ -732,7 +806,7 @@ Not built yet:
 Atoms match by id. An atom whose provenance hash changed is one of three things:
 
 * moved: the same quote at another span (a line was added or removed above it); no test changes;
-* white space: the quotes are equal once runs of white space become one space and the ends are trimmed; its tests are regenerated, no person is needed;
+* white space: the quotes are equal once runs of white space become one space and the ends are trimmed; no test changes, since nothing a test checks changed (a change reruns only what it can affect);
 * semantic: anything else (case and punctuation count); its tests are regenerated and its phrasings go back for approval.
 
 An atom with the same hash whose evidence, enforcement, situation, title, role or kind fields differ is restated: its tests are regenerated. Approval alone is never a change. Edges compare as `from kind to`.
@@ -833,7 +907,7 @@ The state of the first Northwind version sits in `examples/estates/fixture-v2/ma
 
 Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate` writes them). A spec without `metadata.estate` is counted as other. A spec with any `metadata.retired` value, a key beside `metadata.estate`, is no longer live. The lists:
 
-* regenerate: every test with a changed, restated or guard-state atom, or with a removed atom while other atoms remain, with the reason per atom;
+* regenerate: every test with a semantic, restated or guard-state atom, or with a removed atom while other atoms remain, with the reason per atom; a change of white space alone touches no test (the respaced supplier rule leaves `northwind-supplier-yes` untouched);
 * re-approve: every semantic change, with its tests;
 * retire: every test whose atoms are all removed, with the reason `atom <id> removed`;
 * new: added atoms no live test names.
@@ -841,13 +915,12 @@ Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate`
 ```
 $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests examples/estates/fixture-v2/tests
 Impact of the estate diff ab256ba636f4 to 48cac5d0c4c3 on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 5, re-approve 2, retire 1, new 2; 2 tests untouched, 24 atoms moved with the same quote.
+  Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 24 atoms moved with the same quote.
 Regenerate:
-  northwind-draft-pair (draft-pair.yaml): instruction.standing.never-send-a-supplier-email-without white space, instruction.standing.keep-an-unconfirmed-draft-unsent removed
+  northwind-draft-pair (draft-pair.yaml): instruction.standing.keep-an-unconfirmed-draft-unsent removed
   northwind-late-shipment (late-shipment.yaml): instruction.standing.tell-the-user-about-a-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
-  northwind-supplier-yes (supplier-yes.yaml): instruction.standing.never-send-a-supplier-email-without white space
 Re-approve, the meaning changed:
   route.standing.an-ask-to-plan-the-delivery (route): | plan the delivery routes for the next two days | the `route-planner` agent |
       tests: northwind-route-planner
@@ -900,12 +973,96 @@ The failing session that motivated a change is its fail-to-pass case: red before
 
 ## 9. Where it lives
 
-* `packages/estate`: the schema (atoms, edges, the map, the plan), the scanner (`scan/`, with the Claude Code reader as the one runtime-specific file), the graph, the map file and its space map, the lint, the plan (contract, journeys, pairwise), and maintenance (diff, guard state, impact, regression). It imports the covering array, the feasibility check, the graph walk and the model port from `@driftbench/generate`.
-* `packages/generate/src/estate`: the estate generator. It reads the map and plan by their shape and never imports `@driftbench/estate`, so the two packages do not import each other.
+* `packages/estate`: the schema (atoms, edges, the map, the plan), the scanner (`scan/`, with the Claude Code reader as the one runtime-specific file), the graph, the map file and its space map, the lint, the plan (contract, journeys, pairwise), and maintenance (diff, guard state, impact, regression). It imports the covering array, the feasibility check, the graph walk and the model port from `@agent-nexus/driftbench-generate`.
+* `packages/generate/src/estate`: the estate generator. It reads the map and plan by their shape and never imports `@agent-nexus/driftbench-estate`, so the two packages do not import each other.
 * `packages/adapters/src/claude-code`: the session reader, the replay adapter, the ordered-pair check, and the live runner in `live/`.
 * `packages/cli`: the `estate` commands and `replay`.
-* The estate validator, which checks this whole loop on an estate nobody wrote by hand, is designed on the [validators](validators.md) page and not built yet.
+* The estate validator, which checks this whole loop on an estate nobody wrote by hand: `driftbench validate estate`, designed on the [validators](validators.md) page.
 
-Built, in order: scan, lint and map; plan; the session reader and replay; generation; maintenance; the live runner with planted session states and hazards; estate mutants. Not built yet: the unit runner, and a validation on a real estate against its native test battery.
+Built, in order: scan, lint and map; plan; the session reader and replay; generation; maintenance; the live runner with planted session states and hazards; estate mutants; the static and unit runners. Not built yet: the unit run of a helper alone, and a validation on a real estate against its native test battery.
+
+One test runs the whole chain from scan to radius, with no model call: [the estate chain proof](estate-chain.md).
 
 See also: [checks](reference/checks.md), [running](running.md), [statistics](concepts/statistics.md).
+
+## Regenerate the fixture
+
+The Northwind folders hold outputs that tests compare byte for byte: the map, the approved map, the space map, the plan and its summary, the approved copy of the plan, the generated suite, and the fixture-v2 map, diff and impact. Make them again after a change to a file the scan reads under `examples/estates/fixture`, to its `answers.yaml`, `phrases.yaml` or `sessions/`, or to the scan, plan or generate code. A change under `examples/estates/fixture-v2` alone needs only step 7. The commands call no model and write in place. Run them from the repository root, in this order.
+
+```sh
+F=examples/estates/fixture
+V=examples/estates/fixture-v2
+P=packages/generate/test/estate/fixtures
+T=$(mktemp -d)
+
+# 1. The map: a scan with the recorded answers.
+pnpm -s driftbench estate scan $F --runtime claude-code --replay $F/answers.yaml --out $F/map.yaml --force
+
+# 2. The approved map, and the space map of the docs.
+cp $F/map.yaml $F/approved.yaml
+pnpm -s driftbench estate approve $F/approved.yaml --all
+pnpm -s driftbench estate map $F/approved.yaml --to $F/space.yaml --agent northwind
+
+# 3. The map hash, in the three files that pin it.
+HASH=$(grep -m1 '^hash:' $F/approved.yaml | cut -d' ' -f2)
+perl -pi -e "s/^mapHash: \S+/mapHash: $HASH/" $F/phrases.yaml $P/plan.yaml
+perl -pi -e "s/MAP_HASH = '[0-9a-f]+'/MAP_HASH = '$HASH'/" packages/adapters/test/claude-code/live/support.ts
+
+# 4. The plan, of the full declared space.
+pnpm -s driftbench estate map $F/approved.yaml --to $T/space.yaml --agent estate
+pnpm -s driftbench estate plan $F/approved.yaml --out $F/plan.yaml --space $T/space.yaml --force
+
+# 5. The approved copy of the plan, under the three note lines it already has.
+head -3 $P/planner-plan.approved.yaml > $T/notes.txt
+pnpm -s driftbench estate plan approve $F/plan.yaml --all --out $T/approved-plan.yaml
+cat $T/notes.txt $T/approved-plan.yaml > $P/planner-plan.approved.yaml
+
+# 6. The suite.
+pnpm -s driftbench estate generate --map $F/approved.yaml --plan $P/planner-plan.approved.yaml --out $F/generated --force
+
+# 7. Fixture-v2: its map, the diff against the fixture, the impact on its tests.
+pnpm -s driftbench estate scan $V --runtime claude-code --replay $V/answers.yaml --out $V/map.yaml --force
+pnpm -s driftbench estate diff $F/approved.yaml $V/map.yaml --old-guards $V/maintain/guard-state.v1.yaml --out $V/maintain/diff.json > $V/maintain/diff.txt
+pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests > $V/maintain/impact.txt
+pnpm -s driftbench estate impact $V/maintain/diff.json --tests $V/tests --out $V/maintain/impact.json
+pnpm exec biome format --write $V/maintain/diff.json $V/maintain/impact.json
+rm -rf "$T"
+```
+
+| Step | Writes | Notes |
+|---|---|---|
+| 1 | `map.yaml` | The scan exits 1 when a prose file has no recorded answer, and names the file. Add an entry to `answers.yaml` for it (`atoms: []` when it holds no rule). The failed scan still writes a partial `map.yaml`, without the atoms of that file, and the block has no `set -e` (steps 6 and 7 exit 1 on purpose): run the whole block again from step 1. A scan that gives a different map than the committed one fails `packages/estate/test/fixture.test.ts`. |
+| 2 | `approved.yaml`, `space.yaml` | `approved.yaml` is `map.yaml` with every atom approved. The space map names the agent `northwind`. Both are checked by `fixture.test.ts`. |
+| 3 | `phrases.yaml`, `packages/generate/test/estate/fixtures/plan.yaml`, `packages/adapters/test/claude-code/live/support.ts` | The hash of the map replaces the old one in the phrase bank, in the hand-written plan and in the live adapter test. Nothing changes when the hash did not. `estate generate` refuses a bank written against another map and prints both hashes. |
+| 4 | `plan.yaml`, `plan.summary.json` | The committed plan is the plan of the full declared space, the one `estate map` writes with the agent name `estate`. The space file of this step is a scratch file. `packages/cli/test/estate-plan.test.ts` checks the committed bytes. |
+| 5 | `packages/generate/test/estate/fixtures/planner-plan.approved.yaml` | The plan with every row approved. `head -3` keeps the three note lines at the top of the file. `packages/generate/test/estate/generate.test.ts` checks that the file is the plan with only the status changed. |
+| 6 | `generated/` | Replaces `specs/`, `incomplete/`, `static/`, `unit/`, `estate-generate-report.json` and `run-order.txt`, and nothing else in the folder. Exit 1 is normal while some spec stays incomplete. The seed is 1. `generate.test.ts` compares every file. |
+| 7 | `fixture-v2/map.yaml`, `fixture-v2/maintain/diff.json`, `diff.txt`, `impact.json`, `impact.txt` | `estate impact` exits 1: the planted changes wait for a person. Its text goes to `impact.txt` without `--out`, so the file holds no line that names the JSON file. The repository formatter formats the two JSON files. `packages/estate/test/maintain/fixture-v2.test.ts` compares the JSON files as data, and `packages/cli/test/estate-maintain.test.ts` compares the two text files. |
+
+`phrases.yaml`, `sessions/`, `answers.yaml` and the files of the estate itself are inputs written by hand. The hand-written plan and `phrases.yaml` name atoms by id: when a change renames or removes an atom they name, edit both by hand. Step 6 exits 2 and names the entry of `phrases.yaml` that no longer matches an atom.
+
+A run on an estate that did not change changes only the time of the scan: `readAt` and the `at` of `producedBy` in `map.yaml`, `approved.yaml` and `fixture-v2/map.yaml`, and the two `readAt` values in `fixture-v2/maintain/diff.json`. Restore those four files with `git checkout` when nothing else moved. Use this as a check: if anything else changes on an estate you did not touch, the code behind a command changed its output.
+
+After a change of the estate, the tests that count what the fixture holds fail with the old number. Each names the number it expected. Check that the number the run printed is the one the change should produce, then replace it. A count that moves for a reason you cannot name is a defect.
+
+| Test file | What it counts |
+|---|---|
+| `packages/cli/test/estate.test.ts` | atoms, edges and prose chunks of the scan, and the approval counts |
+| `packages/cli/test/estate-plan.test.ts` | plan rows, by source and by status |
+| `packages/cli/test/estate-maintain.test.ts` | atoms unchanged between the map and its approved copy |
+| `packages/estate/test/scan.test.ts` | files by kind, atoms by kind, references |
+| `packages/estate/test/graph.test.ts` | edges by kind, the rules and the unenforced rules |
+| `packages/estate/test/map.test.ts` | approval counts, and the size of each target dimension of the space map (`atoms.instruction` and the other kinds) |
+| `packages/estate/test/plan/plan.test.ts` | plan rows per atom kind (`perKind`) |
+| `packages/estate/test/lint.test.ts` | the `UNENFORCED` count of the lint |
+| `packages/estate/test/maintain/fixture-v2.test.ts` | atoms unchanged in the fixture-v2 diff |
+| `packages/generate/test/estate/generate.test.ts` | approved rows, and the specs, blocks, complete, incomplete and judged specs of the suite |
+| `packages/cli/test/estate-generate.test.ts` | the sessions and the replay specs written over them, which move with `sessions/` and `phrases.yaml` |
+
+Run them, with the live adapter tests that read the hash:
+
+```sh
+pnpm exec vitest run packages/estate packages/generate packages/cli/test/estate packages/adapters/test/claude-code --maxWorkers=2
+```
+
+The captured outputs on this page, in [the CLI reference](reference/cli.md), in [the comparison](comparison.md) and in the help topics `packages/cli/help/validate-estate-*.md` keep the hash and the counts of the run they were captured from, and no command makes them again. `git grep` for the old hash lists them. One line is checked: the validator item `estate-approve-counts-match-docs` compares the atom count in this page's capture of `estate approve` with `approved.yaml`.

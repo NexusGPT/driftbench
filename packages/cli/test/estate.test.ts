@@ -2,9 +2,9 @@ import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadEstateMap } from '@driftbench/estate';
-import { FakeModelPort } from '@driftbench/generate';
-import { loadSpaceMap } from '@driftbench/space';
+import { loadEstateMap } from '@agent-nexus/driftbench-estate';
+import { FakeModelPort } from '@agent-nexus/driftbench-generate';
+import { loadSpaceMap } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { estateScanCommand } from '../src/commands/estate';
 import { type Io, main } from '../src/index';
@@ -41,6 +41,14 @@ async function fixtureCopy(): Promise<string> {
 }
 
 describe('driftbench estate scan', () => {
+  it('refuses an unknown --provider before any model call, and writes nothing', async () => {
+    const root = await fixtureCopy();
+    const result = await run(['estate', 'scan', '.', '--out', 'map.yaml', '--provider', 'bogus'], root);
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('unknown provider "bogus": use anthropic or openai.');
+    await expect(readFile(join(root, 'map.yaml'), 'utf8')).rejects.toThrow();
+  });
+
   it('writes the map from recorded answers and prints the counts, refusals, orphans and unenforced atoms', async () => {
     const root = await fixtureCopy();
     const result = await run(
@@ -162,11 +170,11 @@ describe('driftbench estate scan and lint with an ignore list', () => {
     expect(scan.code).toBe(0);
     expect(scan.out).toContain(
       [
-        '  Ignored: 8 files no runtime loads.',
+        '  Ignored: 9 files no runtime loads.',
         '    node_modules  1',
         '    __pycache__  1',
         '    *.log  1',
-        '    tests/fixtures  1',
+        '    tests/fixtures  2',
         '    hooks/**/tests  1',
         '    .trash  1',
         '    skills/synced  1',
@@ -174,8 +182,20 @@ describe('driftbench estate scan and lint with an ignore list', () => {
       ].join('\n'),
     );
     const lint = await run(['estate', 'lint', join(out, 'map.yaml')], out);
-    expect(lint.out).toContain('2 findings.');
-    expect(lint.out).toContain('AMBIGUOUS_REFERENCE');
+    // The documented local subtree wins before another skill with the same bare name.
+    expect(lint.code).toBe(0);
+    expect(lint.out).toContain('Clean.');
+    expect(lint.out).not.toContain('AMBIGUOUS_REFERENCE');
+    const original = await loadEstateMap(join(out, 'map.yaml'));
+    if (!original.ok) throw new Error('invalid map');
+    const localNotes = original.map.atoms.find(
+      (atom) =>
+        atom.kind === 'reference' &&
+        atom.provenance.file === '.claude/skills/shipment-tracker/SKILL.md' &&
+        atom.fields?.path === '.claude/skills/shipment-tracker/references/notes.md',
+    );
+    expect(localNotes?.fields).toMatchObject({ exists: true, resolvedBy: 'suffix' });
+    expect(localNotes?.fields).not.toHaveProperty('candidates');
 
     // A glob given to the scan only travels in the map: lint reads the estate with it, unasked.
     const NOTES = 'shipment-tracker/references/notes.md';

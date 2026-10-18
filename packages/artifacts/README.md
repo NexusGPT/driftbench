@@ -1,4 +1,4 @@
-# @driftbench/artifacts
+# @agent-nexus/driftbench-artifacts
 
 Readers for the files a code agent produces (xlsx, docx, pptx, pdf, csv, json, text, code), answering artifact checks with evidence.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install @driftbench/artifacts
+npm install @agent-nexus/driftbench-artifacts
 ```
 
 Node.js 22 or newer. ESM only, with TypeScript types.
@@ -28,4 +28,4 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## License
 
-Apache-2.0
+MIT

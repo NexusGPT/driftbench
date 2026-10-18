@@ -1,4 +1,4 @@
-import type { ArtifactKind, ArtifactReader, ArtifactReaderRegistry } from '@driftbench/core';
+import type { ArtifactKind, ArtifactReader, ArtifactReaderRegistry } from '@agent-nexus/driftbench-core';
 import { csvReader } from './csv';
 import { docxReader } from './docx';
 import { jsonReader } from './json';

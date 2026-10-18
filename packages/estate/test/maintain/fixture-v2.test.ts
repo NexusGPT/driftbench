@@ -124,11 +124,10 @@ describe('the fixture-v2 estate', () => {
     expect(report).toEqual(committed);
 
     expect(report.regenerate.map((entry) => [entry.test, entry.atoms.map((item) => item.why)])).toEqual([
-      ['northwind-draft-pair', ['whitespace', 'removed']],
+      ['northwind-draft-pair', ['removed']],
       ['northwind-late-shipment', ['semantic']],
       ['northwind-ledger-archive', ['guard_state']],
       ['northwind-route-planner', ['semantic']],
-      ['northwind-supplier-yes', ['whitespace']],
     ]);
     expect(report.reapprove.map((entry) => [entry.atom, entry.tests])).toEqual([
       [ROUTE, ['northwind-route-planner']],
@@ -147,7 +146,8 @@ describe('the fixture-v2 estate', () => {
     expect(report.guards.map((entry) => [entry.guard, entry.move, entry.tests, entry.need])).toEqual([
       [LEDGER, 'promoted', ['northwind-ledger-archive'], null],
     ]);
-    expect(report.unaffected).toEqual({ moved: 24, tests: 2 });
+    // northwind-supplier-yes names only the respaced R2: untouched.
+    expect(report.unaffected).toEqual({ moved: 24, tests: 3 });
     expect(report.needsPerson).toHaveLength(4);
   });
 });

@@ -1,4 +1,4 @@
-import type { WorldState } from '@driftbench/core';
+import type { WorldState } from '@agent-nexus/driftbench-core';
 import {
   type AcmeStore,
   callTool,

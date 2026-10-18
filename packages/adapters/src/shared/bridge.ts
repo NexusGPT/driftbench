@@ -3,7 +3,12 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { AdapterTransportError, AgentFailure, isPlainObject, retryableStatus } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  isPlainObject,
+  retryableStatus,
+} from '@agent-nexus/driftbench-core';
 import { excerpt } from './transport';
 
 /**

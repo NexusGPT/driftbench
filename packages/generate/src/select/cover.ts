@@ -11,6 +11,8 @@
  * - Both are deterministic: the same pool, cells and evidence give the same picks in the same order.
  */
 
+import { coverWork } from './cover-meter';
+
 /** One thing a golden set should hold: an allowed cell, or a required cell, and the specs that cover it. */
 export type CoverElement = {
   /** A stable key, unique within its list. */
@@ -73,17 +75,23 @@ export function selectGolden(input: CoverInput): Selection {
   const inPool = new Set(pool);
   const cells = membership(input.cells, inPool);
   const required = membership(input.required, inPool);
-  const faultIds = [...new Set(pool.flatMap((id) => [...(input.evidence?.get(id) ?? [])]))].sort();
+  const evidence = input.evidence;
+  const faultIds = evidence ? [...new Set(pool.flatMap((id) => evidence.get(id) ?? []))].sort() : [];
   const faultIndex = new Map(faultIds.map((id, index) => [id, index]));
-  const faults: Tier = new Map(
-    pool.map((id) => [
-      id,
-      [...new Set(input.evidence?.get(id) ?? [])].flatMap((fault) => {
-        const index = faultIndex.get(fault);
-        return index === undefined ? [] : [index];
-      }),
-    ]),
-  );
+  const faults: Tier = new Map();
+  if (evidence) {
+    for (const id of pool) {
+      const found = evidence.get(id);
+      if (!found?.length) continue;
+      faults.set(
+        id,
+        [...new Set(found)].flatMap((fault) => {
+          const index = faultIndex.get(fault);
+          return index === undefined ? [] : [index];
+        }),
+      );
+    }
+  }
 
   const coverOrder = greedy(pool, [required, cells, faults], 2, Number.POSITIVE_INFINITY);
   const k = input.k;
@@ -95,12 +103,9 @@ export function selectGolden(input: CoverInput): Selection {
     const seenRequired = new Set<number>();
     const seenFaults = new Set<number>();
     return order.map((id) => {
-      const addRequired = (required.get(id) ?? []).filter((index) => !seenRequired.has(index));
-      const addCells = (cells.get(id) ?? []).filter((index) => !seenCells.has(index));
-      const addFaults = (faults.get(id) ?? []).filter((index) => !seenFaults.has(index));
-      for (const index of addRequired) seenRequired.add(index);
-      for (const index of addCells) seenCells.add(index);
-      for (const index of addFaults) seenFaults.add(index);
+      const addRequired = newlyCovered(required.get(id), seenRequired);
+      const addCells = newlyCovered(cells.get(id), seenCells);
+      const addFaults = newlyCovered(faults.get(id), seenFaults);
       return {
         id,
         required: addRequired.map((index) => input.required[index]?.label ?? String(index)),
@@ -113,7 +118,14 @@ export function selectGolden(input: CoverInput): Selection {
 
   const cover = describe(coverOrder);
   const golden = kBest ? describe(goldenOrder) : cover;
-  const reach = (tier: Tier, order: readonly string[]) => new Set(order.flatMap((id) => tier.get(id) ?? []));
+  const reach = (tier: Tier, order: readonly string[]) => {
+    const seen = new Set<number>();
+    for (const id of order) {
+      const members = tier.get(id);
+      if (members) for (const index of members) seen.add(index);
+    }
+    return seen;
+  };
   const poolRequired = reach(required, pool);
   const goldenRequired = reach(required, goldenOrder);
   return {
@@ -139,13 +151,28 @@ export function selectGolden(input: CoverInput): Selection {
   };
 }
 
+/** Records the new memberships without temporary filter callbacks and fallback arrays per pick. */
+function newlyCovered(members: readonly number[] | undefined, seen: Set<number>): number[] {
+  const added: number[] = [];
+  if (members) {
+    for (const index of members) {
+      if (seen.has(index)) continue;
+      seen.add(index);
+      added.push(index);
+    }
+  }
+  return added;
+}
+
 /** For each spec of the pool, the indices of the elements it covers. */
 function membership(elements: readonly CoverElement[], pool: ReadonlySet<string>): Tier {
   const tier: Tier = new Map();
   elements.forEach((element, index) => {
-    for (const id of new Set(element.specs)) {
+    for (const id of element.specs) {
       if (!pool.has(id)) continue;
       const held = tier.get(id) ?? [];
+      // Elements are visited in order. A repeated spec in this element has this index already last.
+      if (held[held.length - 1] === index) continue;
       held.push(index);
       tier.set(id, held);
     }
@@ -160,35 +187,79 @@ function membership(elements: readonly CoverElement[], pool: ReadonlySet<string>
  */
 function greedy(pool: readonly string[], tiers: readonly Tier[], goals: number, limit: number): string[] {
   const covered = tiers.map(() => new Set<number>());
-  const chosen: string[] = [];
-  const left = new Set(pool);
-  while (chosen.length < limit) {
-    let best: { id: string; gains: number[] } | undefined;
-    for (const id of pool) {
-      if (!left.has(id)) continue;
-      const gains = tiers.map(
-        (tier, position) => (tier.get(id) ?? []).filter((index) => !covered[position]?.has(index)).length,
-      );
-      if (gains.slice(0, goals).every((gain) => gain === 0)) continue;
-      if (!best || ahead(gains, best.gains)) best = { id, gains };
+  const gainsOf = (id: string, gains: number[] = []): number[] => {
+    for (let position = 0; position < tiers.length; position += 1) {
+      let gain = 0;
+      const members = tiers[position]?.get(id);
+      if (members) for (const index of members) if (!covered[position]?.has(index)) gain += 1;
+      gains[position] = gain;
     }
-    if (!best) break;
-    const picked = best.id;
-    chosen.push(picked);
-    left.delete(picked);
-    tiers.forEach((tier, position) => {
-      for (const index of tier.get(picked) ?? []) covered[position]?.add(index);
-    });
+    return gains;
+  };
+  // Lazy greedy: a gain only falls as cells get covered, so the stored gains of a candidate are an upper
+  // bound. The candidate on top is re-read; if it still leads, no other candidate can beat it. The picks
+  // and the ties (the earlier spec of the pool) are those of a full scan at every step.
+  type Entry = { id: string; order: number; gains: number[] };
+  const heap: Entry[] = [];
+  const before = (x: Entry, y: Entry) => {
+    coverWork.comparisons += 1;
+    for (let position = 0; position < x.gains.length; position += 1) {
+      const left = x.gains[position] ?? 0;
+      const right = y.gains[position] ?? 0;
+      if (left !== right) return left > right;
+    }
+    return x.order < y.order;
+  };
+  const swap = (a: number, b: number) => {
+    const held = heap[a] as Entry;
+    heap[a] = heap[b] as Entry;
+    heap[b] = held;
+  };
+  const up = (from: number) => {
+    let i = from;
+    while (i > 0) {
+      const parent = (i - 1) >> 1;
+      if (!before(heap[i] as Entry, heap[parent] as Entry)) break;
+      swap(i, parent);
+      i = parent;
+    }
+  };
+  const down = (from: number) => {
+    let i = from;
+    for (;;) {
+      const l = 2 * i + 1;
+      const r = l + 1;
+      let top = i;
+      if (l < heap.length && before(heap[l] as Entry, heap[top] as Entry)) top = l;
+      if (r < heap.length && before(heap[r] as Entry, heap[top] as Entry)) top = r;
+      if (top === i) return;
+      swap(i, top);
+      i = top;
+    }
+  };
+  pool.forEach((id, order) => {
+    heap.push({ id, order, gains: gainsOf(id) });
+    up(heap.length - 1);
+  });
+  const chosen: string[] = [];
+  while (chosen.length < limit && heap.length > 0) {
+    const top = heap[0] as Entry;
+    gainsOf(top.id, top.gains);
+    down(0);
+    if (heap[0] !== top) continue;
+    let contributes = false;
+    for (let position = 0; position < goals; position += 1) {
+      if (top.gains[position] !== 0) contributes = true;
+    }
+    if (!contributes) break;
+    heap[0] = heap[heap.length - 1] as Entry;
+    heap.pop();
+    down(0);
+    chosen.push(top.id);
+    for (let position = 0; position < tiers.length; position += 1) {
+      const members = tiers[position]?.get(top.id);
+      if (members) for (const index of members) covered[position]?.add(index);
+    }
   }
   return chosen;
-}
-
-/** True when `a` beats `b` read tier by tier. */
-function ahead(a: readonly number[], b: readonly number[]): boolean {
-  for (let position = 0; position < a.length; position += 1) {
-    const left = a[position] ?? 0;
-    const right = b[position] ?? 0;
-    if (left !== right) return left > right;
-  }
-  return false;
 }

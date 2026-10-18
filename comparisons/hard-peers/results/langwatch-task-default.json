@@ -1,0 +1,1648 @@
+{
+  "competitor": "langwatch",
+  "row": "task",
+  "contestant": "default",
+  "model": "haiku",
+  "items": 126,
+  "complete": 126,
+  "results": [
+    {
+      "id": "langwatch.task.001",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f7e60c9683b674552e24b70c972e87ce2a3a39ae7b47ddb93aa58aa3e510b3d4"
+      ],
+      "costUsd": 0.0005070000000000001
+    },
+    {
+      "id": "langwatch.task.002",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "46a4e7f24887f24fdcca77468084face278209aeb4885176ccc18c260ed1c1b2"
+      ],
+      "costUsd": 0.00042750000000000004
+    },
+    {
+      "id": "langwatch.task.003",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "dfe7af523ad79df35226c458d998a95fbf9be7476adc2c5da6a439718775dc37"
+      ],
+      "costUsd": 0.0003015
+    },
+    {
+      "id": "langwatch.task.004",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "30a12dc36dac0614c315e1fb0d724007075d1fe1ba9606d239efeb2b14fc9e5b"
+      ],
+      "costUsd": 0.0002976
+    },
+    {
+      "id": "langwatch.task.005",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "cc060b17599af8be35fae3608a7fd0c12a4b016fa4ca505e50df6f08678031b7"
+      ],
+      "costUsd": 0.0005535000000000001
+    },
+    {
+      "id": "langwatch.task.006",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7f4ac190edc054619d4cdd5dc27d44a88288f7c154fb611806927d963441d65c"
+      ],
+      "costUsd": 0.00030250000000000003
+    },
+    {
+      "id": "langwatch.task.007",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2ace37194e94ef7c1d43dcdaf2245863287522fc2dbba2d6c622d8bde76bced3"
+      ],
+      "costUsd": 0.00045490000000000005
+    },
+    {
+      "id": "langwatch.task.008",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d222db091572be381ad31f80df922360c9ffe4a44eca40949141be0e4a35f75e"
+      ],
+      "costUsd": 0.00034490000000000004
+    },
+    {
+      "id": "langwatch.task.009",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "35c98de8b46af32958c5bb4dcfa322de6b4c9aac108bc930f8ea837b6e3a58ed"
+      ],
+      "costUsd": 0.0003132
+    },
+    {
+      "id": "langwatch.task.010",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "18c4b5eab3d2ab7dfc22d8dae37a3a32324244dbf25d8c5b7c8905a5b929f04b"
+      ],
+      "costUsd": 0.00034690000000000003
+    },
+    {
+      "id": "langwatch.task.011",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4431473c41cf869637be68a02987576d095b9405607accfd6b9f627c988224b1"
+      ],
+      "costUsd": 0.00030980000000000005
+    },
+    {
+      "id": "langwatch.task.012",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d7e435a87eb52773478d8578231937b301f9d3ac05b39656e2770080065828aa"
+      ],
+      "costUsd": 0.00030670000000000003
+    },
+    {
+      "id": "langwatch.task.013",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8e6bd1f31ad2b1327de5f5f69f2daaeded963fed2e673cb0f9556ddf6e28caa6"
+      ],
+      "costUsd": 0.0004284
+    },
+    {
+      "id": "langwatch.task.014",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7c9b427fb81a96dc235722276d728128582261393bc0b60fbe07987f04a9a2f0"
+      ],
+      "costUsd": 0.00032020000000000003
+    },
+    {
+      "id": "langwatch.task.015",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c3834abd3dfeeeff05223eb7e21cc7d946b9daa9ca711214811d6515a8369f7a"
+      ],
+      "costUsd": 0.0003286
+    },
+    {
+      "id": "langwatch.task.016",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "bc193c3dd49e002e4731709c3b8ac3e9c6ed15649ab5bc4372df2ad6d55a6264"
+      ],
+      "costUsd": 0.0003371
+    },
+    {
+      "id": "langwatch.task.017",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7f0134f6b5e82790e79344e564215c49edd4a98e16369dba2563e90fd8cabc46"
+      ],
+      "costUsd": 0.00030960000000000004
+    },
+    {
+      "id": "langwatch.task.018",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a1133de7f836b52bd623cb67da01f578ccacb8ce373fb5c8a042b1887898caaa"
+      ],
+      "costUsd": 0.0003039
+    },
+    {
+      "id": "langwatch.task.019",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e572dce111cff5bf6685d48036e78ddf21cd78c4caf04417108377dd410a1007"
+      ],
+      "costUsd": 0.0003164
+    },
+    {
+      "id": "langwatch.task.020",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e8ec2dbe48114b2a34d3dbbe2a9da939f4c9f97fba2441b6b3e1a0afc7a01ee1"
+      ],
+      "costUsd": 0.0003705
+    },
+    {
+      "id": "langwatch.task.021",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "aaa59ecff56c949e53dc805098f2cc6d5a5982d41b36954dd641ba86b5696ddc"
+      ],
+      "costUsd": 0.0003145
+    },
+    {
+      "id": "langwatch.task.022",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5b89ffd61ce4a3aacbd36ec49cdc9359fa28c65a5ae2dc3ec236d286c3cae308"
+      ],
+      "costUsd": 0.0003177
+    },
+    {
+      "id": "langwatch.task.023",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "08b5fcb90878982aed929a7ad4ea72a4e1828b91cef904909aa932e13e9b3dd3"
+      ],
+      "costUsd": 0.0004523
+    },
+    {
+      "id": "langwatch.task.024",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b2a576ae94b490d15b31ec2ad6e5e4dcc64c25d2a2f3033f1ceceb53267dd12b"
+      ],
+      "costUsd": 0.00031400000000000004
+    },
+    {
+      "id": "langwatch.task.025",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5c4084b8297faf81566d499f1cab2e46ab87a5f5d7c24d297e44d5a4652dc6a0"
+      ],
+      "costUsd": 0.0005840999999999999
+    },
+    {
+      "id": "langwatch.task.026",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f2135dcd304596f37934609c72fc7dbd15747447524d199075314a5ced24e04d"
+      ],
+      "costUsd": 0.0003066
+    },
+    {
+      "id": "langwatch.task.027",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9cb8aaefe0d88ac3b14cf841ee182047c27a165bfce009ea35c5688e845ee4bd"
+      ],
+      "costUsd": 0.00030480000000000004
+    },
+    {
+      "id": "langwatch.task.028",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "071f2f610e76322b8258167fee8bbcb3b3230a30c8067951822f76d82fe128ae"
+      ],
+      "costUsd": 0.00028700000000000004
+    },
+    {
+      "id": "langwatch.task.029",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2b2df42f9893fbafc77324e2f478022cf1b039d793a5b60034366004e55d5b0c"
+      ],
+      "costUsd": 0.0004198
+    },
+    {
+      "id": "langwatch.task.030",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6ac343e51141aaa73d05aa12d5f8e2a22ffa08c003e7aa0a93a9f4557780af72"
+      ],
+      "costUsd": 0.0004989
+    },
+    {
+      "id": "langwatch.task.031",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "dcad33f01a6a66303ad7f58859ff28f88ec6a5a3ca349c7fa052e7a07bfc0970"
+      ],
+      "costUsd": 0.00030230000000000003
+    },
+    {
+      "id": "langwatch.task.032",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "49afc558758fcf4479e3e55b3a6577478738d198c613e2e64ec342de4a6ea94c"
+      ],
+      "costUsd": 0.0003343
+    },
+    {
+      "id": "langwatch.task.033",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fb039d2ed69c2529e79fa0751a36e398a20157bf7b1aec4d0bf30bfa6c392e08"
+      ],
+      "costUsd": 0.0002835
+    },
+    {
+      "id": "langwatch.task.034",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "df1ac5c318cebc983177b023309f4e2c193505ec7895760e377288c83f060f58"
+      ],
+      "costUsd": 0.0003371
+    },
+    {
+      "id": "langwatch.task.035",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4b145ca2c5a929a4254f4a97b7046502cecffdb461bf748e0ec4097369c43ce4"
+      ],
+      "costUsd": 0.0005256
+    },
+    {
+      "id": "langwatch.task.036",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "436db489df6230207fbe697487fc26aed697d5b5f3d084b901a2a2a585cca2de"
+      ],
+      "costUsd": 0.0003308
+    },
+    {
+      "id": "langwatch.task.037",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7b4cea217df2983e3bab6f0f28651a9df5199df213009b26b1a66ffd1dcaf626"
+      ],
+      "costUsd": 0.0006024
+    },
+    {
+      "id": "langwatch.task.038",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "38aee69c94761b26c1aedb39ba893235271dbf35c538aca67f1195eb169a50ac"
+      ],
+      "costUsd": 0.0004314
+    },
+    {
+      "id": "langwatch.task.039",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "26180a0b23f9ff71509aa9f1a5c7aa914b9274d672fea0693e88a0dfb308a366"
+      ],
+      "costUsd": 0.000353
+    },
+    {
+      "id": "langwatch.task.040",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "781ab721b89dbc83d5a8d3d8b2a2b260ed8efcb75d2e299b037ce4c25bd65bc9"
+      ],
+      "costUsd": 0.00037700000000000006
+    },
+    {
+      "id": "langwatch.task.041",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ee515f9c2b88470db3b6c7ea693b6690fcf821ba5ea377edea6d42398d0f1439"
+      ],
+      "costUsd": 0.0003344
+    },
+    {
+      "id": "langwatch.task.042",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "75a280c50919f6adf3769b87ea8262f84f86de44d00d118fbaf9457bab247a22"
+      ],
+      "costUsd": 0.0005764
+    },
+    {
+      "id": "langwatch.task.043",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f580384d19638cc6d52f42bd41cab9ec78976c8a35baea290a5b5a92872761aa"
+      ],
+      "costUsd": 0.0003383
+    },
+    {
+      "id": "langwatch.task.044",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6cb74a6a6037756757eec7778bfaba19cdf34b3669313cfbcafefa982d591581"
+      ],
+      "costUsd": 0.000331
+    },
+    {
+      "id": "langwatch.task.045",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1526ba88093b195dae91381307d9169df24e5629c3e77f90e6b46741041f04a6"
+      ],
+      "costUsd": 0.000282
+    },
+    {
+      "id": "langwatch.task.046",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "98b6f0843570564b9158fb898f6052fe70a6d24503a816c2529ff1d1677feca2"
+      ],
+      "costUsd": 0.000492
+    },
+    {
+      "id": "langwatch.task.047",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "69097297d9dcefd0ddf94c7ed9725a7db3242fe1ae0287db4a86bc01a60144a0"
+      ],
+      "costUsd": 0.0006321
+    },
+    {
+      "id": "langwatch.task.048",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "17fc8b0d3651a11c314bdd8a99ed1f225fddb3ca6bdf97999d05054c97d7baa3"
+      ],
+      "costUsd": 0.00032379999999999996
+    },
+    {
+      "id": "langwatch.task.049",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0ba1ffbac337fd8e5d146dcee0b3e57c3f46ce269dd69b8b4dcaf527cf16c5fe"
+      ],
+      "costUsd": 0.00028550000000000005
+    },
+    {
+      "id": "langwatch.task.050",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9aedb0ddece7ff57ecbd7827b3fa8c4e0d14714d62948d3b42c5c26d726fed13"
+      ],
+      "costUsd": 0.0003144
+    },
+    {
+      "id": "langwatch.task.051",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b65456eb6d53587f5da5a7ec4068008bee64242458c29d4015b2d74b93f1a69b"
+      ],
+      "costUsd": 0.0003012
+    },
+    {
+      "id": "langwatch.task.052",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ecae3cf5515605aab7d398436a29ea2123f426ec2a1535f94edf4b306a64f78c"
+      ],
+      "costUsd": 0.0005334
+    },
+    {
+      "id": "langwatch.task.053",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b102aba8bade8d736509d644c0f36aacb69a22ca8199bbfbdd0d173e728d8ce5"
+      ],
+      "costUsd": 0.0003344
+    },
+    {
+      "id": "langwatch.task.054",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3892996b37881f8d2c9f521631510a7d8c63e4f2adcbd0489c7dc14201939f2d"
+      ],
+      "costUsd": 0.000495
+    },
+    {
+      "id": "langwatch.task.055",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f872e81d249ceb12bf1ead586ba2a4f9b55eca123552cc1d7caf706d5c5cd41e"
+      ],
+      "costUsd": 0.0003268
+    },
+    {
+      "id": "langwatch.task.056",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "efbad660857d6599666c06de673aacb38560f0c5796c0e5b3972b9d0bd937ae6"
+      ],
+      "costUsd": 0.0003396
+    },
+    {
+      "id": "langwatch.task.057",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6c7755b129accef8c39bc2c0abf0c624203e442c1f075db8c143001bf03bc1cc"
+      ],
+      "costUsd": 0.0003085
+    },
+    {
+      "id": "langwatch.task.058",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d91b8aa2e7061162db3f11a53ff0525073d3b2b1be19409ecb3a78df64cb166a"
+      ],
+      "costUsd": 0.0006619
+    },
+    {
+      "id": "langwatch.task.059",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a3da1adc7a3847555c86d7996a5b8485ed6d3aef6aef97f3ee2dfdb65a98eda7"
+      ],
+      "costUsd": 0.0004148
+    },
+    {
+      "id": "langwatch.task.060",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c48176039c55e4dcd93a92532bca1d6f61f9860551f969d8e512f818b17e5056"
+      ],
+      "costUsd": 0.00045930000000000005
+    },
+    {
+      "id": "langwatch.task.061",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "cfe44d6ca366845098ceb32c91927e0c80038c7aa920d1a5fc4be0fc848a1e73"
+      ],
+      "costUsd": 0.0005854
+    },
+    {
+      "id": "langwatch.task.062",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "78d757145d32a931568b7da9192c6368bba1c99242a75663e932438d3b4bd041"
+      ],
+      "costUsd": 0.0003467
+    },
+    {
+      "id": "langwatch.task.063",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a97e01f69c7a1ca64063ae79f05cec7c2982fec6805ade970b722d793b014593"
+      ],
+      "costUsd": 0.00032020000000000003
+    },
+    {
+      "id": "langwatch.task.064",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "466344d40f3717c61702d8aec32eba7acb96d956d6884194941177b181b557e1"
+      ],
+      "costUsd": 0.00035650000000000005
+    },
+    {
+      "id": "langwatch.task.065",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "92f20bbe990ee982f278e7b4ec774c83d0fba29bae088939dcd258afab029407"
+      ],
+      "costUsd": 0.0002988
+    },
+    {
+      "id": "langwatch.task.066",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9f85fc0e4f14030c92be97f5f188e371b03e7a365ae57b0081123a1493d89d57"
+      ],
+      "costUsd": 0.00044380000000000005
+    },
+    {
+      "id": "langwatch.task.067",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bceb7870829e7cfca6b38205db00bca11fd8f98095d2d9fd8d003895a67be2dc"
+      ],
+      "costUsd": 0.0004134
+    },
+    {
+      "id": "langwatch.task.068",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7db1bf742a8ad1729fcf7adfe541ac6be7faf97c1c10bc1819dcea9536a23c26"
+      ],
+      "costUsd": 0.0005189
+    },
+    {
+      "id": "langwatch.task.069",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7d5c8ab887a903aaa95fa6fbc0503e70150a8feb66d0df952b9ae028c864c522"
+      ],
+      "costUsd": 0.0003192
+    },
+    {
+      "id": "langwatch.task.070",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6550ed1db9c2e244eb76995353303b2141ddccf5a53fd8574f52467dd06fb406"
+      ],
+      "costUsd": 0.00036040000000000003
+    },
+    {
+      "id": "langwatch.task.071",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3574ff2409082fa75ed788daa68ac2ad4a829dd0271f5521b7f79f61c6ef1eba"
+      ],
+      "costUsd": 0.0004734
+    },
+    {
+      "id": "langwatch.task.072",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d80056b5f4b73a5a7d6b289777d4c976a6ad2bda70c0d2b436d8ca48ccf85ced"
+      ],
+      "costUsd": 0.00028450000000000003
+    },
+    {
+      "id": "langwatch.task.073",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "412bdf84b8cef6d7560877026215356a0ad3ab47f4c3155114bcc8428fbb694b"
+      ],
+      "costUsd": 0.00031560000000000003
+    },
+    {
+      "id": "langwatch.task.074",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0d29d54b7f60b5a37d6d86d8b7c065fc3b1c73c28be3f3cae18a4c4a4929970b"
+      ],
+      "costUsd": 0.00032700000000000003
+    },
+    {
+      "id": "langwatch.task.075",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1177e96ada1c39a69ddbf655a4df138534215192d0775f623c69e9e8f7612443"
+      ],
+      "costUsd": 0.00031920000000000006
+    },
+    {
+      "id": "langwatch.task.076",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9c8689fe2d7fdda829c1a029f2151632d4576346ca9a3203da01c8c3ed7dbbd5"
+      ],
+      "costUsd": 0.0004404
+    },
+    {
+      "id": "langwatch.task.077",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8c3b0ea38d91ab8cb4cca3f0e0128d5d8911a0f120e1063dab1eff18e4467879"
+      ],
+      "costUsd": 0.0003943
+    },
+    {
+      "id": "langwatch.task.078",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "beb92e44c3f491a70294a19e38aa78405c6a0979e82adbd28ddbc0686f38edd0"
+      ],
+      "costUsd": 0.00032950000000000004
+    },
+    {
+      "id": "langwatch.task.079",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f328cd9c8e7d0e35e10a7824349ed45c24dae76b8e874635b0cf1f6139eca9cc"
+      ],
+      "costUsd": 0.0003012
+    },
+    {
+      "id": "langwatch.task.080",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6d0550ac68e1fa89b8e4071dafe027920843f22fe0f35d9889da07f56cc5684b"
+      ],
+      "costUsd": 0.00031570000000000003
+    },
+    {
+      "id": "langwatch.task.081",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1d6bb45d5c82dcc11f2fdbb8636cc405ca058aec71811a876f3e88c51b534510"
+      ],
+      "costUsd": 0.000505
+    },
+    {
+      "id": "langwatch.task.082",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ffac02540ac3a711a66680cac4e8df350ba172fd545e3e63048673879406a264"
+      ],
+      "costUsd": 0.0003007
+    },
+    {
+      "id": "langwatch.task.083",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "db59c5aeaed0cc76178013d049e83c232f4baa85990e54efba6ccbd50bdc7061"
+      ],
+      "costUsd": 0.0003166
+    },
+    {
+      "id": "langwatch.task.084",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "cd05acc6c022b0d671aa1283986b907dde32d29c82293d5abf72d28723f7e20f"
+      ],
+      "costUsd": 0.0005435
+    },
+    {
+      "id": "langwatch.task.085",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e2088fc7efe9c59d6f0b4198efa5fdfd379da90be36008f4a6c1d0afa3767234"
+      ],
+      "costUsd": 0.0003055
+    },
+    {
+      "id": "langwatch.task.086",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "475aab4818be544819538bb8147fb14ecababdfa3b36a745ff04713684ccfa5b"
+      ],
+      "costUsd": 0.0003194
+    },
+    {
+      "id": "langwatch.task.087",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b3036a21ad5aaaa91af3013832ee5980f402b5a6fe9cc287b2c90e1d5404b4ce"
+      ],
+      "costUsd": 0.0003338
+    },
+    {
+      "id": "langwatch.task.088",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "150d0ecd01dae9abf9c0c8a2d6d992c4fcd350ea56d79ef51d67eb81fc81c8a0"
+      ],
+      "costUsd": 0.0003039
+    },
+    {
+      "id": "langwatch.task.089",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a10ab74a671e77e6dd6e97892e8779c08051d8291b3beff2c30bea0fa0c579c5"
+      ],
+      "costUsd": 0.0003197
+    },
+    {
+      "id": "langwatch.task.090",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "366dab24eac8a787629dda486d03a2a76774a5ce784b5963f375b23c4a31baa9"
+      ],
+      "costUsd": 0.00030050000000000004
+    },
+    {
+      "id": "langwatch.task.091",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0fa6f4560679d3e5e1982af4b76ca5a7636932ef7ddcb4543a758f2200b8b527"
+      ],
+      "costUsd": 0.0003361
+    },
+    {
+      "id": "langwatch.task.092",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4f7e77cc113d9c876dde3c16eb5dc3b60d72d2557d9904dd3b2826e347b1bca1"
+      ],
+      "costUsd": 0.00046640000000000006
+    },
+    {
+      "id": "langwatch.task.093",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d30444fccfc98325212b76e2b7215fe631b49cc8bd9e84c95073994418d79c6a"
+      ],
+      "costUsd": 0.0006232
+    },
+    {
+      "id": "langwatch.task.094",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "08b955426df71cc4574f70e8c7900117bdc98952d82f4a8e79104294273a004a"
+      ],
+      "costUsd": 0.0002946
+    },
+    {
+      "id": "langwatch.task.095",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3926229f0baeb70ab6548c784d398faabf7144aff0c6526d5858fa57b0b01d75"
+      ],
+      "costUsd": 0.0003235
+    },
+    {
+      "id": "langwatch.task.096",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c4567693b8164382be7a644b16c040e6345aed1fcf3985f45ba61e4061aa2961"
+      ],
+      "costUsd": 0.0005877
+    },
+    {
+      "id": "langwatch.task.097",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "eb55df762643c557a2570b830d4f5e2d863161776c150f8888431fb454902818"
+      ],
+      "costUsd": 0.00029160000000000004
+    },
+    {
+      "id": "langwatch.task.098",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6d4f96413e8a5888168ca1998a5b3225291f29d8c1ed42034fe1976cb8dc1a6a"
+      ],
+      "costUsd": 0.0003366
+    },
+    {
+      "id": "langwatch.task.099",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a5471910dad019a6e6c8af5430ccb14d9f4e90362692ea5b09e84dafb72d27d2"
+      ],
+      "costUsd": 0.000662
+    },
+    {
+      "id": "langwatch.task.100",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "054d8a93f45372421de54b940d252aee361734842e11138cada557787f0013b0"
+      ],
+      "costUsd": 0.0003293
+    },
+    {
+      "id": "langwatch.task.101",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "aeaaf245db8201be111aafba8c7d1b32345722cbc4ba9814b0cf128222337695"
+      ],
+      "costUsd": 0.0003382
+    },
+    {
+      "id": "langwatch.task.102",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "dfb6b86a42655234d4c9efa0202cb1fd57b860649da037a168119ab66e2417fd"
+      ],
+      "costUsd": 0.00042080000000000004
+    },
+    {
+      "id": "langwatch.task.103",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "98b0e8c28d11433214d3d287ae22208b633b4eac31272a1aa415ade649f93631"
+      ],
+      "costUsd": 0.00034250000000000003
+    },
+    {
+      "id": "langwatch.task.104",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "fb0cd04b9dd0bfd995db10b149b2a3da8bdd27ee81d44c434a16b89aea636a03"
+      ],
+      "costUsd": 0.0005024
+    },
+    {
+      "id": "langwatch.task.105",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0e4fd813793291af79d85054337d4e04c0861268d6a6a1f6f23f2c1ad4c3a6e9"
+      ],
+      "costUsd": 0.0004964
+    },
+    {
+      "id": "langwatch.task.106",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "66088ff36dc4159f17f0192b01ecd98627e20ed3a24f68e0e145ec29ae742103"
+      ],
+      "costUsd": 0.00032020000000000003
+    },
+    {
+      "id": "langwatch.task.107",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "381bfa006361fb833f27d81bbafaa5a70fd63f6ca8fac4f1a550a7a3e8137b59"
+      ],
+      "costUsd": 0.0003022
+    },
+    {
+      "id": "langwatch.task.108",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f42fc6e046ac80eb87a6d95f22341bae016a6a0ae42c92130feaaa8dc73a43bb"
+      ],
+      "costUsd": 0.0003017
+    },
+    {
+      "id": "langwatch.task.109",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4da26cedcdb1bb51cae0f87d8096a287c93431470a695f031e74ef6d9d62c49a"
+      ],
+      "costUsd": 0.0002906
+    },
+    {
+      "id": "langwatch.task.110",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a26cf2459e6f14efaa186cbae5b6f7205a95068d76ca0434eb285a2ff71ffacd"
+      ],
+      "costUsd": 0.00030910000000000003
+    },
+    {
+      "id": "langwatch.task.111",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d3930feb775999c2b1e419b15f93c14fcd5de3f1d92858d8a55c6d36637300b1"
+      ],
+      "costUsd": 0.00042560000000000005
+    },
+    {
+      "id": "langwatch.task.112",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "038dde744119f447173032a9103f283baec22bf91cb764a0076511a18c6b3aa2"
+      ],
+      "costUsd": 0.00030900000000000003
+    },
+    {
+      "id": "langwatch.task.113",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "46e23416ad39f905da8eb5b621bc73c8ecf7946fe6c97efafeab176aa85231e1"
+      ],
+      "costUsd": 0.0003084
+    },
+    {
+      "id": "langwatch.task.114",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5ebc849dc7b4124172e6059d7ec218671d7b155b1207fe8f4f2a66c638f3474c"
+      ],
+      "costUsd": 0.0005225000000000001
+    },
+    {
+      "id": "langwatch.task.115",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6cd7d8dcd4421dece5ff6d6f6324add26e2b40c56c046460ebabff3e2f972e94"
+      ],
+      "costUsd": 0.00043860000000000004
+    },
+    {
+      "id": "langwatch.task.116",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "170ca60b976be402b39882759d92c64e2a813ed799e0bd6fe9073c76908cac99"
+      ],
+      "costUsd": 0.0002967
+    },
+    {
+      "id": "langwatch.task.117",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a0aeb8adb227e52ce9e5cf5f9ebb14b8c2a371076a27634332b75f5dbad84f99"
+      ],
+      "costUsd": 0.0003262
+    },
+    {
+      "id": "langwatch.task.118",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ecc8bcffa2c784ed7cd7b3fc3b87a4ded39046026e44e4b87602f33f44bb3b7f"
+      ],
+      "costUsd": 0.00035290000000000007
+    },
+    {
+      "id": "langwatch.task.119",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "798db5825daf275feb7f620ca991bcb2b782b52426605171be7e79d66ccd399b"
+      ],
+      "costUsd": 0.0003461
+    },
+    {
+      "id": "langwatch.task.120",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a87e804610ae9ad361034163ec33abe186ad0aff8d7913d344c706c0d2c7de52"
+      ],
+      "costUsd": 0.0003376
+    },
+    {
+      "id": "langwatch.task.121",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8cf565aad7bb2ccd6b1bd5681454b5a7627df5970a5b0b24f8b881ebd68ccf3c"
+      ],
+      "costUsd": 0.0006308
+    },
+    {
+      "id": "langwatch.task.122",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3e9f443f6c0ba967570b339f9eb1461d400ec29b1d6d86b7364909aadb6369c0"
+      ],
+      "costUsd": 0.0003248
+    },
+    {
+      "id": "langwatch.task.123",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "fcdc922738c547ba1f655e26eb9f04c07d20f87ac5049bf3c606f699faf9bd52"
+      ],
+      "costUsd": 0.0004759
+    },
+    {
+      "id": "langwatch.task.124",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f97b394b3db2ab03e6da110e2c9c3a5d3bf06d71db8ab9e6b63c792fe1d36183"
+      ],
+      "costUsd": 0.00037660000000000005
+    },
+    {
+      "id": "langwatch.task.125",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a9a4c5f48568aa031d842feb9d1df15d6906386cb0e919b4e945273bd70fb119"
+      ],
+      "costUsd": 0.00031870000000000005
+    },
+    {
+      "id": "langwatch.task.126",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8518e63eabf51fb62f81d0ff81035236cd64c189a6aa5d94c48433c8f6b8ce4e"
+      ],
+      "costUsd": 0.00034710000000000003
+    }
+  ]
+}

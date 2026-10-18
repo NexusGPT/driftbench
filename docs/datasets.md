@@ -46,7 +46,7 @@ block:
 
 Inside the templates:
 
-* A text with `{column}` takes the cell of that column; `{row}` is the source row number; `{{` writes a brace.
+* A text with `{column}` takes the cell of that column; `{row}` is the source row number; two opening braces in a row write one opening brace.
 * A text that is one placeholder, such as `"{question}"`, takes the cell as it is: a spreadsheet number stays a number. An empty cell leaves the field out, and an object left empty is left out too.
 * A directive reads one column with options: `$split: "|"` makes a list, the cell split on the separator and each part trimmed; `$list: true` makes a list of the whole cell; `$as` converts to `text`, `number`, `boolean` or `json`.
 * Anything else is copied as it is.
@@ -112,17 +112,17 @@ driftbench dataset restore <ref> --store <file> [--out <path>] [--force] [--json
 * **Content addressed.** Each file is kept once, by its SHA-256. A version is the sorted list of its paths and file hashes; its hash is the SHA-256 of that list.
 * **Immutable.** A version never changes. Pushing content a name already holds gives back that version and adds nothing.
 * **Numbered.** Versions of one name count up from 1.
-* **Checked.** `dataset push` loads every spec of the folder first and refuses the push when one is invalid. Entries whose name starts with a dot and `node_modules` are skipped, as the spec loader skips them.
+* **Checked.** `dataset push` loads every spec of the folder first and refuses the push when one is invalid. Generated `.seed-*` folders and their contents are included, so binary task fixtures survive push and restore. Other dot entries are skipped; `.git` and `node_modules` are always skipped, including inside seed folders.
 * **Exact.** `restore` writes the bytes of every file as they were pushed, checked against their hashes, to the path they were pushed from or to `--out`. A file already there with other bytes stops the restore, and nothing is written, unless `--force` is given. Files the version does not hold are listed and left alone.
 
 ```
 $ pnpm -s driftbench dataset push acme-specs _demo/specs --store _demo/store.db --note 'first import'
-Pushed dataset acme-specs@1 (hash e836f6673509): 6 files from _demo/specs.
+Pushed dataset acme-specs@1 (hash 74ce682f7438): 6 files from _demo/specs.
 $ pnpm -s driftbench dataset push acme-specs _demo/specs --store _demo/store.db
-Pushed dataset acme-specs@2 (hash ab756cbb1aa3): 6 files from _demo/specs.
+Pushed dataset acme-specs@2 (hash 0f95fe257abc): 6 files from _demo/specs.
 $ pnpm -s driftbench dataset list --store _demo/store.db
-acme-specs@1  e836f6673509  6 files  2026-10-11T23:50:43.942Z  first import
-acme-specs@2  ab756cbb1aa3  6 files  2026-10-11T23:50:52.379Z
+acme-specs@1  74ce682f7438  6 files  2026-10-11T23:50:43.942Z  first import
+acme-specs@2  0f95fe257abc  6 files  2026-10-11T23:50:52.379Z
 $ pnpm -s driftbench dataset diff acme-specs@2 --store _demo/store.db
 M plan-upgrade.yaml
     @@ line 2 @@
@@ -152,6 +152,7 @@ Between the two pushes, one line was added to `plan-upgrade.yaml`. `diff` withou
 ```
 $ pnpm -s driftbench campaign run --dataset acme-specs@1 --prompt acme-sales --target function:acme --campaign c-demo --store _demo/store.db
 Campaign c-demo: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass  5 blocks
 ✓ acme-off-topic-return · function:acme · F · repeat 0  pass  5 blocks
@@ -165,7 +166,7 @@ The stored campaign then holds:
 
 ```json
 "sources": [
-  { "kind": "dataset", "name": "acme-specs", "version": 1, "hash": "e836f6673509..." },
+  { "kind": "dataset", "name": "acme-specs", "version": 1, "hash": "74ce682f7438..." },
   { "kind": "prompt", "name": "acme-sales", "version": 1, "hash": "de4d2b6ffa13..." }
 ]
 ```

@@ -1,0 +1,83 @@
+{
+  "before": {
+    "row": "knowledge retention",
+    "total_cases": 1272,
+    "ours": {
+      "correct": 1269,
+      "incorrect": 0,
+      "missing": 3,
+      "timeouts": 1,
+      "observed": 1269
+    },
+    "theirs": {
+      "correct": 1227,
+      "incorrect": 0,
+      "missing": 45,
+      "timeouts": 45,
+      "observed": 1227
+    },
+    "paired": {
+      "n": 1224,
+      "excluded_missing": 48,
+      "ours": 1224,
+      "theirs": 1224,
+      "ours_only_right": 0,
+      "theirs_only_right": 0,
+      "paired_p": 1.0
+    }
+  },
+  "after": {
+    "row": "knowledge retention",
+    "total_cases": 1272,
+    "ours": {
+      "correct": 1270,
+      "incorrect": 0,
+      "missing": 2,
+      "timeouts": 0,
+      "observed": 1270
+    },
+    "theirs": {
+      "correct": 1272,
+      "incorrect": 0,
+      "missing": 0,
+      "timeouts": 0,
+      "observed": 1272
+    },
+    "paired": {
+      "n": 1270,
+      "excluded_missing": 2,
+      "ours": 1270,
+      "theirs": 1270,
+      "ours_only_right": 0,
+      "theirs_only_right": 0,
+      "paired_p": 1.0
+    }
+  },
+  "evidence": {
+    "main_calls": 2606,
+    "cli_calls": 21,
+    "api_main_calls": 2585,
+    "parity_calls": 82,
+    "retry_calls": 44,
+    "parity_timeout_reuses": 2,
+    "retried_timeout_requests": 2,
+    "newly_reached_retry_stages": 42,
+    "historical_calls": 0,
+    "duplicate_completed_recordings_per_pass": 0,
+    "models": [
+      "claude-haiku-5-5"
+    ],
+    "owner_interrupted_attempts": 6,
+    "owner_interrupted_cost_reservation_usd": 0.3,
+    "main_cost_usd": 1.29803732,
+    "parity_cost_usd": 0.02216,
+    "api_usage_cost_usd": 0.8186945,
+    "retry_cost_usd": 0.007800100000000001,
+    "total_cost_or_reservation_usd": 1.32799742,
+    "unreported_cost_reservation_usd": 0.5,
+    "offline_replayed_cases": 1272,
+    "fresh_replay_calls": 0
+  },
+  "paired_p_holm": 1,
+  "outcome": "level"
+}

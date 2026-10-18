@@ -7,7 +7,7 @@ import {
   type EndStateSpec,
   machineVerdict,
   type Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describeAssertion, message } from '../support/assert';
 import { isRecord, plural, show } from '../support/values';
 

@@ -1,11 +1,11 @@
 import { createHash } from 'node:crypto';
 import { cp, lstat, readdir, readFile, rm, symlink } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { AgentFailure } from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
+import { AgentFailure } from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterEach, describe, expect, it } from 'vitest';
 import { claudeCodeLiveAdapter } from '../../../src/claude-code/live';
-import { ASK_INVOICE, ESTATE, FAKE, givenOf, MAP_HASH, scratch, turnOf } from './support';
+import { ASK_INVOICE, ESTATE, FAKE, FAKE_RECORDINGS, givenOf, MAP_HASH, scratch, turnOf } from './support';
 
 /**
  * The live runner on an estate whose CLAUDE.md and .claude/skills are symbolic links to a real folder: the
@@ -66,7 +66,7 @@ describe('a symlinked estate in the live runner', () => {
       provider: localProvider({ dir: join(work.dir, 'sandboxes') }),
       keep: true,
       stateDir: join(work.dir, 'state'),
-      env: { FAKE_CALLS: work.calls },
+      env: { ...FAKE_RECORDINGS, FAKE_CALLS: work.calls },
       retries: { max: 1, backoffMs: 0 },
       pins: [MAP_HASH],
       config: 'isolated',
@@ -100,7 +100,7 @@ describe('a symlinked estate in the live runner', () => {
       estateRoot: ESTATE,
       provider: localProvider({ dir: join(work.dir, 'sandboxes') }),
       stateDir: join(work.dir, 'state'),
-      env: { FAKE_CALLS: work.calls },
+      env: { ...FAKE_RECORDINGS, FAKE_CALLS: work.calls },
       pins: [MAP_HASH],
       config: 'isolated',
       ops: () => [{ op: 'plant', path: 'escape/CLAUDE.md', content: 'x\n' }],

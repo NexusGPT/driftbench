@@ -1,4 +1,4 @@
-import { Expect, RuntimeTrace, validateSpec } from '@driftbench/core';
+import { Expect, RuntimeTrace, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 describe('references and subagents: the block fields and the runtime trace', () => {

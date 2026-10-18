@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-13T17:54:22.075185+00:00",
+  "processes": [
+    "18315 12375 python3 examples/ledger-verify/publish-new-cells-when-complete.py",
+    "52934 12375 python3 examples/ledger-verify/network-gate.py",
+    "61198 12375 python3 examples/ledger-verify/sol-after-sonnet.py",
+    "75444 12375 python3 examples/ledger-verify/sonnet-recovery-sequence.py",
+    "86181 75444 python3 /Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/new-cell-supervise.py claude-sonnet-5-5"
+  ],
+  "retired": {
+    "21905": "159 native quota requests recovered",
+    "40158": "dependency guard stopped; replaced by 75444"
+  },
+  "stopRules": [
+    "network gate exits when network-control.stop is true",
+    "Sonnet sequence exits after its offline finalizer or an error",
+    "Sol starts only after Sonnet offline finalizer passes; 12 hour wait bound",
+    "publisher waits for both offline finalizers, checks no transport-missing and caps, stops health gate, merges reports and pushes; 12 hour wait bound"
+  ]
+}

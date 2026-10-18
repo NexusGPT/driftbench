@@ -1,0 +1,146 @@
+{
+  "rule": "exclude confirmation items whose normalized question occurs in practice or dev",
+  "normalization": "Unicode NFC, collapse whitespace, preserve case and mathematical symbols",
+  "frozenN": 544,
+  "retainedN": 536,
+  "excludedIds": [
+    "ff600339ebc6257a0b104e285c5d45e4_9b4e31ed0c49ae08444605f240d21e9c",
+    "cc7c91d35d129d47c676fb79d87bffb6_8c7922d95598f62f62c7fce3f8ef2957",
+    "8ebeceabebe51ff73d70b3441c77ceba_aa676e92426aa9e26bf5501e3e86d4f0",
+    "e253ded9ee3f65a9c1e8c5a5b7bae16f_93a3b305d125fec4906d2ed68f66fef7",
+    "6096b97aff83149554b44dbd7f28f0ee_4ba6ce017e33a33e74182dfa606211e1",
+    "f0dc4858f1b26b8cdc9583a7d9ccf560_db8ab6c8cd820f6bc22294d0ba385200",
+    "dc996b122b7cae969b9ba34ea797737b_285dfeed3eea5ee30c9a6c5376b83d60",
+    "0648be6a0b6bc92158de45e25d8535ba_d713351a3018581517a4df3800154717"
+  ],
+  "items": [
+    {
+      "id": "ff600339ebc6257a0b104e285c5d45e4_9b4e31ed0c49ae08444605f240d21e9c",
+      "questionSha256": "5101af5f4464f14343b5ff165f9aa5605d0801fd12f0101183c3ed1d67418d2b",
+      "overlaps": [
+        {
+          "split": "practice",
+          "id": "ff600339ebc6257a0b104e285c5d45e4_cf5cf6d190ee78b43850bbba908f2f36"
+        }
+      ],
+      "reusedPracticeCallKeys": [
+        "32b746897436e1b1b367eed7ff3366a605f1355d72b3ed928a35afca39e57504",
+        "7512deccc15c9a5a4ff19ea1acf5c059ca3588738757a5897bbddc0f35fff704",
+        "b43c7f388a3c15619f8241a8938648c6bce875bf6f2dfaaa5c847c56136e3692",
+        "f67eb382f780d0ea5cca4bc1eac69e9e1b3fff245a6b1d80544ced2115de01d2"
+      ]
+    },
+    {
+      "id": "cc7c91d35d129d47c676fb79d87bffb6_8c7922d95598f62f62c7fce3f8ef2957",
+      "questionSha256": "73eaf0f84bba90df2f39e507045c7ccf208696d6fd15a437b9f722fe70660723",
+      "overlaps": [
+        {
+          "split": "practice",
+          "id": "cc7c91d35d129d47c676fb79d87bffb6_04f53fabaf1812e5ce950d97a4945893"
+        }
+      ],
+      "reusedPracticeCallKeys": [
+        "17acc87416683fb0df26a4a0d409d137735e47fa0c6f16d9bd26ddb0b427179c",
+        "4f78d19431364b7b802aff7f1aab66a0dbe66dc0be7d8fdb17c059f9ed89a58c",
+        "6935ec1eb19237d5d037ac9f2ab82336bb68b62c39f7906b2a9b18594722c295"
+      ]
+    },
+    {
+      "id": "8ebeceabebe51ff73d70b3441c77ceba_aa676e92426aa9e26bf5501e3e86d4f0",
+      "questionSha256": "39e592e551dd50d0c647b8bd224faa2df83e4850ba826731adbef5d390dd50a5",
+      "overlaps": [
+        {
+          "split": "practice",
+          "id": "8ebeceabebe51ff73d70b3441c77ceba_201b6070d56f3d222ad62aae773be76f"
+        }
+      ],
+      "reusedPracticeCallKeys": [
+        "251f8e57fb4bd4a756d683d10ab76e7d88b1a095c3d586ae1fa93552180c7cb6",
+        "3d6de3d3bc4aaf8088b2668310f730814549d89f461f9c9daaee3e11e89cb3e3",
+        "e8ba237dd1d16a918ac79aa7de792924d10339f709923730f4bfa0682544e27d",
+        "f99af253bc09d581a98a94a801b6ff548460e9ce042f072a2cf0bead47195cb0"
+      ]
+    },
+    {
+      "id": "e253ded9ee3f65a9c1e8c5a5b7bae16f_93a3b305d125fec4906d2ed68f66fef7",
+      "questionSha256": "36e7da6a235a27bf76b09c4c41f27ad01bba5e4ef7a7bf11ce5435da628da5a4",
+      "overlaps": [
+        {
+          "split": "practice",
+          "id": "e253ded9ee3f65a9c1e8c5a5b7bae16f_164f9138efb27f038b29a0973b60993b"
+        }
+      ],
+      "reusedPracticeCallKeys": [
+        "42e516e5e71401634bf1a16744f262a14736e0f53f426d3b9743e9cb85dff6ea",
+        "50d4ff45d1d5a04f46b291a2999949bf896821e78c691c60567fb0364f0d9a92",
+        "523eb12efd2696d35f5dbd906ec3dd2d0771d42c2d09bcab418b5a78fb1a91e6",
+        "eba12ac1992bcefbf1376625a0729e3f04fd93c205fbc34b6ff306386afc5bec"
+      ]
+    },
+    {
+      "id": "6096b97aff83149554b44dbd7f28f0ee_4ba6ce017e33a33e74182dfa606211e1",
+      "questionSha256": "16e953e47c9feb3c7c69ab0dda7e3f99216c1edbeb0908d9569bcd382013308e",
+      "overlaps": [
+        {
+          "split": "practice",
+          "id": "6096b97aff83149554b44dbd7f28f0ee_31188f92b789ae07013cf49ee7febc74"
+        }
+      ],
+      "reusedPracticeCallKeys": [
+        "1266a21733686cbaa640b7098f1936ad41b697349f60dfb4ee2412825a4338da",
+        "8b1d577dbe8dfc1ccd23408a632ea0f13cf4774b5a31ebe40d49751723e91315",
+        "9db5ebe55d0d055730fe775073eaa5596430a63027a8df2e81c6cf52884371bf",
+        "d3fdfab5c1948b50a94e9fbb9d6e198bf6a799da79334c79e5f83f69bc8ce937"
+      ]
+    },
+    {
+      "id": "f0dc4858f1b26b8cdc9583a7d9ccf560_db8ab6c8cd820f6bc22294d0ba385200",
+      "questionSha256": "256f27e15b2e39628ee2aed52087530da2fa7d9a8152589ab458843961a063ed",
+      "overlaps": [
+        {
+          "split": "practice",
+          "id": "f0dc4858f1b26b8cdc9583a7d9ccf560_5c14579aa6e0e2a15ad83fe49fcb8570"
+        }
+      ],
+      "reusedPracticeCallKeys": [
+        "403f910912a5be1c15a45562483ca5b07ad4bab3bfd531d6eec7339edbb47686",
+        "638e1da2d7c2c43ae9654b68c2e08641161e8c3ce0195da3c529f0354f261a8e",
+        "9f242d54db49296c89888625cf1a57656dc83e0b0bc76440758ec91800859870",
+        "c4342c25969a4d73e2c29eb3555f1f1a4ce4fd5c9226b96867c1c25641cdb6f1"
+      ]
+    },
+    {
+      "id": "dc996b122b7cae969b9ba34ea797737b_285dfeed3eea5ee30c9a6c5376b83d60",
+      "questionSha256": "d6dbcd048bc0a95dc5d444fe9c696eca3c2bf0632adef3d2c4526358a6fcac3c",
+      "overlaps": [
+        {
+          "split": "practice",
+          "id": "dc996b122b7cae969b9ba34ea797737b_6db073b5b2b7c79246ea2b65aeede7de"
+        }
+      ],
+      "reusedPracticeCallKeys": [
+        "2e99b708ae476acf90dc73d48ab7494952acbde53484a619e2465bb7f222e6f2",
+        "66ddbcd02e7437833cd7814f197e17d1eff11b923907536a86abe8d417c96543",
+        "6aa6df70faaae6e0070e8d72014169e3402dcaa56638cf2666f42f863b7ee478",
+        "749451283c207d480f04d0d0969c1495fdace0e06a3dc6ff9b4185c907aa0ae9",
+        "f821a6cca5c7064406b60a6c65a2701fb120ed62b9f31307be7dbc15c27016e0"
+      ]
+    },
+    {
+      "id": "0648be6a0b6bc92158de45e25d8535ba_d713351a3018581517a4df3800154717",
+      "questionSha256": "77fd25fbe0967edccb394b8487ed3738c58a720c1a371764df4080f473e8a45d",
+      "overlaps": [
+        {
+          "split": "practice",
+          "id": "0648be6a0b6bc92158de45e25d8535ba_d21c0b945aa72756b8d6ec0051fa7458"
+        }
+      ],
+      "reusedPracticeCallKeys": [
+        "3eeaf01c1597577189294ea2361d63bcb45bae6da8b1a744efacb8f2d43119ef",
+        "563babea002dfb1bd80d9c9678537acfe409368c78bf2902243624955060cf44",
+        "6fb3bc0f8cffbf0f8a7cb7c149f1917cb82dee96a930796b0a3bbf43a1442934",
+        "e84b2d2c49f267da30f7852ed08c6d17b2925e92bbbe39414e287bbdcddc3c38"
+      ]
+    }
+  ]
+}

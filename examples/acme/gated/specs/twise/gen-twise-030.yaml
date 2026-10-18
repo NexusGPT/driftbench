@@ -2,16 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-030
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 30 of 154: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D8_tool_failure of order.create at recap"
+title: "t-wise row 30 of 132: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D8_tool_failure of coverage.check at address"
 channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:fiber
-  - task:existing-workbook
+  - data:no-service
   - flow:new-home
 covers:
   - B-003
@@ -27,6 +26,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-003
     rubric: Check coverage at the street address before offering home internet
@@ -49,97 +50,27 @@ blocks:
       tools:
         - label: coverage.check
           count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
       lang: EN
       criteria:
         - behaviour.B-003
         - flow.new-home
-  - id: b2-address-to-offer
-    when:
-      user: The address is 14 Harbor Road, Acmeville.
-    expect:
-      stage: offer
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 14 Harbor Road, Acmeville
-        - label: catalog.search
-          count: 1
-          input:
-            category: home
-            address_id: addr-101
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b3-offer-to-details
-    when:
-      user: I'll take Acme Fiber 1000.
-    expect:
-      stage: details
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b4-details-to-recap
-    when:
-      user: Jo Okafor, jo.okafor@example.com
-    expect:
-      stage: recap
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b5-D8_tool_failure
+  - id: b2-D8_tool_failure
     when:
       injection:
         class: D8_tool_failure
-        user: CONFIRM
+        user: The address is 7 Quarry Lane, Acmeville.
     given:
       world:
         tools:
-          order.create:
+          coverage.check:
             error: service unavailable (generated tool failure)
     expect:
-      stage: handover
+      stage: callback
       tools:
-        - label: order.create
-          count: 1
-          input:
-            type: new
-            plan_id: fiber-1000
-            address_id: addr-101
-            customer:
-              subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
-        - label: notify_sales
-          count: 1
-          input:
-            reason: order_failed
         - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
+          count: 2
+          input:
+            address: 7 Quarry Lane, Acmeville
       lang: EN
       criteria:
         - deviation.D8_tool_failure
@@ -153,18 +84,16 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: home-order
+      hash: 6d29ed7a7539
+    path: home-no-coverage
     cell:
       behaviour: B-003
       channel: chat
       user_type: new-customer
-      coverage_result: fiber
-      workspace_start: existing-workbook
+      coverage_result: no-service
       flow: new-home
-      plan_choice: names-one
-      customer_details: name-and-email
-      failing_tool: order.create
+      callback_phone: given
+      failing_tool: coverage.check
     blocks:
       - block: b1-needs-to-address
         seeder: twise
@@ -175,47 +104,17 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-offer
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: address-to-offer
-          coverage_result: fiber
-          stage: offer
-        phrase:
-          dimension: stage_transition
-          value: address-to-offer
-      - block: b3-offer-to-details
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
-        phrase:
-          dimension: stage_transition
-          value: offer-to-details
-      - block: b4-details-to-recap
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
-          stage: recap
-        phrase:
-          dimension: stage_transition
-          value: details-to-recap
-      - block: b5-D8_tool_failure
+      - block: b2-D8_tool_failure
         seeder: twise
         cell:
           spec: metadata.generated.cell
           deviation: D8_tool_failure
-          stage_transition: recap-to-order_placed
-          coverage_result: fiber
-          customer_details: name-and-email
-          stage: handover
+          stage_transition: address-to-callback
+          coverage_result: no-service
+          stage: callback
         phrase:
           dimension: stage_transition
-          value: recap-to-order_placed
+          value: address-to-callback
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -224,22 +123,13 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-address-to-offer
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.615
-      - block: b3-offer-to-details
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b4-details-to-recap
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.615
-      - block: b5-D8_tool_failure
+      - block: b2-D8_tool_failure
         status: accepted
         pass_k: 1
         pass_probability: 0.538
 rules:
   forbidden_tools:
+    - catalog.search
     - port.check
+    - order.create
+    - notify_sales

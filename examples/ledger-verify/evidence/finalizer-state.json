@@ -1,0 +1,197 @@
+{
+  "at": "2026-10-13T15:22:48.123361+00:00",
+  "status": "offline evidence ready for review",
+  "phases": 16,
+  "completedModels": [
+    "haiku",
+    "gpt-6-luna"
+  ],
+  "evaluationUnitsPerCompletedModel": 379,
+  "replayNewCalls": 0,
+  "unmappedLimits": 0,
+  "fees": {
+    "settledUsd": 12.68725019000004,
+    "unresolvedMaximumUsd": 19.5,
+    "maximumAccountedUsd": 32.18725019000004,
+    "capUsd": 40.0,
+    "providerReceipts": 4729,
+    "byModel": {
+      "haiku": 5.37828585,
+      "gpt-6-luna": 1.79682359,
+      "gemini-3.8-flash": 5.51214075
+    },
+    "unknownCharges": {
+      "2d8f81fb-4a46-414f-829c-ff390b92f9ec": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T07:36:20.681606+00:00"
+      },
+      "c36e35fd-39b4-4607-bf07-648a668b3c28": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T07:36:27.922704+00:00"
+      },
+      "8e218109-a8da-4949-9a79-a3e3eb1856f8": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T07:36:56.342180+00:00"
+      },
+      "d185530c-3fe3-4940-9441-46a5ba38d1f4": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T07:37:08.644708+00:00"
+      },
+      "344c89ea-364e-438a-9f60-c5654e972fc6": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T07:37:13.574949+00:00"
+      },
+      "e9556acf-05aa-4015-a58d-737fb17013c2": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T07:50:35.300702+00:00"
+      },
+      "1ea848b4-6b6a-40b7-923f-17ef60871da4": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T07:51:15.812657+00:00"
+      },
+      "6b4925f6-de61-4077-8a3d-0903ecb4c93c": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T07:53:18.560058+00:00"
+      },
+      "6ab5b67b-9b3f-4827-aa2d-fbe47b370693": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T08:10:48.928832+00:00"
+      },
+      "54a2039c-e91b-4fd8-95c4-d77da5e16bb1": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T08:13:59.851557+00:00"
+      },
+      "native-capture-mock-resolution-failure": {
+        "usd": 0.5,
+        "model": "native-diagnostic-fake",
+        "at": "2026-10-13T08:22:55.870724+00:00"
+      },
+      "93006ce1-8b24-452e-b378-31da6664f669": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T09:30:01.258521+00:00"
+      },
+      "29e30d26-92bc-429c-9a11-0708da740e8d": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T09:30:12.439294+00:00"
+      },
+      "e8fe9072-f32d-457f-a8ce-28744e87040f": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:16.575414+00:00"
+      },
+      "c62451ca-0e40-4a3f-9d2c-c0fa9ffa7c4e": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T09:30:17.433629+00:00"
+      },
+      "1dca995b-3479-41ad-b352-49b153f2f61e": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T09:30:23.703950+00:00"
+      },
+      "359cc0d8-5ed1-446a-97a8-b97db9a6659c": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:24.303840+00:00"
+      },
+      "a3771bff-2502-46ba-8b00-818f6954b3e1": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:27.847348+00:00"
+      },
+      "d7cc1b79-6257-4acc-8b8b-d2d0b9f3e904": {
+        "usd": 1.0,
+        "model": "gemini-3.8-flash",
+        "at": "2026-10-13T09:30:28.607989+00:00"
+      },
+      "48ff8412-a7f9-4e8d-8ef5-da100ee7660a": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:39.185003+00:00"
+      },
+      "0bfa1273-d2c6-467d-a59a-ebdc7ba5088b": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:50.626492+00:00"
+      },
+      "ca2480bc-a5e2-437a-b706-5e33cd7a0cc9": {
+        "usd": 0.5,
+        "model": "gpt-6-luna",
+        "at": "2026-10-13T09:30:50.648056+00:00"
+      },
+      "085d7684-4b59-496a-b6b3-a58c4f0c3821": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T11:22:29.510205+00:00"
+      },
+      "4e6aab15-7d7b-40c5-8e6d-5ee653260dab": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T12:58:55.432486+00:00"
+      },
+      "2ad67c5b-301a-45f8-95cb-56a86dcc4cd8": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T12:59:52.204391+00:00"
+      },
+      "b7df3b9a-b5e4-4104-9d9f-4e6c6b0f1166": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T13:04:18.507697+00:00"
+      },
+      "65a72335-0d82-4625-979e-7c183f92c6c7": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T13:48:24.530332+00:00"
+      },
+      "85031851-d17e-42cc-b069-e518de882d31": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T14:13:09.751504+00:00"
+      },
+      "e7022c59-aa8b-4691-b503-8b7d63852bab": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T14:14:15.035198+00:00"
+      },
+      "fe695a4d-a43e-4599-9343-efd3296b6046": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T14:33:37.243733+00:00"
+      },
+      "59773512-9261-4622-90f9-c46f6735d6c8": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T14:33:37.302660+00:00"
+      },
+      "fecda636-6b18-4dc8-900d-4937d27a9890": {
+        "usd": 0.5,
+        "model": "haiku",
+        "at": "2026-10-13T14:51:19.578336+00:00"
+      }
+    },
+    "source": "receipts/budget.json and receipts/calls.jsonl"
+  },
+  "additionalCompletedModels": [
+    "gemini-3.5-flash-lite"
+  ],
+  "additionalPhases": 6,
+  "additionalCellCapUsd": 24,
+  "droppedModels": [
+    "gemini-3.8-flash"
+  ],
+  "pendingModels": [],
+  "dropAmendment": "evidence/gemini-owner-drop.json"
+}

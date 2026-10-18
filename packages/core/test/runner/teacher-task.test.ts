@@ -2,9 +2,9 @@ import { mkdtemp, realpath, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { processAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { defaultChecks } from '@driftbench/checks';
+import { processAdapter, processProtocolFiles } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type Check,
@@ -14,9 +14,9 @@ import {
   type Session,
   type Spec,
   type Turn,
-} from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { canonicalGiven, runSpec } from '../../src/runner';
 import { failures } from './support';
@@ -114,6 +114,43 @@ describe('mode T on a task', () => {
         ...canonicalGiven(spec, 1).prefix,
         { role: 'user', content: user(1) },
       ]);
+    },
+    SLOW,
+  );
+
+  it(
+    'hands the process agent the canonical prefix in its history file, so mode T runs it (seedPrefix)',
+    async () => {
+      const spec = await priceSheet();
+      const inner = processAdapter({
+        command: process.execPath,
+        args: [OPS],
+        provider: localProvider({ dir: parent }),
+        deterministic: true,
+      });
+      expect(inner.capabilities().seedPrefix).toBe(true);
+      const files: unknown[] = [];
+      const adapter = Object.assign(Object.create(inner) as AgentAdapter, {
+        async send(session: Session, turn: Turn) {
+          const observed = await inner.send(session, turn);
+          const bytes = await inner.readArtifact(session, processProtocolFiles.history);
+          files.push(JSON.parse(Buffer.from(bytes).toString('utf8')));
+          return observed;
+        },
+      });
+      const run = await runSpec(spec, {
+        adapter,
+        driver: createScriptedDriver(),
+        checks: defaultChecks(),
+        artifacts: defaultReaders(),
+        mode: 'T',
+        repeat: 0,
+      });
+      expect(run.blocks.map((block) => block.status)).toEqual([undefined, undefined]);
+      const when = spec.blocks[1]?.when;
+      const user = when && 'user' in when ? when.user : '';
+      // What the agent read for the second step: the canonical history of the first, then its own instruction.
+      expect(files[1]).toEqual([...canonicalGiven(spec, 1).prefix, { role: 'user', content: user }]);
     },
     SLOW,
   );

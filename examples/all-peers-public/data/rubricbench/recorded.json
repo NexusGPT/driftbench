@@ -1,0 +1,11066 @@
+{
+ "promptfoo": {
+  "rubric_eval_14": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_947": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_666": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_148": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_690": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_482": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_332": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_246": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_99": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_223": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_81": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_847": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_71": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_633": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_175": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1057": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_870": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_229": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_685": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_189": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_41": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_104": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_469": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1020": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_700": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_534": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_670": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_460": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_5": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_149": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_627": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_151": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_538": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1004": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_302": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_123": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1003": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1044": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1146": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_352": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_51": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_54": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_253": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_806": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_28": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_609": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_827": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_898": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_426": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_950": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1016": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_758": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_93": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_606": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_463": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_347": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_239": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_422": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_179": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_274": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_466": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_33": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_970": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_704": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1129": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_971": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_50": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_649": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_625": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_170": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_914": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_631": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_300": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_875": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_116": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_651": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_624": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_19": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_455": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_63": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1001": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_423": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_264": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_524": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_718": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_58": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_948": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_780": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_261": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_576": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_136": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_183": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_388": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_702": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_427": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_931": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_620": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_880": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1058": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_502": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_693": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_226": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_330": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_346": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_9": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_893": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_266": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1071": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_447": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_917": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_137": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_386": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_966": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_68": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_561": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_760": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_903": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1096": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_641": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_765": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_907": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1121": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_133": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1034": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_217": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_984": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_402": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_842": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "provider-blocked"
+  },
+  "rubric_eval_822": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_663": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_287": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_813": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_565": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_916": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_770": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_288": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_520": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_664": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_514": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_774": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_613": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_515": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_100": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_259": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_742": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_96": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_935": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_526": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_841": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_554": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_497": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_723": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_662": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_210": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_197": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_243": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_293": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1101": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_795": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_675": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_858": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_775": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1140": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_79": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_47": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_899": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_925": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_173": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_488": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_915": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_383": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_8": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_853": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1050": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_254": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_198": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_578": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_85": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_512": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_611": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_379": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1118": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_650": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_103": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_404": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_272": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_64": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_660": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1081": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1056": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_459": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_82": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1070": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_307": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_95": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_751": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_592": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_729": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_964": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_282": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_16": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_485": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_671": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_125": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1120": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_983": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_546": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_771": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1045": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_862": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1007": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_572": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_362": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_568": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_377": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_477": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_610": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_481": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1128": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1122": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1119": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_573": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_406": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_322": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_80": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_826": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1023": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_965": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_394": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_673": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_232": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_777": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_294": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_348": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_471": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_86": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_364": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1079": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_141": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_781": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_728": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_955": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_737": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_138": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_614": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_190": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_647": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_212": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_400": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_791": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_378": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_727": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_900": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_860": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1067": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_583": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_225": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_586": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1026": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_551": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_434": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_835": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_849": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_437": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_396": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_839": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_235": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_877": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_667": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_156": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_838": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_75": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_291": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1126": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_518": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_679": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_618": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_172": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_231": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_135": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_873": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_575": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_509": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_88": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_531": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_885": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1106": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_905": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_250": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_363": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_763": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1019": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_492": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_741": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_879": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_601": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_428": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_273": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_306": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_91": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_247": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1043": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_374": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_78": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_820": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_31": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_828": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_612": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_783": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_684": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_27": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1092": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_391": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1104": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_211": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_768": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_174": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1105": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_564": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_824": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_604": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1054": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_166": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_59": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_236": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_946": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_205": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1042": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_749": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_316": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_26": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_312": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_464": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_918": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_24": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_653": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_275": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1123": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_778": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_118": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_796": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_365": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_784": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_392": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_669": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_119": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_988": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1021": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_128": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1111": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1036": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_963": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_904": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1031": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_516": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_277": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_289": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_372": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_115": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_15": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_619": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_607": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_808": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_558": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_369": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_439": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1010": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_117": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_978": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_252": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_845": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_513": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_290": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_595": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_269": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_410": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1083": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1029": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_157": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_642": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_344": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_976": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_203": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_403": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_448": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1052": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_977": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_337": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_812": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_628": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_759": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_748": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_522": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_265": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_355": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_785": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_134": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1130": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_465": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_714": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_510": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1132": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_913": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_555": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1028": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1027": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "provider-blocked"
+  },
+  "rubric_eval_70": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_665": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_851": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_18": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_180": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_29": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_563": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_533": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_990": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_407": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_868": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_636": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_940": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_598": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_171": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_158": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_228": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_120": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_440": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_429": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_414": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1095": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_187": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_87": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1145": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_692": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_227": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_140": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_928": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_256": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1032": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_192": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_152": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_894": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_301": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_297": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_389": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_233": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_882": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1035": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1133": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_945": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_652": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_38": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_408": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_953": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_622": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_539": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_517": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_449": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1002": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_528": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_457": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_60": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_20": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_472": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_360": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_147": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_707": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_11": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_73": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_743": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_996": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_979": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_90": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_249": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_910": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_145": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_549": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_479": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_571": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_762": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_550": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_385": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_896": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_101": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_260": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_271": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_278": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_712": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_764": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_371": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_848": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_949": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_967": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_98": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_525": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_487": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_350": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1022": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_537": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_196": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_207": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1073": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_865": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1117": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_543": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_397": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_168": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_968": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1060": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1094": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_710": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_3": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1103": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_65": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_920": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_106": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_381": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_441": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_390": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_738": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_548": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1015": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_969": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_367": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_962": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1014": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1077": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_154": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_519": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_57": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_127": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1114": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_501": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1147": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_674": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_588": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_725": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_562": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_476": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_401": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_319": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_69": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_169": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_184": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_84": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_200": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_6": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_395": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_854": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_696": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_357": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_208": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1142": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_697": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1087": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_194": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1025": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_829": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_960": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_418": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_72": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_498": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_333": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1097": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_55": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_114": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_475": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_834": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_48": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_318": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_585": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_121": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_504": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_816": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_411": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_159": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_584": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_810": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_726": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_478": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_615": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_840": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_380": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_708": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1102": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_443": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_341": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_338": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_483": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_370": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_863": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_17": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_438": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_450": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_698": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_495": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_855": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1046": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_678": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_417": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_750": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_975": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1100": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_954": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_545": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_773": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_958": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_992": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_430": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_590": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_683": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_286": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_508": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1088": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_324": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_144": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1116": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_480": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_681": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_23": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_420": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_162": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_541": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_326": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_248": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_957": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_686": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_552": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_691": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1013": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_788": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1107": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_831": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_416": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_206": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1076": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_866": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_560": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_909": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_328": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_912": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_399": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_425": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_146": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_798": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_987": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_626": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_467": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_581": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_787": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_454": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_680": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_444": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_956": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_980": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_299": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_473": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_132": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1124": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1065": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_811": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_61": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_292": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1017": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_688": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_110": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_527": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_167": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_582": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_639": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_331": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1039": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_222": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_891": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_507": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_856": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_883": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_997": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_496": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_44": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_461": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_734": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_752": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_451": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_241": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_419": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_998": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1068": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_577": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_356": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_943": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_809": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_77": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_682": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_281": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_373": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_701": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_659": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1078": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_421": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_779": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_672": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_366": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1137": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_786": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_876": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_587": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1127": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_304": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_939": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_884": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_745": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1006": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_500": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_456": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_413": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_521": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_902": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_270": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_314": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_143": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_224": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_325": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_872": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_240": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_959": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_709": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_859": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_747": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_553": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_589": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_317": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_944": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_605": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_630": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1113": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_76": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_202": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_789": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1047": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_296": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_163": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_814": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_111": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_351": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_993": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_985": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_804": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_640": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1049": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1075": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_353": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_238": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_361": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_981": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_213": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_593": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_22": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_861": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1112": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_321": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_722": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_335": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_999": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_715": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1136": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_435": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_529": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_150": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_511": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_721": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_713": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_66": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_7": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_42": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_638": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_102": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_648": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_908": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1033": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_160": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_74": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_597": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_340": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1066": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_756": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_359": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_867": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_846": {
+   "games": [
+    "B",
+    "tie"
+   ],
+   "status": "missing-or-tie"
+  },
+  "rubric_eval_122": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_579": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  }
+ },
+ "driftbench": {
+  "rubric_eval_14": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_947": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_148": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_666": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_690": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_482": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_332": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_246": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_99": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_223": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_81": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_847": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_71": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_633": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_175": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1057": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_870": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_229": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_685": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_41": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_189": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_104": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_469": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_700": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1020": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_670": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_534": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_460": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_5": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_149": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_627": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_151": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_538": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1004": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_302": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_123": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1003": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1044": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1146": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_352": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_51": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_54": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_253": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_806": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_28": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_827": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_609": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_898": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_426": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_950": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1016": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_758": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_93": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_606": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_463": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_347": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_239": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_422": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_274": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_179": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_466": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_33": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_970": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_704": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1129": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_971": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_50": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_649": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_625": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_170": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_631": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_914": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_300": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_875": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_116": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_651": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_624": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_19": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_455": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_63": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1001": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_264": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_423": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_524": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_718": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_58": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_948": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_780": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_261": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_576": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_136": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_183": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_388": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_702": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_931": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_427": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_620": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_880": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1058": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_502": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_226": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_693": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_330": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_346": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_9": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_893": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1071": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_266": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_447": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_917": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_137": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_386": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_966": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "unparsed"
+  },
+  "rubric_eval_68": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_561": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_760": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_903": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1096": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_641": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_765": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_907": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1121": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_133": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1034": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_217": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_984": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_402": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_842": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "provider-blocked"
+  },
+  "rubric_eval_822": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_663": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_287": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_813": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_565": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_916": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_770": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_288": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_520": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_664": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_514": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_774": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_613": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_515": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_100": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_259": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_742": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_96": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_935": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_841": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_526": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_554": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_497": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_723": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_662": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_210": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_197": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_243": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_293": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1101": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_795": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_675": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_858": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_775": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1140": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_79": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_47": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_899": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_925": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_173": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_488": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_915": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_383": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_8": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_853": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1050": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_254": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_198": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_578": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_512": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_85": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_611": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_379": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1118": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_650": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_404": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "unparsed"
+  },
+  "rubric_eval_103": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_272": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_64": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_660": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1081": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1056": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_459": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_82": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_307": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1070": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_95": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_751": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_592": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "unparsed"
+  },
+  "rubric_eval_729": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_964": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_282": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_16": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_485": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_671": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_125": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1120": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_983": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_546": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_771": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1045": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_862": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1007": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_572": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_362": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_568": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_377": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_477": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_610": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_481": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1128": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1122": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1119": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_573": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_406": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_322": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_80": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1023": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_826": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_965": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_394": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_673": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_232": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_294": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_777": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_348": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_471": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_86": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_364": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1079": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_141": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_781": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_728": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_955": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_737": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_138": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_614": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_647": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_190": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_212": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_400": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_791": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_378": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_727": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_860": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_900": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1067": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_583": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_225": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_586": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_551": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1026": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_434": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_835": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_849": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_437": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_839": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_235": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_396": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_877": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_667": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_156": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_838": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_75": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_291": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1126": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_518": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_679": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_618": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_172": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_231": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_135": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_873": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_575": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_509": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_88": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_531": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_885": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1106": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_905": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_250": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_363": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_763": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_492": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1019": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_741": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_879": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_428": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_601": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_273": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_306": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_91": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_247": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1043": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_374": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_78": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_820": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_31": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_828": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_612": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_783": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_684": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_27": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1092": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_391": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1104": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_768": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_174": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1105": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "unparsed"
+  },
+  "rubric_eval_564": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_211": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_824": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_604": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1054": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_166": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_59": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_236": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_946": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1042": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_205": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_316": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_26": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_749": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_464": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_312": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_918": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_24": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_653": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1123": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_275": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_778": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_365": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_118": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_796": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_784": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_392": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_119": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_669": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_988": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1021": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_128": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1111": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_963": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1036": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_904": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1031": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_516": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_277": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_372": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_115": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_289": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_619": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_15": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_607": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_808": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_558": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_369": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_439": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1010": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_117": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_978": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_252": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_845": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_513": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_290": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_595": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "unparsed"
+  },
+  "rubric_eval_269": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1083": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_410": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1029": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_157": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_642": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_344": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_976": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_203": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_403": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_448": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1052": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_977": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_337": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_812": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_628": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_759": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_748": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_522": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_265": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_355": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_785": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_134": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1130": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_465": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_714": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_510": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1132": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_913": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_555": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1028": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1027": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "provider-blocked"
+  },
+  "rubric_eval_70": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_665": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_851": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_18": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_180": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_29": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_563": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_533": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_990": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_407": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_868": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "unparsed"
+  },
+  "rubric_eval_636": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_940": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_598": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_171": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_158": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_228": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_120": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_440": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_429": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_414": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1095": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_187": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_87": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1145": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_692": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_227": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_928": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_140": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_256": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1032": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_192": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_152": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_894": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_301": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_297": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_389": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_233": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_882": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "unparsed"
+  },
+  "rubric_eval_1035": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_945": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1133": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_652": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_38": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_408": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_953": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_622": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_539": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_517": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_449": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1002": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_528": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_457": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_60": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_20": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_472": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_360": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_147": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_707": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_11": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_73": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_743": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_996": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_979": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_90": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_249": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_910": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_145": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_549": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_479": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_762": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_571": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_550": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_896": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_385": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_101": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "unparsed"
+  },
+  "rubric_eval_260": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_271": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_278": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_712": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_764": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_371": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_848": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_949": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_967": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_487": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_98": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_525": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_350": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_196": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1022": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_207": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1073": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_865": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1117": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_543": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_537": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_397": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_968": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_168": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1060": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1094": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_710": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_3": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1103": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_920": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_65": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_106": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_381": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_441": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_390": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_548": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_738": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1015": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_969": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_367": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_962": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1014": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1077": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_154": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_519": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_57": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_127": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1114": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_501": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1147": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_674": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_588": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_562": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_725": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_476": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_401": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_319": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_169": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_69": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_184": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_84": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_200": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_6": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_395": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_854": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_696": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_357": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_208": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1142": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_697": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1087": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_194": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1025": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_960": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_829": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_72": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_418": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_498": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_333": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_55": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1097": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_114": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_475": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_834": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_318": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_48": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_121": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_585": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_504": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_816": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_411": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_159": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_584": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_810": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_726": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_478": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_840": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_615": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_380": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_708": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_443": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1102": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_341": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_338": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_863": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_370": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_483": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_17": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_438": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_678": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_450": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_698": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_495": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_855": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1046": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_750": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_975": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_417": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1100": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_545": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_954": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_773": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_958": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_992": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_430": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_590": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_508": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_286": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_683": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1088": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_324": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1116": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_144": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_480": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_681": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_23": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_420": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_162": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_541": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_326": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_248": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_957": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_686": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_691": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_552": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1013": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_788": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1107": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_416": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_831": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_206": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1076": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_866": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_909": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_560": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_328": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_912": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_399": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_146": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_425": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_626": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_798": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_987": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_467": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_581": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_787": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_454": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_444": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_956": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_680": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_980": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_473": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_299": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_132": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1124": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1065": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_811": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_292": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1017": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_61": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_688": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_527": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_110": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_167": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_582": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_639": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1039": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_331": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_507": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_222": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_891": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_856": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_883": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_496": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_997": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_44": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_461": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_734": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_752": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_451": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_241": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_419": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_998": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1068": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_577": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_943": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_77": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_809": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_356": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_373": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_701": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_281": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_682": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_659": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_421": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1078": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_779": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_672": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_366": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1137": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "unparsed"
+  },
+  "rubric_eval_876": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_786": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_587": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1127": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_304": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_939": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_884": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_745": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1006": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_456": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_413": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_500": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_521": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_270": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_902": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_314": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_224": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_143": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_325": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_872": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_240": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_959": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_859": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_709": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_553": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "unparsed"
+  },
+  "rubric_eval_747": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_589": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_317": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_605": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_944": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_630": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "unparsed"
+  },
+  "rubric_eval_76": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1113": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_202": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_789": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_296": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_163": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1047": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_814": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_111": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_351": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_985": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_804": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_640": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_993": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1049": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1075": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_353": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_238": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_981": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_361": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_213": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_593": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_22": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_722": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_861": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1112": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_321": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_335": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_999": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_715": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1136": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_435": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_529": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_721": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_150": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_713": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_511": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_42": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_638": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_102": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_66": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_648": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_908": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1033": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_160": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_74": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_7": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_597": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_1066": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_340": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_756": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_867": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_359": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "status": "tie"
+  },
+  "rubric_eval_846": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_122": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  },
+  "rubric_eval_579": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "status": "decided"
+  }
+ }
+}

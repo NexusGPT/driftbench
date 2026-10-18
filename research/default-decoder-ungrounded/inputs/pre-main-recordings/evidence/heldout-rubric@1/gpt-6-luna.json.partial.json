@@ -1,0 +1,43 @@
+{
+  "fingerprint": "19cf28d04b13",
+  "datasetHash": "4945358cf23be5efe35954fb71dc2e7d3d3825656e434fe4f6748e132ef89fbb",
+  "model": "gpt-6-luna",
+  "spend": [
+    {
+      "at": "2026-10-13T07:12:55.242Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0,
+      "chargedUsd": 0.0016557,
+      "accounting": "reserved-on-error",
+      "status": "error"
+    },
+    {
+      "at": "2026-10-13T07:12:55.258Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0,
+      "chargedUsd": 0.0016552000000000001,
+      "accounting": "reserved-on-error",
+      "status": "error"
+    },
+    {
+      "at": "2026-10-13T07:12:55.304Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0,
+      "chargedUsd": 0.0016413,
+      "accounting": "reserved-on-error",
+      "status": "error"
+    },
+    {
+      "at": "2026-10-13T07:12:55.407Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0,
+      "chargedUsd": 0.0016559,
+      "accounting": "reserved-on-error",
+      "status": "error"
+    }
+  ]
+}

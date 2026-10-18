@@ -1,0 +1,170 @@
+{
+ "bench": "rubricbench",
+ "title": "RubricBench",
+ "model": "claude-haiku-5-5",
+ "kind": "pair",
+ "unit": "game",
+ "final": false,
+ "contestants": [
+  {
+   "contestant": "driftbench",
+   "items": 790,
+   "present": 790,
+   "transportMissing": 0,
+   "all": {
+    "correct": 1306,
+    "n": 1580,
+    "score": 0.8265822784810126,
+    "wilson95": [
+     0.8071275240089457,
+     0.8444528436172511
+    ],
+    "driftbenchMinusThis": 0.0
+   }
+  },
+  {
+   "contestant": "promptfoo",
+   "items": 790,
+   "present": 790,
+   "transportMissing": 0,
+   "all": {
+    "correct": 1194,
+    "n": 1580,
+    "score": 0.7556962025316456,
+    "wilson95": [
+     0.7339062039701469,
+     0.776245866806953
+    ],
+    "driftbenchMinusThis": 0.07088607594936709,
+    "driftbenchWins": 221,
+    "driftbenchLosses": 109,
+    "exactTwoSidedP": 6.878942666640192e-10,
+    "holmP": 1.2382096799952347e-08
+   }
+  },
+  {
+   "contestant": "deepeval",
+   "items": 790,
+   "present": 789,
+   "transportMissing": 1,
+   "grader": "ArenaGEval (DeepEval 4.2.8)",
+   "mode": "native",
+   "graderErrors": 0,
+   "ties": 0,
+   "spend": {
+    "usd": 1.3582969,
+    "attempts": 2372,
+    "answered": 2369,
+    "noAnswer": 3,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 1226,
+    "n": 1580,
+    "score": 0.7759493670886076,
+    "wilson95": [
+     0.754734773471562,
+     0.7958253821195657
+    ],
+    "driftbenchMinusThis": 0.05063291139240506,
+    "driftbenchWins": 191,
+    "driftbenchLosses": 111,
+    "exactTwoSidedP": 4.848476834796223e-06,
+    "holmP": 6.787867568714712e-05
+   }
+  },
+  {
+   "contestant": "inspect",
+   "items": 790,
+   "present": 790,
+   "transportMissing": 0,
+   "grader": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+   "mode": "pointwise grader, higher score wins",
+   "graderErrors": 0,
+   "ties": 564,
+   "spend": {
+    "usd": 1.337707499999998,
+    "attempts": 1580,
+    "answered": 1580,
+    "noAnswer": 0,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 420,
+    "n": 1580,
+    "score": 0.26582278481012656,
+    "wilson95": [
+     0.24462685921110458,
+     0.28815466012669977
+    ],
+    "driftbenchMinusThis": 0.5607594936708861,
+    "driftbenchWins": 898,
+    "driftbenchLosses": 12,
+    "exactTwoSidedP": 1.4658558295904535e-247,
+    "holmP": 3.6646395739761334e-246
+   }
+  },
+  {
+   "contestant": "langfuse",
+   "items": 790,
+   "present": 789,
+   "transportMissing": 1,
+   "grader": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+   "mode": "pointwise grader, higher score wins",
+   "graderErrors": 10,
+   "ties": 562,
+   "spend": {
+    "usd": 0.8804721000000015,
+    "attempts": 1582,
+    "answered": 1579,
+    "noAnswer": 3,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 396,
+    "n": 1580,
+    "score": 0.25063291139240507,
+    "wilson95": [
+     0.2298860061810161,
+     0.2725894495462676
+    ],
+    "driftbenchMinusThis": 0.5759493670886076,
+    "driftbenchWins": 930,
+    "driftbenchLosses": 20,
+    "exactTwoSidedP": 2.587276762730939e-245,
+    "holmP": 6.209464230554253e-244
+   }
+  },
+  {
+   "contestant": "langwatch",
+   "items": 790,
+   "present": 790,
+   "transportMissing": 0,
+   "grader": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+   "mode": "native",
+   "graderErrors": 4,
+   "ties": 0,
+   "spend": {
+    "usd": 1.0240466999999982,
+    "attempts": 1583,
+    "answered": 1580,
+    "noAnswer": 3,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 1184,
+    "n": 1580,
+    "score": 0.7493670886075949,
+    "wilson95": [
+     0.7274105504537324,
+     0.7701139938189839
+    ],
+    "driftbenchMinusThis": 0.07721518987341772,
+    "driftbenchWins": 188,
+    "driftbenchLosses": 66,
+    "exactTwoSidedP": 9.453459070540533e-15,
+    "holmP": 1.796157223402701e-13
+   }
+  }
+ ]
+}

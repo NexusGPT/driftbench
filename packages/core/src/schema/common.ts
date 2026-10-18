@@ -46,7 +46,7 @@ export const Assertion = z
   .describe('How one value is asserted. A bare string, number, boolean or null means exact equality.');
 export type Assertion = z.infer<typeof Assertion>;
 
-/** The ten deviation classes a perturbed run can inject. */
+/** The twelve deviation classes a perturbed run can inject. */
 export const DeviationClass = z
   .enum([
     'D1_off_topic',
@@ -59,8 +59,10 @@ export const DeviationClass = z
     'D8_tool_failure',
     'D9_out_of_scope',
     'D10_return',
+    'D11_pii_leak',
+    'D12_prompt_extraction',
   ])
-  .describe('The ten deviation classes a perturbed run can inject.');
+  .describe('The twelve deviation classes a perturbed run can inject.');
 export type DeviationClass = z.infer<typeof DeviationClass>;
 
 /** The five drift classes a failing block can carry. */
@@ -116,7 +118,9 @@ export const RetrySettings = z
       .optional()
       .describe("Wait at least what the server's Retry-After header asks. Default true."),
   })
-  .describe('How model calls are retried. Only a 429, a 5xx (529 included) or a network error is retried.');
+  .describe(
+    'How model calls are retried. Only a 408, a 429, a 5xx (529 included) or a network error is retried.',
+  );
 export type RetrySettings = z.infer<typeof RetrySettings>;
 
 /** Which agent a spec runs against. The adapter decides what the other fields mean. */
@@ -163,6 +167,18 @@ export const Message = z
   .describe('One message of a conversation prefix.');
 export type Message = z.infer<typeof Message>;
 
+/**
+ * Where a prefix comes from. A history copied from a real run is a different test from one a person wrote,
+ * and from the canonical replay of a spec: the agent trusts a recorded call and re-checks a fact it only
+ * finds in prose. So the origin enters the Given hash, and results with different origins are never pooled.
+ */
+export const GivenOrigin = z
+  .enum(['authored', 'recorded', 'canonical'])
+  .describe(
+    'Where the prefix comes from: authored (written by a person), recorded (copied from a real run, its tool calls with their real results) or canonical (the replay of a spec as it is written).',
+  );
+export type GivenOrigin = z.infer<typeof GivenOrigin>;
+
 /** A forced result or error for one tool, from the block where it is set onwards. */
 export const ToolOverride = z
   .strictObject({
@@ -182,11 +198,30 @@ export const WorldState = z
     store: z.record(z.string(), z.unknown()).optional().describe('A seeded store.'),
     workspace: z
       .strictObject({
-        from: z.string().min(1).optional().describe('A folder the workspace starts from.'),
+        from: z
+          .string()
+          .min(1)
+          .optional()
+          .describe(
+            'A folder the workspace starts from. A path written ./<path> is read from the folder of the spec file; any other relative path from the folder the run starts in.',
+          ),
         files: z
           .record(z.string(), z.string())
           .optional()
           .describe('Files the workspace starts with: path to content.'),
+        binary: z
+          .record(z.string(), z.base64())
+          .optional()
+          .describe(
+            'Files the workspace starts with, byte for byte: path to base64 content. For files that are not text, such as the xlsx a parent block left. A path may not be in both files and binary.',
+          ),
+        summary: z
+          .string()
+          .min(1)
+          .optional()
+          .describe(
+            'What the workspace holds, in words, so a reader of the spec sees it. spec lint --summaries warns when a folder named by from has none.',
+          ),
       })
       .optional()
       .describe('The files the agent starts from.'),

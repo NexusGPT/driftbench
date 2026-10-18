@@ -10,7 +10,7 @@ import {
   type Spec,
   type Stimulus,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { type AcmeAgent, createAcmeAgent } from '../../src/agent';
 import { isForeign } from '../../src/parse';
 import { type AcmeStore, createStore } from '../../src/store';

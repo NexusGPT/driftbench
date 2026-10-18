@@ -22,7 +22,7 @@ import type { Atom, AtomKind, Edge, EstateMap, PlanRow, TestType } from '../sche
  *   register     register_sample, one per ask class
  *   hazard       hazard_recovery, the hazard crossed with a long task
  *   invariant    invariant
- *   setting      none: a setting is the run's configuration, carried in Given
+ *   setting      setting: a static test, the settings still hold the key (and its value when it is kept)
  */
 
 /** How each test type runs (design section 6): replay a recorded event, a unit run offline, or live. */
@@ -54,6 +54,7 @@ export const MODE_OF: Readonly<Record<TestType, PlanRow['mode']>> = {
   register_sample: 'live',
   hazard_recovery: 'live',
   invariant: 'unit',
+  setting: 'unit',
   journey: 'live',
 };
 
@@ -72,10 +73,11 @@ export const PRIMARY_TYPE: Readonly<Partial<Record<AtomKind, TestType>>> = {
   register: 'register_sample',
   hazard: 'hazard_recovery',
   invariant: 'invariant',
+  setting: 'setting',
 };
 
-/** Atom kinds with no mandatory test of their own. */
-export const NO_CONTRACT: ReadonlySet<AtomKind> = new Set(['setting']);
+/** Atom kinds with no mandatory test of their own: none since settings got their static row. */
+export const NO_CONTRACT: ReadonlySet<AtomKind> = new Set([]);
 
 /** The situation values a hazard atom is tested in: the hazard during a long task. */
 const HAZARD_CELL: Readonly<Record<string, Record<string, string>>> = {
@@ -278,7 +280,9 @@ function rowsOf(
     case 'invariant':
       return [row('invariant', { note: 'A static test of the estate files, no run.' })];
     case 'setting':
-      return [];
+      return [
+        row('setting', { note: 'A static test: the settings still hold the key, and its value when kept.' }),
+      ];
   }
 }
 

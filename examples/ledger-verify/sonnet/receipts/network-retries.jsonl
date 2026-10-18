@@ -1,0 +1,1 @@
+{"at": 1791915234.154885, "attempt": 1, "model": "claude-sonnet-5-5", "receipt": "a8568031-366b-40e2-bb74-ad891f2a8378", "reason": "Transport missing: claude ran past 300000 ms and was stopped", "answerResent": false}

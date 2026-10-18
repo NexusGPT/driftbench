@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-13T12:36:08.687629+00:00",
+  "authorization": "Host overload confirmed. Missing-only recovery for 35 no-answer calls, up to 3 submissions each after connectivity probe. Raise Flash Lite cap to 18 USD and keep all unknown holds. Item-aware replay approved.",
+  "noAnswerCalls": 35,
+  "maxTotalSubmissionsEach": 3,
+  "originalSubmissionsEach": 1,
+  "maxAdditionalSubmissionsEach": 2,
+  "priorCapUsd": 12,
+  "capUsd": 18,
+  "unknownHoldsPreservedUsd": 10.5,
+  "priorRuntimeSha256": "d7d6bff442386a4cd36a6a0fb75d7429dddba79bdab7c8e4fb029b877a05ad30",
+  "runtimeSha256": "884494a3f85e7e7c1bbc7e08b6d141f7d28951d639196e410cd47e1e6806a4b4",
+  "returnedAnswersNeverResent": true,
+  "concurrency": 8,
+  "model": "gemini-3.5-flash-lite",
+  "reasoning": "medium",
+  "timeoutMs": 300000,
+  "quotaWaitSeconds": [
+    20,
+    60,
+    180
+  ],
+  "coreSha": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd"
+}

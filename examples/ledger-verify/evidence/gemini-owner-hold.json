@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-13T12:08:20.045906+00:00",
+  "model": "gemini-3.8-flash",
+  "status": "parked: owner-only restart",
+  "automaticResume": false,
+  "retiredPids": [
+    77546,
+    63336
+  ],
+  "authorization": "Disarm the reset driver so it does not start Gemini on its own; resume Gemini only on my word.",
+  "supersedes": "automaticResumeNotBefore in gemini-daily-quota-amendment.json"
+}

@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/cli",
+  "name": "@agent-nexus/driftbench",
   "version": "0.1.0",
   "description": "The driftbench command line: validate and run specs, campaigns in teacher-forced, free-running and perturbed modes, reports, generation and validators.",
   "keywords": [
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/cli"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22.13"
@@ -38,27 +38,31 @@
     }
   },
   "files": [
-    "dist"
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
+    "dist",
+    "help"
   ],
   "scripts": {
     "build": "tsup src/index.ts src/bin.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
+    "@agent-nexus/driftbench-adapters": "workspace:*",
+    "@agent-nexus/driftbench-artifacts": "workspace:*",
+    "@agent-nexus/driftbench-checks": "workspace:*",
+    "@agent-nexus/driftbench-core": "workspace:*",
+    "@agent-nexus/driftbench-estate": "workspace:*",
+    "@agent-nexus/driftbench-generate": "workspace:*",
+    "@agent-nexus/driftbench-judges": "workspace:*",
+    "@agent-nexus/driftbench-report": "workspace:*",
+    "@agent-nexus/driftbench-sandbox": "workspace:*",
+    "@agent-nexus/driftbench-space": "workspace:*",
+    "@agent-nexus/driftbench-stats": "workspace:*",
+    "@agent-nexus/driftbench-store": "workspace:*",
+    "@agent-nexus/driftbench-users": "workspace:*",
+    "@agent-nexus/driftbench-validators": "workspace:*",
     "commander": "^15.0.0",
-    "@driftbench/users": "workspace:*",
-    "@driftbench/store": "workspace:*",
-    "@driftbench/adapters": "workspace:*",
-    "@driftbench/checks": "workspace:*",
-    "@driftbench/artifacts": "workspace:*",
-    "@driftbench/sandbox": "workspace:*",
-    "@driftbench/space": "workspace:*",
-    "@driftbench/generate": "workspace:*",
-    "@driftbench/estate": "workspace:*",
-    "@driftbench/judges": "workspace:*",
-    "@driftbench/stats": "workspace:*",
-    "@driftbench/validators": "workspace:*",
-    "@driftbench/report": "workspace:*"
+    "yaml": "^2.9.1"
   },
   "publishConfig": {
     "access": "public",

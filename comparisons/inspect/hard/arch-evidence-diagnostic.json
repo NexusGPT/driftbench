@@ -1,0 +1,42 @@
+[
+  {
+    "id": "qa-unit-4",
+    "request_sha256": "ffa06795386bacf5991d46af9f445f828a67f85023dcc6df411fe6806d46908c",
+    "originalOutcome": "inconclusive",
+    "withoutRenderedRolePrefix": "pass",
+    "expected": "pass",
+    "diagnosticOnly": true
+  },
+  {
+    "id": "qa-unit-5",
+    "request_sha256": "d9ed5a7fce07a18ee7cc6b56086958bf409adb98bf6991afecb9a61217523cbe",
+    "originalOutcome": "inconclusive",
+    "withoutRenderedRolePrefix": "fail",
+    "expected": "fail",
+    "diagnosticOnly": true
+  },
+  {
+    "id": "qa-unit-7",
+    "request_sha256": "c19c7cf788a4954bf3da7d553db1362052e96d0efff8892afd03dc2c46cad435",
+    "originalOutcome": "inconclusive",
+    "withoutRenderedRolePrefix": "fail",
+    "expected": "fail",
+    "diagnosticOnly": true
+  },
+  {
+    "id": "qa-unit-9",
+    "request_sha256": "20921308e11ef5c7ecd9c254ace53dd691431d0f96c0ef220b00a45f9d23d94d",
+    "originalOutcome": "inconclusive",
+    "withoutRenderedRolePrefix": "fail",
+    "expected": "fail",
+    "diagnosticOnly": true
+  },
+  {
+    "id": "qa-entity-1",
+    "request_sha256": "3a015aa00551ea495fabb0c1a86258f6199270181fee2f70294971ed607dae48",
+    "originalOutcome": "inconclusive",
+    "withoutRenderedRolePrefix": "fail",
+    "expected": "fail",
+    "diagnosticOnly": true
+  }
+]

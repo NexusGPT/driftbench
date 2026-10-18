@@ -1,0 +1,11 @@
+{
+  "source": "e13e7cb3",
+  "mapHash": "6d29ed7a7539",
+  "hashes": {
+    "pairwise": "795d0baae68ca8650c4ddfbe0662074ddc9c0386590986f9a0d4eab3fe16bb37",
+    "budget-20": "02e25a902d5129316f5f9fbbe66acddac7e286ee45afe4c413ba5abdb1a2a495",
+    "budget-50": "fe17b454dc1a5247fb2f0c38cad040a018dca4ea33ef5d4cc4be31a32e1edc2d",
+    "budget-100": "6df750f34f3025001c413675ea0f7c41cf0be4d1f33434720d19fba4194e3b7e",
+    "budget-200": "bc611a731b0ee0e13c1eddb39d82f595ebf5c3e2d7a7747677bdedd39c5d88a8"
+  }
+}

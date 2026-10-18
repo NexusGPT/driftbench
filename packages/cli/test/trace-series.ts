@@ -1,5 +1,5 @@
-import type { Trace } from '@driftbench/adapters';
-import { mulberry32 } from '@driftbench/stats';
+import type { Trace } from '@agent-nexus/driftbench-adapters';
+import { mulberry32 } from '@agent-nexus/driftbench-stats';
 
 /**
  * A synthetic production series, fictional: `windows` hourly windows from 2026-03-02T00:00Z, `perWindow`

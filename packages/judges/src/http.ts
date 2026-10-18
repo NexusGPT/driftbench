@@ -1,4 +1,10 @@
-import { parseRetryAfter, type RetryLayer, retryableStatus, retrying, retryPolicy } from '@driftbench/core';
+import {
+  parseRetryAfter,
+  type RetryLayer,
+  retryableStatus,
+  retrying,
+  retryPolicy,
+} from '@agent-nexus/driftbench-core';
 
 /** The fetch a client calls. Tests pass their own; the default is the global fetch. */
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
@@ -9,7 +15,7 @@ export type HttpOptions = {
   timeoutMs?: number;
   /**
    * The retry settings over the shared policy's defaults: four attempts, a 500 ms base doubled up to 30 s,
-   * full jitter, Retry-After honoured. Only a 429, a 5xx (529 included), a network failure or a timeout is
+   * full jitter, Retry-After honoured. Only a 408, a 429, a 5xx (529 included), a network failure or a timeout is
    * retried. Each retry goes to the current `collectRetries` scope: the council records it in the vote.
    */
   retry?: RetryLayer;
@@ -19,7 +25,13 @@ export type HttpOptions = {
   sleep?: (ms: number) => Promise<void>;
 };
 
-export type JudgeErrorCode = 'config' | 'http' | 'network' | 'bad_response' | 'cassette_miss';
+export type JudgeErrorCode =
+  | 'config'
+  | 'http'
+  | 'network'
+  | 'bad_response'
+  | 'cassette_miss'
+  | 'reasoning-budget-exhausted';
 
 /** A judge call that gave no answer. The message never holds a key or a header. */
 export class JudgeError extends Error {
@@ -154,7 +166,7 @@ function scrub(text: string, headers: Record<string, string>): string {
   let out = text;
   for (const value of Object.values(headers)) {
     for (const secret of [value, value.replace(/^Bearer\s+/i, '')]) {
-      if (secret.length >= 8) out = out.split(secret).join('[redacted]');
+      if (secret.length >= 1) out = out.split(secret).join('[redacted]');
     }
   }
   return out;

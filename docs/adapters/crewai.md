@@ -12,7 +12,7 @@ Python and `crewai` are yours to install; driftbench depends on neither.
 ## Options
 
 ```ts
-import { crewaiAdapter, crewaiHttp, crewaiProcess } from '@driftbench/adapters';
+import { crewaiAdapter, crewaiHttp, crewaiProcess } from '@agent-nexus/driftbench-adapters';
 
 const local = crewaiAdapter({
   transport: crewaiProcess({ crew: 'acme.crews:build_sales', python: '.venv/bin/python', cwd: '/srv/acme' }),
@@ -53,13 +53,13 @@ Each tool use as a tool call followed by its result (an output that is JSON text
 
 ## Capabilities
 
-`seedPrefix` yes (the history goes in the inputs); `toolStubs` no (the crew runs its own tools); `endState` with `sideEffects` through the process interface only; the rest no; `deterministic` as declared.
+`seedPrefix` yes (the history goes in the inputs; with the default inputs a Given prefix whose tool calls the spec states as a record, `origin: recorded` or `authored`, is refused, since the crew would read them as prose; a canonical prefix, as in mode T, runs); `toolStubs` no (the crew runs its own tools); `endState` with `sideEffects` through the process interface only; the rest no; `deterministic` as declared.
 
 ## Errors
 
 | What happens | Error |
 |---|---|
-| a 429 or a 5xx from AMP (Retry-After kept), or a bridge error with such a status or a connection error | `AdapterTransportError`: the runner retries under the [shared policy](../retries.md) |
+| a 408, a 429 or a 5xx from AMP (Retry-After kept), or a bridge error with such a status or a connection error | `AdapterTransportError`: the runner retries under the [shared policy](../retries.md) |
 | a crew run that does not finish within `timeoutMs` | `AdapterTransportError`, marked exhausted |
 | any other status, a run whose status is `error`, or a bridge exit without a result | `AgentFailure` |
 

@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from driftbench import CampaignResult, DriftbenchError, cli_command, run_specs
+from driftbench import CampaignResult, DriftbenchError, cli_command, run_specs, verdict_of
 
 from conftest import FIXTURES, REPO
 
@@ -40,6 +40,17 @@ def test_a_python_function_agent_runs_through_the_process_adapter():
     assert cell.failing == ("block 1 must.0",)
 
 
+def test_a_spec_not_run_gives_exit_3_and_a_not_run_campaign_never_a_pass():
+    result = run_specs([str(FIXTURES / "echo-not-run.yaml")], agent="echo_agent:echo_with_history", python_path=[str(FIXTURES)])
+    assert result.exit_code == 3
+    assert not result.passed
+    assert verdict_of(result) == "not_run"
+    [cell] = result.cells
+    assert cell.state == "not_run"
+    assert verdict_of(cell.blocks[0]) == "not_run"
+    assert cell.blocks[0].not_run["check"] == "capability"
+
+
 def test_a_callable_is_named_by_its_module_and_name():
     from echo_agent import echo_with_history  # noqa: PLC0415, the fixtures folder is on the path in conftest
 
@@ -67,3 +78,27 @@ def test_the_cli_command_comes_from_the_argument_the_environment_or_the_path(mon
     assert cli_command() == ["/opt/node", "/opt/bin.js"]
     monkeypatch.delenv("DRIFTBENCH_CLI")
     assert cli_command() == ["driftbench"]
+
+
+def test_stage_reported_requires_this_python_block_to_report_a_stage(tmp_path):
+    spec = {
+        "id": "current-python-stage",
+        "stages": ["echoed"],
+        "blocks": [
+            {"user": "first", "expect": {"stage": "echoed", "stage_reported": True}},
+            {"user": "second", "expect": {"stage": "echoed", "stage_reported": True}},
+        ],
+    }
+    path = tmp_path / "current-stage.yaml"
+    path.write_text(json.dumps(spec))
+    missing = run_specs([str(path)], agent="echo_agent:echo_first_stage", python_path=[str(FIXTURES)])
+    assert [block.passed for block in missing.cells[0].blocks] == [True, False]
+    assert [verdict.id for verdict in missing.cells[0].blocks[1].failing] == ["stage.reported"]
+
+    restored = run_specs([str(path)], agent="echo_agent:echo_with_history", python_path=[str(FIXTURES)])
+    assert restored.passed
+    for block in spec["blocks"]:
+        del block["expect"]["stage_reported"]
+    path.write_text(json.dumps(spec))
+    legacy = run_specs([str(path)], agent="echo_agent:echo_first_stage", python_path=[str(FIXTURES)])
+    assert legacy.passed

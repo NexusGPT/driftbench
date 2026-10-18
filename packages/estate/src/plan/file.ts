@@ -1,8 +1,8 @@
 import { readFile } from 'node:fs/promises';
-import { isPlainObject } from '@driftbench/core';
-import { formatJson } from '@driftbench/generate';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
+import { formatJson } from '@agent-nexus/driftbench-generate';
 import { Document, isMap, isSeq, parseDocument } from 'yaml';
-import type { z } from 'zod';
+import { describe, fromZod } from '../file-issues';
 import { Plan } from '../schema';
 import type { PlanDetails } from './build';
 
@@ -136,7 +136,7 @@ export function approvePlanRows(text: string, selection: PlanSelection): PlanApp
       if (!isMap(item)) continue;
       const id = String(item.get('id'));
       const status = item.get('status') ?? 'proposed';
-      const chosen = ids.includes(id) || (selection.all === true && status === 'proposed');
+      const chosen = ids.includes(id) || (selection.all === true && (status === 'proposed' || status === to));
       if (!chosen) continue;
       if (status === to) unchanged++;
       else {
@@ -150,17 +150,4 @@ export function approvePlanRows(text: string, selection: PlanSelection): PlanApp
 
 function issue(code: PlanIssueCode, path: string, message: string): PlanIssue {
   return { code, path, message };
-}
-
-function fromZod(zodIssue: z.core.$ZodIssue): PlanIssue {
-  let message = zodIssue.message;
-  if (zodIssue.code === 'unrecognized_keys')
-    message = `unknown key${zodIssue.keys.length > 1 ? 's' : ''}: ${zodIssue.keys.join(', ')}`;
-  else if (zodIssue.code === 'invalid_type') message = message.replace(/received undefined$/, 'missing');
-  return issue(`SCHEMA_${zodIssue.code.toUpperCase()}`, zodIssue.path.map(String).join('.'), message);
-}
-
-function describe(cause: unknown): string {
-  if (cause instanceof Error) return cause.message.split('\n').slice(0, 3).join(' ').trim();
-  return String(cause);
 }

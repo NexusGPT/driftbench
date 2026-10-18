@@ -7,9 +7,12 @@ export {
   type PendingEntry,
   pendingEntries,
 } from './approve';
+export { CHUNK_CHARS, CHUNK_THRESHOLD, chunkSources, chunkText } from './chunks';
+export { promptView, rawizeAnswer, rawQuote, viewSources } from './containers';
 export {
   type Answer,
   type AnswerParse,
+  LISTED_VALUES,
   MAX_MODEL_QUOTE,
   MIN_MODEL_QUOTE,
   type ProposalSoFar,
@@ -44,6 +47,7 @@ export {
   type LoadedProposal,
   loadProposal,
   MAX_QUOTE_LENGTH,
+  NumericSetting,
   ORIGINS,
   Origin,
   PROPOSAL_VERSION,
@@ -80,3 +84,4 @@ export {
   toSpaceMap,
 } from './space';
 export { type ToolsIssue, type ToolsPrepass, toolSlug, toolsPrepass } from './tools';
+export { proposalToVariables, verifyVariableQuotes } from './variables';

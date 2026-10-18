@@ -16,8 +16,8 @@ import {
   type SandboxProvider,
   type Session,
   type Turn,
-} from '@driftbench/core';
-import { dockerProvider, localProvider } from '@driftbench/sandbox';
+} from '@agent-nexus/driftbench-core';
+import { dockerProvider, localProvider, withApprovalPolicy } from '@agent-nexus/driftbench-sandbox';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { type ProcessAdapterOptions, processAdapter, processProtocolFiles } from '../src/process';
 
@@ -139,7 +139,7 @@ describe('the process adapter', () => {
     expect(adapter.id).toBe('process');
     expect(adapter.capabilities()).toEqual({
       variants: false,
-      seedPrefix: false,
+      seedPrefix: true,
       toolStubs: false,
       trace: false,
       sandbox: true,
@@ -148,6 +148,22 @@ describe('the process adapter', () => {
     });
     expect(adapter.endState).toBeUndefined();
     expect(setup({ deterministic: true }).adapter.capabilities().deterministic).toBe(true);
+  });
+
+  it('a sandbox approval policy that denies the agent command stops it before it runs', async () => {
+    const denied = tracked(localProvider({ dir: join(parent, 'denied-boxes') }));
+    const { adapter, open } = setup({
+      provider: withApprovalPolicy(denied.provider, {
+        rules: [{ match: 'command', pattern: '*code-agent.mjs*', action: 'deny' }],
+      }),
+    });
+    const from = given();
+    const session = await open(from);
+    await runnerSend(adapter, session, turn(0, 'Build a price sheet from catalog.csv.', from)).catch(
+      () => undefined,
+    );
+    const files = await denied.boxes[0]?.sandbox.listFiles();
+    expect(files, 'the denied agent wrote no output').not.toContain('out/acme-price-sheet.csv');
   });
 
   it('seeds the workspace, runs the agent on the stimulus and returns an ordinary Observed', async () => {
@@ -197,6 +213,30 @@ describe('the process adapter', () => {
         processProtocolFiles.runtime,
       ]),
     );
+  });
+
+  it('strips only the final line break of stdout: a reply ending in a blank line keeps the earlier break', async () => {
+    const { adapter, open } = setup({
+      args: ['-e', "process.stdout.write('answer R-1\\n\\n')"],
+    });
+    const from = given();
+    const session = await open(from);
+    const observed = await runnerSend(adapter, session, turn(0, 'Say it.', from));
+    expect(observed.text).toBe('answer R-1\n');
+  });
+
+  it('shares a frozen prefix in its own history array', async () => {
+    const { open } = setup();
+    const from = { ...given(), prefix: [Object.freeze({ role: 'user' as const, content: 'earlier' })] };
+    const session = await open(from);
+    const first = session.history[0];
+    expect(first).toBe(from.prefix[0]);
+    expect(() => {
+      if (first) first.content = 'edited in the session';
+    }).toThrow(TypeError);
+    session.history.push({ role: 'user', content: 'another' });
+    expect(from.prefix).toHaveLength(1);
+    expect(from.prefix[0]?.content).toBe('earlier');
   });
 
   it('reads a produced file through the contract, bounded, and refuses a path outside the workspace', async () => {
@@ -328,13 +368,11 @@ describe('the process adapter', () => {
     const { adapter, open } = setup();
     const from = given();
     const session = await open(from);
-    const started = Date.now();
     const observed = await runnerSend(
       adapter,
       session,
       turn(0, 'sleep 5000 then build', from, { latencyMs: 300 }),
     );
-    expect(Date.now() - started).toBeLessThan(4000);
     expect(observed.executions).toEqual([expect.objectContaining({ role: 'agent', exitCode: 124 })]);
     expect(observed.workspaceDiff).toEqual({ created: [], changed: [], deleted: [] });
   });

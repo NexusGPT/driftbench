@@ -2,14 +2,14 @@
 
 Status: shipped, release phase. It passes the [contract suite](index.md#the-contract-suite) in chat mode, on a fake `generateText` with a model that plays the Acme example agent, and on the real `generateText` of the `ai` package (7.0.137) with its `MockLanguageModelV4` playing the same agent. It has not run against a live model yet.
 
-The vercel-ai adapter runs an agent built with the [Vercel AI SDK](https://ai-sdk.dev/): a model, a system prompt and tools, run by `generateText`. You hand it the SDK's `generateText` and your model; `ai` is an optional peer dependency of `@driftbench/adapters`; driftbench does not depend on it.
+The vercel-ai adapter runs an agent built with the [Vercel AI SDK](https://ai-sdk.dev/): a model, a system prompt and tools, run by `generateText`. You hand it the SDK's `generateText` and your model; `ai` is an optional peer dependency of `@agent-nexus/driftbench-adapters`; driftbench does not depend on it.
 
 ## Options
 
 ```ts
 import { generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
-import { vercelAiAdapter } from '@driftbench/adapters';
+import { vercelAiAdapter } from '@agent-nexus/driftbench-adapters';
 import { salesPrompt, salesTools } from './agent'; // your prompt, and a function that returns the tools
 
 const adapter = vercelAiAdapter({
@@ -54,7 +54,7 @@ The `steps` of the result, in order: `text` parts become text, `tool-call` parts
 
 | Error | Becomes |
 |---|---|
-| a 429 or a 5xx (`statusCode`), or a network error, after the policy's attempts | `AdapterTransportError`, marked exhausted |
+| a 408, a 429 or a 5xx (`statusCode`), or a network error, after the policy's attempts | `AdapterTransportError`, marked exhausted |
 | any other error `generateText` throws | `AgentFailure` |
 
 ## Target

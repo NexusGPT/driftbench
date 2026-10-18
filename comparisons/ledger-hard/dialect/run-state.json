@@ -1,0 +1,9 @@
+{
+  "stamp": "2026-10-13T11:20:33.983721+00:00",
+  "complete": false,
+  "completed_calls": 9578,
+  "selected_unique": 9840,
+  "measured_usd": 7.15869961,
+  "stop_reason": "Gemini daily quota pending",
+  "authoritative_verification": "comparisons/ledger-hard/verification-final.json"
+}

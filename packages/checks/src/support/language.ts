@@ -1,4 +1,26 @@
-import { francAll } from 'franc-min';
+import { createRequire } from 'node:module';
+
+type Franc = typeof import('franc-min');
+
+/**
+ * franc-min builds its trigram tables of 82 languages when it loads, so it loads on the first detection, not
+ * with the package: the lang check awaits loadDetector before it detects, and a direct call to detect loads it
+ * synchronously (require of an ES module, Node 22.12 and later).
+ */
+let franc: Franc['francAll'] | undefined;
+
+export async function loadDetector(): Promise<void> {
+  franc ??= (await import('franc-min')).francAll;
+}
+
+export function detectorLoaded(): boolean {
+  return franc !== undefined;
+}
+
+function francAll(text: string): ReturnType<Franc['francAll']> {
+  franc ??= (createRequire(import.meta.url)('franc-min') as Franc).francAll;
+  return franc(text);
+}
 
 /**
  * Language detection for the lang check, on franc-min (trigram profiles of 82 languages).
@@ -29,7 +51,25 @@ export type Detection = {
   letters: number;
 };
 
+/**
+ * Detections already made, by text and letter floor: the detector is pure, and a run reads the same replies
+ * again (every block of the keep mode looks back at the earlier ones; repeats and wordings say the same
+ * thing). Bounded; the oldest entry goes first. A cached detection is shared, so callers only read it.
+ */
+const CACHE_LIMIT = 4096;
+const cache = new Map<string, Detection>();
+
 export function detect(text: string, options: DetectOptions = DETECT_DEFAULTS): Detection {
+  const key = `${options.minLetters}\u0000${text}`;
+  const held = cache.get(key);
+  if (held !== undefined) return held;
+  const detection = detectUncached(text, options);
+  if (cache.size >= CACHE_LIMIT) cache.delete(cache.keys().next().value as string);
+  cache.set(key, detection);
+  return detection;
+}
+
+function detectUncached(text: string, options: DetectOptions): Detection {
   const plain = stripNoise(text);
   const readings: Reading[] = [];
   let letters = 0;
@@ -48,6 +88,74 @@ export function detect(text: string, options: DetectOptions = DETECT_DEFAULTS): 
     });
   }
   return { readings, letters };
+}
+
+/**
+ * Function words of English. Franc-min misreads short English replies, because its trigram models were fitted on
+ * longer text (a reply of a dozen words can score Hmong above English). A text whose words are at least a quarter
+ * function words of the language, three or more of them, is consistent with that language: a count of its own
+ * words, not an assumption. A French or Dutch reply holds none of these words, so it is still flagged.
+ */
+const FUNCTION_WORDS: Record<string, ReadonlySet<string>> = {
+  eng: new Set([
+    'i',
+    'you',
+    'the',
+    'a',
+    'an',
+    'and',
+    'or',
+    'of',
+    'to',
+    'in',
+    'on',
+    'for',
+    'with',
+    'is',
+    'are',
+    'was',
+    'be',
+    'it',
+    'that',
+    'this',
+    'not',
+    'do',
+    'did',
+    'would',
+    'could',
+    'can',
+    'your',
+    'my',
+    'we',
+    'what',
+    'which',
+    'at',
+    'from',
+    'by',
+    'if',
+    'so',
+    'there',
+    'here',
+    'me',
+    'us',
+    'them',
+    'will',
+    'have',
+    'has',
+  ]),
+};
+
+/** True when the text's words are function words of `code`: three or more, and a quarter of its words or more. */
+export function functionWordVote(text: string, code: string): boolean {
+  const words = countableWords(text);
+  const list = FUNCTION_WORDS[code];
+  if (list === undefined || words.length === 0) return false;
+  const hits = words.filter((word) => list.has(word)).length;
+  return hits >= 3 && hits / words.length >= 0.25;
+}
+
+function countableWords(text: string): string[] {
+  return (text.toLowerCase().match(/\p{L}+/gu) ?? []).filter((word) => word.length > 0);
 }
 
 /** True when a reading puts `code` within the margin of its top score. */

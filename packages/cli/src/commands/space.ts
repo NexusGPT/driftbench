@@ -6,7 +6,8 @@ import {
   type LoadResult,
   loadInventory,
   loadSpecs,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
+import { textTable as table } from '@agent-nexus/driftbench-report';
 import {
   COMPLETENESS_ASSUMPTION,
   type Completeness,
@@ -22,9 +23,10 @@ import {
   type SpaceMap,
   type SpaceMapIssue,
   validateSpaceMap,
-} from '@driftbench/space';
+} from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 
 /** `driftbench space declare|coverage|complete`: the declared map of situations, and the coverage counted on it. */
 export function registerSpaceCommands(program: Command, io: Io, setExit: (code: number) => void): void {
@@ -210,7 +212,7 @@ async function readInputs(
   const k = map.dimensions.length;
   let t: number | undefined;
   if (options.t !== undefined) {
-    t = /^\d+$/.test(options.t) ? Number(options.t) : Number.NaN;
+    t = /^\d+$/.test(options.t) ? optionNumber(options.t) : Number.NaN;
     if (!(t >= 1 && t <= k)) {
       io.err(
         `Unknown t "${options.t}". The map has ${k} dimensions, so t is a whole number from 1 to ${k}.\n`,
@@ -412,19 +414,6 @@ function round(value: number): string {
 
 function plural(count: number, noun: string): string {
   return `${count} ${noun}${count === 1 ? '' : 's'}`;
-}
-
-/** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
-function table(rows: string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
 }
 
 function line(issue: InventoryIssue | SpaceMapIssue): string {

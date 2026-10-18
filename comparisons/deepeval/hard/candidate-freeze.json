@@ -1,0 +1,22 @@
+{
+  "label": "not yet the shipped default",
+  "selected_on": "finalized on clarified hard v3, using hard v1/v2/v3 only",
+  "timestamp": "2026-10-13T03:06:37.779046+02:00",
+  "sha256": {
+    "audit.py": "963111d4daa9ba667627e8caa7cfb0a8d2f265865abc0b32bb7a750e367a6839",
+    "sets.json": "35574e925782e856064b7864003435d032b38ccec17a9382e5cdbfd239072f0e",
+    "sets-heldout.json": "b998674084bd433dc9c042e73a9890d1d1fbb28016ebdba68f268730cf8b8986",
+    "audit-v3.json": "ea8fd484087214f164fdea8d7a0c173e9bb304f20d6ca2b337768d1c57630203",
+    "sets-receipts.json": "2684efe5c003a9b8d1f35dc647cb80b27e9727194a6ea2c1b358cce5be86e033",
+    "sets-receipts-heldout.json": "c8cf5dedd5d709be8a557649c751ee3c1a8ffdd4d0756b1d2b8f35fba08a4b75",
+    "run.py": "43031a2ab677065c3254739a9cbc2a2c3fb9348a74e1921eb9a1f2abfbaeb8cc",
+    "recordings.py": "38c4fc9bec21daf49a12cad2fd8834f88bd2289d3a82088667ed0733d839ee12",
+    "render.mts": "fd4ccb281334d35256c9be8983bff7571ce16c9057629166e87ba50aec18acc2",
+    "baseline-prompts.json": "c2d285ab2fad525d5fb1e84e95366d4e4e1e0b5277be46c944f04987c7f0ad13",
+    "baseline-prompts-heldout.json": "d313c06593110dec8173d9c60488a816df04a5d9d775831d7c2be97e197acd54",
+    "baseline-prompts-receipts.json": "69c7be029cd60d4e94afc1b70dc4cb0a80fa0b1925714e9252b14fb1cedac52a",
+    "baseline-prompts-receipts-heldout.json": "74afd79fc593f8ccf295cfa396e3fa4d57fde763dc82dee966a689d0debd6b5e",
+    "provenance.json": "941a55fe9687fb7f0a3045a05af44020ecfa430393b0f7df0cc0e2fb6509da34",
+    "corpus-history.json": "f85ee5f95e8ac360e43a61add691a5219099abf6f7f6518b630faf3cbdcd8a90"
+  }
+}

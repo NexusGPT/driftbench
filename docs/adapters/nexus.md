@@ -4,11 +4,21 @@ Status: shipped, phase 1. It passes the [contract suite](index.md#the-contract-s
 
 The nexus adapter reaches an agent on the Nexus platform through its public API. It is one adapter among others; the core never imports it.
 
+From the command line, a spec whose target is `nexus:<agent id>` with `target.deployment` reaches this adapter with no code, when `NEXUS_API_KEY` is set: see [targets from settings](../running.md#targets-from-settings).
+
+## CLI target credential handling
+
+::: warning Successful replies and sensitive stores
+A successful reply is stored as the agent sent it, except for the redactions described here. The CLI scans for literal keys, percent, base64, base64url and hex encodings, and all 16 ordered two-level compositions of those encodings, including `base64(percent(key))`. It also scans the encoded `Bearer <key>` forms. A key echoed in another form can remain in results. Keys split across fields are not detected; deeper or unlisted encodings are outside this protection. Use a test-scoped key and treat the results store and cache as sensitive.
+:::
+
+**CLI error-path guarantee:** with `target.options.debug_error_body` absent or false, upstream error bodies, headers and thrown transport details never enter output or storage. Diagnostics contain only fixed messages, status, request host and body length when known. `debug_error_body: true` is an explicitly unsafe opt-in to error-body disclosure. This guarantee belongs to the CLI target wrapper; directly constructing the library adapter does not install that wrapper.
+
 ## Settings
 
 | Setting | Meaning |
 |---|---|
-| `NEXUS_API_KEY` | the API key, read from the environment. It travels only in the `api-key` header and never reaches a message, a log or an Observed. Without it, `open` fails before any request. |
+| `NEXUS_API_KEY` | the API key, read from the environment. Requests send it in the `api-key` header. An endpoint can echo it; the CLI protection and its limits are described above. Without it, `open` fails before any request. |
 | `NEXUS_BASE_URL` | the server, read from the environment. Default `https://api.nexusgpt.io`. Every path sits under `/api/public/v1`. |
 | `target.agent` | the agent id. Required. |
 | `target.deployment` | a deployment id of that agent. Required. |
@@ -16,7 +26,7 @@ The nexus adapter reaches an agent on the Nexus platform through its public API.
 | `target.options.stubs` | a mapping from tool label to the id of the workflow that records that tool's payloads |
 
 ```ts
-import { nexusAdapter } from '@driftbench/adapters';
+import { nexusAdapter } from '@agent-nexus/driftbench-adapters';
 
 const adapter = nexusAdapter({ keepConversations: false });
 ```
@@ -35,7 +45,7 @@ The agent's tools run live when it generates. Point every tool with a side effec
 
 ## How a session runs
 
-* `open` creates a golden conversation for `target.agent` on `target.deployment`, under the variant: `POST /prompt-eval/golden-conversations`. The session id is the conversation id. The history starts as a copy of the prefix, the runner's record; the platform conversation holds no turn of it.
+* `open` creates a golden conversation for `target.agent` on `target.deployment`, under the variant: `POST /prompt-eval/golden-conversations`. The session id is the conversation id. The history starts as a fresh array of the shared frozen prefix messages, the runner's record; the platform conversation holds no turn of it.
 * `send` posts each user message of the block (`POST .../turns/user`), generates the agent's turn (`POST .../generate`), and accepts it (`POST .../accept`) so the next block builds on it. It returns the generate view: the turn's tool calls with their outputs, then its final text. A send the runner retries for the same block resumes where it stopped: a user turn already posted is not posted again, and a generated turn is accepted without a second generate.
 * `trace` reads the same turn whole from the platform's tracing, through the emulator session the generate opened. Each generation of the turn adds its reply text, then each tool call it asked for, followed by the call's result. The generation's cost, tokens and duration sit on its first segment. The block's cost is their sum, and its latency the span from the first start to the last end. The adapter waits while a trace is in progress or a generation is pending or running, polling every `pollIntervalMs`, and fails with `AdapterTransportError` after `traceWaitMs`.
 * `close` deletes the golden conversation, unless `keepConversations` is set. A conversation already gone counts as deleted. The emulator sessions a generate opens are left to the platform.
@@ -55,13 +65,13 @@ A call of `send_message` or `display_html` adds a `card` segment of that name af
 
 | What happens | Error |
 |---|---|
-| no connection, a timeout, status 429 or any 5xx, a trace still incomplete after `traceWaitMs` | `AdapterTransportError` with the status and the `Retry-After` wait: the runner retries under the [shared policy](../retries.md) |
+| no connection, a timeout, status 408, 429 or any 5xx, a trace still incomplete after `traceWaitMs` | `AdapterTransportError` with the status and the `Retry-After` wait: the runner retries under the [shared policy](../retries.md) |
 | any other failing status | `AgentFailure`, with the platform's `error.code: error.message` |
 | an answer that lacks a field the adapter reads | `AgentFailure` that names the field |
 
 ## Capabilities
 
-`variants`, `trace` and `endState` are on. `seedPrefix` is off: the public API cannot store an agent turn without generating it, and generating runs the tools live, so the agent never sees a spec's prefix. `toolStubs` is off: the platform cannot force a tool result, so `world.tools` does not reach the agent. `deterministic` and `sandbox` are off.
+`variants`, `trace` and `endState` are on. `seedPrefix` is off: the public API cannot store an agent turn without generating it, and generating runs the tools live, so the agent could never see a spec's prefix: a block with one is `not_run`. `toolStubs` is off: the platform cannot force a tool result, so a block with a forced result in `world.tools` is `not_run` too. `deterministic` and `sandbox` are off.
 
 The version is `0.1.0+` and a hash of the base URL.
 
@@ -97,7 +107,7 @@ Two sessions that send the identical payload to one stub at the same time cannot
 
 ## Judge
 
-The Nexus platform also offers a system 1 judge, Jev. Its client is `createJevJudge` in `@driftbench/judges`: id `jev`, class system 1. It asks one yes or no question per criterion and reads the probability of yes: 0.6 or more is a pass, 0.4 or less a fail, anything between inconclusive. It reads `JEV_URL`, `JEV_API_KEY` (sent as a bearer token) and `JEV_MODEL` (default `jev-latest`) from the environment. Its request and answer shapes follow the provider's published format and have not been confirmed by a live call. See [judges](../concepts/judges.md).
+The Nexus platform also offers a system 1 judge, Jev. Its client is `createJevJudge` in `@agent-nexus/driftbench-judges`: id `jev`, class system 1. It asks one yes or no question per criterion and reads the probability of yes: 0.6 or more is a pass, 0.4 or less a fail, anything between inconclusive. It reads `JEV_URL`, `JEV_API_KEY` (sent as a bearer token) and `JEV_MODEL` (default `jev-latest`) from the environment. Its request and answer shapes follow the provider's published format and have not been confirmed by a live call. See [judges](../concepts/judges.md).
 
 ## Target
 

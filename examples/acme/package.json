@@ -1,0 +1,27 @@
+{
+  "name": "@agent-nexus/driftbench-example-acme",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Acme Telecom example agents, as the package the driftbench CLI loads when it is installed beside it.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "main": "./dist/package.js",
+  "types": "./src/package.ts",
+  "exports": {
+    ".": {
+      "types": "./src/package.ts",
+      "import": "./dist/package.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup src/package.ts --format esm --clean --target node22"
+  },
+  "dependencies": {
+    "@agent-nexus/driftbench-core": "workspace:*",
+    "@agent-nexus/driftbench-generate": "workspace:*"
+  }
+}

@@ -1,4 +1,4 @@
-import { gridSize, type SpaceMap } from '@driftbench/space';
+import { gridSize, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { pairwiseCells, toEstateSpaceMap } from '../../src/index';
 import { approvedFixture } from './support';

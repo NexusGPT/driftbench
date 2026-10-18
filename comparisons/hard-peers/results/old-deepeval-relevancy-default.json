@@ -1,0 +1,946 @@
+{
+  "competitor": "deepeval",
+  "row": "relevancy",
+  "contestant": "default",
+  "model": "haiku",
+  "items": 72,
+  "complete": 72,
+  "results": [
+    {
+      "id": "relevancy-explicit-unknown-1-a",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1f4c3e227633ca14490ba3a2702b74b674b3c6fa42ed0f7d67ba605f8c8ef343"
+      ],
+      "costUsd": 0.0002966
+    },
+    {
+      "id": "relevancy-fluent-partial-2-a",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ba7c880b7a0ea6e90110f2cb2192bef731883c030be20ddce8cf84314eae2376"
+      ],
+      "costUsd": 0.00030250000000000003
+    },
+    {
+      "id": "relevancy-quote-answer-0-a",
+      "kind": "quote-answer",
+      "pair": "quote-answer-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "85c763ba19e2eb2d8f706c42f6f9a1e6c288d99acf37f1200ffee3c45065bdc4"
+      ],
+      "costUsd": 0.0003275
+    },
+    {
+      "id": "relevancy-negation-2-a",
+      "kind": "negation",
+      "pair": "negation-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "413788e97849083e563ebf85596923af059a9880a84fd861d90b71734e4f5a8a"
+      ],
+      "costUsd": 0.000313
+    },
+    {
+      "id": "relevancy-explicit-unknown-2-a",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0f20b111171e29425be8ed1d9c0621411066e6f1248c01c3ae1baee1c75bafb2"
+      ],
+      "costUsd": 0.0003021
+    },
+    {
+      "id": "relevancy-two-parts-2-a",
+      "kind": "two-parts",
+      "pair": "two-parts-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4915e60742e86af5fb1be32a6833a4197bee0dd96ee26056a94af077e092c0a9"
+      ],
+      "costUsd": 0.0002913
+    },
+    {
+      "id": "relevancy-negation-0-b",
+      "kind": "negation",
+      "pair": "negation-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e022b9e6171e6d5c5d9e307832fe48be1a34d596685cae6de254cb9a016dba76"
+      ],
+      "costUsd": 0.0003368
+    },
+    {
+      "id": "relevancy-paraphrase-2-a",
+      "kind": "paraphrase",
+      "pair": "paraphrase-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "63763367ec1b594e521be04cdebc66e7a679e64fc7f8d2753d5f706c894ce7ca"
+      ],
+      "costUsd": 0.0003185
+    },
+    {
+      "id": "relevancy-quote-answer-2-b",
+      "kind": "quote-answer",
+      "pair": "quote-answer-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "bce3d3190e0a3d9bd8b5fdd459bc21ad2d551c5d8441b245816a1d31274854ba"
+      ],
+      "costUsd": 0.00033180000000000004
+    },
+    {
+      "id": "relevancy-long-distractors-1-a",
+      "kind": "long-distractors",
+      "pair": "long-distractors-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5372055d850e0b29e727ffcdae7c13acc6d2e5203b5ac540d1b9ca57c56e0678"
+      ],
+      "costUsd": 0.0003439
+    },
+    {
+      "id": "relevancy-followup-2-b",
+      "kind": "followup",
+      "pair": "followup-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d8ae8ad8717c15150b3e799ba70c101526077e58b69f8b43ffd23022dba180f0"
+      ],
+      "costUsd": 0.0002963
+    },
+    {
+      "id": "relevancy-quote-answer-0-b",
+      "kind": "quote-answer",
+      "pair": "quote-answer-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8d2beb0b08604e28f9197dd10372a507f0573ca8fbe7a01a0aea6b2e0c4a5c44"
+      ],
+      "costUsd": 0.0002988
+    },
+    {
+      "id": "relevancy-entity-swap-1-a",
+      "kind": "entity-swap",
+      "pair": "entity-swap-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d5a4045f38a27e2e31e7a5fe35ea62060dc288509d090c6d817e3387ae2e0329"
+      ],
+      "costUsd": 0.0003124
+    },
+    {
+      "id": "relevancy-paraphrase-1-a",
+      "kind": "paraphrase",
+      "pair": "paraphrase-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e4d10c398850f22b8588bfce100489b1cc0ec3328f27bcd92785c67f5bb19e56"
+      ],
+      "costUsd": 0.000313
+    },
+    {
+      "id": "relevancy-followup-1-a",
+      "kind": "followup",
+      "pair": "followup-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "cfa50be5716a2e52100cc8ffc8bba1a4444212cedc073f0d9b9bd674da05136a"
+      ],
+      "costUsd": 0.00030520000000000005
+    },
+    {
+      "id": "relevancy-two-parts-2-b",
+      "kind": "two-parts",
+      "pair": "two-parts-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "65b5446cfcf83acb0eb75f048f961f20050b5853ce120f13017e9b04c98218d5"
+      ],
+      "costUsd": 0.0003419
+    },
+    {
+      "id": "relevancy-negation-1-a",
+      "kind": "negation",
+      "pair": "negation-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f451a1b3ded83a96484abd075e937dc299f814678cb9dc25a3c93f9ab789cd8d"
+      ],
+      "costUsd": 0.00036899999999999997
+    },
+    {
+      "id": "relevancy-mixed-language-2-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "cc69798d6b7b488ccb4bf70cbc9303a2e2d8b71a3dca51126835229b9e6b3ef8"
+      ],
+      "costUsd": 0.0003432
+    },
+    {
+      "id": "relevancy-explicit-unknown-2-b",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6675575c5d1e23b4b2e25125d03891c3904146f55f5c4a34d9ca64e5f41c3922"
+      ],
+      "costUsd": 0.000322
+    },
+    {
+      "id": "relevancy-followup-0-b",
+      "kind": "followup",
+      "pair": "followup-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ea6739c6ec9f486afc77b1dd4685a941629c4df3a46ac9243bfc6c15babea4ed"
+      ],
+      "costUsd": 0.00029580000000000003
+    },
+    {
+      "id": "relevancy-long-distractors-1-b",
+      "kind": "long-distractors",
+      "pair": "long-distractors-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9503d23230bec2ce6ba9d2ea53effbdfd4d2e86d0077706c1a5a7f3432af0327"
+      ],
+      "costUsd": 0.0004082
+    },
+    {
+      "id": "relevancy-correction-1-b",
+      "kind": "correction",
+      "pair": "correction-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9bb63fb0a99bcfa7e82079dbb7bc13e11f93ff8ed52c4f0d6c7786c17813105a"
+      ],
+      "costUsd": 0.0003261
+    },
+    {
+      "id": "relevancy-long-distractors-0-b",
+      "kind": "long-distractors",
+      "pair": "long-distractors-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e9d7c03cfc099125bc72c7f3a843a2e4bf48b460fa5f80579ed8982c18d49fb7"
+      ],
+      "costUsd": 0.0003897
+    },
+    {
+      "id": "relevancy-entity-swap-1-b",
+      "kind": "entity-swap",
+      "pair": "entity-swap-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "05b2290e34ae79580c656886f5790fa3922c2ccd1d2c7df99e1b6aedb35cc5f3"
+      ],
+      "costUsd": 0.0003619
+    },
+    {
+      "id": "relevancy-long-distractors-0-a",
+      "kind": "long-distractors",
+      "pair": "long-distractors-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "11512cbd90fb0770f867ff9930c67db575087046e74e99eb9277984665112108"
+      ],
+      "costUsd": 0.0003504
+    },
+    {
+      "id": "relevancy-negation-1-b",
+      "kind": "negation",
+      "pair": "negation-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e1b8249c87567a1e989b740f966662c5859113026e4e095e8afdf8ea8a0fa1ab"
+      ],
+      "costUsd": 0.00034480000000000003
+    },
+    {
+      "id": "relevancy-promise-2-b",
+      "kind": "promise",
+      "pair": "promise-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "20bd1999a2939681b52c50f2526b5aa80f78db4a440b80e96b35a334f447c06c"
+      ],
+      "costUsd": 0.00032
+    },
+    {
+      "id": "relevancy-correction-2-a",
+      "kind": "correction",
+      "pair": "correction-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f1865ce789f8695ad87727460c766d5e382fe7ca92c57aa656d2a01b2ee9d896"
+      ],
+      "costUsd": 0.0003096
+    },
+    {
+      "id": "relevancy-promise-0-a",
+      "kind": "promise",
+      "pair": "promise-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ee0227b9495ad9bf3f813c8f819fe80b735d46dad6268542d67f851219653519"
+      ],
+      "costUsd": 0.00029430000000000005
+    },
+    {
+      "id": "relevancy-mixed-language-1-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "95017de6d12609000f0da1e87c5de3b7a0a1dcd12910f0c7782bd4b2452f77d6"
+      ],
+      "costUsd": 0.0003387
+    },
+    {
+      "id": "relevancy-fluent-partial-2-b",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "06d0ec2a72d891d2e81aa99c90e65dd69dbeec7f0989f41dc3165713cb0cdaaa"
+      ],
+      "costUsd": 0.0003353
+    },
+    {
+      "id": "relevancy-correction-0-a",
+      "kind": "correction",
+      "pair": "correction-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "53f987c0a7895b0e2fb0f8d5e6608609fb6eab59e6bb17d55240833cc3e1bbad"
+      ],
+      "costUsd": 0.0003081
+    },
+    {
+      "id": "relevancy-entity-swap-2-a",
+      "kind": "entity-swap",
+      "pair": "entity-swap-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e57e18da8ddf72dcd84ebb5ef66d48ab2a5abcd7d27d527bd7f017ff8cfb0f16"
+      ],
+      "costUsd": 0.00031289999999999996
+    },
+    {
+      "id": "relevancy-paraphrase-2-b",
+      "kind": "paraphrase",
+      "pair": "paraphrase-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e5bd14750088eca1f5e69f3c50e2d2af8222720a3d25312d243d29ac32c3e7fe"
+      ],
+      "costUsd": 0.0003309
+    },
+    {
+      "id": "relevancy-paraphrase-0-a",
+      "kind": "paraphrase",
+      "pair": "paraphrase-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "074f2038a4a459cc7cc7dc9af72d0298a2f5560ceee736f7976216eb1f69193c"
+      ],
+      "costUsd": 0.000313
+    },
+    {
+      "id": "relevancy-correction-0-b",
+      "kind": "correction",
+      "pair": "correction-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "62cede739a691173b8e9e3f6234a0be2f73270286013411aad5dfee095be2469"
+      ],
+      "costUsd": 0.0003476
+    },
+    {
+      "id": "relevancy-negation-0-a",
+      "kind": "negation",
+      "pair": "negation-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a7a97c84c6e81d3e0010d1772d87c8b2e1d9e0aa6d555bb88034621a195e9870"
+      ],
+      "costUsd": 0.0003035
+    },
+    {
+      "id": "relevancy-quote-answer-1-a",
+      "kind": "quote-answer",
+      "pair": "quote-answer-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bf2d8a891f8272e6660d48aa0f87df5a6b6e5222cac7346d768bc0528484e96e"
+      ],
+      "costUsd": 0.00031749999999999997
+    },
+    {
+      "id": "relevancy-fluent-partial-1-b",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2def0e086b93e2b28b91fcc932d66b7c9f6e6136394e41e2ba8f96badba898de"
+      ],
+      "costUsd": 0.00034280000000000004
+    },
+    {
+      "id": "relevancy-long-distractors-2-a",
+      "kind": "long-distractors",
+      "pair": "long-distractors-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ed5ec6169ca30a5dcd3266707a9f6d36fc856be48ef613d815a1d168a06ba017"
+      ],
+      "costUsd": 0.00034490000000000004
+    },
+    {
+      "id": "relevancy-followup-1-b",
+      "kind": "followup",
+      "pair": "followup-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5f1bdb6cf501c1a48a09fb7a2d23465fade92f7a782773d05529497b7c530375"
+      ],
+      "costUsd": 0.0003183
+    },
+    {
+      "id": "relevancy-negation-2-b",
+      "kind": "negation",
+      "pair": "negation-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2c70884acf98b043868fa03a34db2b65c81eceadc219a19ea17161ba47de1f18"
+      ],
+      "costUsd": 0.0003463
+    },
+    {
+      "id": "relevancy-two-parts-0-b",
+      "kind": "two-parts",
+      "pair": "two-parts-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d7d5c6ba28454659aa65b6b363eea8193e8d53caa32ae9ec7ccaa4485bf90233"
+      ],
+      "costUsd": 0.00032940000000000004
+    },
+    {
+      "id": "relevancy-fluent-partial-0-b",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "41dd596b4cb19d7a60a8a964a93fb487756f3fa578c4c73675a94fe731a0cf2e"
+      ],
+      "costUsd": 0.00032230000000000003
+    },
+    {
+      "id": "relevancy-two-parts-1-b",
+      "kind": "two-parts",
+      "pair": "two-parts-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a989e5c21e089570dda46dd810d06f7c3fe2882058ff5045700de173af38fccc"
+      ],
+      "costUsd": 0.00032090000000000005
+    },
+    {
+      "id": "relevancy-promise-0-b",
+      "kind": "promise",
+      "pair": "promise-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "58043898157b7b012e42c1eba9671ed4eff9c367760a6ade40625817a7345adb"
+      ],
+      "costUsd": 0.0003495
+    },
+    {
+      "id": "relevancy-mixed-language-2-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "17bc34e9569b0154130245c7d7563088a50df3d57f255c385f947d3760dedaf7"
+      ],
+      "costUsd": 0.0003746
+    },
+    {
+      "id": "relevancy-promise-2-a",
+      "kind": "promise",
+      "pair": "promise-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bb494ca01fb00501363c4118d117fca4ecf0a8813fdb4b7886df301908757b4d"
+      ],
+      "costUsd": 0.00029330000000000003
+    },
+    {
+      "id": "relevancy-entity-swap-0-a",
+      "kind": "entity-swap",
+      "pair": "entity-swap-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2681bd977ce47aa98b5bb1363e511c36b4d0307175395e2e1ec75bc6fa1486b2"
+      ],
+      "costUsd": 0.0004189
+    },
+    {
+      "id": "relevancy-explicit-unknown-0-a",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c0fdcef0356bccd72a3f621c87656f291ea2d647a76c1543afbec796159ad2f0"
+      ],
+      "costUsd": 0.0002996
+    },
+    {
+      "id": "relevancy-long-distractors-2-b",
+      "kind": "long-distractors",
+      "pair": "long-distractors-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0ae6ac7cd490ab671f615a032787795812efa4c5c5402622bcee21a40b58e08c"
+      ],
+      "costUsd": 0.00040019999999999997
+    },
+    {
+      "id": "relevancy-two-parts-1-a",
+      "kind": "two-parts",
+      "pair": "two-parts-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1569b2bb0c3ac69ad181a3c6517ef3c4027a81818ce9ac04cfc93e492c5bfbdf"
+      ],
+      "costUsd": 0.0002908
+    },
+    {
+      "id": "relevancy-mixed-language-0-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ade06aa3d07f69abed08e7c2d83e10dbc354af8deb22200a80ccaa713f64fbaa"
+      ],
+      "costUsd": 0.0003397
+    },
+    {
+      "id": "relevancy-mixed-language-0-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e0b86129183770acdf753cef10a3c64e641f7d04fd8a5e4cb747896acdf8ae68"
+      ],
+      "costUsd": 0.00034260000000000003
+    },
+    {
+      "id": "relevancy-fluent-partial-0-a",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2b082693e351b45afba161b37cf5e001bf75989ef841e15280b10d3f08595706"
+      ],
+      "costUsd": 0.0003085
+    },
+    {
+      "id": "relevancy-promise-1-b",
+      "kind": "promise",
+      "pair": "promise-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c5d34826bdd270af944d770a7540e9e1257834d61a66f2fd8e9c363e8c51223a"
+      ],
+      "costUsd": 0.0003275
+    },
+    {
+      "id": "relevancy-entity-swap-2-b",
+      "kind": "entity-swap",
+      "pair": "entity-swap-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5f38ab3a41db0cce7a96228805265e13246091603cb6e5729c6339d602337cf1"
+      ],
+      "costUsd": 0.0003569
+    },
+    {
+      "id": "relevancy-correction-2-b",
+      "kind": "correction",
+      "pair": "correction-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6fd73b45da3db16e014b3d867c63f626b108100f4ca3570ff1692a6164ceb9fd"
+      ],
+      "costUsd": 0.0003231
+    },
+    {
+      "id": "relevancy-mixed-language-1-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f2535dd1ad1f525296b9843afc563ca9ac63afa5a697ded04b047e78b7dd1040"
+      ],
+      "costUsd": 0.0003416
+    },
+    {
+      "id": "relevancy-followup-0-a",
+      "kind": "followup",
+      "pair": "followup-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "45d6dea06eea5bd7338952ce87e567c5a9465283196707aa86ec374e05157a54"
+      ],
+      "costUsd": 0.00030220000000000003
+    },
+    {
+      "id": "relevancy-followup-2-a",
+      "kind": "followup",
+      "pair": "followup-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c125f3339c343956bedf3ff80dd56bf94f35a224c4bf4f15a9ae8834d704bf4d"
+      ],
+      "costUsd": 0.00029620000000000004
+    },
+    {
+      "id": "relevancy-correction-1-a",
+      "kind": "correction",
+      "pair": "correction-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "90efe0dd421a2133aa06b26301ffb5ce22820e4c9d5e19e53f79b22a33751671"
+      ],
+      "costUsd": 0.0003081
+    },
+    {
+      "id": "relevancy-two-parts-0-a",
+      "kind": "two-parts",
+      "pair": "two-parts-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "84f4652d0e76acc8281722ab6413581260ec57101ecb5f420f13c84f5c18a9a7"
+      ],
+      "costUsd": 0.0003578
+    },
+    {
+      "id": "relevancy-explicit-unknown-0-b",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b28a052f8ef5393367b17c7baddf9d8ce10a4c960a3993af951326424f800990"
+      ],
+      "costUsd": 0.0003325
+    },
+    {
+      "id": "relevancy-fluent-partial-1-a",
+      "kind": "fluent-partial",
+      "pair": "fluent-partial-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a383d9649e9b14c742ab65c9d5c959e850978a6b5206f21d1cc49e0924a4b116"
+      ],
+      "costUsd": 0.00030500000000000004
+    },
+    {
+      "id": "relevancy-paraphrase-0-b",
+      "kind": "paraphrase",
+      "pair": "paraphrase-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "dfa458c990671b1b803a11182c282b53ecc584f3771b9b43bd7f9513214f3c2b"
+      ],
+      "costUsd": 0.0003264
+    },
+    {
+      "id": "relevancy-promise-1-a",
+      "kind": "promise",
+      "pair": "promise-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0c7b7cc685004d96985745a5c0b522fd5e14112bfc0d650fd35535ee9f048942"
+      ],
+      "costUsd": 0.0002888
+    },
+    {
+      "id": "relevancy-quote-answer-1-b",
+      "kind": "quote-answer",
+      "pair": "quote-answer-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "90d8a7a9befabc78ee35b57ec10581973f8d197e84c276ff4ae9849e06b839bc"
+      ],
+      "costUsd": 0.00030730000000000004
+    },
+    {
+      "id": "relevancy-quote-answer-2-a",
+      "kind": "quote-answer",
+      "pair": "quote-answer-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "57465780e55b49fdc53d3a2c7291a4b6dc76b5125fcbe14195345e109b7ebcc8"
+      ],
+      "costUsd": 0.00032450000000000003
+    },
+    {
+      "id": "relevancy-paraphrase-1-b",
+      "kind": "paraphrase",
+      "pair": "paraphrase-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c6790fcb86589e6a20fb3fd1fb239851cc678566d650939b59dadb4b0c8344bc"
+      ],
+      "costUsd": 0.0003269
+    },
+    {
+      "id": "relevancy-entity-swap-0-b",
+      "kind": "entity-swap",
+      "pair": "entity-swap-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "033d880a49a0ae77616c2d557414db150482f7ae553f72c05794527863a88a4a"
+      ],
+      "costUsd": 0.0003464
+    },
+    {
+      "id": "relevancy-explicit-unknown-1-b",
+      "kind": "explicit-unknown",
+      "pair": "explicit-unknown-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d34fa35f461067865b3e88889f5d9d5f34f91ca209e9a4c2be1381bbfe4cecc3"
+      ],
+      "costUsd": 0.0003305
+    }
+  ]
+}

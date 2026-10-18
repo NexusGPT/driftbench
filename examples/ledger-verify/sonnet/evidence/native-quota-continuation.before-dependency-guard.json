@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-13T16:45:33.157030+00:00",
+  "beforeTEST": true,
+  "driverSha256": "98468d108f6bfeb4e23da2fd862f40a1c15ef7c0a4903f2f9bd7205942ebce25",
+  "policy": "Keep all originally answered final stages and their upstream chains. Recovered upstream requests are supplemental where a final prompt already existed. Replace original missing finals with their first returned answers. Where no final prompt existed, use recovered upstream answers before the first final. Item-aware cached lookup rejects a changed prompt for any previously asked stage. Both contestants follow the same rule.",
+  "promptsChanged": false,
+  "verdictsRetuned": false,
+  "returnedAnswersResent": 0,
+  "watcher": {
+    "target": "Sonnet quota recovery, noise completion and first sealed TEST",
+    "stop": "native quota probe no-answer, continuation failure, completed TEST or 12-hour bound",
+    "script": "sonnet-recovery-sequence.py"
+  }
+}

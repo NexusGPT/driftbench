@@ -2,8 +2,8 @@ import { existsSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadLabels } from '@driftbench/judges';
-import { openStore } from '@driftbench/store';
+import { loadLabels } from '@agent-nexus/driftbench-judges';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';
 import { type Io, main } from '../src/index';
@@ -18,7 +18,7 @@ beforeAll(async () => {
   const db = join(dir, 'store.db');
   const store = openStore(db);
   try {
-    await storeAcmeCampaign(store, { campaignId: 'c-acme', modes: ['F'], repeats: 1 });
+    await storeAcmeCampaign(store, { campaignId: 'c-acme', modes: ['F'], repeats: 1, reportsUsage: true });
     await storeAcmeCampaign(store, { campaignId: 'c-x3', modes: ['F'], repeats: 1, fault: 'x3-skips-recap' });
   } finally {
     await store.close();
@@ -51,6 +51,19 @@ async function firstRun(campaign: string, failing = false): Promise<string> {
   return failing ? (links[0] as string) : (links[links.length - 1] as string);
 }
 
+/** The first run of a campaign, of the given spec, whose label form offers the criterion. */
+async function runOffering(campaign: string, criterion: string, spec: string): Promise<string> {
+  const page = await get(`/campaign/${campaign}`);
+  const links = [...page.text.matchAll(/href="(\/campaign\/[^/"]+\/run\/[^"#]+)"/g)].map(
+    (match) => match[1] as string,
+  );
+  for (const link of links) {
+    const text = (await get(link)).text;
+    if (text.includes(`<option value="${criterion}">`) && text.includes(spec)) return link;
+  }
+  throw new Error(`no run of ${campaign} offers ${criterion}`);
+}
+
 describe('driftbench view', () => {
   it('listens on the loopback address only', () => {
     expect(viewer.url).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
@@ -59,7 +72,7 @@ describe('driftbench view', () => {
   it('tells the browser to load nothing from anywhere', async () => {
     const response = await fetch(`${viewer.url}/`);
     expect(response.headers.get('content-security-policy')).toBe(
-      "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'",
+      "default-src 'none'; style-src 'unsafe-inline'; font-src data:; form-action 'self'; base-uri 'none'",
     );
   });
 
@@ -78,7 +91,8 @@ describe('driftbench view', () => {
     expect(page.status).toBe(200);
     expect(page.text).toContain('<section id="spread">');
     expect(page.text).toContain('<section id="drilldown">');
-    expect([...page.text.matchAll(/href="\/campaign\/c-x3\/run\//g)].length).toBe(6);
+    // Each run links to its own page twice: from its panel and from the drilldown list.
+    expect([...page.text.matchAll(/href="\/campaign\/c-x3\/run\//g)].length).toBe(12);
   });
 
   it('shows a run block by block, with evidence and a label form per block and criterion', async () => {
@@ -91,15 +105,34 @@ describe('driftbench view', () => {
     expect(page.text).toContain('No label in the folder yet.');
   });
 
+  it('shows the timeline of a run in order, with the start, end, tokens and cost of each model call, and no script', async () => {
+    const page = await get(await firstRun('c-acme', true));
+    expect(page.status).toBe(200);
+    const timeline = page.text.slice(
+      page.text.indexOf('<h3>Timeline</h3>'),
+      page.text.indexOf('<h3>Timeline</h3>') + 4000,
+    );
+    expect(timeline).toContain('<ol class="timeline">');
+    const types = [...timeline.matchAll(/<li class="event (\w+)"/g)].map((m) => m[1]);
+    expect(types[0]).toBe('block_start');
+    expect(types.at(-1)).toBe('run_end');
+    expect(types).toContain('model_call');
+    expect(timeline).toMatch(/\d+ in, \d+ out/);
+    expect(timeline).not.toMatch(/<script/i);
+  });
+
   it('saves a label, reads it back on the page, and writes the file judge calibrate reads', async () => {
-    const run = await firstRun('c-x3', true);
+    // A run whose form offers no_invented_data: a label goes only on a criterion the block offers.
+    const run = await runOffering('c-x3', 'no_invented_data', 'acme-plan-upgrade');
     const runId = decodeURIComponent(run.split('/').pop() as string);
+    const csrf = (await get(run)).text.match(/name="csrf" value="([^"]+)"/)?.[1] ?? '';
     const save = (label: string, block: string, note: string) =>
       fetch(`${viewer.url}/labels`, {
         method: 'POST',
         redirect: 'manual',
-        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
         body: new URLSearchParams({
+          csrf,
           campaign: 'c-x3',
           run: runId,
           block,
@@ -141,13 +174,15 @@ describe('driftbench view', () => {
   it('refuses a bad label request with 400 and writes nothing', async () => {
     const run = await firstRun('c-x3', true);
     const runId = decodeURIComponent(run.split('/').pop() as string);
+    const csrf = (await get(run)).text.match(/name="csrf" value="([^"]+)"/)?.[1] ?? '';
     const bad = async (fields: Record<string, string>) =>
       (
         await fetch(`${viewer.url}/labels`, {
           method: 'POST',
           redirect: 'manual',
-          headers: { 'content-type': 'application/x-www-form-urlencoded' },
+          headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
           body: new URLSearchParams({
+            csrf,
             campaign: 'c-x3',
             run: runId,
             block: '0',
@@ -158,6 +193,9 @@ describe('driftbench view', () => {
         })
       ).status;
     expect(await bad({ criterion: '../escape' })).toBe(400);
+    // A criterion the block's form does not offer: the spec's judged criteria and those that voted on it.
+    expect(await bad({ criterion: 'not_a_criterion' })).toBe(400);
+    expect(existsSync(join(labels, 'not_a_criterion.yaml'))).toBe(false);
     expect(await bad({ label: 'maybe' })).toBe(400);
     expect(await bad({ block: '99' })).toBe(400);
     expect(await bad({ run: 'no-such-run' })).toBe(400);

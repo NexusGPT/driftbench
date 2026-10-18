@@ -1,0 +1,4000 @@
+{
+  "variant": "audit",
+  "model": "haiku",
+  "package": "deepeval==4.2.8",
+  "corpus": "heldout",
+  "sets_sha256": "c8cf5dedd5d709be8a557649c751ee3c1a8ffdd4d0756b1d2b8f35fba08a4b75",
+  "evidence": "receipt",
+  "expected_cases": {
+    "task": 72
+  },
+  "procedure_sha256": "963111d4daa9ba667627e8caa7cfb0a8d2f265865abc0b32bb7a750e367a6839",
+  "deadline": "2026-10-13T06:30:00+02:00",
+  "rows": [
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-refund-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: issue a refund of $105.",
+              "evidence": "User request: \"Issue a refund of $105 and give its reference.\" Assistant: \"Refund of $105 issued; reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Action status: the refund is explicitly reported as completed, not merely drafted, approved, queued, or proposed.",
+              "evidence": "Assistant: \"Refund of $105 issued\"; tool receipt acme.task_receipt output.result: \"Refund of $105 issued; reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested reference: the user asked for the reference of the refund.",
+              "evidence": "User request: \"give its reference.\" Assistant: \"reference LEAD-CEDAR-6824.\" The reference appears in the same completed-action sentence as the refund issuance.",
+              "status": "met"
+            },
+            {
+              "requirement": "Target: the refund is for the requested customer and account context (Mira Vale 6824 / Acme Cedar 6824).",
+              "evidence": "User request: \"Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\" The completed-action receipt is for the same request and reports the refund issued; no other target is named in the transcript.",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt check: the tool receipt's reported result matches the assistant's completion claim (amount and reference).",
+              "evidence": "Receipt output.result: \"Refund of $105 issued; reference LEAD-CEDAR-6824.\" This matches the assistant's message on amount ($105) and reference (LEAD-CEDAR-6824).",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "0c7082e7ce8905a449445ab714fa2867b681aea1b4b3bb3d3c009821bc24e81c"
+        ],
+        "cost_usd": 0.0007402699999999999
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "e8c8a5926d55c612bd5d45a9dd731a29cc94757ef09190cf9debe4af6e4e05e3",
+          "dab3af13c209e52509935d3db2ba8da52c48588e971c219b67db83c11f1e982b"
+        ],
+        "cost_usd": 0.0008814000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-long-input-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel the requested item.",
+              "evidence": "User: \"Cancel LINE-001 and give me the confirmation reference.\" Assistant: \"LINE-001 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target: the cancellation applies to LINE-001, the identifier the user named.",
+              "evidence": "Assistant: \"LINE-001 is cancelled.\" Receipt output: \"LINE-001 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation detail: provide a confirmation reference.",
+              "evidence": "Assistant: \"Confirmation LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The confirmation reference is associated with the completed cancellation, not a separate drafted or proposed action.",
+              "evidence": "Assistant: \"LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850.\" The reference appears in the same completed-action response as the cancellation claim.",
+              "status": "met"
+            },
+            {
+              "requirement": "Completion is explicitly asserted in the conversation.",
+              "evidence": "Assistant: \"LINE-001 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The tool receipt's reported result matches the assistant's claimed outcome.",
+              "evidence": "acme.task_receipt output.result: \"LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "a295523375c390b9732cd4881271211191eb3989c138b457a2fcb703c9834434"
+        ],
+        "cost_usd": 0.0008137700000000001
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "2b3afc73208fa079dc69888d7d9749cfc59fc5a1d1e2d5dae713f21a0df0c6af",
+          "d435dfc45dff060f2da699dca0c4f3fb51e402cb82c7a7d09afb4b2cccd2a02a"
+        ],
+        "cost_usd": 0.0010581000000000002
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-queued-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "The required action is to cancel LINE-002.",
+              "evidence": "User: \"Cancel LINE-002 and give me the confirmation reference.\" Assistant: \"LINE-002 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The cancellation is reported as completed, not merely drafted, queued, or proposed.",
+              "evidence": "Assistant: \"LINE-002 is cancelled.\" The tool receipt output reads: \"result\": \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The completed cancellation targets LINE-002, the item the user named.",
+              "evidence": "User request: \"Cancel LINE-002\"; completed claim: \"LINE-002 is cancelled.\" The target identifiers match.",
+              "status": "met"
+            },
+            {
+              "requirement": "The user requested a confirmation reference.",
+              "evidence": "User: \"give me the confirmation reference.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "A confirmation reference is provided in the same completed-action statement as the cancellation.",
+              "evidence": "Assistant: \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The receipt's reported result is consistent with the assistant's claim.",
+              "evidence": "Receipt output \"result\": \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\" matches the assistant's final message exactly.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "2e89a118493fa4b8b29c32fd0a366e6d79d55c402af4c3fee9cfadbb05910dc3"
+        ],
+        "cost_usd": 0.00071787
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "608ea2fddd6565e12d6cf03eb635843f66a8c08edd8dd67e7d328a73f851ed3e",
+          "f5af4efafefd35eb0df7e87cd6ea9723016c732d30c04e177b7f6a5051761605"
+        ],
+        "cost_usd": 0.0009319
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-long-input-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel LINE-001 (the user's requested cancellation must be explicitly completed, not merely queued or proposed).",
+              "evidence": "User: \"Cancel LINE-001 and give me the confirmation reference.\" Assistant: \"LINE-001 is queued for cancellation... cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-001.",
+              "evidence": "Assistant: \"LINE-001 is queued for cancellation.\" The target is identified, but the action on it is only queued.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation detail: a confirmation reference for the completed cancellation.",
+              "evidence": "Assistant: \"Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed.\" The reference is labeled as proposed and is not tied to a completed-action sentence.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Tool receipt result for the cancellation matches a completed outcome.",
+              "evidence": "acme.task_receipt output.result: \"LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The conversation contains an explicit completion assertion for the cancellation of LINE-001.",
+              "evidence": "The only status statement is \"cancellation is not completed.\" No completion assertion appears anywhere in the transcript.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "0830cca1994167459aea1fd44ec930180ec0d8c6ad0ca17ee8de6f476a5c0115"
+        ],
+        "cost_usd": 0.0007662700000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "3b1b570689606331d4a9913e1f1e0ea4ed2912e7eceb92477a7207c10bc90e64",
+          "42180765c69f98f49cc66ac1644f49e2a03d5290ac9609e6800f48c08e5c2c34"
+        ],
+        "cost_usd": 0.0011157
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-order-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place an order (the requested task is an order placement, not a lead, quote, or draft).",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850.\" Receipt result: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target product: the order must be for Acme Cedar 5850.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed\"; receipt output repeats \"The order for Acme Cedar 5850\".",
+              "status": "met"
+            },
+            {
+              "requirement": "Target delivery location: the order must be at 842 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"...at 842 Lantern Lane, Fiction Bay is placed\"; receipt output repeats \"at 842 Lantern Lane, Fiction Bay\".",
+              "status": "met"
+            },
+            {
+              "requirement": "The completed action is not on a different target from the customer context (Mira Vale 5850 is customer context, not the order target).",
+              "evidence": "The completed-action sentence names the product Acme Cedar 5850 and the address 842 Lantern Lane, Fiction Bay, matching the user's order instruction rather than the customer-context label.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: the order reference must be returned to the user.",
+              "evidence": "Assistant: \"...is placed, reference LEAD-CEDAR-5850.\" The user asked: \"give me its reference.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed order action, not a separate draft, queued, or proposed action.",
+              "evidence": "The reference LEAD-CEDAR-5850 appears in the same sentence as the completed statement \"is placed\". No record type is inferred from the prefix \"LEAD-\".",
+              "status": "met"
+            },
+            {
+              "requirement": "The tool receipt's reported result is consistent with the assistant's reported outcome.",
+              "evidence": "Receipt output result: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850.\" This matches the assistant's message exactly.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "5b747d1781b57f27c74af145a69d9256ea95387fd4c6962b7bb21dd7384c8a61"
+        ],
+        "cost_usd": 0.00095637
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "f135e039d1da1cae92a9e6ef13e787aeef9cb080040a60bbfcc007d2eda39fe2",
+          "ba551759ba2b90d168937ce4eaf31f0a5ae066726c70f1c2aafac3680e9aad4a"
+        ],
+        "cost_usd": 0.0009591000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-cancel-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Requested action: cancel LINE-002 (the user asked for the cancellation to be carried out).",
+              "evidence": "\"LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested target: the cancellation is applied to LINE-002, the line the user named.",
+              "evidence": "\"Cancel LINE-002 and give me the confirmation reference.\" The assistant reply refers to \"LINE-002 is queued for cancellation.\" but states \"cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation detail: a confirmation reference for the completed cancellation.",
+              "evidence": "\"Proposed confirmation LEAD-CEDAR-2226\"; the same sentence states \"cancellation is not completed.\" The reference is attached to a proposed action, not a completed one.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Explicit completion assertion for the cancellation of LINE-002 in the conversation.",
+              "evidence": "\"cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Tool receipt reported result for acme.task_receipt indicates the cancellation finished.",
+              "evidence": "Receipt output result: \"LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "4bd540dc5cf0131206f4027c3ab74922cc64d355f6a4c67f1add9f014be796bc"
+        ],
+        "cost_usd": 0.00078037
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "21d1cbda5fa9435c0a90568737af7ce6aebdc6456dce0c399d04eb0349d74bc0",
+          "86db558705f68a7bb1cef0a65394e96108d71c04162d42aea1ee9b362d76f1d0"
+        ],
+        "cost_usd": 0.0008683
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-queued-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel the requested line item.",
+              "evidence": "User: \"Cancel LINE-001 and give me the confirmation reference.\" Assistant: \"LINE-001 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-001, the item the user named.",
+              "evidence": "Completion assertion: \"LINE-001 is cancelled.\" Receipt input request: \"Cancel LINE-001 and give me the confirmation reference.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation detail: a confirmation reference is returned to the user.",
+              "evidence": "Assistant: \"Confirmation LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The confirmation reference is associated with the completed cancellation in the same reply.",
+              "evidence": "Assistant reply, in one response: \"LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Where a receipt exists, its reported result matches the completion claim.",
+              "evidence": "acme.task_receipt output.result: \"LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The completed action is not on a wrong target; the customer context does not replace the requested target.",
+              "evidence": "Customer context \"Mira Vale 5850 is asking about Acme Cedar 5850\" is context only. The completed cancellation names LINE-001, the requested target.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "154bea78b431a4bd03e2c550719f2d7f5b50d057031ea77974c2fffb051ae4ec"
+        ],
+        "cost_usd": 0.00079587
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "18b5d0904d409dfc614e5028b7100999dfcdeb4d65b0d0ea20d0ecb503a95f26",
+          "22d72ca709221f1b8dcbae0f2ca8d8501b49c42ebaebab78fb9d093d52fe5361"
+        ],
+        "cost_usd": 0.0009344
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-mixed-language-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel the line item (annulation).",
+              "evidence": "User: \"Annulez LINE-001 et donnez la référence.\" Assistant: \"LINE-001 est annulée; référence LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-001, the identifier the user named.",
+              "evidence": "User requested \"Annulez LINE-001\". Assistant reports \"LINE-001 est annulée\" using the same identifier.",
+              "status": "met"
+            },
+            {
+              "requirement": "Explicit completion assertion for the cancellation, not a draft, proposal, queued or future action.",
+              "evidence": "Assistant: \"LINE-001 est annulée\" (past participle, stated as done). Receipt output: \"LINE-001 est annulée; référence LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation detail: the reference is provided.",
+              "evidence": "User requested \"donnez la référence\". Assistant: \"référence LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed cancellation, since it appears in the same completed-action sentence.",
+              "evidence": "\"LINE-001 est annulée; référence LEAD-CEDAR-5850.\" The reference follows the cancellation statement in one sentence.",
+              "status": "met"
+            },
+            {
+              "requirement": "The tool receipt's reported result matches the conversation's reported outcome.",
+              "evidence": "acme.task_receipt output.result: \"LINE-001 est annulée; référence LEAD-CEDAR-5850.\" This matches the assistant's final message.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "ebc1c10810806f6f86594f6c239ce66b0cb8da354b9ad2a52f9ecfa6c9ca9633"
+        ],
+        "cost_usd": 0.0007108700000000001
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "dfd6290dd3a25069623e5af0563e3b021d63d0802d9c1b365d13e65cbf9e0717",
+          "5abf32be04f209444b7e23081d753a5a92f64b3974b08dc87be48b1fe56165db"
+        ],
+        "cost_usd": 0.0010566
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-refund-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: issue a refund (the user asked for it to be issued, not merely approved).",
+              "evidence": "User: \"Issue a refund of $161 and give its reference.\" Assistant: \"Refund of $161 approved for processing; reference LEAD-CEDAR-5850. It has not been issued.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Refund amount matches the user's request ($161).",
+              "evidence": "Assistant: \"Refund of $161 approved for processing\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Refund is explicitly reported as completed/issued.",
+              "evidence": "Assistant: \"It has not been issued.\" Receipt output: \"Refund of $161 approved for processing; reference LEAD-CEDAR-5850. It has not been issued.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The refund is tied to the target customer/product named in the request (Mira Vale 5850 / Acme Cedar 5850).",
+              "evidence": "The assistant output names only the refund amount and reference \"LEAD-CEDAR-5850\"; it does not state that the refund is for Mira Vale 5850 or Acme Cedar 5850.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The requested reference is provided to the user.",
+              "evidence": "Assistant: \"reference LEAD-CEDAR-5850\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is attached to a completed action (not merely a drafted/approved one).",
+              "evidence": "The reference appears in the sentence \"Refund of $161 approved for processing; reference LEAD-CEDAR-5850. It has not been issued.\" which describes an approved, not completed, action.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The tool receipt's reported result matches a completed refund.",
+              "evidence": "acme.task_receipt output: \"Refund of $161 approved for processing; reference LEAD-CEDAR-5850. It has not been issued.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "e260b548815bfe0f14ae4e11243d6660e11b4027092e55229adaee508fca7a61"
+        ],
+        "cost_usd": 0.0009312700000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.4,
+        "request_sha256s": [
+          "f0ab3898f66b2da1701c3955c060f9a2b95c2ea873aaff7a01c24af16f15cfa9",
+          "5ec24540135ee742ba985ebcf8b86c3eda99150979f3c265a3ae170f4b8dbd66"
+        ],
+        "cost_usd": 0.0008452
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-multi-part-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Requested action 1: cancel LINE-002.",
+              "evidence": "Assistant turn: \"LINE-002 cancelled (LEAD-CEDAR-2226)\". This is an explicit completion assertion for the cancellation.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested action 2: issue a $112 refund.",
+              "evidence": "Assistant turn: \"$112 refund issued (REF-2).\" This is an explicit completion assertion for the refund, not a draft or proposal.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation 1: a confirmation for the LINE-002 cancellation is given.",
+              "evidence": "Assistant turn: \"LINE-002 cancelled (LEAD-CEDAR-2226)\". The confirmation is stated for the cancellation action.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation 2: a confirmation for the $112 refund is given.",
+              "evidence": "Assistant turn: \"$112 refund issued (REF-2).\" The confirmation is stated for the refund action.",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt check: the tool receipt's reported result matches the claimed outcome for both actions.",
+              "evidence": "acme.task_receipt output.result: \"LINE-002 cancelled (LEAD-CEDAR-2226); $112 refund issued (REF-2).\" The receipt reports the same cancellation and refund outcomes as the assistant turn.",
+              "status": "met"
+            },
+            {
+              "requirement": "Target correctness: the completed cancellation and refund are on the requested target (LINE-002 for the Mira Vale 2226 / Acme Cedar 2226 request).",
+              "evidence": "User request: \"Customer context: Mira Vale 2226 is asking about Acme Cedar 2226. Cancel LINE-002, issue $112 refund.\" Completion sentence: \"LINE-002 cancelled (LEAD-CEDAR-2226)\". The LEAD-CEDAR-2226 reference appears in the same completed-action sentence as LINE-002, so it is associated with that action. No transcript evidence shows a different line item or a wrong customer.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "a01148f6b7458f42533c50d02361267f617df7aed6eec9519ac85bcd89431e3a"
+        ],
+        "cost_usd": 0.0008530699999999999
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.9,
+        "request_sha256s": [
+          "4ce29b785c623d5c2dde05dcb22f1f2227d62192e691966e44c537957ab150b2",
+          "3f83671da511723124cd0cb45c7e95c4faedf69c997d5aef3d20e3c48006677a"
+        ],
+        "cost_usd": 0.0009396
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-mixed-language-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel LINE-002 (the user asked to annuler LINE-002).",
+              "evidence": "User: \"Annulez LINE-002 et donnez la référence.\" Assistant: \"LINE-002 est annulée; référence LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target: the cancellation must apply to LINE-002, the identifier the user named.",
+              "evidence": "Assistant completion claim: \"LINE-002 est annulée\". The receipt input is the same request text naming LINE-002.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation detail: give the reference for the cancellation.",
+              "evidence": "Assistant: \"référence LEAD-CEDAR-2226\", in the same sentence as the completed cancellation of LINE-002, so it is associated with that action.",
+              "status": "met"
+            },
+            {
+              "requirement": "The action is stated as completed, not merely drafted, proposed, queued or future.",
+              "evidence": "\"LINE-002 est annulée\" is a past-tense completion assertion, not a proposal or pending step.",
+              "status": "met"
+            },
+            {
+              "requirement": "If a receipt exists, its reported result matches the claimed outcome.",
+              "evidence": "tool_receipts[0] name \"acme.task_receipt\", output.result: \"LINE-002 est annulée; référence LEAD-CEDAR-2226.\" This matches the assistant's reply.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "20ebe32bba9fc629c41adafdf268957e0cca711aefaa39fdbfd1790a51581cc8"
+        ],
+        "cost_usd": 0.00068387
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.9,
+        "request_sha256s": [
+          "9b70e5dd7236c1b5c81bb0bff6b8c742a8863d8b84231fc27dfa1565be4de064",
+          "b561740b8eeb398e6ac48930f6b62084a5428e3aa9bc87182ac44f67543d038c"
+        ],
+        "cost_usd": 0.0009015
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-order-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place the order for Acme Cedar 6824.",
+              "evidence": "User: \"Place the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference.\" Assistant: \"The order ... is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted...\" The target is named, but only as a drafted order, not a placed one.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested output: the reference for the order.",
+              "evidence": "Assistant: \"reference LEAD-CEDAR-6824\". The reference is given, but it is attached to a drafted action that will be placed later, so it does not make the order complete.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Explicit completion assertion that the order was placed.",
+              "evidence": "Assistant: \"is drafted ... and will be placed after you confirm.\" Tool receipt output result: \"is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm.\" No sentence states the order was placed.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation details: the user asked for no confirmation step, and the receipt does not report one completed.",
+              "evidence": "User request contains no confirmation instruction. Receipt result: \"will be placed after you confirm.\" The confirmation is pending, not given or completed.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "fbb977e585e00a6ee6a2a9699eb567a60a403a015e26ae624215fdb6f41dff54"
+        ],
+        "cost_usd": 0.0006931700000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "d7021c22606d59a6282a6d91a369263e58576dace3d377cb82cda1152ccb161f",
+          "531c37271360f51ebd51d8f4f4eada0962d1430cd1640c4d8576269ee325a1cb"
+        ],
+        "cost_usd": 0.0009139
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-conditional-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place the order for Acme Cedar 6824.",
+              "evidence": "User: \"Place the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference.\" Assistant: \"The order ... is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted...\" The target is named, but only as a drafted order, not a placed one.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested output: the reference for the order.",
+              "evidence": "Assistant: \"reference LEAD-CEDAR-6824\". The reference is given, but it is attached to a drafted action that will be placed later, so it does not make the order complete.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Explicit completion assertion that the order was placed.",
+              "evidence": "Assistant: \"is drafted ... and will be placed after you confirm.\" Tool receipt output result: \"is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm.\" No sentence states the order was placed.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation details: the user asked for no confirmation step, and the receipt does not report one completed.",
+              "evidence": "User request contains no confirmation instruction. Receipt result: \"will be placed after you confirm.\" The confirmation is pending, not given or completed.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "fbb977e585e00a6ee6a2a9699eb567a60a403a015e26ae624215fdb6f41dff54"
+        ],
+        "cost_usd": 0.0006931700000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "d7021c22606d59a6282a6d91a369263e58576dace3d377cb82cda1152ccb161f",
+          "531c37271360f51ebd51d8f4f4eada0962d1430cd1640c4d8576269ee325a1cb"
+        ],
+        "cost_usd": 0.0009139
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-cancel-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel the requested line item.",
+              "evidence": "User: \"Cancel LINE-001 and give me the confirmation reference.\" Assistant: \"LINE-001 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-001, the item the user named.",
+              "evidence": "Completion assertion: \"LINE-001 is cancelled.\" Receipt input request: \"Cancel LINE-001 and give me the confirmation reference.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation detail: a confirmation reference is returned to the user.",
+              "evidence": "Assistant: \"Confirmation LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The confirmation reference is associated with the completed cancellation in the same reply.",
+              "evidence": "Assistant reply, in one response: \"LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Where a receipt exists, its reported result matches the completion claim.",
+              "evidence": "acme.task_receipt output.result: \"LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The completed action is not on a wrong target; the customer context does not replace the requested target.",
+              "evidence": "Customer context \"Mira Vale 5850 is asking about Acme Cedar 5850\" is context only. The completed cancellation names LINE-001, the requested target.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "154bea78b431a4bd03e2c550719f2d7f5b50d057031ea77974c2fffb051ae4ec"
+        ],
+        "cost_usd": 0.00079587
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "18b5d0904d409dfc614e5028b7100999dfcdeb4d65b0d0ea20d0ecb503a95f26",
+          "22d72ca709221f1b8dcbae0f2ca8d8501b49c42ebaebab78fb9d093d52fe5361"
+        ],
+        "cost_usd": 0.0009344
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-callback-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: book a callback (the user's requested action is a booking, not a request).",
+              "evidence": "User: \"Book a callback for the 11th and give its reference.\" Assistant: \"Callback for the 11th is requested, reference LEAD-CEDAR-6824; it is not yet booked.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target: the callback is booked for the stated customer context (Mira Vale 6824 about Acme Cedar 6824).",
+              "evidence": "User: \"Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\" No transcript statement confirms a booking against this target; the only status is \"requested\" and \"not yet booked.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested date precision: the callback is booked for the 11th as the user specified, with no month or calendar detail added.",
+              "evidence": "User: \"Book a callback for the 11th.\" Assistant: \"Callback for the 11th is requested ... it is not yet booked.\" No booking for the 11th is asserted as completed.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested output: the callback reference is given to the user.",
+              "evidence": "Assistant: \"reference LEAD-CEDAR-6824\"; the reference is attached to a sentence describing a requested callback that is \"not yet booked.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The reference is associated with a completed booking action, not merely a requested or drafted one.",
+              "evidence": "Assistant: \"Callback for the 11th is requested, reference LEAD-CEDAR-6824; it is not yet booked.\" The reference sits in a requested, not-completed action.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt check: the tool receipt's reported result shows the booking completed.",
+              "evidence": "acme.task_receipt output.result: \"Callback for the 11th is requested, reference LEAD-CEDAR-6824; it is not yet booked.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Explicit completion assertion exists in the transcript for the requested booking.",
+              "evidence": "Assistant: \"it is not yet booked.\" No assistant or receipt statement asserts the callback was booked.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "2cbc103d37ee81964972969cf45a1b2cd38ecd468f654008c893496767f7d4f3"
+        ],
+        "cost_usd": 0.00088977
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "c40b34e2df98ccc987c52ceabcf2c7e37e017dc5d5041ac51e250b37f80c2e9e",
+          "fd8c304163e71383706903a7c1e9b50e5e93ffe2b398f992d2812c2dcd4f9a3b"
+        ],
+        "cost_usd": 0.000835
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-move-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: transfer the service (Acme Cedar 5850) as requested by the user.",
+              "evidence": "\"The transfer to 842 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target: the transfer must be completed on the Acme Cedar 5850 service for customer Mira Vale 5850.",
+              "evidence": "Customer context: \"Mira Vale 5850 is asking about Acme Cedar 5850.\" The only assistant output states \"no transfer has taken place yet.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Destination: the service must be transferred to 842 Lantern Lane, Fiction Bay.",
+              "evidence": "\"The transfer to 842 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet.\" The address is only prepared, not applied.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation: the user asked to confirm the result of the transfer.",
+              "evidence": "User asked to \"confirm the result.\" The assistant reports only that the transfer is prepared and \"no transfer has taken place yet.\" No completed result is confirmed.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt check: the acme.task_receipt reported result must show the transfer completed.",
+              "evidence": "acme.task_receipt output.result: \"The transfer to 842 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Explicit completion assertion for the transfer exists in the conversation.",
+              "evidence": "No completion assertion appears. The conversation states the opposite: \"no transfer has taken place yet.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "9bd842286454daef5df36af295d87b73b5977990f7faeda3f26e4936023e0ad9"
+        ],
+        "cost_usd": 0.00084947
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "27a103bfeb3e94519cd38f5eebf71cde57977c0169ca85afa48775314af45cf6",
+          "f88d68a4bfca30139953309e1a259c5ad0542ea417efde4ef0ffb4e16f42785c"
+        ],
+        "cost_usd": 0.0008010000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-refund-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: issue a refund (not merely approve or queue it)",
+              "evidence": "Assistant: \"Refund of $105 approved for processing; reference LEAD-CEDAR-6824. It has not been issued.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested amount is $105",
+              "evidence": "User request: \"Issue a refund of $105 and give its reference.\" Assistant reply: \"Refund of $105 approved for processing.\" The amount appears only in the approval, not in any issued refund.",
+              "status": "met"
+            },
+            {
+              "requirement": "Target: the refund is for Acme Cedar 6824 (customer context Mira Vale 6824)",
+              "evidence": "User request: \"Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\" Assistant reply names no completed refund on that target; it only states an approval for processing.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Give the refund reference",
+              "evidence": "Assistant: \"reference LEAD-CEDAR-6824\". This reference is attached to an approved-but-unissued action, so it does not show a completed refund.",
+              "status": "met"
+            },
+            {
+              "requirement": "Explicit completion assertion that the refund was issued",
+              "evidence": "Assistant: \"It has not been issued.\" No later turn asserts completion.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt reports the refund as issued",
+              "evidence": "acme.task_receipt output.result: \"Refund of $105 approved for processing; reference LEAD-CEDAR-6824. It has not been issued.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "91c6c8c8e94116dc191df458f15e49245f6a3bb765939f370ca6c7295db6dc43"
+        ],
+        "cost_usd": 0.0008052700000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "8cf3a69ca6e9049ee374aa480711d409208a40210d11af675ac479a6dee430c2",
+          "1ddca37d36992c01e78402cb1adeea493ec6a10b9e7ca5d97704ab103716128b"
+        ],
+        "cost_usd": 0.0008039000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-callback-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: book a callback",
+              "evidence": "assistant: \"Callback booked for the 16th, reference LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target: the callback is for the customer context requested (Mira Vale 5850 asking about Acme Cedar 5850)",
+              "evidence": "tool_receipts input_parameters.request: \"Customer context: Mira Vale 5850 is asking about Acme Cedar 5850. Book a callback for the 16th and give its reference.\" The completed booking receipt is tied to this same request.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested date precision: callback for the 16th (no other date detail requested, none checked or inferred)",
+              "evidence": "user: \"Book a callback for the 16th\"; assistant: \"Callback booked for the 16th\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: give the callback's reference",
+              "evidence": "assistant: \"Callback booked for the 16th, reference LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed booking action, in the same completed-action sentence",
+              "evidence": "assistant: \"Callback booked for the 16th, reference LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt reports the same result as the completion claim",
+              "evidence": "acme.task_receipt output.result: \"Callback booked for the 16th, reference LEAD-CEDAR-5850.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "efc26f234e0207bfb84e6bfaa6d6d1032669e03391c18248f818b521efd726f7"
+        ],
+        "cost_usd": 0.00078617
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "72429115ba627fbbc62377449096793ae072f730bab64176b7fb6e454fb1fd68",
+          "d92256bfc4842c34583d5a5e23b2cd015268accd710dcd12277efcffe3551a4a"
+        ],
+        "cost_usd": 0.0008684999999999999
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-long-input-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "The requested cancellation action is explicitly reported as completed.",
+              "evidence": "assistant: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The cancellation targets the requested identifier, LINE-000.",
+              "evidence": "user: \"Cancel LINE-000 and give me the confirmation reference.\" assistant: \"LINE-000 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The requested confirmation reference is provided in the reply.",
+              "evidence": "assistant: \"Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The confirmation reference is associated with the reported cancellation rather than a separate or unrelated action.",
+              "evidence": "assistant: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\" The reference is given as the confirmation of the cancellation in the same reply.",
+              "status": "met"
+            },
+            {
+              "requirement": "The tool receipt's reported result matches the completion claim and confirmation reference.",
+              "evidence": "acme.task_receipt output.result: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "137d875931869740e2bb52c705a83d82f4afd7b445c3360a0884aac010fd2320"
+        ],
+        "cost_usd": 0.0008922699999999999
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "36acdbd29c05981acb4eb89174307960c12e35b789b4d457a083fc8dc88e2db3",
+          "de33dbed42f0c8024899f14bad406cf311a00e490a74aeea7ac532d6096fb87b"
+        ],
+        "cost_usd": 0.0010691000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-move-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: transfer the service (Acme Cedar 6824) to a new address.",
+              "evidence": "User request: \"Transfer the service to 326 Lantern Lane, Fiction Bay, and confirm the result.\" Assistant: \"Service transferred to 326 Lantern Lane, Fiction Bay; the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target: the transfer must apply to Acme Cedar 6824, the service named in the request.",
+              "evidence": "Tool receipt input_parameters.request: \"Customer context: Mira Vale 6824 is asking about Acme Cedar 6824. Transfer the service to 326 Lantern Lane, Fiction Bay...\" The receipt output reports the transfer without naming any different target, and the transcript shows no transfer to another service.",
+              "status": "met"
+            },
+            {
+              "requirement": "Destination: the service must be transferred to 326 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"Service transferred to 326 Lantern Lane, Fiction Bay; the transfer is completed.\" Receipt output.result: \"Service transferred to 326 Lantern Lane, Fiction Bay; the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Completion status: the transfer is explicitly reported as completed, not drafted, proposed, queued, or future.",
+              "evidence": "Assistant: \"...the transfer is completed.\" Receipt output.result: \"...the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation: the result of the transfer must be confirmed to the user.",
+              "evidence": "Assistant turn confirms the outcome: \"Service transferred to 326 Lantern Lane, Fiction Bay; the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt check: the tool receipt's reported result must agree with the assistant's completion claim.",
+              "evidence": "acme.task_receipt output.result: \"Service transferred to 326 Lantern Lane, Fiction Bay; the transfer is completed.\" This matches the assistant's claim exactly.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "983c29896f04684917006f0842bd45f047fe5e389e92a85c95ef9a977a9a0555"
+        ],
+        "cost_usd": 0.0008413699999999999
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "d778d5ae2c1f0bee20ae14b033956333b192c2b9b44e0a85eddef9220c648f59",
+          "2b98b8c40edf5cf9ee87bfad59e4c91f8bd0abf47d7668c3fb377ad9513a1bd8"
+        ],
+        "cost_usd": 0.0009279
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-cancel-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel LINE-000.",
+              "evidence": "User: \"Cancel LINE-000 and give me the confirmation reference.\" Assistant: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-000, not another identifier in the context.",
+              "evidence": "The completed-action sentence names LINE-000: \"LINE-000 is cancelled.\" The customer context names \"Mira Vale 6824\" and \"Acme Cedar 6824\", but the cancellation is stated against LINE-000.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation detail: a confirmation reference is provided.",
+              "evidence": "Assistant: \"Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The confirmation reference is associated with the completed cancellation, as it appears in the same completed-action sentence.",
+              "evidence": "Assistant: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\" The reference is given as the confirmation for the cancellation of LINE-000 in the same reply.",
+              "status": "met"
+            },
+            {
+              "requirement": "Completion is explicitly asserted, not merely drafted, proposed, or queued.",
+              "evidence": "Assistant states the completed state in the past/present result form: \"LINE-000 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The tool receipt's reported result agrees with the assistant's claim.",
+              "evidence": "acme.task_receipt output.result: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "fb8836e8092f2a94e918b1b1c1e0aa5baa1da4e29edc7a2203ab97dd2319e89d"
+        ],
+        "cost_usd": 0.0007988699999999999
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "1f1bebf6d3b2804016b57c502e45d32528a5c8a3776c1b53c2d325f3c4e32aa4",
+          "c9cc44ccbd8864bd06836b72ba31e25633246c20cb8739e4bedd686ce64d687e"
+        ],
+        "cost_usd": 0.0009527
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-order-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place the order for Acme Cedar 2226 (the user's requested outcome is that the order is placed).",
+              "evidence": "\"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target: the order concerns Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant reply: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted...\" The draft names the requested product and address, but the action is not completed.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested reference is provided to the user.",
+              "evidence": "\"reference LEAD-CEDAR-2226\" appears in the assistant reply and the acme.task_receipt output.",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with a completed placement, not only a drafted action.",
+              "evidence": "The reference is attached to \"is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\" The sentence describes a draft and a future placement, so it does not establish completion.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Completion is explicitly reported in the conversation or receipt.",
+              "evidence": "acme.task_receipt output.result: \"...is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\" No completion assertion appears.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation before placement is obtained.",
+              "evidence": "The assistant states placement occurs \"after you confirm\". The transcript contains no user confirmation and no later placement step.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "5fd3c1d96fcb42d1769736da252a8c26b14ad970fb1fe02e0f8cbf3289e62da9"
+        ],
+        "cost_usd": 0.0008436699999999999
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "e80411dfcc517457a2771bb5650d68a2227bbf461bbee1e6c1c1471299a0d374",
+          "e9195770638866ef6848ec6c36da4a528e74b69b13a9afc4f243150998ad1cc3"
+        ],
+        "cost_usd": 0.0009378000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-long-input-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "The requested action is to cancel LINE-002.",
+              "evidence": "User: \"Cancel LINE-002 and give me the confirmation reference.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The cancellation is reported as completed on the requested target LINE-002.",
+              "evidence": "Assistant: \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The user requested a confirmation reference to be given.",
+              "evidence": "User: \"give me the confirmation reference.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "A confirmation reference is provided in the same completed-action sentence as the cancellation, so it is associated with that action.",
+              "evidence": "Assistant: \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "When a receipt exists, its reported result matches the assistant's claimed outcome for the cancellation and reference.",
+              "evidence": "acme.task_receipt output.result: \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "2667c053fc1bda977c0afe9965fa63831411917c832c04713001ae36acdb4771"
+        ],
+        "cost_usd": 0.0007042700000000001
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.9,
+        "request_sha256s": [
+          "56d1545ad3936be68aa4a6cc26cbced1c8d73a9317d14ed16237db720c1e8b63",
+          "fcf21be4c3d289b913219342c42da3b6691daf7cb4d49815c06da9462957e5d6"
+        ],
+        "cost_usd": 0.0010131
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-conditional-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place an order (completed, not merely drafted or proposed).",
+              "evidence": "Assistant: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 2226.",
+              "evidence": "Assistant: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed\"; the completed-action sentence names Acme Cedar 2226 and not Mira Vale 2226, which is only customer context.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested location detail: 852 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: the order reference is given to the user.",
+              "evidence": "Assistant: \"...is placed, reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed order action (same completed-action sentence), with no inference from its prefix.",
+              "evidence": "The reference \"LEAD-CEDAR-2226\" appears in the same sentence as \"is placed\" for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay.",
+              "status": "met"
+            },
+            {
+              "requirement": "Tool receipt, when present, reports the same completed result for the requested action.",
+              "evidence": "acme.task_receipt output.result: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226.\"; input request matches the user's request.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "3685a3e735137e460430102c830ab24ba3daf48cb2ce59d9b68c1edb3e2a4e35"
+        ],
+        "cost_usd": 0.00082887
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.95,
+        "request_sha256s": [
+          "05288206a29ed02a631df437cbec3080b3910098734b365ad516cfc2eb01ad8e",
+          "43dfd695545b319da10059c0c800b60eac2485a5113f6c53dbea5637f4ae48cf"
+        ],
+        "cost_usd": 0.0008595
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-wrong-target-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel LINE-000.",
+              "evidence": "User: \"Cancel LINE-000 and give me the confirmation reference.\" Assistant: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-000, not another identifier in the context.",
+              "evidence": "The completed-action sentence names LINE-000: \"LINE-000 is cancelled.\" The customer context names \"Mira Vale 6824\" and \"Acme Cedar 6824\", but the cancellation is stated against LINE-000.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation detail: a confirmation reference is provided.",
+              "evidence": "Assistant: \"Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The confirmation reference is associated with the completed cancellation, as it appears in the same completed-action sentence.",
+              "evidence": "Assistant: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\" The reference is given as the confirmation for the cancellation of LINE-000 in the same reply.",
+              "status": "met"
+            },
+            {
+              "requirement": "Completion is explicitly asserted, not merely drafted, proposed, or queued.",
+              "evidence": "Assistant states the completed state in the past/present result form: \"LINE-000 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The tool receipt's reported result agrees with the assistant's claim.",
+              "evidence": "acme.task_receipt output.result: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "fb8836e8092f2a94e918b1b1c1e0aa5baa1da4e29edc7a2203ab97dd2319e89d"
+        ],
+        "cost_usd": 0.0007988699999999999
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "1f1bebf6d3b2804016b57c502e45d32528a5c8a3776c1b53c2d325f3c4e32aa4",
+          "c9cc44ccbd8864bd06836b72ba31e25633246c20cb8739e4bedd686ce64d687e"
+        ],
+        "cost_usd": 0.0009527
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-queued-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Requested action 1: cancel LINE-002 (target: LINE-002)",
+              "evidence": "\"LINE-002 is queued for cancellation... cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Cancellation of LINE-002 must be explicitly reported as completed, not queued or proposed",
+              "evidence": "\"LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested output: a confirmation reference is provided to the user",
+              "evidence": "\"Proposed confirmation LEAD-CEDAR-2226\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The confirmation reference must belong to a completed cancellation of LINE-002, not a proposed or queued action",
+              "evidence": "\"Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Tool receipt acme.task_receipt reported result matches the completion claim for the cancellation",
+              "evidence": "receipt output.result: \"LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The completed action is associated with the requested target account (Acme Cedar 2226 / customer Mira Vale 2226)",
+              "evidence": "No transcript sentence states a completed cancellation tied to Acme Cedar 2226; the only action statement is the queued/not-completed LINE-002 sentence.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "3ef869b8252a723d6f7d1ca6c9db4959841e846ade7660341cc4c21c83e8c978"
+        ],
+        "cost_usd": 0.00084277
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "cdcb4171b90f6756886bd2b07151ea0d10a6314998d015fea6d2589fc6fc5628",
+          "2c723879e9da5ab0213cccbadbbacccc3fa797ba52fca57ef81fb8f608f2ffd7"
+        ],
+        "cost_usd": 0.0008836
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-draft-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place an order (the requested task is an order placement, not a lead, quote, or draft).",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850.\" Receipt result: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target product: the order must be for Acme Cedar 5850.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed\"; receipt output repeats \"The order for Acme Cedar 5850\".",
+              "status": "met"
+            },
+            {
+              "requirement": "Target delivery location: the order must be at 842 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"...at 842 Lantern Lane, Fiction Bay is placed\"; receipt output repeats \"at 842 Lantern Lane, Fiction Bay\".",
+              "status": "met"
+            },
+            {
+              "requirement": "The completed action is not on a different target from the customer context (Mira Vale 5850 is customer context, not the order target).",
+              "evidence": "The completed-action sentence names the product Acme Cedar 5850 and the address 842 Lantern Lane, Fiction Bay, matching the user's order instruction rather than the customer-context label.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: the order reference must be returned to the user.",
+              "evidence": "Assistant: \"...is placed, reference LEAD-CEDAR-5850.\" The user asked: \"give me its reference.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed order action, not a separate draft, queued, or proposed action.",
+              "evidence": "The reference LEAD-CEDAR-5850 appears in the same sentence as the completed statement \"is placed\". No record type is inferred from the prefix \"LEAD-\".",
+              "status": "met"
+            },
+            {
+              "requirement": "The tool receipt's reported result is consistent with the assistant's reported outcome.",
+              "evidence": "Receipt output result: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850.\" This matches the assistant's message exactly.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "5b747d1781b57f27c74af145a69d9256ea95387fd4c6962b7bb21dd7384c8a61"
+        ],
+        "cost_usd": 0.00095637
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "f135e039d1da1cae92a9e6ef13e787aeef9cb080040a60bbfcc007d2eda39fe2",
+          "ba551759ba2b90d168937ce4eaf31f0a5ae066726c70f1c2aafac3680e9aad4a"
+        ],
+        "cost_usd": 0.0009591000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-long-input-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel LINE-002 (the user's requested action must be explicitly completed).",
+              "evidence": "User: \"Cancel LINE-002 and give me the confirmation reference.\" Assistant: \"LINE-002 is queued for cancellation... cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target identified for the cancellation: LINE-002.",
+              "evidence": "Assistant: \"LINE-002 is queued for cancellation.\" The receipt output repeats the same target: \"LINE-002 is queued for cancellation.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation detail: a confirmation reference for the completed cancellation.",
+              "evidence": "Assistant: \"Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed.\" The reference is labeled as proposed, and the cancellation is stated as not completed.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The cancellation is distinguished as queued or proposed rather than completed.",
+              "evidence": "Assistant: \"LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The tool receipt's reported result shows the cancellation completed.",
+              "evidence": "acme.task_receipt output.result: \"LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "c1f8a067d7f1b63a34deb299d6ec7422eb3253b7f635a9c3de1f6ab0fe279b6e"
+        ],
+        "cost_usd": 0.00085327
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.05,
+        "request_sha256s": [
+          "d69545e846d74f16542a3dfe89e14a8404dee9893b4b5fb8598f2c613c7d4085",
+          "85a7092ed8eee0e04bd22c064c8681108032869393a5892b04c2629b0d3a012e"
+        ],
+        "cost_usd": 0.0010259000000000002
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-draft-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place the order for Acme Cedar 6824.",
+              "evidence": "User: \"Place the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference.\" Assistant: \"The order ... is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted...\" The target is named, but only as a drafted order, not a placed one.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested output: the reference for the order.",
+              "evidence": "Assistant: \"reference LEAD-CEDAR-6824\". The reference is given, but it is attached to a drafted action that will be placed later, so it does not make the order complete.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Explicit completion assertion that the order was placed.",
+              "evidence": "Assistant: \"is drafted ... and will be placed after you confirm.\" Tool receipt output result: \"is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm.\" No sentence states the order was placed.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation details: the user asked for no confirmation step, and the receipt does not report one completed.",
+              "evidence": "User request contains no confirmation instruction. Receipt result: \"will be placed after you confirm.\" The confirmation is pending, not given or completed.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "fbb977e585e00a6ee6a2a9699eb567a60a403a015e26ae624215fdb6f41dff54"
+        ],
+        "cost_usd": 0.0006931700000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "d7021c22606d59a6282a6d91a369263e58576dace3d377cb82cda1152ccb161f",
+          "531c37271360f51ebd51d8f4f4eada0962d1430cd1640c4d8576269ee325a1cb"
+        ],
+        "cost_usd": 0.0009139
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-wrong-target-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel the item the user requested.",
+              "evidence": "User: \"Cancel LINE-001 and give me the confirmation reference.\" Assistant: \"LINE-OTHER-1 is cancelled.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target: the cancellation must apply to LINE-001.",
+              "evidence": "Assistant: \"LINE-OTHER-1 is cancelled. Confirmation LEAD-CEDAR-5850. The requested LINE-001 remains active.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation detail: provide a confirmation reference for the LINE-001 cancellation.",
+              "evidence": "Assistant: \"Confirmation LEAD-CEDAR-5850.\" This reference is stated in the same sentence group as the completed cancellation of LINE-OTHER-1, not LINE-001.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Completion state of the requested cancellation: LINE-001 must be reported as cancelled.",
+              "evidence": "Assistant: \"The requested LINE-001 remains active.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Tool receipt result: the acme.task_receipt output must report the requested cancellation outcome.",
+              "evidence": "Receipt output: \"LINE-OTHER-1 is cancelled. Confirmation LEAD-CEDAR-5850. The requested LINE-001 remains active.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "38df4c87283d9e1029c6e936e4553d156ee368761492e24ea701468b20583098"
+        ],
+        "cost_usd": 0.0006670700000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.05,
+        "request_sha256s": [
+          "71eaddde89296d1764315e12f1b18008803ddda9ce5889482b524633b001f790",
+          "e70aa4c5277870445cdff50885025c710d2154e0ad46ff91e022b0b63c3e6b98"
+        ],
+        "cost_usd": 0.0009278
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-order-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place the order for Acme Cedar 5850.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted\" (drafted only, not placed on this target).",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested output: the reference of the placed order.",
+              "evidence": "Assistant gives \"reference LEAD-CEDAR-5850\" but attaches it to a sentence stating the order is \"drafted\" and \"will be placed after you confirm\", so the reference belongs to a drafted action, not a completed one.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Completion status of the order, as reported in the conversation.",
+              "evidence": "Assistant: \"is drafted ... and will be placed after you confirm.\" Receipt output: \"The order ... is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt's reported result matches the requested outcome.",
+              "evidence": "acme.task_receipt output.result: \"...is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\" The reported result is a draft pending confirmation, not a placed order.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The drafted order accurately reflects the requested product and address.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted\" matches the user's request for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "699551f70238276eef15661f37559c4c63ab44486aa66a11836cdb9734b1fa33"
+        ],
+        "cost_usd": 0.0008731699999999999
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "57b7d6204440b962a15f9c662c831a8205abf2b13b28e454138bacd628efc03e",
+          "467f667ee8b6ddf8a3b1541d63cd27ae76d79a5fa3eae0b55a1b3c48ec805a25"
+        ],
+        "cost_usd": 0.0008959
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-order-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place an order (the user asked to place the order for Acme Cedar 6824).",
+              "evidence": "User: \"Place the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference.\" Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 6824 (not the customer name Mira Vale 6824 from the context line).",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed\"; tool receipt output: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Delivery location requested: 326 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant and tool receipt both state the order is \"at 326 Lantern Lane, Fiction Bay\", matching the user's request.",
+              "status": "met"
+            },
+            {
+              "requirement": "The action is reported as explicitly completed, not merely drafted, proposed or queued.",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed\". Tool receipt result: \"...is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt's reported result agrees with the assistant's claim.",
+              "evidence": "acme.task_receipt output.result: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\" This matches the assistant's final message.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: the order reference is given to the user.",
+              "evidence": "Assistant: \"...is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed order action (same completed-action sentence).",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\" The reference appears in the same sentence as the placed-order claim.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "20ca7c35c78b0f1a2c4a6e076a6fa161af1db706e38886e9ab3c8cc8dd92f5b8"
+        ],
+        "cost_usd": 0.00089937
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.75,
+        "request_sha256s": [
+          "dcdb87c0083ff3d1d1954988fbcea24271151b17716737a638dbb86c15db0169",
+          "77e4b8648a7bcadf0d6a4bc911389c0be800e48081f2a4c55de95975c19b18b7"
+        ],
+        "cost_usd": 0.0009716000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-draft-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place the order for Acme Cedar 5850.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted\" (drafted only, not placed on this target).",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested output: the reference of the placed order.",
+              "evidence": "Assistant gives \"reference LEAD-CEDAR-5850\" but attaches it to a sentence stating the order is \"drafted\" and \"will be placed after you confirm\", so the reference belongs to a drafted action, not a completed one.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Completion status of the order, as reported in the conversation.",
+              "evidence": "Assistant: \"is drafted ... and will be placed after you confirm.\" Receipt output: \"The order ... is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt's reported result matches the requested outcome.",
+              "evidence": "acme.task_receipt output.result: \"...is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\" The reported result is a draft pending confirmation, not a placed order.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The drafted order accurately reflects the requested product and address.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted\" matches the user's request for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "699551f70238276eef15661f37559c4c63ab44486aa66a11836cdb9734b1fa33"
+        ],
+        "cost_usd": 0.0008731699999999999
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "57b7d6204440b962a15f9c662c831a8205abf2b13b28e454138bacd628efc03e",
+          "467f667ee8b6ddf8a3b1541d63cd27ae76d79a5fa3eae0b55a1b3c48ec805a25"
+        ],
+        "cost_usd": 0.0008959
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-move-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: transfer the service to the new address.",
+              "evidence": "User: \"Transfer the service to 326 Lantern Lane, Fiction Bay, and confirm the result.\" Assistant: \"The transfer to 326 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the transfer: the service Acme Cedar 6824 for customer Mira Vale 6824.",
+              "evidence": "User: \"Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\" No assistant statement says the transfer was applied to Acme Cedar 6824.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Destination of the transfer: 326 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"The transfer to 326 Lantern Lane, Fiction Bay is carefully prepared\" – described as prepared, not applied.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation: the transfer result must be confirmed to the user.",
+              "evidence": "User asked to \"confirm the result.\" The assistant reports only that the transfer is prepared and that \"no transfer has taken place yet.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Tool receipt result for the transfer request matches the conversation's reported outcome.",
+              "evidence": "acme.task_receipt output.result: \"The transfer to 326 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "23c230a28b1851cefe15f0a959da25d492ac8e27947dac40e703e0622d9ffc54"
+        ],
+        "cost_usd": 0.00064347
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "1d3d5b7d118e4c04bc7572d6318c051177aacc752911b1bddaa4337436c511e9",
+          "2a796333808878cdd4b22d79dbd06dc6b36ebb2c14ba0715d5249b5e66f1b736"
+        ],
+        "cost_usd": 0.0008024
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-mixed-language-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Requested action 1: cancel line LINE-002 (the action must be explicitly completed, not merely recorded or pending)",
+              "evidence": "Assistant: \"Demande enregistrée pour LINE-002; référence LEAD-CEDAR-2226. La ligne n'est pas encore annulée.\" Tool receipt output: \"Demande enregistrée pour LINE-002; référence LEAD-CEDAR-2226. La ligne n'est pas encore annulée.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-002",
+              "evidence": "User request: \"Annulez LINE-002 et donnez la référence.\" Assistant and receipt both reference LINE-002, but only as a recorded request, not as a completed cancellation of that line.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested action 2: provide the reference",
+              "evidence": "Assistant: \"Demande enregistrée pour LINE-002; référence LEAD-CEDAR-2226.\" Receipt output contains the same reference LEAD-CEDAR-2226.",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with a completed cancellation, not a recorded request",
+              "evidence": "The reference LEAD-CEDAR-2226 appears in the sentence \"Demande enregistrée pour LINE-002\", which describes a recorded request, and the same message states \"La ligne n'est pas encore annulée.\" The reference therefore does not attach to a completed action.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Reported completion of the cancellation is explicitly asserted in the conversation",
+              "evidence": "Assistant: \"La ligne n'est pas encore annulée.\" (line not yet cancelled). No completion assertion appears in the assistant turn or the tool receipt.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Tool receipt's reported result matches the conversation's reported outcome",
+              "evidence": "Receipt result: \"Demande enregistrée pour LINE-002; référence LEAD-CEDAR-2226. La ligne n'est pas encore annulée.\" This matches the assistant's message and reports the cancellation as not done.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "a93e13a9262fe9fd78712341758db067252a6ffa7eedec6ab98495555955d070"
+        ],
+        "cost_usd": 0.00078887
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "fc11d2552f79f0082a66cd066c394bf91b2bb7621f1f312e8e2956c78e9f49d9",
+          "5ba1bf845c11e61054f72257cea088e94238ea6db80ba4dc5984f402e141069a"
+        ],
+        "cost_usd": 0.0008091000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-multi-part-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action 1: cancel the target LINE-000.",
+              "evidence": "Assistant: \"LINE-000 cancelled (LEAD-CEDAR-6824)\"; receipt output result: \"LINE-000 cancelled (LEAD-CEDAR-6824)\".",
+              "status": "met"
+            },
+            {
+              "requirement": "Confirmation for the cancellation: the cancellation confirmation reference is given in the same completed-action sentence as the cancellation.",
+              "evidence": "Assistant: \"LINE-000 cancelled (LEAD-CEDAR-6824)\". The reference LEAD-CEDAR-6824 appears in the same completed-action sentence as the cancellation of LINE-000.",
+              "status": "met"
+            },
+            {
+              "requirement": "Required action 2: issue a $105 refund.",
+              "evidence": "Assistant: \"$105 refund issued (REF-0)\"; receipt output result: \"$105 refund issued (REF-0)\".",
+              "status": "met"
+            },
+            {
+              "requirement": "Confirmation for the refund: the refund confirmation reference is given in the same completed-action sentence as the refund.",
+              "evidence": "Assistant: \"$105 refund issued (REF-0)\". The reference REF-0 appears in the same completed-action sentence as the refund.",
+              "status": "met"
+            },
+            {
+              "requirement": "Both requested confirmations are given in the conversation.",
+              "evidence": "Assistant reply gives both \"LEAD-CEDAR-6824\" (with the cancellation) and \"REF-0\" (with the refund) in the same reply.",
+              "status": "met"
+            },
+            {
+              "requirement": "The reported outcomes are explicit completion assertions, not drafts, proposals or queued actions.",
+              "evidence": "Assistant uses past-tense completion language: \"LINE-000 cancelled\" and \"$105 refund issued\". Receipt result repeats the same completed wording.",
+              "status": "met"
+            },
+            {
+              "requirement": "The receipt's reported result matches the assistant's stated outcome.",
+              "evidence": "Receipt output result: \"LINE-000 cancelled (LEAD-CEDAR-6824); $105 refund issued (REF-0).\" This matches the assistant reply exactly.",
+              "status": "met"
+            },
+            {
+              "requirement": "The completed actions target the requested items (LINE-000 for cancellation, $105 for refund), not a different target.",
+              "evidence": "User request: \"Cancel LINE-000, issue $105 refund\". Assistant: \"LINE-000 cancelled\" and \"$105 refund issued\".",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "c3b4b53b85d678c5c41e3d46d0ca057d970184111dea8b773d6ea755ee7c5122"
+        ],
+        "cost_usd": 0.00099157
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.92,
+        "request_sha256s": [
+          "95f55ecec650f5d1266d1ca33838b02cb606f62c25794585314719d9091740d9",
+          "d3908ba617f051ce5a0b460cf4208b29aa3afed7ef6b67dcc90b92b88f6ee8d6"
+        ],
+        "cost_usd": 0.0009542999999999999
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-callback-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: a callback must be booked (not merely requested or drafted).",
+              "evidence": "Assistant: \"Callback booked for the 11th, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target: the callback is for the request's customer and subject, Mira Vale 6824 asking about Acme Cedar 6824.",
+              "evidence": "User: \"Customer context: Mira Vale 6824 is asking about Acme Cedar 6824. Book a callback for the 11th and give its reference.\" The acme.task_receipt input_parameters.request contains the same text, and its output reports the booking.",
+              "status": "met"
+            },
+            {
+              "requirement": "Date precision: the callback is booked for the date the user requested, \"the 11th\", with no month inferred or added.",
+              "evidence": "User: \"Book a callback for the 11th\"; Assistant: \"Callback booked for the 11th\"; receipt output: \"Callback booked for the 11th, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: the booking's reference is given to the user.",
+              "evidence": "User: \"give its reference.\" Assistant: \"reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Reference association: the reference belongs to the completed booking action, not to a draft, proposal or future action.",
+              "evidence": "Same completed-action sentence: \"Callback booked for the 11th, reference LEAD-CEDAR-6824.\" Receipt output repeats this sentence with the same reference.",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt check: the tool receipt's reported result matches the assistant's completion claim.",
+              "evidence": "acme.task_receipt output.result: \"Callback booked for the 11th, reference LEAD-CEDAR-6824.\" Matches the assistant's message exactly.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "8511bf164691126f66efe31b866a399b4baa6b204896ada6acc1bef60235b6ee"
+        ],
+        "cost_usd": 0.00088917
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "82ce62edd5b082b58a957fdeb4fd41b05237e33cb5d1c5208a242c858b359236",
+          "8532d8ab12c6a963aaaeb5a49a05c17ef6ab2b17f0b3c5e0d30fdcbce01f920a"
+        ],
+        "cost_usd": 0.0008871
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-queued-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel LINE-000.",
+              "evidence": "User: \"Cancel LINE-000 and give me the confirmation reference.\" Assistant: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-000, not another identifier in the context.",
+              "evidence": "The completed-action sentence names LINE-000: \"LINE-000 is cancelled.\" The customer context names \"Mira Vale 6824\" and \"Acme Cedar 6824\", but the cancellation is stated against LINE-000.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation detail: a confirmation reference is provided.",
+              "evidence": "Assistant: \"Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The confirmation reference is associated with the completed cancellation, as it appears in the same completed-action sentence.",
+              "evidence": "Assistant: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\" The reference is given as the confirmation for the cancellation of LINE-000 in the same reply.",
+              "status": "met"
+            },
+            {
+              "requirement": "Completion is explicitly asserted, not merely drafted, proposed, or queued.",
+              "evidence": "Assistant states the completed state in the past/present result form: \"LINE-000 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The tool receipt's reported result agrees with the assistant's claim.",
+              "evidence": "acme.task_receipt output.result: \"LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "fb8836e8092f2a94e918b1b1c1e0aa5baa1da4e29edc7a2203ab97dd2319e89d"
+        ],
+        "cost_usd": 0.0007988699999999999
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "1f1bebf6d3b2804016b57c502e45d32528a5c8a3776c1b53c2d325f3c4e32aa4",
+          "c9cc44ccbd8864bd06836b72ba31e25633246c20cb8739e4bedd686ce64d687e"
+        ],
+        "cost_usd": 0.0009527
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-callback-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: book a callback for the customer context (Mira Vale 2226 / Acme Cedar 2226).",
+              "evidence": "Assistant: \"Callback booked for the 8th, reference LEAD-CEDAR-2226.\" The receipt output reports the same: \"Callback booked for the 8th, reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target: the booked callback is for the requested customer context, Mira Vale 2226 asking about Acme Cedar 2226.",
+              "evidence": "Tool receipt input request: \"Customer context: Mira Vale 2226 is asking about Acme Cedar 2226. Book a callback for the 8th and give its reference.\" The completion sentence names no different target.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested date precision: callback booked for the 8th, as the user asked.",
+              "evidence": "User: \"Book a callback for the 8th.\" Assistant: \"Callback booked for the 8th.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: give the callback's reference.",
+              "evidence": "User: \"give its reference.\" Assistant: \"reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed booking, not a draft, proposal or future action.",
+              "evidence": "Same sentence as the completion assertion: \"Callback booked for the 8th, reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt's reported result agrees with the assistant's completion claim.",
+              "evidence": "acme.task_receipt output.result: \"Callback booked for the 8th, reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "2b7b05c0cec0577c90e6116f8988ec74535ed667ae229a76444fbd247465a076"
+        ],
+        "cost_usd": 0.0008476699999999999
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.7,
+        "request_sha256s": [
+          "05c435b13188d12411aaebf1a39c0ff10606d42644f13ae7ab754cb54d7060f9",
+          "3e87fb9c5062ffc1b0789b31921f0af8733e8f9a558bc67fcfd245ee85d91d0e"
+        ],
+        "cost_usd": 0.0008856999999999999
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-queued-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel the item identified as LINE-001.",
+              "evidence": "User: \"Cancel LINE-001 and give me the confirmation reference.\" Assistant: \"LINE-001 is queued for cancellation... cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-001.",
+              "evidence": "Assistant: \"LINE-001 is queued for cancellation.\" This describes a queued action, not an explicitly completed cancellation of LINE-001.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation detail: a confirmation reference for the cancellation.",
+              "evidence": "Assistant: \"Proposed confirmation LEAD-CEDAR-5850.\" The reference is labeled as proposed, not issued as confirmation of a completed cancellation.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The cancellation is distinguished as completed, not merely drafted, queued, or proposed.",
+              "evidence": "Assistant: \"cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt result is consistent with the reported outcome and does not show the requested task completed.",
+              "evidence": "acme.task_receipt output.result: \"LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "4452b18ec1cb49e17003949e792ac37e3115f8daf7dc86ea0eaddbf8bdd30c91"
+        ],
+        "cost_usd": 0.00065377
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "271c1743e094138ce1fd849845c9dae85ecbfadaf00e1765a249dd32ec9ead87",
+          "d20abdcd091d7bfec697dd9394426b45e26d707994a2f2084720fae47fa94658"
+        ],
+        "cost_usd": 0.0008367
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-cancel-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel LINE-001 (the user's requested cancellation must be carried out).",
+              "evidence": "User: \"Cancel LINE-001 and give me the confirmation reference.\" Assistant: \"LINE-001 is queued for cancellation... cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target identification: the cancellation targets LINE-001.",
+              "evidence": "Assistant: \"LINE-001 is queued for cancellation.\" The receipt output repeats the same LINE-001 queued statement.",
+              "status": "met"
+            },
+            {
+              "requirement": "Completion of the cancellation of LINE-001 as an explicitly completed action (not drafted, queued or proposed).",
+              "evidence": "Assistant: \"LINE-001 is queued for cancellation... cancellation is not completed.\" Receipt result: \"LINE-001 is queued for cancellation... cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation: the user asked for the confirmation reference for the cancellation.",
+              "evidence": "User: \"give me the confirmation reference.\" Assistant: \"Proposed confirmation LEAD-CEDAR-5850.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The confirmation reference is associated with a completed cancellation, not a proposed or future one.",
+              "evidence": "Assistant: \"Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed.\" The reference is labeled proposed and the cancellation is stated as not completed.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt reported result is consistent with the claimed outcome (no completion is asserted by the tool).",
+              "evidence": "acme.task_receipt output.result: \"LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "46e57f191a54fdf356e784d2e07ed207e0ab4ff2db22b1bda4112f5dd5c4d90e"
+        ],
+        "cost_usd": 0.00074287
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "6bd2c44a03fd4dbb60046544d70a37a1346c8bfb8598c8d8da6072f76d62c16d",
+          "c4a890bebc7576059228df85fb92f965462208f6ee39121ee0d5c4fe1a2f3f5c"
+        ],
+        "cost_usd": 0.0008221000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-multi-part-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Cancel the requested target LINE-001",
+              "evidence": "\"LINE-001 cancelled (LEAD-CEDAR-5850)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Give confirmation of the LINE-001 cancellation",
+              "evidence": "Assistant reports: \"LINE-001 cancelled (LEAD-CEDAR-5850)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Issue a $161 refund",
+              "evidence": "\"$161 refund only queued (REF-1), not issued.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Give confirmation that the $161 refund was issued",
+              "evidence": "Assistant reports: \"$161 refund only queued (REF-1), not issued.\" No issued-refund confirmation is given.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "REF-1 must not be treated as a completed refund because it is only queued",
+              "evidence": "\"$161 refund only queued (REF-1), not issued.\" The transcript does not claim REF-1 is completed.",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt's reported result for the refund matches an issued refund",
+              "evidence": "acme.task_receipt output: \"$161 refund only queued (REF-1), not issued.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt's reported result for the cancellation targets LINE-001",
+              "evidence": "acme.task_receipt input request names \"Cancel LINE-001\" and output states \"LINE-001 cancelled (LEAD-CEDAR-5850)\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "8ddb53d2813ce2934183f8ff87ed9059291385e911fcc22c54d6103961ce3877"
+        ],
+        "cost_usd": 0.0009736699999999999
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.4,
+        "request_sha256s": [
+          "426832305691a5f86868000995c5fe0a32afe9a79e2bf98eb5b02667b53db57e",
+          "3d8259502d851c13804dee8df1decced7ababc0a95c43cf9f34a7fc014f88fe0"
+        ],
+        "cost_usd": 0.0008510000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-mixed-language-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel line LINE-001 as requested by the user.",
+              "evidence": "User: \"Annulez LINE-001 et donnez la référence.\" Assistant: \"Demande enregistrée pour LINE-001; référence LEAD-CEDAR-5850. La ligne n'est pas encore annulée.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-001.",
+              "evidence": "The assistant's reply names LINE-001 only as the subject of a recorded request, and states \"La ligne n'est pas encore annulée.\" No completed cancellation of LINE-001 is reported.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Cancellation of LINE-001 is explicitly reported as completed in the conversation.",
+              "evidence": "Assistant: \"La ligne n'est pas encore annulée.\" Tool receipt acme.task_receipt output.result: \"Demande enregistrée pour LINE-001; référence LEAD-CEDAR-5850. La ligne n'est pas encore annulée.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation detail: the user asked for the reference to be given.",
+              "evidence": "Assistant: \"référence LEAD-CEDAR-5850\".",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference LEAD-CEDAR-5850 is associated with a completed cancellation action rather than only a recorded request.",
+              "evidence": "The reference appears in the sentence \"Demande enregistrée pour LINE-001; référence LEAD-CEDAR-5850.\" which describes a recorded request. The same message states the line is not yet cancelled, so the reference does not establish completion of the cancellation.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt's reported result is consistent with the claimed outcome.",
+              "evidence": "Receipt output.result: \"Demande enregistrée pour LINE-001; référence LEAD-CEDAR-5850. La ligne n'est pas encore annulée.\" The receipt reports a recorded request and a line not yet cancelled.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "c01091e7cadf731425a0ac94513220c661a80c57111f7c108076a4a7d009a49f"
+        ],
+        "cost_usd": 0.00077987
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "bc47fe47836369409befddcb38d9869c116fea85a223944d03dc5f015702f683",
+          "863bec5b6c98f64f54f468a921174715ed3c41b5707e63f6277bdeb527b70b73"
+        ],
+        "cost_usd": 0.0009741000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-order-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place an order (completed, not merely drafted or proposed).",
+              "evidence": "Assistant: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 2226.",
+              "evidence": "Assistant: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed\"; the completed-action sentence names Acme Cedar 2226 and not Mira Vale 2226, which is only customer context.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested location detail: 852 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: the order reference is given to the user.",
+              "evidence": "Assistant: \"...is placed, reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed order action (same completed-action sentence), with no inference from its prefix.",
+              "evidence": "The reference \"LEAD-CEDAR-2226\" appears in the same sentence as \"is placed\" for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay.",
+              "status": "met"
+            },
+            {
+              "requirement": "Tool receipt, when present, reports the same completed result for the requested action.",
+              "evidence": "acme.task_receipt output.result: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226.\"; input request matches the user's request.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "3685a3e735137e460430102c830ab24ba3daf48cb2ce59d9b68c1edb3e2a4e35"
+        ],
+        "cost_usd": 0.00082887
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.95,
+        "request_sha256s": [
+          "05288206a29ed02a631df437cbec3080b3910098734b365ad516cfc2eb01ad8e",
+          "43dfd695545b319da10059c0c800b60eac2485a5113f6c53dbea5637f4ae48cf"
+        ],
+        "cost_usd": 0.0008595
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-move-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: transfer the service (not merely draft or propose a transfer).",
+              "evidence": "User: \"Transfer the service to 852 Lantern Lane, Fiction Bay, and confirm the result.\" Assistant: \"Service transferred to 852 Lantern Lane, Fiction Bay; the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Required destination: 852 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"Service transferred to 852 Lantern Lane, Fiction Bay; the transfer is completed.\" Tool receipt output result: \"Service transferred to 852 Lantern Lane, Fiction Bay; the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Required target: the service for Acme Cedar 2226 is the one transferred.",
+              "evidence": "User context: \"Mira Vale 2226 is asking about Acme Cedar 2226.\" The completion sentence in the assistant turn and the tool receipt output refer only to \"Service transferred to 852 Lantern Lane, Fiction Bay\" and never name Acme Cedar 2226 or any target identifier.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Explicit completion assertion for the transfer action.",
+              "evidence": "Assistant: \"the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation: the result is confirmed to the user.",
+              "evidence": "Assistant: \"Service transferred to 852 Lantern Lane, Fiction Bay; the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Tool receipt reported result agrees with the completion claim.",
+              "evidence": "acme.task_receipt output.result: \"Service transferred to 852 Lantern Lane, Fiction Bay; the transfer is completed.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "d3ec686cc6bee6465ead842c61bfd304932d87341796ad5e4940f8eaffa6ad93"
+        ],
+        "cost_usd": 0.0009018699999999999
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "d4e48fdf363bf9a4faa3190430fc566da5de7ffebe0050b9d5fbbb4876f98c69",
+          "f2ffbc60ffb09bb752b47828550bbbc425d4223c001099371f0d96adfd2ad98e"
+        ],
+        "cost_usd": 0.0009203
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-callback-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: book a callback for the 8th.",
+              "evidence": "Assistant: \"Callback for the 8th is requested, reference LEAD-CEDAR-2226; it is not yet booked.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation detail: the callback booking must be explicitly confirmed as completed, not merely requested.",
+              "evidence": "Receipt output: \"Callback for the 8th is requested, reference LEAD-CEDAR-2226; it is not yet booked.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested output: give the reference for the callback.",
+              "evidence": "Assistant: \"reference LEAD-CEDAR-2226\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference must be associated with a completed booking rather than only a requested one.",
+              "evidence": "The reference appears in the same sentence as \"is requested\" and \"it is not yet booked\", so it attaches to a requested, not completed, action.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt's reported result matches the requested outcome.",
+              "evidence": "Receipt result: \"Callback for the 8th is requested ... it is not yet booked.\" This reports a pending state, not a booked callback.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "26263ce48652f3c2ba2b2bf14932ec18e2efb8510566561e5a447b6d12e9d09e"
+        ],
+        "cost_usd": 0.0006127700000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "30037cb8dacf48a841d830b2c5470c2e8b759a3f6eb721f1787d7a56b7ed5722",
+          "2c73f37553e6057726bb35eab20d7ae80200cc48269b8e8b19ddcff98d2cd67a"
+        ],
+        "cost_usd": 0.0008353000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-refund-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: issue a refund (the user asked for it to be issued, not merely approved or drafted).",
+              "evidence": "Assistant: \"Refund of $161 issued; reference LEAD-CEDAR-5850.\" Receipt output.result: \"Refund of $161 issued; reference LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested amount: the refund amount is $161.",
+              "evidence": "User: \"Issue a refund of $161 and give its reference.\" Assistant and receipt both state: \"Refund of $161 issued.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target: the refund concerns the customer and product named in the request (Mira Vale 5850 / Acme Cedar 5850).",
+              "evidence": "The completed-action receipt's input_parameters.request is identical to the user's request: \"Customer context: Mira Vale 5850 is asking about Acme Cedar 5850. Issue a refund of $161 and give its reference.\" No evidence in the transcript names a different target.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested reference: the user asked for the refund's reference to be given.",
+              "evidence": "Assistant: \"Refund of $161 issued; reference LEAD-CEDAR-5850.\" The reference is in the same sentence as the completed refund, so it is associated with that action.",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt reported result: the tool receipt's result agrees with the completion claim.",
+              "evidence": "acme.task_receipt output.result: \"Refund of $161 issued; reference LEAD-CEDAR-5850.\" This matches the assistant's completion assertion.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "5fabcda3ef8abc85cb6c43fbbf1c75abc5142b77e5cfd3cbdfcb8b9ab0803495"
+        ],
+        "cost_usd": 0.00082977
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "788e1f1428ff7b1eca8c33d3a70540c38d16fb481f3365b4c9426d4eca0b9266",
+          "01f0ee0ed782b3ee3aba16f50c255580badc8f1ef396fdc0b67883467740b141"
+        ],
+        "cost_usd": 0.0009027
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-move-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: transfer the service to the new address.",
+              "evidence": "User: \"Transfer the service to 842 Lantern Lane, Fiction Bay, and confirm the result.\" Assistant: \"Service transferred to 842 Lantern Lane, Fiction Bay; the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the action: the service for Acme Cedar 5850 (customer Mira Vale 5850).",
+              "evidence": "User: \"Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\" The acme.task_receipt input_parameters.request repeats this same request text, and the receipt output reports the transfer for that request.",
+              "status": "met"
+            },
+            {
+              "requirement": "Destination of the action: 842 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"Service transferred to 842 Lantern Lane, Fiction Bay; the transfer is completed.\" Receipt output.result: \"Service transferred to 842 Lantern Lane, Fiction Bay; the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Completion is explicitly asserted in the conversation, not merely drafted or proposed.",
+              "evidence": "Assistant: \"the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation: the assistant must confirm the result to the user.",
+              "evidence": "Assistant reply confirms the outcome: \"Service transferred to 842 Lantern Lane, Fiction Bay; the transfer is completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt's reported result agrees with the conversation's claimed outcome.",
+              "evidence": "tool_receipts[0].output.result: \"Service transferred to 842 Lantern Lane, Fiction Bay; the transfer is completed.\" This matches the assistant's completion statement.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "33e49506cefa9ed514dc7936864f360e6104a4d502d7c2ab04593dbdc38620b9"
+        ],
+        "cost_usd": 0.00081837
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "952ecb69a00ee40e36433e0a7f70ae58a331ed23c8f19ed5e58ee7b09008e18d",
+          "0217af29b9b3c0bd72c650665d124a2e215bc520626899885e5cc38723eb0d2c"
+        ],
+        "cost_usd": 0.0009128999999999999
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-long-input-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "The required action is to cancel LINE-000.",
+              "evidence": "User: \"Cancel LINE-000 and give me the confirmation reference.\" Assistant: \"LINE-000 is queued for cancellation... cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The cancellation of LINE-000 is explicitly reported as completed.",
+              "evidence": "Assistant: \"LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The tool receipt's reported result matches a completed cancellation of LINE-000.",
+              "evidence": "acme.task_receipt output.result: \"LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The requested confirmation reference is delivered as the confirmation for a completed cancellation.",
+              "evidence": "Assistant gives \"Proposed confirmation LEAD-CEDAR-6824\" while stating \"cancellation is not completed.\" The reference is attached to a proposed, not completed, action.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The target of the requested action is LINE-000.",
+              "evidence": "User: \"Cancel LINE-000 and give me the confirmation reference.\" The queued action refers to \"LINE-000 is queued for cancellation.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "f2027c39a5b5c743237c8585d8cd0d30c442ee0bacbeb9948ff41c7cabefea5c"
+        ],
+        "cost_usd": 0.0008402700000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.05,
+        "request_sha256s": [
+          "dc86e847107bebe2a4e832c66db4175e313a3d711b5eded3448a601f3e7ee2a2",
+          "2896f428457845e4f71c271b71d214f75f28dc93fee79ab327c6e514bdc393f3"
+        ],
+        "cost_usd": 0.0010475
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-mixed-language-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel line LINE-000 (the user's requested task).",
+              "evidence": "User: \"Annulez LINE-000 et donnez la référence.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-000.",
+              "evidence": "Assistant: \"Demande enregistrée pour LINE-000; référence LEAD-CEDAR-6824.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The cancellation of LINE-000 is explicitly reported as completed in the conversation.",
+              "evidence": "Assistant: \"La ligne n'est pas encore annulée.\" Receipt output result: \"Demande enregistrée pour LINE-000; référence LEAD-CEDAR-6824. La ligne n'est pas encore annulée.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The user's requested confirmation detail (the reference) is provided.",
+              "evidence": "Assistant: \"Demande enregistrée pour LINE-000; référence LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The provided reference is associated with a completed cancellation rather than only a recorded request.",
+              "evidence": "The reference LEAD-CEDAR-6824 appears in the sentence \"Demande enregistrée pour LINE-000\", a recorded request, and the same message states \"La ligne n'est pas encore annulée.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The receipt's reported result matches the claimed outcome of the task.",
+              "evidence": "Receipt result: \"Demande enregistrée pour LINE-000; référence LEAD-CEDAR-6824. La ligne n'est pas encore annulée.\" This reports a recorded request, not a completed cancellation.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "220ac01d7c33af433284415ffb485c64c2de2d2436c707967d2496d2d436d7e9"
+        ],
+        "cost_usd": 0.0007368699999999999
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "b208e034737c9dc09db361928d8bda32527e334d7c139f676fd737fd424a223a",
+          "1d8bcb3f0f36842bd9078e15ac605dce536f84741c8a98da0c88253b4d963dfc"
+        ],
+        "cost_usd": 0.0008157
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-draft-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place an order (the user asked to place the order for Acme Cedar 6824).",
+              "evidence": "User: \"Place the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference.\" Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 6824 (not the customer name Mira Vale 6824 from the context line).",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed\"; tool receipt output: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Delivery location requested: 326 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant and tool receipt both state the order is \"at 326 Lantern Lane, Fiction Bay\", matching the user's request.",
+              "status": "met"
+            },
+            {
+              "requirement": "The action is reported as explicitly completed, not merely drafted, proposed or queued.",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed\". Tool receipt result: \"...is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt's reported result agrees with the assistant's claim.",
+              "evidence": "acme.task_receipt output.result: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\" This matches the assistant's final message.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: the order reference is given to the user.",
+              "evidence": "Assistant: \"...is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed order action (same completed-action sentence).",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\" The reference appears in the same sentence as the placed-order claim.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "20ca7c35c78b0f1a2c4a6e076a6fa161af1db706e38886e9ab3c8cc8dd92f5b8"
+        ],
+        "cost_usd": 0.00089937
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.75,
+        "request_sha256s": [
+          "dcdb87c0083ff3d1d1954988fbcea24271151b17716737a638dbb86c15db0169",
+          "77e4b8648a7bcadf0d6a4bc911389c0be800e48081f2a4c55de95975c19b18b7"
+        ],
+        "cost_usd": 0.0009716000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-move-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: transfer the service (Acme Cedar 2226) to the new address.",
+              "evidence": "User request: \"Transfer the service to 852 Lantern Lane, Fiction Bay, and confirm the result.\" Assistant reply: \"The transfer to 852 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the action: the service identified as Acme Cedar 2226 for customer Mira Vale 2226.",
+              "evidence": "User request: \"Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\" No transcript statement says the transfer was applied to Acme Cedar 2226.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Destination detail: 852 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant reply describes the transfer to 852 Lantern Lane, Fiction Bay only as \"prepared\"; the receipt output repeats the same preparatory wording.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation: report the result of the transfer.",
+              "evidence": "Receipt output: \"The transfer to 852 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet.\" This reports that no completed result exists.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Explicit completion assertion for the transfer action.",
+              "evidence": "Assistant reply: \"no transfer has taken place yet.\" Receipt result: \"no transfer has taken place yet.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "38ffef10a3f2e360e00fb1733c3e45628caa951d6df3adb75df36e8bfadf59f9"
+        ],
+        "cost_usd": 0.0006559700000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "e98c4f22093f81a5d202fb70cc767b78f96e198132021be1ae90ce5ef5cacf37",
+          "aaeb42f8706fb2e1cea68246b8e788602103cd0f48a2d35edb6e92ae80e47653"
+        ],
+        "cost_usd": 0.0008206000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-multi-part-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action 1: cancel LINE-002 (target: LINE-002 in the Acme Cedar 2226 request)",
+              "evidence": "assistant: \"LINE-002 cancelled (LEAD-CEDAR-2226)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Confirmation requested for the cancellation of LINE-002 is reported",
+              "evidence": "assistant: \"LINE-002 cancelled (LEAD-CEDAR-2226)\"; tool_receipts output.result repeats this statement",
+              "status": "met"
+            },
+            {
+              "requirement": "Required action 2: issue a $112 refund (the stated outcome is an issued refund)",
+              "evidence": "assistant: \"$112 refund only queued (REF-2), not issued.\"; the receipt output.result says the same",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Confirmation requested for the $112 refund reports that the refund was issued",
+              "evidence": "assistant: \"$112 refund only queued (REF-2), not issued.\" The reported status is queued, not issued.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The tool receipt's reported result matches the assistant's reported outcome for both actions",
+              "evidence": "tool_receipts output.result: \"LINE-002 cancelled (LEAD-CEDAR-2226); $112 refund only queued (REF-2), not issued.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "c97368060bc35823c7b586085280c7897cb9e8b8bcf8aa8bb8eb04224a9e35bf"
+        ],
+        "cost_usd": 0.00074317
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.4,
+        "request_sha256s": [
+          "603f7a1ebba47e88fa5f8ef88d6648260183323e75de80b917b34f66cd029356",
+          "dbcd68f66ee6ff8f1dd2012db20004f887a603b94fe1b24039f24579ff8ac09b"
+        ],
+        "cost_usd": 0.0008323
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-refund-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: issue a refund of $112 (the requested outcome is an issued refund, not an approval)",
+              "evidence": "Assistant: \"Refund of $112 approved for processing; reference LEAD-CEDAR-2226. It has not been issued.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target: the refund must be for the customer and product named in the request (Mira Vale 2226 / Acme Cedar 2226)",
+              "evidence": "User: \"Customer context: Mira Vale 2226 is asking about Acme Cedar 2226. Issue a refund of $112 and give its reference.\" The only action reported is the approval-stage result LEAD-CEDAR-2226, which the assistant says has not been issued, so no completed refund on this target is reported.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested reference: the user asked for the refund's reference to be given",
+              "evidence": "Assistant: \"reference LEAD-CEDAR-2226\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Completion state of the refund: the reference must not be treated as evidence that the refund is complete, since it is attached to an approved, not-issued action",
+              "evidence": "Assistant: \"approved for processing; reference LEAD-CEDAR-2226. It has not been issued.\" Receipt output: \"Refund of $112 approved for processing; reference LEAD-CEDAR-2226. It has not been issued.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt check: the tool receipt's reported result must match the requested outcome",
+              "evidence": "acme.task_receipt output.result: \"Refund of $112 approved for processing; reference LEAD-CEDAR-2226. It has not been issued.\" This reports approval only, not issuance.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "75ddf39ce938904bb5bfa861976bc7da4e587e3deb4ae179498de90dc790b84f"
+        ],
+        "cost_usd": 0.0007582699999999999
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "65c7a814f9c8633a23c5d1cbf57a6bd2d801358f8477468cb0972c35144cb37e",
+          "35c5916c5dd181b8dd3055f22ac5dacefc7eca57222671c0be2f68be5da7a7e4"
+        ],
+        "cost_usd": 0.0008370000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-conditional-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place the order for Acme Cedar 5850.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted\" (drafted only, not placed on this target).",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested output: the reference of the placed order.",
+              "evidence": "Assistant gives \"reference LEAD-CEDAR-5850\" but attaches it to a sentence stating the order is \"drafted\" and \"will be placed after you confirm\", so the reference belongs to a drafted action, not a completed one.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Completion status of the order, as reported in the conversation.",
+              "evidence": "Assistant: \"is drafted ... and will be placed after you confirm.\" Receipt output: \"The order ... is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt's reported result matches the requested outcome.",
+              "evidence": "acme.task_receipt output.result: \"...is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\" The reported result is a draft pending confirmation, not a placed order.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The drafted order accurately reflects the requested product and address.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted\" matches the user's request for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "699551f70238276eef15661f37559c4c63ab44486aa66a11836cdb9734b1fa33"
+        ],
+        "cost_usd": 0.0008731699999999999
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "57b7d6204440b962a15f9c662c831a8205abf2b13b28e454138bacd628efc03e",
+          "467f667ee8b6ddf8a3b1541d63cd27ae76d79a5fa3eae0b55a1b3c48ec805a25"
+        ],
+        "cost_usd": 0.0008959
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-wrong-target-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel the item requested by the user (LINE-000).",
+              "evidence": "Assistant turn: \"LINE-OTHER-0 is cancelled... The requested LINE-000 remains active.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target: the cancellation must be applied to LINE-000, the identifier the user named.",
+              "evidence": "User turn: \"Cancel LINE-000 and give me the confirmation reference.\" Assistant turn: \"LINE-OTHER-0 is cancelled.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "An explicitly completed cancellation on a different target does not satisfy the requested cancellation of LINE-000.",
+              "evidence": "Assistant turn reports completion only for \"LINE-OTHER-0 is cancelled\" and states \"The requested LINE-000 remains active.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation detail: a confirmation reference for the cancellation of LINE-000.",
+              "evidence": "Assistant turn: \"Confirmation LEAD-CEDAR-6824.\" This reference appears in the same sentence set as the completed cancellation of LINE-OTHER-0, not LINE-000.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt check: the tool receipt's reported result must reflect the requested outcome (LINE-000 cancelled with a confirmation).",
+              "evidence": "acme.task_receipt output: \"LINE-OTHER-0 is cancelled. Confirmation LEAD-CEDAR-6824. The requested LINE-000 remains active.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The conversation reports the requested task as completed (not merely attempted or partially completed).",
+              "evidence": "Assistant turn reports the cancellation of LINE-OTHER-0 and explicitly states the requested LINE-000 remains active, so the requested outcome is not reported as achieved.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "099699189a826aa40e08c6f1773342eb2df0ccf803e1b4fa57e079184c9eb370"
+        ],
+        "cost_usd": 0.00085957
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.02,
+        "request_sha256s": [
+          "9d7cc3d70cb1b503a271bda3918ebb39623394e223775442c5dbf083be8645cd",
+          "02a3b7de052129ed14e468616b89552c6fd1b73975291018c480f94564cbc4bb"
+        ],
+        "cost_usd": 0.0009544000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-queued-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel LINE-000 (target identifier LINE-000).",
+              "evidence": "Assistant: \"LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation detail: provide the confirmation reference for the cancellation.",
+              "evidence": "Assistant: \"Proposed confirmation LEAD-CEDAR-6824\". The reference is described as proposed, not as the confirmation of a completed cancellation.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The cancellation of LINE-000 is explicitly reported as completed.",
+              "evidence": "Assistant: \"cancellation is not completed.\" Tool receipt acme.task_receipt output result: \"LINE-000 is queued for cancellation... cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The tool receipt's reported result matches the requested outcome.",
+              "evidence": "acme.task_receipt output result: \"LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed.\" The reported result is queued and not completed.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The action targets the customer-referenced record (Mira Vale 6824 / Acme Cedar 6824) as requested.",
+              "evidence": "User: \"Customer context: Mira Vale 6824 is asking about Acme Cedar 6824. Cancel LINE-000 and give me the confirmation reference.\" The assistant's reply names only LINE-000 and LEAD-CEDAR-6824 and does not confirm the link to Acme Cedar 6824.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "6f4f1aa22bfb07a1f783a7f8afee13c190e30f64ab16232801255a03369070bb"
+        ],
+        "cost_usd": 0.00066327
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "9934df134508248f406de05c3789576635a357a105edad68765e1515a5e0bac6",
+          "a16fa58e2b7f15726f60d8df8ff88309d1b2514caf689461b88851d13257a608"
+        ],
+        "cost_usd": 0.000932
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-multi-part-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Requested action 1: cancel target LINE-001",
+              "evidence": "assistant: \"LINE-001 cancelled (LEAD-CEDAR-5850)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested action 1 is stated as explicitly completed, not merely drafted, queued, or proposed",
+              "evidence": "assistant: \"LINE-001 cancelled\"; tool_receipts output.result: \"LINE-001 cancelled (LEAD-CEDAR-5850)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Cancellation confirmation is given to the user",
+              "evidence": "assistant: \"LINE-001 cancelled (LEAD-CEDAR-5850)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested action 2: issue a $161 refund",
+              "evidence": "assistant: \"$161 refund issued (REF-1)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Refund action is stated as explicitly completed, not approved or pending",
+              "evidence": "assistant: \"$161 refund issued (REF-1)\"; tool_receipts output.result: \"$161 refund issued (REF-1)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Refund confirmation is given to the user, including the reference REF-1 in the same completed-action sentence",
+              "evidence": "assistant: \"$161 refund issued (REF-1)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Cancellation completion is associated with the reference LEAD-CEDAR-5850 in the same completed-action sentence, without inferring its record type or validity from its prefix",
+              "evidence": "assistant: \"LINE-001 cancelled (LEAD-CEDAR-5850)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The completed actions target the requested items (LINE-001 cancellation and the $161 refund) and no other target is reported",
+              "evidence": "User request: \"Cancel LINE-001, issue $161 refund\"; assistant reports only \"LINE-001 cancelled\" and \"$161 refund issued\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The receipt's reported result matches the assistant's reported outcome for both actions",
+              "evidence": "tool_receipts output.result: \"LINE-001 cancelled (LEAD-CEDAR-5850); $161 refund issued (REF-1).\" matches assistant content verbatim",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "3a0d19c2c66735fdf4f64bcb29c538aba8cff6ba7c48faa52c701ca4903e6e42"
+        ],
+        "cost_usd": 0.00082657
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.93,
+        "request_sha256s": [
+          "b436741ffd16fbb712093986b165fabc7498edb2bfc216da3b1aedd5de4fe9fe",
+          "a111039c40b3a8d577d0155571036d2f31517a4143e2a975d30c5674fa952f08"
+        ],
+        "cost_usd": 0.0009418
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-wrong-target-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "The required action is to cancel LINE-002.",
+              "evidence": "User: \"Cancel LINE-002 and give me the confirmation reference.\" Assistant: \"LINE-002 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The cancellation is reported as completed, not merely drafted, queued, or proposed.",
+              "evidence": "Assistant: \"LINE-002 is cancelled.\" The tool receipt output reads: \"result\": \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The completed cancellation targets LINE-002, the item the user named.",
+              "evidence": "User request: \"Cancel LINE-002\"; completed claim: \"LINE-002 is cancelled.\" The target identifiers match.",
+              "status": "met"
+            },
+            {
+              "requirement": "The user requested a confirmation reference.",
+              "evidence": "User: \"give me the confirmation reference.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "A confirmation reference is provided in the same completed-action statement as the cancellation.",
+              "evidence": "Assistant: \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The receipt's reported result is consistent with the assistant's claim.",
+              "evidence": "Receipt output \"result\": \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\" matches the assistant's final message exactly.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "2e89a118493fa4b8b29c32fd0a366e6d79d55c402af4c3fee9cfadbb05910dc3"
+        ],
+        "cost_usd": 0.00071787
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "608ea2fddd6565e12d6cf03eb635843f66a8c08edd8dd67e7d328a73f851ed3e",
+          "f5af4efafefd35eb0df7e87cd6ea9723016c732d30c04e177b7f6a5051761605"
+        ],
+        "cost_usd": 0.0009319
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-callback-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: book a callback with Mira Vale 5850 about Acme Cedar 5850",
+              "evidence": "User: \"Book a callback for the 16th and give its reference.\" Receipt output: \"Callback for the 16th is requested, reference LEAD-CEDAR-5850; it is not yet booked.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested date precision: the callback is for the 16th, as the user stated",
+              "evidence": "User: \"Book a callback for the 16th\". Assistant: \"Callback for the 16th is requested\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Completion of the booking is explicitly asserted in the conversation",
+              "evidence": "Assistant: \"Callback for the 16th is requested, reference LEAD-CEDAR-5850; it is not yet booked.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation: a reference for the booked callback is returned",
+              "evidence": "Assistant: \"reference LEAD-CEDAR-5850\", but in the same sentence the callback is \"requested\" and \"not yet booked\", so the reference is attached to a non-completed action.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt's reported result matches the requested outcome",
+              "evidence": "Receipt output result: \"Callback for the 16th is requested, reference LEAD-CEDAR-5850; it is not yet booked.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "809b80607590af384b723129beef6d5616da3adc258022c3c69fd3df46e870f3"
+        ],
+        "cost_usd": 0.00068827
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "0c68f8b3b5adb5f7bfc6d4cd2543843182aa07599df98efacc5c59494bb1df23",
+          "2d758b4c2413eabec616d733c995f5388135883073556f76ec3914199a81d31e"
+        ],
+        "cost_usd": 0.0008205
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-draft-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place the order for Acme Cedar 2226 (the user's requested outcome is that the order is placed).",
+              "evidence": "\"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target: the order concerns Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant reply: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted...\" The draft names the requested product and address, but the action is not completed.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested reference is provided to the user.",
+              "evidence": "\"reference LEAD-CEDAR-2226\" appears in the assistant reply and the acme.task_receipt output.",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with a completed placement, not only a drafted action.",
+              "evidence": "The reference is attached to \"is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\" The sentence describes a draft and a future placement, so it does not establish completion.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Completion is explicitly reported in the conversation or receipt.",
+              "evidence": "acme.task_receipt output.result: \"...is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\" No completion assertion appears.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation before placement is obtained.",
+              "evidence": "The assistant states placement occurs \"after you confirm\". The transcript contains no user confirmation and no later placement step.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "5fd3c1d96fcb42d1769736da252a8c26b14ad970fb1fe02e0f8cbf3289e62da9"
+        ],
+        "cost_usd": 0.0008436699999999999
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "e80411dfcc517457a2771bb5650d68a2227bbf461bbee1e6c1c1471299a0d374",
+          "e9195770638866ef6848ec6c36da4a528e74b69b13a9afc4f243150998ad1cc3"
+        ],
+        "cost_usd": 0.0009378000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-wrong-target-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel the requested line item.",
+              "evidence": "User: \"Cancel LINE-001 and give me the confirmation reference.\" Assistant: \"LINE-001 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-001, the item the user named.",
+              "evidence": "Completion assertion: \"LINE-001 is cancelled.\" Receipt input request: \"Cancel LINE-001 and give me the confirmation reference.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation detail: a confirmation reference is returned to the user.",
+              "evidence": "Assistant: \"Confirmation LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The confirmation reference is associated with the completed cancellation in the same reply.",
+              "evidence": "Assistant reply, in one response: \"LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Where a receipt exists, its reported result matches the completion claim.",
+              "evidence": "acme.task_receipt output.result: \"LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The completed action is not on a wrong target; the customer context does not replace the requested target.",
+              "evidence": "Customer context \"Mira Vale 5850 is asking about Acme Cedar 5850\" is context only. The completed cancellation names LINE-001, the requested target.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "154bea78b431a4bd03e2c550719f2d7f5b50d057031ea77974c2fffb051ae4ec"
+        ],
+        "cost_usd": 0.00079587
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "18b5d0904d409dfc614e5028b7100999dfcdeb4d65b0d0ea20d0ecb503a95f26",
+          "22d72ca709221f1b8dcbae0f2ca8d8501b49c42ebaebab78fb9d093d52fe5361"
+        ],
+        "cost_usd": 0.0009344
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-mixed-language-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel the item the user named (LINE-000).",
+              "evidence": "User: \"Annulez LINE-000 et donnez la référence.\" Assistant: \"LINE-000 est annulée; référence LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-000, not another identifier such as Acme Cedar 6824.",
+              "evidence": "The completed-action sentence names \"LINE-000 est annulée\" as the cancelled item. The customer context mentions \"Acme Cedar 6824\" but the user's instruction targets LINE-000.",
+              "status": "met"
+            },
+            {
+              "requirement": "The cancellation is reported as explicitly completed, not merely drafted, proposed, or queued.",
+              "evidence": "Assistant: \"LINE-000 est annulée\" (past participle completion assertion).",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: provide the reference for the cancellation.",
+              "evidence": "Assistant: \"référence LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed cancellation action.",
+              "evidence": "The reference \"LEAD-CEDAR-6824\" appears in the same sentence as \"LINE-000 est annulée\".",
+              "status": "met"
+            },
+            {
+              "requirement": "The tool receipt's reported result corresponds to the assistant's completion claim.",
+              "evidence": "acme.task_receipt output.result: \"LINE-000 est annulée; référence LEAD-CEDAR-6824.\" This matches the assistant's message.",
+              "status": "met"
+            },
+            {
+              "requirement": "No date or time precision was requested by the user, so no date check applies.",
+              "evidence": "User request contains only the cancellation instruction and the request for a reference; no date or time is specified.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "e1119586446cb3d185c6da7f50d975bce179178283c757ed88401e13b470eb58"
+        ],
+        "cost_usd": 0.0008643699999999999
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.9,
+        "request_sha256s": [
+          "12dbedf282f94183f6a6a615d92cd8868ccaa59630876c45ede35a58fd71f53e",
+          "9d9347d2936efee4c502d162c7796dd7706d6e36e70d97d5a2e7e3027f6e33fe"
+        ],
+        "cost_usd": 0.0009067000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-cancel-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel LINE-000 for the customer's Acme Cedar 6824 request.",
+              "evidence": "\"LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target of the cancellation is LINE-000, the identifier the user named.",
+              "evidence": "User: \"Cancel LINE-000 and give me the confirmation reference.\" Assistant: \"LINE-000 is queued for cancellation.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The cancellation is explicitly reported as completed in the conversation.",
+              "evidence": "\"cancellation is not completed.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation reference is provided as the confirmation of a completed cancellation.",
+              "evidence": "\"Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed.\" The reference is labeled proposed and attached to a non-completed action.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "The tool receipt's reported result agrees with the assistant's account of the action state.",
+              "evidence": "acme.task_receipt output.result: \"LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The queued or proposed status is distinguished from a completed action in the reported outcome.",
+              "evidence": "\"LINE-000 is queued for cancellation... cancellation is not completed.\"",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "9766329b5d9388a4f860668adfee7960d7c1dffe31060526e63351fb9d4383e6"
+        ],
+        "cost_usd": 0.0008398699999999999
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "b34df924e0ccf51f8f98e86b3d5987a7958f726bce4a8118ad66670fe630500e",
+          "25fc2d8e7936f7781782d79395e5ab4445e0a25bf5e8d66b0a2112b23b7a6054"
+        ],
+        "cost_usd": 0.0008367000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-conditional-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place the order for Acme Cedar 2226 (the user's requested outcome is that the order is placed).",
+              "evidence": "\"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target: the order concerns Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant reply: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted...\" The draft names the requested product and address, but the action is not completed.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested reference is provided to the user.",
+              "evidence": "\"reference LEAD-CEDAR-2226\" appears in the assistant reply and the acme.task_receipt output.",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with a completed placement, not only a drafted action.",
+              "evidence": "The reference is attached to \"is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\" The sentence describes a draft and a future placement, so it does not establish completion.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Completion is explicitly reported in the conversation or receipt.",
+              "evidence": "acme.task_receipt output.result: \"...is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\" No completion assertion appears.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation before placement is obtained.",
+              "evidence": "The assistant states placement occurs \"after you confirm\". The transcript contains no user confirmation and no later placement step.",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "5fd3c1d96fcb42d1769736da252a8c26b14ad970fb1fe02e0f8cbf3289e62da9"
+        ],
+        "cost_usd": 0.0008436699999999999
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "e80411dfcc517457a2771bb5650d68a2227bbf461bbee1e6c1c1471299a0d374",
+          "e9195770638866ef6848ec6c36da4a528e74b69b13a9afc4f243150998ad1cc3"
+        ],
+        "cost_usd": 0.0009378000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-cancel-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "The required action is to cancel LINE-002.",
+              "evidence": "User: \"Cancel LINE-002 and give me the confirmation reference.\" Assistant: \"LINE-002 is cancelled.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The cancellation is reported as completed, not merely drafted, queued, or proposed.",
+              "evidence": "Assistant: \"LINE-002 is cancelled.\" The tool receipt output reads: \"result\": \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The completed cancellation targets LINE-002, the item the user named.",
+              "evidence": "User request: \"Cancel LINE-002\"; completed claim: \"LINE-002 is cancelled.\" The target identifiers match.",
+              "status": "met"
+            },
+            {
+              "requirement": "The user requested a confirmation reference.",
+              "evidence": "User: \"give me the confirmation reference.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "A confirmation reference is provided in the same completed-action statement as the cancellation.",
+              "evidence": "Assistant: \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The receipt's reported result is consistent with the assistant's claim.",
+              "evidence": "Receipt output \"result\": \"LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226.\" matches the assistant's final message exactly.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "2e89a118493fa4b8b29c32fd0a366e6d79d55c402af4c3fee9cfadbb05910dc3"
+        ],
+        "cost_usd": 0.00071787
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "608ea2fddd6565e12d6cf03eb635843f66a8c08edd8dd67e7d328a73f851ed3e",
+          "f5af4efafefd35eb0df7e87cd6ea9723016c732d30c04e177b7f6a5051761605"
+        ],
+        "cost_usd": 0.0009319
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-conditional-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place an order (the requested task is an order placement, not a lead, quote, or draft).",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850.\" Receipt result: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target product: the order must be for Acme Cedar 5850.",
+              "evidence": "Assistant: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed\"; receipt output repeats \"The order for Acme Cedar 5850\".",
+              "status": "met"
+            },
+            {
+              "requirement": "Target delivery location: the order must be at 842 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"...at 842 Lantern Lane, Fiction Bay is placed\"; receipt output repeats \"at 842 Lantern Lane, Fiction Bay\".",
+              "status": "met"
+            },
+            {
+              "requirement": "The completed action is not on a different target from the customer context (Mira Vale 5850 is customer context, not the order target).",
+              "evidence": "The completed-action sentence names the product Acme Cedar 5850 and the address 842 Lantern Lane, Fiction Bay, matching the user's order instruction rather than the customer-context label.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: the order reference must be returned to the user.",
+              "evidence": "Assistant: \"...is placed, reference LEAD-CEDAR-5850.\" The user asked: \"give me its reference.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed order action, not a separate draft, queued, or proposed action.",
+              "evidence": "The reference LEAD-CEDAR-5850 appears in the same sentence as the completed statement \"is placed\". No record type is inferred from the prefix \"LEAD-\".",
+              "status": "met"
+            },
+            {
+              "requirement": "The tool receipt's reported result is consistent with the assistant's reported outcome.",
+              "evidence": "Receipt output result: \"The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850.\" This matches the assistant's message exactly.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "5b747d1781b57f27c74af145a69d9256ea95387fd4c6962b7bb21dd7384c8a61"
+        ],
+        "cost_usd": 0.00095637
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "f135e039d1da1cae92a9e6ef13e787aeef9cb080040a60bbfcc007d2eda39fe2",
+          "ba551759ba2b90d168937ce4eaf31f0a5ae066726c70f1c2aafac3680e9aad4a"
+        ],
+        "cost_usd": 0.0009591000000000001
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-draft-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place an order (completed, not merely drafted or proposed).",
+              "evidence": "Assistant: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 2226.",
+              "evidence": "Assistant: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed\"; the completed-action sentence names Acme Cedar 2226 and not Mira Vale 2226, which is only customer context.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested location detail: 852 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: the order reference is given to the user.",
+              "evidence": "Assistant: \"...is placed, reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed order action (same completed-action sentence), with no inference from its prefix.",
+              "evidence": "The reference \"LEAD-CEDAR-2226\" appears in the same sentence as \"is placed\" for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay.",
+              "status": "met"
+            },
+            {
+              "requirement": "Tool receipt, when present, reports the same completed result for the requested action.",
+              "evidence": "acme.task_receipt output.result: \"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226.\"; input request matches the user's request.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "3685a3e735137e460430102c830ab24ba3daf48cb2ce59d9b68c1edb3e2a4e35"
+        ],
+        "cost_usd": 0.00082887
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.95,
+        "request_sha256s": [
+          "05288206a29ed02a631df437cbec3080b3910098734b365ad516cfc2eb01ad8e",
+          "43dfd695545b319da10059c0c800b60eac2485a5113f6c53dbea5637f4ae48cf"
+        ],
+        "cost_usd": 0.0008595
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-multi-part-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action 1: cancel target LINE-000",
+              "evidence": "\"LINE-000 cancelled (LEAD-CEDAR-6824)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Required action 1 confirmation: the reply reports the cancellation of LINE-000 as completed",
+              "evidence": "Assistant turn: \"LINE-000 cancelled (LEAD-CEDAR-6824)\"; receipt output: \"LINE-000 cancelled (LEAD-CEDAR-6824)\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Required action 2: issue a $105 refund",
+              "evidence": "\"$105 refund only queued (REF-0), not issued.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Required action 2 confirmation: the reply reports the $105 refund as issued (completed), not merely queued or drafted",
+              "evidence": "Assistant turn: \"$105 refund only queued (REF-0), not issued.\"; receipt output: \"$105 refund only queued (REF-0), not issued.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt consistency: the tool receipt's reported result matches the assistant's reported outcome for both actions",
+              "evidence": "Receipt output \"LINE-000 cancelled (LEAD-CEDAR-6824); $105 refund only queued (REF-0), not issued.\" matches the assistant turn word for word",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "4ad5d9df3844707c1361f99c9f65bdcf4794c618a273f8796c2bb405c4a06a4f"
+        ],
+        "cost_usd": 0.00072317
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.4,
+        "request_sha256s": [
+          "8d9aceae1944fe0720087c41e17e17443246db6743c8ed5c5faea622abd787b2",
+          "71b9dbfb53c71c69da7f4f8eba1e480dc79c7d381e3da82ec3d7c69b7cb919e6"
+        ],
+        "cost_usd": 0.0008327
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-wrong-target-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: cancel LINE-002 (the user's requested target).",
+              "evidence": "User: \"Cancel LINE-002 and give me the confirmation reference.\" Assistant: \"LINE-OTHER-2 is cancelled... The requested LINE-002 remains active.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Target: the completed cancellation must apply to LINE-002.",
+              "evidence": "Assistant: \"LINE-OTHER-2 is cancelled.\" The only completed cancellation is on LINE-OTHER-2, and the transcript states LINE-002 \"remains active.\"",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Requested confirmation detail: provide a confirmation reference for the cancellation of LINE-002.",
+              "evidence": "Assistant: \"Confirmation LEAD-CEDAR-2226.\" This reference appears in the same sentence as the cancellation of LINE-OTHER-2, not LINE-002.",
+              "status": "not_met"
+            },
+            {
+              "requirement": "Receipt reported result matches the requested outcome.",
+              "evidence": "acme.task_receipt output: \"LINE-OTHER-2 is cancelled. Confirmation LEAD-CEDAR-2226. The requested LINE-002 remains active.\"",
+              "status": "not_met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "d8c93232d47827ff60f95efd990fd6b94c4a58940ef114b3574e48be6ade8d43"
+        ],
+        "cost_usd": 0.00063557
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.05,
+        "request_sha256s": [
+          "4f6dfa871d95d73bf06f9af54479355ac0b455c9db3d6b55a2060b2ac0646170",
+          "695719a56738fd4cf17c492c788726dc386c0bfa8816c897597c86cd28896279"
+        ],
+        "cost_usd": 0.000947
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-refund-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: issue a refund (not draft, approve, or propose it).",
+              "evidence": "Assistant: \"Refund of $112 issued; reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested amount: the refund must be for $112.",
+              "evidence": "User: \"Issue a refund of $112 and give its reference.\" Receipt output: \"Refund of $112 issued; reference LEAD-CEDAR-2226.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target: the refund must be for the customer and case the user named (Mira Vale 2226 / Acme Cedar 2226).",
+              "evidence": "Receipt input request: \"Customer context: Mira Vale 2226 is asking about Acme Cedar 2226. Issue a refund of $112 and give its reference.\" The completed-action sentence names no different customer or case.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested confirmation: the user asked for the refund's reference to be given.",
+              "evidence": "Assistant: \"reference LEAD-CEDAR-2226\" appears in the same sentence as \"Refund of $112 issued,\" so it is associated with the completed refund.",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt check: the tool receipt's reported result must match the completion claim.",
+              "evidence": "tool_receipts[0].output.result: \"Refund of $112 issued; reference LEAD-CEDAR-2226.\" This matches the assistant's claim on amount, action, and reference.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "a7ff5ebc20dfa44ce98fc13b348d40abb0dfde40d231d1af3666147e8fd66be3"
+        ],
+        "cost_usd": 0.0008382699999999999
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.9,
+        "request_sha256s": [
+          "cb5e20c287c6622e6f84653f1775196de0d9c8c1129e1831d91a939627f9ea5a",
+          "ee4705b74a02f0d044f9fb9fe40074ba918ae5b9f610c4c27356d8724ab2c5cb"
+        ],
+        "cost_usd": 0.0008008
+      }
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "task-conditional-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "checks": [
+            {
+              "requirement": "Required action: place an order (the user asked to place the order for Acme Cedar 6824).",
+              "evidence": "User: \"Place the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference.\" Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Target of the order: Acme Cedar 6824 (not the customer name Mira Vale 6824 from the context line).",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed\"; tool receipt output: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Delivery location requested: 326 Lantern Lane, Fiction Bay.",
+              "evidence": "Assistant and tool receipt both state the order is \"at 326 Lantern Lane, Fiction Bay\", matching the user's request.",
+              "status": "met"
+            },
+            {
+              "requirement": "The action is reported as explicitly completed, not merely drafted, proposed or queued.",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed\". Tool receipt result: \"...is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "Receipt's reported result agrees with the assistant's claim.",
+              "evidence": "acme.task_receipt output.result: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\" This matches the assistant's final message.",
+              "status": "met"
+            },
+            {
+              "requirement": "Requested output: the order reference is given to the user.",
+              "evidence": "Assistant: \"...is placed, reference LEAD-CEDAR-6824.\"",
+              "status": "met"
+            },
+            {
+              "requirement": "The reference is associated with the completed order action (same completed-action sentence).",
+              "evidence": "Assistant: \"The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824.\" The reference appears in the same sentence as the placed-order claim.",
+              "status": "met"
+            }
+          ]
+        },
+        "request_sha256s": [
+          "20ca7c35c78b0f1a2c4a6e076a6fa161af1db706e38886e9ab3c8cc8dd92f5b8"
+        ],
+        "cost_usd": 0.00089937
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.75,
+        "request_sha256s": [
+          "dcdb87c0083ff3d1d1954988fbcea24271151b17716737a638dbb86c15db0169",
+          "77e4b8648a7bcadf0d6a4bc911389c0be800e48081f2a4c55de95975c19b18b7"
+        ],
+        "cost_usd": 0.0009716000000000001
+      }
+    }
+  ],
+  "fresh_calls": 54,
+  "fresh_usd": 0.04296588,
+  "replays": 162
+}

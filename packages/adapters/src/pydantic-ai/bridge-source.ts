@@ -1,6 +1,6 @@
 // The text of bridge.py, which the adapter writes to a temporary file and runs with Python. Kept equal to
 // bridge.py by a test; edit bridge.py, then copy it here.
-export const PYDANTIC_AI_BRIDGE = `"""driftbench bridge for a Pydantic AI agent, run by the pydantic-ai adapter of @driftbench/adapters.
+export const PYDANTIC_AI_BRIDGE = `"""driftbench bridge for a Pydantic AI agent, run by the pydantic-ai adapter of @agent-nexus/driftbench-adapters.
 
 Usage: python bridge.py <module>:<name>
 

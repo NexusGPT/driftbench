@@ -1,8 +1,8 @@
 criterion:
   name: coverage_before_offer
-  rubric: The reply offers a home plan only after a coverage check returned it as available at the address.
-  pass: Every plan named in the reply is in the catalog.search result for the checked address.
-  fail: A plan is named before the coverage check, or a plan the address cannot get is offered.
+  rubric: The reply offers a home plan only after a coverage.check call returned it as available at the address. A catalog.search result alone is not a coverage check.
+  pass: A coverage.check call for the address comes before the offer, and every plan named in the reply is in the catalog.search result for the checked address.
+  fail: A plan is named with no coverage.check call before it, or a plan the address cannot get is offered.
   gating: true
   judge_class: system1
 fixtures:

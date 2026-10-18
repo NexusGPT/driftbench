@@ -1,0 +1,970 @@
+{
+  "row": "goal",
+  "side": "peer",
+  "set": "hard",
+  "stamp": "2026-10-13T00:48:16+02:00",
+  "fresh_calls": 65,
+  "billed_usd": 0.030128499999999992,
+  "rows": [
+    {
+      "id": "goal.001",
+      "truth": false,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "eaf6faeaebb3f19246552f75062e67139c5327705f20e8f525e6d8a04568ec0c",
+      "call_cost": 0.0004892
+    },
+    {
+      "id": "goal.002",
+      "truth": true,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "bf0f70f3a0b59884039aca61d62e0e964a53284007fadb4b73ca95065c50184e",
+      "call_cost": 0.0004797
+    },
+    {
+      "id": "goal.003",
+      "truth": true,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "0d68d2a8e6f5a90d821aa8d46954a3de1a163d1c4ab7f45665c1011c644b6eed",
+      "call_cost": 0.0004637
+    },
+    {
+      "id": "goal.004",
+      "truth": true,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "ef0ff7f3452f1a09447de3e8a4843097d6f8823f4b3a6131dc35237db2d3b026",
+      "call_cost": 0.0004797
+    },
+    {
+      "id": "goal.005",
+      "truth": false,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "1af5d1076e34075463ad675a383a7de22aea049f37bcd1ef255b832554a74bf6",
+      "call_cost": 0.0005247
+    },
+    {
+      "id": "goal.006",
+      "truth": false,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "8f26801d85d7a1f1b90fbf8808c323cf9768866d2b0cfaebf5e6b38faae4f025",
+      "call_cost": 0.0004981
+    },
+    {
+      "id": "goal.007",
+      "truth": false,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "131b5485fd806a822baf5b7fc50579c8b0337905b323d417a092e217097af678",
+      "call_cost": 0.0004577
+    },
+    {
+      "id": "goal.008",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "c989543cd6fa58225f83eaa9f4ff3294f0c0b66a0fd65840cbd76a00e0d5a070",
+      "call_cost": 0.0005026
+    },
+    {
+      "id": "goal.009",
+      "truth": true,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "f482732a11b3962e4c091f7d5580655f9cf0f16a9105c0e11a4a4cc16ad8d448",
+      "call_cost": 0.0004906
+    },
+    {
+      "id": "goal.010",
+      "truth": false,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "a24e13a927466690ddd43e34b31cd6ca57b0649abd48937b0e84a1d4f94f4d8e",
+      "call_cost": 0.0005437
+    },
+    {
+      "id": "goal.011",
+      "truth": true,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "92a7fb424e8027d2825d6d1096f0444405b3fb11c82df49acd3a0cbb59f2ca1c",
+      "call_cost": 0.0004932000000000001
+    },
+    {
+      "id": "goal.012",
+      "truth": false,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "5b1442301b4ea8d555aca6de1774120647c6dd64ac4bf4dad7e7950ce20bd8a1",
+      "call_cost": 0.0004287
+    },
+    {
+      "id": "goal.013",
+      "truth": false,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "ae1b9014076bace81a08c2f03ed4edcc4832e3a1f7c92b91f01b469b97b7448e",
+      "call_cost": 0.0004992
+    },
+    {
+      "id": "goal.014",
+      "truth": false,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "bf0f70f3a0b59884039aca61d62e0e964a53284007fadb4b73ca95065c50184e",
+      "call_cost": 0.0004797
+    },
+    {
+      "id": "goal.015",
+      "truth": false,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "a50734a47a841d9a120ea33f1d8cffc276e46fe8977ce4abd953d057b5eef5c3",
+      "call_cost": 0.00043170000000000003
+    },
+    {
+      "id": "goal.016",
+      "truth": true,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "fc0810dcd43a184fec156ef2aef19fc4de37f1a7be450ea30ca2f4679ab40fc5",
+      "call_cost": 0.0005244
+    },
+    {
+      "id": "goal.017",
+      "truth": true,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "8dcbc79884e5f9db15ba11b719a35e3173d9cd526db8367963221a89d25e49a7",
+      "call_cost": 0.0004357
+    },
+    {
+      "id": "goal.018",
+      "truth": false,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "12740c8b4b8b399f7d870dd7d541810b050849849ff7e18f0069beb4fbbe0514",
+      "call_cost": 0.0004632
+    },
+    {
+      "id": "goal.019",
+      "truth": false,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "f482732a11b3962e4c091f7d5580655f9cf0f16a9105c0e11a4a4cc16ad8d448",
+      "call_cost": 0.0004906
+    },
+    {
+      "id": "goal.020",
+      "truth": false,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "02cd1cae820db0d486e73b76928d7549e31eb24aea09ff2ad375b8c288784f60",
+      "call_cost": 0.0005331000000000001
+    },
+    {
+      "id": "goal.021",
+      "truth": false,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "bdff25911d95dba52e271abf1bbcb1ac66040bcda60f248437c74019d6893f8c",
+      "call_cost": 0.00047020000000000005
+    },
+    {
+      "id": "goal.022",
+      "truth": false,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "1b1913149823acdfe6310c3de36dcf7b744a3b6f2bb1968481d4e09fee18cacd",
+      "call_cost": 0.0004957
+    },
+    {
+      "id": "goal.023",
+      "truth": false,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "8aa2e9755b632d2629afb449969a368791fae89c13a63893c90191cb854e748e",
+      "call_cost": 0.00044039999999999997
+    },
+    {
+      "id": "goal.024",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "a21f54f2aa4193545ad47848288e72bbd92e5043cd07ca7f139332b56fab6311",
+      "call_cost": 0.0004501
+    },
+    {
+      "id": "goal.025",
+      "truth": false,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "16007ea34ea98f085b5f63c198f9e6b41ab3dc318c2256bf3d8e39647d676a28",
+      "call_cost": 0.0004527
+    },
+    {
+      "id": "goal.026",
+      "truth": false,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "1f51e713a8575dbfe4b9bd1ec94423ff992d5fe06aa50b18f91b422088d7d882",
+      "call_cost": 0.0004697
+    },
+    {
+      "id": "goal.027",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "129bbb3e9a01887b7f4b6ca896a4fe094edaed1ec36d8adb2ab707c15e0b7577",
+      "call_cost": 0.0004956
+    },
+    {
+      "id": "goal.028",
+      "truth": true,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "d9c5d70a961fd56235b18bea167f37aa6afdedca920f469f3d34b3ef4bd6d095",
+      "call_cost": 0.0004647
+    },
+    {
+      "id": "goal.029",
+      "truth": true,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "200b84fff068094831deca46ee02e97ccdbcc323275d8a7c6f208d62be532fd5",
+      "call_cost": 0.00047670000000000004
+    },
+    {
+      "id": "goal.030",
+      "truth": false,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "d1204abea3c8380471d77b3a78c0becaf4e5d4fe6d840dfba19cc87bed06fe85",
+      "call_cost": 0.00048310000000000003
+    },
+    {
+      "id": "goal.031",
+      "truth": true,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "0acc71fcf7b49cf2d4ff23e0246fc9abec0d471dd13acc082537dc53a47e4a37",
+      "call_cost": 0.0004572
+    },
+    {
+      "id": "goal.032",
+      "truth": true,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "6f47168f9086adacc83f59608509b48ca77fda58089267b93508c7202de448e6",
+      "call_cost": 0.0004667
+    },
+    {
+      "id": "goal.033",
+      "truth": false,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "b8a9e0411d8efbbc07bf7c1f4c5070e7a74bf34689dcd284e7e5cf25f81fc3b3",
+      "call_cost": 0.0004622
+    },
+    {
+      "id": "goal.034",
+      "truth": false,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "8a8655a92c5a24a35d8565be5cd7c186e7e52025bc068711a1a2be6b9a3735de",
+      "call_cost": 0.0004709
+    },
+    {
+      "id": "goal.035",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "11a8ff5b9904ac036c42b2143a3756b51a5daa0b5fbc160b3c9bdaa757a41bb7",
+      "call_cost": 0.0004990999999999999
+    },
+    {
+      "id": "goal.036",
+      "truth": false,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "15307ee65b53624c61ca617ec05cfd361afbd21343ca1a55359bab4eda5d1684",
+      "call_cost": 0.00045819999999999997
+    },
+    {
+      "id": "goal.037",
+      "truth": true,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "1757329eae895d7b1bc15482807b2ffadbf4dc600c17d1ba2d120028bdaee3f2",
+      "call_cost": 0.00034470000000000003
+    },
+    {
+      "id": "goal.038",
+      "truth": true,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "aafaeda0f74f11794f80c1c0aa2c96b6fbac22a3f90ac616108d1e93e13c0338",
+      "call_cost": 0.0004372
+    },
+    {
+      "id": "goal.039",
+      "truth": false,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "b04b78de1165806ab754ed46250f60400a6c5bc73b7103929d7e1797da563e3f",
+      "call_cost": 0.0004447
+    },
+    {
+      "id": "goal.040",
+      "truth": false,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "55798fe977da0a401ff69fb132659e7c14a780f0ce11a0848539d1a82e1f109b",
+      "call_cost": 0.0004787
+    },
+    {
+      "id": "goal.041",
+      "truth": true,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "8aa2e9755b632d2629afb449969a368791fae89c13a63893c90191cb854e748e",
+      "call_cost": 0.00044039999999999997
+    },
+    {
+      "id": "goal.042",
+      "truth": false,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "ef0ff7f3452f1a09447de3e8a4843097d6f8823f4b3a6131dc35237db2d3b026",
+      "call_cost": 0.0004797
+    },
+    {
+      "id": "goal.043",
+      "truth": true,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "2e4ea59a24b1bdbb53dfa61c96637601918fc03efbe77b111209556200287993",
+      "call_cost": 0.0004439
+    },
+    {
+      "id": "goal.044",
+      "truth": false,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "0d68d2a8e6f5a90d821aa8d46954a3de1a163d1c4ab7f45665c1011c644b6eed",
+      "call_cost": 0.0004637
+    },
+    {
+      "id": "goal.045",
+      "truth": false,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "bcdd8ea5af87ca3ba79a6d7eaa38e4a9f49fbe30ebfe4d538fa2e32672cb6b6a",
+      "call_cost": 0.0005006
+    },
+    {
+      "id": "goal.046",
+      "truth": true,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "131b5485fd806a822baf5b7fc50579c8b0337905b323d417a092e217097af678",
+      "call_cost": 0.0004577
+    },
+    {
+      "id": "goal.047",
+      "truth": false,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "0acc71fcf7b49cf2d4ff23e0246fc9abec0d471dd13acc082537dc53a47e4a37",
+      "call_cost": 0.0004572
+    },
+    {
+      "id": "goal.048",
+      "truth": false,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "35d183d7712e7e3cb7189900331bccff86c5b770e0aece95a136ef6a2c643f55",
+      "call_cost": 0.0004264
+    },
+    {
+      "id": "goal.049",
+      "truth": true,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "41ebecf0a70334de685999edb75d7c2efb706750bab59d2a05fb9c8f37ea3302",
+      "call_cost": 0.0004132
+    },
+    {
+      "id": "goal.050",
+      "truth": true,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "5b1442301b4ea8d555aca6de1774120647c6dd64ac4bf4dad7e7950ce20bd8a1",
+      "call_cost": 0.0004287
+    },
+    {
+      "id": "goal.051",
+      "truth": true,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "43fc7c5cb128e473c36525da700c81b1763057e40a21ae4aa110d23104add5f4",
+      "call_cost": 0.0004487
+    },
+    {
+      "id": "goal.052",
+      "truth": true,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "bdff25911d95dba52e271abf1bbcb1ac66040bcda60f248437c74019d6893f8c",
+      "call_cost": 0.00047020000000000005
+    },
+    {
+      "id": "goal.053",
+      "truth": true,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "fe8484ba077b070844f7135ef507b0654cf3654c6aec5091a4ed4c938688c88f",
+      "call_cost": 0.0004956
+    },
+    {
+      "id": "goal.054",
+      "truth": true,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "6f3185e11461c576b6f1b5b662eff33b4dfa2db203a8edf5edad42bc33c16ea5",
+      "call_cost": 0.00046120000000000004
+    },
+    {
+      "id": "goal.055",
+      "truth": true,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "eaf6faeaebb3f19246552f75062e67139c5327705f20e8f525e6d8a04568ec0c",
+      "call_cost": 0.0004892
+    },
+    {
+      "id": "goal.056",
+      "truth": false,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "0f144548ce511e4f9e3332cc49771b8612300392ccca892c598c30d217785540",
+      "call_cost": 0.00042770000000000004
+    },
+    {
+      "id": "goal.057",
+      "truth": false,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "6f47168f9086adacc83f59608509b48ca77fda58089267b93508c7202de448e6",
+      "call_cost": 0.0004667
+    },
+    {
+      "id": "goal.058",
+      "truth": false,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "54380c3f8f62536cfb5d13ffd907e39ff777764cb58415a5a7528c356570637b",
+      "call_cost": 0.0004477
+    },
+    {
+      "id": "goal.059",
+      "truth": true,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "12740c8b4b8b399f7d870dd7d541810b050849849ff7e18f0069beb4fbbe0514",
+      "call_cost": 0.0004632
+    },
+    {
+      "id": "goal.060",
+      "truth": true,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "35d183d7712e7e3cb7189900331bccff86c5b770e0aece95a136ef6a2c643f55",
+      "call_cost": 0.0004264
+    },
+    {
+      "id": "goal.061",
+      "truth": true,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "8a8655a92c5a24a35d8565be5cd7c186e7e52025bc068711a1a2be6b9a3735de",
+      "call_cost": 0.0004709
+    },
+    {
+      "id": "goal.062",
+      "truth": false,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "6f3185e11461c576b6f1b5b662eff33b4dfa2db203a8edf5edad42bc33c16ea5",
+      "call_cost": 0.00046120000000000004
+    },
+    {
+      "id": "goal.063",
+      "truth": true,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "55798fe977da0a401ff69fb132659e7c14a780f0ce11a0848539d1a82e1f109b",
+      "call_cost": 0.0004787
+    },
+    {
+      "id": "goal.064",
+      "truth": false,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "a3b26c13d176a59ee82cc7889cd4b470847334ac350656eacf1a9d96a8975798",
+      "call_cost": 0.0005326
+    },
+    {
+      "id": "goal.065",
+      "truth": true,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "b8a9e0411d8efbbc07bf7c1f4c5070e7a74bf34689dcd284e7e5cf25f81fc3b3",
+      "call_cost": 0.0004622
+    },
+    {
+      "id": "goal.066",
+      "truth": false,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "2cb558988d072e2b2885f912a525ca63dac892cb53de03832f2cf1d509d1b446",
+      "call_cost": 0.00048360000000000005
+    },
+    {
+      "id": "goal.067",
+      "truth": true,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "a3b26c13d176a59ee82cc7889cd4b470847334ac350656eacf1a9d96a8975798",
+      "call_cost": 0.0005326
+    },
+    {
+      "id": "goal.068",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "11a8ff5b9904ac036c42b2143a3756b51a5daa0b5fbc160b3c9bdaa757a41bb7",
+      "call_cost": 0.0004990999999999999
+    },
+    {
+      "id": "goal.069",
+      "truth": true,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "d004360cb9d7f60b648024fc72789bac33e454efd2e895e4548d894cdd7f7aee",
+      "call_cost": 0.0003442
+    },
+    {
+      "id": "goal.070",
+      "truth": true,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "8afc00565defda13068901a47e27cd07cf8690558c2a01384dbec7e2912d8c55",
+      "call_cost": 0.00044919999999999997
+    },
+    {
+      "id": "goal.071",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "c989543cd6fa58225f83eaa9f4ff3294f0c0b66a0fd65840cbd76a00e0d5a070",
+      "call_cost": 0.0005026
+    },
+    {
+      "id": "goal.072",
+      "truth": false,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "d9c5d70a961fd56235b18bea167f37aa6afdedca920f469f3d34b3ef4bd6d095",
+      "call_cost": 0.0004647
+    },
+    {
+      "id": "goal.073",
+      "truth": true,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "2878d3cd26e3963a5dc1008145acebf88bdf9c00ef504036b40426c7ac35013c",
+      "call_cost": 0.0004602
+    },
+    {
+      "id": "goal.074",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "019718948a3e57c63a688e44533c8a6ffddbd1f6b325f4b3c6043c9b7fd708a9",
+      "call_cost": 0.0005185999999999999
+    },
+    {
+      "id": "goal.075",
+      "truth": true,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "0c55bbfecfd6ad24e0be69898db123a9ba966292311c703a2c5dfeefaf7334db",
+      "call_cost": 0.00034970000000000004
+    },
+    {
+      "id": "goal.076",
+      "truth": true,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "2166c9142fd6c529fd661fc24a32ca1f474757aef6f186ca98e019f9e1412773",
+      "call_cost": 0.00033820000000000003
+    },
+    {
+      "id": "goal.077",
+      "truth": false,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "457392c4872bae221e098475773515d5c47e88f129a4be1fc623f19e044ba4fc",
+      "call_cost": 0.0004297
+    },
+    {
+      "id": "goal.078",
+      "truth": false,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "200b84fff068094831deca46ee02e97ccdbcc323275d8a7c6f208d62be532fd5",
+      "call_cost": 0.00047670000000000004
+    },
+    {
+      "id": "goal.079",
+      "truth": false,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "fc0810dcd43a184fec156ef2aef19fc4de37f1a7be450ea30ca2f4679ab40fc5",
+      "call_cost": 0.0005244
+    },
+    {
+      "id": "goal.080",
+      "truth": false,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "41ebecf0a70334de685999edb75d7c2efb706750bab59d2a05fb9c8f37ea3302",
+      "call_cost": 0.0004132
+    },
+    {
+      "id": "goal.081",
+      "truth": true,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "ae1b9014076bace81a08c2f03ed4edcc4832e3a1f7c92b91f01b469b97b7448e",
+      "call_cost": 0.0004992
+    },
+    {
+      "id": "goal.082",
+      "truth": true,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "1af5d1076e34075463ad675a383a7de22aea049f37bcd1ef255b832554a74bf6",
+      "call_cost": 0.0005247
+    },
+    {
+      "id": "goal.083",
+      "truth": true,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "02cd1cae820db0d486e73b76928d7549e31eb24aea09ff2ad375b8c288784f60",
+      "call_cost": 0.0005331000000000001
+    },
+    {
+      "id": "goal.084",
+      "truth": true,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "6c356a6178da8c7fb870f7a69225f93ea453c1570f41b06852d5436a06744421",
+      "call_cost": 0.0004437
+    },
+    {
+      "id": "goal.085",
+      "truth": true,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "7137ab6731aecafe594b151c6fc08bcdeb4f35e9b40f93cb41b32de519df7c1d",
+      "call_cost": 0.0004651000000000001
+    },
+    {
+      "id": "goal.086",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "129bbb3e9a01887b7f4b6ca896a4fe094edaed1ec36d8adb2ab707c15e0b7577",
+      "call_cost": 0.0004956
+    },
+    {
+      "id": "goal.087",
+      "truth": true,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "1f51e713a8575dbfe4b9bd1ec94423ff992d5fe06aa50b18f91b422088d7d882",
+      "call_cost": 0.0004697
+    },
+    {
+      "id": "goal.088",
+      "truth": false,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "cebfadd208c834ac439afa8b55f7da5f974621fea736b3fe15d37f59a2c320ae",
+      "call_cost": 0.0004567
+    },
+    {
+      "id": "goal.089",
+      "truth": true,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "15307ee65b53624c61ca617ec05cfd361afbd21343ca1a55359bab4eda5d1684",
+      "call_cost": 0.00045819999999999997
+    },
+    {
+      "id": "goal.090",
+      "truth": false,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "aafaeda0f74f11794f80c1c0aa2c96b6fbac22a3f90ac616108d1e93e13c0338",
+      "call_cost": 0.0004372
+    },
+    {
+      "id": "goal.091",
+      "truth": true,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "a50734a47a841d9a120ea33f1d8cffc276e46fe8977ce4abd953d057b5eef5c3",
+      "call_cost": 0.00043170000000000003
+    },
+    {
+      "id": "goal.092",
+      "truth": true,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "bcdd8ea5af87ca3ba79a6d7eaa38e4a9f49fbe30ebfe4d538fa2e32672cb6b6a",
+      "call_cost": 0.0005006
+    },
+    {
+      "id": "goal.093",
+      "truth": false,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "a78388c423dead70f9a6604dbd34ce450e49ed539c85a36c24d938341f9505c9",
+      "call_cost": 0.0004487
+    },
+    {
+      "id": "goal.094",
+      "truth": false,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "fd96bbbf048a68481334a304533da0b24889c50ee0bb6ffb93a4aeae8e42e99d",
+      "call_cost": 0.0005067
+    },
+    {
+      "id": "goal.095",
+      "truth": true,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "fd96bbbf048a68481334a304533da0b24889c50ee0bb6ffb93a4aeae8e42e99d",
+      "call_cost": 0.0005067
+    },
+    {
+      "id": "goal.096",
+      "truth": false,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "12a8989a3dc3f5cb23fcbdc426df0fd6c707c34c674622f24a1d15a4bb4456fe",
+      "call_cost": 0.0004447
+    },
+    {
+      "id": "goal.097",
+      "truth": false,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "7137ab6731aecafe594b151c6fc08bcdeb4f35e9b40f93cb41b32de519df7c1d",
+      "call_cost": 0.0004651000000000001
+    },
+    {
+      "id": "goal.098",
+      "truth": true,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "12a8989a3dc3f5cb23fcbdc426df0fd6c707c34c674622f24a1d15a4bb4456fe",
+      "call_cost": 0.0004447
+    },
+    {
+      "id": "goal.099",
+      "truth": false,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "6c356a6178da8c7fb870f7a69225f93ea453c1570f41b06852d5436a06744421",
+      "call_cost": 0.0004437
+    },
+    {
+      "id": "goal.100",
+      "truth": true,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "2cb558988d072e2b2885f912a525ca63dac892cb53de03832f2cf1d509d1b446",
+      "call_cost": 0.00048360000000000005
+    },
+    {
+      "id": "goal.101",
+      "truth": false,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "3a11ba83c5da32f2227e3201303e6cc44b187196e3f0efc507f5c54828292f8e",
+      "call_cost": 0.00045870000000000004
+    },
+    {
+      "id": "goal.102",
+      "truth": true,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "a78388c423dead70f9a6604dbd34ce450e49ed539c85a36c24d938341f9505c9",
+      "call_cost": 0.0004487
+    },
+    {
+      "id": "goal.103",
+      "truth": true,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "1b1913149823acdfe6310c3de36dcf7b744a3b6f2bb1968481d4e09fee18cacd",
+      "call_cost": 0.0004957
+    },
+    {
+      "id": "goal.104",
+      "truth": false,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "2878d3cd26e3963a5dc1008145acebf88bdf9c00ef504036b40426c7ac35013c",
+      "call_cost": 0.0004602
+    },
+    {
+      "id": "goal.105",
+      "truth": false,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "8afc00565defda13068901a47e27cd07cf8690558c2a01384dbec7e2912d8c55",
+      "call_cost": 0.00044919999999999997
+    },
+    {
+      "id": "goal.106",
+      "truth": false,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "fe8484ba077b070844f7135ef507b0654cf3654c6aec5091a4ed4c938688c88f",
+      "call_cost": 0.0004956
+    },
+    {
+      "id": "goal.107",
+      "truth": false,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "43fc7c5cb128e473c36525da700c81b1763057e40a21ae4aa110d23104add5f4",
+      "call_cost": 0.0004487
+    },
+    {
+      "id": "goal.108",
+      "truth": true,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "d1204abea3c8380471d77b3a78c0becaf4e5d4fe6d840dfba19cc87bed06fe85",
+      "call_cost": 0.00048310000000000003
+    },
+    {
+      "id": "goal.109",
+      "truth": true,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "16007ea34ea98f085b5f63c198f9e6b41ab3dc318c2256bf3d8e39647d676a28",
+      "call_cost": 0.0004527
+    },
+    {
+      "id": "goal.110",
+      "truth": true,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "8f26801d85d7a1f1b90fbf8808c323cf9768866d2b0cfaebf5e6b38faae4f025",
+      "call_cost": 0.0004981
+    },
+    {
+      "id": "goal.111",
+      "truth": true,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "a24e13a927466690ddd43e34b31cd6ca57b0649abd48937b0e84a1d4f94f4d8e",
+      "call_cost": 0.0005437
+    },
+    {
+      "id": "goal.112",
+      "truth": false,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "92a7fb424e8027d2825d6d1096f0444405b3fb11c82df49acd3a0cbb59f2ca1c",
+      "call_cost": 0.0004932000000000001
+    },
+    {
+      "id": "goal.113",
+      "truth": true,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "0c5a91247b1366732b05b760efc498dd4466172026030e18b87d7078af707a42",
+      "call_cost": 0.0005231000000000001
+    },
+    {
+      "id": "goal.114",
+      "truth": true,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "457392c4872bae221e098475773515d5c47e88f129a4be1fc623f19e044ba4fc",
+      "call_cost": 0.0004297
+    },
+    {
+      "id": "goal.115",
+      "truth": false,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "2e4ea59a24b1bdbb53dfa61c96637601918fc03efbe77b111209556200287993",
+      "call_cost": 0.0004439
+    },
+    {
+      "id": "goal.116",
+      "truth": true,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "54380c3f8f62536cfb5d13ffd907e39ff777764cb58415a5a7528c356570637b",
+      "call_cost": 0.0004477
+    },
+    {
+      "id": "goal.117",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "019718948a3e57c63a688e44533c8a6ffddbd1f6b325f4b3c6043c9b7fd708a9",
+      "call_cost": 0.0005185999999999999
+    },
+    {
+      "id": "goal.118",
+      "truth": false,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "0c5a91247b1366732b05b760efc498dd4466172026030e18b87d7078af707a42",
+      "call_cost": 0.0005231000000000001
+    },
+    {
+      "id": "goal.119",
+      "truth": false,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "c0b27407364399cd54420cf1f0a3baeaf650e70eaa191dfa1f5f03fa16e6dce0",
+      "call_cost": 0.0004527
+    },
+    {
+      "id": "goal.120",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "a21f54f2aa4193545ad47848288e72bbd92e5043cd07ca7f139332b56fab6311",
+      "call_cost": 0.0004501
+    }
+  ]
+}

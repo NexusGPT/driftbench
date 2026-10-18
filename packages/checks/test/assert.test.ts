@@ -1,4 +1,4 @@
-import type { Assertion } from '@driftbench/core';
+import type { Assertion } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { checkAssertion } from '../src/support/assert';
 import { countAllows, describeCount } from '../src/support/count';
@@ -63,6 +63,28 @@ describe('assertions: every form the spec allows', () => {
 
   it('nonempty refuses a mapping whose only key holds undefined; core agrees', () => {
     expect(checkAssertion({ key: undefined }, { nonempty: true }).ok).toBe(false);
+  });
+
+  // docs/reference/checks.md "Assertions on values": nonempty is "not a mapping whose keys hold nothing", and
+  // a key holds nothing when its value is null, a blank string, an empty list or a mapping that holds nothing.
+  it('nonempty refuses a mapping whose keys hold nothing: null, blank, empty list or empty mapping, at any depth', () => {
+    for (const value of [
+      { a: '' },
+      { a: '   ' },
+      { a: [] },
+      { a: {} },
+      { a: null },
+      { a: '', b: null },
+      { a: { b: '', c: [] } },
+    ]) {
+      expect(checkAssertion(value, { nonempty: true }).ok, JSON.stringify(value)).toBe(false);
+    }
+  });
+
+  it('nonempty accepts a mapping with one key that holds something, whatever the others hold', () => {
+    for (const value of [{ a: '', b: 'x' }, { a: 0 }, { a: false }, { a: { b: '', c: 1 } }, { a: ['x'] }]) {
+      expect(checkAssertion(value, { nonempty: true }).ok, JSON.stringify(value)).toBe(true);
+    }
   });
 
   it('equality ignores keys that hold undefined and keeps array order', () => {

@@ -1,0 +1,1396 @@
+{
+  "competitor": "promptfoo",
+  "row": "rubric",
+  "contestant": "theirs",
+  "model": "haiku",
+  "items": 126,
+  "complete": 126,
+  "results": [
+    {
+      "id": "promptfoo.rubric.001",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "da612f7989e4846691ddf6b68421fae69a71e5136ad1cd550eeaa5d365d32123"
+      ],
+      "costUsd": 0.00028240000000000003
+    },
+    {
+      "id": "promptfoo.rubric.002",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "0b774ea4284046acd28dcd37c3c6a931132a088f5263e6e923ce3c1abb05a8fd"
+      ],
+      "costUsd": 0.0003392
+    },
+    {
+      "id": "promptfoo.rubric.003",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "8ae0c8d998b1cdcd9069a21902e1eeeb6ccc395515841a0b2dbb2147db3cd31c"
+      ],
+      "costUsd": 0.00018350000000000002
+    },
+    {
+      "id": "promptfoo.rubric.004",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "8ca93973635ccc570fac89bfbc42eebc7996be8d37e9f3b972cfc38e86aa6652"
+      ],
+      "costUsd": 0.0002676
+    },
+    {
+      "id": "promptfoo.rubric.005",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f27073cf9f4a65bd64061bc6d4cbf601077a5b9d4b86fe8908fbc9324246b380"
+      ],
+      "costUsd": 0.00023730000000000002
+    },
+    {
+      "id": "promptfoo.rubric.006",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "1483b49f6fc49c65f21da8770eb46cf4f346aacb2d61d76e43b5114098a20249"
+      ],
+      "costUsd": 0.0002566
+    },
+    {
+      "id": "promptfoo.rubric.007",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f6cf50c5265fc22d3af99352690ecf21412554c545fefb096a174359e793ae43"
+      ],
+      "costUsd": 0.00019490000000000002
+    },
+    {
+      "id": "promptfoo.rubric.008",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "8f0a1545cc6606cdd67ed5f8dc74a2df791164e70e14b20c0a1f1cfd78b8ad82"
+      ],
+      "costUsd": 0.0001787
+    },
+    {
+      "id": "promptfoo.rubric.009",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "45128aea92d53e6063b2a65ed22d314b5a9d3789c2536f81be1a26fcca16a8f6"
+      ],
+      "costUsd": 0.00027650000000000005
+    },
+    {
+      "id": "promptfoo.rubric.010",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "96cdfc3e0381ab284ebd89cfdbb449c9b155c283f09bec6e317dc0a589497f79"
+      ],
+      "costUsd": 0.0001974
+    },
+    {
+      "id": "promptfoo.rubric.011",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "b31b8a4662b66d56772103129788656b2b9fe858ce1d1b28efce1a0b9923e9e5"
+      ],
+      "costUsd": 0.0001812
+    },
+    {
+      "id": "promptfoo.rubric.012",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "58c87a4a8bbe0b7d1674e9c61fca8854781480156456bec5a3178ba8fa48753b"
+      ],
+      "costUsd": 0.0002572
+    },
+    {
+      "id": "promptfoo.rubric.013",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "91e043446cc92d7665bb8504aa33689ac542806340cec437a2d3cf8ebbd3e0ec"
+      ],
+      "costUsd": 0.0002347
+    },
+    {
+      "id": "promptfoo.rubric.014",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "e7bd66e2c43a8fb6cc84bdb4f28c2007fa77e4cea5d30af571fd2abf1cfd1813"
+      ],
+      "costUsd": 0.00032820000000000006
+    },
+    {
+      "id": "promptfoo.rubric.015",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "cff2cec59a41d12749193a53f339724c054d6afc5db2303c660062f233973e8d"
+      ],
+      "costUsd": 0.00020410000000000003
+    },
+    {
+      "id": "promptfoo.rubric.016",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f2c08e01e33c729f71b21b7c377145af0640d37d5ea86745164a2ce93ffb3e1e"
+      ],
+      "costUsd": 0.0002682
+    },
+    {
+      "id": "promptfoo.rubric.017",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "2a77d92121c62fc3700fe5f766af89c553273369a2747ad9038717bf32999d11"
+      ],
+      "costUsd": 0.00019020000000000002
+    },
+    {
+      "id": "promptfoo.rubric.018",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "bdf0848d7f81407b32a421a710267de0955383a82298d0f192ae843256748022"
+      ],
+      "costUsd": 0.00032490000000000004
+    },
+    {
+      "id": "promptfoo.rubric.019",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f89face33d027d7c523cf0aa2d29e6f28c33c0fa735050eb02415424e676eb06"
+      ],
+      "costUsd": 0.0003925
+    },
+    {
+      "id": "promptfoo.rubric.020",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "14c7e7c75a57b9278d9bad05a7e2d92776937a774503cc092ca8a31e43d87001"
+      ],
+      "costUsd": 0.0003132
+    },
+    {
+      "id": "promptfoo.rubric.021",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "5b68c50d94a90d3deee4eba6c519ffbc9ec0b54ab345c05008173d6381760a1a"
+      ],
+      "costUsd": 0.00023550000000000003
+    },
+    {
+      "id": "promptfoo.rubric.022",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "06c44c1cc37022fc3d771c7bc88190d749a7e7451465dae56eeffdf37028a906"
+      ],
+      "costUsd": 0.0003613
+    },
+    {
+      "id": "promptfoo.rubric.023",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "5ec0b5d0055ac49efda329bb70a40970f54915ad3476e12f96cd04cbb2de8ba2"
+      ],
+      "costUsd": 0.00017820000000000002
+    },
+    {
+      "id": "promptfoo.rubric.024",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "198619980bafb1ed533bceb2a185fb52cc29804b6d9dd5e6c2d030f2b59d18a1"
+      ],
+      "costUsd": 0.00017940000000000002
+    },
+    {
+      "id": "promptfoo.rubric.025",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "c74a006b578d4430dcb275330347adf78d277e36964e7a0fc772d2c929403576"
+      ],
+      "costUsd": 0.0002568
+    },
+    {
+      "id": "promptfoo.rubric.026",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "c9ac13d22fff814e8b4a4d7bdc6e3b8adc4585b916c586672ba575f650f668ec"
+      ],
+      "costUsd": 0.0001747
+    },
+    {
+      "id": "promptfoo.rubric.027",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "38512e60bb0466bd244b467e06c97ebd00e95e5650e41af2d8bbd73e60e2137d"
+      ],
+      "costUsd": 0.0002014
+    },
+    {
+      "id": "promptfoo.rubric.028",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "886df1d7ce1fc1656ef2b939595e3e885c26b8ee8e691c9de2b97ec814eb51c2"
+      ],
+      "costUsd": 0.0002542
+    },
+    {
+      "id": "promptfoo.rubric.029",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "45cc2c1bc6fe2fad147e06889c940623cb62e20129fb91df9b22cb645216ae82"
+      ],
+      "costUsd": 0.0004486
+    },
+    {
+      "id": "promptfoo.rubric.030",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "f9369daba5cb17c15bf6ddf4c838645bd4c64327349b6275ab15d61604996333"
+      ],
+      "costUsd": 0.0002612
+    },
+    {
+      "id": "promptfoo.rubric.031",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "d66fac43ca3d669def1f5543d7f3b6e596df551d953c7714a50fca766f6e08a7"
+      ],
+      "costUsd": 0.00019750000000000003
+    },
+    {
+      "id": "promptfoo.rubric.032",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "23de0abebb89d7f4a54c3468d87a6f507969dca97198c95775fb7172ddfea73e"
+      ],
+      "costUsd": 0.00020370000000000002
+    },
+    {
+      "id": "promptfoo.rubric.033",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "4caae607d89d6221e79e36ab7db7e3e472698905dc660c67c07b848cc06ec892"
+      ],
+      "costUsd": 0.000277
+    },
+    {
+      "id": "promptfoo.rubric.034",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "25a5193b67ca01108d3db5b4aa2403748c64cd0f39c7cd52af8438c08c363828"
+      ],
+      "costUsd": 0.0002528
+    },
+    {
+      "id": "promptfoo.rubric.035",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e54410d1bddf1e94b52cde8808cd29a0ee82d8edda61badd60374f7ff9c9f920"
+      ],
+      "costUsd": 0.0002413
+    },
+    {
+      "id": "promptfoo.rubric.036",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "7b967793b7963a5fe45de142fe65e65e3bb1927f2aacd839be8ad394ab40909f"
+      ],
+      "costUsd": 0.0001961
+    },
+    {
+      "id": "promptfoo.rubric.037",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "52bc5fa005c9f282192b0177450963f8b785f9ece188788dbc9c8fc74ea514db"
+      ],
+      "costUsd": 0.0002832
+    },
+    {
+      "id": "promptfoo.rubric.038",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "bf1726d8b3a55bc326cd9f28e0a979ec2d9a3da3b6fb74245650ef21272a62dd"
+      ],
+      "costUsd": 0.0003074
+    },
+    {
+      "id": "promptfoo.rubric.039",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "339b1f8afacafb00a424bafe4c4ff0e565459d5a541b96f255482b32a9c92faa"
+      ],
+      "costUsd": 0.0001893
+    },
+    {
+      "id": "promptfoo.rubric.040",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "be638b3e5a0c9d2dafbdde1f414541fa49d23040b57d296a99cddb5c2e845f23"
+      ],
+      "costUsd": 0.0003346
+    },
+    {
+      "id": "promptfoo.rubric.041",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "5b93bb64de4c28d43288a0d7921d2c07adf446e1912421e01ba76bdda1867fd9"
+      ],
+      "costUsd": 0.0002538
+    },
+    {
+      "id": "promptfoo.rubric.042",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "2faaf893cac7db7a2db61745dd5ee0862a2b2a8a91f898655d6bd6d08f3f9705"
+      ],
+      "costUsd": 0.0001785
+    },
+    {
+      "id": "promptfoo.rubric.043",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "995763441841c0ffb0597d972b16daa4381b3e12fb87642e84acae73120e5b59"
+      ],
+      "costUsd": 0.0001921
+    },
+    {
+      "id": "promptfoo.rubric.044",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "d7c05c803241f8183cc8864815095b1897ca3320bbdca20e6a3f3a935209ac50"
+      ],
+      "costUsd": 0.0003405
+    },
+    {
+      "id": "promptfoo.rubric.045",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "0ae84eba353135854b5fb2e648ffd15982f66fc31ced6189cf9d1f508d4de5cd"
+      ],
+      "costUsd": 0.00032700000000000003
+    },
+    {
+      "id": "promptfoo.rubric.046",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "1e1e7d880248a2139891ee94901f570c15279fa13cce0a4089ac9faaa988ceac"
+      ],
+      "costUsd": 0.0003461
+    },
+    {
+      "id": "promptfoo.rubric.047",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "cfff96e759fdcb8e5764c57f11444c54c964c241d8a6486c4fe2b93d9f640261"
+      ],
+      "costUsd": 0.0002666
+    },
+    {
+      "id": "promptfoo.rubric.048",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "6e93e7d4ceb4d94862f95130a8db4ba32a3dc8e66880da1e4a2a9f17a75776ed"
+      ],
+      "costUsd": 0.00019820000000000002
+    },
+    {
+      "id": "promptfoo.rubric.049",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "a809e5abfec23b54565c01ad77657f2366ab1811b6bb0e983920539f1a2d6321"
+      ],
+      "costUsd": 0.0002204
+    },
+    {
+      "id": "promptfoo.rubric.050",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "10a2cebb1dd4eb63f33bb29e90df73a8482f478d26f13974014c300c49bc039e"
+      ],
+      "costUsd": 0.0001968
+    },
+    {
+      "id": "promptfoo.rubric.051",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "941d8732442b6e51f3b2b3016b813d2c9561b03a2b0c478487dd2877be0ea1f6"
+      ],
+      "costUsd": 0.0002522
+    },
+    {
+      "id": "promptfoo.rubric.052",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "bdd0e3a79ccf51ca76c39ea726a8a9d32e0af726c232143399b0203fdae90272"
+      ],
+      "costUsd": 0.0004502
+    },
+    {
+      "id": "promptfoo.rubric.053",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "4db051dd841b21f2935dd83ca655036194e9c716872ad854d65089b4bf0a1b8e"
+      ],
+      "costUsd": 0.00020229999999999998
+    },
+    {
+      "id": "promptfoo.rubric.054",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "adf20110287c371b3763e8247368f4c6917ba1770d96f8d384717b5d38ba2719"
+      ],
+      "costUsd": 0.00036470000000000003
+    },
+    {
+      "id": "promptfoo.rubric.055",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "98ae694e44a04db2bc62a79b8663ae02a9fba6720b9f2ed61c913fe7e112ca6b"
+      ],
+      "costUsd": 0.0002481
+    },
+    {
+      "id": "promptfoo.rubric.056",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "b77b585fbcbca6fbecfc45db00fc5685d530c5cfb022c31c4301b70e25623705"
+      ],
+      "costUsd": 0.0001957
+    },
+    {
+      "id": "promptfoo.rubric.057",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "c9bbbca1dd1bd924b827fc3170c9e1188ed8882f8d1a1d37de71217129fb374f"
+      ],
+      "costUsd": 0.0002684
+    },
+    {
+      "id": "promptfoo.rubric.058",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "398b58960714f99fdd32869ad354b887816953493606efecb141a6c081ab9087"
+      ],
+      "costUsd": 0.0001908
+    },
+    {
+      "id": "promptfoo.rubric.059",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "7318495247fbf4abbab0057fc2b566c83e1c50bc32b822cedc35efd84de988e2"
+      ],
+      "costUsd": 0.00017759999999999998
+    },
+    {
+      "id": "promptfoo.rubric.060",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "faf71664c6b07ceebf5cc6d0e49924cf96d97df98692cb719f3a30388ca612b6"
+      ],
+      "costUsd": 0.0002356
+    },
+    {
+      "id": "promptfoo.rubric.061",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "22909553ab2e1c8d3a8582a8adbdec0edd6df857048bac61ac60d528ebc73c30"
+      ],
+      "costUsd": 0.0002687
+    },
+    {
+      "id": "promptfoo.rubric.062",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "d064dbd364108d6321630c3851f8c0a0608fcdf7bcad47ce39a0d6083646725e"
+      ],
+      "costUsd": 0.0001936
+    },
+    {
+      "id": "promptfoo.rubric.063",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "af31a200b43a4c5bf4402d064e41534f74981c2a001671de91a41c3317994244"
+      ],
+      "costUsd": 0.00019950000000000002
+    },
+    {
+      "id": "promptfoo.rubric.064",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "571b547e4a9b187154f7211e667fedffdf89a4b70145cc32862e668fc2a6365e"
+      ],
+      "costUsd": 0.0002401
+    },
+    {
+      "id": "promptfoo.rubric.065",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "86baea1f9207176bff1bf2f64f8c44c0dc68a68d33ac406423ef7ea90c1cd1e0"
+      ],
+      "costUsd": 0.0001793
+    },
+    {
+      "id": "promptfoo.rubric.066",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "ecffc16f0646688d7db20d2e9305509f315eca46faf82ba27bbb4df725ec16f8"
+      ],
+      "costUsd": 0.0001749
+    },
+    {
+      "id": "promptfoo.rubric.067",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "af926a2dd15f99656f8a5a0b2be0cac45bd19e334324b1b31969b4bc8b20271e"
+      ],
+      "costUsd": 0.0002658
+    },
+    {
+      "id": "promptfoo.rubric.068",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "27fbe7bbe8706f47f16072d08f66d42e23f32bccc19496bc2ef14344e28299d3"
+      ],
+      "costUsd": 0.0001853
+    },
+    {
+      "id": "promptfoo.rubric.069",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "202931a4b08fec266784355195e245b3b6c5c1fa372b25aa8649addf18db3767"
+      ],
+      "costUsd": 0.00038940000000000003
+    },
+    {
+      "id": "promptfoo.rubric.070",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "91ad04d30f2a343928a2070b8000a96b1684ca2f065a2fb65a1771eb705f8e33"
+      ],
+      "costUsd": 0.0002159
+    },
+    {
+      "id": "promptfoo.rubric.071",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "229e4bab98150fa4f3fe19bf863a9cce9bfa9fd13dd270675eea290294a7bf6b"
+      ],
+      "costUsd": 0.00023770000000000003
+    },
+    {
+      "id": "promptfoo.rubric.072",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "2745df877f6f4d9c3e4fe8d746432e56847b47fcf44717d470c4fe5a6a0c4553"
+      ],
+      "costUsd": 0.0001718
+    },
+    {
+      "id": "promptfoo.rubric.073",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "80e3c05ad7264b80ae87d9cea6f4e94d0a50a1208f42823baa66c71d5aa83308"
+      ],
+      "costUsd": 0.00022409999999999997
+    },
+    {
+      "id": "promptfoo.rubric.074",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "71d8340cc99c2d1b3649eabb407e5bdaa8e052cf7daad265decc87ec5eccc52a"
+      ],
+      "costUsd": 0.00022370000000000002
+    },
+    {
+      "id": "promptfoo.rubric.075",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "c436bf69e3d3593c0105defaae8fde64c8811c572e7335fe4f6974e8515565b9"
+      ],
+      "costUsd": 0.000285
+    },
+    {
+      "id": "promptfoo.rubric.076",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "2730b26421179298310eb015e32920707148a17b24fe24b293c56c84544fae59"
+      ],
+      "costUsd": 0.0002517
+    },
+    {
+      "id": "promptfoo.rubric.077",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "5ed14e4dbb3da35fbe3cc00a874293b6da1bac163c2dfc218b07e5f43c570ee6"
+      ],
+      "costUsd": 0.0003256
+    },
+    {
+      "id": "promptfoo.rubric.078",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "14ea806f98e66906eec9df7d6131423e8236757e66f0b3674efa29ade2bc758d"
+      ],
+      "costUsd": 0.0002531
+    },
+    {
+      "id": "promptfoo.rubric.079",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "4fce72b7c96af2ea1e6403c9ac225411c134ddd8d065aa65caee7f679b7a2b7f"
+      ],
+      "costUsd": 0.0002077
+    },
+    {
+      "id": "promptfoo.rubric.080",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "4710d209c08d8871943a6466282f9f3aa02deca26e51f455e52160efb56cd420"
+      ],
+      "costUsd": 0.0001938
+    },
+    {
+      "id": "promptfoo.rubric.081",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "ce3f79df95157d0dc83466ac2cda5d7c33451b6913868891a333f9d59da12a04"
+      ],
+      "costUsd": 0.0001921
+    },
+    {
+      "id": "promptfoo.rubric.082",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "68f651f21764602cd90036c27f724787fca18e66d803411e37c7888e5d35963a"
+      ],
+      "costUsd": 0.00018680000000000001
+    },
+    {
+      "id": "promptfoo.rubric.083",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "fec4f584931aede281c0324fecc233342c1ec3b99a3c914c1b348507afaa9719"
+      ],
+      "costUsd": 0.0002429
+    },
+    {
+      "id": "promptfoo.rubric.084",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "283fec1f93f3893c818f865c2bcbb40a92dfdb4d4be65ec72c4ea52f8096b95c"
+      ],
+      "costUsd": 0.00025320000000000003
+    },
+    {
+      "id": "promptfoo.rubric.085",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "e8750b626b0512bd37a4af32e48fd984e08bd29e017aa69aa290bfc75be94cdd"
+      ],
+      "costUsd": 0.00017720000000000002
+    },
+    {
+      "id": "promptfoo.rubric.086",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "a2a8fed53d7e051c126b7dff5aae93aed4d458207b557dd7eabba28156f012ea"
+      ],
+      "costUsd": 0.0001787
+    },
+    {
+      "id": "promptfoo.rubric.087",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "23577c63bae691cdfc4c96525b6c7fb2985a0923835b0a7ab3f4b37c887e2a92"
+      ],
+      "costUsd": 0.000252
+    },
+    {
+      "id": "promptfoo.rubric.088",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "73a7b1782a255238c11bff98348b6d2288e6756499d27168189797ed31705bc1"
+      ],
+      "costUsd": 0.0004228
+    },
+    {
+      "id": "promptfoo.rubric.089",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "707f523791e87202006748ea044433767b80ef4baa337b832a9ca6d11a99770d"
+      ],
+      "costUsd": 0.00022630000000000003
+    },
+    {
+      "id": "promptfoo.rubric.090",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "3ef38634547010964066a7f7fd8225bc5671ec7ac8dc1640c9c6e163a850dbec"
+      ],
+      "costUsd": 0.0003072
+    },
+    {
+      "id": "promptfoo.rubric.091",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "12760f773c2ce2ecc88169c798498bd9323158d88043b921a32a5ec876069890"
+      ],
+      "costUsd": 0.0002431
+    },
+    {
+      "id": "promptfoo.rubric.092",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "b371eaa16389b146f7b548ceedfa053beb07659c37a8de861fe645211ffd4289"
+      ],
+      "costUsd": 0.00024660000000000003
+    },
+    {
+      "id": "promptfoo.rubric.093",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "c2ee08d9322e0367790a68e638172babfe4df0a95d80f0462551e679f7510b87"
+      ],
+      "costUsd": 0.0002308
+    },
+    {
+      "id": "promptfoo.rubric.094",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "07101180c329acecdcf967c27950fdacecaf50057846833125e00b4522d3dff8"
+      ],
+      "costUsd": 0.00023759999999999997
+    },
+    {
+      "id": "promptfoo.rubric.095",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "7788ef378192d8cc339d6d76460c6f04f8a85ea837ad8f416a3cdfe00ed6c498"
+      ],
+      "costUsd": 0.0002604
+    },
+    {
+      "id": "promptfoo.rubric.096",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "5d2e5d063364ba438720ead48881c5af237169726b3174cedbc2b3cec800d8a9"
+      ],
+      "costUsd": 0.000254
+    },
+    {
+      "id": "promptfoo.rubric.097",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "0da053518f48303592dc589f2c62787a2ac47502d5aa1d71ff65473b8e6bd9f4"
+      ],
+      "costUsd": 0.0002582
+    },
+    {
+      "id": "promptfoo.rubric.098",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f7ccb1225a6b2910d842986d8c2e568dc4b01a6f573e061824d87c7c8106899f"
+      ],
+      "costUsd": 0.00023789999999999998
+    },
+    {
+      "id": "promptfoo.rubric.099",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "591402f6e9bf928ed7606ddc09fb6988f512e6450fe9ffee12adf63df0bbbc44"
+      ],
+      "costUsd": 0.0003777
+    },
+    {
+      "id": "promptfoo.rubric.100",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "c14214c258577ec6589f6a9e0f51266b424a888e8a6baf16276df25cb2e799e2"
+      ],
+      "costUsd": 0.000404
+    },
+    {
+      "id": "promptfoo.rubric.101",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "9ae53ad0670f12534daa3b604605e46b0169d48205b5efbbb8db08d392c67d46"
+      ],
+      "costUsd": 0.0002323
+    },
+    {
+      "id": "promptfoo.rubric.102",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "77ba62be673e428c384c6a56afb889e4f8717e929c4e5c79543f00e7aeb10185"
+      ],
+      "costUsd": 0.00022400000000000002
+    },
+    {
+      "id": "promptfoo.rubric.103",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "da5b463e561c254efcf49def97cf72b3ac039775f03c9277e078abeffc470461"
+      ],
+      "costUsd": 0.0001687
+    },
+    {
+      "id": "promptfoo.rubric.104",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "53b51e2901fc03cb3ce228821ea2b1f4bb8532c700aff59704aec0482101d4d0"
+      ],
+      "costUsd": 0.0001769
+    },
+    {
+      "id": "promptfoo.rubric.105",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "02ce3232587585271915068d9ca185e55a761ab98814465dde755a003c72a76b"
+      ],
+      "costUsd": 0.00024370000000000001
+    },
+    {
+      "id": "promptfoo.rubric.106",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "57487e63b3b0088c10f901e6edb53d1660988dbcc17cb8a4e4e3d94ef866b814"
+      ],
+      "costUsd": 0.0002611
+    },
+    {
+      "id": "promptfoo.rubric.107",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "65fbe6a9ae87181ff22b72b30e0959536b134cef303cf9ccab988af150b30443"
+      ],
+      "costUsd": 0.0002224
+    },
+    {
+      "id": "promptfoo.rubric.108",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "d00e918ebe8f7b88d99d38ff36c383ef1a3c950b16ba43d95ae3d17aa1e4396b"
+      ],
+      "costUsd": 0.0002676
+    },
+    {
+      "id": "promptfoo.rubric.109",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e97dd299dbdbd02f75ce5be43250ba948b5bb02a0748d8dd03d4e833afbb161d"
+      ],
+      "costUsd": 0.00022820000000000002
+    },
+    {
+      "id": "promptfoo.rubric.110",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "a7450e18cc0cfa17ff87c183ab057d0ec36e48472b71fd9e34441d6723b3911e"
+      ],
+      "costUsd": 0.0002045
+    },
+    {
+      "id": "promptfoo.rubric.111",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "4e179ce09e8317649fcf1b65292e7590cf351d9ec3561b2b5dd77047266a6b0a"
+      ],
+      "costUsd": 0.0003453
+    },
+    {
+      "id": "promptfoo.rubric.112",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "42671fbf7bb2973d700a6f9b5be8e5fc7c2494361d23ab9e936ffebfd20da46b"
+      ],
+      "costUsd": 0.0002657
+    },
+    {
+      "id": "promptfoo.rubric.113",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "a7f9ae8a784de64d58f2b4e5404726983fe0f2ff83e6ba4904c3f66948682f40"
+      ],
+      "costUsd": 0.00020219999999999998
+    },
+    {
+      "id": "promptfoo.rubric.114",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "cfb84a9b7df8c9f1bb63dcb5ab173cb9a3bfeb889bd243f258246689a788479a"
+      ],
+      "costUsd": 0.0002871
+    },
+    {
+      "id": "promptfoo.rubric.115",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "bbd0a759c90c1f30473fd58f2d48d593e29fc27c0f871e1c9d133c358e0af6df"
+      ],
+      "costUsd": 0.00032879999999999997
+    },
+    {
+      "id": "promptfoo.rubric.116",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "7a4961f11f601108013ecb5dc9c9d8c2410d96570b2fb40f612973fd29b5eb38"
+      ],
+      "costUsd": 0.0002054
+    },
+    {
+      "id": "promptfoo.rubric.117",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "45c1afa2ffc6a5473e91e91d95de02d104ef3a79d4c2c6399fcb786b39562d6f"
+      ],
+      "costUsd": 0.0004301
+    },
+    {
+      "id": "promptfoo.rubric.118",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "76c397ff80e9fb8b00e18cfb7745dd353f0c341dd932197097efd76ad331b1b9"
+      ],
+      "costUsd": 0.0002578
+    },
+    {
+      "id": "promptfoo.rubric.119",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "0d478760e9f555d22ca2855dc381df86160ea4ff1067d7b9588aacda4cab6787"
+      ],
+      "costUsd": 0.0002521
+    },
+    {
+      "id": "promptfoo.rubric.120",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e62978cde5477aa0b610f6332ec950391c659b9bdd8e57f19f77dca08c39f5b8"
+      ],
+      "costUsd": 0.00026639999999999997
+    },
+    {
+      "id": "promptfoo.rubric.121",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "20f71d13e0768ff1a412edc461996b2b1f9e62894ccd853d25f3b37a4ac134ed"
+      ],
+      "costUsd": 0.000192
+    },
+    {
+      "id": "promptfoo.rubric.122",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "127cbbb885d9e2a7a267f0b592220ba9b30ab608fed0b888068e1022306b3ee5"
+      ],
+      "costUsd": 0.00020380000000000002
+    },
+    {
+      "id": "promptfoo.rubric.123",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "acd45c7b4e81a2edc5c7e9bc1d36f4004fe8a1ca0d32f58f705d7d9e5961c25b"
+      ],
+      "costUsd": 0.00036589999999999995
+    },
+    {
+      "id": "promptfoo.rubric.124",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "bccbb12d5c958d95357b9f47af125b83f174d524eaff68da6f3d97f6fc975a0b"
+      ],
+      "costUsd": 0.0001839
+    },
+    {
+      "id": "promptfoo.rubric.125",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "6a3d68d79fe8daf19f06a094943f39d01b1be30355d24edaa19a9aecd8a4ac8b"
+      ],
+      "costUsd": 0.0002209
+    },
+    {
+      "id": "promptfoo.rubric.126",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "966d5d6f6d3405adca444f6275f91c86964aba6f38bd105dfa5237712c085872"
+      ],
+      "costUsd": 0.00024370000000000001
+    }
+  ]
+}

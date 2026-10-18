@@ -1,7 +1,14 @@
 import { randomUUID } from 'node:crypto';
-import { rm } from 'node:fs/promises';
-import { posix } from 'node:path';
-import type { ExecOptions, ExecutionRecord, SandboxOptions, SandboxProvider } from '@driftbench/core';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, posix } from 'node:path';
+import type {
+  ExecOptions,
+  ExecutionRecord,
+  SandboxOptions,
+  SandboxProvider,
+} from '@agent-nexus/driftbench-core';
+import { untrackFolder } from './cleanup';
 import { FolderSandbox, makeWorkspaceFolder } from './folder';
 import {
   DEFAULT_EXEC_TIMEOUT_MS,
@@ -27,6 +34,21 @@ export type DockerProviderOptions = {
   dir?: string;
   /** Bounds of the workspace walk. */
   limits?: Partial<SnapshotLimits>;
+  /**
+   * The container's network. Default `none`: a command the agent runs reaches no host and no internet. Name
+   * `bridge` when the agent's task needs the network (a package install, an API it calls).
+   */
+  network?: 'none' | 'bridge';
+  /** Docker memory limit, in Docker units. Default `1g`; `0` removes the limit. */
+  memory?: string;
+  /** CPU quota in cores. Default 1; 0 removes the quota. */
+  cpus?: number;
+  /** Maximum container processes. Default 256; -1 removes the limit. */
+  pidsLimit?: number;
+  /** Linux capabilities to drop. Default ['ALL']; [] keeps Docker's default capabilities. */
+  capDrop?: readonly string[];
+  /** Prevent gaining privileges through exec. Default true; false omits the security option. */
+  noNewPrivileges?: boolean;
 };
 
 /** Where the workspace is mounted in the container: the root the agent sees. */
@@ -57,6 +79,12 @@ export function dockerProvider(options: DockerProviderOptions): SandboxProvider 
       const container = `driftbench-${randomUUID()}`;
       const args = ['run', '-d', '--init', '--name', container, '-v', `${folder}:${DOCKER_WORKSPACE}`];
       args.push('-w', DOCKER_WORKSPACE, '-e', 'HOME=/tmp');
+      // Default-deny network: a command the agent runs reaches no host and no internet unless the provider names bridge.
+      args.push('--network', options.network ?? 'none');
+      args.push('--memory', options.memory ?? '1g', '--cpus', String(options.cpus ?? 1));
+      args.push('--pids-limit', String(options.pidsLimit ?? 256));
+      for (const capability of options.capDrop ?? ['ALL']) args.push('--cap-drop', capability);
+      if (options.noNewPrivileges ?? true) args.push('--security-opt', 'no-new-privileges');
       if (typeof process.getuid === 'function' && typeof process.getgid === 'function') {
         args.push('--user', `${process.getuid()}:${process.getgid()}`);
       }
@@ -67,6 +95,7 @@ export function dockerProvider(options: DockerProviderOptions): SandboxProvider 
       if (started.exitCode !== 0) {
         await docker(binary, ['rm', '-f', container], HOUSEKEEPING_TIMEOUT_MS).catch(() => undefined);
         await rm(folder, { recursive: true, force: true });
+        untrackFolder(folder);
         throw new Error(`docker could not start a container from ${image}: ${(started.stderr ?? '').trim()}`);
       }
       return new DockerSandbox(folder, limits, create.keep ?? false, binary, container);
@@ -96,21 +125,44 @@ export class DockerSandbox extends FolderSandbox {
     if (this.destroyed) throw new Error('the sandbox is destroyed');
     const rel = await this.workingFolder(options.cwd);
     const args = ['exec', '-i', '-w', rel === '.' ? DOCKER_WORKSPACE : posix.join(DOCKER_WORKSPACE, rel)];
-    for (const [name, value] of Object.entries(options.env ?? {})) {
-      if (name === '' || name.includes('='))
+    const entries = Object.entries(options.env ?? {});
+    for (const [name, value] of entries) {
+      if (name === '' || name.startsWith('#') || /[=\s\0]/u.test(name))
         throw new Error(`the variable name ${JSON.stringify(name)} is invalid`);
-      args.push('-e', `${name}=${value}`);
+      if (/[\r\n]/.test(value))
+        throw new Error(
+          `the variable ${JSON.stringify(name)} contains a line break; Docker env files require single-line values`,
+        );
+      if (value.includes('\0'))
+        throw new Error(`the variable ${JSON.stringify(name)} contains a NUL character`);
     }
-    args.push(this.container, '/bin/sh', '-c', command);
-    return runProcess(this.binary, args, command, {
-      env: process.env,
-      stdin: options.stdin,
-      timeoutMs: options.timeoutMs ?? DEFAULT_EXEC_TIMEOUT_MS,
-      maxOutputBytes: options.maxOutputBytes ?? DEFAULT_MAX_OUTPUT_BYTES,
-      // Killing the docker client leaves the command running in the container; a restart ends every
-      // process there and keeps the workspace, which lives on this machine.
-      onTimeout: () => this.restart(),
-    });
+    let envDir: string | undefined;
+    try {
+      if (entries.length > 0) {
+        // Keep credentials outside the mounted workspace. Docker reads literal KEY=value lines:
+        // quotes, spaces, equals signs and hashes in values must not be escaped.
+        envDir = await mkdtemp(join(tmpdir(), 'driftbench-docker-env-'));
+        const envFile = join(envDir, 'env');
+        await writeFile(envFile, entries.map(([name, value]) => `${name}=${value}\n`).join(''), {
+          mode: 0o600,
+          flag: 'wx',
+        });
+        args.push('--env-file', envFile);
+      }
+      args.push(this.container, '/bin/sh', '-c', command);
+      return await runProcess(this.binary, args, command, {
+        // Container variables must never configure the Docker client itself.
+        env: process.env,
+        stdin: options.stdin,
+        timeoutMs: options.timeoutMs ?? DEFAULT_EXEC_TIMEOUT_MS,
+        maxOutputBytes: options.maxOutputBytes ?? DEFAULT_MAX_OUTPUT_BYTES,
+        // Killing the docker client leaves the command running in the container; a restart ends every
+        // process there and keeps the workspace, which lives on this machine.
+        onTimeout: () => this.restart(),
+      });
+    } finally {
+      if (envDir !== undefined) await rm(envDir, { recursive: true, force: true });
+    }
   }
 
   /** Removes the container, then the folder unless the sandbox keeps it. A second call does nothing. */

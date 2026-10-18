@@ -1,0 +1,1082 @@
+[
+  {
+    "id": "q001",
+    "task": "Is Acme Fibre 100 available at Kastanjelaan 4?",
+    "golden": "Acme Fibre 100 is available at Kastanjelaan 4.",
+    "candidate_a": "Good news: Kastanjelaan 4 is covered by Acme Fibre 100.",
+    "candidate_b": "Sorry, Kastanjelaan 4 is not covered by Acme Fibre 100.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q002",
+    "task": "Is Acme Fibre 100 available at Zeelaan 20?",
+    "golden": "Acme Fibre 100 is available at Zeelaan 20.",
+    "candidate_a": "Yes, Acme Fibre 100 is available at Zeelaan 20.",
+    "candidate_b": "No, Acme Fibre 100 is not available at Zeelaan 20.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q003",
+    "task": "Is Acme Fibre 100 available at Lindenstraat 12?",
+    "golden": "Acme Fibre 100 is available at Lindenstraat 12.",
+    "candidate_a": "Acme Fibre 100 can be installed at Lindenstraat 12.",
+    "candidate_b": "Sorry, Lindenstraat 12 is not covered by Acme Fibre 100.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q004",
+    "task": "Is Acme Fibre 100 available at Lindenstraat 12?",
+    "golden": "Acme Fibre 100 is available at Lindenstraat 12.",
+    "candidate_a": "No, Acme Fibre 100 is not available at Lindenstraat 12.",
+    "candidate_b": "Yes, Acme Fibre 100 is available at Lindenstraat 12.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q005",
+    "task": "Is Acme Fibre 300 available at Zeelaan 20?",
+    "golden": "Acme Fibre 300 is available at Zeelaan 20.",
+    "candidate_a": "Acme Fibre 300 cannot be installed at Zeelaan 20.",
+    "candidate_b": "Yes, Acme Fibre 300 is available at Zeelaan 20.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q006",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 40 GB of data.",
+    "candidate_a": "You get 40 GB of data with Acme Fibre 100.",
+    "candidate_b": "Acme Fibre 100 includes 20 GB.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q007",
+    "task": "How much data does Acme Fibre 300 include?",
+    "golden": "Acme Fibre 300 includes 5 GB of data.",
+    "candidate_a": "40 GB of data come with Acme Fibre 300.",
+    "candidate_b": "Acme Fibre 300 includes 5 GB.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q008",
+    "task": "How much data does Acme Mobile L include?",
+    "golden": "Acme Mobile L includes 40 GB of data.",
+    "candidate_a": "Acme Mobile L includes 40 GB.",
+    "candidate_b": "20 GB of data come with Acme Mobile L.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q009",
+    "task": "What is the price of Acme Fibre 100?",
+    "golden": "Acme Fibre 100 costs 28 USD a month.",
+    "candidate_a": "Acme Fibre 100 is 47 dollars a month.",
+    "candidate_b": "It costs 28 USD per month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q010",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 10 GB of data.",
+    "candidate_a": "You get 10 GB of data with Acme Fibre 100.",
+    "candidate_b": "Acme Fibre 100 includes 5 GB.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q011",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 27 USD a month.",
+    "candidate_a": "Acme Mobile S is 52 dollars a month.",
+    "candidate_b": "Acme Mobile S is 27 dollars a month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q012",
+    "task": "How much data does Acme Mobile L include?",
+    "golden": "Acme Mobile L includes 40 GB of data.",
+    "candidate_a": "40 GB of data come with Acme Mobile L.",
+    "candidate_b": "Acme Mobile L includes 20 GB.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q013",
+    "task": "Is Acme Fibre 300 available at Lindenstraat 12?",
+    "golden": "Acme Fibre 300 is available at Lindenstraat 12.",
+    "candidate_a": "Acme Fibre 300 can be installed at Lindenstraat 12.",
+    "candidate_b": "No, Acme Fibre 300 is not available at Lindenstraat 12.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q014",
+    "task": "How much data does Acme Mobile L include?",
+    "golden": "Acme Mobile L includes 60 GB of data.",
+    "candidate_a": "Acme Mobile L includes 30 GB.",
+    "candidate_b": "You get 60 GB of data with Acme Mobile L.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q015",
+    "task": "Is Acme Fibre 100 available at Lindenstraat 12?",
+    "golden": "Acme Fibre 100 is available at Lindenstraat 12.",
+    "candidate_a": "Good news: Lindenstraat 12 is covered by Acme Fibre 100.",
+    "candidate_b": "Sorry, Lindenstraat 12 is not covered by Acme Fibre 100.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q016",
+    "task": "Is Acme Fibre 300 available at Kastanjelaan 4?",
+    "golden": "Acme Fibre 300 is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Fibre 300 cannot be installed at Kastanjelaan 4.",
+    "candidate_b": "Acme Fibre 300 can be installed at Kastanjelaan 4.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q017",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 5 GB of data.",
+    "candidate_a": "You get 40 GB of data with Acme Fibre 100.",
+    "candidate_b": "5 GB of data come with Acme Fibre 100.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q018",
+    "task": "How much data does Acme Mobile S include?",
+    "golden": "Acme Mobile S includes 60 GB of data.",
+    "candidate_a": "You get 60 GB of data with Acme Mobile S.",
+    "candidate_b": "Acme Mobile S includes 30 GB.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q019",
+    "task": "Is Acme Fibre 300 available at Molenweg 7?",
+    "golden": "Acme Fibre 300 is available at Molenweg 7.",
+    "candidate_a": "Good news: Molenweg 7 is covered by Acme Fibre 300.",
+    "candidate_b": "No, Acme Fibre 300 is not available at Molenweg 7.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q020",
+    "task": "How much data does Acme Fibre 300 include?",
+    "golden": "Acme Fibre 300 includes 10 GB of data.",
+    "candidate_a": "10 GB of data come with Acme Fibre 300.",
+    "candidate_b": "You get 5 GB of data with Acme Fibre 300.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q021",
+    "task": "What is the price of Acme Fibre 100?",
+    "golden": "Acme Fibre 100 costs 27 USD a month.",
+    "candidate_a": "Acme Fibre 100 is 27 dollars a month.",
+    "candidate_b": "Acme Fibre 100 is 40 dollars a month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q022",
+    "task": "How much data does Acme Fibre 300 include?",
+    "golden": "Acme Fibre 300 includes 20 GB of data.",
+    "candidate_a": "You get 10 GB of data with Acme Fibre 300.",
+    "candidate_b": "20 GB of data come with Acme Fibre 300.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q023",
+    "task": "What is the price of Acme Fibre 300?",
+    "golden": "Acme Fibre 300 costs 52 USD a month.",
+    "candidate_a": "Acme Fibre 300 is 76 dollars a month.",
+    "candidate_b": "The monthly price of Acme Fibre 300 is 52 USD.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q024",
+    "task": "What is the price of Acme Mobile M?",
+    "golden": "Acme Mobile M costs 57 USD a month.",
+    "candidate_a": "The monthly price of Acme Mobile M is 57 USD.",
+    "candidate_b": "The monthly price of Acme Mobile M is 67 USD.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q025",
+    "task": "Is Acme Fibre 300 available at Rozenhof 3?",
+    "golden": "Acme Fibre 300 is available at Rozenhof 3.",
+    "candidate_a": "Sorry, Rozenhof 3 is not covered by Acme Fibre 300.",
+    "candidate_b": "Good news: Rozenhof 3 is covered by Acme Fibre 300.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q026",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 47 USD a month.",
+    "candidate_a": "Acme Mobile S is 47 dollars a month.",
+    "candidate_b": "It costs 58 USD per month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q027",
+    "task": "What is the price of Acme Fibre 100?",
+    "golden": "Acme Fibre 100 costs 49 USD a month.",
+    "candidate_a": "Acme Fibre 100 is 49 dollars a month.",
+    "candidate_b": "Acme Fibre 100 is 59 dollars a month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q028",
+    "task": "What is the price of Acme Fibre 100?",
+    "golden": "Acme Fibre 100 costs 59 USD a month.",
+    "candidate_a": "It costs 59 USD per month.",
+    "candidate_b": "It costs 88 USD per month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q029",
+    "task": "What is the price of Acme Mobile L?",
+    "golden": "Acme Mobile L costs 63 USD a month.",
+    "candidate_a": "It costs 63 USD per month.",
+    "candidate_b": "Acme Mobile L is 86 dollars a month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q030",
+    "task": "Is Acme Fibre 300 available at Rozenhof 3?",
+    "golden": "Acme Fibre 300 is available at Rozenhof 3.",
+    "candidate_a": "Acme Fibre 300 cannot be installed at Rozenhof 3.",
+    "candidate_b": "Yes, Acme Fibre 300 is available at Rozenhof 3.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q031",
+    "task": "How much data does Acme Fibre 300 include?",
+    "golden": "Acme Fibre 300 includes 60 GB of data.",
+    "candidate_a": "You get 30 GB of data with Acme Fibre 300.",
+    "candidate_b": "Acme Fibre 300 includes 60 GB.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q032",
+    "task": "How much data does Acme Home Plus include?",
+    "golden": "Acme Home Plus includes 10 GB of data.",
+    "candidate_a": "10 GB of data come with Acme Home Plus.",
+    "candidate_b": "Acme Home Plus includes 5 GB.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q033",
+    "task": "What is the price of Acme Home Plus?",
+    "golden": "Acme Home Plus costs 47 USD a month.",
+    "candidate_a": "It costs 47 USD per month.",
+    "candidate_b": "The monthly price of Acme Home Plus is 71 USD.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q034",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 40 GB of data.",
+    "candidate_a": "20 GB of data come with Acme Fibre 100.",
+    "candidate_b": "Acme Fibre 100 includes 40 GB.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q035",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 37 USD a month.",
+    "candidate_a": "The monthly price of Acme Mobile S is 57 USD.",
+    "candidate_b": "It costs 37 USD per month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q036",
+    "task": "Is Acme Fibre 300 available at Lindenstraat 12?",
+    "golden": "Acme Fibre 300 is available at Lindenstraat 12.",
+    "candidate_a": "Yes, Acme Fibre 300 is available at Lindenstraat 12.",
+    "candidate_b": "Acme Fibre 300 cannot be installed at Lindenstraat 12.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q037",
+    "task": "How much data does Acme Mobile S include?",
+    "golden": "Acme Mobile S includes 20 GB of data.",
+    "candidate_a": "You get 10 GB of data with Acme Mobile S.",
+    "candidate_b": "You get 20 GB of data with Acme Mobile S.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q038",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 33 USD a month.",
+    "candidate_a": "The monthly price of Acme Mobile S is 45 USD.",
+    "candidate_b": "It costs 33 USD per month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q039",
+    "task": "How much data does Acme Fibre 300 include?",
+    "golden": "Acme Fibre 300 includes 5 GB of data.",
+    "candidate_a": "Acme Fibre 300 includes 40 GB.",
+    "candidate_b": "You get 5 GB of data with Acme Fibre 300.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q040",
+    "task": "Is Acme Fibre 300 available at Rozenhof 3?",
+    "golden": "Acme Fibre 300 is available at Rozenhof 3.",
+    "candidate_a": "Acme Fibre 300 can be installed at Rozenhof 3.",
+    "candidate_b": "Acme Fibre 300 cannot be installed at Rozenhof 3.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q041",
+    "task": "How much data does Acme Mobile S include?",
+    "golden": "Acme Mobile S includes 40 GB of data.",
+    "candidate_a": "Acme Mobile S includes 40 GB.",
+    "candidate_b": "20 GB of data come with Acme Mobile S.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q042",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 57 USD a month.",
+    "candidate_a": "It costs 57 USD per month.",
+    "candidate_b": "The monthly price of Acme Mobile S is 69 USD.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q043",
+    "task": "What is the price of Acme Fibre 300?",
+    "golden": "Acme Fibre 300 costs 26 USD a month.",
+    "candidate_a": "It costs 40 USD per month.",
+    "candidate_b": "It costs 26 USD per month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q044",
+    "task": "What is the price of Acme Mobile M?",
+    "golden": "Acme Mobile M costs 15 USD a month.",
+    "candidate_a": "Acme Mobile M is 15 dollars a month.",
+    "candidate_b": "Acme Mobile M is 37 dollars a month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q045",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 23 USD a month.",
+    "candidate_a": "Acme Mobile S is 35 dollars a month.",
+    "candidate_b": "The monthly price of Acme Mobile S is 23 USD.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q046",
+    "task": "How much data does Acme Home Plus include?",
+    "golden": "Acme Home Plus includes 40 GB of data.",
+    "candidate_a": "You get 40 GB of data with Acme Home Plus.",
+    "candidate_b": "Acme Home Plus includes 20 GB.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q047",
+    "task": "What is the price of Acme Mobile L?",
+    "golden": "Acme Mobile L costs 55 USD a month.",
+    "candidate_a": "Acme Mobile L is 55 dollars a month.",
+    "candidate_b": "The monthly price of Acme Mobile L is 76 USD.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q048",
+    "task": "Is Acme Fibre 100 available at Zeelaan 20?",
+    "golden": "Acme Fibre 100 is available at Zeelaan 20.",
+    "candidate_a": "Acme Fibre 100 cannot be installed at Zeelaan 20.",
+    "candidate_b": "Acme Fibre 100 can be installed at Zeelaan 20.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q049",
+    "task": "Is Acme Fibre 100 available at Lindenstraat 12?",
+    "golden": "Acme Fibre 100 is available at Lindenstraat 12.",
+    "candidate_a": "Yes, Acme Fibre 100 is available at Lindenstraat 12.",
+    "candidate_b": "No, Acme Fibre 100 is not available at Lindenstraat 12.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q050",
+    "task": "Is Acme Fibre 100 available at Molenweg 7?",
+    "golden": "Acme Fibre 100 is available at Molenweg 7.",
+    "candidate_a": "No, Acme Fibre 100 is not available at Molenweg 7.",
+    "candidate_b": "Good news: Molenweg 7 is covered by Acme Fibre 100.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q051",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 40 GB of data.",
+    "candidate_a": "You get 20 GB of data with Acme Fibre 100.",
+    "candidate_b": "40 GB of data come with Acme Fibre 100.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q052",
+    "task": "Is Acme Fibre 300 available at Rozenhof 3?",
+    "golden": "Acme Fibre 300 is available at Rozenhof 3.",
+    "candidate_a": "No, Acme Fibre 300 is not available at Rozenhof 3.",
+    "candidate_b": "Acme Fibre 300 can be installed at Rozenhof 3.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q053",
+    "task": "Is Acme Fibre 300 available at Lindenstraat 12?",
+    "golden": "Acme Fibre 300 is available at Lindenstraat 12.",
+    "candidate_a": "Sorry, Lindenstraat 12 is not covered by Acme Fibre 300.",
+    "candidate_b": "Good news: Lindenstraat 12 is covered by Acme Fibre 300.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q054",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 10 GB of data.",
+    "candidate_a": "You get 10 GB of data with Acme Fibre 100.",
+    "candidate_b": "Acme Fibre 100 includes 5 GB.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q055",
+    "task": "What is the price of Acme Mobile M?",
+    "golden": "Acme Mobile M costs 20 USD a month.",
+    "candidate_a": "The monthly price of Acme Mobile M is 20 USD.",
+    "candidate_b": "Acme Mobile M is 42 dollars a month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q056",
+    "task": "What is the price of Acme Fibre 300?",
+    "golden": "Acme Fibre 300 costs 57 USD a month.",
+    "candidate_a": "Acme Fibre 300 is 85 dollars a month.",
+    "candidate_b": "It costs 57 USD per month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q057",
+    "task": "What is the price of Acme Fibre 100?",
+    "golden": "Acme Fibre 100 costs 39 USD a month.",
+    "candidate_a": "It costs 52 USD per month.",
+    "candidate_b": "The monthly price of Acme Fibre 100 is 39 USD.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q058",
+    "task": "How much data does Acme Home Plus include?",
+    "golden": "Acme Home Plus includes 40 GB of data.",
+    "candidate_a": "Acme Home Plus includes 20 GB.",
+    "candidate_b": "You get 40 GB of data with Acme Home Plus.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q059",
+    "task": "How much data does Acme Mobile L include?",
+    "golden": "Acme Mobile L includes 10 GB of data.",
+    "candidate_a": "You get 10 GB of data with Acme Mobile L.",
+    "candidate_b": "You get 5 GB of data with Acme Mobile L.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q060",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 10 GB of data.",
+    "candidate_a": "You get 10 GB of data with Acme Fibre 100.",
+    "candidate_b": "You get 5 GB of data with Acme Fibre 100.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q061",
+    "task": "How much data does Acme Mobile L include?",
+    "golden": "Acme Mobile L includes 40 GB of data.",
+    "candidate_a": "40 GB of data come with Acme Mobile L.",
+    "candidate_b": "Acme Mobile L includes 20 GB.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q062",
+    "task": "How much data does Acme Mobile S include?",
+    "golden": "Acme Mobile S includes 60 GB of data.",
+    "candidate_a": "60 GB of data come with Acme Mobile S.",
+    "candidate_b": "30 GB of data come with Acme Mobile S.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q063",
+    "task": "What is the price of Acme Fibre 100?",
+    "golden": "Acme Fibre 100 costs 44 USD a month.",
+    "candidate_a": "It costs 44 USD per month.",
+    "candidate_b": "The monthly price of Acme Fibre 100 is 73 USD.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q064",
+    "task": "Is Acme Fibre 300 available at Lindenstraat 12?",
+    "golden": "Acme Fibre 300 is available at Lindenstraat 12.",
+    "candidate_a": "Sorry, Lindenstraat 12 is not covered by Acme Fibre 300.",
+    "candidate_b": "Good news: Lindenstraat 12 is covered by Acme Fibre 300.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q065",
+    "task": "Is Acme Fibre 300 available at Molenweg 7?",
+    "golden": "Acme Fibre 300 is available at Molenweg 7.",
+    "candidate_a": "Acme Fibre 300 can be installed at Molenweg 7.",
+    "candidate_b": "Acme Fibre 300 cannot be installed at Molenweg 7.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q066",
+    "task": "Is Acme Fibre 100 available at Zeelaan 20?",
+    "golden": "Acme Fibre 100 is available at Zeelaan 20.",
+    "candidate_a": "Acme Fibre 100 can be installed at Zeelaan 20.",
+    "candidate_b": "No, Acme Fibre 100 is not available at Zeelaan 20.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q067",
+    "task": "How much data does Acme Mobile S include?",
+    "golden": "Acme Mobile S includes 60 GB of data.",
+    "candidate_a": "You get 30 GB of data with Acme Mobile S.",
+    "candidate_b": "You get 60 GB of data with Acme Mobile S.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q068",
+    "task": "Is Acme Fibre 100 available at Molenweg 7?",
+    "golden": "Acme Fibre 100 is available at Molenweg 7.",
+    "candidate_a": "Acme Fibre 100 can be installed at Molenweg 7.",
+    "candidate_b": "Acme Fibre 100 cannot be installed at Molenweg 7.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q069",
+    "task": "What is the price of Acme Fibre 300?",
+    "golden": "Acme Fibre 300 costs 41 USD a month.",
+    "candidate_a": "It costs 41 USD per month.",
+    "candidate_b": "The monthly price of Acme Fibre 300 is 52 USD.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q070",
+    "task": "What is the price of Acme Mobile M?",
+    "golden": "Acme Mobile M costs 25 USD a month.",
+    "candidate_a": "It costs 41 USD per month.",
+    "candidate_b": "It costs 25 USD per month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q071",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 30 USD a month.",
+    "candidate_a": "It costs 30 USD per month.",
+    "candidate_b": "The monthly price of Acme Mobile S is 47 USD.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q072",
+    "task": "What is the price of Acme Fibre 300?",
+    "golden": "Acme Fibre 300 costs 60 USD a month.",
+    "candidate_a": "The monthly price of Acme Fibre 300 is 60 USD.",
+    "candidate_b": "It costs 74 USD per month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q073",
+    "task": "How much data does Acme Mobile M include?",
+    "golden": "Acme Mobile M includes 20 GB of data.",
+    "candidate_a": "20 GB of data come with Acme Mobile M.",
+    "candidate_b": "You get 10 GB of data with Acme Mobile M.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q074",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 40 GB of data.",
+    "candidate_a": "You get 20 GB of data with Acme Fibre 100.",
+    "candidate_b": "You get 40 GB of data with Acme Fibre 100.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q075",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 25 USD a month.",
+    "candidate_a": "The monthly price of Acme Mobile S is 36 USD.",
+    "candidate_b": "It costs 25 USD per month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q076",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 10 GB of data.",
+    "candidate_a": "Acme Fibre 100 includes 5 GB.",
+    "candidate_b": "10 GB of data come with Acme Fibre 100.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q077",
+    "task": "How much data does Acme Mobile S include?",
+    "golden": "Acme Mobile S includes 40 GB of data.",
+    "candidate_a": "Acme Mobile S includes 20 GB.",
+    "candidate_b": "40 GB of data come with Acme Mobile S.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q078",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 60 GB of data.",
+    "candidate_a": "30 GB of data come with Acme Fibre 100.",
+    "candidate_b": "60 GB of data come with Acme Fibre 100.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q079",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 54 USD a month.",
+    "candidate_a": "It costs 54 USD per month.",
+    "candidate_b": "It costs 68 USD per month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q080",
+    "task": "Is Acme Fibre 100 available at Molenweg 7?",
+    "golden": "Acme Fibre 100 is available at Molenweg 7.",
+    "candidate_a": "Yes, Acme Fibre 100 is available at Molenweg 7.",
+    "candidate_b": "Acme Fibre 100 cannot be installed at Molenweg 7.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q081",
+    "task": "Is Acme Fibre 300 available at Rozenhof 3?",
+    "golden": "Acme Fibre 300 is available at Rozenhof 3.",
+    "candidate_a": "Yes, Acme Fibre 300 is available at Rozenhof 3.",
+    "candidate_b": "No, Acme Fibre 300 is not available at Rozenhof 3.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q082",
+    "task": "What is the price of Acme Mobile M?",
+    "golden": "Acme Mobile M costs 51 USD a month.",
+    "candidate_a": "Acme Mobile M is 69 dollars a month.",
+    "candidate_b": "The monthly price of Acme Mobile M is 51 USD.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q083",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 23 USD a month.",
+    "candidate_a": "It costs 23 USD per month.",
+    "candidate_b": "The monthly price of Acme Mobile S is 51 USD.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q084",
+    "task": "How much data does Acme Fibre 300 include?",
+    "golden": "Acme Fibre 300 includes 5 GB of data.",
+    "candidate_a": "40 GB of data come with Acme Fibre 300.",
+    "candidate_b": "You get 5 GB of data with Acme Fibre 300.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q085",
+    "task": "What is the price of Acme Mobile L?",
+    "golden": "Acme Mobile L costs 38 USD a month.",
+    "candidate_a": "Acme Mobile L is 38 dollars a month.",
+    "candidate_b": "Acme Mobile L is 52 dollars a month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q086",
+    "task": "How much data does Acme Home Plus include?",
+    "golden": "Acme Home Plus includes 10 GB of data.",
+    "candidate_a": "You get 10 GB of data with Acme Home Plus.",
+    "candidate_b": "You get 5 GB of data with Acme Home Plus.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q087",
+    "task": "Is Acme Fibre 100 available at Molenweg 7?",
+    "golden": "Acme Fibre 100 is available at Molenweg 7.",
+    "candidate_a": "No, Acme Fibre 100 is not available at Molenweg 7.",
+    "candidate_b": "Good news: Molenweg 7 is covered by Acme Fibre 100.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q088",
+    "task": "Is Acme Fibre 300 available at Rozenhof 3?",
+    "golden": "Acme Fibre 300 is available at Rozenhof 3.",
+    "candidate_a": "Acme Fibre 300 can be installed at Rozenhof 3.",
+    "candidate_b": "Acme Fibre 300 cannot be installed at Rozenhof 3.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q089",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 20 GB of data.",
+    "candidate_a": "Acme Fibre 100 includes 20 GB.",
+    "candidate_b": "Acme Fibre 100 includes 10 GB.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q090",
+    "task": "Is Acme Fibre 100 available at Molenweg 7?",
+    "golden": "Acme Fibre 100 is available at Molenweg 7.",
+    "candidate_a": "Acme Fibre 100 can be installed at Molenweg 7.",
+    "candidate_b": "Sorry, Molenweg 7 is not covered by Acme Fibre 100.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q091",
+    "task": "What is the price of Acme Mobile L?",
+    "golden": "Acme Mobile L costs 18 USD a month.",
+    "candidate_a": "Acme Mobile L is 36 dollars a month.",
+    "candidate_b": "Acme Mobile L is 18 dollars a month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q092",
+    "task": "How much data does Acme Home Plus include?",
+    "golden": "Acme Home Plus includes 60 GB of data.",
+    "candidate_a": "Acme Home Plus includes 60 GB.",
+    "candidate_b": "30 GB of data come with Acme Home Plus.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q093",
+    "task": "Is Acme Fibre 100 available at Kastanjelaan 4?",
+    "golden": "Acme Fibre 100 is available at Kastanjelaan 4.",
+    "candidate_a": "Good news: Kastanjelaan 4 is covered by Acme Fibre 100.",
+    "candidate_b": "Acme Fibre 100 cannot be installed at Kastanjelaan 4.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q094",
+    "task": "Is Acme Fibre 100 available at Kastanjelaan 4?",
+    "golden": "Acme Fibre 100 is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Fibre 100 can be installed at Kastanjelaan 4.",
+    "candidate_b": "Sorry, Kastanjelaan 4 is not covered by Acme Fibre 100.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q095",
+    "task": "Is Acme Fibre 300 available at Zeelaan 20?",
+    "golden": "Acme Fibre 300 is available at Zeelaan 20.",
+    "candidate_a": "No, Acme Fibre 300 is not available at Zeelaan 20.",
+    "candidate_b": "Acme Fibre 300 can be installed at Zeelaan 20.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q096",
+    "task": "Is Acme Fibre 100 available at Lindenstraat 12?",
+    "golden": "Acme Fibre 100 is available at Lindenstraat 12.",
+    "candidate_a": "Acme Fibre 100 cannot be installed at Lindenstraat 12.",
+    "candidate_b": "Good news: Lindenstraat 12 is covered by Acme Fibre 100.",
+    "better": "B",
+    "fact": "availability"
+  },
+  {
+    "id": "q097",
+    "task": "Is Acme Fibre 100 available at Molenweg 7?",
+    "golden": "Acme Fibre 100 is available at Molenweg 7.",
+    "candidate_a": "Yes, Acme Fibre 100 is available at Molenweg 7.",
+    "candidate_b": "No, Acme Fibre 100 is not available at Molenweg 7.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q098",
+    "task": "How much data does Acme Mobile L include?",
+    "golden": "Acme Mobile L includes 20 GB of data.",
+    "candidate_a": "You get 10 GB of data with Acme Mobile L.",
+    "candidate_b": "Acme Mobile L includes 20 GB.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q099",
+    "task": "How much data does Acme Home Plus include?",
+    "golden": "Acme Home Plus includes 20 GB of data.",
+    "candidate_a": "10 GB of data come with Acme Home Plus.",
+    "candidate_b": "20 GB of data come with Acme Home Plus.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q100",
+    "task": "What is the price of Acme Fibre 300?",
+    "golden": "Acme Fibre 300 costs 47 USD a month.",
+    "candidate_a": "Acme Fibre 300 is 64 dollars a month.",
+    "candidate_b": "It costs 47 USD per month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q101",
+    "task": "Is Acme Fibre 300 available at Rozenhof 3?",
+    "golden": "Acme Fibre 300 is available at Rozenhof 3.",
+    "candidate_a": "Good news: Rozenhof 3 is covered by Acme Fibre 300.",
+    "candidate_b": "Acme Fibre 300 cannot be installed at Rozenhof 3.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q102",
+    "task": "What is the price of Acme Mobile M?",
+    "golden": "Acme Mobile M costs 51 USD a month.",
+    "candidate_a": "Acme Mobile M is 68 dollars a month.",
+    "candidate_b": "The monthly price of Acme Mobile M is 51 USD.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q103",
+    "task": "What is the price of Acme Mobile L?",
+    "golden": "Acme Mobile L costs 48 USD a month.",
+    "candidate_a": "Acme Mobile L is 64 dollars a month.",
+    "candidate_b": "It costs 48 USD per month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q104",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 53 USD a month.",
+    "candidate_a": "The monthly price of Acme Mobile S is 53 USD.",
+    "candidate_b": "It costs 69 USD per month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q105",
+    "task": "Is Acme Fibre 100 available at Kastanjelaan 4?",
+    "golden": "Acme Fibre 100 is available at Kastanjelaan 4.",
+    "candidate_a": "Yes, Acme Fibre 100 is available at Kastanjelaan 4.",
+    "candidate_b": "Sorry, Kastanjelaan 4 is not covered by Acme Fibre 100.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q106",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 20 GB of data.",
+    "candidate_a": "10 GB of data come with Acme Fibre 100.",
+    "candidate_b": "20 GB of data come with Acme Fibre 100.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q107",
+    "task": "What is the price of Acme Fibre 100?",
+    "golden": "Acme Fibre 100 costs 28 USD a month.",
+    "candidate_a": "Acme Fibre 100 is 28 dollars a month.",
+    "candidate_b": "It costs 44 USD per month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q108",
+    "task": "How much data does Acme Fibre 100 include?",
+    "golden": "Acme Fibre 100 includes 10 GB of data.",
+    "candidate_a": "You get 10 GB of data with Acme Fibre 100.",
+    "candidate_b": "Acme Fibre 100 includes 5 GB.",
+    "better": "A",
+    "fact": "data"
+  },
+  {
+    "id": "q109",
+    "task": "Is Acme Fibre 300 available at Kastanjelaan 4?",
+    "golden": "Acme Fibre 300 is available at Kastanjelaan 4.",
+    "candidate_a": "Good news: Kastanjelaan 4 is covered by Acme Fibre 300.",
+    "candidate_b": "No, Acme Fibre 300 is not available at Kastanjelaan 4.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q110",
+    "task": "Is Acme Fibre 100 available at Kastanjelaan 4?",
+    "golden": "Acme Fibre 100 is available at Kastanjelaan 4.",
+    "candidate_a": "Yes, Acme Fibre 100 is available at Kastanjelaan 4.",
+    "candidate_b": "No, Acme Fibre 100 is not available at Kastanjelaan 4.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q111",
+    "task": "What is the price of Acme Mobile S?",
+    "golden": "Acme Mobile S costs 51 USD a month.",
+    "candidate_a": "Acme Mobile S is 51 dollars a month.",
+    "candidate_b": "Acme Mobile S is 79 dollars a month.",
+    "better": "A",
+    "fact": "price"
+  },
+  {
+    "id": "q112",
+    "task": "What is the price of Acme Mobile L?",
+    "golden": "Acme Mobile L costs 44 USD a month.",
+    "candidate_a": "It costs 65 USD per month.",
+    "candidate_b": "Acme Mobile L is 44 dollars a month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q113",
+    "task": "What is the price of Acme Home Plus?",
+    "golden": "Acme Home Plus costs 38 USD a month.",
+    "candidate_a": "It costs 55 USD per month.",
+    "candidate_b": "It costs 38 USD per month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q114",
+    "task": "What is the price of Acme Mobile M?",
+    "golden": "Acme Mobile M costs 35 USD a month.",
+    "candidate_a": "The monthly price of Acme Mobile M is 63 USD.",
+    "candidate_b": "It costs 35 USD per month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q115",
+    "task": "What is the price of Acme Mobile L?",
+    "golden": "Acme Mobile L costs 51 USD a month.",
+    "candidate_a": "The monthly price of Acme Mobile L is 73 USD.",
+    "candidate_b": "Acme Mobile L is 51 dollars a month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q116",
+    "task": "Is Acme Fibre 100 available at Molenweg 7?",
+    "golden": "Acme Fibre 100 is available at Molenweg 7.",
+    "candidate_a": "Good news: Molenweg 7 is covered by Acme Fibre 100.",
+    "candidate_b": "Acme Fibre 100 cannot be installed at Molenweg 7.",
+    "better": "A",
+    "fact": "availability"
+  },
+  {
+    "id": "q117",
+    "task": "What is the price of Acme Home Plus?",
+    "golden": "Acme Home Plus costs 44 USD a month.",
+    "candidate_a": "Acme Home Plus is 59 dollars a month.",
+    "candidate_b": "The monthly price of Acme Home Plus is 44 USD.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q118",
+    "task": "How much data does Acme Fibre 300 include?",
+    "golden": "Acme Fibre 300 includes 5 GB of data.",
+    "candidate_a": "40 GB of data come with Acme Fibre 300.",
+    "candidate_b": "You get 5 GB of data with Acme Fibre 300.",
+    "better": "B",
+    "fact": "data"
+  },
+  {
+    "id": "q119",
+    "task": "What is the price of Acme Mobile M?",
+    "golden": "Acme Mobile M costs 41 USD a month.",
+    "candidate_a": "Acme Mobile M is 67 dollars a month.",
+    "candidate_b": "Acme Mobile M is 41 dollars a month.",
+    "better": "B",
+    "fact": "price"
+  },
+  {
+    "id": "q120",
+    "task": "How much data does Acme Mobile M include?",
+    "golden": "Acme Mobile M includes 40 GB of data.",
+    "candidate_a": "Acme Mobile M includes 20 GB.",
+    "candidate_b": "You get 40 GB of data with Acme Mobile M.",
+    "better": "B",
+    "fact": "data"
+  }
+]

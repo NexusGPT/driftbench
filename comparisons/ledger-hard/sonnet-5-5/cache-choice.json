@@ -1,0 +1,16 @@
+{
+  "created": "2026-10-13T14:12:34.614656+00:00",
+  "authority": "Owner authorizes five-call no-cache test and the cheaper route, with USD 45 including holds.",
+  "disable_prompt_caching": true,
+  "cached_pilot_usd": 0.028311,
+  "uncached_pilot_usd": 0.025412,
+  "calls_per_pilot": 5,
+  "projected_total_measured_usd": 33.343443,
+  "retained_unknown_attempt_reserve_usd": 0.1,
+  "no_answer_reasked": true,
+  "answered_calls_reasked": 0,
+  "transport_attempts_for_reconciled_key": 2,
+  "selection_uses_outcomes": false,
+  "limitation": "Disjoint five-call prefixes have different request mixes. This is a runtime cost check, not a paired cost experiment or an accuracy-based choice.",
+  "both_contestants_use_same_chosen_setting": true
+}

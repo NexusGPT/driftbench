@@ -1,0 +1,172 @@
+{
+  "at": "2026-10-13T15:20:42.742048+00:00",
+  "pid": 64332,
+  "status": "complete",
+  "authorization": "Owner network amendment: missing-only zero-token no-output transport recoveries, including Haiku timeouts, are unlimited after ten healthy provider probes spaced 30 seconds apart; concurrency two and one model cell at a time. After three consecutive connection failures, pause ten minutes and repeat the gate. Retain answers, receipts and holds; never resubmit any returned answer. No sealed result is final while transport-missing items remain.",
+  "originalTransportSha256": "c621bb49d72cd20d7aa23e8b6d974026bbdae1ca6461680324098be849a3226a",
+  "recoveryTransportSha256": "d666e8f3a6cfa5f86c6302a51c462a03b13e3e793307ce92ab065c4cfd48a374",
+  "maxAdditionalSubmissionsEach": null,
+  "unknownHoldsRetainedUsd": 3.0,
+  "networkPolicy": "evidence/network-pause-20261013.json",
+  "requests": [
+    {
+      "key": "56bebfa085abfe96206a",
+      "fingerprint": "9a935f6394bb6cfa8438700ccb7feaefaf6657c8de2774c853d1a8c1e64c6d6c"
+    },
+    {
+      "key": "69aa3929651d3477aab7",
+      "fingerprint": "2d2b648ee7db9348f7966f8717c3c20ab83fff1615410ad1759388d37f8d6cc1"
+    },
+    {
+      "key": "a2864f1aba00dd7dc2b7",
+      "fingerprint": "ec31b95c0f02344e6b85e0b7d644645b463ee2a2ec2fcdb40a408c778adbf14a"
+    },
+    {
+      "key": "7678be8b5413c4550794",
+      "fingerprint": "b32a97dbf9524b856d1e057b4ed98e23ee79fc936b8543b3a57ce2b8fceca1f8"
+    },
+    {
+      "key": "cb7367b99e093fed2116",
+      "fingerprint": "d362855a67300547f1ca362f356a95a39e8ebfadb2380df711593c1555c2ad9a"
+    },
+    {
+      "key": "610e897857bff2e6922b",
+      "fingerprint": "ee28d90faae77b16da1d8edfcd03e9fc645096f318e2563c5b8a2320b90b2f1d"
+    }
+  ],
+  "answered": 6,
+  "remaining": 0,
+  "outcomes": [
+    {
+      "key": "610e897857bff2e6922b",
+      "fingerprint": "ee28d90faae77b16da1d8edfcd03e9fc645096f318e2563c5b8a2320b90b2f1d",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "promptfoo",
+        "item": "ca0ad196459e3aac13eed9be6ac0e48c_c8c65ee267b8190065d4f1775bd3049a",
+        "order": "single"
+      },
+      "output": {
+        "result": "{\"reason\": \"The response answers K (none correct), but Option H is correct under the ordering shown in the examples. H is 'new silly filipino circular iron exercise bed': age < opinion < origin < shape < material < purpose < noun, which matches the observed pairs (e.g., 'old repulsive', 'lovely vietnamese', 'mexican rectangular', 'old circular wool', 'rubber whittling'). The response's own analysis is also incoherent: it says every option is in correct order, then selects K. The final answer is wrong.\", \"pass\": false, \"score\": 0.0}",
+        "total_cost_usd": 0.00411999,
+        "is_error": false
+      },
+      "receipt": "53de7a44-b654-420e-8fd4-1642ad963b6c",
+      "attempt": 1,
+      "returnedModelAnswer": true,
+      "use": "initial answered finals preserved; only transport-missing finals are replaced"
+    },
+    {
+      "key": "56bebfa085abfe96206a",
+      "fingerprint": "9a935f6394bb6cfa8438700ccb7feaefaf6657c8de2774c853d1a8c1e64c6d6c",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "1a5e02f4c2b7cdbe6e6cdf79952ebf6b_d849833243ab3748654b844e6bfed7b8",
+        "order": "program"
+      },
+      "output": {
+        "result": "```\nfreshly cut grass\"),\n    (\"XL\", \"Portuguese\", \"dog\", \"steel\", \"burning wood\"),\n    (\"S\", \"Canadian\", \"house\", \"steel\", \"pine needles\"),\n    (\"M\", \"Brazilian\", \"ball\", \"plastic\", \"coffee\"),\n    (\"XS\", \"Polish\", \"trash can\", \"ceramic\", \"lavender\"),\n    (\"XL\", \"Turkish\", \"clock\", \"glass\", \"citrus fruits\"),\n    (\"M\", \"Japanese\", \"speaker\", \"concrete\", \"gasoline\"),\n    (\"XXS\", \"Polish\", \"key\", \"concrete\", \"popcorn\"),\n    (\"XS\", \"Iranian\", \"piano\", \"plastic\", \"lavender\"),\n    (\"S\", \"Chinese\", \"clock\", \"concrete\", \"burning wood\"),\n    (\"S\", \"Portuguese\", \"shirt\", \"ceramic\", \"leather\"),\n    (\"XXS\", \"Canadian\", \"plate\", \"steel\", \"popcorn\"),\n    (\"XL\", \"Polish\", \"wallet\", \"plastic\", \"popcorn\"),\n    (\"XS\", \"Iranian\", \"marker\", \"concrete\", \"burning wood\"),\n    (\"M\", \"Afghan\", \"bicycle\", \"ceramic\", \"pine needles\"),\n    (\"XXL\", \"Italian\", \"jar\", \"glass\", \"burning wood\"),\n    (\"XXL\", \"Afghan\", \"sunglasses\", \"plastic\", \"burning wood\"),\n    (\"XXS\", \"German\", \"shirt\", \"steel\", \"rose\"),\n    (\"XXL\", \"Afghan\", \"key\", \"glass\", \"lavender\"),\n    (\"XXL\", \"German\", \"dog\", \"concrete\", \"leather\"),\n    (\"M\", \"Brazilian\", \"ball\", \"steel\", \"rose\"),\n    (\"XXS\", \"Mexican\", \"fork\", \"concrete\", \"chocolate\"),\n    (\"XS\", \"Mexican\", \"piano\", \"ceramic\", \"baking bread\"),\n    (\"M\", \"Spanish\", \"plate\", \"steel\", \"burning wood\"),\n    (\"M\", \"Spanish\", \"cup\", \"ceramic\", \"lavender\"),\n    (\"S\", \"British\", \"pen\", \"concrete\", \"vinegar\"),\n    (\"XS\", \"Polish\", \"jar\", \"concrete\", \"burning wood\"),\n    (\"XXS\", \"Chinese\", \"apple\", \"plastic\", \"popcorn\"),\n    (\"L\", \"Russian\", \"hat\", \"steel\", \"citrus fruits\"),\n    (\"XXL\", \"Japanese\", \"hat\", \"plastic\", \"lavender\"),\n    (\"XXL\", \"Russian\", \"bird\", \"concrete\", \"lavender\"),\n]\n\nCOLOR_RUNS = [(\"beige\", 3), (\"black\", 3), (\"blue\", 1), (\"brown\", 2),\n              (\"crimson\", 4), (\"cyan\", 6), (\"gold\", 2), (\"gray\", 2),\n              (\"green\", 1), (\"indigo\", 2), (\"ivory\", 2), (\"magenta\", 3),\n              (\"maroon\", 3), (\"turquoise\", 3)]\n\nEXPECT_SMELL = {\"coconut\": 3, \"gasoline\": 2, \"leather\": 3, \"wet dog\": 1,\n                \"freshly cut grass\": 1, \"burning wood\": 7, \"pine needles\": 2,\n                \"coffee\": 1, \"lavender\": 6, \"citrus fruits\": 2,\n                \"baking bread\": 11, \"popcorn\": 4, \"rose\": 2,\n                \"chocolate\": 1, \"vinegar\": 1}\nEXPECT_MAT = {\"plastic\": 6, \"ceramic\": 9, \"concrete\": 10, \"steel\": 10, \"glass\": 2}\nGIFT = {\"citrus fruits\", \"rose\", \"lavender\"}\nREMOVE = {\"coffee\", \"leather\", \"lavender\"}\nMATERIALS = [\"plastic\", \"ceramic\", \"concrete\", \"steel\", \"glass\"]\n\n\ndef build():\n    colors = []\n    for name, n in COLOR_RUNS:\n        colors.extend([name] * n)\n    assert len(colors) == len(RAW) == 37\n    return [{\"size\": s, \"origin\": o, \"name\": nm, \"material\": m,\n             \"smell\": sm, \"color\": c}\n            for (s, o, nm, m, sm), c in zip(RAW, colors)]\n\n\ndef cousin(coll, fav):\n    out = [dict(x) for x in coll]\n    for x in coll:\n        if x[\"smell\"] in GIFT:\n            y = dict(x)\n            y[\"smell\"] = fav\n            out.append(y)\n    return out\n\n\ndef friend(coll):\n    return [dict(x) for x in coll if x[\"smell\"] not in REMOVE]\n\n\ndef aunt(coll, mat):\n    out = []\n    for x in coll:\n        y = dict(x)\n        if x[\"size\"] == \"XL\":\n            y[\"material\"] = mat\n            y[\"smell\"] = \"freshly cut grass\"\n        out.append(y)\n    return out\n\n\ndef mom(coll):\n    out = [dict(x) for x in coll]\n    for x in coll:\n        if x[\"color\"] == \"gold\":\n            out.append({\"size\": \"XS\", \"origin\": \"Spanish\", \"name\": x[\"name\"],\n                        \"material\": \"plastic\", \"smell\": \"pine needles\",\n                        \"color\": \"maroon\"})\n    return out\n\n\ndef fiance(coll, s0):\n    out = [dict(x) for x in coll]\n    for x in coll:\n        if (x[\"smell\"], x[\"color\"]) not in s0:\n            out.append(dict(x))\n    return out\n\n\ndef qcount(coll):\n    return sum(1 for x in coll\n               if x[\"color\"] != \"brown\" and x[\"size\"] != \"XS\"\n               and x[\"material\"] != \"steel\" and x[\"smell\"] != \"pine needles\"\n               and x[\"origin\"] != \"Turkish\")\n\n\ndef main():\n    initial = build()\n    s0 = {(x[\"smell\"], x[\"color\"]) for x in initial}\n    smell_cands = sorted(({x[\"smell\"] for x in initial} | set(EXPECT_SMELL)) - GIFT)\n\n    fav_ok = [f for f in smell_cands\n              if Counter(x[\"smell\"] for x in cousin(initial, f))\n              == Counter(EXPECT_SMELL)]\n    print(\"favorite smell consistent with counts:\", fav_ok)\n\n    answers = set()\n    for f in fav_ok:\n        c1 = cousin(initial, f)\n        c2 = friend(c1)\n        print(\"sizes after cousin/friend:\", len(c1), len(c2))\n        for mat in MATERIALS:\n            c3 = aunt(c2, mat)\n            if Counter(x[\"material\"] for x in c3) != Counter(EXPECT_MAT):\n                continue\n            print(\"aunt material consistent:\", mat)\n            c5 = fiance(mom(c3), s0)\n            print(\"final size before loss:\", len(c5))\n            for i, x in enumerate(c5):\n                if x[\"size\"] == \"XS\":\n                    rest = c5[:i] + c5[i + 1:]\n                    answers.add(qcount(rest))\n\n    if len(answers) == 1:\n        val = next(iter(answers))\n        print(\"DECISIVE_ANSWER\", val)\n        print(\"CHECK FAIL\")\n    elif len(answers) > 1:\n        print(\"VALUES_ACROSS_CHOICES\", sorted(answers))\n        print(\"CHECK PASS\" if SUBMITTED == \"unknown\" else \"CHECK FAIL\")\n    else:\n        print(\"UNSUPPORTED\")\n\n\nif __name__ == \"__main__\":\n    main()\n```",
+        "total_cost_usd": 0.01344666,
+        "is_error": false
+      },
+      "receipt": "86a12aaa-b94d-424e-a775-e9fcd2b1a8d9",
+      "attempt": 1,
+      "returnedModelAnswer": true,
+      "use": "initial answered finals preserved; only transport-missing finals are replaced"
+    },
+    {
+      "key": "a2864f1aba00dd7dc2b7",
+      "fingerprint": "ec31b95c0f02344e6b85e0b7d644645b463ee2a2ec2fcdb40a408c778adbf14a",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "8a87115eb452edfef41c3c9fe997b548_919fa95f3b9e712aaa6a4b9169efb002",
+        "order": "blind-direct-program"
+      },
+      "output": {
+        "is_error": true,
+        "total_cost_usd": 0,
+        "result": "Transport missing: claude returned an error result"
+      },
+      "receipt": "443ad26d-71e0-4e88-b318-53efda4a0c05",
+      "attempt": 3,
+      "returnedModelAnswer": true,
+      "use": "initial answered finals preserved; only transport-missing finals are replaced"
+    },
+    {
+      "key": "cb7367b99e093fed2116",
+      "fingerprint": "d362855a67300547f1ca362f356a95a39e8ebfadb2380df711593c1555c2ad9a",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "promptfoo",
+        "item": "ff2796ddf628ec8029f38e475395f8f6_e6ecff7ef1f0ae955e946289eae08fa3",
+        "order": "single"
+      },
+      "output": {
+        "result": "{\"reason\": \"The path is two semicircular arcs of radius 27 between diametrically opposite points (95,40) and (41,40), with the same sweep flag. Together they form a full circle centered at (68,40), so the answer (A) circle is correct. The response's description of the sweep direction is slightly off (sweep=0 is counterclockwise on screen), but this does not affect the final answer.\", \"pass\": true, \"score\": 1.0}",
+        "total_cost_usd": 0.0013171,
+        "is_error": false
+      },
+      "receipt": "8b983519-f01c-48f5-841a-15a8b62d7e63",
+      "attempt": 1,
+      "returnedModelAnswer": true,
+      "use": "initial answered finals preserved; only transport-missing finals are replaced"
+    },
+    {
+      "key": "69aa3929651d3477aab7",
+      "fingerprint": "2d2b648ee7db9348f7966f8717c3c20ab83fff1615410ad1759388d37f8d6cc1",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7",
+        "order": "blind-direct-program"
+      },
+      "output": {
+        "result": "```python\n    if len(cands) != 1:\n        return {\"final_answer\": \"unknown\", \"evidence\": {\"reason\": \"aunt material not unique\"}}\n    M = cands[0]\n    new = []\n    for d in coll:\n        if d[\"size\"] == \"small\":\n            r = dict(d)\n            r[\"material\"] = M\n            r[\"smell\"] = \"lavender\"\n            new.append(r)\n        else:\n            new.append(d)\n    n2 = len(new)\n\n    # Step 3: uncle removes Japanese items, adds one Turkish and one French copy of each\n    out = []\n    for d in new:\n        if d[\"origin\"] == \"Japanese\":\n            for o in (\"Turkish\", \"French\"):\n                r = dict(d)\n                r[\"origin\"] = o\n                out.append(r)\n        else:\n            out.append(d)\n    new = out\n    n3 = len(new)\n\n    # Step 4: remove all items whose type appears an even number of times\n    tc = Counter(d[\"type\"] for d in new)\n    new = [d for d in new if tc[d[\"type\"]] % 2 == 1]\n    n4 = len(new)\n\n    # Step 5: fiance adds one copy of each item whose (smell, color) pair\n    # never occurred in the initial collection\n    snapshot = list(new)\n    for d in snapshot:\n        if (d[\"smell\"], d[\"color\"]) not in initial_pairs:\n            new.append(dict(d))\n    n5 = len(new)\n\n    # Step 6: lose one extra-extra-large item; test every choice\n    xxl_idx = [i for i, d in enumerate(new) if d[\"size\"] == \"xxl\"]\n    if not xxl_idx:\n        return {\"final_answer\": \"unknown\", \"evidence\": {\"reason\": \"no xxl item\"}}\n    results = set()\n    for i in xxl_idx:\n        rest = new[:i] + new[i + 1:]\n        results.add(sum(1 for d in rest if is_target(d)))\n    if len(results) != 1:\n        final = \"unknown\"\n    else:\n        final = str(results.pop())\n\n    return {\n        \"final_answer\": final,\n        \"evidence\": {\n            \"aunt_material\": M,\n            \"counts\": {\"after_friend\": n1, \"after_aunt\": n2,\n                       \"after_uncle\": n3, \"after_even_removal\": n4,\n                       \"after_fiance\": n5, \"final_before_loss\": len(new)},\n            \"xxl_choices\": len(xxl_idx),\n        },\n    }\n\n\nif __name__ == \"__main__\":\n    print(json.dumps(main(), separators=(\",\", \":\")))\n```",
+        "total_cost_usd": 0.0125966,
+        "is_error": false
+      },
+      "receipt": "27a86720-fb4e-431c-b336-56a44ba75f77",
+      "attempt": 1,
+      "returnedModelAnswer": true,
+      "use": "initial answered finals preserved; only transport-missing finals are replaced"
+    },
+    {
+      "key": "7678be8b5413c4550794",
+      "fingerprint": "b32a97dbf9524b856d1e057b4ed98e23ee79fc936b8543b3a57ce2b8fceca1f8",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591",
+        "order": "blind-direct-program"
+      },
+      "output": {
+        "result": "```python\nimport json\n\nCAT = {}\ndef add(cat, words):\n    for w in words.split():\n        CAT[w] = cat\n\nadd(\"opinion\", \"lovely silly nice terrible awful obnoxious repulsive wonderful good mysterious ridiculous\")\nadd(\"size\", \"huge enormous large big tiny small little medium-size midsize normal-size massive\")\nadd(\"shape\", \"circular spherical square triangular rectangular prismlike pyramidal\")\nadd(\"age\", \"archaic ancient old old-fashioned new brand-new\")\nadd(\"color\", \"yellow gray cyan red violet pink indigo blue crimson green white black maroon magenta aqua brown\")\nadd(\"origin\", \"pakistani ethiopian filipino russian vietnamese chinese german mexican nigerian indian egyptian iranian congolese bangladeshi indonesian japanese brazilian thai american turkish\")\nadd(\"material\", \"steel glass wood rubber leather cardboard wool paper plastic fiberglass cloth iron\")\nadd(\"verb\", \"driving typing whittling hiking walking smoking eating snorkeling exercise drinking\")\n\n# Directly attested precedences (X before Y) from the givens:\n# opinion<origin (e.g. 14, 27, 35), origin<verb (143), verb<color (6, 21, 28),\n# age<material (20, 30, 41), material<opinion (50), shape<size (26, 37, 46)\nATTESTED = [(\"opinion\", \"origin\"), (\"origin\", \"verb\"), (\"verb\", \"color\"),\n            (\"age\", \"material\"), (\"material\", \"opinion\"), (\"shape\", \"size\")]\n\nREL = set(ATTESTED)\ncats = sorted({c for pair in ATTESTED for c in pair} | set(CAT.values()))\nchanged = True\nwhile changed:\n    changed = False\n    for a in cats:\n        for b in cats:\n            for c in cats:\n                if (a, b) in REL and (b, c) in REL and (a, c) not in REL:\n                    REL.add((a, c))\n                    changed = True\n\nOPTIONS = {\n    \"A\": \"obnoxious nigerian walking indigo pyramidal medium-size car\",\n    \"B\": \"little prismlike awful iranian smoking white bed\",\n    \"C\": \"old steel obnoxious thai driving aqua box\",\n    \"D\": \"old-fashioned plastic obnoxious brazilian drinking violet midsize spherical pen\",\n    \"E\": \"rectangular small ridiculous nigerian snorkeling blue fiberglass ancient hat\",\n    \"F\": \"wool silly vietnamese whittling cyan square enormous dog\",\n    \"G\": \"old cloth repulsive iranian snorkeling magenta medium-size marker\",\n    \"H\": \"large rectangular ridiculous pakistani exercise indigo leather bowl\",\n    \"I\": \"circular ridiculous brazilian exercise yellow cloth brand-new brush\",\n    \"J\": \"brand-new plastic repulsive brazilian eating violet prismlike midsize bed\",\n}\n\nstatus = {}\nvalid = []\nfor key, sentence in OPTIONS.items():\n    seq = [CAT[w] for w in sentence.split() if w in CAT]\n    result = \"valid\"\n    for i in range(len(seq)):\n        for j in range(i + 1, len(seq)):\n            x, y = seq[i], seq[j]\n            if x == y:\n                continue\n            if (y, x) in REL:\n                result = \"invalid\"\n            elif (x, y) not in REL and result != \"invalid\":\n                result = \"unknown\"\n    status[key] = {\"categories\": seq, \"status\": result}\n    if result == \"valid\":\n        valid.append(key)\n\nunknown = [k for k, v in status.items() if v[\"status\"] == \"unknown\"]\nfinal = \"\".join(valid) if not unknown else \"UNSUPPORTED\"\n\nprint(json.dumps({\n    \"final_answer\": final,\n    \"evidence\": {\n        \"valid\": valid,\n        \"unknown_pairs_unsettled\": unknown,\n        \"per_option\": status,\n    },\n}))\n```",
+        "total_cost_usd": 0.03387485,
+        "is_error": false
+      },
+      "receipt": "0097fc55-1a39-48da-aa88-4ffac64d4152",
+      "attempt": 2,
+      "returnedModelAnswer": true,
+      "use": "initial answered finals preserved; only transport-missing finals are replaced"
+    }
+  ],
+  "initialDecisionsPreserved": 440,
+  "primaryResultsReplaced": 2,
+  "returnedAnswersResent": 0,
+  "transportMissingFinalItems": 0,
+  "primaryReportSha256": "88f983b266d4fdbb34bc97b4f9d5f2bf7a27107dd76eb740cea115f7c99d00f2",
+  "primaryCassetteSha256": "c3cc672ad9b046f4c37f19b1f394799f78bd9e1c91ab231437116e92b535d3bb",
+  "offlineReplay": "cache/stable-replay/haiku/results/evidence.json",
+  "newReceiptIds": [
+    "27a86720-fb4e-431c-b336-56a44ba75f77",
+    "86a12aaa-b94d-424e-a775-e9fcd2b1a8d9",
+    "0097fc55-1a39-48da-aa88-4ffac64d4152",
+    "8b983519-f01c-48f5-841a-15a8b62d7e63",
+    "53de7a44-b654-420e-8fd4-1642ad963b6c",
+    "443ad26d-71e0-4e88-b318-53efda4a0c05"
+  ],
+  "newSettledUsd": 0.09871296,
+  "feeAttributionPolicy": "All physical recovery receipts, including responses reused after a scheduler restart"
+}

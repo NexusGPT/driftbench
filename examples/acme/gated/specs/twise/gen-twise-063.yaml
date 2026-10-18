@@ -2,16 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-063
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 63 of 154: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D8_tool_failure of order.create at recap"
-channel: whatsapp
+title: "t-wise row 63 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D8_tool_failure of port.check at port_number"
+channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:no-service
-  - task:existing-workbook
   - flow:porting
 covers:
   - B-006
@@ -27,6 +25,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-006
     rubric: Check that a number can move to Acme before promising to keep it
@@ -49,95 +49,27 @@ blocks:
       tools:
         - label: port.check
           count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
       lang: EN
       criteria:
         - behaviour.B-006
         - flow.porting
-  - id: b2-port_number-to-offer
-    when:
-      user: My number is +1 202 555 0160.
-    expect:
-      stage: offer
-      tools:
-        - label: port.check
-          count: 1
-          input:
-            number: "+12025550160"
-        - label: catalog.search
-          count: 1
-          input:
-            category: mobile
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b3-offer-to-details
-    when:
-      user: Acme Mobile M, please.
-    expect:
-      stage: details
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b4-details-to-recap
-    when:
-      user: Jo Okafor, jo.okafor@example.com
-    expect:
-      stage: recap
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b5-D8_tool_failure
+  - id: b2-D8_tool_failure
     when:
       injection:
         class: D8_tool_failure
-        user: CONFIRM
+        user: My number is +1 202 555 0160.
     given:
       world:
         tools:
-          order.create:
+          port.check:
             error: service unavailable (generated tool failure)
     expect:
-      stage: handover
+      stage: callback
       tools:
-        - label: order.create
-          count: 1
-          input:
-            type: new
-            plan_id: mobile-m
-            port_number:
-              absent: true
-            customer:
-              subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
-        - label: notify_sales
-          count: 1
-          input:
-            reason: order_failed
         - label: port.check
-          count: 0
+          count: 2
+          input:
+            number: "+12025550160"
         - label: catalog.search
           count: 0
       lang: EN
@@ -153,19 +85,18 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: porting-locked-number
     cell:
       behaviour: B-006
-      channel: whatsapp
+      channel: chat
       user_type: new-customer
-      coverage_result: no-service
-      workspace_start: existing-workbook
+      coverage_result: none
       flow: porting
       port_result: locked
       plan_choice: names-one
       customer_details: name-and-email
-      failing_tool: order.create
+      failing_tool: port.check
     blocks:
       - block: b1-needs-to-port_number
         seeder: twise
@@ -176,47 +107,17 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-port_number
-      - block: b2-port_number-to-offer
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: port_number-to-offer
-          port_result: locked
-          stage: offer
-        phrase:
-          dimension: stage_transition
-          value: port_number-to-offer
-      - block: b3-offer-to-details
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
-        phrase:
-          dimension: stage_transition
-          value: offer-to-details
-      - block: b4-details-to-recap
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
-          stage: recap
-        phrase:
-          dimension: stage_transition
-          value: details-to-recap
-      - block: b5-D8_tool_failure
+      - block: b2-D8_tool_failure
         seeder: twise
         cell:
           spec: metadata.generated.cell
           deviation: D8_tool_failure
-          stage_transition: recap-to-order_placed
+          stage_transition: port_number-to-offer
           port_result: locked
-          customer_details: name-and-email
-          stage: handover
+          stage: callback
         phrase:
           dimension: stage_transition
-          value: recap-to-order_placed
+          value: port_number-to-offer
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -225,22 +126,13 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-port_number-to-offer
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b3-offer-to-details
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b4-details-to-recap
+      - block: b2-D8_tool_failure
         status: accepted
         pass_k: 1
         pass_probability: 0.615
-      - block: b5-D8_tool_failure
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.538
 rules:
   forbidden_tools:
+    - catalog.search
     - coverage.check
+    - order.create
+    - notify_sales

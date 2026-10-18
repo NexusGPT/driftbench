@@ -84,6 +84,10 @@ export type CheckDecl = {
   work?: string;
   /** The steps of a step list the check belongs to. */
   steps: string[];
+  /** What sets the check off, as material for a payload: the backticked spans of what it watches. */
+  trigger?: string[];
+  /** The script of a configured guard (a hook) whose source names the check: the hook that runs it. */
+  host?: string;
 };
 
 export type PermissionDecl = {
@@ -174,4 +178,6 @@ export interface EstateReader {
   readonly runtime: string;
   /** Reads the estate at `root`. Paths in the result are relative to `root`, with forward slashes. */
   read(root: string): Promise<RawEstate>;
+  /** The files a copy of the estate needs, relative to `root`: what the runtime may load, ignored paths left out. */
+  listFiles?(root: string): Promise<string[]>;
 }

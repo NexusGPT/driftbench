@@ -1,4 +1,4 @@
-import { denseEmbedder, type Expect } from '@driftbench/core';
+import { denseEmbedder, type Expect } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { createSimilarityCheck, similarity } from '../src/checks/similarity';
 import { acme } from './support/acme';

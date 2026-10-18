@@ -1,0 +1,219 @@
+# Gated by driftbench gate from metamorphic/gen-metamorphic-014-2.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-metamorphic-014-2
+version: 6d29ed7a7539
+kind: conversation
+title: "Metamorphic home-callback over channel, value 2 of 2: : Path home-callback of new-home: needs > address > offer > callback > handover"
+channel: whatsapp
+lang: EN
+tier: generated
+tags:
+  - persona:new-customer
+  - data:fiber
+  - flow:new-home
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
+criteria:
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
+    gating: false
+    scope: conversation
+blocks:
+  - id: b1-needs-to-address
+    when:
+      user: Hello, I'm looking for home internet.
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+      criteria:
+        - flow.new-home
+  - id: b2-address-to-offer
+    when:
+      user: The address is 14 Harbor Road, Acmeville.
+    expect:
+      stage: offer
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 14 Harbor Road, Acmeville
+        - label: catalog.search
+          count: 1
+          input:
+            category: home
+            address_id: addr-101
+        - label: notify_sales
+          count: 0
+      must:
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-offer-to-callback
+    when:
+      user: Can someone just call me back?
+    expect:
+      stage: callback
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+  - id: b4-callback-to-handover
+    when:
+      user: You can reach me on +1 202 555 0131.
+    expect:
+      stage: handover
+      tools:
+        - label: notify_sales
+          count: 1
+          input:
+            reason: callback
+            customer:
+              subset:
+                phone: "+12025550131"
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+      lang: EN
+perturbations:
+  - id: p1-D3_contradiction
+    class: D3_contradiction
+    inject_at: 2
+    user: "Acme Fiber 300. No, wait: Acme Fiber 1000."
+    expect:
+      stage: offer
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - Which one
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: offer
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: metamorphic
+    seed: 1
+    stream: 644324108
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    path: home-callback
+    cell:
+      user_type: new-customer
+      coverage_result: fiber
+      plan_choice: asks-for-callback
+      callback_phone: given
+      channel: whatsapp
+      flow: new-home
+    blocks:
+      - block: b1-needs-to-address
+        seeder: metamorphic
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-address-to-offer
+        seeder: metamorphic
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-offer
+          coverage_result: fiber
+          stage: offer
+        phrase:
+          dimension: stage_transition
+          value: address-to-offer
+      - block: b3-offer-to-callback
+        seeder: metamorphic
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: offer-to-callback
+          stage: callback
+        phrase:
+          dimension: stage_transition
+          value: offer-to-callback
+      - block: b4-callback-to-handover
+        seeder: metamorphic
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: callback-to-handover
+          callback_phone: given
+          coverage_result: fiber
+          plan_choice: asks-for-callback
+          stage: handover
+        phrase:
+          dimension: stage_transition
+          value: callback-to-handover
+    metamorphic:
+      family: gen-metamorphic-014
+      variant: 2
+      of: 2
+      relation: same observed outcome
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-address
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-address-to-offer
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.538
+      - block: b3-offer-to-callback
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b4-callback-to-handover
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+rules:
+  forbidden_tools:
+    - port.check
+    - order.create
+end_state:
+  source: tool:notify_sales
+  mode: subset
+  expect:
+    reason: callback
+    customer:
+      subset:
+        phone: "+12025550131"

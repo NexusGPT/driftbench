@@ -1,25 +1,49 @@
 import { basename, dirname, resolve } from 'node:path';
-import { orderedCheck, type ReplaySession, readSession, replayAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { CheckRegistry, defaultChecks, defaultRegistry } from '@driftbench/checks';
 import {
+  orderedCheck,
+  type ReplaySession,
+  readSession,
+  replayAdapter,
+} from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import {
+  CheckRegistry,
+  type DefaultChecksOptions,
+  defaultChecks,
+  defaultRegistry,
+  ESTATE_CHECKS,
+} from '@agent-nexus/driftbench-checks';
+import {
+  blocksOutcome,
   type Campaign,
+  type Check,
   type CheckSet,
   contentHash,
+  type Embedder,
   type LoadedSpec,
   type RunResult,
   runSpec,
   type Store,
   type TargetRef,
-} from '@driftbench/core';
-import { openMemoryStore, openStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+  type ToolRule,
+} from '@agent-nexus/driftbench-core';
+import { noJudgeCheck } from '@agent-nexus/driftbench-judges';
+import { openMemoryStore, openStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import {
+  addJudgeOptions,
+  addRunCheckOptions,
+  type RunCheckFlags,
+  type RunJudgeOptions,
+  runCheckSettingsFrom,
+  runJudgeFrom,
+} from '../judge-options';
 import { loadValidSpecs } from './campaign';
 
 /**
- * `driftbench replay`: runs a suite of specs over recorded sessions, offline, with no model call.
+ * `driftbench replay`: re-runs the checks of a suite of specs on recorded sessions, with no agent call; the judged criteria call a judge model only with --judge.
  *
  * Each session is read by the Claude Code adapter into blocks of Observed. Each spec is aligned with one
  * session and a first block:
@@ -31,7 +55,7 @@ import { loadValidSpecs } from './campaign';
  * A spec that names a session not given is skipped with a note. The run is the runner's own: mode F, the
  * scripted driver, `defaultChecks()` plus the ordered-pair check under `rules.custom.ordered`, no cache. Each
  * run is stored (in the store given with `--store`, in memory otherwise) under one replay campaign. Judged
- * criteria are not run. A decision log or step feed belongs to the session whose file name starts its own
+ * criteria are judged by `--judge` when it is given, and are inconclusive without it. A decision log or step feed belongs to the session whose file name starts its own
  * file name (`clean-build.decisions.jsonl` for `clean-build.jsonl`); with one session it belongs to it.
  *
  * Exit 0 when every aligned spec passes, 1 when one fails, 2 on bad input.
@@ -53,7 +77,12 @@ export type ReplayOptions = {
   steps: string[];
   store?: string;
   json?: boolean;
-};
+  /** The owner's own values (an email, a phone, an IBAN) the pii check leaves out. */
+  owner?: string[];
+  /** A file of owner values, one per line; blank lines and lines starting with # are skipped. */
+  ownerFile?: string;
+} & RunJudgeOptions &
+  RunCheckFlags;
 
 /** Registers `driftbench replay`. */
 export function registerReplayCommand(
@@ -62,9 +91,11 @@ export function registerReplayCommand(
   setExit: (code: number) => void,
   deps: ReplayDeps = defaultReplayDeps,
 ): void {
-  program
+  const replay = program
     .command('replay')
-    .description('Run a spec suite over recorded sessions, offline, with no model call.')
+    .description(
+      'Re-run the checks of a spec suite on recorded sessions: no agent call; a judge model only with --judge.',
+    )
     .argument('<sessions...>', 'session transcripts (JSONL)')
     .requiredOption('--suite <dir>', 'the spec files or folder to run')
     .option(
@@ -75,10 +106,19 @@ export function registerReplayCommand(
     )
     .option('--steps <feeds...>', 'step feeds (JSONL), one per session, matched by file name', collectAll, [])
     .option('--store <db>', 'keep the runs in this store; in memory without it')
-    .option('--json', 'print one JSON document')
-    .action(async (sessions: string[], options: ReplayOptions) => {
+    .option(
+      '--owner <values...>',
+      "the owner's own email, phone, IBAN or national number: the pii check leaves exactly these out",
+      collectAll,
+      [],
+    )
+    .option('--owner-file <file>', 'owner values, one per line, for the pii check; # starts a comment line')
+    .option('--json', 'print one JSON document');
+  addRunCheckOptions(addJudgeOptions(replay), { owner: false }).action(
+    async (sessions: string[], options: ReplayOptions) => {
       setExit(await replayCommand(sessions, options, io, deps));
-    });
+    },
+  );
 }
 
 type SessionEntry = {
@@ -88,6 +128,11 @@ type SessionEntry = {
   decisions?: string;
   steps?: string;
 };
+
+// Estate statistics use the same session alignment and reference/tree reads as replay.
+export type { SessionEntry };
+export { align as alignReplaySpecs, sessionFor as replaySessionFor };
+
 /** The before and after trees of a spec's session: the seed folder, and the folder the session left. */
 type Trees = { before: string; after: string };
 type Alignment = {
@@ -105,6 +150,8 @@ type ReplayLine = {
   runId: string;
   status: RunResult['status'];
   pass: boolean;
+  /** Set when no block failed but a block was not run or blocked: the spec is neither a pass nor a fail. */
+  outcome?: 'not_run' | 'blocked';
   failing: string[];
   error?: string;
 };
@@ -129,6 +176,11 @@ export async function replayCommand(
     io.err(`Two sessions share the name ${duplicate}; give each transcript its own file name.\n`);
     return 2;
   }
+  const settings = await runCheckSettingsFrom(options, io);
+  const judge = await runJudgeFrom(options, io);
+  if (!judge) return 2;
+  if (!settings) return 2;
+  const owner = settings.piiOwner;
   const decisions = assign(options.decisions, names, '--decisions', io);
   const steps = assign(options.steps, names, '--steps', io);
   if (!decisions || !steps) return 2;
@@ -154,7 +206,7 @@ export async function replayCommand(
 
   const loaded = await loadValidSpecs([options.suite], io);
   if (!loaded) return 2;
-  const aligned = align(loaded, entries, io);
+  const aligned = align(loaded, entries, io, judge.label !== 'none');
   if (!aligned) return 2;
   if (aligned.alignments.length === 0) {
     io.err('No spec is aligned with the sessions given: nothing ran.\n');
@@ -174,7 +226,11 @@ export async function replayCommand(
   try {
     const createdAt = deps.now().toISOString();
     const specs = uniqueBy(
-      aligned.alignments.map(({ spec }) => ({ id: spec.spec.id, hash: spec.hash })),
+      aligned.alignments.map(({ spec, entry }) => ({
+        id: spec.spec.id,
+        hash: spec.hash,
+        target: targetOf(entry),
+      })),
       (spec) => `${spec.id} ${spec.hash}`,
     );
     const targets = uniqueBy(
@@ -195,11 +251,17 @@ export async function replayCommand(
       modes: ['F'],
       repeats: { T: 0, F: 1, P: 0 },
       budgetUsd: 0,
-      judge: { mode: 'system1', judges: [] },
+      judge: { mode: judge.mode, judges: judge.judges },
       createdAt,
     };
     await store.putCampaign(campaign);
-    const checks = replayChecks();
+    const checks = replayChecks({
+      piiOwner: owner,
+      judge: judge.check,
+      piiJudge: judge.piiJudge,
+      ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
+      ...(settings.embedder ? { embedder: settings.embedder } : {}),
+    });
     const artifacts = defaultReaders();
     for (const alignment of aligned.alignments) {
       const session = await sessionFor(alignment);
@@ -212,6 +274,7 @@ export async function replayCommand(
         artifacts,
         driver: createScriptedDriver(),
         checks,
+        ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
         mode: 'F',
         repeat: 0,
         target: targetOf(alignment.entry),
@@ -228,8 +291,12 @@ export async function replayCommand(
   }
   const closed = await closeStore(store, io);
   if (!closed) return 2;
+  await judge.save();
 
   const passed = lines.filter((line) => line.pass).length;
+  // A spec not run or blocked is neither a pass nor a fail: it is counted apart.
+  const unscored = lines.filter((line) => line.outcome !== undefined).length;
+  const failed = lines.length - passed - unscored;
   if (options.json) {
     io.out(
       `${JSON.stringify(
@@ -237,9 +304,12 @@ export async function replayCommand(
           campaignId,
           store: storePath ?? null,
           notes: aligned.notes,
+          judge: judge.label,
+          judgeCostUsd: judge.spend.usd,
           runs: lines,
           passed,
-          failed: lines.length - passed,
+          failed,
+          ...(unscored > 0 ? { notRun: unscored } : {}),
         },
         null,
         2,
@@ -248,7 +318,7 @@ export async function replayCommand(
   } else {
     for (const note of aligned.notes) io.out(`note: ${note}\n`);
     for (const line of lines) {
-      const mark = line.status !== 'completed' ? '!' : line.pass ? '✓' : '✗';
+      const mark = line.status !== 'completed' ? '!' : line.pass ? '✓' : line.outcome ? '-' : '✗';
       io.out(
         `${mark} ${line.spec}  session ${line.session} from block ${line.fromBlock} (${line.aligned})\n`,
       );
@@ -256,7 +326,7 @@ export async function replayCommand(
       if (line.failing.length > 0) io.out(`    failing: ${line.failing.join(', ')}\n`);
     }
     io.out(
-      `${lines.length} spec${lines.length === 1 ? '' : 's'} replayed: ${passed} pass, ${lines.length - passed} fail. Campaign ${campaignId}${storePath === undefined ? ' (in memory)' : ''}.\n`,
+      `${lines.length} spec${lines.length === 1 ? '' : 's'} replayed: ${passed} pass, ${failed} fail${unscored > 0 ? `, ${unscored} not run or blocked` : ''}. Judge ${judge.label}, ${judge.spend.usd.toFixed(4)} USD. Campaign ${campaignId}${storePath === undefined ? ' (in memory)' : ''}.\n`,
     );
   }
   return passed === lines.length ? 0 : 1;
@@ -291,15 +361,48 @@ function referencesOf(spec: LoadedSpec): string[] {
   ];
 }
 
-/** The checks of a replay: every default check, with the ordered-pair check added to the custom registry. */
-export function replayChecks(): CheckSet {
+/**
+ * The custom checks of an estate run: every check of the default registry, the ordered-pair check, and
+ * the estate checks (`some_call`, `hazard_recovery`, `permission`). The estate generator writes only names
+ * this registry holds (`REPLAY_CUSTOM_CHECKS`).
+ */
+export function replayRegistry(): CheckRegistry {
   const registry = new CheckRegistry();
   for (const name of defaultRegistry.names()) {
     const check = defaultRegistry.get(name);
     if (check) registry.register(name, check);
   }
   if (!registry.get('ordered')) registry.register('ordered', orderedCheck);
-  return defaultChecks({ registry });
+  for (const [name, check] of Object.entries(ESTATE_CHECKS)) {
+    if (!registry.get(name)) registry.register(name, check);
+  }
+  return registry;
+}
+
+/**
+ * The checks of a replay: every default check, with the replay registry's custom checks. `piiOwner` lists
+ * the owner's own values the pii check leaves out; empty by default. `judge` judges the criteria blocks
+ * name; without one, each is inconclusive (`noJudgeCheck`), never a pass.
+ */
+export function replayChecks(
+  options: {
+    piiOwner?: readonly string[];
+    judge?: Check;
+    piiJudge?: DefaultChecksOptions['piiJudge'];
+    toolPolicy?: readonly ToolRule[];
+    embedder?: Embedder;
+  } = {},
+): CheckSet {
+  const registry = replayRegistry();
+  const judge = options.judge ?? noJudgeCheck();
+  return defaultChecks({
+    registry,
+    judges: { check: () => judge },
+    piiJudge: options.piiJudge,
+    ...(options.piiOwner?.length ? { piiOwner: options.piiOwner } : {}),
+    ...(options.toolPolicy?.length ? { toolPolicy: options.toolPolicy } : {}),
+    ...(options.embedder ? { embedder: options.embedder } : {}),
+  });
 }
 
 /** A session's name: its file name without `.jsonl`. */
@@ -347,6 +450,7 @@ function align(
   loaded: readonly LoadedSpec[],
   entries: readonly SessionEntry[],
   io: Io,
+  judged = false,
 ): { alignments: Alignment[]; notes: string[] } | undefined {
   const alignments: Alignment[] = [];
   const notes: string[] = [];
@@ -396,7 +500,8 @@ function align(
   }
   if (bad) return undefined;
   for (const { spec, entry } of alignments) {
-    if (spec.spec.criteria?.length) notes.push(`${spec.spec.id}: judged criteria are not run in replay`);
+    if (!judged && spec.spec.criteria?.length)
+      notes.push(`${spec.spec.id}: judged criteria are inconclusive: no --judge was given`);
     const wantsGuards = spec.spec.blocks.some((block) => (block.expect?.guards?.length ?? 0) > 0);
     if (wantsGuards && !entry.session.meta.decisions) {
       notes.push(
@@ -447,8 +552,15 @@ function lineOf(alignment: Alignment, run: RunResult): ReplayLine {
           `block ${block.index}: ${verdict.id}${verdict.outcome === 'inconclusive' ? ' (inconclusive)' : ''}`,
       ),
   );
-  const pass =
-    run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
+  const outcome = blocksOutcome(run);
+  const pass = outcome === 'pass';
+  const skipped = run.blocks.flatMap((block) =>
+    block.notRun
+      ? [`block ${block.index}: not run (${block.notRun.check}: ${block.notRun.got})`]
+      : block.blocked
+        ? [`block ${block.index}: blocked by ${block.blocked.by}`]
+        : [],
+  );
   return {
     spec: run.specId,
     session: alignment.entry.name,
@@ -457,7 +569,8 @@ function lineOf(alignment: Alignment, run: RunResult): ReplayLine {
     runId: run.runId,
     status: run.status,
     pass,
-    failing,
+    ...(outcome === 'not_run' || outcome === 'blocked' ? { outcome } : {}),
+    failing: [...failing, ...skipped],
     ...(run.error === undefined ? {} : { error: run.error }),
   };
 }
@@ -490,3 +603,5 @@ function collectAll(value: string, previous: string[]): string[] {
 function describe(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);
 }
+
+/** The owner values from --owner and --owner-file. Undefined, with the reason printed, when the file cannot be read. */

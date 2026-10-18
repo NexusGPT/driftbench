@@ -1,0 +1,21 @@
+{
+  "created": "2026-10-13T13:48:05.429214+00:00",
+  "cell": "sonnet-5-5",
+  "cell_cap_usd": 45,
+  "previous_cap_usd": 25,
+  "authority": "Approved: the Sonnet hard rows cell gate is 45 USD (37.14 projected). Before the full run, try DISABLE_PROMPT_CACHING=1, re-measure on 5 pilot calls and use whichever route is cheaper. Hard stop at 45 USD including holds. Run the sealed set once.",
+  "pilot_policy": "Next five unasked sealed requests, preserving order; no recorded answer is re-asked. Compare mean measured cost across the two disjoint five-call pilots, not accuracy. This cost comparison has different request mixes and is not paired.",
+  "cache_pilot_keys": [
+    "242b0dae24dad928a82ef9e6364c58e1b104c540411a12b68e5d1711f6415e32",
+    "999839e00b6ac1819d4ec095536470f666c47bf1b8a574a6477a075d71e9948f",
+    "9a54ccd0d44a60f765880057941de7144b5d16d10c1f3707778eb4badb082f19",
+    "fcdddda8f2d3066e59a6ab80bc352122ddc6368c57f83445758d1a195f15903c",
+    "8335222325a36cdc5771ac13c65fa391ca681f01fe25c8dd0db268b6a892abab"
+  ],
+  "cache_setting": "DISABLE_PROMPT_CACHING=1",
+  "cache_source": "https://code.claude.com/docs/en/env-vars",
+  "source_verified_on": "2026-10-13",
+  "both_contestants_same_route": true,
+  "prompts_inputs_reasoning_model_token_limit_unchanged": true,
+  "cache_choice_required_before_full_run": true
+}

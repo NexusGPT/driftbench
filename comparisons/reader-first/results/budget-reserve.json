@@ -1,0 +1,7 @@
+{
+  "uncertainUsd": 0.2,
+  "reason": "Two owned in-flight calls stopped to raise concurrency from 2 to 6 at owner direction",
+  "returnedBeforeRestart": 43,
+  "returnedSpendBeforeRestart": 0.17347492,
+  "capUsd": 20
+}

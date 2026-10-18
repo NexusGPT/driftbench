@@ -1,16 +1,20 @@
 import {
+  agentVersionOf,
   type BlockResult,
+  blockStatus,
   type Campaign,
   canonicalJson,
+  isScored,
   type LoadedSpec,
   RunMode,
   type RunResult,
+  runOutcome,
   runsByCell,
   type Spec,
   type Store,
   specBlocks,
   type TargetRef,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 
 /** A report input that cannot be read: a missing campaign, a missing spec. The CLI exits 2 on it. */
 export class ReportInputError extends Error {
@@ -95,18 +99,84 @@ function sortRuns(
 
 /** A run passes when it completed, ran a block, every block passed and the end state matched (the runner's rule). */
 export function runPassed(run: RunResult): boolean {
-  return (
-    run.status === 'completed' &&
-    run.blocks.length > 0 &&
-    run.blocks.every((block) => block.pass) &&
-    run.endState?.match !== false
-  );
+  return runOutcome(run) === 'pass';
 }
 
-/** The share of a run's blocks that pass; 0 for a run with no block. */
+/**
+ * The recovery record of a run, when it measured one: a run whose injected block was not run or blocked sent the
+ * agent nothing, so a recovery stored on it is no measurement. Every reader of a recovery goes through this.
+ */
+export function measuredRecovery(run: RunResult): RunResult['recovery'] {
+  return run.blocks.every((block) => !block.injected || isScored(block)) ? run.recovery : undefined;
+}
+
+/**
+ * The runs a pass rate counts: those that passed or failed. A run with a block not run or blocked, and no
+ * failure, is neither: it is left out of every rate, and its count is printed beside the rate.
+ */
+export function scoredRuns(runs: readonly RunResult[]): RunResult[] {
+  return runs.filter((run) => {
+    const outcome = runOutcome(run);
+    return outcome === 'pass' || outcome === 'fail';
+  });
+}
+
+/** What a campaign merges: its fresh runs, and the runs it carried from earlier campaigns. */
+export type CarriedSummary = {
+  fresh: number;
+  carried: number;
+  /** The agent versions the campaign itself runs, read from its targets. */
+  versions: string[];
+  /** One entry per campaign and agent version the carried runs come from, most runs first. */
+  sources: Array<{
+    campaign: string;
+    /** The agent version that produced the results, when the fresh runs named one. */
+    agentVersion?: string;
+    runs: number;
+    /** The oldest result of the group: campaigns it was carried through, and days since its fresh run. */
+    maxCampaigns: number;
+    maxDays: number;
+  }>;
+};
+
+/** The fresh and carried runs of a campaign, or undefined when every run is fresh. */
+export function carriedSummary(runs: readonly RunResult[]): CarriedSummary | undefined {
+  const carried = runs.filter((run) => run.carried !== undefined);
+  if (carried.length === 0) return undefined;
+  const sources = new Map<string, CarriedSummary['sources'][number]>();
+  for (const run of carried) {
+    const from = run.carried as NonNullable<RunResult['carried']>;
+    const key = `${from.fromCampaign}\u0000${from.agentVersion ?? ''}`;
+    const held = sources.get(key) ?? {
+      campaign: from.fromCampaign,
+      ...(from.agentVersion === undefined ? {} : { agentVersion: from.agentVersion }),
+      runs: 0,
+      maxCampaigns: 0,
+      maxDays: 0,
+    };
+    held.runs += 1;
+    held.maxCampaigns = Math.max(held.maxCampaigns, from.age.campaigns);
+    held.maxDays = Math.max(held.maxDays, from.age.days);
+    sources.set(key, held);
+  }
+  const versions = new Set<string>();
+  for (const run of runs) {
+    const version = agentVersionOf(run);
+    if (version !== undefined) versions.add(version);
+  }
+  return {
+    fresh: runs.length - carried.length,
+    carried: carried.length,
+    versions: [...versions],
+    sources: [...sources.values()].sort((a, b) => b.runs - a.runs || a.campaign.localeCompare(b.campaign)),
+  };
+}
+
+/** The share of a run's scored blocks that pass; 0 for a run with no scored block. */
 export function blockScore(run: RunResult): number {
-  if (run.blocks.length === 0) return 0;
-  return run.blocks.filter((block) => block.pass).length / run.blocks.length;
+  const scored = run.blocks.filter(isScored);
+  if (scored.length === 0) return 0;
+  return scored.filter((block) => blockStatus(block) === 'pass').length / scored.length;
 }
 
 /** `adapter:agent`, with the variant and the deployment when the target names them. */

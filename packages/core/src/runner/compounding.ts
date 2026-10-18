@@ -2,13 +2,14 @@ import type { BlockResult, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import { canonicalJson } from '../spec/hash';
 import { replacesBlock } from './inject';
+import { blockStatus, isScored } from './verdicts';
 
-/** A point estimate with its two-sided interval, the shape `@driftbench/stats` returns. */
+/** A point estimate with its two-sided interval, the shape `@agent-nexus/driftbench-stats` returns. */
 export type IntervalEstimate = { estimate: number; lower: number; upper: number };
 
 /**
  * Computes an interval on the mean of `values`, resampling by `clusters` (one key per value). The core
- * imports no statistics; the caller passes one, such as `bootstrapCI` of `@driftbench/stats`:
+ * imports no statistics; the caller passes one, such as `bootstrapCI` of `@agent-nexus/driftbench-stats`:
  * `(values, clusters) => bootstrapCI(values, { clusters })`.
  */
 export type IntervalFn = (values: readonly number[], clusters: readonly string[]) => IntervalEstimate;
@@ -74,7 +75,7 @@ export function compoundingIndex(
   const specs: CompoundingLine[] = [];
   const allValues: number[] = [];
   const allClusters: string[] = [];
-  for (const [key, group] of groups) {
+  for (const group of groups.values()) {
     if (group.t.length === 0 || group.f.length === 0) continue;
     const rateT = blockRates(group.t);
     const rateF = blockRates(group.f);
@@ -107,7 +108,7 @@ export function compoundingIndex(
     }
     specs.push(line);
     allValues.push(...diffs);
-    allClusters.push(...diffs.map(() => key));
+    allClusters.push(...diffs.map(() => `${group.specId}\u0000${group.specHash}`));
   }
 
   if (allValues.length === 0) return { specs };
@@ -121,8 +122,11 @@ export function compoundingIndex(
       passT,
       passF,
       index: passT - passF,
-      // One spec is one cluster: resampling it always draws the same blocks, so no interval is given.
-      ...(options.interval && specs.length > 1 ? { interval: options.interval(allValues, allClusters) } : {}),
+      // One spec is one cluster, whatever its targets: resampling one cluster always draws the same blocks,
+      // so no interval is given.
+      ...(options.interval && new Set(allClusters).size > 1
+        ? { interval: options.interval(allValues, allClusters) }
+        : {}),
     },
   };
 }
@@ -134,9 +138,11 @@ function blockRates(runs: readonly RunResult[]): Map<number, Rate> {
   const rates = new Map<number, Rate>();
   for (const run of runs) {
     for (const { block, result } of specBlocks(run)) {
+      // A carried result is no new measurement, and a block not run or blocked is none at all.
+      if (result.carried || run.carried || !isScored(result)) continue;
       const rate = rates.get(block) ?? { pass: 0, runs: 0 };
       rate.runs += 1;
-      if (result.pass) rate.pass += 1;
+      if (blockStatus(result) === 'pass') rate.pass += 1;
       rates.set(block, rate);
     }
   }
@@ -150,6 +156,11 @@ function blockRates(runs: readonly RunResult[]): Map<number, Rate> {
  * A spec block whose stimulus is an injection stands for itself.
  */
 export function specBlocks(run: RunResult, spec?: Spec): Array<{ block: number; result: BlockResult }> {
+  if (run.blocks.some((result) => result.specIndex !== undefined))
+    return run.blocks
+      .filter((result) => result.specIndex !== undefined)
+      .map((result) => ({ block: result.specIndex as number, result }));
+  if (run.blockRerun) return run.blocks.map((result) => ({ block: result.index, result }));
   const perturbation = spec?.perturbations?.find((entry) => entry.id === run.perturbationId);
   const replaces = perturbation !== undefined && replacesBlock(perturbation);
   const out: Array<{ block: number; result: BlockResult }> = [];

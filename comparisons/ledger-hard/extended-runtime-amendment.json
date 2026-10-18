@@ -1,0 +1,58 @@
+{
+  "created": "2026-10-13T13:48:05.429214+00:00",
+  "scope": "Runtime Sonnet budget and five-call cache pilot only. Existing Sol driver drains on its original USD 25 source; no Sol request or scheduling setting changes. Frozen statistics are unchanged except the independently enforced cell budget check. Owner subsequently authorizes zero-token CLI api_error transport classification and two-consecutive-connection-failure Sol circuit. These are runtime changes only; prompts and statistics remain frozen.",
+  "authority_file": "sonnet-5-5/budget-amendment.json",
+  "budget_amendment_sha256": "25be91c20ee2ab813e3163e41b856a6feb2950caf6981255fd8ca4075af28a3e",
+  "source_replacements": {
+    "comparisons/ledger-hard/extended-run.py": {
+      "original": "b4c3892eea5987e9e442e05ef2ebc0d00e4f4abe3d66d5549c09f9bc8278d49c",
+      "runtime": "879891e5f9e0b0fb79cee17a5f1eb8b6a84d2d6719635b0c8ce5ff5eb6c3a531"
+    },
+    "comparisons/ledger-hard/extended-score.py": {
+      "original": "1bea532d01f834ca8ef604e283c18c5f7cb0c837cd4f72c64f1b1525df3c5d6c",
+      "runtime": "6925f3adb5a3a9c2ad887c3886ddec581b9a363e15cc14ae2f3f5e587c347395"
+    },
+    "comparisons/ledger-hard/test_extended.py": {
+      "original": "fb89dc6dc6a948ab8b18bb4f770cd3618b80112605160256f33da0b57b5dc651",
+      "runtime": "1531b27cd81b4550f7a9db5a7c54d48be98e845b3a194f88bea50142b0a28a53"
+    }
+  },
+  "original_seal_commit": "afbd8abf",
+  "runtime_call_metadata": "Every post-amendment Sonnet call records DISABLE_PROMPT_CACHING in runtime_environment. The existing request key remains the stable sealed unit; its cache transport amendment is explicit.",
+  "history": [
+    {
+      "prior_amendment_sha256": "b82d0b61a5ad906e7a2d6d9056f5fad89f9fb2a65037bf60ad348a4480af2625",
+      "prior_source_replacements": {
+        "comparisons/ledger-hard/extended-run.py": {
+          "original": "b4c3892eea5987e9e442e05ef2ebc0d00e4f4abe3d66d5549c09f9bc8278d49c",
+          "runtime": "ba75df8b640f646d766444a0c0fdb56134a11bf40f7d1ffaaec345e65067e516"
+        },
+        "comparisons/ledger-hard/extended-score.py": {
+          "original": "1bea532d01f834ca8ef604e283c18c5f7cb0c837cd4f72c64f1b1525df3c5d6c",
+          "runtime": "59dba8fa51eaf92ce232f5222d0e33ccff2d4b9ce759a7f7dfd1775ab902cc1b"
+        },
+        "comparisons/ledger-hard/test_extended.py": {
+          "original": "fb89dc6dc6a948ab8b18bb4f770cd3618b80112605160256f33da0b57b5dc651",
+          "runtime": "1531b27cd81b4550f7a9db5a7c54d48be98e845b3a194f88bea50142b0a28a53"
+        }
+      },
+      "changed": "2026-10-13T14:10:15.979953+00:00",
+      "reason": "Owner-approved CLI zero-token API-error classification correction and Sol connection circuit"
+    },
+    {
+      "prior_amendment_sha256": "da0671f5f3994c8c9286fe9ef0c7bf235a2f14f1e63181badadc4fea37d5253e",
+      "changed": "2026-10-13T14:11:48.543454+00:00",
+      "reason": "A recorded exhausted no-response attempt has no model identity. Resume integrity checks apply only to provider answers; exhausted requests stay recorded and are never re-asked."
+    },
+    {
+      "prior_amendment_sha256": "020074864516a540efc082f3314790dd9e1b3d2f4673c22279bddc8fcd52f5f7",
+      "changed": "2026-10-13T14:50:09.073671+00:00",
+      "reason": "Owner full-network amendment forbids scoring while any transport-missing request remains. Statistics unchanged; enforce completion before generating added-model tables."
+    }
+  ],
+  "transport_amendments": {
+    "sonnet-5-5/transport-reconciliation.json": "7881758f88d38dade69aa27e1d640f7d6f8431e0c71cd44ddf789d6410c0ae81",
+    "gpt-6.1-sol/transport-amendment.json": "fb0d3616622473b04e2e8702b3281fcf2095fdb9855d0c005e6c1420a6722b55",
+    "api-error-envelope-audit.json": "81a065964e7f2d3d6b673f6fe09292bb0163e146f6a6bf1c3e70aa2d0ff3c862"
+  }
+}

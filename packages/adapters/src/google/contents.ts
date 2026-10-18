@@ -1,5 +1,6 @@
-import type { Message } from '@driftbench/core';
+import type { HistoryNormalization, Message } from '@agent-nexus/driftbench-core';
 import type { WireNames } from '../anthropic/common';
+import { emptyTurnNormalizations, HistoryCompiler } from '../shared/history';
 
 /**
  * The slice of the Gemini API the adapter speaks, mirrored from `@google/genai` 2.28.0
@@ -68,6 +69,7 @@ export const GOOGLE_NAME = /[a-zA-Z0-9_.:-]/;
  *   user content of `functionResponse` parts (`{ output }`, or `{ error }`, the keys the API documents),
  *   then the reply text, when there is one.
  * - Contents of the same role in a row merge into one.
+ * - Empty text-only turns are omitted and recorded in `normalizations`; no placeholder reaches the model.
  *
  * Calls from earlier turns carry no thought signature: the API checks signatures only within the
  * current turn, which the adapter sends back exactly as the model wrote it.
@@ -75,7 +77,7 @@ export const GOOGLE_NAME = /[a-zA-Z0-9_.:-]/;
 export function toGoogleContents(
   history: readonly Message[],
   names: WireNames,
-): { contents: GoogleContent[]; system: string[] } {
+): { contents: GoogleContent[]; system: string[]; normalizations: HistoryNormalization[] } {
   const system: string[] = [];
   const contents: { role: 'user' | 'model'; parts: GooglePart[] }[] = [];
   const push = (role: 'user' | 'model', parts: GooglePart[]) => {
@@ -85,6 +87,9 @@ export function toGoogleContents(
     else contents.push({ role, parts: [...parts] });
   };
   const text = (value: string): GooglePart[] => (value === '' ? [] : [{ text: value }]);
+  // Gemini pairs a response with its call by name and order; an id travels only when one was recorded, and a
+  // recorded id that repeats one of the same turn is replaced, as on every wire.
+  const compiler = new HistoryCompiler({ fallback: (n) => `call_h${n}`, fillMissing: false });
 
   for (const message of history) {
     if (message.role === 'system') {
@@ -95,7 +100,7 @@ export function toGoogleContents(
       push('user', text(message.content));
       continue;
     }
-    const recorded = message.tool_calls ?? [];
+    const recorded = compiler.calls(message);
     if (recorded.length > 0) {
       push(
         'model',
@@ -113,14 +118,15 @@ export function toGoogleContents(
           functionResponse: {
             ...(call.id === undefined ? {} : { id: call.id }),
             name: names.wire(call.label),
-            response: call.error !== undefined ? { error: call.error } : { output: call.output ?? null },
+            response:
+              call.result.kind === 'error' ? { error: call.result.message } : { output: call.result.value },
           },
         })),
       );
     }
     push('model', text(message.content));
   }
-  return { contents, system };
+  return { contents, system, normalizations: emptyTurnNormalizations(history, 'google') };
 }
 
 /** Function call arguments are an object on the wire; anything else is wrapped as `{ value }`. */

@@ -1,0 +1,14 @@
+{
+  "created": "2026-10-13T14:10:15.979953+00:00",
+  "authority": "Owner approves correction of terminal_reason=api_error and zero tokens to no-answer transport; preserve original record and retry only that key within three tries.",
+  "request_sha256": "999839e00b6ac1819d4ec095536470f666c47bf1b8a574a6477a075d71e9948f",
+  "prior_attempts": 1,
+  "remaining_transport_tries": 2,
+  "retained_reserve_usd": 0.1,
+  "original_record_file": "transport-misclassified.jsonl",
+  "original_record_sha256": "1e8c467fc6d9ac816602cf35e3fb0621a3aea3ebde3b091a63d150f6e6580fc1",
+  "journal_before_sha256": "a5c4b3bc23c933bd3b51eae8967e278a7399538c1e33429587986eebeb521f82",
+  "journal_after_sha256": "e400d24ea777474a21b6ec2867fa15af41d9825b0a9ea9905392a8d12d42fa9c",
+  "content_answers_removed": 0,
+  "mistaken_transport_rows_removed_from_judge_scoring": 1
+}

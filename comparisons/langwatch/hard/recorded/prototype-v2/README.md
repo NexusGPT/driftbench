@@ -1,0 +1,1 @@
+V2 is excluded from published accuracy. The lead confirms that the primary criterion requires its deciding final response or tool trace and absent evidence is inconclusive. V3 states that condition explicitly for both sides, with all labels unchanged. Two empty native CLI outputs are transport failures, not quality losses; recovery is recorded separately.

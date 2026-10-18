@@ -3,6 +3,7 @@ import {
   AdapterTransportError,
   type AgentAdapter,
   AgentFailure,
+  copyHistory,
   isPlainObject,
   type Message,
   type ResolvedGiven,
@@ -10,7 +11,7 @@ import {
   type Segment,
   type Session,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   addUsage,
   newUsage,
@@ -40,6 +41,8 @@ import { CREWAI_BRIDGE } from './bridge-source';
  * A crew runs tasks; a conversation reaches it through its inputs. By default each block hands the crew
  * `message` (the block's user text), `history` (the earlier turns as text) and `messages` (the whole history
  * as JSON); `inputs` replaces that mapping. The crew runs its own tools, so `world.tools` cannot reach them.
+ * With the default inputs, a Given whose prefix holds tool calls the spec states as a record (`origin:
+ * recorded` or `authored`) is refused: the crew would read them as prose. A canonical prefix runs.
  */
 
 export const CREWAI_ADAPTER_VERSION = '0.1.0';
@@ -102,6 +105,22 @@ export function crewaiAdapter(options: CrewaiAdapterOptions): AgentAdapter {
     capabilities: () => ({ ...capabilities }),
 
     async open(given: ResolvedGiven) {
+      // A crew takes its history as text inputs: the earlier turns as `role: text` lines and the whole history
+      // as JSON. With the default inputs, tool calls the spec wrote as a record (origin recorded or authored)
+      // would reach the crew's agents as data in a text field, never as tool results: a different test from the
+      // one the spec states, so it is refused. The origin covers only the messages the spec wrote
+      // (`originLength`); the canonical calls a teacher-forced replay adds after them, a canonical prefix and a
+      // prefix of unstated origin go as they always did.
+      const prefix = copyHistory(given.prefix);
+      const stated = given.origin === 'recorded' || given.origin === 'authored';
+      const written = prefix.slice(0, given.originLength ?? prefix.length);
+      const recorded =
+        options.inputs || !stated ? 0 : written.reduce((n, m) => n + (m.tool_calls?.length ?? 0), 0);
+      if (recorded > 0) {
+        throw new AgentFailure(
+          `crewai: the Given prefix (origin ${given.origin}) holds ${recorded} recorded tool call(s), and a crew takes its history as text inputs, so its agents would read them as prose, not as tool results. Write those turns as blocks the crew runs, or pass \`inputs\` that hand the calls to the crew in a form it reads as records.`,
+        );
+      }
       return openSession(id, given, {
         kind: 'crewai',
         closed: false,
@@ -110,8 +129,9 @@ export function crewaiAdapter(options: CrewaiAdapterOptions): AgentAdapter {
     },
 
     async send(session: Session, turn: Turn) {
+      const history = copyHistory(session.history);
       const state = ownState<CrewState>(session, id, 'crewai');
-      const inputs = (options.inputs ?? crewaiInputs)(session.history, turn);
+      const inputs = (options.inputs ?? crewaiInputs)(history, turn);
       const started = performance.now();
       const run = await options.transport.kickoff(inputs);
       const latencyMs = Math.round(performance.now() - started);
@@ -122,7 +142,7 @@ export function crewaiAdapter(options: CrewaiAdapterOptions): AgentAdapter {
       (run.tools ?? []).forEach((use, index) => {
         const label = labels.label(use.tool);
         const callId = `crew-${turn.index}-${index + 1}`;
-        segments.push({ type: 'tool_call', id: callId, label, input: use.input ?? {} });
+        segments.push({ type: 'tool_call', id: callId, label, input: use.input ?? null });
         if (use.error !== undefined) {
           segments.push({ type: 'tool_result', id: callId, label, output: null, error: use.error });
         } else {

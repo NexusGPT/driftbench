@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/artifacts",
+  "name": "@agent-nexus/driftbench-artifacts",
   "version": "0.1.0",
   "description": "Readers for the files a code agent produces (xlsx, docx, pptx, pdf, csv, json, text, code), answering artifact checks with evidence.",
   "keywords": [
@@ -23,7 +23,7 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/artifacts"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -37,17 +37,21 @@
     }
   },
   "files": [
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean --target node22"
+    "build": "tsup src/index.ts --format esm --dts --clean --target node22 --external exceljs --external mammoth"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
-    "exceljs": "^4.4.0",
+    "@agent-nexus/driftbench-core": "workspace:*",
     "jszip": "^3.10.2",
-    "mammoth": "^1.13.0",
     "pdf-parse": "^2.4.5"
+  },
+  "optionalDependencies": {
+    "exceljs": "^4.4.0",
+    "mammoth": "^1.13.0"
   },
   "publishConfig": {
     "access": "public",

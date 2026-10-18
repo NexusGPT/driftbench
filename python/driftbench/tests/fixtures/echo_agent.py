@@ -21,3 +21,8 @@ def as_dict(message):
 def broken(message):
     """Fails on purpose."""
     raise ValueError("the agent broke on purpose")
+
+
+def echo_first_stage(message):
+    """Reports a stage on the first block only, for the current-block reporting assertion."""
+    return Reply(text=f"echo: {message}", stage="echoed" if message == "first" else None)

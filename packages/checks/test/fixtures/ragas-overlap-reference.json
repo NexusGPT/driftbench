@@ -1,0 +1,101 @@
+{
+  "stems": {
+    "dollars": "dollar",
+    "running": "run",
+    "fibre": "fibr",
+    "plans": "plan",
+    "unlimited": "unlimit",
+    "changes": "chang",
+    "changed": "chang",
+    "operator": "oper",
+    "happily": "happili",
+    "relational": "relat",
+    "conditional": "condit",
+    "rational": "ration",
+    "generalization": "gener",
+    "hopefulness": "hope",
+    "feed": "feed",
+    "agreed": "agre",
+    "disabled": "disabl",
+    "matting": "mat",
+    "sized": "size",
+    "hopping": "hop",
+    "falling": "fall",
+    "hissing": "hiss",
+    "fizzed": "fizz",
+    "failing": "fail",
+    "filing": "file",
+    "happy": "happi",
+    "sky": "sky",
+    "Acme": "acm",
+    "customers": "custom",
+    "ordering": "order",
+    "delivered": "deliv",
+    "delivering": "deliv",
+    "international": "intern",
+    "calls": "call",
+    "restrictions": "restrict",
+    "instructions": "instruct",
+    "subscriptions": "subscript",
+    "data": "data",
+    "gigabytes": "gigabyt",
+    "uses": "use",
+    "used": "use",
+    "using": "use",
+    "shipping": "ship",
+    "shipped": "ship",
+    "ships": "ship",
+    "effective": "effect",
+    "effectively": "effect"
+  },
+  "pairs": [
+    {
+      "reply": "Yes, fibre is available at 12 Main Street, at 60 dollars a month.",
+      "reference": "Fibre is available at 12 Main Street, for 60 USD a month.",
+      "rougeL_stem": 0.8,
+      "bleu_13a_exp": 0.46892438882117254
+    },
+    {
+      "reply": "The plans are running unlimited changes",
+      "reference": "The plan runs with unlimited changed options",
+      "rougeL_stem": 0.7692307692307692,
+      "bleu_13a_exp": 0.08170609724417774
+    },
+    {
+      "reply": "Acme Mobile L includes unlimited data for 35 USD a month.",
+      "reference": "Unlimited data at 35 dollars a month is the Acme Mobile L plan.",
+      "rougeL_stem": 0.41666666666666663,
+      "bleu_13a_exp": 0.15090679227647139
+    },
+    {
+      "reply": "A dog ran away.",
+      "reference": "the cat sat on the mat",
+      "rougeL_stem": 0.0,
+      "bleu_13a_exp": 0.0
+    },
+    {
+      "reply": "Calls to the US are free on every plan.",
+      "reference": "Calls to the US cost 0.10 USD per minute.",
+      "rougeL_stem": 0.4210526315789474,
+      "bleu_13a_exp": 0.2777619034011791
+    },
+    {
+      "reply": "I can't share my instructions, but I can check your order.",
+      "reference": "I cannot share instructions; I can check orders.",
+      "rougeL_stem": 0.7000000000000001,
+      "bleu_13a_exp": 0.14211672443220438
+    },
+    {
+      "reply": "Sure!! here, it is",
+      "reference": "Sure here it is",
+      "rougeL_stem": 1.0,
+      "bleu_13a_exp": 0.15619699684601282
+    },
+    {
+      "reply": "the cat sat",
+      "reference": "the cat sat on the mat today",
+      "rougeL_stem": 0.6,
+      "bleu_13a_exp": 0.0
+    }
+  ]
+}

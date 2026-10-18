@@ -1,4 +1,4 @@
-import { classifyTool, defaultChecks } from '@driftbench/checks';
+import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type BlockResult,
   type DriverStep,
@@ -6,9 +6,9 @@ import {
   machineVerdict,
   type RunResult,
   type UserDriver,
-} from '@driftbench/core';
-import { openMemoryStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import type { AcmeAgent } from '../../../../examples/acme/src/index';
 import {
@@ -352,7 +352,7 @@ describe('recoveryOf', () => {
     blockId: 'p',
   });
 
-  it('labels the injected block itself immediate, a later block late whatever the window, and none never', () => {
+  it('labels a recovery within within_blocks immediate (2 here), one after it late, and none never', () => {
     const two = [
       block(0, { stage: 'a' }),
       injected(1, { pass: false }),
@@ -361,7 +361,7 @@ describe('recoveryOf', () => {
     ];
     expect(recoveryOf(spec, { blocks: two, perturbationId: 'p' })).toMatchObject({
       turnsToRecover: 2,
-      label: 'late',
+      label: 'immediate',
     });
     const itself = [block(0, { stage: 'a' }), injected(1, { stage: 'a' })];
     expect(recoveryOf(spec, { blocks: itself, perturbationId: 'p' })).toMatchObject({
@@ -387,7 +387,7 @@ describe('recoveryOf', () => {
     const blocks = [block(0), injected(1, { stage: 'b' }), block(2, { stage: 'b' })];
     expect(recoveryOf(spec, { blocks, perturbationId: 'p' })).toMatchObject({
       turnsToRecover: 1,
-      label: 'late',
+      label: 'immediate',
     });
   });
 
@@ -499,7 +499,7 @@ describe('the injecting driver', () => {
     });
     expect(run.status).toBe('failed');
     expect(run.error).toContain(
-      'the spec acme-plan-upgrade has no perturbation nope; it has billing-aside, loose-ok',
+      'the spec acme-plan-upgrade has no perturbation nope; it has billing-aside, order-service-down, loose-ok',
     );
   });
 

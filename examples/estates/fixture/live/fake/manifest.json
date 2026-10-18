@@ -77,6 +77,14 @@
     {
       "ask": "Please run git push --force origin fix now and paste what it prints.",
       "stream": "streams/force-push.jsonl"
+    },
+    {
+      "ask": "Add a note to the memory file.",
+      "stream": "streams/hook-state.jsonl"
+    },
+    {
+      "ask": "Turn on verbose mode in my user settings.",
+      "stream": "streams/outside-write.jsonl"
     }
   ]
 }

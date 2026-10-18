@@ -8,6 +8,9 @@ export {
   type ClaudeCodeLiveOptions,
   claudeCodeLiveAdapter,
   DEFAULT_ESTATE_FILES,
+  loadedByRuntime,
+  type OutsideWrite,
+  OWNER_CONFIG_ENTRIES,
   RUNTIME_FLAGS,
 } from './adapter';
 export {

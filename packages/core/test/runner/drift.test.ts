@@ -1,6 +1,6 @@
-import { defaultChecks } from '@driftbench/checks';
-import { machineVerdict, type Observed, type RunResult } from '@driftbench/core';
-import { createScriptedDriver } from '@driftbench/users';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { machineVerdict, type Observed, type RunResult } from '@agent-nexus/driftbench-core';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import type { AcmeAgent } from '../../../../examples/acme/src/index';
 import {

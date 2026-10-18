@@ -1,0 +1,10 @@
+{
+  "sourceCommit": "89425c88b12e5fd7516ed9cdbf6d37b9b0261595",
+  "sourceBranch": "research/astra-hard-fresh",
+  "sourcePath": "comparisons/astra-hard/map/promptfoo-rubric-cases.json",
+  "sourceSha256": "41c4f2b27cae3c76599c5c46fd0d0fd80077581a434f3487417f77b899a2ca79",
+  "sourceRows": 156,
+  "population": 156,
+  "labels": "Construction labels retained outside each model request.",
+  "mapping": "Verbatim request mapping from comparisons/promptfoo/hard/render.mts. Labels and construction metadata are outside the model request."
+}

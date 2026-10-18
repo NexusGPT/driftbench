@@ -1,7 +1,20 @@
-import { cp, lstat, readdir, readFile, realpath, stat, writeFile } from 'node:fs/promises';
-import { dirname, join, relative, sep } from 'node:path';
+import { constants, existsSync } from 'node:fs';
+import {
+  copyFile,
+  cp,
+  lstat,
+  mkdir,
+  readdir,
+  readFile,
+  realpath,
+  rm,
+  stat,
+  writeFile,
+} from 'node:fs/promises';
+import { basename, dirname, join, relative, sep } from 'node:path';
 import { mapHash } from '../map/build';
 import { quoteDrift } from '../map/file';
+import { readerFor } from '../scan/index';
 import { provenanceHash, quoteAtSpan } from '../scan/text';
 import type { Atom, EstateMap } from '../schema';
 
@@ -34,6 +47,8 @@ export type MutantResult = {
   map: EstateMap;
   /** Other atoms whose quote is no longer at its span in the mutant. */
   collateral: string[];
+  /** Files the mutation removed: a deleted script atom takes its script file with its mention. */
+  removed: string[];
 };
 
 export class MutantError extends Error {
@@ -47,10 +62,13 @@ export class MutantError extends Error {
 export const ESTATE_COPY_FILES = ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'] as const;
 
 /**
- * Copies the estate's own files, and every file an atom of the map quotes, from `root` into `to`. Modes are
- * kept, so guard scripts stay runnable. Symbolic links are followed: the copy holds real files and never a
- * link, so a mutant can never write through one into the estate it was copied from. A link left in the copy
- * (a dangling one cannot be followed) refuses the copy.
+ * Copies the estate's own files, and every file an atom of the map quotes, from `root` into `to`. The files
+ * are the ones the map's runtime reader lists (ignored folders such as node_modules and test runs left out,
+ * the map's own ignore list applied); a runtime with no listing copies `names` whole. Each file is a
+ * copy-on-write clone where the file system supports one, else a plain copy; never a hard link, which
+ * would let a write in the copy edit the real file. Symbolic links are followed: the copy holds real files
+ * and never a link, so a mutant can never write through one into the estate it was copied from. A link left
+ * in the copy refuses the copy. Modes are kept, so guard scripts stay runnable.
  */
 export async function copyEstate(
   root: string,
@@ -58,14 +76,33 @@ export async function copyEstate(
   map: EstateMap,
   names: readonly string[] = ESTATE_COPY_FILES,
 ): Promise<string[]> {
+  const reader = readerFor(map.runtime, { ignore: map.ignore ?? [] });
+  const listed = reader?.listFiles ? await reader.listFiles(root) : undefined;
   const copied: string[] = [];
-  const wanted = [...names, ...map.atoms.map((atom) => atom.provenance.file)];
-  for (const name of [...new Set(wanted)]) {
-    if (copied.some((done) => name === done || name.startsWith(`${done}/`))) continue;
-    const source = join(root, name);
-    if ((await stat(source).catch(() => undefined)) === undefined) continue;
-    await cp(source, join(to, name), { recursive: true, dereference: true });
-    copied.push(name);
+  if (listed) {
+    const files = [...new Set([...listed, ...map.atoms.map((atom) => atom.provenance.file)])].sort();
+    // Sixteen copies at a time: an estate of thousands of small files is bound by the file system's latency.
+    await eachLimited(files, 16, async (file) => {
+      const source = join(root, file);
+      if (!(await stat(source).catch(() => undefined))?.isFile()) return;
+      await mkdir(dirname(join(to, file)), { recursive: true });
+      await copyFile(source, join(to, file), constants.COPYFILE_FICLONE);
+      copied.push(file);
+    });
+    copied.sort();
+  } else {
+    const wanted = [...names, ...map.atoms.map((atom) => atom.provenance.file)];
+    for (const name of [...new Set(wanted)]) {
+      if (copied.some((done) => name === done || name.startsWith(`${done}/`))) continue;
+      const source = join(root, name);
+      if ((await stat(source).catch(() => undefined)) === undefined) continue;
+      await cp(source, join(to, name), {
+        recursive: true,
+        dereference: true,
+        mode: constants.COPYFILE_FICLONE,
+      });
+      copied.push(name);
+    }
   }
   const left = await linksUnder(to);
   if (left.length > 0) throw new MutantError(`the estate copy holds symbolic links: ${left.join(', ')}`);
@@ -81,6 +118,11 @@ export async function mutateEstate(
   const id = 'delete' in op ? op.delete : op.invert;
   const atom = copy.map.atoms.find((candidate) => candidate.id === id);
   if (!atom) throw new MutantError(`atom ${id} is not in the map`);
+  if (kind === 'delete' && isEquivalentDelete(atom)) {
+    throw new MutantError(
+      `${id} is an equivalent mutant: its name line repeats the skill's folder, and the runtime names a skill by its folder, so deleting the line changes nothing; no mutant is written`,
+    );
+  }
   const { file, startLine, endLine, quote } = atom.provenance;
   const path = await insideCopy(copy.root, file);
   const text = await readFile(path, 'utf8').catch(() => {
@@ -108,10 +150,24 @@ export async function mutateEstate(
     }
     replacement = inverted;
     next = text.slice(0, from) + replacement + text.slice(to);
+  } else if (file.endsWith('.json')) {
+    next = cutJson(text, from, to, startLine, file);
   } else {
     next = tidy(text.slice(0, from) + text.slice(to), startLine, file);
   }
   await writeFile(path, next);
+
+  // A deleted script goes with its mention: the mutant must not keep a script the estate no longer names.
+  const removedFiles: string[] = [];
+  const scriptPath = atom.kind === 'script' && kind === 'delete' ? atom.fields?.path : undefined;
+  if (typeof scriptPath === 'string' && scriptPath !== '') {
+    const target = await insideCopy(copy.root, scriptPath);
+    if (existsSync(target)) {
+      await rm(target, { force: true });
+      removedFiles.push(scriptPath);
+    }
+  }
+  const gone = new Set(removedFiles);
 
   const before = lines.slice(startLine - 1, endLine).join('\n');
   const nextLines = next.split('\n');
@@ -122,7 +178,12 @@ export async function mutateEstate(
       : nextLines.slice(startLine - 1, Math.max(startLine - 1, endLine - removed)).join('\n');
 
   const atoms: Atom[] = [];
+  const lost: string[] = [];
   for (const other of copy.map.atoms) {
+    if (gone.has(other.provenance.file) && other.id !== id) {
+      lost.push(other.id);
+      continue;
+    }
     if (other.id === id) {
       if (kind === 'invert') atoms.push(withProvenance(other, { quote: replacement }));
       continue;
@@ -136,15 +197,20 @@ export async function mutateEstate(
       );
     } else atoms.push(other);
   }
+  const dropped = new Set([id, ...lost]);
   const edges =
-    kind === 'delete' ? copy.map.edges.filter((edge) => edge.from !== id && edge.to !== id) : copy.map.edges;
+    kind === 'delete'
+      ? copy.map.edges.filter((edge) => !dropped.has(edge.from) && !dropped.has(edge.to))
+      : copy.map.edges;
   const hash = mapHash(atoms, edges);
   const map: EstateMap = { ...copy.map, atoms, edges, hash };
   const texts = new Map<string, string>([[file, next]]);
   const collateral = quoteDrift(
-    atoms.filter((other) => other.provenance.file === file && other.id !== id),
+    atoms.filter((other) => other.provenance.file === file && other.id !== id && !gone.has(file)),
     texts,
-  ).map((issue) => issue.message.split(':')[0] ?? issue.message);
+  )
+    .map((issue) => issue.message.split(':')[0] ?? issue.message)
+    .concat(lost);
   return {
     atom: id,
     op: kind,
@@ -155,7 +221,19 @@ export async function mutateEstate(
     mapHash: hash,
     map,
     collateral,
+    removed: removedFiles,
   };
+}
+
+/**
+ * A skill's `name:` line whose value is the skill's folder name. The runtime names a skill by its folder, so
+ * deleting the line changes nothing the agent sees: the mutant is equivalent, and it is not made.
+ */
+function isEquivalentDelete(atom: Atom): boolean {
+  if (atom.kind !== 'skill') return false;
+  const folder = atom.fields?.folder;
+  const value = /^name:\s*['"]?([^'"\s]+)['"]?\s*$/.exec(atom.provenance.quote)?.[1];
+  return typeof folder === 'string' && value !== undefined && value === basename(folder);
 }
 
 function withProvenance(atom: Atom, change: Partial<Atom['provenance']>): Atom {
@@ -213,6 +291,143 @@ function tidy(text: string, line: number, file: string): string {
 }
 
 /**
+ * A delete in a JSON file. The quote is cut as text first (an array item, a value with its comma); when the
+ * file is no longer JSON after that, the delete is structural: the innermost array item or object member
+ * that holds the quote goes, with its comma, and lines it leaves blank go too. A quote that only the whole
+ * document holds (a file's first line, `{`) empties the document to `{}` or `[]`.
+ */
+function cutJson(text: string, from: number, to: number, line: number, file: string): string {
+  try {
+    return tidy(text.slice(0, from) + text.slice(to), line, file);
+  } catch (cause) {
+    if (!(cause instanceof MutantError)) throw cause;
+  }
+  const root = parseJsonRanges(text);
+  if (!root) throw new MutantError(`${file} is not JSON, so the quote cannot be cut out of it structurally`);
+  const holder = holderToCut(root, from, to);
+  if (!holder) {
+    const empty = root.kind === 'array' ? '[]' : '{}';
+    return `${text.slice(0, root.start)}${empty}${text.slice(root.end)}`;
+  }
+  const { start, end } = holder;
+  // Take the comma after the element, else the one before it, so the container stays valid.
+  const afterComma = /^\s*,/.exec(text.slice(end));
+  let cutStart = start;
+  let cutEnd = end;
+  if (afterComma) cutEnd = end + afterComma[0].length;
+  else {
+    const before = /,\s*$/.exec(text.slice(0, start));
+    if (before) cutStart = start - before[0].length;
+  }
+  let out = text.slice(0, cutStart) + text.slice(cutEnd);
+  // A line the element held alone is now blank: it goes.
+  const lineStart = out.lastIndexOf('\n', cutStart - 1) + 1;
+  const lineEnd = out.indexOf('\n', cutStart);
+  if (lineEnd >= 0 && out.slice(lineStart, lineEnd).trim() === '')
+    out = out.slice(0, lineStart) + out.slice(lineEnd + 1);
+  try {
+    JSON.parse(out);
+  } catch (cause) {
+    throw new MutantError(
+      `${file} is no longer JSON once the element holding the quote is cut: ${cause instanceof Error ? cause.message : String(cause)}`,
+    );
+  }
+  return out;
+}
+
+/** A JSON value with its offsets; a container lists its elements (an object member spans key to value). */
+type JsonRange = { kind: 'object' | 'array' | 'value'; start: number; end: number; elements: JsonRange[] };
+
+/** The offsets of every value of a JSON text, or undefined when it is not JSON. */
+export function parseJsonRanges(text: string): JsonRange | undefined {
+  let at = 0;
+  const space = () => {
+    while (at < text.length && /\s/.test(text[at] ?? '')) at++;
+  };
+  const string = (): void => {
+    at++;
+    while (at < text.length && text[at] !== '"') at += text[at] === '\\' ? 2 : 1;
+    if (at >= text.length) throw new Error('unterminated string');
+    at++;
+  };
+  const value = (): JsonRange => {
+    space();
+    const start = at;
+    const char = text[at];
+    if (char === '{' || char === '[') {
+      const kind = char === '{' ? 'object' : 'array';
+      const close = char === '{' ? '}' : ']';
+      at++;
+      const elements: JsonRange[] = [];
+      space();
+      if (text[at] === close) {
+        at++;
+        return { kind, start, end: at, elements };
+      }
+      for (;;) {
+        space();
+        const elementStart = at;
+        if (kind === 'object') {
+          if (text[at] !== '"') throw new Error('a key is not a string');
+          string();
+          space();
+          if (text[at] !== ':') throw new Error('no colon after a key');
+          at++;
+        }
+        const inner = value();
+        elements.push(kind === 'object' ? { ...inner, start: elementStart } : inner);
+        space();
+        if (text[at] === ',') {
+          at++;
+          continue;
+        }
+        if (text[at] === close) {
+          at++;
+          return { kind, start, end: at, elements };
+        }
+        throw new Error('a container is not closed');
+      }
+    }
+    if (char === '"') {
+      string();
+      return { kind: 'value', start, end: at, elements: [] };
+    }
+    const literal = /^(?:-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|true|false|null)/.exec(text.slice(at));
+    if (!literal) throw new Error(`unexpected ${char ?? 'end'}`);
+    at += literal[0].length;
+    return { kind: 'value', start, end: at, elements: [] };
+  };
+  try {
+    const root = value();
+    space();
+    return at === text.length ? root : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * The element to cut for a quote at `from` to `to`: the innermost array item or object member that holds
+ * it, except that a member of an object which is itself an array item takes that whole item with it (a
+ * guard entry loses its entry, not its `command` key, which would leave an entry the runtime refuses).
+ */
+function holderToCut(root: JsonRange, from: number, to: number): JsonRange | undefined {
+  const chain: Array<{ element: JsonRange; parent: JsonRange }> = [];
+  let node = root;
+  for (;;) {
+    const element = node.elements.find((candidate) => candidate.start <= from && to <= candidate.end);
+    if (!element) break;
+    chain.push({ element, parent: node });
+    node = element;
+  }
+  const inner = chain.at(-1);
+  if (!inner) return undefined;
+  const outer = chain.at(-2);
+  if (inner.parent.kind === 'object' && outer && outer.parent.kind === 'array') return outer.element;
+  return inner.element;
+}
+
+/**
  * The fixed table of forms an obligation inverts by. The first form that applies wins; a markdown prefix
  * (a list marker, a bold label) is kept as it is.
  *
@@ -255,6 +470,22 @@ function invertClause(clause: string, sentence: boolean): string | undefined {
   if (!/^[A-Za-z]/.test(clause)) return undefined;
   const lowered = clause.charAt(0).toLowerCase() + clause.slice(1);
   return `${cap('do not')} ${lowered}`;
+}
+
+/** Runs `work` on every item, at most `limit` at a time. */
+async function eachLimited<T>(
+  items: readonly T[],
+  limit: number,
+  work: (item: T) => Promise<void>,
+): Promise<void> {
+  let next = 0;
+  const lanes = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const item = items[next++] as T;
+      await work(item);
+    }
+  });
+  await Promise.all(lanes);
 }
 
 /** The symbolic links under a folder, relative to it. */

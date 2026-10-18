@@ -94,6 +94,32 @@ describe('parseStream', () => {
 });
 
 describe('isOverloaded', () => {
+  it('reads a subscription session limit as transient, not as the agent answer', () => {
+    // Seen on the Cue bench: subtype success, the text the limit notice, no tool call after it.
+    const limited = parseStream(
+      result({
+        subtype: 'success',
+        is_error: false,
+        result: "You've hit your session limit \u00b7 resets 11:10am (Europe/Brussels)",
+      }),
+    );
+    expect(isOverloaded(limited, 0, '')).toBe(true);
+  });
+
+  it('reads an API the runtime could not reach as transient, even when the result says success', () => {
+    // Seen on the Cue bench during a network outage: subtype success, the text an API error, no tool call.
+    const unreachable = parseStream(
+      result({
+        subtype: 'success',
+        is_error: false,
+        result: "API Error: Can't reach the API server \u2014 check your internet or DNS (ENOTFOUND)",
+      }),
+    );
+    expect(isOverloaded(unreachable, 0, '')).toBe(true);
+    const answer = parseStream(result({ result: 'The API Error page explains what ENOTFOUND means.' }));
+    expect(isOverloaded(answer, 0, '')).toBe(false);
+  });
+
   it('reads an overloaded or rate-limited error result, and an error output with no result', () => {
     const overloaded = parseStream(
       result({ subtype: 'error_during_execution', is_error: true, result: 'API Error: 529 Overloaded' }),
@@ -295,10 +321,123 @@ describe('the real stream shapes', () => {
     expect(rows.map(({ check, verdict, event }) => ({ check, verdict, event }))).toEqual([
       { check: 'block-force-push.sh', verdict: 'deny', event: 'PreToolUse' },
       { check: 'permission:WebFetch', verdict: 'deny', event: 'PermissionRequest' },
-      { check: 'Stop', verdict: 'allow', event: 'Stop' },
+      { check: 'reply-length.py', verdict: 'allow', event: 'Stop' },
       { check: 'read-before-edit.py', verdict: 'deny', event: 'PreToolUse' },
     ]);
     expect(rows.every((row) => row.at === '2026-10-12T10:00:00.000Z')).toBe(true);
+  });
+
+  it('keeps the hook output on each guard row: stdout, stderr, exit code and the runtime outcome', () => {
+    const rows = hookDecisions(stream(), settings, '2026-10-12T10:00:00.000Z');
+    expect(rows[0]).toMatchObject({
+      check: 'block-force-push.sh',
+      stdout: '',
+      stderr: 'Force pushes are blocked.',
+      exitCode: 2,
+      outcome: 'blocking',
+    });
+    expect(rows[2]).toMatchObject({ check: 'reply-length.py', exitCode: 0, outcome: 'success' });
+  });
+
+  describe('the verdict of a hook whose stdout is structured', () => {
+    const verdictFor = (stdout: string, exit = 0) => {
+      const response = line({
+        type: 'system',
+        subtype: 'hook_response',
+        hook_id: 'h9',
+        hook_name: 'PreToolUse:Bash',
+        hook_event: 'PreToolUse',
+        exit_code: exit,
+        stdout,
+        session_id: sid,
+      });
+      return hookDecisions(parseStream(response), settings, '2026-10-12T10:00:00.000Z')[0]?.verdict;
+    };
+
+    it.each([
+      ['context at the top', { additionalContext: 'Did you mean to stop?' }],
+      [
+        'context in the event output',
+        {
+          hookSpecificOutput: {
+            hookEventName: 'UserPromptSubmit',
+            additionalContext: 'Did you mean to stop?',
+          },
+        },
+      ],
+    ])('is a nudge for %s, with no named decision and exit 0', (_name, output) => {
+      expect(verdictFor(JSON.stringify(output))).toBe('nudge');
+    });
+
+    it.each([
+      ['empty context', { additionalContext: '' }],
+      ['blank context', { additionalContext: '   ' }],
+      ['context that is no text', { additionalContext: 3 }],
+      ['no context', { note: 'nothing to add' }],
+    ])('stays allow for %s', (_name, output) => {
+      expect(verdictFor(JSON.stringify(output))).toBe('allow');
+    });
+
+    it('lets a named decision win over the context', () => {
+      expect(
+        verdictFor(
+          JSON.stringify({
+            hookSpecificOutput: { permissionDecision: 'deny' },
+            additionalContext: 'Did you mean to stop?',
+          }),
+        ),
+      ).toBe('deny');
+      expect(verdictFor(JSON.stringify({ decision: 'block', additionalContext: 'x' }))).toBe('deny');
+    });
+
+    it('keeps the exit code when it is not 0', () => {
+      expect(verdictFor(JSON.stringify({ additionalContext: 'x' }), 2)).toBe('deny');
+      expect(verdictFor(JSON.stringify({ additionalContext: 'x' }), 1)).toBe('error');
+    });
+  });
+
+  it('gives a hook that started and never answered a row with outcome no_response', () => {
+    const started = line({
+      type: 'system',
+      subtype: 'hook_started',
+      hook_id: 'h7',
+      hook_name: 'PreToolUse:Bash',
+      hook_event: 'PreToolUse',
+      session_id: sid,
+    });
+    const rows = hookDecisions(parseStream(started), settings, '2026-10-12T10:00:00.000Z');
+    expect(rows).toEqual([
+      {
+        at: '2026-10-12T10:00:00.000Z',
+        event: 'PreToolUse',
+        check: 'block-force-push.sh',
+        verdict: 'error',
+        outcome: 'no_response',
+      },
+    ]);
+  });
+
+  it('carries the hook output from a decision row onto the runtime guard record', () => {
+    const rows = hookDecisions(stream(), settings, '2026-10-12T10:00:00.000Z');
+    const records = normaliseStream({
+      parsed: stream(),
+      ask: 'Push.',
+      startedAt: '2026-10-12T10:00:00.000Z',
+      cwd: '/w',
+    });
+    const mapped = mapSession({
+      transcript: parseJsonl(records.join('\n')),
+      decisions: parseJsonl(rows.map((row) => JSON.stringify(row)).join('\n')),
+    });
+    expect(mapped.blocks[0]?.observed.runtime?.guards?.[0]).toEqual({
+      name: 'block-force-push.sh',
+      verdict: 'deny',
+      at: '2026-10-12T10:00:00.000Z',
+      stdout: '',
+      stderr: 'Force pushes are blocked.',
+      exitCode: 2,
+      outcome: 'blocking',
+    });
   });
 
   it('names a hook whose name carries the tool, not the matcher, by the matcher that matches the tool', () => {
@@ -319,7 +458,34 @@ describe('the real stream shapes', () => {
     expect(rows.map((row) => `${row.check}:${row.verdict}`)).toEqual(['read-before-edit.py:allow']);
   });
 
-  it('names a hook by its event and matcher when the settings hold none or several commands for it', () => {
+  it('names the responses of a matcher holding several commands by those commands, in turn', () => {
+    // Seen on the Cue estate: PostToolUse:Bash holds three commands and the response names none of them.
+    const response = (id: string, code: number) =>
+      line({
+        type: 'system',
+        subtype: 'hook_response',
+        hook_id: id,
+        hook_name: 'Stop',
+        hook_event: 'Stop',
+        stdout: '',
+        stderr: '',
+        exit_code: code,
+        outcome: code === 0 ? 'success' : 'blocking',
+        session_id: sid,
+      });
+    const rows = hookDecisions(
+      parseStream([response('s1', 0), response('s2', 2), response('s3', 0)].join('\n')),
+      settings,
+      '2026-10-12T10:00:00.000Z',
+    );
+    expect(rows.map((row) => `${row.check}:${row.verdict}`)).toEqual([
+      'reply-length.py:allow',
+      'other.sh:deny',
+      'reply-length.py:allow',
+    ]);
+  });
+
+  it('names a hook by its event and matcher when no settings name its commands', () => {
     const rows = hookDecisions(stream(), undefined, '2026-10-12T10:00:00.000Z');
     expect(rows.map((row) => row.check)).toEqual([
       'PreToolUse:Bash',

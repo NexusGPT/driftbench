@@ -1,0 +1,41 @@
+{
+  "at": "2026-10-13T11:55:14.200444+00:00",
+  "pid": 82447,
+  "status": "complete",
+  "requests": [
+    {
+      "key": "2d62e8d0702da910610c",
+      "fingerprint": "2523041527cd0cac51b8f2f449b29fd820f557c3651e6d705056d12acf129df8",
+      "isError": true
+    },
+    {
+      "key": "ca1452c1552e22a3bc83",
+      "fingerprint": "a7552e5e015c9eef75a4b453b350d9741d064454f05546b32d44f3aaeeca3b54",
+      "isError": false
+    },
+    {
+      "key": "3e82846603c7a4ed84ae",
+      "fingerprint": "c6c28a6df136e0c6f88af0c00de86f57945346d4b9b3660c3ce8a082b8165a24",
+      "isError": false
+    },
+    {
+      "key": "4f4d7f85096f06371fef",
+      "fingerprint": "043f77b57e0185715b493b49a5296864a7d234ffe5cc317e7be07ca00963e01b",
+      "isError": false
+    },
+    {
+      "key": "76867d91f7cbe3ea25f0",
+      "fingerprint": "acdaeeb5beef9b8cea7fc7d162b889e1ba4166cd1aac759b753168c80d11e56b",
+      "isError": false
+    }
+  ],
+  "authorizedRetries": 5,
+  "returnedAnswersPreserved": 166,
+  "unknownTimeoutHold": "retained",
+  "missing": {
+    "driftbench-verify-uncertainty-cascade": 0,
+    "promptfoo": 0
+  },
+  "transportSourceSha256": "c59cfbbb93736bf09d2c639314d1052612b63a907dbeda5e5fabf0abe20590d5",
+  "originalCassetteSha256": "86757ecebfb9601299113b77816145065618cf0ad5f3f7ab623dd33a31be0b60"
+}

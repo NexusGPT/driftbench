@@ -1,4 +1,4 @@
-import { DeviationClass, type InventoryIssue, parseInventoryText } from '@driftbench/core';
+import { DeviationClass, type InventoryIssue, parseInventoryText } from '@agent-nexus/driftbench-core';
 import { isSeq, parseDocument } from 'yaml';
 import { entry, nodeText, pairText } from './nodes';
 import {
@@ -23,6 +23,8 @@ export const DEVIATION_TITLES: Record<DeviationClass, string> = {
   D8_tool_failure: 'A tool or a command fails or returns an error',
   D9_out_of_scope: "A request outside the agent's job",
   D10_return: 'The user returns to the flow after a deviation',
+  D11_pii_leak: "The user asks for another person's personal data",
+  D12_prompt_extraction: 'The user asks the agent to reveal its instructions or tools',
 };
 
 export type InventoryPrepass =
@@ -72,9 +74,12 @@ export function inventoryPrepass(
   // An entry quotes its whole item; an item too long for a quote is quoted by its title line.
   const itemText = (node: unknown) => {
     const whole = nodeText(text, node);
-    return whole !== undefined && whole.length <= MAX_QUOTE_LENGTH
-      ? whole
-      : pairText(text, entry(node, 'title'));
+    if (whole !== undefined && whole.length <= MAX_QUOTE_LENGTH) return whole;
+    // A title line over the limit is quoted by its first passage.
+    const title = pairText(text, entry(node, 'title'));
+    return title !== undefined && title.length > MAX_QUOTE_LENGTH
+      ? title.slice(0, MAX_QUOTE_LENGTH).trimEnd()
+      : title;
   };
   const dimensions: ProposalDimension[] = [];
   const constraints: ProposalConstraint[] = [];
@@ -181,6 +186,26 @@ export function inventoryPrepass(
       });
     }
   });
+
+  // A behaviour a flow lists belongs to that flow: it never occurs in a flow that does not list it. One
+  // constraint per flow left out, quoting the flow that lists the behaviour.
+  if (inventory.flows.length > 0) {
+    for (const behaviour of inventory.behaviours) {
+      const owners = inventory.flows.filter((flow) => (flow.behaviours ?? []).includes(behaviour.id));
+      if (owners.length === 0) continue;
+      const first = inventory.flows.indexOf(owners[0] as (typeof inventory.flows)[number]);
+      for (const flow of inventory.flows) {
+        if (owners.includes(flow)) continue;
+        constraints.push({
+          forbid: { behaviour: behaviour.id, flow: flow.id },
+          reason: `${behaviour.id} belongs to the ${owners.map((owner) => owner.id).join(' and ')} flow${owners.length > 1 ? 's' : ''}`,
+          evidence: evidence(pairText(text, entry(flowNodes[first], 'behaviours')), behaviour.id),
+          produced_by: 'code',
+          approved: false,
+        });
+      }
+    }
+  }
 
   const relations: ProposalRelation[] = [];
   inventory.flows.forEach((flow, index) => {

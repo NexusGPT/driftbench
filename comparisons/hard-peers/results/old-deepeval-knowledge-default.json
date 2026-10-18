@@ -1,0 +1,946 @@
+{
+  "competitor": "deepeval",
+  "row": "knowledge",
+  "contestant": "default",
+  "model": "haiku",
+  "items": 72,
+  "complete": 72,
+  "results": [
+    {
+      "id": "knowledge-correction-0-b",
+      "kind": "correction",
+      "pair": "correction-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a696f24bd4e1d83ac973c6c979dc8cf43387d0af9ea3a0160cf75343743c02e1"
+      ],
+      "costUsd": 0.0005348
+    },
+    {
+      "id": "knowledge-correction-2-a",
+      "kind": "correction",
+      "pair": "correction-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "315e7426dcd4834fff22bf7ea7ec424acd0a8f6f3240e8101512063768ecc2f1"
+      ],
+      "costUsd": 0.00048259999999999997
+    },
+    {
+      "id": "knowledge-long-distractors-2-b",
+      "kind": "long-distractors",
+      "pair": "long-distractors-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e35454aaac09dccfd6b0177fd733769fbf5b3c782e2cb26a44fab1f75b81927e"
+      ],
+      "costUsd": 0.0006077999999999999
+    },
+    {
+      "id": "knowledge-known-vs-new-0-a",
+      "kind": "known-vs-new",
+      "pair": "known-vs-new-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3ba6d69c824cc478b308203cddfb54274e121d43e4e05f27732c9af6ac5a95f7"
+      ],
+      "costUsd": 0.0005182
+    },
+    {
+      "id": "knowledge-fluent-reask-2-a",
+      "kind": "fluent-reask",
+      "pair": "fluent-reask-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "278df4ea95935d689648e8bae15244fd03b831a55ebd644afdb6cd6f44e14cde"
+      ],
+      "costUsd": 0.0005208
+    },
+    {
+      "id": "knowledge-reask-email-0-b",
+      "kind": "reask-email",
+      "pair": "reask-email-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "fb528f9a10c4ce0156ffce2192e9849cce4125b2bc279d04f476ff07eb611e1a"
+      ],
+      "costUsd": 0.00044780000000000004
+    },
+    {
+      "id": "knowledge-known-vs-new-2-b",
+      "kind": "known-vs-new",
+      "pair": "known-vs-new-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2070863c34de43add2174b787d4bf57c9582c9e66a26f8f322e3c8ed0d2bbb3b"
+      ],
+      "costUsd": 0.0005598000000000001
+    },
+    {
+      "id": "knowledge-long-distractors-1-b",
+      "kind": "long-distractors",
+      "pair": "long-distractors-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7225eb149bf8f26aadb4e5bc0b597c9efec7f359e544c822f33d93b1890a272e"
+      ],
+      "costUsd": 0.0006213
+    },
+    {
+      "id": "knowledge-mixed-language-1-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "aa35c4252512733d49b9cdc417586a30003355f0f6d3e8fd454fa02ecd883af7"
+      ],
+      "costUsd": 0.0004577
+    },
+    {
+      "id": "knowledge-other-person-0-a",
+      "kind": "other-person",
+      "pair": "other-person-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b3d674ea322f8b46398f716c3702dcdd77041dce6029351ed9ee92b6ec81bffa"
+      ],
+      "costUsd": 0.000583
+    },
+    {
+      "id": "knowledge-fluent-reask-0-a",
+      "kind": "fluent-reask",
+      "pair": "fluent-reask-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d3cdb2505ec108a0b00f05f58686cdd33eabedd9f5f156e9c22bc08881104ed8"
+      ],
+      "costUsd": 0.0006288
+    },
+    {
+      "id": "knowledge-budget-unit-1-a",
+      "kind": "budget-unit",
+      "pair": "budget-unit-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "09d90c20572e1521822dea58e3251887f3b64978268678807f85811af4af6553"
+      ],
+      "costUsd": 0.0005059
+    },
+    {
+      "id": "knowledge-correct-use-2-a",
+      "kind": "correct-use",
+      "pair": "correct-use-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b556e727155b19e3f767f469c3023864ddb5cdf435503d0e1fc92455b059ec8c"
+      ],
+      "costUsd": 0.0005468000000000001
+    },
+    {
+      "id": "knowledge-correct-use-1-b",
+      "kind": "correct-use",
+      "pair": "correct-use-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2ed137c507ade198b8101adfce7bedbb52e7f6c58d77afeec0c17bb29a723b2f"
+      ],
+      "costUsd": 0.0005848000000000001
+    },
+    {
+      "id": "knowledge-fluent-reask-2-b",
+      "kind": "fluent-reask",
+      "pair": "fluent-reask-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "30a23eb348f98e1ad5bc35f5df0f81ebae27e18bdf0dcf72099c103330bb5507"
+      ],
+      "costUsd": 0.000523
+    },
+    {
+      "id": "knowledge-correction-1-b",
+      "kind": "correction",
+      "pair": "correction-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "dca0c4b9d647cc35fab8e8d6f67174c52eac428bf71bd2efb48a61f9472a3b88"
+      ],
+      "costUsd": 0.0005658
+    },
+    {
+      "id": "knowledge-budget-unit-2-b",
+      "kind": "budget-unit",
+      "pair": "budget-unit-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d8d5c9a33b6f3cbc0bc3e58079b31e88e93aa4540c97fe05b5dfdcebec03b94c"
+      ],
+      "costUsd": 0.0004955000000000001
+    },
+    {
+      "id": "knowledge-negation-1-a",
+      "kind": "negation",
+      "pair": "negation-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8209afc83e7bc3b88dbb582b69088c7252c1cff60fbe7fa36ae7c3a25d042c7c"
+      ],
+      "costUsd": 0.0004759
+    },
+    {
+      "id": "knowledge-budget-unit-2-a",
+      "kind": "budget-unit",
+      "pair": "budget-unit-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b4954550c1e22f1bf0824cffad4b1150308e8a472cc7497921a3cec84c7cca09"
+      ],
+      "costUsd": 0.00042239999999999997
+    },
+    {
+      "id": "knowledge-name-nearmiss-1-b",
+      "kind": "name-nearmiss",
+      "pair": "name-nearmiss-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f33f64dc77620977d6b5feae0a3b5f3e8dd7bccafeb060b2d08ae5330da906d6"
+      ],
+      "costUsd": 0.0005538
+    },
+    {
+      "id": "knowledge-name-nearmiss-0-a",
+      "kind": "name-nearmiss",
+      "pair": "name-nearmiss-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "182f59a88561ca02a373d80903d599af52607c7b6fd96673110893f5bcf35df9"
+      ],
+      "costUsd": 0.0005424
+    },
+    {
+      "id": "knowledge-reask-email-0-a",
+      "kind": "reask-email",
+      "pair": "reask-email-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0959507852c357e076dea7740f103118ce4c412b0de9bd7004c64fdc86a7202f"
+      ],
+      "costUsd": 0.0005114
+    },
+    {
+      "id": "knowledge-mixed-language-1-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d35668c456e6f41c13a9c1e4e24937f2c2a2e571a4221473d8e32c0852a8d3c2"
+      ],
+      "costUsd": 0.0005706999999999999
+    },
+    {
+      "id": "knowledge-mixed-language-2-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "117e1f452b118f5da909784c78982ad6c75b73bb59644777a1d317e37a12a891"
+      ],
+      "costUsd": 0.0004907000000000001
+    },
+    {
+      "id": "knowledge-fluent-reask-0-b",
+      "kind": "fluent-reask",
+      "pair": "fluent-reask-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6b21fdfa3e16b09db470340514e3da131b90338536816c97c1eaefaaa99dd198"
+      ],
+      "costUsd": 0.000486
+    },
+    {
+      "id": "knowledge-long-distractors-0-b",
+      "kind": "long-distractors",
+      "pair": "long-distractors-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f000a37e8cb8774e73afd07a661d93fcf678b3731f371c7f49437b088b36ccce"
+      ],
+      "costUsd": 0.0005963
+    },
+    {
+      "id": "knowledge-negation-1-b",
+      "kind": "negation",
+      "pair": "negation-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0acffd88378d254d37984ecc6f8cae04a93b7c73c0773305bf3a3a9a4cd5d759"
+      ],
+      "costUsd": 0.0004557
+    },
+    {
+      "id": "knowledge-reask-email-2-b",
+      "kind": "reask-email",
+      "pair": "reask-email-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d9eb41dc14f49e74824feb5f5e145671470066a27df72fefbee8cbcad18b9175"
+      ],
+      "costUsd": 0.00046080000000000003
+    },
+    {
+      "id": "knowledge-negation-2-a",
+      "kind": "negation",
+      "pair": "negation-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4164abf575fbd0d0b3c0962c2815f72b3935121075d95b92cb7eedddd95ed15e"
+      ],
+      "costUsd": 0.00044740000000000003
+    },
+    {
+      "id": "knowledge-correction-0-a",
+      "kind": "correction",
+      "pair": "correction-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ee8dda099c46d982186d6aac2050dd054a30d7e6d615574ee67bcbb46d38eb48"
+      ],
+      "costUsd": 0.0005286
+    },
+    {
+      "id": "knowledge-negation-0-b",
+      "kind": "negation",
+      "pair": "negation-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3051e4a065627723225d43759242a9c2b1bcd06fca4886273309ff9ef0a7ee22"
+      ],
+      "costUsd": 0.00046620000000000006
+    },
+    {
+      "id": "knowledge-known-vs-new-1-a",
+      "kind": "known-vs-new",
+      "pair": "known-vs-new-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0fe571a6d8e40e0304fbcd784da3c31102a96366610cac3e14bb453532e099cb"
+      ],
+      "costUsd": 0.0005432
+    },
+    {
+      "id": "knowledge-known-vs-new-2-a",
+      "kind": "known-vs-new",
+      "pair": "known-vs-new-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2da528e46a5da9902fa94a6911697fe1c63f736d8e34ecd362d886593fc6a32a"
+      ],
+      "costUsd": 0.0005027
+    },
+    {
+      "id": "knowledge-name-nearmiss-2-a",
+      "kind": "name-nearmiss",
+      "pair": "name-nearmiss-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fd4e5a90cc9f05fbb004b49512f6e0d09f5d4ef6db0de854253fe8b68c00035e"
+      ],
+      "costUsd": 0.0005084
+    },
+    {
+      "id": "knowledge-name-nearmiss-1-a",
+      "kind": "name-nearmiss",
+      "pair": "name-nearmiss-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "13634bafce526a8527e45cc56143af2c70b2f257ec2887ff85534ff802013bb0"
+      ],
+      "costUsd": 0.0005084
+    },
+    {
+      "id": "knowledge-reask-address-2-b",
+      "kind": "reask-address",
+      "pair": "reask-address-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d7ddd0932bf13e09f44d5b8309ccd5be1a681911ab5f77c75dd91ac77d32296a"
+      ],
+      "costUsd": 0.0005067
+    },
+    {
+      "id": "knowledge-budget-unit-0-a",
+      "kind": "budget-unit",
+      "pair": "budget-unit-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3e931444d46e1bc0b80fb618183d18b3267d32c0a1984ad23a936f1d2a452090"
+      ],
+      "costUsd": 0.0005024
+    },
+    {
+      "id": "knowledge-correction-2-b",
+      "kind": "correction",
+      "pair": "correction-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6f6ecd0ed08e4c9271495de23e8f573a9c5d2574891d349e18e6ad6f283833f5"
+      ],
+      "costUsd": 0.0005587999999999999
+    },
+    {
+      "id": "knowledge-other-person-2-a",
+      "kind": "other-person",
+      "pair": "other-person-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c885ebd511568816bcf607ea96e7dc2f72647785d70fe601501f54052cf1ba7f"
+      ],
+      "costUsd": 0.0005549999999999999
+    },
+    {
+      "id": "knowledge-reask-address-1-b",
+      "kind": "reask-address",
+      "pair": "reask-address-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "302d41678c6f66678fd746bc4439566134e3a8c55b54545899aa64f177a57251"
+      ],
+      "costUsd": 0.00047020000000000005
+    },
+    {
+      "id": "knowledge-other-person-1-a",
+      "kind": "other-person",
+      "pair": "other-person-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4386e3b0331f829215f6b966a6843194b30ebc1579c65fcc3de6a22a10acfe1f"
+      ],
+      "costUsd": 0.00056
+    },
+    {
+      "id": "knowledge-fluent-reask-1-a",
+      "kind": "fluent-reask",
+      "pair": "fluent-reask-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "327ab914def5e868d36ec89c7a6d22d452bd6de3e32d25cfd46cb7f74b7e73af"
+      ],
+      "costUsd": 0.0006062999999999999
+    },
+    {
+      "id": "knowledge-other-person-1-b",
+      "kind": "other-person",
+      "pair": "other-person-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "19e1ce00d7810166b532630d569fed060bbee643e0e0276bcb3bc0045e43ab77"
+      ],
+      "costUsd": 0.0006494000000000001
+    },
+    {
+      "id": "knowledge-correct-use-2-b",
+      "kind": "correct-use",
+      "pair": "correct-use-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c2b227353a90b013714b6462105c596b9bddc4cb6a83be3ed799e2535be4d782"
+      ],
+      "costUsd": 0.0006713000000000001
+    },
+    {
+      "id": "knowledge-mixed-language-0-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "12c8c7df9b50f969386fb2ddfb9bfffc30efe5fe68d9e4c31e63682e776eb829"
+      ],
+      "costUsd": 0.0005937
+    },
+    {
+      "id": "knowledge-other-person-2-b",
+      "kind": "other-person",
+      "pair": "other-person-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7406fd928596ae6d2e12884ddfa2397bffad47bc2b23b555a89819a043c42b62"
+      ],
+      "costUsd": 0.0006654
+    },
+    {
+      "id": "knowledge-correct-use-0-b",
+      "kind": "correct-use",
+      "pair": "correct-use-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f822d6e73b19dbe4fd1d94a424d148401935dd496d2344bda9767e952bc5cc82"
+      ],
+      "costUsd": 0.0006018
+    },
+    {
+      "id": "knowledge-reask-email-1-b",
+      "kind": "reask-email",
+      "pair": "reask-email-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d6c46ae933e27ce1788bde8cdd0bd505baf5d7819bc71ace535cae7d0ecec5cb"
+      ],
+      "costUsd": 0.0004978000000000001
+    },
+    {
+      "id": "knowledge-correct-use-1-a",
+      "kind": "correct-use",
+      "pair": "correct-use-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9a6788aab21190453b1ad0001524a09e815ddaa2a1a21199569c318cbcbc5e6f"
+      ],
+      "costUsd": 0.0005358000000000001
+    },
+    {
+      "id": "knowledge-budget-unit-1-b",
+      "kind": "budget-unit",
+      "pair": "budget-unit-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "36df0e7710d027c63c535877129a283523aa2ef0f713098a997ab2e6167c0524"
+      ],
+      "costUsd": 0.000522
+    },
+    {
+      "id": "knowledge-fluent-reask-1-b",
+      "kind": "fluent-reask",
+      "pair": "fluent-reask-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ed0710a94ab8e53fafbedd46f67fdfcd797898e34c26870902a7e77524ba044b"
+      ],
+      "costUsd": 0.0004905
+    },
+    {
+      "id": "knowledge-long-distractors-2-a",
+      "kind": "long-distractors",
+      "pair": "long-distractors-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "56b6e2709d421b379993cad13f19c56d71b18e4854834a6aa84ca56a98629f01"
+      ],
+      "costUsd": 0.0006428
+    },
+    {
+      "id": "knowledge-name-nearmiss-0-b",
+      "kind": "name-nearmiss",
+      "pair": "name-nearmiss-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "18447ce6d055dcabe1f0ef8ee53c337e9fd467567eb665f38c56f1bba1159232"
+      ],
+      "costUsd": 0.0005238
+    },
+    {
+      "id": "knowledge-known-vs-new-1-b",
+      "kind": "known-vs-new",
+      "pair": "known-vs-new-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d80a4f62921a24a84133e30288f067b21f3d014b6e144ab44afe15fb4d2324ed"
+      ],
+      "costUsd": 0.0005133
+    },
+    {
+      "id": "knowledge-known-vs-new-0-b",
+      "kind": "known-vs-new",
+      "pair": "known-vs-new-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "70d2da394ec0e691e5158be2869b640ed2d353da7a534b2a696396f6b4498d18"
+      ],
+      "costUsd": 0.00042229999999999996
+    },
+    {
+      "id": "knowledge-mixed-language-2-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "41500b92599cbb1176649ceb2875a4e9fe9fe7ae094f670a48324ed6343a89a2"
+      ],
+      "costUsd": 0.0005782000000000001
+    },
+    {
+      "id": "knowledge-negation-2-b",
+      "kind": "negation",
+      "pair": "negation-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a79c3eb8dd3cfa70e40679d7dce337dfb4f2c58dabf0541497cb02c0d3a9d360"
+      ],
+      "costUsd": 0.0004892
+    },
+    {
+      "id": "knowledge-long-distractors-1-a",
+      "kind": "long-distractors",
+      "pair": "long-distractors-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c0a2b4b29122f287cdd06772a00b5cb2f1e45cc0346bb85bff82accaa805f00a"
+      ],
+      "costUsd": 0.0006823
+    },
+    {
+      "id": "knowledge-correction-1-a",
+      "kind": "correction",
+      "pair": "correction-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "148fb449587cc0b8acc7950ad1354ec4eeb10b90480c4267ab389b866f9fc254"
+      ],
+      "costUsd": 0.0005441
+    },
+    {
+      "id": "knowledge-mixed-language-0-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8743513a399c8410b6bfe41a204e9e8e1e59415cb6c0367d996e6acc446f3cb8"
+      ],
+      "costUsd": 0.0005042
+    },
+    {
+      "id": "knowledge-reask-email-2-a",
+      "kind": "reask-email",
+      "pair": "reask-email-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "74342f636c559b00c0592c35c8de0de5784cd8d164263ba368f648fa4cff3a56"
+      ],
+      "costUsd": 0.0005194
+    },
+    {
+      "id": "knowledge-reask-address-1-a",
+      "kind": "reask-address",
+      "pair": "reask-address-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "021d187c7259d6a2d21163ba94e91c53cfa3d23f9899f0b32717615113b4b5fd"
+      ],
+      "costUsd": 0.0005214
+    },
+    {
+      "id": "knowledge-reask-address-2-a",
+      "kind": "reask-address",
+      "pair": "reask-address-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fa35f50d5c92ea4d884cfd778b3e2fc018152366860ce5d0a21432b4a7e717d6"
+      ],
+      "costUsd": 0.0004949
+    },
+    {
+      "id": "knowledge-reask-address-0-b",
+      "kind": "reask-address",
+      "pair": "reask-address-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a6df8eb6a86c99fe0f50b32fad3dce34db305b5ff4581c9bcca5225397ddce84"
+      ],
+      "costUsd": 0.0005547
+    },
+    {
+      "id": "knowledge-name-nearmiss-2-b",
+      "kind": "name-nearmiss",
+      "pair": "name-nearmiss-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "bf551646001170ae1c53953c24b3e1b2add6e56a4f4f2991ce088cfde6e78e90"
+      ],
+      "costUsd": 0.0005273
+    },
+    {
+      "id": "knowledge-other-person-0-b",
+      "kind": "other-person",
+      "pair": "other-person-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8d01db7f7826fb7ef852e38ae587323f19a38604ab43df205744d03438beaa41"
+      ],
+      "costUsd": 0.0008414
+    },
+    {
+      "id": "knowledge-budget-unit-0-b",
+      "kind": "budget-unit",
+      "pair": "budget-unit-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "369962be7aea13acc72e6cef8e4b218a42c8c5a48c9744d0d26a4bbf56a2bcac"
+      ],
+      "costUsd": 0.0004930000000000001
+    },
+    {
+      "id": "knowledge-reask-address-0-a",
+      "kind": "reask-address",
+      "pair": "reask-address-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0b52a7c942c33d567c4e6824a3facfac0f5fce70b857a306e00417b51d48058f"
+      ],
+      "costUsd": 0.0005119
+    },
+    {
+      "id": "knowledge-correct-use-0-a",
+      "kind": "correct-use",
+      "pair": "correct-use-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d09eb6e481b12a9b3fa91f7d0784ab469d012798d92b69e290964fe989d11d8d"
+      ],
+      "costUsd": 0.0004378
+    },
+    {
+      "id": "knowledge-negation-0-a",
+      "kind": "negation",
+      "pair": "negation-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6a574bb902fb27aab618632509448117fae678c7d512435818ae8ba002252787"
+      ],
+      "costUsd": 0.0004694
+    },
+    {
+      "id": "knowledge-reask-email-1-a",
+      "kind": "reask-email",
+      "pair": "reask-email-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "859aed8423411f7cff398769fa1a50f89b51ac70c251a2c3d516762c2a2f43a3"
+      ],
+      "costUsd": 0.0005384000000000001
+    },
+    {
+      "id": "knowledge-long-distractors-0-a",
+      "kind": "long-distractors",
+      "pair": "long-distractors-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0ea3e6321d999e3a92c7705be2105089d1803c8c1bfa254aa93d6ad48a136ac7"
+      ],
+      "costUsd": 0.0006788
+    }
+  ]
+}

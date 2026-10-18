@@ -1,4 +1,4 @@
-import JSZip from 'jszip';
+import type JSZip from 'jszip';
 import {
   countHolds,
   describeCount,
@@ -174,8 +174,10 @@ export const pptxReader: KindReader = {
   kind: 'pptx',
   checkNames: Object.keys(PPTX_CHECKS),
   async open(bytes, path) {
+    // jszip loads when the first deck opens, not when this package does.
+    const { default: Zip } = await import('jszip');
     try {
-      const data = await readDeck(await JSZip.loadAsync(ownBuffer(bytes)));
+      const data = await readDeck(await Zip.loadAsync(ownBuffer(bytes)));
       return new ReaderDocument<PptxData>('pptx', path, renderDeck(data), PPTX_CHECKS, data);
     } catch (cause) {
       return unreadable('pptx', path, PPTX_CHECKS, cause);

@@ -1,0 +1,140 @@
+{
+  "base": "9970c938de76bbb3030795d983fad08d8bb611b6",
+  "measurementDates": {
+    "before": "2026-10-13T06:59:34.047Z",
+    "after": "2026-10-13T07:04:08.658Z"
+  },
+  "node": "v24.18.0",
+  "sourceSHA256": {
+    "before": "66835f70033de5c26b4a7c4eed50cd73f38582336145dd9b7f085399db6fe549",
+    "after": "81f18e7456a2cc9db722db165946d6ddc2a8f13d6015a79d81fae54808c32875"
+  },
+  "before": [
+    {
+      "id": "simulation.newcombe.n30",
+      "draws": 2000,
+      "seedCount": 256,
+      "bar": 0.9353798084827865,
+      "totalHeld": 484591,
+      "totalDraws": 512000,
+      "mean": 0.946466796875,
+      "sd": 0.004807864379933502,
+      "pooled95": {
+        "estimate": 0.946466796875,
+        "lower": 0.9458468774003922,
+        "upper": 0.9470800168537207
+      },
+      "pooledSE": 0.00031457870912495275,
+      "zBelowNominal": 11.231539269863708,
+      "min": 0.9325,
+      "p05": 0.9385,
+      "p25": 0.9425,
+      "median": 0.9465,
+      "p75": 0.9495,
+      "p95": 0.954125,
+      "max": 0.963,
+      "failures": [132],
+      "historical": {
+        "seed": 362983924,
+        "held": 1866,
+        "coverage": 0.933,
+        "pass": false
+      }
+    },
+    {
+      "id": "simulation.newcombe.n100",
+      "draws": 2000,
+      "seedCount": 256,
+      "bar": 0.9353798084827865,
+      "totalHeld": 486083,
+      "totalDraws": 512000,
+      "mean": 0.949380859375,
+      "sd": 0.004720259302838077,
+      "pooled95": {
+        "estimate": 0.949380859375,
+        "lower": 0.9487770113583007,
+        "upper": 0.949977964168597
+      },
+      "pooledSE": 0.00030636746225486984,
+      "zBelowNominal": 2.020908553548792,
+      "min": 0.9345,
+      "p05": 0.941875,
+      "p25": 0.946375,
+      "median": 0.9495,
+      "p75": 0.953,
+      "p95": 0.95675,
+      "max": 0.964,
+      "failures": [101],
+      "historical": {
+        "seed": 362983924,
+        "held": 1916,
+        "coverage": 0.958,
+        "pass": true
+      }
+    }
+  ],
+  "after": [
+    {
+      "id": "simulation.newcombe.n30",
+      "draws": 2000,
+      "seedCount": 256,
+      "bar": 0.9353798084827865,
+      "totalHeld": 493591,
+      "totalDraws": 512000,
+      "mean": 0.964044921875,
+      "sd": 0.004175433944073786,
+      "pooled95": {
+        "estimate": 0.964044921875,
+        "lower": 0.9635314635160184,
+        "upper": 0.9645514169680294
+      },
+      "pooledSE": 0.000260191900642978,
+      "zBelowNominal": -53.979089434731414,
+      "min": 0.9505,
+      "p05": 0.9575,
+      "p25": 0.961375,
+      "median": 0.9645,
+      "p75": 0.967,
+      "p95": 0.9705,
+      "max": 0.9765,
+      "failures": [],
+      "historical": {
+        "seed": 362983924,
+        "held": 1912,
+        "coverage": 0.956,
+        "pass": true
+      }
+    },
+    {
+      "id": "simulation.newcombe.n100",
+      "draws": 2000,
+      "seedCount": 256,
+      "bar": 0.9353798084827865,
+      "totalHeld": 489257,
+      "totalDraws": 512000,
+      "mean": 0.955580078125,
+      "sd": 0.004316683730046147,
+      "pooled95": {
+        "estimate": 0.955580078125,
+        "lower": 0.9550123186344107,
+        "upper": 0.9561410013695774
+      },
+      "pooledSE": 0.00028793035865770677,
+      "zBelowNominal": -19.37995753908563,
+      "min": 0.9445,
+      "p05": 0.9488749999999999,
+      "p25": 0.9525,
+      "median": 0.9555,
+      "p75": 0.9585,
+      "p95": 0.963,
+      "max": 0.9695,
+      "failures": [],
+      "historical": {
+        "seed": 362983924,
+        "held": 1923,
+        "coverage": 0.9615,
+        "pass": true
+      }
+    }
+  ]
+}

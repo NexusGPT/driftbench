@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-13T15:18:40.741179+00:00",
+  "scope": "Offline verification only; no model request, prompt, scoring rule, answer or sealed item changes",
+  "finding": "The deterministic local tool has a five-second timeout and does not record its output. Under host load its missing tool output changes downstream prompt keys during replay. A single-item replay reproduces the originally recorded key.",
+  "mechanism": "Recompute the same label-blind solver offline with up to 60 seconds. Try its exact deterministic output and its historical absent-output branch. Accept only a branch with a complete chain of existing exact request keys. Never select by expected verdict or benchmark label. Assert all originally answered decisions unchanged.",
+  "sources": [
+    "examples/judge-benchmarks/src/verify-tools.ts",
+    "logs/haiku-stable-replay.log"
+  ],
+  "hashes": {
+    "examples/ledger-verify/replay-stable.ts": "88911f679a4c5f11f549cbc42dac5004a1478835619eaafce7a59d23d50790d0",
+    "examples/judge-benchmarks/src/verify-tools.py": "92b52ba7027a6970b2c734dc3652472db7a80d34962f5dbd0655ba6d4f4ae045"
+  }
+}

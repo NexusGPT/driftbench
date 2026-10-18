@@ -1,4 +1,4 @@
-import { computeCoverage, type Inventory, loadInventory, loadSpecs } from '@driftbench/core';
+import { computeCoverage, type Inventory, loadInventory, loadSpecs } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { INVENTORY_PATH, SPECS_DIR } from './support/specs';
 

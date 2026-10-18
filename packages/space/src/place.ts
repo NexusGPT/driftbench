@@ -1,4 +1,4 @@
-import type { Spec } from '@driftbench/core';
+import type { Spec } from '@agent-nexus/driftbench-core';
 import type { CompiledSpace } from './grid';
 import { type DimensionKind, NONE } from './schema';
 

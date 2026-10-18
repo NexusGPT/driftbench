@@ -1,0 +1,9 @@
+{
+  "stamp": "2026-10-13T10:16:08.567935+00:00",
+  "authorization": "Owner Gemini top-up and one missing-only probe, followed by Gemini two-call pacing with 429 backoff and immediate 402 circuit break.",
+  "runtime_fix": "Preserve an explicit drain stop reason while another provider has a billing hold; no change to request order, caps, prompts, reasoning or scorers.",
+  "sha256": {
+    "comparisons/ledger-hard/resume.py": "74322e38d75bcacf64f6188771decd9c1bf43b55ab725f342e575123297cec00",
+    "comparisons/ledger-hard/probe-topup.py": "43240c9833646f96abf360d1f64b4dbb5510c443a58b79f0eb1541c6b4b80298"
+  }
+}

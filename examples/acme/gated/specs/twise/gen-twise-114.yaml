@@ -2,16 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-114
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 114 of 154: Path home-callback of new-home: needs > address > offer > callback > handover, D3_contradiction at offer"
-channel: chat
+title: "t-wise row 114 of 132: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D3_contradiction at offer"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
   - data:fiber
-  - task:existing-workbook
   - flow:new-home
 covers:
   - B-011
@@ -27,6 +26,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-011
     rubric: Answer an off-topic question in one line and resume the pending step
@@ -51,7 +52,7 @@ blocks:
           count: 0
         - label: catalog.search
           count: 0
-        - label: notify_sales
+        - label: order.create
           count: 0
       lang: EN
       criteria:
@@ -72,8 +73,12 @@ blocks:
           input:
             category: home
             address_id: addr-101
-        - label: notify_sales
+        - label: order.create
           count: 0
+      must:
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
   - id: b3-D3_contradiction
     when:
@@ -87,39 +92,55 @@ blocks:
           count: 0
         - label: catalog.search
           count: 0
-        - label: notify_sales
+        - label: order.create
           count: 0
       must:
         - Which one
       lang: EN
       criteria:
         - deviation.D3_contradiction
-  - id: b4-offer-to-callback
+  - id: b4-offer-to-details
     when:
-      user: Can someone just call me back?
+      user: I'll take Acme Fiber 1000.
     expect:
-      stage: callback
+      stage: details
       tools:
         - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
-        - label: notify_sales
+        - label: order.create
           count: 0
       lang: EN
-  - id: b5-callback-to-handover
+  - id: b5-details-to-recap
     when:
-      user: You can reach me on +1 202 555 0131.
+      user: I'm Jo Okafor and my email is jo.okafor@example.com.
     expect:
-      stage: handover
+      stage: recap
       tools:
-        - label: notify_sales
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+  - id: b6-recap-to-order_placed
+    when:
+      user: Confirm
+    expect:
+      stage: order_placed
+      tools:
+        - label: order.create
           count: 1
           input:
-            reason: callback
+            type: new
+            plan_id: fiber-1000
+            address_id: addr-101
             customer:
               subset:
-                phone: "+12025550131"
+                name: Jo Okafor
+                email: jo.okafor@example.com
         - label: coverage.check
           count: 0
         - label: catalog.search
@@ -135,17 +156,16 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: home-callback
+      hash: 6d29ed7a7539
+    path: home-order
     cell:
       behaviour: B-011
-      channel: chat
+      channel: whatsapp
       user_type: new-customer
       coverage_result: fiber
-      workspace_start: existing-workbook
       flow: new-home
-      plan_choice: asks-for-callback
-      callback_phone: given
+      plan_choice: names-one
+      customer_details: name-and-email
     blocks:
       - block: b1-needs-to-address
         seeder: twise
@@ -175,27 +195,36 @@ metadata:
         phrase:
           dimension: deviation
           value: D3_contradiction
-      - block: b4-offer-to-callback
+      - block: b4-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: offer-to-callback
-          stage: callback
+          stage_transition: offer-to-details
+          stage: details
         phrase:
           dimension: stage_transition
-          value: offer-to-callback
-      - block: b5-callback-to-handover
+          value: offer-to-details
+      - block: b5-details-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: callback-to-handover
-          callback_phone: given
+          stage_transition: details-to-recap
+          customer_details: name-and-email
+          stage: recap
+        phrase:
+          dimension: stage_transition
+          value: details-to-recap
+      - block: b6-recap-to-order_placed
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: recap-to-order_placed
           coverage_result: fiber
-          plan_choice: asks-for-callback
-          stage: handover
+          customer_details: name-and-email
+          stage: order_placed
         phrase:
           dimension: stage_transition
-          value: callback-to-handover
+          value: recap-to-order_placed
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -207,28 +236,35 @@ metadata:
       - block: b2-address-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.615
+        pass_probability: 0.538
       - block: b3-D3_contradiction
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b4-offer-to-callback
+      - block: b4-offer-to-details
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b5-callback-to-handover
+      - block: b5-details-to-recap
         status: accepted
         pass_k: 1
-        pass_probability: 0.692
+        pass_probability: 0.615
+      - block: b6-recap-to-order_placed
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
 rules:
   forbidden_tools:
     - port.check
-    - order.create
+    - notify_sales
 end_state:
-  source: tool:notify_sales
+  source: tool:order.create
   mode: subset
   expect:
-    reason: callback
+    type: new
+    plan_id: fiber-1000
+    address_id: addr-101
     customer:
       subset:
-        phone: "+12025550131"
+        name: Jo Okafor
+        email: jo.okafor@example.com

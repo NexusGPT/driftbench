@@ -1,34 +1,47 @@
-import type { Check, Embedder } from '@driftbench/core';
+import type { Check, Embedder } from '@agent-nexus/driftbench-core';
 import { artifacts } from './checks/artifacts';
 import { budget } from './checks/budget';
 import { cards } from './checks/cards';
 import { type CheckRegistry, createCustomCheck, defaultRegistry } from './checks/custom';
 import { endState } from './checks/end_state';
+import { exact } from './checks/exact';
 import { execution } from './checks/execution';
+import { finishReason } from './checks/finish_reason';
 import { forbidden } from './checks/forbidden';
 import { guards } from './checks/guards';
+import { injection } from './checks/injection';
 import { knowledgeRetention } from './checks/knowledge_retention';
 import { lang } from './checks/lang';
+import { length } from './checks/length';
+import { markup } from './checks/markup';
 import { must, mustNot } from './checks/must';
-import { pii } from './checks/pii';
+import { bleu, rougeL } from './checks/overlap';
+import { createPiiCheck, type PiiCheckOptions, pii } from './checks/pii';
 import { references } from './checks/references';
+import { refusal } from './checks/refusal';
+import { regex } from './checks/regex';
 import { relevancy } from './checks/relevancy';
+import { replyJson } from './checks/reply_json';
 import { safety } from './checks/safety';
 import { schemaStrict } from './checks/schema_strict';
 import { createSimilarityCheck } from './checks/similarity';
 import { skills } from './checks/skills';
+import { sqlEquivalence } from './checks/sql';
 import { stage } from './checks/stage';
+import { startsWith } from './checks/starts_with';
 import { subagents } from './checks/subagents';
+import { toolF1 } from './checks/tool_f1';
+import { createToolPolicyCheck, type ToolRule } from './checks/tool-policy';
 import { tools } from './checks/tools';
 import { toolsOffered } from './checks/tools_offered';
 import { workspace } from './checks/workspace';
 
 /**
- * What judges the criteria a block names: a council of @driftbench/judges (its `check()` makes the
+ * What judges the criteria a block names: a council of @agent-nexus/driftbench-judges (its `check()` makes the
  * `judge` check), or any object that makes a check the same way. The checks package does not depend on
  * the judges package; it only asks the council for its check.
  */
-export type JudgeCheckSource = { check(): Check };
+export type JudgeCheckSource = { check(): Check; piiJudge?: PiiCheckOptions['judge'] };
 
 export type DefaultChecksOptions = {
   /** Where `rules.custom` names are resolved. The default registry when absent. */
@@ -37,6 +50,12 @@ export type DefaultChecksOptions = {
   judges?: JudgeCheckSource;
   /** What the similarity check scores with. The local character n-gram embedder when absent. */
   embedder?: Embedder;
+  /** The owner's own values the pii check leaves out (see `createPiiCheck`). Empty when absent. */
+  piiOwner?: readonly string[];
+  /** Personal-data judge for `expect.pii_judge: true`; otherwise the council's hook, when present. */
+  piiJudge?: PiiCheckOptions['judge'];
+  /** A run-wide tool policy over the recorded calls of every block. Off when absent. */
+  toolPolicy?: readonly ToolRule[];
 };
 
 /**
@@ -46,18 +65,33 @@ export type DefaultChecksOptions = {
  * verdicts and never replace one. The list is new on each call; the checks themselves hold no state.
  */
 export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
+  const piiJudge = options.piiJudge ?? options.judges?.piiJudge;
   return [
     tools,
     toolsOffered,
     forbidden,
     must,
     mustNot,
+    regex,
+    exact,
+    injection,
+    length,
+    markup,
+    startsWith,
+    finishReason,
+    replyJson,
+    toolF1,
+    refusal,
+    rougeL,
+    bleu,
+    sqlEquivalence,
     createSimilarityCheck(options.embedder),
     relevancy,
     knowledgeRetention,
     lang,
-    pii,
+    options.piiOwner?.length || piiJudge ? createPiiCheck({ owner: options.piiOwner, judge: piiJudge }) : pii,
     cards,
+    ...(options.toolPolicy?.length ? [createToolPolicyCheck(options.toolPolicy)] : []),
     stage,
     skills,
     guards,

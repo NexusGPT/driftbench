@@ -1,0 +1,132 @@
+# Gated by driftbench gate from metamorphic/gen-metamorphic-013-2.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-metamorphic-013-2
+version: 6d29ed7a7539
+kind: conversation
+title: "Metamorphic home-address-not-found over channel, value 2 of 2: : Path home-address-not-found of new-home: needs > address > address"
+channel: whatsapp
+lang: EN
+tier: generated
+tags:
+  - persona:new-customer
+  - data:not-in-map
+  - flow:new-home
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
+criteria:
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
+    gating: false
+    scope: conversation
+blocks:
+  - id: b1-needs-to-address
+    when:
+      user: Hello, I'm looking for home internet.
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+      lang: EN
+      criteria:
+        - flow.new-home
+  - id: b2-address-to-address
+    when:
+      user: The address is 21 Willow Court, Acmeville.
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 21 Willow Court, Acmeville
+      lang: EN
+perturbations:
+  - id: p1-D1_off_topic
+    class: D1_off_topic
+    inject_at: 0
+    user: Are your stores open on Saturday?
+    expect:
+      stage: needs
+      tools:
+        - label: coverage.check
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: needs
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: metamorphic
+    seed: 1
+    stream: 627546489
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    path: home-address-not-found
+    cell:
+      user_type: new-customer
+      coverage_result: not-in-map
+      channel: whatsapp
+      flow: new-home
+    blocks:
+      - block: b1-needs-to-address
+        seeder: metamorphic
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-address-to-address
+        seeder: metamorphic
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-address
+          coverage_result: not-in-map
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: address-to-address
+    metamorphic:
+      family: gen-metamorphic-013
+      variant: 2
+      of: 2
+      relation: same observed outcome
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-address
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-address-to-address
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+rules:
+  forbidden_tools:
+    - catalog.search
+    - port.check
+    - order.create
+    - notify_sales

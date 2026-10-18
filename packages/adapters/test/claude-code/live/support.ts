@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { ResolvedGiven, Stimulus, Turn } from '@driftbench/core';
+import type { ResolvedGiven, Stimulus, Turn } from '@agent-nexus/driftbench-core';
 
 /** Paths and seeds the live runner tests share. Everything is the fictional Northwind fixture. */
 
@@ -10,6 +10,10 @@ export const ESTATE = fileURLToPath(new URL('../../../../../examples/estates/fix
 export const FAKE = fileURLToPath(
   new URL('../../../../../examples/estates/fixture/live/fake/claude.mjs', import.meta.url),
 );
+/** Explicit recording playback for transport and protocol assertions, never the fake's default. */
+export const FAKE_RECORDINGS = {
+  FAKE_MANIFEST: join(ESTATE, 'live/fake/manifest.json'),
+};
 export const STATES = fileURLToPath(
   new URL('../../../../../examples/estates/fixture/live/states/library.json', import.meta.url),
 );

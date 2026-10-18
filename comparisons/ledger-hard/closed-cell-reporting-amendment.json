@@ -1,0 +1,20 @@
+{
+  "created": "2026-10-13T15:03:55.226089+00:00",
+  "authority": "Owner clarification: no score while transport items are missing applies only to running Sonnet and Sol cells. Closed Luna retains its official result exactly as recorded and its original inconclusive counting rule.",
+  "official_luna_primary": "Unchanged; six transport-only requests remain inconclusive in the official closed result.",
+  "fee_only_reconciliation_accepted_usd": 0.001804,
+  "optional_post_close_recovery": {
+    "scope": "Six provider no-answer requests listed in luna-transport-census.json",
+    "timing": "Only after Sonnet and Sol finish",
+    "allocation": "Original work allocation, not new model caps",
+    "before_calls": "Separate freeze amendment required",
+    "reporting": "Add a second line labelled with recovered items beside the official line; never replace the official result."
+  },
+  "original_sha256": {
+    "calls.jsonl": "efbc92b5754f7626d51f99788ea5d818a636f122a9fb5e81927480e9e332a10a",
+    "retry-results.jsonl": "39a5976e11b892a11ba4f5ab016757bb764ca677eb6029d3cda6206700777632",
+    "scores.json": "774f5d679dc8f87c51ea5dce91e8851fb54c2e458b3d5777962473d694c707b3",
+    "REPORT.md": "47960b6b9412b5efc5e577cfa672fa28efb56226b802a1c3994b67cff7cdeedd"
+  },
+  "new_paid_calls_authorized_now": false
+}

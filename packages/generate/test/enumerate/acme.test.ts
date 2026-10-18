@@ -1,11 +1,18 @@
 import { readdir, readFile } from 'node:fs/promises';
-import { join, relative } from 'node:path';
-import { type LoadedSpec, loadSpecs, type Spec } from '@driftbench/core';
-import { compileSpace, isForbidden, loadSpaceMap, coverage as spaceCoverage } from '@driftbench/space';
+import { dirname, join, relative } from 'node:path';
+import { type LoadedSpec, loadSpecs, type Spec } from '@agent-nexus/driftbench-core';
+import {
+  compileSpace,
+  isForbidden,
+  loadSpaceMap,
+  coverage as spaceCoverage,
+} from '@agent-nexus/driftbench-space';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { type GenerateResult, generateSuite } from '../../src/enumerate/generate';
 import { loadApprovedMap } from '../../src/enumerate/load';
+import { worldCarried } from '../../src/seed/data-carrier';
 import type { PreparedMap } from '../../src/seed/map';
+import { buildTaskInputs } from '../../src/seed/tasks';
 import { ACME, ACME_MAP, ACME_PROPOSAL, userTexts } from './support';
 
 const GENERATED = `${ACME}generated`;
@@ -31,20 +38,35 @@ describe('generate on the approved Acme map', () => {
     prepared = loaded.prepared;
     const hand = await loadSpecs([`${ACME}specs`]);
     handWritten = hand.filter((entry): entry is LoadedSpec => entry.ok).map((entry) => entry.spec);
+    // The price-sheet task family builds its instances first, as `driftbench generate` does (8 by default).
+    const tasks = await buildTaskInputs(prepared, dirname(ACME_MAP), {
+      n: 8,
+      seed: 1,
+      // As `driftbench generate` names it: the folder beside the spec, relative to the spec file.
+      seedFrom: (id) => `./.seed-${id}`,
+    });
+    expect(tasks.refused).toEqual([]);
+    // The committed suite is written at strength 2 (`--t 2`); the default is 3.
     result = generateSuite(prepared, {
+      t: 2,
       mapPath: '../map/approved.yaml',
       baseline: { label: 'examples/acme/specs', specs: handWritten },
+      tasks: tasks.inputs,
     });
-  }, 60_000);
+  }, 180_000);
 
-  it('reads the 46 approved dimensions, the 59 constraints, the 51 approved phrases and the relations', () => {
-    expect(prepared.map.dimensions).toHaveLength(46);
-    expect(prepared.map.constraints).toHaveLength(59);
-    expect(prepared.phrases).toHaveLength(51);
+  it('reads the 51 approved dimensions, the 111 written constraints and those the relations imply, the 55 approved phrases and the relations', () => {
+    expect(prepared.map.dimensions).toHaveLength(51);
+    // 59 from the sources, 52 from the inventory (a behaviour belongs to its flows), and the pairs the
+    // relations rule out (extract/derive.ts).
+    const derived = prepared.map.constraints.filter((constraint) => constraint.reason.startsWith('derived'));
+    expect(prepared.map.constraints.length - derived.length).toBe(111);
+    expect(prepared.map.constraints).toHaveLength(463);
+    expect(prepared.phrases).toHaveLength(55);
     expect(prepared.relations.paths).toHaveLength(12);
     expect(prepared.relations.usesTools).toHaveLength(14);
     expect(prepared.relations.binds.size).toBe(12);
-    expect(prepared.relations.recoveries).toHaveLength(24);
+    expect(prepared.relations.recoveries).toHaveLength(26);
     expect(prepared.relations.replyLanguage).toBe('EN');
     expect(prepared.tools.map((tool) => tool.name)).toEqual([
       'catalog.search',
@@ -53,8 +75,12 @@ describe('generate on the approved Acme map', () => {
       'order.create',
       'notify_sales',
     ]);
-    // Every tool data dimension of the map is matched to its schema property.
-    const toolDimensions = prepared.map.dimensions.filter((dimension) => /\.(in|out)\./.test(dimension.id));
+    // Every tool data dimension of the map is matched to its schema property, except the unknown-key
+    // dimension of a closed input: it names no property.
+    const toolDimensions = prepared.map.dimensions.filter(
+      (dimension) => /\.(in|out)\./.test(dimension.id) && !dimension.id.endsWith('.unknown-key'),
+    );
+    expect(toolDimensions).toHaveLength(25);
     expect(prepared.toolDimensions.size).toBe(toolDimensions.length);
   });
 
@@ -62,13 +88,17 @@ describe('generate on the approved Acme map', () => {
     const committed = (await files(GENERATED)).map((path) => relative(GENERATED, path));
     expect(committed).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) {
-      expect(await readFile(join(GENERATED, file.path), 'utf8'), file.path).toBe(file.text);
+      // A workbook of a seed folder is compared by its bytes; every other file by its text.
+      if (file.bytes)
+        expect([...(await readFile(join(GENERATED, file.path)))], file.path).toEqual([...file.bytes]);
+      else expect(await readFile(join(GENERATED, file.path), 'utf8'), file.path).toBe(file.text);
     }
   });
 
   it('walks the stage graph along the approved paths, and names the edges no path takes', () => {
+    // 13 stages: the 11 of the conversations and the 2 of the price-sheet task, which no move reaches.
     expect(result.report.graph).toMatchObject({
-      stages: 11,
+      stages: 13,
       start: 'needs',
       edges: 23,
       covered: 18,
@@ -84,25 +114,17 @@ describe('generate on the approved Acme map', () => {
     expect(result.report.graph.unparsed).toEqual([]);
   });
 
-  it('covers every allowed pair of the 6 non-stage axes and applies all 34 constraints', () => {
+  it('covers every allowed pair of the 5 conversation axes and applies every constraint', () => {
     const twise = result.report.twise;
-    expect(twise.dimensions).toEqual([
-      'behaviour',
-      'deviation',
-      'channel',
-      'user_type',
-      'coverage_result',
-      'workspace_start',
-    ]);
+    // workspace_start is a task setting: the task families write its values, never the covering array.
+    expect(twise.dimensions).toEqual(['behaviour', 'deviation', 'channel', 'user_type', 'coverage_result']);
     expect(twise.covered).toBe(twise.allowed);
-    // By hand, the pairs of the 6 axes: behaviour 14 x (11 + 2 + 3 + 4 + 2) = 308, deviation 11 x (2 + 3 +
-    // 4 + 2) = 121, channel 2 x (3 + 4 + 2) = 18, user_type 3 x (4 + 2) = 18, coverage_result 4 x 2 = 8:
-    // 473, less the 3 behaviours forbidden on whatsapp and the 26 behaviour and user type pairs the map
-    // forbids: 444.
-    expect(twise.allowed).toBe(444);
-    // behaviour (14 values) x deviation (11 values): no pairwise array has fewer rows than 154.
-    expect(twise.rows).toBeGreaterThanOrEqual(154);
-    expect(result.report.constraints.applied).toBe(59);
+    // The pairs of the 5 axes that one path can hold together, after the written constraints and the ones
+    // the relations imply (coverage_result has `none` for a path that states no coverage).
+    expect(twise.allowed).toBe(356);
+    // Every row of the array is one t-wise spec.
+    expect(twise.rows).toBe(result.report.seeders.twise.specs);
+    expect(result.report.constraints.applied).toBe(463);
     const space = compileSpace(prepared.map);
     for (const spec of result.all.filter(
       (entry) => (entry.metadata as { generated: { seeder: string } }).generated.seeder === 'twise',
@@ -117,11 +139,21 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 168, incomplete: 100 });
+    expect(result.report.summary).toMatchObject({ complete: 437, incomplete: 75 });
   });
 
-  it('probes all 10 deviation classes, each user turn an approved phrase with its slots filled from the map', () => {
-    expect(result.report.deviation.probes.map((probe) => probe.class)).toHaveLength(10);
+  it('never walks a spec on a path of a flow its behaviours do not belong to', () => {
+    const flows = new Map((prepared.inventory?.flows ?? []).map((flow) => [flow.id, flow.behaviours ?? []]));
+    for (const spec of result.complete) {
+      const flow = (spec.tags ?? []).find((tag) => tag.startsWith('flow:'))?.slice('flow:'.length);
+      if (!flow) continue;
+      for (const behaviour of spec.covers ?? [])
+        expect(flows.get(flow), `${spec.id} ${behaviour}`).toContain(behaviour);
+    }
+  });
+
+  it('probes all 12 deviation classes, each user turn an approved phrase with its slots filled from the map', () => {
+    expect(result.report.deviation.probes.map((probe) => probe.class)).toHaveLength(12);
     const bound = new Set<string>();
     for (const slots of prepared.relations.binds.values())
       for (const value of Object.values(slots)) bound.add(value);
@@ -131,26 +163,50 @@ describe('generate on the approved Acme map', () => {
         .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
       return new RegExp(`^${parts.join('(.+)')}$`);
     });
-    for (const spec of result.complete) {
-      for (const text of userTexts(spec)) {
-        // Some approved phrase matches, every slot it holds filled with a value the map binds.
-        const filled = templates
-          .map((template) => template.exec(text))
-          .some((found) => found?.slice(1).every((value) => bound.has(value)) === true);
-        expect(filled, `${spec.id}: ${text}`).toBe(true);
+    // A task spec's instruction comes from its family's approved phrases, checked by the family.
+    const filled = (text: string) =>
+      templates
+        .map((template) => template.exec(text))
+        .some((found) => found?.slice(1).every((value) => bound.has(value)) === true);
+    let supplied = 0;
+    for (const spec of result.complete.filter((entry) => entry.kind !== 'task')) {
+      const texts = userTexts(spec);
+      // Some approved phrase matches, every slot it holds filled with a value the map binds.
+      for (const text of texts.filter((entry) => entry !== ''))
+        expect(filled(text), `${spec.id}: ${text}`).toBe(true);
+      // A class carried in the world says nothing in its turn: its approved text is a supplied file.
+      const silent = [
+        ...spec.blocks
+          .filter(
+            (block) =>
+              'injection' in block.when &&
+              worldCarried(block.when.injection.class) &&
+              block.when.injection.user === '',
+          )
+          .map((block) => block.given?.world),
+        ...(spec.perturbations ?? [])
+          .filter((entry) => worldCarried(entry.class) && entry.user === '')
+          .map((entry) => entry.world),
+      ];
+      expect(texts.filter((entry) => entry === '')).toHaveLength(silent.length);
+      for (const world of silent) {
+        supplied += 1;
+        expect(Object.values(world?.workspace?.files ?? {}).some(filled), spec.id).toBe(true);
       }
     }
+    expect(supplied).toBeGreaterThan(0);
   });
 
   it('gives each metamorphic family one cell and one Then: only the phrasing differs', () => {
     const family = (spec: Spec) =>
       (spec.metadata as { generated: { metamorphic?: { family: string } } }).generated.metamorphic?.family;
     const groups = new Map<string, Spec[]>();
-    for (const spec of result.all) {
+    // Phrasing families only: a context family varies a persona or a channel (its title says over).
+    for (const spec of result.all.filter((entry) => !(entry.title ?? '').includes(' over '))) {
       const name = family(spec);
       if (name) groups.set(name, [...(groups.get(name) ?? []), spec]);
     }
-    expect([...groups.keys()]).toHaveLength(6);
+    expect([...groups.keys()]).toHaveLength(7);
     const strip = (spec: Spec) => {
       const copy = JSON.parse(JSON.stringify(spec));
       copy.id = '';
@@ -184,7 +240,8 @@ describe('generate on the approved Acme map', () => {
   });
 
   it('lists the values with no approved phrase: the tool schema values and the data cases no path says', () => {
-    const gaps = new Set(result.report.no_phrase.map((gap) => gap.dimension));
+    const placeholders = result.report.no_phrase.filter((gap) => gap.blocks > 0);
+    const gaps = new Set(placeholders.map((gap) => gap.dimension));
     expect(gaps.has('stage_transition')).toBe(false);
     expect(gaps.has('coverage.check.out.found')).toBe(true);
     expect([...gaps].filter((dimension) => !/\.(in|out)\./.test(dimension)).sort()).toEqual([
@@ -194,12 +251,30 @@ describe('generate on the approved Acme map', () => {
       'retry_outcome',
       'tool_answer',
     ]);
-    expect(result.report.no_phrase).toHaveLength(67);
+    expect(placeholders).toHaveLength(72);
+  });
+
+  it('lists the approved phrase of the flow no path walks, which no conversation can say', () => {
+    expect(result.report.no_phrase.filter((gap) => gap.unsaid)).toEqual([
+      {
+        dimension: 'flow',
+        value: 'price-sheet',
+        blocks: 0,
+        specs: [],
+        unsaid: [
+          {
+            text: 'Build the price sheet from catalog.csv, one sheet per category.',
+            reasons: ['no approved path walks the flow price-sheet'],
+          },
+        ],
+      },
+    ]);
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
-    expect(result.complete).toHaveLength(168);
-    for (const spec of result.complete) {
+    expect(result.complete).toHaveLength(437);
+    // A task spec's Then comes from its family's oracle, not from a path: the task seeder is checked apart.
+    for (const spec of result.complete.filter((entry) => entry.kind !== 'task')) {
       const generated = (spec.metadata as { generated: { path?: string } }).generated;
       expect(
         prepared.relations.paths.map((path) => path.id),
@@ -217,7 +292,8 @@ describe('generate on the approved Acme map', () => {
 
   it('expects the reply language the map fixes, also after a message in another language', () => {
     let probes = 0;
-    for (const spec of result.complete) {
+    // A task spec states its language once, for the whole task.
+    for (const spec of result.complete.filter((entry) => entry.kind !== 'task')) {
       for (const block of spec.blocks) {
         expect(block.expect?.lang, spec.id).toBe('EN');
         if ('injection' in block.when && block.when.injection.class === 'D5_language_switch') probes += 1;
@@ -257,8 +333,22 @@ describe('generate on the approved Acme map', () => {
       const phrase = (generated.needs_phrase as unknown[] | undefined) ?? [];
       expect(why.length + phrase.length, spec.id).toBeGreaterThan(0);
     }
-    const reasons = result.report.no_then.flatMap((entry) => entry.reasons);
-    expect(reasons).toContain('no approved path belongs to a flow of B-013 (price-sheet)');
+    // The price-sheet task family starts from the catalog or from an existing workbook, one branch of its
+    // relation each: an allowed pair holds every value of the map.
+    expect(result.report.cover.unreachable).toEqual([]);
+  });
+
+  it('builds a scenario for each allowed pair the other seeders leave uncovered, and names why the rest cannot be', () => {
+    const cover = result.report.cover;
+    expect(cover.cells).toBe(8);
+    expect(cover.covered).toBe(8);
+    expect(cover.unbuilt).toEqual([]);
+    // Approved policy guards now distinguish opening recoveries from idle replies.
+    expect(result.report.coverage.complete.covered).toBe(708);
+    expect(result.report.coverage.allowed - result.report.coverage.complete.covered).toBe(
+      cover.unbuilt.length,
+    );
+    expect(result.report.coverage.allowed).toBe(708);
   });
 
   it('counts coverage on the axis map that extract map writes, as space coverage does', async () => {
@@ -267,8 +357,8 @@ describe('generate on the approved Acme map', () => {
     expect(prepared.axisMap.dimensions).toEqual(written.map.dimensions);
     expect(prepared.axisMap.constraints).toEqual(written.map.constraints);
     const coverage = result.report.coverage;
-    // The hand-written baseline: 164 of the 840 pairs the map allows.
-    expect(coverage.baseline).toMatchObject({ specs: 7, allowed: 840, covered: 164 });
+    // The hand-written baseline: 237 of the 708 pairs the map allows.
+    expect(coverage.baseline).toMatchObject({ specs: 7, allowed: 708, covered: 237 });
     expect(coverage.complete.covered).toBeGreaterThan(2 * (coverage.baseline?.covered ?? 0));
     const generated = await loadSpecs([GENERATED]);
     const counted = spaceCoverage(written.map, generated, { t: 2 });
@@ -282,6 +372,6 @@ describe('generate on the approved Acme map', () => {
     expect(loaded.ok).toBe(false);
     if (loaded.ok) return;
     expect(loaded.code).toBe('MAP_NOT_APPROVED');
-    expect(loaded.message).toContain('219 of 219 entries are not approved');
+    expect(loaded.message).toContain('291 of 291 entries are not approved');
   });
 });

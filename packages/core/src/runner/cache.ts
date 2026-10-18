@@ -3,7 +3,7 @@ import type { Store } from '../contracts/store';
 import type { TargetRef } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
 import type { Stimulus } from '../schema/spec';
-import { canonicalJson } from '../spec/hash';
+import { canonicalJson, sha256OfJsonWithList } from '../spec/hash';
 import { isPlainObject } from '../spec/normalize';
 
 /** Where the runner keeps observed blocks. A Store is one; tests pass a map. */
@@ -21,6 +21,12 @@ export type BlockKeyParts = {
   target: TargetRef;
   adapter: string;
   adapterVersion: string;
+  /** Adapter configuration fingerprint. Absent preserves every earlier cache key. */
+  adapterCacheIdentity?: string;
+  /** The suite the run belongs to, when it names one. Absent keeps the key every earlier cache used. */
+  suite?: string;
+  /** The agent version, when supplied. Absent preserves every earlier cache key. */
+  agentVersion?: string;
 };
 
 /**
@@ -28,7 +34,9 @@ export type BlockKeyParts = {
  * stimulus, the target and the adapter version, hashed whole (SHA-256 of the canonical JSON).
  */
 export function blockCacheKey(parts: BlockKeyParts): string {
-  return `block:${sha256(canonicalJson(parts))}`;
+  // The digest of the canonical JSON of `parts`, with the Given's prefix, the one part that grows with
+  // the run, hashed incrementally: each message of the history is read once.
+  return `block:${sha256OfJsonWithList((mark) => ({ ...parts, given: { ...parts.given, prefix: mark } }), parts.given.prefix)}`;
 }
 
 /** The cache key of one end-state read, taken after the block whose key is given. */

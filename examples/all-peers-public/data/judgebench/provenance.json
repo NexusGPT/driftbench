@@ -1,0 +1,20 @@
+{
+ "branch": "origin/research/ledger-jb",
+ "commit": "ec64677422d5018677429080cca98b8ce17c3a75",
+ "files": {
+  "pool": [
+   "examples/ledger-jb/data/pool.json",
+   "489c47a0404e7e0929b52ffbe3e253bfebc8d04fa1e0ddac2f3b7ccd089f5236"
+  ],
+  "recorded": [
+   "examples/ledger-jb/results/items-claude-haiku-5-5.json",
+   "7ead80bfcb7a245e0361f4b701aa03d285ae826d8f5438c49674fe2662fb5bf1"
+  ]
+ },
+ "recordedCheck": {
+  "driftbench": 240,
+  "promptfoo": 224
+ },
+ "items": 270,
+ "itemsSha256": "b96f333f5744af91da7130c2eb14dbabe735ed844447c6586767a583874d4eec"
+}

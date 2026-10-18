@@ -1,0 +1,35 @@
+{
+  "originalSha256": "88aff2a6800b3fb84a711ab08156753d818838635f2ebf728221b3d895117885",
+  "parts": [
+    {
+      "file": "part-0000.jsonl",
+      "bytes": 6291155,
+      "sha256": "d56f5f1f99bf653b2727e6f2bbafc93fd3e3155bdd9146c1739804eaaf5ff9e7"
+    },
+    {
+      "file": "part-0001.jsonl",
+      "bytes": 6283549,
+      "sha256": "d0a852a7edf265fd9ae5562b49804a7705b9045f4d090deec391d2478ca07950"
+    },
+    {
+      "file": "part-0002.jsonl",
+      "bytes": 6285258,
+      "sha256": "ea7f3de87d2c15dd790ce6c458962e95b4bcd1df7dd87ba41023dffbdee5955f"
+    },
+    {
+      "file": "part-0003.jsonl",
+      "bytes": 6291111,
+      "sha256": "2f8acc90a744fb9cf7b8944592566327711f26072b3f9a7ee4d4695bcad5f4ed"
+    },
+    {
+      "file": "part-0004.jsonl",
+      "bytes": 6287498,
+      "sha256": "a4a6f0c712395c2c2288d45e593e2e4aff7b972e0bc91a86f69ecea704866053"
+    },
+    {
+      "file": "part-0005.jsonl",
+      "bytes": 5086549,
+      "sha256": "8ddb4f91b930d0d40f75cd7e7b491e28946a4491ba2b6c27ef7af00c11ec4f3c"
+    }
+  ]
+}

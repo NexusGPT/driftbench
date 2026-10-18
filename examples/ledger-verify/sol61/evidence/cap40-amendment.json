@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-13T16:51:25.581114+00:00",
+  "beforePilot": true,
+  "beforeTEST": true,
+  "authorization": "Verify gpt-6.1-sol: cap raised to 40 USD including holds (36.20 projected). Run it after Sonnet, one cell at a time, same rules.",
+  "previousCapUsd": 25,
+  "capUsd": 40,
+  "projectionUsd": 36.1998895,
+  "sequence": "Sonnet finalizer complete, then fresh OpenAI ten healthy probes spaced 30 seconds apart, then Sol at concurrency two",
+  "returnedAnswersResent": false,
+  "priorCostGateSha256": "115c6295036bfa42ce0f17e75b2672849de2960120c3290383e8679319ee2d29",
+  "originalFiveResponsesRetained": true
+}

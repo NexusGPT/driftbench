@@ -1,0 +1,13 @@
+{
+  "id": "estate.setting.setting.settings.setting-permissions-defaultmode-is-default",
+  "planRow": "setting.setting.settings.setting-permissions-defaultmode-is-default",
+  "testType": "setting",
+  "atom": "setting.settings.setting-permissions-defaultmode-is-default",
+  "title": "Setting permissions.defaultMode is default",
+  "check": {
+    "kind": "setting",
+    "key": "permissions.defaultMode",
+    "value": "default"
+  },
+  "mapHash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10"
+}

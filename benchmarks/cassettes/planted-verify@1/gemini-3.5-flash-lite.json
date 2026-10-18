@@ -1,0 +1,1917 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "gemini-3.5-flash-lite",
+      "family": "google",
+      "cls": "system2",
+      "model": "gemini-3.5-flash-lite",
+      "cost": 10,
+      "settings": "{\"client\":\"google-generate-content\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"responseMimeType\":\"application/json\",\"reasoning\":\"medium\",\"reasoningTokens\":{\"low\":512,\"medium\":1024,\"high\":2048}}",
+      "dialect": "google-response-schema",
+      "reasoning": "medium"
+    }
+  ],
+  "entries": [
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "7de2b0566310",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly completes the sequence of opening brackets with the correct closing sequence in reverse order.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: ) } ] )\"}],\"met\":true}]}",
+      "cost_usd": 0.0015494
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2c87b10e1f37",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user input requests completing the sequence to close the parentheses/brackets properly: '( [ { ('. The correct closing sequence in reverse order should be ') } ] )'. The agent's response provides ') } ] ]', which incorrectly closes the final parenthesis with a bracket ']' instead of a parenthesis ')'. Therefore, it fails to satisfy the requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.0\",\n          \"quote\": \"Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( [ { (\"\n        },\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: ) } ] ]\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0019294000000000002
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "444e574c0e12",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The expected sum of two different marbles chosen uniformly at random from 10 through 19 is 29, which is correctly provided by the agent.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 29\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0021008000000000003
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "59ff61066d30",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two different marbles chosen uniformly at random from 10 marbles numbered 10 through 19. The mean of the marbles is 14.5, so the expected sum of two distinct marbles is 14.5 + 14.5 = 29. The agent incorrectly answers 30.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 30\"}],\"met\":false}]}",
+      "cost_usd": 0.0021683
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c2ca8a86fdd7",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly listed all prime factors of 13013 including repetitions in ascending order (7, 11, 13, 13).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 7, 11, 13, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.0012965
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d2799f7b7a27",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asked for all prime factors of 13013 including repetitions in ascending order. 13013 factors into 7, 11, 13, 13. The agent incorrectly lists 15 instead of the second 13.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 7, 11, 13, 15\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.001694
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "047e70fe47c4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly computes the total combinations and successful combinations for choosing two numbers with different tens digits from 10 to 39 inclusive, arriving at 20/29.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 20/29\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.002088
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "da1da5e56ae8",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent incorrectly calculated the probability as 2029/2900 instead of the correct 20/29 (which is 2000/2900), so the response does not correctly satisfy the user request.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 2029/2900\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0025867
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "fa683e805894",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly computed the final price as a percentage of the original price, represented as 1071/20% (which equals 53.55%).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 1071/20%\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0025312
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "05e6faf7d413",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent provides an incorrect mathematical calculation for the final price percentage (1091/20% instead of the correct 53.55%), thus failing to correctly and completely satisfy the objective requirements of the user request.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 1091/20%\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0014087000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c97c5a732b22",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the value of xy given 3^(x+y) = 9 and 9^(x-y) = 3, expressed as a fraction. Let's solve: 3^(x+y) = 3^2 implies x+y = 2. 9^(x-y) = (3^2)^(x-y) = 3^(2x-2y) = 3^1 implies 2x-2y = 1, so x-y = 1/2. Adding them: 2x = 2 + 1/2 = 5/2, so x = 5/4. Subtracting them: 2y = 2 - 1/2 = 3/2, so y = 3/4. Then xy = (5/4) * (3/4) = 15/16. The agent's response correctly states 'Final answer: 15/16', satisfying the objective requirements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 15/16\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0010260999999999998
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f2da523cd180",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the value of xy given 3^(x+y) = 9 and 9^(x-y) = 3, expressed as a fraction. Let's solve it: 3^(x+y) = 3^2 implies x+y = 2. 9^(x-y) = 3^2(x-y) = 3^1 implies 2x-2y = 1, so x-y = 1/2. Adding them: 2x = 5/2, so x = 5/4. Subtracting them: 2y = 3/2, so y = 3/4. Then xy = (5/4) * (3/4) = 15/16. The agent gave 19/16, which is incorrect.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 19/16\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0009410999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2b241ab2d087",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for the locus equation of a point equally distant from the point (2,0) and the line x=-2. The agent correctly calculated the equation as y^2 = 8x.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 8x\"}],\"met\":true}]}",
+      "cost_usd": 0.0012255
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c51675d8f841",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested the locus equation of a point equally distant from the point (2,0) and the line x=-2. The correct equation is y^2 = 8x, but the agent answered y^2 = 12x, which is incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 12x\"}],\"met\":false}]}",
+      "cost_usd": 0.0025833
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b6c681964710",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly determines A as diag(1/2, 1/3), A+I as diag(3/2, 4/3), (A+I)^2 as diag(9/4, 16/9), and its inverse as diag(4/9, 9/16), perfectly matching the user's requirements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(4/9,9/16)\"}],\"met\":true}]}",
+      "cost_usd": 0.0021346
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "8c8ed8db1a81",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the inverse of (A+I)^2 given A^(-1) = diag(2,3). Since A^(-1) = diag(2,3), A = diag(1/2, 1/3), A+I = diag(3/2, 4/3), and (A+I)^2 = diag(9/4, 16/9). Its inverse is diag(4/9, 9/16). The agent incorrectly calculates the first diagonal entry as 13/9 instead of 4/9.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(13/9,9/16)\"}],\"met\":false}]}",
+      "cost_usd": 0.0024024000000000003
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9e7be7f32fec",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks what color Nori0 is, noting that Nori0 is a rhino and no color rule is stated. The agent correctly responds that the color is not specified.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.0004655
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5c085a4587e4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user request asks for the color of Nori0, noting that Nori0 is a rhino and no color rule is stated. The agent incorrectly answers that Nori0 is yellow, failing to satisfy the objective requirements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.0012952
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "61c6d9c7037b",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly solved the system of equations (n=12, f=4, q=-2) and calculated b = (4/12)/(1/4) = 4/3 as a fraction, correctly satisfying all objective requirements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 4/3\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0021448
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "e1be48e7e45e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"Solving the equations gives n = 12, f = 4, and q = -2. Thus b = (4/12) / (1/4) = 4/3. The agent incorrectly provided 7/3.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 7/3\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0026748
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "083249eca34b",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested to complete the rest of the sequence and close the parentheses properly for the input '( [ { < <'. The agent correctly provided the matching closing symbols '> > } ] )' in reverse order.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: > > } ] )\"}],\"met\":true}]}",
+      "cost_usd": 0.0016978
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "723b9c36ff91",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested completing the sequence with proper bracket closure for '( [ { < <'. The correct closing sequence is '> > } ] )', but the agent provided '> > } ] ]', failing to properly close the round parenthesis '(' with a ')' at the end.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: > > } ] ]\"}],\"met\":false}]}",
+      "cost_usd": 0.0019878
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "34bf6dffc493",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculates the expected sum of two different marbles chosen uniformly at random from the 10 marbles numbered 3 through 12, arriving at the correct answer of 15.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 15\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0026405
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "8d3cd6c5f0e2",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent answers 16, but the correct expected sum of two marbles drawn uniformly at random from 3 through 12 is 15.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 16\"}],\"met\":false}]}",
+      "cost_usd": 0.0028905
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "65756311099d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The response correctly lists all prime factors of 3465, including repetitions, in ascending order.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 3, 3, 5, 7, 11\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013315
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "32354b49d750",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user requested all prime factors of 3465 including repetitions in ascending order. The correct prime factorization of 3465 is 3 * 3 * 5 * 7 * 11 (3, 3, 5, 7, 11). The agent incorrectly listed 13 instead of 11.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 3, 3, 5, 7, 13\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0016865
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "60dd8fc62f2d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculates the probability as 100/247.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 100/247\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0020561
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "55b8da6d0074",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent provides an incorrect probability of 10247/24700, whereas the correct probability for choosing 3 integers with different tens digits from 40 integers across 4 groups of 10 is 4000/9880, which simplifies to 100/247.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 10247/24700\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0029498000000000003
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5b1736261128",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculated the final price as a percentage of the original price (0.71 * 0.89 * 0.84 = 0.530796, which corresponds to 53.0796% or 132699/2500%).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 132699/2500%\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0025124
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "37c4383ec9d4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent provides an incorrect final percentage for the sequential price reductions (calculating 135199/2500% or 54.0796% instead of 132699/2500% or 53.0796%).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 135199/2500%\"}],\"met\":false}]}",
+      "cost_usd": 0.0016224000000000002
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "71c77cbf0676",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the value of xy given 3^(x+y) = 27 and 27^(x-y) = 3, expressed as a fraction. Solving the equations yields x + y = 3 and x - y = 1/3, so x = 5/3 and y = 4/3. Thus, xy = 20/9. The agent correctly provides 20/9.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 20/9\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0015289000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "e0e3f82d67d9",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user requested the value of xy given 3^(x+y) = 27 and 27^(x-y) = 3. Solving the equations gives x = 5/3 and y = 4/3, so xy = 20/9. The agent incorrectly answered 89/36.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 89/36\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0015317
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4343fbe1cc5c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user requested the locus equation of a moving point equally distant from the point (3,0) and the line x=-3. The correct equation for this parabola is y^2 = 12x, which the agent provides.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: y^2 = 12x\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013457999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "bbfaf1e397c2",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent incorrectly gives the locus equation as y^2 = 16x instead of y^2 = 12x (since distance from (x,y) to (3,0) equals distance to x = -3 gives (x-3)^2 + y^2 = (x+3)^2 -> y^2 = 12x).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 16x\"}],\"met\":false}]}",
+      "cost_usd": 0.0018533
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "663738853663",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested the inverse of (A+I)^2 given A^(-1) = diag(3,4). A = diag(1/3, 1/4), A+I = diag(4/3, 5/4), (A+I)^2 = diag(16/9, 25/16), and its inverse is diag(9/16, 16/25). The agent's final answer matches this correctly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(9/16,16/25)\"}],\"met\":true}]}",
+      "cost_usd": 0.0025951999999999998
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9117c28af6d9",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested the inverse of (A+I)^2 where A^(-1) = diag(3,4). A is diag(1/3, 1/4), A+I is diag(4/3, 5/4), (A+I)^2 is diag(16/9, 25/16), and its inverse is diag(9/16, 16/25). The agent incorrectly answered diag(25/16,16/25).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(25/16,16/25)\"}],\"met\":false}]}",
+      "cost_usd": 0.002623
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0f6a5cc37fd8",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked what color Nori1 is, given that Nori1 is a rhino and no color rule is stated. The agent correctly noted that the color is not specified.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.0004655
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f96ceb5b2b90",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user prompt specifies that Nori1 is a rhino and no color rule is stated, making Nori1's color unknown or unstated. The agent incorrectly answers that the color is yellow.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.0011877
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "aefce70cd17c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the value of b as a fraction given 3*n + 32 = 5*n, 0 = -4*f + 2*q + 30, f + 2*q = 0, and b = (f/n)/(1/14). Solving the equations gives n = 16, f = 15/4, and b = 105/32. The agent's final answer of 21/4 is incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 21/4\"}],\"met\":false}]}",
+      "cost_usd": 0.0029454
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4cd3bbe6b72c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent incorrectly computes the value of b as 25/4 instead of the correct value 105/32.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 25/4\"}],\"met\":false}]}",
+      "cost_usd": 0.0027779000000000002
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a02d448858ce",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly provides the proper closing sequence for the given brackets and symbols in the correct reverse order.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: ] > } ] } }\"}],\"met\":true}]}",
+      "cost_usd": 0.0015678
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6df7c5eae305",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent failed to close the brackets properly, using a closing parenthesis ')' instead of the required closing brace '}' for the opening brace '{'.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: ] > } ] } )\"}],\"met\":false}]}",
+      "cost_usd": 0.0014856
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c8d62cf6c84d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculates the expected sum of two different marbles chosen uniformly at random from 15 through 19, which is 34.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 34\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0017555
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "11c6b23c6b71",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the expected sum of two different marbles chosen uniformly at random from 5 marbles numbered 15 through 19. The marbles are 15, 16, 17, 18, 19. The expected value of one marble is (15+16+17+18+19)/5 = 17, so the expected sum of two marbles is 17 * 2 = 34. The agent incorrectly answers 35.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 35\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0019605
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "80645b26f1d4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user requested all prime factors of 55770, including repetitions, in ascending order. The prime factorization of 55770 is 2 * 3 * 5 * 11 * 13 * 13 = 55770. The agent correctly listed them in ascending order with repetitions.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 2, 3, 5, 11, 13, 13\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0016708
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b7d30a4f2bc7",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent's response lists 15, which is not a prime number, and misses the repetition of 13 (since 55770 factored completely is 2 * 3 * 5 * 11 * 13^2). Therefore, it does not correctly and completely satisfy the objective requirements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 2, 3, 5, 11, 13, 15\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0020008
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0468d190d156",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculated the probability that two different integers chosen uniformly from 10 through 59 inclusive have different tens digits, arriving at 40/49.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 40/49\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.001823
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2bcf8a4fe319",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the probability that 2 different integers chosen uniformly from 10 through 59 have different tens digits, which is 40/49 (or 4000/4900). The agent provides 4049/4900, which is mathematically incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 4049/4900\"}],\"met\":false}]}",
+      "cost_usd": 0.0036967
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d3e806226a44",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculates the final price as 52.5888%, expressed as 32868/625%, which accurately answers the user's math problem.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 32868/625%\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0016868
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "44b28005b05e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent incorrectly calculates the final price as 33493/625% (53.5888%), whereas the correct percentage is 52.5888% (72% * 0.88 * 0.83 = 52.5888%).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 33493/625%\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0030493
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4322b9520690",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly solved the system of equations (3^(x+y)=81 and 81^(x-y)=3) to find x=17/8 and y=15/8, and calculated their product xy as 255/64, expressed as a fraction as requested.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 255/64\"}],\"met\":true}]}",
+      "cost_usd": 0.001697
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2aa759172e86",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for xy given 3^(x+y) = 81 and 81^(x-y) = 3. Solving the equations gives x = 17/8 and y = 15/8, so xy = 255/64. The agent incorrectly answers 271/64.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 271/64\"}],\"met\":false}]}",
+      "cost_usd": 0.002312
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "04ddf493d008",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly found the locus equation of a point equidistant from the point (4,0) and the line x=-4, which is y^2 = 16x.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 16x\"}],\"met\":true}]}",
+      "cost_usd": 0.0012933
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b374aca86030",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent's answer y^2 = 20x is incorrect. The locus of a point equidistant from the point (4,0) and the line x = -4 is given by (x-4)^2 + y^2 = (x+4)^2, which simplifies to y^2 = 16x.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: y^2 = 20x\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0018958
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "586b30f16892",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly computed the inverse of (A+I)^2 given A^(-1) = diag(4,5). A = diag(1/4, 1/5), A+I = diag(5/4, 6/5), (A+I)^2 = diag(25/16, 36/25), and its inverse is diag(16/25, 25/36).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(16/25,25/36)\"}],\"met\":true}]}",
+      "cost_usd": 0.001933
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4c59119b5e6d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested the inverse of (A+I)^2 given A^(-1) = diag(4,5). Since A = diag(1/4, 1/5), A+I = diag(5/4, 6/5), its inverse is diag(4/5, 5/6), and squaring it gives diag(16/25, 25/36). The agent incorrectly answered diag(41/25,25/36).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(41/25,25/36)\"}],\"met\":false}]}",
+      "cost_usd": 0.002818
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "624c6f6c3131",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly determines and states that the color of Nori2 is not specified, satisfying the user's question based on the provided text.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.001318
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a215e9b59654",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asked for the color of Nori2, noting that no color rule is stated. The agent incorrectly claimed the color is yellow based on Luma2 being a yellow swan, failing to satisfy the objective requirements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: The color is yellow.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0011127
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2eca2c81fd9a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly computed n = 14, f = 5, and b = 65/14, satisfying all objective requirements of the user request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 65/14\"}],\"met\":true}]}",
+      "cost_usd": 0.0019932
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3f557906a629",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent calculated b incorrectly as 79/14 instead of 65/14 (since n=14, f=5, so (5/14)/(1/13) = 65/14). Therefore, the response does not correctly and completely satisfy the user request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 79/14\"}],\"met\":false}]}",
+      "cost_usd": 0.0023082
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a55e6127b0bc",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly completed the sequence by providing the correct closing brackets and parentheses in reverse order to properly close the input sequence [ [ ( [ < ( (.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: ) ) > ] ) ] ]\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0016812
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "7254b9e583b4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent incorrectly closes the first bracket '[' with a parenthesis ')' instead of a bracket ']', failing to close the sequence properly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: ) ) > ] ) ] )\"}],\"met\":false}]}",
+      "cost_usd": 0.0032587
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c2f69e12daec",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for the expected sum of two different marbles drawn uniformly at random from 9 marbles numbered 5 through 13. The marbles sum to 81, giving an average of 9 per marble. By linearity of expectation, the expected sum of two distinct marbles is 9 + 9 = 18. The agent correctly answered 18.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 18\"}],\"met\":true}]}",
+      "cost_usd": 0.0018602
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d8467b71ea43",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two different marbles chosen uniformly at random from 9 marbles numbered 5 through 13. The correct expected sum is 18, but the agent's final answer is 19.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 19\"}],\"met\":false}]}",
+      "cost_usd": 0.0025077
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4f24e6bc70b8",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested all prime factors of 858, including repetitions, in ascending order. 858 factored is 2 * 3 * 11 * 13. The agent correctly lists 2, 3, 11, 13 in ascending order.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 3, 11, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.0013131
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5d9ac871b991",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user requested all prime factors of 858, including repetitions, in ascending order. The correct prime factorization of 858 is 2 * 3 * 11 * 13, so the prime factors are 2, 3, 11, and 13. The agent incorrectly stated 15 instead of 13, failing to satisfy the objective requirements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 2, 3, 11, 15\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0015756
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "35b18b4525fb",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculated the probability that three different integers chosen uniformly from 10 through 69 inclusive each have a different tens digit, resulting in 1000/1711.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 1000/1711\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0026492
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "7e351bdad381",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent provides an incorrect probability of 101711/171100 instead of the correct 1000/1711.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 101711/171100\"}],\"met\":false}]}",
+      "cost_usd": 0.0029004
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "8099763b557e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly calculates the final price as a percentage of the original price (73% * 87% * 82% = 52.0782%, which equals 260391/5000%).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 260391/5000%\"}],\"met\":true}]}",
+      "cost_usd": 0.0016974000000000002
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ff0fce18aded",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n    \"id\": \"planted-verify\",\n    \"reasoning\": \"The agent calculates the final price percentage incorrectly as 265391/5000% (which equals 53.0782%) instead of 52.0782% (or 260391/5000%).\",\n    \"evidence\": [\n      {\n        \"source\": \"transcript.1\",\n        \"quote\": \"Final answer: 265391/5000%\"\n      }\n    ],\n    \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0023424
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "312480026969",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly solved the system of equations (3^(x+y)=243 and 243^(x-y)=3 yielding x=2.6, y=2.4) and computed xy = 6.24, expressing it as the fraction 156/25, which correctly and completely satisfies the user request.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 156/25\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0019000999999999998
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "7121e1a27736",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent's answer for xy is 649/100 (6.49), whereas the correct mathematical solution is 6.24 (or 156/25). Therefore, the response fails to correctly satisfy the objective requirements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 649/100\"}],\"met\":false}]}",
+      "cost_usd": 0.0013229000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0e008a04245f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly derived the locus equation of a point equally distant from the point (5,0) and the line x=-5, resulting in y^2 = 20x, which completely satisfies the user request.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: y^2 = 20x\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0012783
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "718465154311",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user request asks for the locus equation of a point equally distant from (5,0) and the line x=-5. The correct equation is y^2 = 20x, but the agent incorrectly responds with y^2 = 24x.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 24x\"}],\"met\":false}]}",
+      "cost_usd": 0.0022158
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "fb78c868dc17",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The response correctly calculates the inverse of (A+I)^2 as diag(25/36, 36/49) given A^(-1) = diag(5,6).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(25/36,36/49)\"}],\"met\":true}]}",
+      "cost_usd": 0.002618
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "20a42ba672cd",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n    \"id\": \"planted-verify\",\n    \"reasoning\": \"The user asks for the inverse of (A+I)^2 given A^{-1} = diag(5,6). A = diag(1/5, 1/6), so A+I = diag(6/5, 7/6), and (A+I)^2 = diag(36/25, 49/36). The inverse is diag(25/36, 36/49). The agent incorrectly answers diag(61/36,36/49), failing to correctly satisfy the user request.\",\n    \"evidence\": [\n      {\n        \"source\": \"transcript.1\",\n        \"quote\": \"Final answer: diag(61/36,36/49)\"\n      }\n    ],\n    \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.002528
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "323ed4d7a4b9",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for the color of Nori3, and noted that no color rule is stated. The agent correctly answered that the color is not specified.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.001518
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "50d5fb3dcdec",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user prompt explicitly states that no color rule is provided for Nori3, a rhino. The agent incorrectly answers that Nori3 is yellow.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.0019352
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "177be1bb370a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly solved the equations to find n=16 and f=8, then computed b = (f/n)/(1/2) = (8/16)/(1/2) = 1, correctly satisfying the user's request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 1\"}],\"met\":true}]}",
+      "cost_usd": 0.0021366999999999996
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "57347f1c6e42",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent incorrectly calculated the value of b as 2, whereas the correct value is 1 based on n=16, f=8, and b = (f/n)/(1/2) = (8/16)/(1/2) = 1.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2\"}],\"met\":false}]}",
+      "cost_usd": 0.0022191999999999997
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "8bff7d357e16",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested to complete the rest of the sequence and close the parentheses properly for the input '{ ( ( < < < ( {'. Reversing and closing each symbol in order gives '} ) > > > ) ) }', which matches the agent's final answer.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: } ) > > > ) ) }\"}],\"met\":true}]}",
+      "cost_usd": 0.001584
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "dadaab413928",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user input sequence starts with a left brace '{' at index 0, which requires a matching right brace '}' at the very end of the completion. The agent's response ends with a parenthesis ')' instead of a brace '}', failing to close the sequence properly.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.0\",\n          \"quote\": \"Input: { ( ( < < < ( {\"\n        },\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: } ) > > > ) ) )\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0030893
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "54bbe8998ced",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two different marbles chosen uniformly at random from 11 marbles numbered 7 through 17. The mean of the 11 numbers is 12, and by linearity of expectation, the expected sum of two distinct draws is 12 + 12 = 24. The agent correctly provides the final answer as 24.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 24\"}],\"met\":true}]}",
+      "cost_usd": 0.0027755
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3513eabdebd4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the expected sum of two different marbles chosen uniformly at random from 11 marbles numbered 7 through 17. The sum of the numbers is 132, the average is 12, and the expected sum of two distinct marbles is 24. The agent incorrectly answers 25.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 25\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0021555
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4504fc1a90aa",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested all prime factors of 10725 including repetitions in ascending order. 10725 factored is 3 * 5 * 5 * 11 * 13 = 10725. The agent correctly provided 3, 5, 5, 11, 13.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 5, 5, 11, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.0015045999999999998
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "fd902382ca7b",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested all prime factors of 10725 including repetitions in ascending order, but the agent included 15, which is not a prime number.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 5, 5, 11, 15\"}],\"met\":false}]}",
+      "cost_usd": 0.0018170999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9157fc6b2927",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly calculates the probability that two different integers chosen uniformly from 10 through 79 have a different tens digit as 20/23.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 20/23\"}],\"met\":true}]}",
+      "cost_usd": 0.001853
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "35da3a1d9470",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent calculates the probability as 2023/2300, but the correct probability is 20/23 (or 2100/2415), meaning the response fails to correctly satisfy the objective requirements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 2023/2300\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0026266999999999996
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0709c8bebc03",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculated the final price as a percentage of the original price through successive reductions (0.74 * 0.86 * 0.81 = 0.515484 or 51.5484%, which simplifies to the fraction 128871/2500%).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 128871/2500%\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0017449000000000002
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "7db497c3e2b5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent calculates the final price incorrectly as 131371/2500%, which equals 52.5484%, whereas the correct calculation (74% * 86% * 81%) yields 51.5484% (or 128871/2500%).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 131371/2500%\"}],\"met\":false}]}",
+      "cost_usd": 0.0021199
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "63996e26ce7d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asked for the value of xy given 3^(x+y) = 729 and 729^(x-y) = 3, expressed as a fraction. Solving the equations yields x+y = 6 and x-y = 1/6, giving x = 37/12 and y = 35/12, so xy = 1295/144. The agent correctly provided this exact answer.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 1295/144\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0017257000000000002
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "99a61ccc28f3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for xy given 3^(x+y) = 729 and 729^(x-y) = 3. Solving this yields x = 37/12 and y = 35/12, so xy = 1295/144. The agent answers 1331/144, which is incorrect.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 1331/144\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0017157000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d747b0448dc9",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly finds the locus equation of a point equally distant from the point (6,0) and the line x=-6 to be y^2 = 24x.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: y^2 = 24x\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013633
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d2de998f7a57",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent incorrectly solved the locus equation. The correct parabola with focus (6,0) and directrix x=-6 is y^2 = 24x, but the agent answered y^2 = 28x.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 28x\"}],\"met\":false}]}",
+      "cost_usd": 0.0018258
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3317de100ece",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculated the inverse of (A+I)^2 given that A^(-1) is diag(6,7), resulting in diag(36/49,49/64).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: diag(36/49,49/64)\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0017605
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "036844b1926e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent provided an incorrect inverse matrix diag(85/49,49/64) instead of the correct diagonal matrix diag(36/49,49/64).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: diag(85/49,49/64)\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.002183
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f830421c5429",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asked for the color of Nori4, noting that no color rule is stated. The agent correctly responded that the color is not specified.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: The color is not specified.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.000558
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c06d8bc57f95",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user request states that Nori4 is a rhino and no color rule is stated. The agent incorrectly answers that Nori4 is yellow, failing to satisfy the objective requirements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.0010502
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "11672857ee65",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the equations yields n = 18, f = 4, and q = -2. Computing b = (f/n)/(1/6) results in (4/18) / (1/6) = 4/3, which matches the agent's final answer correctly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 4/3\"}],\"met\":true}]}",
+      "cost_usd": 0.0028148
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b4b61ac035a2",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent answers 7/3, but solving the equations gives n = 18, f = 4, q = -2, which results in b = (4/18) / (1/6) = 4/3. Therefore, the response is incorrect and does not satisfy the requirements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 7/3\"}],\"met\":false}]}",
+      "cost_usd": 0.0025198
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "8e5f7ec80edc",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user requested to complete the rest of the sequence while closing the parentheses properly for the input '{ ( < ( < < { { ['. The agent correctly provided the reverse closing sequence '] } } > > ) > ) }'.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: ] } } > > ) > ) }\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0020621
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "dbffa86c9ec8",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent fails to close the opening delimiter '{' at the start of the sequence with the correct matching closing delimiter '}', instead incorrectly providing a closing parenthesis ')'.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: ] } } > > ) > ) )\"}],\"met\":false}]}",
+      "cost_usd": 0.0027224000000000003
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "279be13d21b0",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the expected sum of two different marbles chosen uniformly at random from 8 marbles numbered 11 through 18. The mean of these numbers is 14.5, so the expected sum of two marbles is 2 * 14.5 = 29. The agent correctly gives the final answer as 29.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 29\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0017105
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3b9af5f31bca",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the expected sum of two different marbles chosen uniformly at random from 8 marbles numbered 11 through 18. The mean of the 8 marbles is 14.5, and the expected sum of two distinct draws is 14.5 + 14.5 = 29. The agent incorrectly answers 30.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 30\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.003413
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9cc022357abb",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly lists all prime factors of 38025, including repetitions, in ascending order.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 3, 3, 5, 5, 13, 13\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013005
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a57f08b00508",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user requested all prime factors of 38025 including repetitions in ascending order. The correct prime factorization is 3, 3, 5, 5, 13, 13, but the agent incorrectly listed 15 instead of 13.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 3, 3, 5, 5, 13, 15\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0016605
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "e451340abfa6",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculated the probability that three different integers chosen uniformly from 10 through 89, inclusive, each have a different tens digit, arriving at the correct final answer of 700/1027.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 700/1027\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.004476399999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ff6340423bf9",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent's calculated probability of 71027/102700 is incorrect; the correct probability is 700/1027 (or 70000/102700), as there are 56,000 favorable outcomes out of 82,160 total possible outcomes.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 71027/102700\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0027126
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "52a8c9364bf5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the final price as a percentage of the original price after three reductions. 75% of original, reduced by 15% (giving 63.75%), then reduced by 20% (giving 51%). The agent correctly calculates and states 51%.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 51%\"}],\"met\":true}]}",
+      "cost_usd": 0.0023721999999999997
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "67283a6f0315",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent calculates the final price as 52%, but the correct mathematical calculation is 0.75 * 0.85 * 0.80 = 0.51, which is 51% of the original price.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 52%\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0015697
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "7237758294c3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the value of xy given 3^(x+y) = 2187 and 2187^(x-y) = 3, expressed as a fraction. Solving the equations yields x = 25/7 and y = 24/7, meaning xy is 600/49. The agent correctly provides this exact fraction.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 600/49\"}],\"met\":true}]}",
+      "cost_usd": 0.0025907
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f16d1417cc12",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"Let's solve the equations. 3^(x+y) = 2187 = 3^7, so x + y = 7. Also 2187^(x-y) = 3 -> (3^7)^(x-y) = 3^1 -> 7(x - y) = 1, so x - y = 1/7. Adding them: 2x = 7 + 1/7 = 50/7 -> x = 25/7. Subtracting them: 2y = 7 - 1/7 = 48/7 -> y = 24/7. Then xy = (25/7) * (24/7) = 600/49. The agent's answer is 2449/196, which is incorrect.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 2449/196\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0009687999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a990f8cd8758",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly derived the locus equation of the moving point equidistant from the point (7,0) and the line x=-7, which is y^2 = 28x.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: y^2 = 28x\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013158
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "92326e3c5191",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent incorrectly calculated the locus equation as y^2 = 32x instead of the correct y^2 = 28x.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 32x\"}],\"met\":false}]}",
+      "cost_usd": 0.0016007999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "53cd407e7943",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested the inverse of (A+I)^2 given A^(-1) = diag(7,8). Since A = diag(1/7, 1/8), A+I = diag(8/7, 9/8), (A+I)^2 = diag(64/49, 81/64), and its inverse is diag(49/64, 64/81). The agent's response correctly provides this exact diagonal matrix.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(49/64,64/81)\"}],\"met\":true}]}",
+      "cost_usd": 0.0021355
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6a49c114a2a7",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested the inverse of (A+I)^2 given A^(-1) = diag(7,8). The correct inverse is diag(49/64, 64/81), but the agent incorrectly answered diag(113/64,64/81).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(113/64,64/81)\"}],\"met\":false}]}",
+      "cost_usd": 0.0027108
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "443b09d64066",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for the color of Nori5, given that no color rule is stated. The agent correctly responded that the color is not specified.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.0009155
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "597ab1ad4b2b",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user prompt asks for the color of Nori5, a rhino, while noting that no color rule is stated. The agent incorrectly answers that the color is yellow, which fails to correctly and completely satisfy the objective requirements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.0011977000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6c05800d89aa",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly solved the equations (n=22, f=12, q=-6) and calculated b as 30/11, which accurately satisfies the user request.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 30/11\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.004235399999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "7bf5bbe8d578",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent incorrectly calculated the value of b as 41/11 instead of the correct value 30/11.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 41/11\"}],\"met\":false}]}",
+      "cost_usd": 0.0019854
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "760fcbccf7dd",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly completed the sequence in reverse order with matching closing brackets and parentheses, ensuring all delimiters are properly closed.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: } ) } ] ) > ) } ] }\"}],\"met\":true}]}",
+      "cost_usd": 0.0027927
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "260db6efd6b3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent fails to correctly close the first opening bracket '{' with a matching '}', instead using ')' at the end of the sequence.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: } ) } ] ) > ) } ] )\"}],\"met\":false}]}",
+      "cost_usd": 0.003553
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "38de398cfe8a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two different marbles drawn uniformly at random from 14 marbles numbered 12 through 25. The expected value of each draw is (12 + 25) / 2 = 18.5, so the expected sum of two distinct draws is 18.5 + 18.5 = 37. The agent's response correctly computes and states 37 as the final answer.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 37\"}],\"met\":true}]}",
+      "cost_usd": 0.0031083
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "070b719d2660",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the expected sum of two different marbles drawn uniformly at random from 14 marbles numbered 12 through 25. The mean of the 14 marbles is 18.5, making the expected sum of two marbles 37. The agent incorrectly answers 38.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 38\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0029233
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "eb269c55ebf0",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly lists all prime factors of 770 in ascending order.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 5, 7, 11\"}],\"met\":true}]}",
+      "cost_usd": 0.0010703
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "97569331c8aa",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 770 including repetitions in ascending order. The actual prime factors of 770 are 2, 5, 7, and 11, but the agent incorrectly listed 13 instead of 11.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 5, 7, 13\"}],\"met\":false}]}",
+      "cost_usd": 0.0024053
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "047e70fe47c4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly calculates the probability that two different integers chosen uniformly from 10 through 39 have a different tens digit as 20/29.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 20/29\"}],\"met\":true}]}",
+      "cost_usd": 0.001603
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "da1da5e56ae8",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent answers 2029/2900, but the correct probability is 20/29 (300 successful pairs out of 435 total pairs). Therefore, the response is incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2029/2900\"}],\"met\":false}]}",
+      "cost_usd": 0.0022917
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "fe4e5585e492",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly calculates the final price as a percentage of the original price, yielding 50.4336% which is expressed as the equivalent fraction 31521/625%.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 31521/625%\"}],\"met\":true}]}",
+      "cost_usd": 0.0018518
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f66b5d3dd13a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent calculated the final percentage incorrectly. The correct final percentage is 50.4336% (or 31521/625%), but the agent answered 32146/625% (which equals 51.4336%).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 32146/625%\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0026043000000000004
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9727cc157268",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for xy given 3^(x+y) = 6561 and 6561^(x-y) = 3. Let's solve: 6561 = 3^8. So x+y = 8. Also 6561^(x-y) = (3^8)^(x-y) = 3^(8(x-y)) = 3^1, so 8(x-y) = 1 => x-y = 1/8. Then x+y = 8 and x-y = 1/8. Adding them gives 2x = 65/8 => x = 65/16. Subtracting gives 2y = 63/8 => y = 63/16. Then xy = (65/16) * (63/16) = 4095 / 256. The agent's final answer is 4095/256, which is correct and satisfies the objective requirements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 4095/256\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0010788
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2af3b143ed40",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the value of xy given 3^(x+y) = 6561 and 6561^(x-y) = 3. Solving the equations gives x + y = 4 and 4(x - y) = 1, so x = 17/8 and y = 15/8, which means xy = 255/64. The agent incorrectly answers 4159/256, so the response does not satisfy the objective requirements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 4159/256\"}],\"met\":false}]}",
+      "cost_usd": 0.0018413
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c4aa1d62080d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly derives the locus equation of a point equidistant from the point (8,0) and the line x=-8 as y^2 = 32x.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 32x\"}],\"met\":true}]}",
+      "cost_usd": 0.0016558
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "1cbf9dfc0620",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asked for the locus equation of a point equally distant from the point (8,0) and the line x=-8. This describes a parabola with focus at (8,0) and directrix x=-8, whose equation is y^2 = 32x. The agent incorrectly provided y^2 = 36x.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: y^2 = 36x\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0018333
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ee02665ebe41",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly computes the inverse of (A+I)^2 as diag(64/81, 81/100) based on A^(-1) = diag(8, 9).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: diag(64/81,81/100)\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0020558
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d165f368b666",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The response fails to correctly calculate the inverse of (A+I)^2. Given A^{-1} = diag(8, 9), A = diag(1/8, 1/9), so A+I = diag(9/8, 10/9), (A+I)^2 = diag(81/64, 100/81), and its inverse is diag(64/81, 81/100). The agent incorrectly outputs diag(145/81,81/100).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: diag(145/81,81/100)\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0021736
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "8fcb7cb6a549",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the color of Nori6, noting that Nori6 is a rhino and no color rule is stated. The agent correctly responds that the color is not specified.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: The color is not specified.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0012505
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4e12d797c059",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user prompt explicitly states that Nori6 is a rhino and 'No color rule is stated.' The agent incorrectly answers that Nori6 is yellow.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: The color is yellow.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0014402
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0c5faa7c8315",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The math problem is correctly solved. Solving 3*n + 34 = 5*n yields n = 17. Solving -4*f + 2*q + 40 = 0 and f + 2*q = 0 yields f = 8 and q = -4. Then b = (f/n)/(1/7) = (8/17)/(1/7) = 56/17. The agent's response correctly gives 56/17.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 56/17\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0025404
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5bf550401c2e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"Let's solve the equations. 3*n + 34 = 5*n => 2*n = 34 => n = 17. Also 0 = -4*f + 2*q + 40 and f + 2*q = 0 => 2*q = -f. Substitute into first: -4*f - f + 40 = 0 => -5*f + 40 = 0 => f = 8. Then 2*q = -8 => q = -4. Now b = (f/n)/(1/7) = (8/17)/(1/7) = 56/17. The agent answered 73/17, which is incorrect.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 73/17\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0009104
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "578d8ed54f87",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly reverses and closes all the brackets, braces, parentheses, and angle brackets from the input sequence.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.0\",\n          \"quote\": \"Input: [ [ < [ ( { { [ ( ( [\"\n        },\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: ] ) ) ] } } ) ] > ] ]\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0028810999999999997
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "cf3e39d82558",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent's completion fails to correctly close the first opening bracket '[' (the 1st item in the input sequence) with its corresponding closing bracket ']', instead incorrectly using ')' as the final character.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.0\",\n          \"quote\": \"Input: [ [ < [ ( { { [ ( ( [\"\n        },\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: ] ) ) ] } } ) ] > ] )\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0034911
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0bc441059545",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the expected sum of two different marbles chosen uniformly at random from 12 marbles numbered 9 through 20. The marbles are 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20. The average of these 12 numbers is (9 + 20) / 2 = 14.5. Since we choose two different marbles, the expected sum is 2 * 14.5 = 29. The agent's final answer is 29, which correctly and completely satisfies the objective requirements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 29\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.000848
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4de881118a96",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The expected sum of two different marbles drawn from 9 through 20 is 29, but the agent answers 30.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 30\"}],\"met\":false}]}",
+      "cost_usd": 0.0028905
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "dc5acb2a59f0",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly lists all prime factors of 7623, including repetitions, in ascending order as 3, 3, 7, 11, 11.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 7, 11, 11\"}],\"met\":true}]}",
+      "cost_usd": 0.0013118
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4cef022ace89",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent incorrectly lists 13 instead of 11 as a prime factor; the correct prime factorization of 7623 including repetitions is 3, 3, 7, 11, 11, making the response incorrect and incomplete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 7, 11, 13\"}],\"met\":false}]}",
+      "cost_usd": 0.0017043
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "60dd8fc62f2d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly calculates the probability as 100/247, which matches the correct mathematical solution for choosing 3 different integers with different tens digits from the range 10 through 49 inclusive.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 100/247\"}],\"met\":true}]}",
+      "cost_usd": 0.0019436
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "55b8da6d0074",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent provided an incorrect probability of 10247/24700 instead of the correct value of 100/247.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 10247/24700\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0024223
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9dcc26c52268",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the final price of a shirt as a percentage of the original price after three reductions: 77% of original, then reduced by 17% (leaving 83%), then reduced by 22% (leaving 78%). Calculation: 1 * 0.77 * 0.83 * 0.78 = 0.49849248, which is 49.849248% or 49849248/1000000% or 6231156/125000%. The agent answered 249249/5000% (which equals 49.8498%). Let's check 249249 / 5000 = 49.8498. Wait, 0.77 * 0.83 * 0.78 = 0.49849248. The agent's answer is incorrect.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 249249/5000%\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0010899
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "1d1059da8010",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent incorrectly calculated the final percentage as 254249/5000% instead of the correct 249249/5000% (or 49.8498%).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 254249/5000%\"}],\"met\":false}]}",
+      "cost_usd": 0.0017999000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5be3847cf3c5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly solved the system of equations 3^(x+y) = 19683 (giving x+y = 9) and 19683^(x-y) = 3 (giving x-y = 1/9), finding x = 41/9 and y = 40/9, resulting in xy = 1640/81, which matches the final answer provided.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 1640/81\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0017365999999999998
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9484b530997c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the value of xy given 3^(x+y) = 19683 and 19683^(x-y) = 3. Solving the equations yields x = 41/9 and y = 40/9, meaning xy = 1640/81. The agent incorrectly answers 6641/324.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 6641/324\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0019669
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "118b9cd7312d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly derived the locus equation for a point equally distant from the point (9,0) and the line x=-9 as y^2 = 36x, satisfying the user's request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 36x\"}],\"met\":true}]}",
+      "cost_usd": 0.0015632999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "1463d8d246fb",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user requested the locus equation of a moving point equally distant from the point (9,0) and the line x=-9. The correct equation is y^2 = 36x, but the agent incorrectly answered y^2 = 40x. Therefore, the response does not correctly and completely satisfy the objective requirements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 40x\"}],\"met\":false}]}",
+      "cost_usd": 0.0018507999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6f39bf8f5343",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly calculates A as diag(1/9, 1/10), then A+I as diag(10/9, 11/10), (A+I)^2 as diag(100/81, 121/100), and its inverse as diag(81/100, 100/121), which matches the agent's response.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(81/100,100/121)\"}],\"met\":true}]}",
+      "cost_usd": 0.0017117
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5995145244c3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent incorrectly computes the inverse of (A+I)^2 as diag(181/100,100/121) instead of the correct diag(81/100,100/121).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(181/100,100/121)\"}],\"met\":false}]}",
+      "cost_usd": 0.003227
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "07a082d591e7",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the color of Nori7 given that Nori7 is a rhino and no color rule is stated. The agent correctly answers that the color is not specified.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: The color is not specified.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.000963
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "638101416055",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user request notes that no color rule is stated for Nori7. The agent incorrectly answers that Nori7 is yellow.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.0015027
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6c3ff717a195",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving 3*n + 46 = 5*n gives n = 23. Solving 0 = -4*f + 2*q + 50 and f + 2*q = 0 gives f = 10 and q = -5. Then b = (10/23)/(1/2) = 20/23. The agent's response correctly gives 20/23 as a fraction.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 20/23\"}],\"met\":true}]}",
+      "cost_usd": 0.0021854
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "58f61f3b57ef",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent calculated an incorrect value for b. Solving the equations gives n = 23, f = 10, and b = 20/23, but the agent's final answer is 43/23.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 43/23\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0026904
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "7e4c761a2084",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly completes the sequence by providing the proper closing brackets and parentheses in the exact reverse order of the input sequence, satisfying all objective requirements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: > > ] ) ) > } ) ] ) > ]\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.003542
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "21d05c1e485e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent's final answer fails to close the first element of the input sequence properly. The input starts with '[', which requires ']' as its corresponding closing bracket, but the agent's sequence ends with ')' instead.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.0\",\n          \"quote\": \"Input: [ < ( [ ( { < ( ( [ < <\"\n        },\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: > > ] ) ) > } ) ] ) > )\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.003117
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d565d5065899",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The 13 marbles are numbered 17 through 29, with an average of (17+29)/2 = 23. The expected sum of two different marbles drawn uniformly at random is twice the average, which is 2 * 23 = 46. The agent's final answer correctly states 46.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 46\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0015333
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "97f87d24e96f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent's answer is 47, but the correct expected sum of two different marbles drawn uniformly at random from 13 marbles numbered 17 through 29 is 46.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 47\"}],\"met\":false}]}",
+      "cost_usd": 0.0040358
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9fa73524a3a0",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly listed all prime factors of 53235, including repetitions, in ascending order (3, 3, 5, 7, 13, 13).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 5, 7, 13, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.0014205
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "64d81d12338a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent incorrectly includes 15 instead of 13, and 15 is not a prime number. Therefore, the response does not correctly and completely satisfy the objective requirements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 5, 7, 13, 15\"}],\"met\":false}]}",
+      "cost_usd": 0.0017655
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0468d190d156",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly calculates the probability that two different integers chosen uniformly from 10 through 59 inclusive have different tens digits, arriving at 40/49.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 40/49\"}],\"met\":true}]}",
+      "cost_usd": 0.001913
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2bcf8a4fe319",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the probability that 2 different integers chosen uniformly from 10 through 59, inclusive, each have a different tens digit. The correct probability is 40/49, but the agent incorrectly responds with 4049/4900.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 4049/4900\"}],\"met\":false}]}",
+      "cost_usd": 0.0025042
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "586ab3497431",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculated the final price as a percentage of the original price. 0.78 * 0.82 * 0.77 = 0.492492, which corresponds to 49.2492% or 123123/2500%.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 123123/2500%\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0018449
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ef8966e6be7b",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the final price as a percentage of the original price after three successive reductions (78% of original, then reduced by 18%, then by 23%). Original = 100%. After 78%, price is 0.78. Reduced by 18% means multiplied by (1 - 0.18) = 0.82. 0.78 * 0.82 = 0.6396. Then reduced by 23% means multiplied by (1 - 0.23) = 0.77. 0.6396 * 0.77 = 0.492492, which is 49.2492% or 123123/250000. The agent answers 125623/2500%, which is incorrect.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 125623/2500%\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0010073999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0ec74814ba67",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly calculates xy and expresses it as the fraction 9999/400.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 9999/400\"}],\"met\":true}]}",
+      "cost_usd": 0.0022794
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "14b998db08fb",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user asks for the value of xy expressed as a fraction given 3^(x+y) = 59049 and 59049^(x-y) = 3. Solving the equations yields x = 5.05 and y = 4.95, so xy = 24.9975, which as a fraction is 9999/400. The agent incorrectly answers 10099/400, failing to satisfy the requirement correctly.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 10099/400\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0025672
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c88341415525",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus equation of a moving point (x,y) equally distant from the point (10,0) and the line x=-10. The distance equation is (x-10)^2 + y^2 = (x+10)^2, which simplifies to y^2 = 40x. The agent's response correctly provides this equation.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 40x\"}],\"met\":true}]}",
+      "cost_usd": 0.0023064
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "84909614baf7",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The moving point is equally distant from the point (10,0) and the line x=-10. Using the distance formula, sqrt((x-10)^2 + y^2) = |x + 10|, squaring both sides gives (x-10)^2 + y^2 = (x+10)^2, which simplifies to y^2 = 40x. The agent incorrectly answers y^2 = 44x, thus failing to satisfy the objective requirements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 44x\"}],\"met\":false}]}",
+      "cost_usd": 0.0017664
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f86e20630a7c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly calculated the inverse of (A+I)^2 as diag(100/121, 121/144) given A^(-1) = diag(10, 11).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(100/121,121/144)\"}],\"met\":true}]}",
+      "cost_usd": 0.0024173000000000003
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "904d4c29ca20",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for the inverse of (A+I)^2 given A^(-1) = diag(10, 11). A = diag(1/10, 1/11), A+I = diag(11/10, 12/11), (A+I)^2 = diag(121/100, 144/121), and its inverse is diag(100/121, 121/144). The agent incorrectly provided diag(221/121,121/144).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(221/121,121/144)\"}],\"met\":false}]}",
+      "cost_usd": 0.0028023
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3fc0939c8364",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the color of Nori8, noting that no color rule is stated. The agent correctly responds that the color is not specified.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.0012105
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f861255a3958",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user specified that no color rule is stated for Nori8, but the agent incorrectly stated that the color is yellow.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.0011577
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "53beeabaecb3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly calculates n = 13, f = 4, and q = -2 from the equations, then computes b = (4/13) / (1/3) = 12/13, which matches the final answer provided.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 12/13\"}],\"met\":true}]}",
+      "cost_usd": 0.0014779
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9d14f6f1b8f2",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"Solving the equations gives n = 13, f = 4, and q = -2. Then b = (4/13) / (1/3) = 12/13. The agent incorrectly answers 25/13, failing to satisfy the objective requirements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 25/13\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0024229
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "04a98699a2c8",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user request asks to complete the rest of the sequence, making sure that parentheses are closed properly, for the input: ( ( < < < [ < [ ( [ < [ {. The agent provides the matching closing symbols in reverse order: } ] > ] ) ] > > > ) ).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.0\",\n          \"quote\": \"Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( ( < < < [ < [ ( [ < [ {\"\n        },\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: } ] > ] ) ] > > > ) )\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0007823
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "525292800caf",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent's response provides 11 closing symbols, but the input sequence contains 13 opening symbols, meaning the completion is incorrect and incomplete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: } ] > ] ) ] > > > ) ]\"}],\"met\":false}]}",
+      "cost_usd": 0.0036673
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d467b460e8c5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user requests the expected sum of two different marbles chosen randomly from 8 marbles numbered 20 through 27. The average of the numbers 20 to 27 is 23.5. By linearity of expectation, the expected sum of two distinct marbles is 23.5 * 2 = 47. The agent's response correctly gives 47.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 47\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.002078
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9620906df49c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The marbles are 20 through 27, giving a mean of 23.5. The expected sum of two different marbles drawn uniformly at random is 23.5 + 23.5 = 47, but the agent's final answer is 48, which is incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 48\"}],\"met\":false}]}",
+      "cost_usd": 0.0022205
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "cbe6e56caf23",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly listed all prime factors of 2002 in ascending order as 2, 7, 11, 13.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 7, 11, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.0011459
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0573d4dc16f9",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The user requested all prime factors of 2002 in ascending order, including repetitions. The prime factorization of 2002 is 2 * 7 * 11 * 13, meaning the prime factors are 2, 7, 11, and 13. The agent incorrectly lists 15 instead of 13, failing to satisfy the objective requirements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.0\",\n          \"quote\": \"List all prime factors of 2002, including repetitions, in ascending order.\"\n        },\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 2, 7, 11, 15\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0020259
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "35b18b4525fb",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The agent correctly calculates the probability that 3 different integers chosen uniformly from 10 through 69 each have a different tens digit as 1000/1711.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 1000/1711\"}],\"met\":true}]}",
+      "cost_usd": 0.0027616999999999997
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "7e351bdad381",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the probability that 3 different integers chosen uniformly from 10 through 69 each have a different tens digit. The correct probability is 1000/1711, but the agent's final answer is 101711/171100, which is incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 101711/171100\"}],\"met\":false}]}",
+      "cost_usd": 0.0037679000000000002
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6b140ce5c6ae",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent correctly calculated the final price as a percentage of the original price step by step (0.79 * 0.81 * 0.76 = 0.486324, or 48.6324%), which is correctly expressed as the fraction 121581/2500%.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 121581/2500%\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0023024
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c9472a3b94b5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-verify\",\n      \"reasoning\": \"The agent provides an incorrect calculation for the final price percentage (124081/2500% or 49.6324%) instead of the correct value (121581/2500% or 48.6324%).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Final answer: 124081/2500%\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0027624
+    }
+  ]
+}

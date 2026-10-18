@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-13T08:43:36.039Z",
+  "items": 102,
+  "identicalVerdicts": 102,
+  "newCalls": 0,
+  "replayed": 471,
+  "originalFees": 1.0157427700000001,
+  "replayFees": 1.0157427700000004,
+  "sourceHead": "f13242f29ad0ced947907a84ffbb19abaa32f190",
+  "scope": "Historical replay only, not a new measured cell",
+  "status": "PASS"
+}

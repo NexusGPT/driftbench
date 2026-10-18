@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/vitest",
+  "name": "@agent-nexus/driftbench-vitest",
   "version": "0.1.0",
   "description": "Run a driftbench spec inside a vitest suite: describeSpec(path, target) registers one test per block, with the evidence of each failing verdict.",
   "keywords": [
@@ -20,7 +20,7 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/vitest"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -34,15 +34,17 @@
     }
   },
   "files": [
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
     "dist"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22 --external vitest"
   },
   "dependencies": {
-    "@driftbench/checks": "workspace:*",
-    "@driftbench/core": "workspace:*",
-    "@driftbench/users": "workspace:*"
+    "@agent-nexus/driftbench-checks": "workspace:*",
+    "@agent-nexus/driftbench-core": "workspace:*",
+    "@agent-nexus/driftbench-users": "workspace:*"
   },
   "peerDependencies": {
     "vitest": ">=3"

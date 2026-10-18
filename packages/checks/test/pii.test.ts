@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { pii } from '../src/checks/pii';
+import { createPiiCheck, pii } from '../src/checks/pii';
+import { defaultChecks } from '../src/defaults';
 import { isValidIban, isValidNationalNumber, redact, scanPii } from '../src/support/pii';
 import { acme } from './support/acme';
 import { context, failing, observed, outcomes, run, verdict } from './support/context';
@@ -80,5 +81,64 @@ describe('pii', () => {
 
   it('does not apply to a block with no visible text', () => {
     expect(pii.applies(context(coverage, 3, observed('')))).toBe(false);
+  });
+});
+
+describe('D13: the owner allow-list', () => {
+  const OTHER_EMAIL = ['sam.rivera', 'mailhost.dev'].join('@');
+  const text = `Sent from ${PERSONAL_EMAIL} to ${OTHER_EMAIL}, call ${BELGIAN_MOBILE}.`;
+
+  it('is empty by default: the owner address still fails', async () => {
+    const verdicts = await run(pii, context(coverage, 3, observed(text)));
+    expect(failing(verdicts)).toEqual(['pii.phone', 'pii.email']);
+  });
+
+  it('leaves out exactly the owner values, and still flags a third party at the same domain', async () => {
+    const check = createPiiCheck({ owner: [PERSONAL_EMAIL.toUpperCase(), BELGIAN_MOBILE.replace(/ /g, '')] });
+    const verdicts = await run(check, context(coverage, 3, observed(text)));
+    expect(failing(verdicts)).toEqual(['pii.email']);
+    const email = verdict(verdicts, 'pii.email');
+    expect(email?.evidence).toContain('1 email address in the visible text');
+    expect(email?.evidence).toContain('1 owner email address left out');
+    expect(email?.evidence).not.toContain(PERSONAL_EMAIL);
+    expect(verdict(verdicts, 'pii.phone')?.evidence).toBe(
+      'no phone number in the visible text; 1 owner phone number left out',
+    );
+  });
+
+  it('never matches a domain or a part of a value', async () => {
+    const check = createPiiCheck({ owner: ['mailhost.dev', '@mailhost.dev', 'lee.morgan', '470'] });
+    const verdicts = await run(check, context(coverage, 3, observed(text)));
+    expect(failing(verdicts)).toEqual(['pii.phone', 'pii.email']);
+  });
+
+  it('defaultChecks passes the owner list to the pii check', async () => {
+    const check = defaultChecks({ piiOwner: [PERSONAL_EMAIL] }).find((entry) => entry.name === 'pii');
+    const verdicts = await run(
+      check as typeof pii,
+      context(coverage, 3, observed(`Write to ${PERSONAL_EMAIL}.`)),
+    );
+    expect(failing(verdicts)).toEqual([]);
+  });
+});
+
+describe('the reserved-domain exclusion is an option, on by default', () => {
+  it('excludes example.org addresses by default, and finds them when the option is off', async () => {
+    const { scanPii } = await import('../src/support/pii');
+    expect(scanPii('mail marie@example.org now')).toEqual([]);
+    expect(scanPii('mail marie@example.org now', { reservedDomains: 'include' }).map((f) => f.kind)).toEqual([
+      'email',
+    ]);
+  });
+
+  it('keeps reserved domains excluded by default and counts them when the check is told to include them', async () => {
+    const text = 'Please write to marie@example.org today.';
+    const byDefault = await run(createPiiCheck(), context(coverage, 3, observed(text)));
+    expect(failing(byDefault)).toEqual([]);
+    const included = await run(
+      createPiiCheck({ reservedDomains: 'include' }),
+      context(coverage, 3, observed(text)),
+    );
+    expect(failing(included)).toEqual(['pii.email']);
   });
 });

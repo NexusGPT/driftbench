@@ -1,0 +1,502 @@
+[
+  {
+    "id": "E065",
+    "label": "invented",
+    "reply": "Acme Air 5G has a five year price lock."
+  },
+  {
+    "id": "E026",
+    "label": "grounded",
+    "reply": "Your reference is LEAD-10C86C."
+  },
+  {
+    "id": "E063",
+    "label": "invented",
+    "reply": "Acme Mobile M is $25 a month, with a $10 loyalty discount."
+  },
+  {
+    "id": "E083",
+    "label": "invented",
+    "reply": "Acme Mobile M is $25 a month, with a $10 loyalty discount."
+  },
+  {
+    "id": "E042",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is $60 a month at 14 Harbor Road."
+  },
+  {
+    "id": "E007",
+    "label": "grounded",
+    "reply": "Acme Air 5G is up to 200 Mbps at 88 Summit Avenue for $35 a month."
+  },
+  {
+    "id": "E071",
+    "label": "invented",
+    "reply": "Acme Mobile L comes with a 2 Gbps line."
+  },
+  {
+    "id": "E002",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E036",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E008",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is $60 a month at 14 Harbor Road."
+  },
+  {
+    "id": "E086",
+    "label": "invented",
+    "reply": "The fibre plan includes a free router for life."
+  },
+  {
+    "id": "E030",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is $60 a month at 14 Harbor Road."
+  },
+  {
+    "id": "E053",
+    "label": "invented",
+    "reply": "Acme Mobile M is 19 USD a month for the first six months."
+  },
+  {
+    "id": "E009",
+    "label": "grounded",
+    "reply": "Acme Mobile M gives 40 GB for $25 a month."
+  },
+  {
+    "id": "E059",
+    "label": "invented",
+    "reply": "Acme Air 5G has a five year price lock."
+  },
+  {
+    "id": "E096",
+    "label": "invented",
+    "reply": "Acme Fiber 1000 includes a free Wi-Fi 6 router for life."
+  },
+  {
+    "id": "E025",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is $60 a month at 14 Harbor Road."
+  },
+  {
+    "id": "E032",
+    "label": "grounded",
+    "reply": "Acme Mobile L is unlimited data at $35 a month."
+  },
+  {
+    "id": "E013",
+    "label": "grounded",
+    "reply": "Acme Air 5G is up to 200 Mbps at 88 Summit Avenue for $35 a month."
+  },
+  {
+    "id": "E034",
+    "label": "grounded",
+    "reply": "Acme Mobile L is unlimited data at $35 a month."
+  },
+  {
+    "id": "E094",
+    "label": "invented",
+    "reply": "Acme Mobile L gives 500 GB of data for $35 a month."
+  },
+  {
+    "id": "E039",
+    "label": "grounded",
+    "reply": "Acme Mobile M gives 40 GB for $25 a month."
+  },
+  {
+    "id": "E095",
+    "label": "invented",
+    "reply": "Acme Mobile M is $25 a month, with a $10 loyalty discount."
+  },
+  {
+    "id": "E055",
+    "label": "invented",
+    "reply": "Acme Mobile M is $25 a month, with a $10 loyalty discount."
+  },
+  {
+    "id": "E052",
+    "label": "invented",
+    "reply": "Acme Mobile L gives 500 GB of data for $35 a month."
+  },
+  {
+    "id": "E037",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E070",
+    "label": "invented",
+    "reply": "Your reference is LEAD-99Z999."
+  },
+  {
+    "id": "E005",
+    "label": "grounded",
+    "reply": "Your reference is LEAD-10C86C."
+  },
+  {
+    "id": "E098",
+    "label": "invented",
+    "reply": "The fibre plan includes a free router for life."
+  },
+  {
+    "id": "E028",
+    "label": "grounded",
+    "reply": "Acme Mobile L is unlimited data at $35 a month."
+  },
+  {
+    "id": "E074",
+    "label": "invented",
+    "reply": "Your reference is LEAD-99Z999."
+  },
+  {
+    "id": "E049",
+    "label": "grounded",
+    "reply": "Acme Mobile M gives 40 GB for $25 a month."
+  },
+  {
+    "id": "E031",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is $60 a month at 14 Harbor Road."
+  },
+  {
+    "id": "E012",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E035",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is $60 a month at 14 Harbor Road."
+  },
+  {
+    "id": "E018",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E092",
+    "label": "invented",
+    "reply": "Acme Mobile M is 19 USD a month for the first six months."
+  },
+  {
+    "id": "E046",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E050",
+    "label": "invented",
+    "reply": "Acme Mobile M is 19 USD a month for the first six months."
+  },
+  {
+    "id": "E058",
+    "label": "invented",
+    "reply": "Your reference is LEAD-99Z999."
+  },
+  {
+    "id": "E056",
+    "label": "invented",
+    "reply": "Acme Fiber 1000 includes a free Wi-Fi 6 router for life."
+  },
+  {
+    "id": "E084",
+    "label": "invented",
+    "reply": "Acme Air 5G has a five year price lock."
+  },
+  {
+    "id": "E067",
+    "label": "invented",
+    "reply": "Acme Fiber 1000 is $45 a month at 14 Harbor Road."
+  },
+  {
+    "id": "E081",
+    "label": "invented",
+    "reply": "Your order ORD-649940 is placed."
+  },
+  {
+    "id": "E080",
+    "label": "invented",
+    "reply": "Your reference is LEAD-99Z999."
+  },
+  {
+    "id": "E001",
+    "label": "grounded",
+    "reply": "Your reference is LEAD-10C86C."
+  },
+  {
+    "id": "E048",
+    "label": "grounded",
+    "reply": "Your reference is LEAD-10C86C."
+  },
+  {
+    "id": "E089",
+    "label": "invented",
+    "reply": "Acme Mobile L gives 500 GB of data for $35 a month."
+  },
+  {
+    "id": "E029",
+    "label": "grounded",
+    "reply": "Your reference is LEAD-10C86C."
+  },
+  {
+    "id": "E000",
+    "label": "grounded",
+    "reply": "Acme Mobile M gives 40 GB for $25 a month."
+  },
+  {
+    "id": "E085",
+    "label": "invented",
+    "reply": "Acme Mobile L gives 500 GB of data for $35 a month."
+  },
+  {
+    "id": "E068",
+    "label": "invented",
+    "reply": "The fibre plan includes a free router for life."
+  },
+  {
+    "id": "E051",
+    "label": "invented",
+    "reply": "Acme Mobile L comes with a 2 Gbps line."
+  },
+  {
+    "id": "E076",
+    "label": "invented",
+    "reply": "Acme Fiber 1000 includes a free Wi-Fi 6 router for life."
+  },
+  {
+    "id": "E022",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is $60 a month at 14 Harbor Road."
+  },
+  {
+    "id": "E064",
+    "label": "invented",
+    "reply": "Acme Mobile M is 19 USD a month for the first six months."
+  },
+  {
+    "id": "E057",
+    "label": "invented",
+    "reply": "Your order ORD-241257 is placed."
+  },
+  {
+    "id": "E093",
+    "label": "invented",
+    "reply": "Acme Mobile M is $25 a month, with a $10 loyalty discount."
+  },
+  {
+    "id": "E024",
+    "label": "grounded",
+    "reply": "Acme Air 5G is up to 200 Mbps at 88 Summit Avenue for $35 a month."
+  },
+  {
+    "id": "E043",
+    "label": "grounded",
+    "reply": "Acme Mobile M gives 40 GB for $25 a month."
+  },
+  {
+    "id": "E038",
+    "label": "grounded",
+    "reply": "Acme Mobile L is unlimited data at $35 a month."
+  },
+  {
+    "id": "E062",
+    "label": "invented",
+    "reply": "Your reference is LEAD-99Z999."
+  },
+  {
+    "id": "E019",
+    "label": "grounded",
+    "reply": "Acme Mobile L is unlimited data at $35 a month."
+  },
+  {
+    "id": "E016",
+    "label": "grounded",
+    "reply": "Acme Mobile L is unlimited data at $35 a month."
+  },
+  {
+    "id": "E033",
+    "label": "grounded",
+    "reply": "Acme Mobile L is unlimited data at $35 a month."
+  },
+  {
+    "id": "E066",
+    "label": "invented",
+    "reply": "Acme Mobile L gives 500 GB of data for $35 a month."
+  },
+  {
+    "id": "E091",
+    "label": "invented",
+    "reply": "Acme Fiber 1000 is $45 a month at 14 Harbor Road."
+  },
+  {
+    "id": "E010",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E088",
+    "label": "invented",
+    "reply": "Acme Mobile M is $25 a month, with a $10 loyalty discount."
+  },
+  {
+    "id": "E047",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E087",
+    "label": "invented",
+    "reply": "Acme Mobile L comes with a 2 Gbps line."
+  },
+  {
+    "id": "E060",
+    "label": "invented",
+    "reply": "Acme Mobile M is 19 USD a month for the first six months."
+  },
+  {
+    "id": "E082",
+    "label": "invented",
+    "reply": "The fibre plan includes a free router for life."
+  },
+  {
+    "id": "E075",
+    "label": "invented",
+    "reply": "Acme Fiber 1000 is $45 a month at 14 Harbor Road."
+  },
+  {
+    "id": "E011",
+    "label": "grounded",
+    "reply": "Your reference is LEAD-10C86C."
+  },
+  {
+    "id": "E054",
+    "label": "invented",
+    "reply": "Acme Mobile M is $25 a month, with a $10 loyalty discount."
+  },
+  {
+    "id": "E072",
+    "label": "invented",
+    "reply": "Acme Mobile L comes with a 2 Gbps line."
+  },
+  {
+    "id": "E090",
+    "label": "invented",
+    "reply": "Acme Air 5G has a five year price lock."
+  },
+  {
+    "id": "E077",
+    "label": "invented",
+    "reply": "Acme Air 5G has a five year price lock."
+  },
+  {
+    "id": "E021",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E079",
+    "label": "invented",
+    "reply": "Your order ORD-565216 is placed."
+  },
+  {
+    "id": "E006",
+    "label": "grounded",
+    "reply": "Acme Mobile L is unlimited data at $35 a month."
+  },
+  {
+    "id": "E015",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E040",
+    "label": "grounded",
+    "reply": "Acme Air 5G is up to 200 Mbps at 88 Summit Avenue for $35 a month."
+  },
+  {
+    "id": "E020",
+    "label": "grounded",
+    "reply": "Acme Mobile L is unlimited data at $35 a month."
+  },
+  {
+    "id": "E041",
+    "label": "grounded",
+    "reply": "Your reference is LEAD-10C86C."
+  },
+  {
+    "id": "E097",
+    "label": "invented",
+    "reply": "The fibre plan includes a free router for life."
+  },
+  {
+    "id": "E014",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E003",
+    "label": "grounded",
+    "reply": "Acme Mobile M gives 40 GB for $25 a month."
+  },
+  {
+    "id": "E099",
+    "label": "invented",
+    "reply": "The fibre plan includes a free router for life."
+  },
+  {
+    "id": "E004",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E027",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E023",
+    "label": "grounded",
+    "reply": "Acme Fiber 1000 is available at 14 Harbor Road, Acmeville, for $60 a month."
+  },
+  {
+    "id": "E044",
+    "label": "grounded",
+    "reply": "Your reference is LEAD-10C86C."
+  },
+  {
+    "id": "E045",
+    "label": "grounded",
+    "reply": "Acme Mobile L is unlimited data at $35 a month."
+  },
+  {
+    "id": "E017",
+    "label": "grounded",
+    "reply": "Acme Mobile L is unlimited data at $35 a month."
+  },
+  {
+    "id": "E078",
+    "label": "invented",
+    "reply": "Acme Mobile M is 19 USD a month for the first six months."
+  },
+  {
+    "id": "E061",
+    "label": "invented",
+    "reply": "Your order ORD-276752 is placed."
+  },
+  {
+    "id": "E069",
+    "label": "invented",
+    "reply": "Your reference is LEAD-99Z999."
+  },
+  {
+    "id": "E073",
+    "label": "invented",
+    "reply": "Acme Mobile L gives 500 GB of data for $35 a month."
+  }
+]

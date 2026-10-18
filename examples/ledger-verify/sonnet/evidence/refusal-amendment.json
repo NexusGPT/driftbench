@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-13T16:22:32.210254+00:00",
+  "afterPilot": true,
+  "beforeTEST": true,
+  "authorization": "Agreed: a native refusal is a terminal response, never a transport no-answer, at any token count. Apply it identically to both contestants; record refusals as their own column. Fixed after pilot and before TEST, with no verdict changed.",
+  "strict": "A consumed native refusal makes the consuming contestant/item an error, symmetrically. Output-limit rule remains in force.",
+  "productFinal": "The frozen product final verdict, including built-in fallback, remains unchanged.",
+  "nativeEvidence": "stop_reason=refusal or Responses content type refusal",
+  "priorHashes": {
+    "runtime-freeze.json": "b12daf35c06fa99430abeec5ed52751ba8f93b5dff086c40c0e7e6a36747547c",
+    "pilot-runtime-freeze.json": "b12daf35c06fa99430abeec5ed52751ba8f93b5dff086c40c0e7e6a36747547c",
+    "reporting-freeze.json": "92b4c089629fb8a12e4b4bc014a0c363456057003a906152e0e9b1293e2e53a0"
+  },
+  "runtimeSha256": "6367ef409f542628dd5017dabb978ed8811b1890d7f99b73c015492f199659f5",
+  "reportingSha256": "ca936a947292582fcdcbebece33b103f84ab9511aace4ad3ff9fe45665be7592",
+  "promptsChanged": false,
+  "returnedResponsesResent": false,
+  "pilotBeforeSha256": "deff875efc878deae2fbea53462239d1549213f64be6785f31e3a89ac1be364d",
+  "pilotVerdictsUnchanged": true,
+  "initialRefusalReceipts": [
+    "a1eee2a3-ace2-41bd-9ce3-fa7301f7cc44",
+    "15d7e22f-9289-4c88-86a3-402c81e1c8f1",
+    "cd02deac-1e18-4f42-a4bb-1b0f6068612b",
+    "a882a226-19bc-46b5-872e-f4e0ab899a4e"
+  ]
+}

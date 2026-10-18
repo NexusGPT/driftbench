@@ -1,8 +1,10 @@
+import { createHash } from 'node:crypto';
 import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { parseSpecText } from '@driftbench/core';
+import { canonicalJson, parseSpecText } from '@agent-nexus/driftbench-core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { openMemoryStore, type RegistryFile, readCampaignBundle, type SqliteStore } from '../src/index';
+import { sha256, versionHash } from '../src/registry';
 import { campaign, run, storeError, tempDir } from './fixtures';
 
 const ID = 'acme-2026-10-12';
@@ -104,6 +106,45 @@ describe('a campaign bundle carries its specs and its registry sources', () => {
     const error = await storeError(() => readCampaignBundle(folder));
     expect(error.code).toBe('BUNDLE_INVALID');
     expect(error.message).toContain('sources/prompt/acme-sales@1/files/acme-sales.md does not hash to');
+  });
+
+  it.each([
+    '../escape.yaml',
+    'a/../../escape.yaml',
+    '/etc/escape.yaml',
+    'a\\..\\escape.yaml',
+    './escape.yaml',
+  ])('refuses a source version whose file path %s leaves the version, and stores nothing', async (path) => {
+    await seed(store);
+    const folder = await store.exportCampaign(ID, dir);
+    const home = join(folder, 'sources', 'dataset', 'acme-specs@1');
+    const bytes = text('escaped\n');
+    // A file planted next to the version folder, which a path with .. would reach.
+    await writeFile(join(home, 'escape.yaml'), bytes);
+    const files = [{ path, sha256: sha256(bytes), size: bytes.byteLength }];
+    const version = JSON.parse(await readFile(join(home, 'version.json'), 'utf8'));
+    const hash = versionHash(files);
+    await writeFile(join(home, 'version.json'), JSON.stringify({ ...version, files, hash }));
+    const record = JSON.parse(await readFile(join(folder, 'campaign.json'), 'utf8'));
+    record.sources = record.sources.map((source: { kind: string }) =>
+      source.kind === 'dataset' ? { ...source, hash } : source,
+    );
+    await writeFile(join(folder, 'campaign.json'), JSON.stringify(record));
+    // A crafted bundle: its author records the hash of the campaign they wrote, so only the path guard stops it.
+    const manifestPath = join(folder, 'manifest.json');
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+    manifest.hashes['campaign.json'] = createHash('sha256').update(canonicalJson(record)).digest('hex');
+    await writeFile(manifestPath, JSON.stringify(manifest));
+    const other = openMemoryStore();
+    try {
+      const error = await storeError(() => other.importCampaign(folder));
+      expect(error.code).toBe('BUNDLE_INVALID');
+      expect(error.message).toContain('leaves the version');
+      expect(await other.listVersions('dataset')).toEqual([]);
+      expect(await other.getCampaign(ID)).toBeUndefined();
+    } finally {
+      await other.close();
+    }
   });
 
   it('refuses, and stores nothing, when the store holds other content under the same version', async () => {

@@ -1,8 +1,10 @@
 import { existsSync, statSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
-import { portFromEnv } from '@driftbench/generate';
+import { dirname, join, relative, resolve } from 'node:path';
+import { portFromEnv } from '@agent-nexus/driftbench-generate';
+import { textTable as table } from '@agent-nexus/driftbench-report';
 import {
+  AttackError,
   type AttackRecording,
   type AttackResult,
   loadRedteamPack,
@@ -10,15 +12,17 @@ import {
   runAttack,
   SimulatedUserError,
   type UserModelPort,
-} from '@driftbench/users';
+} from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
+import { noStageWarning, summaryLine, totalOf } from '../reply-checks';
 import {
   type CampaignDeps,
   defaultDeps,
   loadValidSpecs,
-  noAdapter,
   parseTarget,
+  resolveAdapter,
   showTarget,
   specRuns,
 } from './campaign';
@@ -85,7 +89,7 @@ export async function attackCommand(
   io: Io,
   deps: CampaignDeps,
 ): Promise<number> {
-  const rounds = Number(options.rounds);
+  const rounds = optionNumber(options.rounds);
   if (!/^\d+$/.test(options.rounds) || rounds < 1 || rounds > 10) {
     io.err(`--rounds takes a whole number from 1 to 10, not "${options.rounds}".\n`);
     return 2;
@@ -101,7 +105,13 @@ export async function attackCommand(
       return 2;
     }
     try {
-      replay = JSON.parse(await readFile(resolve(io.cwd, options.replay), 'utf8')) as AttackRecording;
+      const read: unknown = JSON.parse(await readFile(resolve(io.cwd, options.replay), 'utf8'));
+      if (!isRecording(read)) {
+        throw new Error(
+          'it is not an attack recording: version 1, spec, specHash, seed and a list of rounds',
+        );
+      }
+      replay = read;
     } catch (cause) {
       io.err(
         `The recording ${options.replay} cannot be read: ${cause instanceof Error ? cause.message : String(cause)}\n`,
@@ -120,9 +130,13 @@ export async function attackCommand(
   const [planned] = specRuns([entry], given, io) ?? [];
   const target = planned?.targets[0];
   if (planned === undefined || target === undefined) return 2;
-  const adapter = await deps.adapterFor(target);
+  const adapter = await resolveAdapter(
+    target,
+    () => deps.adapterFor(target),
+    io,
+    planned.pinned === undefined ? [] : [entry.spec.id],
+  );
   if (!adapter) {
-    io.err(`${noAdapter(target, planned.pinned === undefined ? [] : [entry.spec.id])}\n`);
     return 2;
   }
 
@@ -166,7 +180,7 @@ export async function attackCommand(
       target,
       ...(pack ? { pack } : {}),
       ...(options.drafts ? { drafts: true } : {}),
-      seed: Number(options.seed),
+      seed: optionNumber(options.seed),
       rounds,
       ...(replay ? { replay } : {}),
       ...(port && agentFamily !== undefined
@@ -178,12 +192,31 @@ export async function attackCommand(
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);
     io.err(`${message}\n`);
-    if (cause instanceof SimulatedUserError || /approved|recording attacks|pack/.test(message)) return 2;
+    if (cause instanceof AttackError || cause instanceof SimulatedUserError || /approved|pack/.test(message))
+      return 2;
     throw cause;
   }
   if (options.record !== undefined) {
     await writeFile(resolve(io.cwd, options.record), `${JSON.stringify(result.recording, null, 2)}\n`);
   }
+
+  const checked = result.rounds.flatMap((round) => (round.replyChecks ? [round.replyChecks] : []));
+  const sum = totalOf(checked);
+  const packName = pack ? shownPack(io, options.pack, entry.path) : undefined;
+  const warning =
+    packName === undefined
+      ? undefined
+      : noStageWarning(
+          sum,
+          checked,
+          packName,
+          entry.spec.id,
+          result.rounds.flatMap((round) =>
+            round.replyChecks?.notApplicable.some((skipped) => skipped.reason === 'no stage')
+              ? [round.injectAt]
+              : [],
+          ),
+        );
 
   if (options.json) {
     io.out(
@@ -193,16 +226,21 @@ export async function attackCommand(
           target,
           seed: result.recording.seed,
           findings: result.findings,
+          replyChecks: { ...sum, summary: summaryLine(sum) ?? null },
+          complete: sum.noStage === 0,
+          warnings: warning === undefined ? [] : [warning],
           rounds: result.rounds.map((round) => ({
             round: round.round,
             class: round.class,
             injectAt: round.injectAt,
             cue: round.cue,
             phrasing: round.phrasing,
+            ...(round.replyChecks ? { replyChecks: round.replyChecks } : {}),
             runId: round.runId,
             status: round.status,
             recovery: round.recovery ?? null,
             finding: round.finding ?? null,
+            detail: round.detail ?? null,
           })),
         },
         null,
@@ -225,7 +263,11 @@ export async function attackCommand(
       round.recovery?.label ?? '-',
       round.recovery?.turnsToRecover === undefined ? '-' : String(round.recovery.turnsToRecover),
       round.recovery?.safeAction === false ? 'no' : 'yes',
-      round.finding ?? '',
+      round.finding === 'collateral damage'
+        ? (round.detail ?? round.finding)
+        : round.detail?.startsWith('collateral damage')
+          ? `${round.finding}; ${round.detail}`
+          : (round.finding ?? ''),
     ]);
     for (const line of table([
       ['round', 'class', 'at', 'cue', 'phrasing', 'label', 'turns', 'safe', 'finding'],
@@ -234,9 +276,20 @@ export async function attackCommand(
       io.out(`${line}\n`);
     }
     io.out(`Findings: ${result.findings} of ${result.rounds.length} attacks.\n`);
+    const line = summaryLine(sum);
+    if (line) io.out(`${line}\n`);
+    if (warning) io.err(`${warning}\n`);
     if (options.record !== undefined) io.out(`Recording written to ${resolve(io.cwd, options.record)}.\n`);
   }
   return result.findings > 0 ? 1 : 0;
+}
+
+/** The pack folder as the user gave it, or the folder found above the spec. */
+function shownPack(io: Io, given: string | undefined, specPath: string): string {
+  const dir = given === undefined ? findPack(specPath) : resolve(io.cwd, given);
+  if (dir === undefined) return 'the red-team pack';
+  const rel = relative(io.cwd, dir);
+  return rel === '' || rel.startsWith('..') ? dir : rel;
 }
 
 function findPack(specPath: string): string | undefined {
@@ -247,18 +300,28 @@ function findPack(specPath: string): string | undefined {
   }
 }
 
-function table(rows: string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
-}
-
 function collect(value: string, previous: string[] = []): string[] {
   return [...previous, value];
+}
+
+/** The shape `attack --record` writes: anything else is refused before a run. */
+function isRecording(value: unknown): value is AttackRecording {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  return (
+    record.version === 1 &&
+    typeof record.spec === 'string' &&
+    typeof record.specHash === 'string' &&
+    typeof record.seed === 'number' &&
+    Array.isArray(record.rounds) &&
+    record.rounds.every((round) => {
+      if (round === null || typeof round !== 'object') return false;
+      const entry = round as Record<string, unknown>;
+      return (
+        typeof entry.class === 'string' &&
+        typeof entry.inject_at === 'number' &&
+        typeof entry.phrasing === 'object'
+      );
+    })
+  );
 }

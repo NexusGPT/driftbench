@@ -1,6 +1,8 @@
 # An example workflow: copy it to .github/workflows/ to gate pull requests on the Acme sales assistant.
 # It builds the baseline from the pull request's base branch, runs the same suite on the head with the
-# driftbench ci action, and fails the job on a regression beyond the margin or a new gating flag.
+# driftbench ci action, and fails the job unless ci shows parity, by the rule of driftbench compare.
+# The suite holds price-sheet tasks for the ops agent beside the sales conversations: both steps route
+# the specs tagged flow:price-sheet to process:acme-ops, or those 24 specs fail on the chat target.
 # Fictional data only: the Acme Telecom example agent, no secret, no paid model.
 name: driftbench ci (Acme example)
 
@@ -41,7 +43,8 @@ jobs:
         run: |
           code=0
           pnpm -s driftbench campaign run examples/acme/gated/specs \
-            --target function:acme-sales --store "$RUNNER_TEMP/baseline.db" --no-cache || code=$?
+            --target function:acme-sales --route flow:price-sheet=process:acme-ops \
+            --store "$RUNNER_TEMP/baseline.db" --no-cache || code=$?
           echo "baseline campaign exit $code"
           if [ "$code" -gt 1 ]; then exit "$code"; fi
 
@@ -52,9 +55,9 @@ jobs:
           working-directory: head
           specs: examples/acme/gated/specs
           target: function:acme-sales
+          route: flow:price-sheet=process:acme-ops
           baseline: ${{ runner.temp }}/baseline.db
           store: ${{ runner.temp }}/candidate.db
-          margin: '5'
           report-path: driftbench-ci.json
 
       - name: Keep the summary

@@ -1,10 +1,10 @@
 # CLI
 
-`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), checks that an agent is deterministic (`smoke`), measures the specs against a map of situations (`space coverage`, `space complete`, `space declare`), proposes that map (`extract`, `extract approve`, `extract map`), generates specs from it by code (`generate`), passes candidate blocks through the validity gate (`gate`), builds the reference set of user turns (`intake`), measures where results vary (`pilot`), judges criteria with the council (`judge`), builds code-agent task families (`family`), reads an agent estate into a map and derives its tests (`estate`), runs specs over recorded sessions (`replay`), imports specs from a CSV file or a spreadsheet (`import`), versions spec sets and prompts in the store (`dataset`, `prompt`), and runs the validators that prove driftbench works (`validate`). The campaign and smoke commands, their output and their exit codes are on the [running](../running.md) page. What generation, the gate, intake, the pilot and families do is on the [generating](../generating.md) page.
+`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), checks that an agent is deterministic (`smoke`), measures the specs against a map of situations (`space coverage`, `space complete`, `space declare`), proposes that map (`extract`, `extract approve`, `extract map`), generates specs from it by code (`generate`), passes candidate blocks through the validity gate (`gate`), builds the reference set of user turns (`intake`), measures where results vary (`pilot`), judges criteria with the council (`judge`), builds code-agent task families (`family`), reads an agent estate into a map and derives its tests (`estate`), runs specs over recorded sessions (`replay`), prints the blocks a change to the agent can affect (`radius`), imports specs from a CSV file or a spreadsheet (`import`), versions spec sets and prompts in the store (`dataset`, `prompt`), and runs the validators that prove driftbench works (`validate`). The campaign and smoke commands, their output and their exit codes are on the [running](../running.md) page. What generation, the gate, intake, the pilot and families do is on the [generating](../generating.md) page.
 
 ## Running it
 
-The package is not on npm yet: version 0.1.0 is prepared as `@driftbench/cli` and not published (see [Releasing](../releasing.md)). From a clone of the repository:
+Version 0.1.0 is on npm: `npm install @agent-nexus/driftbench`, then `npx driftbench <command>`. From a clone of the repository:
 
 ```sh
 pnpm install
@@ -42,9 +42,9 @@ $ pnpm -s driftbench spec validate examples/acme/specs
 ✓ examples/acme/specs/conversations/number-porting.yaml  acme-number-porting · 5 blocks · 2 perturbations · hash 134c8e993f95
 ✓ examples/acme/specs/conversations/off-topic-return.yaml  acme-off-topic-return · 5 blocks · 1 perturbation · hash cca285407040
 ✓ examples/acme/specs/conversations/order-loose-confirmation.yaml  acme-order-loose-confirmation · 4 blocks · 2 perturbations · hash ae116e6312eb
-✓ examples/acme/specs/conversations/plan-upgrade.yaml  acme-plan-upgrade · 5 blocks · 2 perturbations · hash a30a04fd1f49
+✓ examples/acme/specs/conversations/plan-upgrade.yaml  acme-plan-upgrade · 5 blocks · 3 perturbations · hash 5ae085d0b267
 ✓ examples/acme/specs/conversations/tool-failure.yaml  acme-tool-failure · 3 blocks · 1 perturbation · hash e5bc5c9ba9d2
-✓ examples/acme/specs/tasks/price-sheet.yaml  acme-price-sheet · 2 blocks · 1 perturbation · hash 8a0809a2e24f
+✓ examples/acme/specs/tasks/price-sheet.yaml  acme-price-sheet · 2 blocks · 1 perturbation · hash d96437659138
 Checked 7 specs: 7 valid, 0 invalid, 0 warnings.
 ```
 
@@ -74,10 +74,10 @@ The hash is the first 12 hex characters of the SHA-256 of the spec's canonical J
 ## `driftbench spec lint`
 
 ```
-driftbench spec lint <paths...> [--json] [--strict]
+driftbench spec lint <paths...> [--json] [--strict] [--summaries] [--sections <registries...>]
 ```
 
-Validates every spec like `spec validate`, then prints the warnings of the valid ones.
+Validates every spec like `spec validate`, then prints the warnings of the valid ones. `--sections` also checks every `prompt_section` link against the section registry of its prompt (see [prompt sections and block links](../concepts/blast-radius.md#prompt-sections-and-block-links)).
 
 ```
 $ pnpm -s driftbench spec lint _captures/docs3/cli/specs
@@ -90,6 +90,9 @@ Checked 1 spec: 1 valid, 0 invalid, 1 warning.
 |---|---|
 | `--json` | print one JSON document |
 | `--strict` | treat warnings as failures |
+| `--summaries` | also warn when a workspace folder or a named session state has no summary (`GIVEN_SUMMARY_MISSING`) |
+
+The warnings include the findings of the Given verifier (`GIVEN_UNMET`, `GIVEN_CHAIN`): see [running](../running.md#outcomes) for what a Given error does at run time.
 
 | Exit code | When |
 |---|---|
@@ -224,17 +227,21 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | Code | Level | Meaning |
 |---|---|---|
 | `SPEC_PARSE` | error | the file cannot be read, or it is not valid YAML or JSON |
+| `SPEC_SCHEMA_VERSION` | error | `schema_version` names a spec format newer than this driftbench reads: upgrade driftbench |
 | `SPEC_NOT_OBJECT` | error | the file does not hold one mapping at the top level |
 | `SPEC_ALIAS_CONFLICT` | error | a shorthand and its long form are both set: `ledger_seed` with `given.ledger`, or `workspace_seed` with `given.world.workspace` |
 | `BLOCK_STIMULUS_MISSING` | error | a block has none of `user`, `burst` and `when` |
 | `BLOCK_STIMULUS_AMBIGUOUS` | error | a block has more than one of `user`, `burst` and `when` |
-| `REGEX_INVALID` | error | a pattern in `must`, `must_not` or a `regex` assertion does not compile |
+| `REGEX_INVALID` | error | a pattern in `must`, `must_not`, the `regex` list or a `regex` assertion (in a tool input, an end state or a `json` path) does not compile |
 | `CRITERION_REF_INVALID` | error | a criterion reference is not a name, optionally followed by `@gating` |
 | `CRITERION_UNDEFINED` | error | the spec defines `criteria`, and a block names one that is not there |
 | `CRITERION_DUPLICATE` | error | two criteria share a name |
 | `PERTURBATION_OUT_OF_RANGE` | error | `inject_at` is past the last position |
 | `PERTURBATION_EMPTY` | error | a perturbation has none of `user`, `burst` and `world` |
 | `DUPLICATE_BLOCK_ID` | error | two blocks share an id |
+| `PARENT_MISSING` | error | a block's `parent` names no block id in the spec |
+| `PARENT_CYCLE` | error | `parent` links form a cycle, a block naming itself included |
+| `WORKSPACE_PATH_TWICE` | error | a workspace path is in both `files` and `binary` |
 | `DUPLICATE_PERTURBATION_ID` | error | two perturbations share an id |
 | `TOOL_COUNT_CONTRADICTION` | error | a tool is expected 0 times but has input assertions |
 | `COUNT_RANGE_INVALID` | error | a count has a `min` greater than its `max` |
@@ -242,26 +249,37 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `STAGE_UNKNOWN` | error | the spec lists `stages`, and `expect.stage` or `recovery.stage_after` names a stage that is not there |
 | `RETENTION_FACT_UNKNOWN` | error | `expect.knowledge_retention` names a fact that no ledger holds before the block: not in `given.ledger`, nor in an earlier block's `ledger_add` |
 | `TOOL_FORBIDDEN_EXPECTED` | error | a block expects a tool that the rules forbid, in `forbidden_tools` or with `max_calls` at 0 |
+| `GIVEN_ORIGIN_WITHOUT_PREFIX` | error | a block's `given.origin` says where a prefix comes from, and the block writes no `given.prefix` |
+| `LINK_BLOCK_UNKNOWN` | error | a link in `metadata.links` names a block id the spec does not have, or an index past its last block |
+| `LINK_TARGET_UNKNOWN` | error or warning | `spec lint --sections` only: error when the registry of the prompt has no such section, warning when no registry was given for the prompt |
+| `LINK_STALE` | warning | `spec lint --sections` only: the link's status is `stale`, or its section was not found again in the registry's version |
 | `SCHEMA_*` | error | the schema refuses a value; the suffix is the zod issue code, such as `SCHEMA_UNRECOGNIZED_KEYS`, `SCHEMA_INVALID_TYPE`, `SCHEMA_INVALID_VALUE` or `SCHEMA_TOO_SMALL` |
 | `CRITERION_UNRESOLVED` | warning | blocks name criteria and the spec defines none; they must come from a shared catalogue |
 | `BLOCK_NO_EXPECTATION` | warning | a block checks nothing |
 | `TASK_WITHOUT_OUTCOME` | warning | a task spec checks none of `artifacts`, `workspace`, `execution` and `end_state` |
 | `PERTURBATION_NO_RECOVERY` | warning | a perturbation has no `recovery`, so its recovery is not measured |
+| `PREFIX_PROSE_HISTORY` | warning | an assistant message of a prefix states a ledger fact in its text that no recorded tool call of the prefix holds and the user never said, in a spec that names tools: the agent may call the tool again |
+| `GIVEN_UNMET` | warning | the Given verifier found a Given error on a block (`tool_history_paired`, `tool_known`, `history_matches_world` or `value_in_message`, named first in the message). The runner does not send that block: it is `not_run` with kind `given_unmet` |
+| `GIVEN_CHAIN` | warning | a block's `ledger_add` contradicts the ledger it starts from (check `chain`) |
+| `GIVEN_SUMMARY_MISSING` | warning | with `--summaries` only: a workspace folder (`world.workspace.from`) or a named session state (`vars.session_state`) has no summary (check `summary_present`) |
+| `GIVEN_CANONICAL_UNPAIRED` | warning | a prefix whose `origin` is `canonical` holds a tool call with no output or error. Advice only: the block runs |
 
 ## Global options
 
 | Option | Effect |
 |---|---|
 | `-V`, `--version` | print the version |
-| `-h`, `--help` | print the usage of the program or of a command; `driftbench help <command>` does the same |
+| `-h`, `--help` | print the usage of the program or of a command, ending with the help topics about it; `driftbench help <command>` does the same |
+| `driftbench help [topic]` | without a topic, print the index of every help topic, grouped by area; with one, such as `core-exit-codes`, print that topic: what a capability is, when to use it, every option, inputs, outputs, a worked example and common errors |
+| `--plugin <module>` | load a [plugin](../plugins.md) before the command runs: a module path, relative to the working folder, or a package name. Repeat it for several. It may stand anywhere on the command line. |
 
 ## Campaigns and smoke
 
-These commands run specs on a target. Each has its options, its output and its exit codes on the [running](../running.md) page.
+These commands run specs on a target. Each has its options, its output and its exit codes on the [running](../running.md) page. `campaign run` and `campaign plan` also take their settings from the `campaign:` key of the project config, `driftbench.yaml` or `--config <file>`, where no flag is given: see [the campaign key](../running.md#the-campaign-key).
 
 ```
-driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--config <file>] [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [--block-reruns]] [--record-end-state-snapshots] [--record-realized-text] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [judge flags] [run check flags] [--config <file>] [--json]
 driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
 driftbench campaign export <campaignId> --store <file> --out <dir>
@@ -282,10 +300,21 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | Option | Effect |
 |---|---|
 | `--target <adapter[:agent]>` | run every spec on this target; repeat it for several. Without it, each spec runs on its own target |
+| `--route <tag=target>` | `plan` and `run`: a spec carrying the tag runs on this target instead of the `--target` list, such as `flow:price-sheet=process:acme-ops` for a suite that mixes conversations and code-agent tasks; repeat it; needs `--target` |
 | `--mode <modes>` | the run mode: `T` teacher-forced, `F` free-running (the default), `P` perturbed; several separated by commas, such as `T,F`. See [run modes](../concepts/run-modes.md) |
 | `--repeats <n>` | runs per spec, target and mode; default 1 |
 | `--budget-usd <usd>` | `plan`: compare the projected cost with this budget. `run`: no cell starts once the campaign has spent this much. `resume`: the same stop, by default the budget the campaign was run with |
 | `--baseline-rate <rate>` | the pass rate the minimum detectable effect assumes; default 0.5 |
+| `--rho <rho>` | the correlation of repeats of one spec, from 0 to 1; default 0 |
+| `--agent-version <label>` | the version of the agent under test. It is written as the `variant` of every target that names none, so the runs record which agent produced them. The target is part of the cell id and of the cache key: a run under `v2` never reuses a run or a cached block of `v1`. With `--prompt`, the prompt hash is the version and the label is recorded beside it. |
+| `--change <manifest>` | run only the [blast radius](../concepts/blast-radius.md) of this change manifest, and carry the stored run of every other cell from the `--from` campaign. It needs `--from`, `--store` and an agent version. Without it, nothing changes: every cell runs |
+| `--from <campaign>` | with `--change`: the stored campaign the carried runs are read from |
+| `--audit <n>` | with `--change`: draw n of the cells about to be carried, run them fresh and compare each with its stored run on every gating verdict. One that differs is a radius miss: nothing is carried, every cell runs, and the command exits 1. `--audit-seed <n>` sets the draw (default 1) |
+| `--max-carry <n>` | with `--change`: the most campaigns in a row a result is carried (default 5). A result past it runs fresh |
+| `--max-age <days>` | with `--change`: the most days since a carried result was measured (default 7) |
+| `--block-reruns` | with `--change` in mode T: send only the blocks a change can affect and keep the other stored blocks of a cell; see [mode T block reruns](../concepts/blast-radius.md#mode-t-block-reruns) |
+| `--record-end-state-snapshots` | store the raw end-state values each mode T block reads, so a later `--block-reruns` can rerun cells with `end_state` in part; the values may be sensitive |
+| `--record-realized-text` | store the text a driver sent where it differs from the spec (a simulated user, a red-team attacker) as `realized.text`; off, each such block keeps only its hash; the text may be private |
 | `--campaign <id>` | the campaign id; without it, one is made from the content and the clock |
 | `--dataset <ref>` | `run` only: run the specs of this dataset version of the store and record it in the campaign; needs `--store`. See [datasets](../datasets.md) |
 | `--prompt <ref>` | `run` only: the agent runs with this prompt version of the store, a single text file: every target carries it in `target.prompt`, and the campaign records it; give it once; needs `--store`. Each adapter page says how the text reaches the agent |
@@ -301,14 +330,46 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | `--persona <file>` | `run --driver simulated`: a persona, which plays the spec its file names; one per spec, repeat it |
 | `--recording <file>` | `run --driver simulated`: replay a recording of the user's answers; repeat it |
 | `--model` | `run --driver simulated`: the user speaks through the model port (a paid call per turn) |
-| `--agent-family <family>`, `--judge-family <family>` | `run --driver simulated`: the families the user's model must differ from; the Acme agents are `none` |
+| `--agent-family <family>`, `--judge-family <family>` | `run --driver simulated`: the families the user's model must differ from; the Acme agents are `none`. `--agent-family` also refuses a judge of that family |
+| judge flags, run check flags | `run`, `resume`, and the judge flags on `smoke`: see [judge flags](#judge-flags) |
 | `--json` | print one JSON document |
 
 | Exit code | When |
 |---|---|
 | 0 | `plan`: the plan printed. `run`, `resume`, `status`: every cell passes. `smoke`: the transcripts are identical |
-| 1 | `run`, `resume`, `status`: a cell fails, failed, or was stopped. `smoke`: the transcripts differ, or a run fails |
+| 1 | `run`, `resume`: a cell fails, failed, or was stopped. `status`: any cell that does not pass, not run and blocked included. `smoke`: the transcripts differ, or a run fails |
 | 2 | bad input: an unknown target, an invalid spec or none found, a bad number, a store that cannot be opened |
+| 3 | `run`, `resume`: no cell failed, but a cell was not run or blocked (a Given the target cannot apply), as `ci` does |
+
+## Judge flags
+
+`replay`, `estate run`, `campaign run`, `campaign resume`, `campaign rejudge`, `ci`, `smoke` and `compare --pairwise` take the same judge flags; `judge run` and `judge calibrate` take the route flags below. With none of them a command judges as before: `replay`, `estate run` and `rejudge` leave every judged criterion inconclusive, and `campaign run`, `resume`, `ci` and `smoke` load no judge check.
+
+| Flag | Does |
+|---|---|
+| `--judge <kind>:<model>` | a judge; repeat it for a council. Kinds: `claude` (the local claude command), `openai`, `anthropic`, `google`, `openai-decisions`, the platform judge kind the [Nexus adapter](../adapters/nexus.md) page names, and `http:<family>@<url>`. A provider kind alone, such as `--judge openai`, reads its model from the environment. Keys always come from the environment, as each client reads them. Paid calls |
+| `--judge-command <path>` | the claude command a `claude` judge runs; default `claude` |
+| `--judge-budget <usd>` | stop judging once the judges have spent this much; needed by a `claude` judge on a command that is not a stand-in |
+| `--judges <cassette>` | add every judge of a recorded cassette (JSON, as `--record` and `judge calibrate --record` write it) as a player: no call. A cassette only: there is no judges YAML file |
+| `--judge-mode system1\|hybrid\|llm` | the council mode; default from the classes of the judges |
+| `--assignments <file>` | the assignment table `judge calibrate` wrote |
+| `--cascade` | the council asks its cheapest judge first and stops on a sure pass |
+| `--weights <judge=weight,...>` | council vote weights, inline or a YAML file of `judge: weight` |
+| `--record <cassette>` | save every live judge answer as a cassette, to replay with `--judges` |
+| `--agent-family <family>` | the model family of the agent under test: a judge of that family is refused before any call, for a single judge, a panel, a route, a council, and every pairwise judge of `compare` (`--pairwise-judge` and its default included); `none` for no model |
+| `--judge-route escalation` | a label-blind router: `--route-first <judge>` answers, the `--route-then <judge>` judges (repeat it) answer when a trigger fires. `--route-on` takes `order-split`, `inconclusive`, `reference-disagreement`, `low-confidence` (default all four), `--route-confidence` the low-confidence bar (default 0.5), `--route-decide` `majority` or `first-stands`. A judge is a `kind:model` or a judge id, such as one of a cassette |
+| `--panel-weights <judge=weight,...>` | a weighted panel of every judge; `--panel-margin <share>` is the smallest winning margin (default 0.3), below it the panel abstains: inconclusive |
+| `--reference-solve <kind:model>` | solve each question blind first (`claude`, `openai`, `anthropic`, `google`) and judge against the agreed answer; `--reference-samples <n>` from 1 to 20 (default 5), `--reference-route auto` solves only a question with one checkable answer. One judge, a route or a panel; refused on a council |
+
+The run commands (`campaign run`, `resume`, `ci`, `replay`, `estate run`) also take:
+
+| Flag | Does |
+|---|---|
+| `--owner <values...>`, `--owner-file <file>` | the owner's own values the pii check leaves out |
+| `--tool-policy <rules.yaml>` | a run-wide tool policy, a YAML list of `{ pattern, action: allow \| deny \| ask }` or a map of `pattern: action`. Each run marks a call a rule denies (`ask` counts as denied) and the `tool_policy` check fails its block. It checks the calls the agent made: it does not stop the agent making them |
+| `--embedder <name>` | the embedder the similarity check scores with, as a plugin registered it with `api.embedder(name, factory)` |
+
+`judge calibrate` also takes `--judge <kind>:<model>` beside `--claude`, and `--judge-route escalation` with the route flags: it measures that route label-blind, as a run would route, and writes the cascade report to `--out`.
 
 ## `driftbench space`
 
@@ -347,12 +408,12 @@ Dimensions
 
 Grid at t = 2: 15 subsets of 2 dimensions
   cells     818 allowed of 823 (5 forbidden by the constraints)
-  covered   196 (24.0%)
+  covered   199 (24.3%)
   weighted  34.0% of the declared user mix, effective sample size 6.3 of 7 specs
 
 t-wise coverage
-  t = 2  196 of 818 allowed pairs (24.0%)
-  t = 3  390 of 7082 allowed triples (5.5%)
+  t = 2  199 of 818 allowed pairs (24.3%)
+  t = 3  399 of 7082 allowed triples (5.6%)
 
 Required cells
   ✓  stage=recap · deviation=D4_loose_confirmation  acme-order-loose-confirmation, acme-plan-upgrade
@@ -364,14 +425,14 @@ Required cells
   ✗  flow order · D2_goal_shift                     no spec
   ✗  flow order · D3_contradiction                  no spec
   ✓  flow order · D4_loose_confirmation             acme-order-loose-confirmation, acme-plan-upgrade
-  ✓  flow order · D8_tool_failure                   acme-order-loose-confirmation, acme-tool-failure
+  ✓  flow order · D8_tool_failure                   acme-order-loose-confirmation, acme-plan-upgrade, acme-tool-failure
   ✓  flow price-sheet · D6_instruction_in_data      acme-price-sheet
 
 Warnings
   ! D7_silence_or_burst  UNKNOWN_VALUE  deviation D7_silence_or_burst is named by acme-number-porting, but no deviation dimension of the map lists it
   ! D9_out_of_scope  UNKNOWN_VALUE  deviation D9_out_of_scope is named by acme-plan-upgrade, but no deviation dimension of the map lists it
 
-Coverage: 8 of 11 required cells covered, 196 of 818 cells at t = 2 (24.0%).
+Coverage: 8 of 11 required cells covered, 199 of 818 cells at t = 2 (24.3%).
 ```
 
 The command exits 1 here: three required flow deviations have no spec.
@@ -435,7 +496,7 @@ driftbench extract approve <proposal> [--dimension <id>]... [--all] [--to <file>
 driftbench extract map <proposal> --to <file> [--all]
 ```
 
-Proposes the map of situations from an agent's prompt or policy, its inventory and its tool schemas, for a person to approve. Code reads the inventory and the tools first; a model then proposes stages, rules, personas, data and phrases, each value quoting the text that justifies it. Each dimension has a role: an `axis` enters the space map, a `detail` stays in the proposal for generation. The proposal is a valid space map. Nothing counts until a person approves it.
+Proposes the map of situations from an agent's prompt or policy, its inventory and its tool schemas, for a person to approve. Code reads the inventory and the tools first; a model then proposes stages, rules, personas, data and phrases, each value quoting the text that justifies it. Each dimension has a role: an `axis` enters the space map, a `detail` stays in the proposal for generation. The proposal is not a space map: the space commands read it only through `extract map`, which writes the map of the approved axes. Nothing counts until a person approves it.
 
 | Option | Effect |
 |---|---|
@@ -453,8 +514,8 @@ Proposes the map of situations from an agent's prompt or policy, its inventory a
 
 ```
 $ pnpm -s driftbench extract approve examples/acme/map/proposal.yaml
-examples/acme/map/proposal.yaml: 219 of 219 decisions are open (46 dimensions, 59 constraints, 51 phrases, 63 relations).
-Axes: 7 of 46 dimensions, a full grid of 81312 cells (the space commands accept 250000).
+examples/acme/map/proposal.yaml: 291 of 291 decisions are open (51 dimensions, 111 constraints, 55 phrases, 74 relations).
+Axes: 7 of 51 dimensions, a full grid of 113568 cells (the space commands accept 250000).
   dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
   dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
   dimension   deviation  deviation axis, by code, 10 values: The deviation classes the flows must be perturbed with
@@ -467,7 +528,7 @@ The listing goes on with one line per open decision.
 
 ```
 $ pnpm -s driftbench extract map examples/acme/map/approved.yaml --to _captures/docs3/cli/space.yaml
-Wrote _captures/docs3/cli/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 28 constraints, a full grid of 81312 cells.
+Wrote _captures/docs3/cli/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 380 constraints, a full grid of 212940 cells.
 ```
 
 [`examples/acme/map`](../../examples/acme/map/README.md) holds the Acme proposal, its approved copy, its space map and the commands that made them.
@@ -483,19 +544,23 @@ A proposal that does not load reports `PROPOSAL_PARSE`, `PROPOSAL_NOT_OBJECT`, `
 ## `driftbench generate`
 
 ```
-driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--baseline <path>]... [--force] [--json]
+driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--json]
                     [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
-Generates specs from an approved map, by code: paths through the stage graph, the rows of a t-wise covering array, boundary values, one probe per deviation class, and metamorphic families. No model is called unless `--model` is given: the model port then proposes more specs, and each counts only once the gate accepts it (see [model proposals](../generating.md#model-proposals-generate---model)). Complete specs go to `specs/`, specs with a placeholder or a block the map supports no machine Then for go to `incomplete/`, and `generate-report.json` holds the counts. See [generating](../generating.md).
+Generates specs from an approved map, by code: paths through the stage graph, the rows of a t-wise covering array, boundary values, one probe per deviation class, metamorphic families, and the instances of every task family the map names in a `task_family` relation. No model is called unless `--model` is given: the model port then proposes more specs, and each counts only once the gate accepts it (see [model proposals](../generating.md#model-proposals-generate---model)). Complete specs go to `specs/`, specs with a placeholder or a block the map supports no machine Then for go to `incomplete/`, and `generate-report.json` holds the counts. See [generating](../generating.md).
 
 | Option | Effect |
 |---|---|
 | `--map <file>` | the approved map: a proposal whose every entry is approved; required |
 | `--out <dir>` | the folder to write the specs and `generate-report.json` into; required |
-| `--t <n>` | the strength of the covering array; default 2 |
+| `--t <n>` | the strength of the covering array; default 3 |
 | `--seed <n>` | the integer seed of every seeded choice; default 1 |
 | `--max <n>` | the most specs per seeder |
+| `--budget <n>` | budget mode: N conversations in place of the t-wise rows, placed by pair coverage first and value balance second; the other seeders are unchanged. Adds a `budget` block to the report. See [budget mode](../generating.md#budget-mode) |
+| `--spec-cap <n>` | total written specs; keeps structural, fault and incomplete specs, then selects actual tuple coverage. See [total spec cap](../generating.md#total-spec-cap) |
+| `--spec-cap-mode <mode>` | `tuples` by default; `pairs` explicitly permits reported triple losses. Requires `--spec-cap` |
+| `--tasks <n>` | instances built per `task_family` relation the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
 | `--force` | replace the output of an earlier run in the folder |
 | `--json` | print the report as JSON |
@@ -506,24 +571,28 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 On the approved Acme map:
 
 ```
-$ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated
-Map acme (../../../../examples/acme/map/approved.yaml), hash badea3d3df7a: 46 dimensions, 176 values, 59 constraints, 51 approved phrases.
+$ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated --t 2
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2928 of 4064 (72.0%).
+Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
+Uncovered on the axis map: 0 pairs, 1136 triples (see coverage.actual[].uncovered).
+Map acme (../../../../examples/acme/map/approved.yaml), hash 7c05b9cee9cc: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           154     676       123          31
-boundary         80     113        13          67
-deviation        10      52        10           0
-metamorphic      12      52        10           2
+twise           156     793       153           3
+boundary         85     183        13          72
+deviation        21     111        21           0
+metamorphic      42     192        42           0
+task             67      71        67           0
+cover            24     135        24           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
-t-wise: covering array of 154 rows over 6 dimensions, 444 of 444 allowed 2-tuples (100.0%).
-Constraints applied: 59.
-Deviation probes: 10 of 10 classes. Metamorphic families: 6.
-Coverage on the axis map at t = 2: complete specs 619 of 840 (73.7%), all specs 677 (80.6%).
+Constraints applied: 463.
+Deviation probes: 12 of 12 classes. Metamorphic families: 21.
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
 
-Values with no approved phrase (67): their blocks are placeholders in incomplete/.
+Values with no approved phrase (72): their blocks are placeholders in incomplete/.
   catalog.search.in.category=catalog.search.in.category.mobile  1 block(s)
   catalog.search.in.category=catalog.search.in.category.home  1 block(s)
   catalog.search.in.customer_email=catalog.search.in.customer_email.below-min-length  1 block(s)
@@ -531,6 +600,7 @@ Values with no approved phrase (67): their blocks are placeholders in incomplete
   catalog.search.in.customer_email=catalog.search.in.customer_email.absent  1 block(s)
   catalog.search.in.address_id=catalog.search.in.address_id.present  1 block(s)
   catalog.search.in.address_id=catalog.search.in.address_id.absent  1 block(s)
+  catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent  1 block(s)
   catalog.search.out.plans=catalog.search.out.plans.empty  1 block(s)
   catalog.search.out.plans=catalog.search.out.plans.one-item  1 block(s)
   catalog.search.out.plans=catalog.search.out.plans.several-items  1 block(s)
@@ -538,20 +608,20 @@ Values with no approved phrase (67): their blocks are placeholders in incomplete
   catalog.search.out.customer=catalog.search.out.customer.null  1 block(s)
   catalog.search.out.customer=catalog.search.out.customer.absent  1 block(s)
   coverage.check.in.address=coverage.check.in.address.below-min-length  1 block(s)
-  coverage.check.in.address=coverage.check.in.address.at-min-length  1 block(s)
-  ... 52 more in generate-report.json
+  ... 57 more in generate-report.json
 
-Specs with a block the map supports no machine Then for (43), in incomplete/: gen-twise-025, gen-twise-026, gen-twise-036, gen-twise-047, gen-twise-048, gen-twise-098, gen-twise-102, gen-twise-105, gen-twise-113, gen-twise-133, ....
+Specs with a block the map supports no machine Then for (18), in incomplete/: gen-twise-108, gen-twise-109, gen-twise-114, gen-boundary-008, gen-boundary-017, gen-boundary-031, gen-boundary-046, gen-boundary-060, gen-boundary-067, gen-boundary-068, ....
   Most frequent reasons:
-    11  no approved path belongs to a flow of B-013 (price-sheet)
-    11  no approved path belongs to a flow of B-014 (price-sheet)
-     5  no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase
-     3  it needs coverage_result in fiber, 5g-only; the cell holds not-in-map
-     3  it needs coverage_result in no-service; the cell holds 5g-only
-     3  it needs coverage_result in no-service; the cell holds not-in-map
-     3  it needs coverage_result in not-in-map; the cell holds 5g-only
-     2  it needs coverage_result in 5g-only; the cell holds not-in-map
-Wrote 269 files to _captures/docs3/cli/generated.
+     3  it needs user_type in existing-customer; the cell holds new-customer
+     3  the constraints allow no value of port_result it needs with this cell
+     2  it needs coverage_result in fiber, 5g-only; the cell holds none
+     2  it needs coverage_result in fiber; the cell holds none
+     2  it needs coverage_result in no-service; the cell holds none
+     1  no approved path needs callback_phone=not-given
+     1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
+     1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
+Wrote 504 files to _captures/docs3/cli/generated.
+exit 1
 ```
 
 | Exit code | When |
@@ -722,7 +792,7 @@ Cells: 20, 44 model turns to request, 0 cells dropped by the map.
 The `import` command also reads tables: see [`driftbench import`](#driftbench-import) for `import csv` and `import xlsx`. These two subcommands draft specs from production traces: OpenTelemetry spans with the GenAI semantic conventions, Nexus platform traces, or a recorded Claude Code session. See [production traces](../traces.md).
 
 ```
-driftbench import traces <path> --from otel|nexus|claude-code --out <dir> [--prices <file>] [--no-redact] [--force]
+driftbench import traces <path> --from otel|nexus|claude-code --out <dir> [--select <ids>] [--prices <file>] [--no-redact] [--force] [--dataset <name> --store <file>]
 driftbench import approve <path> [--all]
 ```
 
@@ -739,6 +809,8 @@ driftbench import approve <path> [--all]
 | `--prices <file>` | JSON prices in USD per million tokens by model, for spans that carry tokens and no cost |
 | `--no-redact` | keep personal data; by default the intake privacy rules redact it |
 | `--force` | replace drafts that already exist |
+| `--select <ids>` | draft only these traces: comma-separated trace ids. An id that names no trace exits 2 and writes nothing |
+| `--dataset <name>`, `--store <file>` | after drafting, push the drafts as the next version of this dataset in the store, as `dataset push` does. See [traces](../traces.md) |
 
 | Exit code | When |
 |---|---|
@@ -813,8 +885,8 @@ Wordings: the approved phrase bank gives fewer than 3 wordings to some conversat
 Judges criteria with the council, on recorded answers. The council, its modes and calibration are on the [judges](../concepts/judges.md) page.
 
 ```
-driftbench judge run --criteria <dir> --cassette <file> [--mode system1|hybrid|llm] [--agent-family <family>] [--cascade] [--assignments <file>] [--json]
-driftbench judge calibrate --criteria <dir> --labels <dir> --cassette <file> --out <file> [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
+driftbench judge run --criteria <dir> --cassette <file> [--mode system1|hybrid|llm] [--agent-family <family>] [--cascade] [--assignments <file>] [--judge-route escalation --route-first <id> --route-then <id>... | --panel-weights <weights>] [--verify arithmetic] [--prompt-budget <chars>] [--json]
+driftbench judge calibrate --criteria <dir> --labels <dir> (--cassette <file> | --claude <model>... | --judge <kind>:<model>...) --out <file> [--claude-command <path>] [--record <file>] [--spend-cap-usd <usd>] [--cascade] [--only <criterion>...] [--assign council|cheapest] [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--judge-route escalation --route-first <judge> --route-then <judge>...] [--verify arithmetic] [--prompt-budget <chars>] [--json]
 driftbench judge check <criteria> [--json]
 ```
 
@@ -828,13 +900,22 @@ driftbench judge check <criteria> [--json]
 |---|---|
 | `--criteria <dir>` | the criteria folder: one YAML file per criterion with its fixture pair; required by `run` and `calibrate` |
 | `--labels <dir>` | `calibrate`: the labels folder, one YAML file of hand-labelled blocks per criterion; required |
-| `--cassette <file>` | the recorded answers of every judge, as a cassette JSON file; required by `run` and `calibrate` |
+| `--cassette <file>` | the recorded answers of every judge, as a cassette JSON file; required by `run`; `calibrate` needs it or `--claude` |
+| `--claude <model>` | `calibrate`: add a live judge on the local `claude` command with this model, such as `haiku`; repeat for several. Paid calls, see [the claude command judge](../concepts/judges.md#the-claude-command-judge) |
+| `--claude-command <path>` | `calibrate`: the claude command to run; default `claude` |
+| `--record <file>` | `calibrate`: save every live answer, with its cost, as a cassette to replay later |
+| `--spend-cap-usd <usd>` | `calibrate`: stop calling live judges once their calls have cost this much; later calls give no answer |
+| `--cascade` | `calibrate`: the first judge answers everything, the others only where it is unsure or disagrees with the label; writes the cascade report as JSON to `--out`. See [a cascade](../concepts/judges.md#a-cascade-the-costly-judges-only-where-the-cheap-one-is-unsure) |
+| `--only <criterion>` | `calibrate`: only this criterion; repeat for several |
+| `--assign <rule>` | `calibrate`: `council` (default), three judges at the bar in one class; `cheapest`, the one cheapest judge at the bar, judging alone, with its cost per call in the table. See [the cheapest judge](../concepts/judges.md#the-cheapest-judge-at-the-bar-alone) |
 | `--out <file>` | `calibrate`: where to write the assignment table, in YAML; required |
 | `--repeats <n>` | `calibrate`: how many times each judge answers each fixture; default 3 |
 | `--mode <mode>` | the council mode, `system1`, `hybrid` or `llm`; default `hybrid` |
 | `--agent-family <family>` | the model family of the agent under test, `none` for no model; default `none` |
 | `--cascade` | `run`: run the cheapest judge first and stop on a sure pass |
 | `--assignments <file>` | `run`: the assignment table `judge calibrate` wrote |
+| `--verify arithmetic` | check the explicit equations of a reply (such as `12 * 3 = 35`) in a bounded arithmetic sandbox before the judge reads it; the results reach the judge as a `judge.arithmetic` tool line. Also on `replay`, `estate run` and `campaign rejudge` |
+| `--prompt-budget <chars>` | drop the oldest transcript entries, replaced by one `[k earlier entries omitted]` line, until the judge prompt fits this many characters; the last block, the artifact and the Given stay. A block that alone is over the budget is inconclusive. Also on `replay`, `estate run` and `campaign rejudge` |
 | `--json` | print one JSON document |
 
 On the Acme criteria and their cassette:
@@ -907,21 +988,22 @@ On the Acme price-sheet family:
 
 ```
 $ pnpm -s driftbench family instances examples/acme/families/price-sheet --n 3 --seed 1 --out _captures/docs3/cli/family
-Family acme-price-sheet: 3 instances, seed 1, 12 specs.
-  i01  seed 1219026796  categories=3 column_order=shuffled language=EN line_endings=crlf plans=15 planted=without readme_name=readme.txt seed_format=csv summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, duplicate-line, header-order, unit-change
-  i02  seed 1269359653  categories=4 column_order=catalog language=EN line_endings=lf plans=29 planted=without readme_name=readme.txt seed_format=json summary=with wording=b workbook=out/acme-prices.xlsx yearly=formula  base, duplicate-line, header-order, unit-change
-  i03  seed 1252582034  categories=2 column_order=shuffled language=EN line_endings=crlf plans=24 planted=without readme_name=README.txt seed_format=csv summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
+Family acme-price-sheet: 3 instances, seed 1, 13 specs.
+  i01  seed 1219026796  categories=3 column_order=catalog language=EN line_endings=lf plans=6 planted=with readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change, planted
+  i02  seed 1269359653  categories=2 column_order=shuffled language=EN line_endings=crlf plans=25 planted=without readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change
+  i03  seed 1252582034  categories=4 column_order=catalog language=EN line_endings=lf plans=15 planted=without readme_name=readme.txt seed_format=json start=catalog-only summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
 Style invariant: 17 style alternatives rebuilt; none changed the expected outcome.
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
-Wrote 12 specs and family-report.json to _captures/docs3/cli/family.
+Review: signed by owner on 2026-10-13.
+Wrote 13 specs and family-report.json to _captures/docs3/cli/family.
 ```
 
 ```
 $ pnpm -s driftbench family verify _captures/docs3/cli/family --reference process:acme-ops
-Verify _captures/docs3/cli/family on the reference process:acme-ops: 12 specs.
+Verify _captures/docs3/cli/family on the reference process:acme-ops: 13 specs.
   ✓ i01/base.yaml
   ✓ i01/duplicate-line.yaml
   ✓ i01/header-order.yaml
+  ✓ i01/planted.yaml
   ✓ i01/unit-change.yaml
   ✓ i02/base.yaml
   ✓ i02/duplicate-line.yaml
@@ -931,14 +1013,13 @@ Verify _captures/docs3/cli/family on the reference process:acme-ops: 12 specs.
   ✓ i03/empty-cell.yaml
   ✓ i03/header-order.yaml
   ✓ i03/unit-change.yaml
-✓ The reference passes all 12 specs: 3 instances may ship.
-Release also waits for a person to sign the review of acme-price-sheet (3 instances wait on it).
+✓ The reference passes all 13 specs: 3 instances may ship.
 Wrote _captures/docs3/cli/family/verify-report.json.
 ```
 
 ```
 $ pnpm -s driftbench family review examples/acme/families/price-sheet
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
+Review: signed by owner on 2026-10-13.
 ```
 
 | Exit code | `instances` | `verify` | `review` |
@@ -946,34 +1027,41 @@ Review: pending. examples/acme/families/price-sheet/review.yaml is not signed ye
 | 0 | every instance is written | the reference passes every spec under the folder | a signed review holds for the family as it is |
 | 1 | the family or its oracle has a defect (an oracle that fails or answers outside the format, an invalid spec, a style knob that changes the expected outcome); nothing written | the reference fails a spec, or a spec is invalid; each is listed and never shipped | a person still has to sign |
 | 2 | bad input: an invalid family, an unapproved phrase, a missing, invalid or stale review, a bad number, an earlier output without `--force` | bad input: no adapter for the reference, no spec under the folder, a bad number | bad input, or an invalid review file |
+| 3 | | none fails, but the reference could not run one (a block not run): unverified, listed apart, never shipped | |
 
 ## `driftbench estate`
 
 Reads an agent estate (its standing instructions, skills, agents, guards and settings) into a map of atoms, lints it, approves the atoms a model split from prose, exports its space map, derives the test plan, generates task specs from it, and keeps the tests true when the estate changes. The runtime today is `claude-code`. What the atoms, the plan and maintenance are is on the [estate](../estate.md) page; the Claude Code mapping is on [its adapter page](../adapters/claude-code.md). [`examples/estates/fixture`](../../examples/estates/fixture/README.md) is the estate the examples below read.
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--force]
-driftbench estate lint <map> [--ceiling <characters>]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [--force]
-driftbench estate plan approve <plan> [--all] [--row <id>]... [--strike]
+driftbench estate plan approve <plan> [--all] [--row <id>]... [--strike] [--out <file>]
 driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>] [--new-guards <file>]
 driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] [--replay <sessions>] [--suite <dir>] [--store <db>]
-driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--force] [--json]
+driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--no-judge] [--force] [--json]
+driftbench estate static <tests...> --estate <root> [--runtime <name>] [--ceiling <characters>] [--json]
+driftbench estate unit <tests...> --estate <root> [--runtime claude-code] [--record] [--no-sandbox] [--jobs <n>] [--json]
+driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json
 ```
 
 | Command | Does |
 |---|---|
 | `estate scan` | reads an estate into a map: code reads the structure, a model splits the prose. Atoms code reads are approved as read; atoms the model splits wait for approval |
-| `estate lint` | checks an estate against its map: orphans, unreachable files, missing references, size ceilings, guards |
+| `estate lint` | checks an estate against its map: orphans, unreachable files, missing references, size ceilings, guards. `--ignore <glob>` skips the paths it matches, beside the defaults, as the scan did; repeat it for several |
 | `estate approve` | lists the atoms left to approve, or approves them by kind, by atom or all |
 | `estate map` | writes the space map of the situation axes and the approved axis atoms, for `driftbench space` |
 | `estate plan` | derives the test plan from an approved map: the contract per atom kind, journeys over the estate graph, pairwise cells; the summary goes beside it as `<plan>.summary.json` |
 | `estate plan approve` | lists the plan rows by status, or approves them all, approves a row, or strikes a row |
 | `estate diff` | lists the atoms added, changed (white space or semantic), moved and removed, the edges, and the guards that changed enforcement state, between two maps |
 | `estate impact` | says what a diff does to the tests: regenerate, re-approve, retire, new |
-| `estate generate` | generates task specs from an approved plan, by code: one or more specs per plan row, with `estate-generate-report.json` |
+| `estate generate` | generates task specs from an approved plan, by code: one or more specs per plan row, with `estate-generate-report.json` and `run-order.txt`. With no approved phrase for a row, code writes the ask from the atoms (tag `ask:code`); with no declared outcome, the outcome is read from the atoms (no change, or nothing deleted). `--no-fallback` turns both off. `--focus` lists atom ids whose complete specs come first in the run order, then guards, gates and invariants |
+| `estate static` | runs the static tests `estate generate` writes under `static/` (one per invariant and per setting) against an estate root, read again by code with no run of the agent: an invariant must still hold, a setting must still be declared with its value. Exit 0 all pass, 1 one fails, 2 usage or input error |
+| `estate unit` | runs the unit tests `estate generate` writes under `unit/` (guards on event payloads, scripts on their declared fixtures) against an estate root, with no model. `--record` runs each case on the original estate and writes its outcome into the test file; a later run, on the original or on a mutant copy from `estate mutate`, must give every recorded outcome again. See [below](#driftbench-estate-unit). Exit 0 all pass, 1 one fails, 2 usage or input error or a test with no recorded outcome |
+| `estate stats` | Prints the coverage lines of an estate as JSON: per atom kind the approved atoms, those with a complete spec and those a guard enforces; cells and edges covered; reach for skills, references, guards and subagents, a not-observable count for the other approved atoms, decay and the deny rate per guard (drift) from recorded sessions. The shape is in [estate](../estate.md#the-coverage-command-estate-stats-contract). Exit 0 printed, 2 usage or input error |
 | `estate run` | runs live estate specs through the runtime headless, in a sandbox holding a copy of the estate pinned to its map; see [estate run and estate mutate](#driftbench-estate-run-and-driftbench-estate-mutate) |
 | `estate mutate` | copies the estate and deletes or inverts one atom in the copy, for the adequacy of its tests |
 
@@ -1081,10 +1169,10 @@ A map that does not load reports `MAP_PARSE`, `MAP_NOT_OBJECT`, `MAP_DUPLICATE_A
 ## `driftbench replay`
 
 ```
-driftbench replay <sessions...> --suite <dir> [--decisions <logs...>] [--steps <feeds...>] [--store <db>] [--json]
+driftbench replay <sessions...> --suite <dir> [--decisions <logs...>] [--steps <feeds...>] [--store <db>] [--owner <values...>] [--owner-file <file>] [judge flags] [--tool-policy <rules>] [--embedder <name>] [--json]
 ```
 
-Runs a spec suite over recorded sessions, offline, with no model call. Each spec is aligned with a session by its metadata, or by order; a spec that names a session not given is skipped with a note. The run is the runner's own in mode F, with the scripted driver, the default checks plus the ordered-pair check, and no cache; judged criteria are not run. Every run is stored under one replay campaign. See [estate](../estate.md).
+Runs a spec suite over recorded sessions, with no model call unless judging is enabled. Each spec is aligned with a session by its metadata, or by order; a spec that names a session not given is skipped with a note. The run is the runner's own in mode F, with the scripted driver, the default checks plus the ordered-pair check and the estate checks, and no cache. Judged criteria are judged by the [judge flags](#judge-flags), such as `--judge claude:<model>` (one call of the local claude command per criterion and block, its cost added to the run); with no judge each is inconclusive and gates as the criterion does, never a pass. A judge command that is not a stand-in is billed and needs `--judge-budget <usd>`. Blocks with `expect.pii_judge: true` also use this judge for names and personal addresses, sharing its budget and reported cost. Missing or failed personal-data judging is gating inconclusive; absent or false opt-in makes no call. Every run is stored under one replay campaign. See [estate](../estate.md).
 
 | Option | Effect |
 |---|---|
@@ -1093,6 +1181,8 @@ Runs a spec suite over recorded sessions, offline, with no model call. Each spec
 | `--decisions <logs...>` | guard decision logs (JSONL), one per session, matched by file name: `clean-build.decisions.jsonl` belongs to `clean-build.jsonl` |
 | `--steps <feeds...>` | the stage feeds (JSONL), one per session, matched by file name the same way |
 | `--store <db>` | keep the runs in this store; in memory without it |
+| `--owner <values...>` | the owner's own email, phone, IBAN or national number: the `pii` check leaves exactly these values out; see [personal data](checks.md#personal-data) |
+| `--owner-file <file>` | owner values, one per line; blank lines and lines starting with `#` are skipped |
 | `--json` | print one JSON document |
 
 On the recorded sessions of [`examples/estates/sessions`](../../examples/estates/sessions/specs):
@@ -1117,21 +1207,22 @@ $ pnpm -s driftbench replay examples/estates/sessions/clean-build.jsonl examples
 |---|---|
 | 0 | every aligned spec passes |
 | 1 | an aligned spec fails |
-| 2 | bad input: a log passed as a session, two sessions with one name, an unreadable session, an invalid spec, no spec aligned, a store that cannot be opened |
+| 2 | bad input: a log passed as a session, two sessions with one name, an unreadable session or a file that is not a transcript, an unreadable owner file, an invalid spec, no spec aligned, a store that cannot be opened |
 
 ## `driftbench validate`
 
 ```
-driftbench validate <component|all> [--seed <n>] [--seeds <a..b>] [--hidden] [--json]
+driftbench validate <component|all> [--seed <n>] [--seeds <a..b>] [--hidden] [--json] [--items] [--all-levels] [--blind]
+driftbench validate <component> --hardness
 driftbench validate <component|all> --check-floor [seed options]
 driftbench validate <component> --brief [--fresh] [seed options]
 driftbench validate <component> --journal <row.json>
 driftbench validate <component|all> --check-handover
-driftbench validate floors [--raise <component> <level> --evidence <json>]
+driftbench validate floors [--raise <component> <level> --evidence <json> [--ladder-version <n>]]
 driftbench validate protect --branch <name> --base <ref>
 ```
 
-Runs a validator ladder: the levels in order, stopping at the first failing level, and exits with the level reached. The registered component is `stats`, the statistics validator; `all` runs every registered validator. `floors` and `protect` are not validators: they read and raise the floors, and check a pull request. The ladders, the floors, the loop files and the CI job are on the [validators](../validators.md) page, section 8.2.
+Runs a validator ladder: the levels in order, stopping at the first failing level, and exits with the level reached. The registered components are `estate`, `generator`, `judges`, `map`, `stats` and `system`; `all` runs every registered validator. `floors` and `protect` are not validators: they read and raise the floors, and check a pull request. The ladders, the floors, the loop files and the CI job are on the [validators](../validators.md) page, section 8.2.
 
 | Option | Effect |
 |---|---|
@@ -1139,9 +1230,14 @@ Runs a validator ladder: the levels in order, stopping at the first failing leve
 | `--seeds <a..b>` | a range of visible seeds, such as `1..20` |
 | `--hidden` | add the hidden seed derived from `git rev-parse HEAD` |
 | `--json` | print the report as JSON |
-| `--check-floor` | exit 1 when a run is below its floor in `validators/floors.json`, else 0 |
-| `--raise <component>` | with `floors`: raise the floor of this component to `<level>` |
+| `--check-floor` | compute through each positive applicable floor in `validators/floors.json`; floor 0 keeps the ordinary walk; exit 1 below a floor, else 0 |
+| `--raise <component>` | with `floors`: raise the floor of this component to `<level>`; create `validators/` if absent, after the evidence is accepted |
 | `--evidence <json>` | with `floors --raise`: the `--json` run that reaches the level |
+| `--ladder-version <n>` | with `floors --raise`: the ladder version the floor is for |
+| `--items` | also list the whole bank per family and tier, pass or fail per seed, from the same run |
+| `--all-levels` | compute every level and list every failing item with its level, family, tier and cause |
+| `--blind` | the auditor view: strip every cause and trailing `Fix:` hint from items, text and JSON |
+| `--hardness` | print the hardness measurement of [validators](../validators.md) section 12.4 from the journal |
 | `--brief` | print `validators/EXECUTOR.md` with the live state of the loop embedded |
 | `--fresh` | with `--brief`: leave out the handover's hypotheses (the handover test) |
 | `--journal <row.json>` | append a validated journal row and rewrite the handover's level table |
@@ -1153,21 +1249,26 @@ Runs a validator ladder: the levels in order, stopping at the first failing leve
 
 ```
 $ pnpm -s driftbench validate stats
-Validator stats
-Level  Name              Metric                                                                             Threshold  seed 1
-1      reference values  fixture cases matched / fixture cases compared                                     >= 1       1 pass
-2      Wilson coverage   intervals containing the truth / intervals computed, lowest over n of 20, 50, 200  >= 0.93    0.947 pass
-Level per seed: 1 = 2
-Level of the run: 2 of 2, the minimum over 1 seed.
-Floor: 1. At or above the floor.
+Validator stats (ladder version 2)
+Level  Name                 Metric                                                                                      Threshold  seed 1
+1      reference values     fixture groups matching scipy and numpy / groups                                            >= 1       1 pass
+2      degenerate inputs    empty, NaN, infinite, out-of-domain, single and all-equal cases handled / cases             >= 1       1 pass
+3      reproducibility      same seed same bits, other seed other draw, order invariance / items                        >= 1       1 pass
+4      analytic truth       estimators and tests matching a constructed truth, enumeration or textbook formula / items  >= 1       1 pass
+5      simulation coverage  planted designs whose coverage, recovery, error or power holds / designs                    >= 1       1 pass
+6      scale and stability  one-million-row calls under budget and shift-stable results / items                         >= 1       1 pass
+7      roadmap methods      methods the dossiers name, matching scipy, degenerate-safe, scaling / items                 >= 1       1 pass
+Level per seed: 1 = 7
+Level of the run: 7 of 7, the minimum over 1 seed.
+Floor: 7. At or above the floor.
 No level failed.
 ```
 
-The run reaches level 2, so the command exits 2.
+The run reaches level 7, so the command exits 7.
 
 ```
 $ pnpm -s driftbench validate floors
-Floors (validators/floors.json): stats = 1.
+Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
 ```
 
 | Exit code | When |
@@ -1181,13 +1282,32 @@ An option error the argument parser reports (an unknown option, a missing compon
 ## `driftbench estate run` and `driftbench estate mutate`
 
 ```
-driftbench estate run <specs...> --estate <root> --runtime claude-code [--command <bin>] --store <db> [--map <file>] [--states <file>] [--pass-env <names...>] [--timeout <ms>] [--allow-billed] [--json]
+driftbench estate run [specs...] --estate <root> --runtime claude-code [--order <file>] [--command <bin>] --store <db> [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [judge flags] [run check flags] [--json]
 driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--force] [--json]
 ```
 
 `estate run` runs live estate specs through the runtime's headless command, in a sandbox holding a copy of the estate, pinned to the map's hash with `--map`. A command is billed unless its first lines carry the stand-in marker: without `--allow-billed`, only a stand-in runs. Exit 0 when every spec passes, 1 when one fails, 2 on a usage or input error (nothing runs).
 
-`estate mutate` copies the estate and deletes the quoted span of one atom (`--delete`) or replaces it by its negation from a fixed table (`--invert`), and writes the copy, `map.yaml` and `mutant.json` to `--to`. The tests derived from that atom must then go red. Exit 0 when the mutant is written, 2 on a usage or input error (nothing is written).
+The options that shape the run of the runtime:
+
+| Option | Meaning |
+|---|---|
+| `--order <file>` | a run-order file, such as the `run-order.txt` that `estate generate` writes: one spec file or folder per line, relative to the file's own folder; `#` starts a comment. Its specs run in that order, after any `[specs...]` arguments |
+| `--set-env <NAME=VALUE>` | a variable the runtime and its guards receive; repeat it. For a path, a proxy or a dead URL a spec needs |
+| `--pass-env <names...>` | names of the evaluator's own variables the runtime receives, such as its credentials |
+| `--disallow <rules...>` | tools the runtime must refuse, passed to it as `--disallowed-tools` |
+| `--lock-deny <paths...>` | paths the runtime and its children may neither read nor write (the macOS lock). The owner config in `~/.claude` is always write-protected |
+| `--model <name>` | the model the runtime runs, passed as `--model` |
+| `--max-turns <n>` | the most agent turns per spec block, passed as `--max-turns` |
+| `--max-budget-usd <usd>` | the most one spec block may spend, passed as `--max-budget-usd` |
+| `--permission-mode <mode>` | the permission mode of the run, passed as `--permission-mode` |
+| `--trust-estate` | allow the tools the estate's settings allow, and Skill, as a trusted folder would |
+| `--config host\|isolated` | the config folder of the runtime: `host` (where the login lives) or `isolated`. Default `host`, and `isolated` for a stand-in command |
+| `--timeout <ms>` | kill a turn after this long |
+
+With `--progress <file>`, each finished spec appends one compact JSON run line to the file as it finishes, so a stopped batch keeps the lines it finished. Stdout is unchanged: with `--json` it is the one summary document, which has `runs`, `passed`, `failed`, `undecided`, `notApplicable` and `costUsd`. A spec whose only non-passing checks are not applicable (a stage check on a run with no stage record) is counted as `notApplicable`, not as a failure, and the summary line names the count.
+
+`estate mutate` copies the estate and deletes the quoted span of one atom (`--delete`) or replaces it by its negation from a fixed table (`--invert`), and writes the copy, `map.yaml` and `mutant.json` to `--to`. The tests derived from that atom must then go red. Exit 0 when the mutant is written, 2 on a usage or input error (nothing is written). A `--delete` of a skill's `name:` line whose value equals the skill's folder name is an equivalent mutant: it is refused with exit 2 and nothing is written.
 
 On the Northwind fixture, with the stand-in command of `examples/estates/fixture/live/fake` (no model call):
 
@@ -1208,13 +1328,52 @@ Wrote <dir>: the estate copy, map.yaml and mutant.json.
 
 The `tool_denied` spec fails by design: the stand-in plays a planted fault, a `WebFetch` call the settings deny. The fixture's [README](../../examples/estates/fixture/live/README.md) lists the 14 proof specs.
 
+## `driftbench estate unit`
+
+```
+driftbench estate unit <tests...> --estate <root> [--runtime claude-code] [--record] [--no-sandbox] [--jobs <n>] [--json]
+```
+
+Runs the unit tests that `estate generate` writes under `unit/`, with no model: each guard on the event payloads of its cases, each script on its fixtures. `<tests...>` are test files, or folders that hold them, such as `<suite>/unit`. `--estate` is the root the tests run against: the original estate, or a mutant copy from `estate mutate`.
+
+| Option | Meaning |
+|---|---|
+| `--estate <root>` | the estate root; required |
+| `--runtime <name>` | the runtime that reads the estate; `claude-code`, the default, is the one runtime today |
+| `--record` | run on the original estate and write each case's outcome into its test file: the oracle a later run compares with |
+| `--no-sandbox` | run without the sandbox (no network, no credential folders) even where the platform has one |
+| `--jobs <n>` | how many tests run at once, default 1; the results keep their order |
+| `--json` | print `runs`, `guards` and `scripts` as one JSON document, the shape on the [estate](../estate.md#unit-live-and-estate-mutants) page |
+
+A guard case is an event payload in the runtime's input shape; the guard runs on a copy of the estate, as the runtime would run it. Its outcome is what the runtime reads: deny, ask, allow or error, the message and what the guard printed. `--record` runs each case several times on the original: a case whose outcome varies is marked flaky and is not compared, and a case that shows no effect is inert. Without `--record`, every recorded case that is neither flaky nor inert must give its recorded outcome again, and a `guard_speed` test also holds each run under its budget, the guard's `timeout`. A script runs the fixtures that `scripts:` declares for it in the estate's [`driftbench.estate.yaml`](../estate.md#the-estate-configuration-file); a script with no declared fixture is recorded like a guard.
+
+On the Northwind fixture, after `--record` on a copy of `examples/estates/fixture/generated/unit`:
+
+```
+$ pnpm -s driftbench estate unit <copy>/unit --estate examples/estates/fixture --record
+...
+Recorded 26 unit tests (sandbox: sandbox-exec); 0 have no fixture.
+$ pnpm -s driftbench estate unit <copy>/unit --estate examples/estates/fixture
+✓ unit.guard_hostile.guard.settings.posttooluse-bash-guard-ledger-guard-py  6 of 6 cases as recorded
+...
+· unit.guard_hostile.guard.settings.stop-guard-reply-length-py  no recorded case shows the guard at work
+...
+20 of 26 unit tests pass, 0 fail, 6 inert, 0 unrecorded (sandbox: sandbox-exec).
+```
+
+Without `--record`, a test with no recorded outcome prints `?` and `no outcome recorded: run --record on the original first`.
+
+Exit 0 when every test passes (an inert test passes), 1 when one fails, 2 on a usage or input error or when a test has no recorded outcome and `--record` was not given.
+
 ## `driftbench perturb`
 
 ```
-driftbench perturb <spec> (--class <D> --at <n> | --perturbation <id>) [--target <adapter[:agent]>] [--seed <n>] [--pack <dir>] [--drafts] [--json]
+driftbench perturb <spec> (--class <D> --at <n> | --perturbation <id>) [--target <adapter[:agent]>] [--faults <path>] [--seed <n>] [--pack <dir>] [--drafts] [--json]
 ```
 
 Runs one spec in mode P with one deviation injected, through the perturbing driver, and prints the recovery. `--class` and `--at` draw a phrasing of the class from the red-team pack (`--pack`, default the nearest `redteam/` folder), seeded by `--seed`; `--perturbation` runs one the spec declares. The free-running run of the same spec is the reference collateral counts against. Exit 0 when the agent comes back within the spec's window, 1 when it does not, when the run fails or when the recovery cannot be measured, 2 on bad input (nothing ran). See [recovery](../concepts/recovery.md).
+
+`--faults <path>` loads a fault set module, or a folder whose index module exports `faults`, so `--target fault:<id>` can run a planted faulty agent. A `fault:<id>` target requires this option.
 
 ```
 $ pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2
@@ -1228,36 +1387,95 @@ Reference: the F run of the same spec, 5 of 5 blocks pass; collateral counts aga
   5                                closing       ✓
 ✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
 Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate","collateral":0,"safeAction":true,"clarified":true}
+Reply checks: 3 of 4 applied, 1 not applicable (tied to another stage).
 (exit 0)
 ```
 
 ## `driftbench report` and `driftbench compare`
 
 ```
-driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points>] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--json]
-driftbench compare --baseline <campaign> --candidate <campaign> --store <db> --margin <points> [--mode <modes>] [--q <rate>] [--json]
+driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points|auto>] [--min-goldens <n>] [--strict] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--withhold-incomplete] [--config <file>] [--aggregate <name:op threshold>]... [--json]
+driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json] [--pairwise <criterion.yaml>] [--pairwise-judge <openai|anthropic|google>] [--pairwise-reference <file>] [--pairwise-contract winner|ledger] [--pairwise-presentation both-orders|canonical] [--pairwise-items <file>] [--no-pairwise-audit] [--pairwise-config reader-first [--judge-margin <n>] [--feature-margin <n>] [--min-failures <n>]] [--pairwise-preference long-structured] [judge flags]
+driftbench compare --rank <campaigns...> --store <db> [--mode <modes>] [--json]
 ```
 
-`report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
+`report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). `--config <file>` names the project config whose `aggregates:` it also scores; default `driftbench.yaml` in the working folder. `--withhold-incomplete` withholds the pass^k and pass@k value of a line with incomplete runs, instead of reporting it with the range of its missing outcomes; see [statistics](../concepts/statistics.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
 
-`compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. See [statistics](../concepts/statistics.md#comparing-a-baseline-and-a-candidate). The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
+On the command line `report` prints, per mode, the suite headline: `Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.3 runs (design effect 3.69), detectable drop 65.3 points at 80% power.` It is the mean over goldens with the hierarchical Beta-Bernoulli interval, then the effective runs, the smallest drop two suites like it detect and the share of runs that did not complete. A rate over clustered runs elsewhere on the page prints its `n_eff` and design effect beside the Wilson interval. See [statistics](../concepts/statistics.md#the-suite-headline).
+
+`compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Per criterion and for the all-pass flag it also prints three planning numbers: the floor (the smallest margin its goldens can show when nothing changed), the drop its goldens detect at 80% power, and the goldens a 10 point margin needs. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. The rule is on the [statistics](../concepts/statistics.md#the-campaign-verdict) page. The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
+
+`compare`, `ci` and `report` share one rule and these options:
+
+| Option | Effect |
+|---|---|
+| `--margin <points\|auto>` | the largest drop in pass rate tolerated, in percentage points. Default `auto`: the smallest half point at which the baseline compared with itself is non-inferior (`report` without `--baseline`: the campaign compared with itself), printed with what sets it, with a warning above 15 points that names the goldens a 15 point margin needs |
+| `--min-goldens <n>` | a gating criterion decided on fewer goldens is underpowered: reported, and left out of the parity test. Default 30 |
+| `--strict` | underpowered criteria gate too, as before the minimum existed |
+
+New flags always gate, and so does an underpowered criterion whose regression Benjamini-Hochberg keeps.
+
+`compare --pairwise <criterion.yaml>` also judges, for every block both campaigns ran, which of the two replies better meets one criterion. The criterion file holds a `name` and a `rubric`, and optionally `pass` and `fail`. `--pairwise-judge` picks the provider judge, `openai` by default; its key is read from the environment. `--pairwise-reference <file>` asks which reply matches the reference answer in the file better, instead of which reply is better; see [judges](../concepts/judges.md#factual-audit-and-ledger-recovery). Each pair is judged twice, in both orders, so a judge that favours a position is caught: the printed line counts the baseline and candidate wins, the ties, the calls whose two orders disagreed, and the calls where the judge chose a position. A judge that gives no answer fails the command with its reason. The pairwise line never changes the exit code.
+
+Pairs must share the same verifiable sent text. Identical stored `realized.text` is used as the user message. Hash-only blocks use the authored text only when its hash matches; different hashes or unavailable sent text skip the pair. Text output counts these as "different stimulus", and JSON exposes the count as `pairwise.differentStimulus`. Each side uses its own pinned spec, including the block's recorded spec position.
+
+The pairwise call takes these settings. Each is checked before any call; a contradiction exits 2 and names the flag to drop. With none, the requests and the printed line are as above.
+
+| Option | Effect |
+|---|---|
+| `--pairwise-contract <contract>` | `winner` (default): the judge names the better reply. `ledger`: the judge scores each requirement for both replies in both orders and code decides; a machine stage settles clear pairs without a call. See [pair ledger](../concepts/judges.md#pair-ledger) |
+| `--pairwise-presentation <order>` | `both-orders` (default), or `canonical`: one order fixed by the content of the two replies, half the calls, position bias not measured. Not with `ledger`. See [canonical presentation](../concepts/judges.md#canonical-presentation) |
+| `--pairwise-items <file>` | a YAML list of rubric items, each `{ name, rubric, weight, hard }`, scored for both replies. See [itemized rubrics](../concepts/judges.md#itemized-rubrics) |
+| `--no-pairwise-audit` | with `--pairwise-reference`: no fact audit of the reference and no ledger recovery of an order split |
+| `--pairwise-config reader-first` | the reader-first configuration: prefer the longer complete reply unless the judge finds supported failures in it. `--judge-margin` (default 4), `--feature-margin` (default 5) and `--min-failures` (default 1) set its thresholds. It replaces the other pairwise settings. See [reader-first](../concepts/judges.md#reader-first-configuration-length-aware-opt-in) |
+| `--pairwise-preference long-structured` | a declared preference for the longer structured reply, applied after the ledger verdict; needs `--pairwise-contract ledger`. See [judges](../concepts/judges.md#declared-preference-long-structured-opt-in) |
+
+With a setting, the printed line names it, such as `Pairwise (ledger): ...`, and counts the order splits and position bias only where both orders were judged by the winner contract.
+
+`compare --rank <campaigns...>` ranks three or more campaigns, such as versions of one agent, on the runs they share: the same spec, mode, perturbation and repeat, whatever the target. A campaign wins a shared run when its run passes and the other's fails; a run both pass or both fail is a tie, half a win to each. It prints the Bradley-Terry order with each strength, the wins and ties of every pair, and every three-campaign cycle of majority wins (a beats b, b beats c, c beats a), since a cycle means no order is fully true. `--mode` keeps only those modes; `--json` prints `campaigns`, `wins`, `ties`, `shared`, `order` and `cycles`. Exit 0 ranked, 1 when no order exists (two campaigns share no run, or every shared run between some went one way), 2 on bad input.
 
 ## `driftbench ci`
 
 ```
-driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> --margin <points> [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--flag <check>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
+driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--process-command <command>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--change <manifest>] [--agent-version <label>] [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [--max-not-run <share>] [judge flags] [run check flags] [--json]
 ```
 
-Runs the specs on a candidate target, compares the new campaign with a baseline campaign, and gates. The summary goes to `--out` (default `driftbench-ci.json`). `--faults` lets the target name a planted fault as `fault:<id>`. Exit 0 on parity, 1 on a regression, a new gating flag or an incomplete run, 2 on bad input.
+The [judge flags](#judge-flags) reach the candidate run.
+
+`--route` sends the specs carrying a tag to another target, as in `campaign run`: with a fault candidate on a mixed suite, `--target fault:<id>` runs the conversations and `--route flow:price-sheet=process:acme-ops` keeps the task specs on the code agent.
+
+`--process-command` runs the candidate of any `process:<name>` target other than `process:acme-ops` with your own command, as in [`campaign run`](../running.md): a JSON list of strings or words split on spaces. Run the baseline campaign with the same option, then gate: `driftbench ci --specs specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]" --baseline baseline --store runs.db`. Without it, `ci` reaches the bundled Acme targets only.
+
+A failing `--aggregate` criterion gives the verdict `AGGREGATE FAILED` and exit 1. See [campaign-level criteria](../aggregates.md).
+
+`--config <file>` names the project config, `driftbench.yaml` in the working folder by default. `ci` scores its `aggregates:` and takes from its `campaign:` key the run settings it shares with `campaign run` where no flag is given: `routes`, `modes`, `repeats`, `concurrency`, `budget_usd`, `process_command` and `agent_version`. See [the campaign key](../running.md#the-campaign-key).
+
+A refused `ci` (exit 2) writes nothing: its input, `--out` included, is checked before the candidate runs, so the store and the summary file stay as they were.
+
+Runs the specs on a candidate target, then compares the new campaign with a baseline campaign by the rule of `compare`, and gates. On one pair of campaigns, `ci` and `compare` give the same verdict and the same exit code. `--baseline` is a store file (its latest campaign) or a campaign id held in `--store`, read before the candidate runs. The summary goes to `--out` (default `driftbench-ci.json`). `--faults` lets the target name a planted fault as `fault:<id>`. `--flag` sets the flag families (default `safety`, `forbidden`, `pii`). The cache is off unless `--cache`. The summary opens with the auto margin and the underpowered criteria, so a lenient gate says why.
+
+| Verdict of `compare` | Verdict of `ci` | Exit | Means |
+|---|---|---|---|
+| `non-inferior` | `parity` | 0 | the all-pass flag and every gating criterion that is not underpowered have an upper bound below the margin, and no flag family is new on the candidate |
+| `regressed` | `regression` | 1 | evidence of a drop: a new flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved |
+| `unproven` | `not-shown-non-inferior` | 1 | no evidence of a drop, but an interval is wider than the margin; this means too few goldens, never a regression |
+| none | `incomplete` | 1 | a candidate cell did not run (stopped by the budget, or pending) |
+| none | `not-run` | 3 | a spec of the candidate has more of its blocks not run (a Given the target cannot apply, see [running](../running.md#outcomes)) than `--max-not-run` allows, default 0, and compare finds no regression. Not-run units are left out of the comparison and listed. A regression wins over it, exit 1, so the verdict never depends on an unrelated spec not run; a golden that flipped while compare calls the change noise is no regression |
+
+Measured 2026-10-12 on the Acme golden suite (10 goldens) with the defaults:
 
 ```
-$ pnpm driftbench ci --specs examples/acme/specs/conversations --target function:acme-sales --baseline c-base --store <db> --margin 50 --repeats 2
-Verdict: PARITY. The upper bound 39.03 points of the regression effect is below the margin 50 points, and no new gating flag fires. Exit 0.
-(exit 0)
-$ pnpm driftbench ci --specs examples/acme/specs/conversations --target fault:x3-skips-recap --faults examples/acme/faults --baseline c-base --store <db> --margin 50 --repeats 2
-Verdict: REGRESSION. The upper bound 81.24 points of the regression effect is not below the margin 50 points. Exit 1.
-(exit 1)
+$ pnpm driftbench ci --specs examples/acme/golden/specs --target fault:control-sales-identity --faults examples/acme/faults --route flow:price-sheet=process:acme-ops --baseline baseline --store <db>
+Margin auto: 28 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 27.75 points).
+Warning: this suite cannot show parity under 15 points (the all-pass flag needs 27.8 points); about 22 goldens would.
+Underpowered, under 30 goldens, left out of the parity test: artifacts (1 golden), budget (2 goldens), cards (1 golden), end_state (7 goldens), execution (1 golden), forbidden (9 goldens), guards (3 goldens), lang (8 goldens), ledger (2 goldens), must (8 goldens), must_not (3 goldens), pii (10 goldens), safety (1 golden), skills (1 golden), stage (10 goldens), tools (9 goldens), workspace (1 golden).
+(the verdict table)
+Verdict: PARITY. Exit 0.
+$ pnpm driftbench ci --specs examples/acme/golden/specs --target fault:x3-skips-recap --faults examples/acme/faults --route flow:price-sheet=process:acme-ops --baseline baseline --store <db>
+Verdict: REGRESSION. Exit 1.
 ```
+
+With `--change <manifest>`, `ci` runs only the [blast radius](../concepts/blast-radius.md) of the change and carries the other cells from the baseline, which must then be a campaign of the `--store` file. `--agent-version` names the candidate's version, the manifest's `to`. Carried goldens are not paired: the parity test reads the fresh ones. `--audit <n>` runs n of the cells about to be carried and compares each with its stored run; one that differs gives the verdict `radius-miss`, exit 1, and the candidate then runs whole. The summary gains a `radius` block: the manifest, the cells fresh and carried, the blocks sent and carried, and the audit. `--max-carry` and `--max-age` are the staleness limits of `campaign run`. Without `--change`, the summary and the verdict are what they were.
 
 ## `driftbench monitor`
 
@@ -1285,6 +1503,8 @@ driftbench monitor --source traces <path> --metric latency|cost|tokens|tool_call
 | 1 | a shift: two or three detectors alarmed |
 | 2 | bad input: an unknown metric for the source, no store or no path, a bad `--every` or `--window`, too few points |
 
+Too few points is what a young store answers, not a broken one: the series needs two windows, 40 campaigns at the default `--window 20`. The message names the largest window the store allows, and the smallest window, `--window 2`, needs 4 campaigns. The example below runs on a store of six campaigns with `--window 2`.
+
 On a store:
 
 ```
@@ -1310,31 +1530,79 @@ driftbench holdout score --sealed <dir> --target <adapter:agent> [--budget <quer
 
 `select` chooses the golden set from the gated specs: the fewest conversations covering the cells of the map on every subset of `--t` dimensions, then the `--k` best. Sealed specs never count. Exit 0 when the set is written and covers every required cell, 1 when it is written and a required cell stays empty, 2 on a usage or input error.
 
-`holdout seal` seals a share of the gated specs (the gate's own sealed split when it has one). `holdout score` runs the sealed specs once through the runner and prints the pass rate with its Wilson interval, never which spec passed; each score spends one query of the budget. Seal: exit 0 when written, 2 on bad input. Score: exit 0 when scored, 1 when the budget is spent, 2 on bad input.
+`holdout seal` seals a share of the gated specs (the gate's own sealed split when it has one). Give `--specs` the gate's output folder, the one that holds `specs/` and `holdout/`, such as `examples/acme/gated`: its `specs/` subfolder alone does not hold the sealed files, and `holdout seal` refuses it and names the folder to pass. `holdout score` runs the sealed specs once through the runner and prints the pass rate with its Wilson interval, never which spec passed; each score spends one query of the budget. Seal: exit 0 when written, 2 on bad input. Score: exit 0 when scored, 1 when the budget is spent, 2 on bad input.
 
 ```
 $ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10
-Cells covered: 303 of 840 allowed pairs (36.1%); the pool covers 592.
-Required cells: 9 of 10; the pool covers 9.
-  ✗ flow price-sheet · D6_instruction_in_data: no unsealed spec covers it
-(exit 1)
+Pool: 200 unsealed specs; 58 sealed specs left out; 4 gate files that are not specs skipped.
+Cover: 106 conversations cover every cell the pool covers (598 of 708).
+(the ranked table)
+Cells covered: 306 of 708 allowed pairs (43.2%); the pool covers 598.
+  t = 3: 794 of 4064 allowed (19.5%).
+Required cells: 10 of 10; the pool covers 10.
+Faults turned red: 12 of the 13 the pool turns red (13 counted faults in the gate report).
+(exit 0)
 $ pnpm driftbench holdout seal --specs examples/acme/gated --out <dir>
 Wrote <dir>/sealed.json. The sealed specs run only through driftbench holdout score; select leaves them out.
 (exit 0)
 $ pnpm driftbench holdout score --sealed <dir> --target function:acme-sales --budget 3
   conversations  passed  pass rate  95% Wilson interval
-  35             35      100.0%     90.1% to 100.0%
+  49             49      100.0%     92.7% to 100.0%
+Not run, not counted: acme-price-sheet (names process:acme-ops), acme-price-sheet-i01-base (names process:acme-ops), (the other 9 price-sheet task specs).
 Budget: 1 of 3 queries used, 2 left. Which conversation passed is not shown: the holdout stays sealed.
 (exit 0)
 ```
 
+## `driftbench radius`
+
+```
+driftbench radius <paths...> --change <manifest> [--mode <modes>] [--json]
+```
+
+Prints the [blast radius](../concepts/blast-radius.md) of a change: the blocks of the specs the change can affect, against the whole suite. It is read only: nothing runs and nothing is written.
+
+| Option | Meaning |
+|---|---|
+| `--change <manifest>` | the change manifest, YAML or JSON: `from`, `to` and the list of `changes`, each with a `kind`, an `id` and, for a tool, a `part` |
+| `--mode <modes>` | the run modes to plan for, separated by commas; default `F`. In `F` and `P` every block after a direct block of the same run is in; in `T` a block runs alone |
+| `--json` | one JSON document: the manifest and its hash, the totals per mode, and every block with its state (`direct`, `forward` or `out`) and its reasons |
+
+A block is in directly when its dependencies name a change, and forward when it follows such a block in the same run. A block with unknown dependencies is in every radius. A change that cannot be mapped, or that no block declares, makes the radius the whole suite, and the output says which change and why.
+
+Exit 0 when the radius is smaller than the suite, 1 when it is the whole suite, 2 on a usage or input error.
+
+```
+$ pnpm -s driftbench radius examples/acme/gated/specs --change examples/acme/radius/deviation-goal-shift.yaml
+Blast radius of acme-v1 to acme-v2 (manifest a393cc307eff): deviation:D2.
+195 specs, 861 blocks scored (6 more run with their spec and are not scored: a gate rejected them).
+Mode F, free-running: 22 of 861 blocks in the radius (9 direct, 13 forward), 839 out. 9 of 195 cells.
+  A cell reruns whole: 55 of 861 blocks sent, 93.6% saved; 186 of 195 cells left to carry.
+In the radius, mode F:
+  spec           blocks in  from              why
+  gen-twise-003  3 of 6     b4-D2_goal_shift  deviation:D2
+  (8 more rows)
+(exit 0)
+```
+
+## `driftbench queue`
+
+```
+driftbench queue create --store <db> --campaign <id> [--labels <dir>]
+driftbench queue list [--labels <dir>]
+driftbench queue assign <runId>.b<index> --criterion <name> --reviewer <name> [--labels <dir>]
+driftbench queue vote <runId>.b<index> --criterion <name> --reviewer <name> --label <pass|fail> [--labels <dir>]
+driftbench queue agreement [--labels <dir>]
+```
+
+The review queue of blocks to label, kept beside the labels as `queue.json`. `create` queues each block of a campaign once per criterion of its spec, skipping blocks already labelled. `list` prints each item with its state and holder. `assign` takes an item for a reviewer; a second reviewer is refused with exit 2. `vote` records a second reviewer's label without writing the labels file, and `agreement` prints the agreement between the first two reviewers of each item with two votes. Saving a label on the viewer's queue page marks its item done. See [viewer](../viewer.md#review-queue).
+
 ## `driftbench view`
 
 ```
-driftbench view [--store <file>] [--port <n>] [--labels <dir>] [--labelled-by <name>]
+driftbench view [--store <file>] [--port <n>] [--labels <dir>] [--labelled-by <name>] [--config <file>]
 ```
 
-Serves a store on `127.0.0.1` as a local website: the campaigns, each campaign's scorecard with its spread view, one page per run with every block in full, and the comparison of two campaigns. Under every block a form saves a pass or fail label per criterion, with a note, to the labels folder `judge calibrate --labels` reads. `--store` defaults to `driftbench.db`, `--port` to `4317` (`0` picks a free one), `--labels` to `labels`. It runs until Ctrl+C. Exit 0 after a stop; 2 when the store is missing, the port is not a number, or the port cannot be opened. See [viewer](../viewer.md).
+Serves a store on `127.0.0.1` as a local website: the campaigns, each campaign's scorecard with its spread view, one page per run with every block in full, and the comparison of two campaigns. Under every block a form saves a pass or fail label per criterion, with a note, to the labels folder `judge calibrate --labels` reads. `--store` defaults to `driftbench.db`, `--port` to `4317` (`0` picks a free one), `--labels` to `labels`. `--config` names the config whose `scales:` bound each criterion's queue score; it defaults to `driftbench.yaml` when that file exists, and a config that does not parse exits 2. It runs until Ctrl+C. Exit 0 after a stop; 2 when the store is missing, the port is not a number, or the port cannot be opened. See [viewer](../viewer.md).
 
 ## `driftbench import`
 
@@ -1392,4 +1660,57 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 | `battery run` | the runtime battery on agent traces | 4 |
 | a rerun of one stored cell | run one cell of a stored campaign again | no phase assigned |
 | `init` | start a project | no phase assigned |
+| `judge lint` | lint the rubric of every criterion in a folder (see [judges, Additional APIs](../concepts/judges.md#additional-judge-apis)) | no phase assigned |
+| `judge compare` | judge two runs of the same specs side by side, in both orders, and report the winner per criterion and the position bias (see [judges, Additional APIs](../concepts/judges.md#additional-judge-apis)) | no phase assigned |
 | `spec synth` | specs from traffic clusters | no phase assigned |
+
+## `driftbench campaign run --cache-suite`
+
+`--cache-suite <name>` names the cache suite of a campaign. Its block keys include the name, so a campaign under a new name starts from an empty cache, and the entries of the other suites stay in the store. A campaign under the same name replays from its own suite. Without the flag, the keys are the ones earlier caches used.
+
+## Token prices for campaign budgets
+
+`campaign run` and `campaign resume` accept `--prices <file>` for a standalone dated USD token price table. Without the flag, they read `prices:` from `driftbench.yaml`. See [the budget](../running.md#the-budget) for the format, model lookup, and preflight refusal listing every declared target model without a price. Models first reported at runtime can only be checked after that first call. A budget counts target-adapter reports only; simulated-user and judge calls are excluded. The CLI prints that scope on stderr when those roles are used with a budget.
+
+### Prompt change manifests
+
+`driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved proposal evidence quotes or estate atom provenance. It exits 0 when the manifest is written or printed, including a conservative whole-suite manifest, and 2 on invalid input. Estate whitespace-only edits use the unit ledger’s NFC and collapsed-whitespace identity. Their empty manifests include file, hash and version evidence; `radius` and `campaign run` revalidate it before selecting zero tests across different version labels. An unvalidated empty transition still selects everything. The separate `radius <specs> --change ...` command exits 1 when its computed radius is the whole suite. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
+
+`driftbench radius sections init <prompt> --id <prompt-id> --prompt-version <version> [--level <n>] [--out <file>]` writes a first section registry from the markdown headings. `driftbench radius sections check <registry> --prompt <file> [--json]` exits 1 when the registry no longer describes the prompt. `driftbench radius sections reanchor <registry> --prompt <old> <new> --to-version <version> [--out <file>] [--change-out <manifest>] [--json]` finds every section again in the new prompt, writes the `prompt_section` manifest with `--change-out`, and exits 1 when a section is stale, a change lies outside every section or sections changed order. `driftbench radius <specs> --change <manifest> --sections <registries...>` prints, after the radius, which blocks selection by section links would run; a `prompt_section` change keeps the radius the whole suite. `driftbench radius localize <specs> --store <file> --campaign <id> --sections <registries...> [--prompt <id>] [--mode <mode>] [--counting grouped|flat] [--top <n>] [--json]` ranks the local sections of a prompt by Ochiai suspiciousness from the campaign's block verdicts; it exits 0 with a ranking, 1 when nothing failed outside inherited failures, 2 on bad input. Defaults and exits of the section registry commands:
+
+* `radius sections init` makes one section for each heading of level 1 up to `--level` (a whole number from 1 to 6, default 2); a deeper heading belongs to the section above it. The text before the first heading is the section `preamble` when it is not empty. An id is the slugged title (lower case, letters and digits, other runs as `_`; a second section with the same slug gets `_2`). Every section is `global`. It prints the registry, or writes it with `--out`, and exits 0. It exits 2, writing nothing, for a `--level` outside 1 to 6, a prompt it cannot read, a prompt with no section, or a section in which no quote is unique in the prompt.
+* `radius sections check` exits 0 when every live section matches the prompt (the whole-text hash, each section's hash, span and anchor, no overlap; stale sections are not checked and are listed), 1 when the registry no longer describes the prompt, and 2 when the registry or the prompt cannot be read or the registry is invalid: it is not YAML or JSON, a field is missing or unknown, an id is used twice, or `references`, `overrides` or `duplicates` names a section that does not exist.
+* `radius sections reanchor` exits 0 when every section was found again in order and no text changed outside the sections, 1 otherwise (a stale section, text outside every section, or sections that changed order), and 2 when the registry is invalid, `--prompt` does not name exactly two files, or the registry does not describe the old prompt (its `text_sha256` differs from the old text). The statuses `kept`, `moved` and `stale` are in [re-anchoring a registry](../concepts/blast-radius.md#re-anchoring-a-registry).
+
+Example of a registry written by `radius sections init`, for a prompt with a preamble and the sections Tone, Refunds and Escalation:
+
+```text
+prompt_id: support
+version: v1
+normalisation: NFC; CRLF/CR->LF; offsets in UTF-16 code units; end exclusive
+text_sha256: 5a168ea21558287f0480ec217b789ad7925ff056bbf91a01bd3723d45ab8c344
+sections:
+  - id: preamble
+    title: preamble
+    scope: global
+    span: { start: 0, end: 45 }
+    sha256: db68cd6020275ff4d59ed333e3611bdcc32d044b8732e9f1f84badacd80d3675
+    anchor: { quote: "You are the support agen", prefix: "", suffix: "t of Harbour Freight.\n\n## Tone\nA" }
+  - id: tone
+    title: Tone
+    scope: global
+    span: { start: 47, end: 97 }
+    # sha256 and anchor as above
+```
+
+See [prompt sections and block links](../concepts/blast-radius.md#prompt-sections-and-block-links).
+
+### `campaign rejudge`
+
+```sh
+driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --store <file> --change <criterion-manifest> (--judge <kind>:<model> | --judges <cassette>) [judge flags] [--max-carry <n>] [--max-age <days>] [--json]
+```
+
+Re-judge selected criteria using compatible stored observations, without calling an agent.
+The manifest's agent versions must be identical. Full compatibility requirements, refusal
+cases and an executed Acme example are in [blast radius](../concepts/blast-radius.md#re-judge-a-criterion).

@@ -5,14 +5,18 @@ import {
   type AgentAdapter,
   AgentFailure,
   contentHash,
+  copyHistory,
+  decideToolRule,
+  deniesCall,
   isPlainObject,
   type Observed,
   retryableStatus,
   Segment,
   type Session,
   type ToolCall,
+  type ToolRule,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   excerpt,
   type FetchLike,
@@ -37,12 +41,12 @@ export type { ChatMessage, ChatToolCall } from './chat';
  * OpenAI-compatible chat completion. A completion that asks for tools is answered from `world.tools` and
  * posted again, round after round, until a completion asks for none.
  *
- * Errors: no connection, a timeout, a 429 or a 5xx is an AdapterTransportError, which the runner retries under
- * the shared policy, honouring Retry-After; any other failing status (408 included) or a body of neither shape
- * is an AgentFailure.
+ * Errors: no connection, a timeout, a 408, a 429 or a 5xx is an AdapterTransportError, which the runner retries
+ * under the shared policy, honouring Retry-After; any other failing status or a body of neither shape is an
+ * AgentFailure.
  */
 
-export const HTTP_ADAPTER_VERSION = '0.1.0';
+export const HTTP_ADAPTER_VERSION = '0.1.1';
 
 export type HttpAdapterOptions = {
   /** The endpoint that answers one block. */
@@ -59,6 +63,9 @@ export type HttpAdapterOptions = {
   timeoutMs?: number;
   /** The most rounds of tool calls a chat completion may ask for in one block. Default 8. */
   maxToolRounds?: number;
+  /** A tool policy applied to every tool a chat completion asks for, before the harness answers it. A denied call
+   *  is answered with an error, and its stub is never read. Absent: every requested tool is answered from world.tools. */
+  toolPolicy?: readonly ToolRule[];
   /** The fetch to use. Default the global fetch. */
   fetch?: FetchLike;
 };
@@ -157,6 +164,7 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
     const usage = { inputTokens: 0, outputTokens: 0, seen: false };
     const messages = [...request.messages];
     let latencyMs = 0;
+    let finishReason: string | undefined;
     let reply = first;
     for (let round = 0; ; round++) {
       const completion = readCompletion(judge(reply, options.url));
@@ -164,6 +172,7 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
         throw new AgentFailure(`POST ${options.url} answered a chat completion with no choices[0].message`);
       }
       latencyMs += reply.latencyMs;
+      finishReason = completion.finishReason;
       if (completion.usage) {
         usage.seen = true;
         usage.inputTokens += completion.usage.inputTokens ?? 0;
@@ -199,6 +208,25 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
         })),
       });
       for (const call of calls) {
+        const rule = options.toolPolicy ? decideToolRule(options.toolPolicy, call.name) : undefined;
+        if (deniesCall(rule)) {
+          // Refused before the harness answers: the stub is never read, and the model gets the refusal as the result.
+          const why =
+            rule?.action === 'ask'
+              ? `tool policy rule ${rule.pattern} asks, and no approver answers, so the call is denied`
+              : `denied by tool policy rule ${rule?.pattern ?? ''}`;
+          segments.push({
+            type: 'tool_call',
+            id: call.id,
+            label: call.name,
+            input: call.arguments,
+            ...take(),
+          });
+          segments.push({ type: 'tool_result', id: call.id, label: call.name, output: null, error: why });
+          toolCalls.push({ id: call.id, label: call.name, input: call.arguments, error: why });
+          messages.push({ role: 'tool', tool_call_id: call.id, content: JSON.stringify({ error: why }) });
+          continue;
+        }
         const stub = turn.given.world.tools?.[call.name];
         if (!stub || (stub.error === undefined && !('result' in stub))) {
           throw new AgentFailure(
@@ -248,6 +276,7 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
         toolCalls,
         cost: usage.seen ? { inputTokens: usage.inputTokens, outputTokens: usage.outputTokens } : {},
         latencyMs,
+        ...(finishReason === undefined ? {} : { runtime: { finishReason } }),
       },
       `POST ${options.url}`,
     );
@@ -265,18 +294,19 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
         adapter: id,
         target: given.target,
         given,
-        history: structuredClone(given.prefix),
+        history: copyHistory(given.prefix),
         state,
       };
     },
 
     async send(session, turn) {
+      const history = copyHistory(session.history);
       own(session);
       const request: HttpTurnRequest = {
         session: session.id,
         turn: turn.index,
         ...(session.target.agent === undefined ? {} : { model: session.target.agent }),
-        messages: toChatMessages(promptMessages(session.history, session.target)),
+        messages: toChatMessages(promptMessages(history, session.target)),
         stimulus: turn.stimulus,
         world: turn.given.world,
         vars: turn.given.vars,

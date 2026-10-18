@@ -1,4 +1,4 @@
-import { isPlainObject } from '@driftbench/core';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
 
 /**
  * Pieces of the OpenAI-compatible chat shape that two adapters read: the http adapter in a chat
@@ -20,10 +20,10 @@ export function contentText(content: unknown): string {
     .join('');
 }
 
-/** Tool arguments arrive as JSON text; text that does not parse is kept as it is. */
+/** Parse JSON arguments without hiding malformed or missing input behind an empty object. */
 export function parseArguments(value: unknown): unknown {
-  if (typeof value !== 'string') return value ?? {};
-  if (value.trim() === '') return {};
+  if (typeof value !== 'string') return value ?? null;
+  if (value.trim() === '') return value;
   try {
     return JSON.parse(value);
   } catch {

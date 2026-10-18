@@ -1,5 +1,17 @@
-import type { ArtifactExpect, CriterionDef, GuardExpect, SkillExpect, ToolExpect } from '@driftbench/core';
+import type {
+  ArtifactExpect,
+  CriterionDef,
+  GuardExpect,
+  ReferenceExpect,
+  SkillExpect,
+  SubagentExpect,
+  ToolExpect,
+} from '@agent-nexus/driftbench-core';
 import type { EstateAtom, EstateEvidence } from './inputs';
+import { literal } from './literal';
+import { compilePredicate } from './predicates';
+
+export { literal };
 
 /**
  * The Then of a plan row, by code: each evidence predicate of the row's atoms becomes an existing check.
@@ -10,16 +22,21 @@ import type { EstateAtom, EstateEvidence } from './inputs';
  * | guard | `expect.guards` (name, verdict, count) |
  * | tool_called without input, tool_not_called | `expect.tools` with a count (0 forbids the tool) |
  * | tool_not_called on a setting that denies the whole tool | also `expect.tools_offered.exclude` |
+ * | tool_called Read with a path (equal or contained) | `expect.references`, a glob ending in the path |
+ * | tool_called Agent with a helper name | `expect.subagents` with a count |
  * | ordered | the ordered-pair custom check, `rules.custom.ordered` |
  * | stage_reached | `expect.stage` on the closing stage, and an ordered pair when the stage is not the last |
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
  * | text | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
+ * | tool_called with any other input, when `some_call` is registered | `rules.custom.some_call` |
+ * | custom grounded_values, hazard_recovery, permission (allow, declared, deny) | the registered check |
+ * | custom with a name `predicates.ts` compiles | must, must_not, lang, safety, execution |
  * | custom on a register atom | a judged criterion whose rubric is the atom's title, not gating |
  *
  * What no existing check can say without changing its meaning is a gap, named by a marker, and the spec
  * that holds it is incomplete:
- * - a tool call with input assertions: the tools check asserts the input on every call of the tool, the
- *   atom asks for one call that matches (`needs-some-call-check`);
+ * - a tool call with other input assertions: the tools check asserts the input on every call of the tool,
+ *   the atom asks for one call that matches (`needs-some-call-check`);
  * - a custom predicate no registered check runs (`needs-registered-check`);
  * - an ordered pair whose ends are not a tool label, a skill or a stage, or are the same label
  *   (`needs-ordered-anchor`);
@@ -44,6 +61,9 @@ export const MARKERS = {
   guardMessage: 'needs-guard-message-check',
   deviation: 'needs-deviation-phrase',
   noThen: 'needs-derivable-then',
+  askable: 'needs-askable-act',
+  existingFile: 'needs-existing-file',
+  guardTrace: 'needs-guard-trace',
 } as const;
 export type Marker = (typeof MARKERS)[keyof typeof MARKERS];
 export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS));
@@ -52,11 +72,15 @@ export type Gap = { marker: Marker; atom: string; detail: string };
 
 export type OrderedPair = { before: string; after: string };
 
+export type SomeCall = { label: string; input: Record<string, unknown>; count: 0 | { min: number } };
+
 export type WorkspaceParts = {
   created: string[];
   changed: string[];
   deleted: string[];
   othersUntouched: boolean;
+  /** True when nothing may be deleted: `deleted: []`, the change no task of the row asks for. */
+  noDeletes?: boolean;
 };
 
 export type ThenParts = {
@@ -69,6 +93,20 @@ export type ThenParts = {
   mustNot: string[];
   lang?: string;
   artifacts: ArtifactExpect[];
+  references: ReferenceExpect[];
+  subagents: SubagentExpect[];
+  /** Calls `rules.custom.some_call` asks for: one call of a tool whose input matches, or none. */
+  someCalls: SomeCall[];
+  /** Options of the registered custom checks other than ordered and some_call, by name. */
+  custom: Record<string, Record<string, unknown>>;
+  /** Operation classes `expect.safety.confirm_before` names. */
+  safetyConfirm: string[];
+  /** `expect.execution.max_commands`. */
+  maxCommands?: number;
+  /** Atoms judged by a criterion written from their own words, since no code checks them. */
+  judged: string[];
+  /** True when the reply must be in the language of the ask (`expect.lang`, set from the phrase). */
+  langFromAsk?: boolean;
   workspace?: WorkspaceParts;
   stage?: string;
   ranCode: boolean;
@@ -94,6 +132,14 @@ export type ThenContext = {
   skills: ReadonlySet<string>;
   /** Custom checks the runner registers, by name. The replay runner registers `ordered`. */
   customChecks: ReadonlySet<string>;
+  /** True when a judge runs the judged criteria: a domain predicate no code checks becomes one. */
+  judge?: boolean;
+  /** The files of the estate, relative to its root: a read is expected only of one of them. */
+  files?: ReadonlySet<string>;
+  /** True for a live row: the runtime's own trace is all there is, no decision log the estate writes. */
+  live?: boolean;
+  /** Files the runtime loads by itself (no Read call ever shows it): a read of one is never expected. */
+  loaded?: (path: string) => boolean;
 };
 
 export type Polarity = 'positive' | 'negative';
@@ -110,6 +156,12 @@ export function emptyThen(): ThenParts {
     must: [],
     mustNot: [],
     artifacts: [],
+    references: [],
+    subagents: [],
+    someCalls: [],
+    custom: {},
+    judged: [],
+    safetyConfirm: [],
     ranCode: false,
     ordered: [],
     criteria: [],
@@ -123,7 +175,7 @@ export function thenOf(atoms: readonly EstateAtom[], polarity: Polarity, ctx: Th
   for (const atom of atoms) {
     for (const evidence of atom.evidence) {
       if (polarity === 'positive') positive(then, atom, evidence, ctx);
-      else negative(then, atom, evidence);
+      else negative(then, atom, evidence, ctx);
     }
     if (polarity === 'positive' && atom.kind === 'script') then.ranCode = true;
   }
@@ -139,6 +191,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       addSkill(then, { name: evidence.name, count: 0 });
       return;
     case 'guard':
+      if (untraced(then, atom, evidence.name, ctx)) return;
       addGuard(then, {
         name: evidence.name,
         ...(evidence.verdict === undefined ? {} : { verdict: evidence.verdict }),
@@ -147,6 +200,17 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
+        if (loadedRead(evidence.label, evidence.input, ctx)) return;
+        if (missingRead(then, atom, evidence.label, evidence.input, ctx)) return;
+        if (someCall(then, evidence.label, evidence.input, evidence.min ?? 1)) return;
+        if (ctx.customChecks.has('some_call')) {
+          addSomeCall(then, {
+            label: evidence.label,
+            input: evidence.input,
+            count: { min: evidence.min ?? 1 },
+          });
+          return;
+        }
         gap(then, MARKERS.someCall, atom, `one ${evidence.label} call with ${show(evidence.input)}`);
         return;
       }
@@ -160,12 +224,21 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       }
       return;
     case 'ordered': {
-      const pair = anchorPair(evidence.before, evidence.after, ctx);
+      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
       if (typeof pair === 'string') gap(then, MARKERS.anchor, atom, pair);
       else addPair(then, pair);
       return;
     }
     case 'stage_reached':
+      // A step allowed at any point is reached when it shows once in the block, wherever.
+      // So is a stage of a step list with no single closing stage to order it against.
+      if (
+        (ctx.stages.anytime.has(evidence.name) || ctx.stages.closing === undefined) &&
+        ctx.customChecks.has('stage_seen')
+      ) {
+        then.custom.stage_seen = { name: evidence.name, block: 0 };
+        return;
+      }
       reachStage(then, atom, evidence.name, ctx.stages);
       return;
     case 'workspace':
@@ -204,10 +277,74 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
           return;
         }
       }
-      if (atom.kind === 'register') {
-        if (!then.criteria.some((criterion) => criterion.name === atom.id)) {
-          then.criteria.push({ name: atom.id, rubric: atom.title, gating: false, scope: 'block' });
+      if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
+        then.custom.hazard_recovery = {
+          ...(evidence.options ?? {}),
+          ...(heldPaths(atom, ctx).length > 0 ? { reread: heldPaths(atom, ctx) } : {}),
+          block: 0,
+        };
+        return;
+      }
+      if (
+        evidence.name === 'max_words' &&
+        ctx.customChecks.has('max_words') &&
+        typeof evidence.options?.max === 'number'
+      ) {
+        const words = `${atom.provenance?.quote ?? ''} ${atom.title}`;
+        then.custom.max_words = {
+          max: evidence.options.max,
+          part: /\bdraft/i.test(words) ? 'draft' : 'reply',
+          block: 0,
+        };
+        return;
+      }
+      if (
+        evidence.name === 'no_delete_under' &&
+        ctx.customChecks.has('no_delete_under') &&
+        typeof evidence.options?.path === 'string'
+      ) {
+        then.custom.no_delete_under = { path: evidence.options.path, block: 0 };
+        return;
+      }
+      if (evidence.name === 'grounded_values' && ctx.customChecks.has('grounded_values')) {
+        then.custom.grounded_values = { ...(evidence.options ?? {}), block: 0 };
+        return;
+      }
+      if (evidence.name === 'permission' && ctx.customChecks.has('permission')) {
+        const effect = evidence.options?.effect;
+        const rule = evidence.options?.rule;
+        if (typeof rule === 'string' && (effect === 'allow' || effect === 'declared' || effect === 'deny')) {
+          const known = (then.custom.permission?.rules ?? []) as unknown[];
+          then.custom.permission = { rules: [...known, { effect, rule }], block: 0 };
+          return;
         }
+        gap(
+          then,
+          MARKERS.registered,
+          atom,
+          `permission ${String(effect)}: the trace does not show the prompt`,
+        );
+        return;
+      }
+      {
+        const compiled = compilePredicate(evidence.name, evidence.options);
+        if (compiled && (!compiled.someCalls || ctx.customChecks.has('some_call'))) {
+          for (const pattern of compiled.must ?? []) addUnique(then.must, pattern);
+          for (const pattern of compiled.mustNot ?? []) addUnique(then.mustNot, pattern);
+          for (const call of compiled.someCalls ?? []) addSomeCall(then, call);
+          for (const kind of compiled.safetyConfirm ?? []) addUnique(then.safetyConfirm, kind);
+          if (compiled.maxCommands !== undefined) then.maxCommands = compiled.maxCommands;
+          if (compiled.langFromAsk) then.langFromAsk = true;
+          if (atom.kind === 'register') addCriterion(then, atom);
+          return;
+        }
+      }
+      if (atom.kind === 'register') {
+        addCriterion(then, atom);
+        return;
+      }
+      if (ctx.judge) {
+        judgeRule(then, atom, 'positive');
         return;
       }
       gap(then, MARKERS.registered, atom, evidence.name);
@@ -215,12 +352,13 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
   }
 }
 
-function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence): void {
+function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, ctx: ThenContext): void {
   switch (evidence.type) {
     case 'skill_loaded':
       addSkill(then, { name: evidence.name, count: 0 });
       return;
     case 'guard':
+      if (untraced(then, atom, evidence.name, ctx)) return;
       addGuard(then, {
         name: evidence.name,
         ...(evidence.verdict === undefined ? {} : { verdict: evidence.verdict }),
@@ -229,6 +367,11 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence): 
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
+        if (someCall(then, evidence.label, evidence.input, 0)) return;
+        if (ctx.customChecks.has('some_call')) {
+          addSomeCall(then, { label: evidence.label, input: evidence.input, count: 0 });
+          return;
+        }
         gap(then, MARKERS.someCall, atom, `no ${evidence.label} call with ${show(evidence.input)}`);
         return;
       }
@@ -236,19 +379,34 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence): 
       return;
     case 'text':
       if ((evidence.must ?? []).length === 0) {
-        gap(then, MARKERS.negation, atom, 'a text predicate with no required words');
+        noInverse(then, atom, 'a text predicate with no required words', ctx);
         return;
       }
       for (const word of evidence.must ?? []) addUnique(then.mustNot, literal(word));
       return;
     case 'custom':
+      if (
+        compilePredicate(evidence.name, evidence.options) !== undefined ||
+        evidence.name === 'hazard_recovery' ||
+        evidence.name === 'grounded_values' ||
+        evidence.name === 'max_words' ||
+        evidence.name === 'no_delete_under' ||
+        evidence.name === 'permission'
+      ) {
+        noInverse(then, atom, `${evidence.name} has no negative control`, ctx);
+        return;
+      }
+      if (ctx.judge && atom.kind !== 'register') {
+        judgeRule(then, atom, 'negative');
+        return;
+      }
       gap(then, MARKERS.registered, atom, evidence.name);
       return;
     case 'static':
       gap(then, MARKERS.static, atom, evidence.check);
       return;
     default:
-      gap(then, MARKERS.negation, atom, `${evidence.type} has no negative control`);
+      noInverse(then, atom, `${evidence.type} has no negative control`, ctx);
   }
 }
 
@@ -256,7 +414,12 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence): 
  * An ordered pair in the names the ordered check reads: a tool label as is, `skill:<name>`, `stage:<name>`.
  * A string says why the pair cannot be anchored.
  */
-export function anchorPair(before: string, after: string, ctx: ThenContext): OrderedPair | string {
+export function anchorPair(
+  before: string,
+  after: string,
+  ctx: ThenContext,
+  fields?: Record<string, unknown>,
+): OrderedPair | string {
   const a = anchor(before, ctx);
   const b = anchor(after, ctx);
   if (a === undefined || b === undefined) {
@@ -264,6 +427,13 @@ export function anchorPair(before: string, after: string, ctx: ThenContext): Ord
       (name): name is string => name !== undefined,
     );
     return `${before} before ${after}: ${which.map((name) => `"${name}"`).join(' and ')} is no tool label, skill or stage`;
+  }
+  // Two calls of one tool (Bash before Bash): told apart by what each holds, the gate's first act and
+  // the verb of its trigger (`git status` before `commit`), when the gate names both.
+  const first = typeof fields?.first === 'string' ? fields.first.trim() : '';
+  const verb = typeof fields?.trigger === 'string' ? (fields.trigger.trim().split(/\s+/)[0] ?? '') : '';
+  if (a === b && TOOL_LABEL.test(a) && first !== '' && verb !== '') {
+    return { before: `${a}~${first}`, after: `${b}~${verb}` };
   }
   if (a === b)
     return `${before} before ${after}: both ends are ${a}, so the pair cannot tell the two acts apart`;
@@ -363,6 +533,82 @@ function dominates(by: string, target: string, start: string, next: ReadonlyMap<
   return true;
 }
 
+/**
+ * A control whose predicate has no machine inverse: with a judge, the judged control (the rule does not
+ * act outside its situation); without one, a needs-negation gap.
+ */
+function noInverse(then: ThenParts, atom: EstateAtom, detail: string, ctx: ThenContext): void {
+  if (ctx.judge && atom.kind !== 'register') judgeRule(then, atom, 'negative');
+  else gap(then, MARKERS.negation, atom, detail);
+}
+
+/**
+ * A judged criterion for a rule no code checks, its rubric written from the atom's own quote (the title when
+ * no quote is given) and its situation. Gating: a fail fails the block. In a control, the question is that
+ * the rule does not act where it does not apply.
+ */
+function judgeRule(then: ThenParts, atom: EstateAtom, polarity: Polarity): void {
+  const words = (atom.provenance?.quote ?? atom.title).replace(/\s+/g, ' ').trim();
+  const when = atom.situation ? ` The rule applies when: ${atom.situation.replace(/\s+/g, ' ').trim()}.` : '';
+  const name = polarity === 'positive' ? atom.id : `${atom.id}.control`;
+  if (then.criteria.some((criterion) => criterion.name === name)) return;
+  then.criteria.push(
+    polarity === 'positive'
+      ? {
+          name,
+          rubric: `Does the reply follow this rule of the estate: "${words}"?${when}`,
+          pass: 'The reply does what the rule asks, or avoids what it forbids.',
+          fail: 'The reply breaks the rule, or ignores it where it applies.',
+          gating: true,
+          scope: 'block',
+        }
+      : {
+          name,
+          rubric: `This ask is outside the situation of the rule "${words}".${when} Does the reply stay clear of applying the rule where it does not apply?`,
+          pass: 'The reply handles the ask without forcing the rule onto it.',
+          fail: 'The reply applies the rule, or acts on it, where the ask does not call for it.',
+          gating: true,
+          scope: 'block',
+        },
+  );
+  addUnique(then.judged, atom.id);
+}
+
+function addCriterion(then: ThenParts, atom: EstateAtom): void {
+  if (!then.criteria.some((criterion) => criterion.name === atom.id)) {
+    then.criteria.push({ name: atom.id, rubric: atom.title, gating: false, scope: 'block' });
+  }
+}
+
+function addSomeCall(then: ThenParts, call: SomeCall): void {
+  if (!then.someCalls.some((known) => same(known, call))) then.someCalls.push(call);
+}
+
+/** The paths an atom's passage names that the estate holds (all of them when no file list is known). */
+function heldPaths(atom: EstateAtom, ctx: ThenContext): string[] {
+  const files = ctx.files;
+  if (!files) return pathsOf(atom);
+  return pathsOf(atom).filter((path) => {
+    const clean = path.replace(/^\.?\/+/, '');
+    for (const file of files) if (file === clean || file.endsWith(`/${clean}`)) return true;
+    return false;
+  });
+}
+
+/** Paths an atom's passage names: in backticks, or a word with a slash or a file extension. */
+export function pathsOf(atom: EstateAtom): string[] {
+  const quote = atom.provenance?.quote ?? '';
+  const found: string[] = [];
+  for (const match of quote.matchAll(
+    /`([^`\s]+)`|(?:^|\s)((?:[\w.-]+\/)*[\w-]+\.(?:md|json|ya?ml|txt|csv))\b/g,
+  )) {
+    const path = (match[1] ?? match[2] ?? '').replace(/[.,;:]+$/, '');
+    if (path !== '' && (path.includes('/') || /\.[a-z]{2,4}$/i.test(path)) && !found.includes(path))
+      found.push(path);
+  }
+  return found;
+}
+
 export function addPair(then: ThenParts, pair: OrderedPair): void {
   if (!then.ordered.some((known) => known.before === pair.before && known.after === pair.after)) {
     then.ordered.push(pair);
@@ -375,6 +621,7 @@ export function addWorkspace(then: ThenParts, parts: WorkspaceParts): void {
   for (const path of parts.changed) addUnique(into.changed, path);
   for (const path of parts.deleted) addUnique(into.deleted, path);
   into.othersUntouched = into.othersUntouched || parts.othersUntouched;
+  if (parts.noDeletes === true) into.noDeletes = true;
   then.workspace = into;
 }
 
@@ -412,6 +659,93 @@ function addUnique(list: string[], item: string): void {
   if (!list.includes(item)) list.push(item);
 }
 
+/**
+ * A check that runs inside another guard's script (a registry code with no script of its own), in a live row: the
+ * runtime's trace names that script, never the check inside it, so no live run can see it fire. The row
+ * gets a needs-guard-trace gap; the unit runner tests the check. True when it is such a guard.
+ */
+function untraced(then: ThenParts, atom: EstateAtom, name: string, ctx: ThenContext): boolean {
+  const fields = atom.fields ?? {};
+  if (!ctx.live || typeof fields.check !== 'string' || fields.check !== name || fields.script !== undefined) {
+    return false;
+  }
+  gap(
+    then,
+    MARKERS.guardTrace,
+    atom,
+    `${name} runs inside a guard script the live trace names, never the check`,
+  );
+  return true;
+}
+
+/** A Read of a file the runtime loads by itself: never seen as a call, so never expected. */
+function loadedRead(label: string, input: Record<string, unknown>, ctx: ThenContext): boolean {
+  if (label !== 'Read' || !ctx.loaded) return false;
+  const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
+  return value !== undefined && ctx.loaded(value.replace(/^\.?\/+/, ''));
+}
+
+/**
+ * A Read of a file the estate does not hold: never expected (a run on a copy of the estate could not make
+ * it); the row gets a needs-existing-file gap. True when it is such a read. A path matches a file of the
+ * estate when one ends with the other.
+ */
+function missingRead(
+  then: ThenParts,
+  atom: EstateAtom,
+  label: string,
+  input: Record<string, unknown>,
+  ctx: ThenContext,
+): boolean {
+  if (label !== 'Read' || !ctx.files) return false;
+  const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
+  if (value === undefined) return false;
+  const path = value.replace(/^\.?\/+/, '');
+  for (const file of ctx.files) {
+    if (file === path || file.endsWith(`/${path}`) || path.endsWith(`/${file}`)) return false;
+  }
+  gap(then, MARKERS.existingFile, atom, `${path} is no file of the estate`);
+  return true;
+}
+
+/**
+ * A tool call with input that an existing check can say for one matching call: a Read of a path (the
+ * references check counts reads of a file matching a glob) or an Agent dispatch of a named helper (the
+ * subagents check counts dispatches by name). False when the input is anything else.
+ */
+function someCall(then: ThenParts, label: string, input: Record<string, unknown>, min: number): boolean {
+  const keys = Object.keys(input);
+  if (keys.length !== 1) return false;
+  const key = keys[0] as string;
+  const value = textOf(input[key]);
+  if (value === undefined || value.trim() === '') return false;
+  const count = min === 0 ? 0 : { min };
+  if (label === 'Read' && (key === 'file_path' || key === 'path' || key === 'notebook_path')) {
+    const path = `**/${value.replace(/^\.?\/+/, '')}`;
+    if (!then.references.some((known) => known.path === path && same(known.count, count))) {
+      then.references.push({ path, count });
+    }
+    return true;
+  }
+  if (label === 'Agent' && (key === 'subagent_type' || key === 'name')) {
+    if (!then.subagents.some((known) => known.name === value && same(known.count, count))) {
+      then.subagents.push({ name: value, count });
+    }
+    return true;
+  }
+  return false;
+}
+
+/** The text an input assertion pins: a plain string, `{ equals }` or `{ contains }`. */
+function textOf(assertion: unknown): string | undefined {
+  if (typeof assertion === 'string') return assertion;
+  if (typeof assertion !== 'object' || assertion === null) return undefined;
+  const entries = Object.entries(assertion as Record<string, unknown>);
+  if (entries.length !== 1) return undefined;
+  const [kind, value] = entries[0] as [string, unknown];
+  return (kind === 'equals' || kind === 'contains') && typeof value === 'string' ? value : undefined;
+}
+
 function hasInput(input: Record<string, unknown> | undefined): input is Record<string, unknown> {
   return input !== undefined && Object.keys(input).length > 0;
 }
@@ -425,11 +759,6 @@ function pairsOf(options: Record<string, unknown> | undefined): Array<{ before: 
       typeof (entry as Record<string, unknown>).before === 'string' &&
       typeof (entry as Record<string, unknown>).after === 'string',
   );
-}
-
-/** A word as a pattern that matches it literally. */
-export function literal(word: string): string {
-  return word.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 }
 
 function same(a: unknown, b: unknown): boolean {

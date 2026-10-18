@@ -1,0 +1,2168 @@
+{
+  "tool": "tools/perf-baseline.mjs",
+  "label": "round-2",
+  "commit": "004586f91d0ef2d787cf2b71c1888c59b6f126e3",
+  "dirty": false,
+  "date": "2026-10-13",
+  "host": {
+    "node": "v24.18.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpus": 12,
+    "load_1m_before": 47.6,
+    "load_1m_after": 50.2
+  },
+  "runtime": "dist",
+  "rows": [
+    {
+      "name": "node-bare",
+      "runtime": "node",
+      "wall_ms": {
+        "median": 69.03,
+        "p25": 68.31,
+        "p75": 69.57,
+        "min": 67.59,
+        "max": 70.11,
+        "spread_pct": 1.82,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 66.51,
+        "p25": 65.75,
+        "p75": 67.01,
+        "min": 64.99,
+        "max": 67.51,
+        "spread_pct": 1.89,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 48.59,
+        "p25": 48.55,
+        "p75": 48.66,
+        "min": 48.52,
+        "max": 48.73,
+        "spread_pct": 0.23,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 0,
+        "modules_builtin": 0,
+        "modules_dependency": 0,
+        "modules_workspace": 0,
+        "module_bytes": 0,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {},
+      "modules_by_workspace": {},
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "cli-help",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 86.75,
+        "p25": 84.69,
+        "p75": 89.55,
+        "min": 82.63,
+        "max": 92.35,
+        "spread_pct": 5.61,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 82.34,
+        "p25": 80.59,
+        "p75": 83.75,
+        "min": 78.84,
+        "max": 85.17,
+        "spread_pct": 3.85,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 50.97,
+        "p25": 50.88,
+        "p75": 51.05,
+        "min": 50.8,
+        "max": 51.14,
+        "spread_pct": 0.34,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 14,
+        "modules_builtin": 4,
+        "modules_dependency": 7,
+        "modules_workspace": 3,
+        "module_bytes": 136890,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "commander": 7
+      },
+      "modules_by_workspace": {
+        "packages/cli": 3
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "4c80d421fc6501ac3094fa7532348444dfbf49b220ce7e33eec70d0b19cfacfe"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "cli-version",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 87.36,
+        "p25": 84.26,
+        "p75": 92.17,
+        "min": 81.16,
+        "max": 96.99,
+        "spread_pct": 9.06,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 85.29,
+        "p25": 83.57,
+        "p75": 86.56,
+        "min": 81.85,
+        "max": 87.82,
+        "spread_pct": 3.5,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 50.97,
+        "p25": 50.84,
+        "p75": 50.98,
+        "min": 50.72,
+        "max": 51,
+        "spread_pct": 0.28,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 14,
+        "modules_builtin": 4,
+        "modules_dependency": 7,
+        "modules_workspace": 3,
+        "module_bytes": 136890,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "commander": 7
+      },
+      "modules_by_workspace": {
+        "packages/cli": 3
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e9dd8507f4bf0c6f42458e41aea833ad0bd3f6127272335eee9bf4d58541ed67"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:adapters",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 166.53,
+        "p25": 159.11,
+        "p75": 175.86,
+        "min": 151.69,
+        "max": 185.2,
+        "spread_pct": 10.06,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 168.66,
+        "p25": 167.77,
+        "p75": 170.32,
+        "min": 166.89,
+        "max": 171.97,
+        "spread_pct": 1.51,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 69.08,
+        "p25": 68.92,
+        "p75": 69.22,
+        "min": 68.77,
+        "max": 69.36,
+        "spread_pct": 0.43,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 81.25,
+        "p25": 74.38,
+        "p75": 83.99,
+        "min": 67.52,
+        "max": 86.73,
+        "spread_pct": 11.82,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 177,
+        "modules_builtin": 6,
+        "modules_dependency": 167,
+        "modules_workspace": 4,
+        "module_bytes": 1666069,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72
+      },
+      "modules_by_workspace": {
+        "packages/adapters": 1,
+        "packages/core": 1,
+        "packages/sandbox": 1,
+        "packages/stats": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:artifacts",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 73.27,
+        "p25": 73.01,
+        "p75": 78.74,
+        "min": 72.74,
+        "max": 84.21,
+        "spread_pct": 7.83,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 70.09,
+        "p25": 68.9,
+        "p75": 72.79,
+        "min": 67.71,
+        "max": 75.5,
+        "spread_pct": 5.56,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 49.09,
+        "p25": 49.08,
+        "p75": 49.11,
+        "min": 49.06,
+        "max": 49.13,
+        "spread_pct": 0.06,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 1.59,
+        "p25": 1.57,
+        "p75": 1.59,
+        "min": 1.55,
+        "max": 1.59,
+        "spread_pct": 1.26,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 1,
+        "modules_builtin": 0,
+        "modules_dependency": 0,
+        "modules_workspace": 1,
+        "module_bytes": 75363,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {},
+      "modules_by_workspace": {
+        "packages/artifacts": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:battery",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 74.07,
+        "p25": 73.33,
+        "p75": 78.42,
+        "min": 72.6,
+        "max": 82.78,
+        "spread_pct": 6.87,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 71.12,
+        "p25": 70.49,
+        "p75": 71.47,
+        "min": 69.86,
+        "max": 71.81,
+        "spread_pct": 1.37,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 48.8,
+        "p25": 48.77,
+        "p75": 48.88,
+        "min": 48.75,
+        "max": 48.95,
+        "spread_pct": 0.21,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 0.46,
+        "p25": 0.46,
+        "p75": 0.49,
+        "min": 0.46,
+        "max": 0.52,
+        "spread_pct": 6.34,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 1,
+        "modules_builtin": 0,
+        "modules_dependency": 0,
+        "modules_workspace": 1,
+        "module_bytes": 95,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {},
+      "modules_by_workspace": {
+        "packages/battery": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:checks",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 170.52,
+        "p25": 166.12,
+        "p75": 188.95,
+        "min": 161.71,
+        "max": 207.39,
+        "spread_pct": 13.39,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 162.36,
+        "p25": 161.48,
+        "p75": 163.79,
+        "min": 160.6,
+        "max": 165.23,
+        "spread_pct": 1.43,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 68.92,
+        "p25": 68.78,
+        "p75": 69.14,
+        "min": 68.64,
+        "max": 69.36,
+        "spread_pct": 0.52,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 85.84,
+        "p25": 77.32,
+        "p75": 104.05,
+        "min": 68.8,
+        "max": 122.27,
+        "spread_pct": 31.14,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 175,
+        "modules_builtin": 5,
+        "modules_dependency": 167,
+        "modules_workspace": 3,
+        "module_bytes": 1541219,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72
+      },
+      "modules_by_workspace": {
+        "packages/checks": 1,
+        "packages/core": 1,
+        "packages/stats": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:cli",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 278.53,
+        "p25": 257.73,
+        "p75": 288.76,
+        "min": 236.94,
+        "max": 298.99,
+        "spread_pct": 11.14,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 174.87,
+        "p25": 173.81,
+        "p75": 175.18,
+        "min": 172.74,
+        "max": 175.49,
+        "spread_pct": 0.79,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 69.38,
+        "p25": 69.23,
+        "p75": 69.52,
+        "min": 69.08,
+        "max": 69.67,
+        "spread_pct": 0.43,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 151.12,
+        "p25": 137.13,
+        "p75": 151.14,
+        "min": 123.15,
+        "max": 151.17,
+        "spread_pct": 9.27,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 187,
+        "modules_builtin": 7,
+        "modules_dependency": 174,
+        "modules_workspace": 6,
+        "module_bytes": 1637793,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72,
+        "commander": 7
+      },
+      "modules_by_workspace": {
+        "packages/cli": 3,
+        "packages/core": 1,
+        "packages/report": 1,
+        "packages/stats": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:core",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 311.29,
+        "p25": 274.46,
+        "p75": 312.89,
+        "min": 237.63,
+        "max": 314.49,
+        "spread_pct": 12.35,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 158.29,
+        "p25": 156.92,
+        "p75": 160.87,
+        "min": 155.54,
+        "max": 163.45,
+        "spread_pct": 2.5,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 68.33,
+        "p25": 68.29,
+        "p75": 68.57,
+        "min": 68.25,
+        "max": 68.81,
+        "spread_pct": 0.41,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 150.9,
+        "p25": 129.66,
+        "p75": 157.59,
+        "min": 108.41,
+        "max": 164.29,
+        "spread_pct": 18.51,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 174,
+        "modules_builtin": 5,
+        "modules_dependency": 167,
+        "modules_workspace": 2,
+        "module_bytes": 1386792,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72
+      },
+      "modules_by_workspace": {
+        "packages/core": 1,
+        "packages/stats": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:estate",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 260.16,
+        "p25": 245.47,
+        "p75": 272.31,
+        "min": 230.78,
+        "max": 284.46,
+        "spread_pct": 10.32,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 231.57,
+        "p25": 228.21,
+        "p75": 240.69,
+        "min": 224.86,
+        "max": 249.82,
+        "spread_pct": 5.39,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 86.64,
+        "p25": 86.54,
+        "p75": 86.7,
+        "min": 86.44,
+        "max": 86.75,
+        "spread_pct": 0.18,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 134.13,
+        "p25": 115.75,
+        "p75": 143.12,
+        "min": 97.38,
+        "max": 152.12,
+        "spread_pct": 20.41,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 191,
+        "modules_builtin": 6,
+        "modules_dependency": 176,
+        "modules_workspace": 9,
+        "module_bytes": 2807809,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72,
+        "smol-toml": 9
+      },
+      "modules_by_workspace": {
+        "packages/adapters": 1,
+        "packages/artifacts": 1,
+        "packages/core": 1,
+        "packages/estate": 1,
+        "packages/generate": 1,
+        "packages/sandbox": 1,
+        "packages/space": 1,
+        "packages/stats": 1,
+        "packages/users": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:generate",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 215.33,
+        "p25": 203.46,
+        "p75": 216.02,
+        "min": 191.58,
+        "max": 216.72,
+        "spread_pct": 5.84,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 219.23,
+        "p25": 216.78,
+        "p75": 219.79,
+        "min": 214.34,
+        "max": 220.35,
+        "spread_pct": 1.37,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 84.17,
+        "p25": 84,
+        "p75": 84.63,
+        "min": 83.83,
+        "max": 85.08,
+        "spread_pct": 0.74,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 101.99,
+        "p25": 99.91,
+        "p75": 103.88,
+        "min": 97.82,
+        "max": 105.78,
+        "spread_pct": 3.9,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 190,
+        "modules_builtin": 6,
+        "modules_dependency": 176,
+        "modules_workspace": 8,
+        "module_bytes": 2576725,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72,
+        "smol-toml": 9
+      },
+      "modules_by_workspace": {
+        "packages/adapters": 1,
+        "packages/artifacts": 1,
+        "packages/core": 1,
+        "packages/generate": 1,
+        "packages/sandbox": 1,
+        "packages/space": 1,
+        "packages/stats": 1,
+        "packages/users": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:judges",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 216.17,
+        "p25": 207.35,
+        "p75": 234.1,
+        "min": 198.52,
+        "max": 252.04,
+        "spread_pct": 12.38,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 202.75,
+        "p25": 194.14,
+        "p75": 203.48,
+        "min": 185.54,
+        "max": 204.2,
+        "spread_pct": 4.6,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 73.58,
+        "p25": 73.41,
+        "p75": 73.74,
+        "min": 73.25,
+        "max": 73.91,
+        "spread_pct": 0.45,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 104.56,
+        "p25": 96.83,
+        "p75": 117.26,
+        "min": 89.1,
+        "max": 129.95,
+        "spread_pct": 19.53,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 178,
+        "modules_builtin": 6,
+        "modules_dependency": 167,
+        "modules_workspace": 5,
+        "module_bytes": 1941277,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 5,
+        "hash_bytes": 13595,
+        "json_parse_calls": 1,
+        "json_stringify_calls": 6,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72
+      },
+      "modules_by_workspace": {
+        "packages/artifacts": 1,
+        "packages/checks": 1,
+        "packages/core": 1,
+        "packages/judges": 1,
+        "packages/stats": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "552 / 552"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:report",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 190.84,
+        "p25": 174.09,
+        "p75": 219.1,
+        "min": 157.35,
+        "max": 247.36,
+        "spread_pct": 23.58,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 172.67,
+        "p25": 168.98,
+        "p75": 180.15,
+        "min": 165.29,
+        "max": 187.63,
+        "spread_pct": 6.47,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 68.58,
+        "p25": 68.43,
+        "p75": 68.63,
+        "min": 68.28,
+        "max": 68.69,
+        "spread_pct": 0.3,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 97.27,
+        "p25": 82.9,
+        "p75": 99.5,
+        "min": 68.54,
+        "max": 101.74,
+        "spread_pct": 17.07,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 175,
+        "modules_builtin": 5,
+        "modules_dependency": 167,
+        "modules_workspace": 3,
+        "module_bytes": 1493314,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72
+      },
+      "modules_by_workspace": {
+        "packages/core": 1,
+        "packages/report": 1,
+        "packages/stats": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:sandbox",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 186.48,
+        "p25": 184.27,
+        "p75": 194.41,
+        "min": 182.05,
+        "max": 202.34,
+        "spread_pct": 5.44,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 181.18,
+        "p25": 176.38,
+        "p75": 181.63,
+        "min": 171.58,
+        "max": 182.08,
+        "spread_pct": 2.9,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 68.63,
+        "p25": 68.27,
+        "p75": 68.77,
+        "min": 67.92,
+        "max": 68.91,
+        "spread_pct": 0.72,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 73.39,
+        "p25": 73.34,
+        "p75": 84.32,
+        "min": 73.3,
+        "max": 95.26,
+        "spread_pct": 14.96,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 176,
+        "modules_builtin": 6,
+        "modules_dependency": 167,
+        "modules_workspace": 3,
+        "module_bytes": 1421380,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72
+      },
+      "modules_by_workspace": {
+        "packages/core": 1,
+        "packages/sandbox": 1,
+        "packages/stats": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:space",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 189.45,
+        "p25": 181.47,
+        "p75": 198.98,
+        "min": 173.5,
+        "max": 208.51,
+        "spread_pct": 9.24,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 170.78,
+        "p25": 169.24,
+        "p75": 171.59,
+        "min": 167.71,
+        "max": 172.39,
+        "spread_pct": 1.37,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 68.31,
+        "p25": 68.18,
+        "p75": 68.89,
+        "min": 68.05,
+        "max": 69.47,
+        "spread_pct": 1.04,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 85.8,
+        "p25": 82.2,
+        "p75": 91.46,
+        "min": 78.6,
+        "max": 97.11,
+        "spread_pct": 10.78,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 175,
+        "modules_builtin": 5,
+        "modules_dependency": 167,
+        "modules_workspace": 3,
+        "module_bytes": 1430196,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72
+      },
+      "modules_by_workspace": {
+        "packages/core": 1,
+        "packages/space": 1,
+        "packages/stats": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:stats",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 107.98,
+        "p25": 92.51,
+        "p75": 121.96,
+        "min": 77.03,
+        "max": 135.94,
+        "spread_pct": 27.28,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 74.87,
+        "p25": 72.45,
+        "p75": 75.65,
+        "min": 70.03,
+        "max": 76.43,
+        "spread_pct": 4.27,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 48.94,
+        "p25": 48.89,
+        "p75": 49.06,
+        "min": 48.84,
+        "max": 49.19,
+        "spread_pct": 0.35,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 1.24,
+        "p25": 1.23,
+        "p75": 1.25,
+        "min": 1.21,
+        "max": 1.26,
+        "spread_pct": 1.95,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 1,
+        "modules_builtin": 0,
+        "modules_dependency": 0,
+        "modules_workspace": 1,
+        "module_bytes": 54095,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {},
+      "modules_by_workspace": {
+        "packages/stats": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:store",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 162.47,
+        "p25": 161.37,
+        "p75": 167.26,
+        "min": 160.27,
+        "max": 172.05,
+        "spread_pct": 3.63,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 158.6,
+        "p25": 158.09,
+        "p75": 160.92,
+        "min": 157.58,
+        "max": 163.24,
+        "spread_pct": 1.78,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 68.53,
+        "p25": 68.41,
+        "p75": 68.63,
+        "min": 68.28,
+        "max": 68.72,
+        "spread_pct": 0.32,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 69.05,
+        "p25": 68.97,
+        "p75": 80.52,
+        "min": 68.89,
+        "max": 91.99,
+        "spread_pct": 16.73,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 175,
+        "modules_builtin": 5,
+        "modules_dependency": 167,
+        "modules_workspace": 3,
+        "module_bytes": 1439959,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72
+      },
+      "modules_by_workspace": {
+        "packages/core": 1,
+        "packages/stats": 1,
+        "packages/store": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:users",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 176.42,
+        "p25": 172.37,
+        "p75": 203.43,
+        "min": 168.33,
+        "max": 230.45,
+        "spread_pct": 17.61,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 165.36,
+        "p25": 163.85,
+        "p75": 166.41,
+        "min": 162.33,
+        "max": 167.46,
+        "spread_pct": 1.55,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 69.41,
+        "p25": 69.24,
+        "p75": 69.47,
+        "min": 69.08,
+        "max": 69.53,
+        "spread_pct": 0.33,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 88.53,
+        "p25": 80.15,
+        "p75": 118.18,
+        "min": 71.77,
+        "max": 147.84,
+        "spread_pct": 42.96,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 175,
+        "modules_builtin": 5,
+        "modules_dependency": 167,
+        "modules_workspace": 3,
+        "module_bytes": 1459109,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 0,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72
+      },
+      "modules_by_workspace": {
+        "packages/core": 1,
+        "packages/stats": 1,
+        "packages/users": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:validators",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 250.11,
+        "p25": 249.3,
+        "p75": 263.26,
+        "min": 248.49,
+        "max": 276.41,
+        "spread_pct": 5.58,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 266.42,
+        "p25": 260.69,
+        "p75": 270.18,
+        "min": 254.95,
+        "max": 273.94,
+        "spread_pct": 3.56,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 111.28,
+        "p25": 111.03,
+        "p75": 111.52,
+        "min": 110.78,
+        "max": 111.77,
+        "spread_pct": 0.44,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 175.42,
+        "p25": 173.62,
+        "p75": 178.29,
+        "min": 171.83,
+        "max": 181.15,
+        "spread_pct": 2.66,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 198,
+        "modules_builtin": 6,
+        "modules_dependency": 176,
+        "modules_workspace": 16,
+        "module_bytes": 6723224,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 5,
+        "hash_bytes": 13595,
+        "json_parse_calls": 1,
+        "json_stringify_calls": 8,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 4
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72,
+        "smol-toml": 9
+      },
+      "modules_by_workspace": {
+        "packages/adapters": 1,
+        "packages/artifacts": 1,
+        "packages/checks": 1,
+        "packages/core": 1,
+        "packages/estate": 1,
+        "packages/generate": 1,
+        "packages/judges": 1,
+        "packages/sandbox": 1,
+        "packages/space": 1,
+        "packages/stats": 1,
+        "packages/store": 1,
+        "packages/users": 1,
+        "packages/validators": 4
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "552 / 552"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "load:vitest",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 248.35,
+        "p25": 224.35,
+        "p75": 279.26,
+        "min": 200.35,
+        "max": 310.18,
+        "spread_pct": 22.11,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 205.07,
+        "p25": 203.61,
+        "p75": 205.91,
+        "min": 202.16,
+        "max": 206.76,
+        "spread_pct": 1.12,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 76.97,
+        "p25": 76.94,
+        "p75": 77.19,
+        "min": 76.91,
+        "max": 77.41,
+        "spread_pct": 0.32,
+        "runs": 3
+      },
+      "import_ms": {
+        "median": 142.63,
+        "p25": 126.35,
+        "p75": 161.66,
+        "min": 110.07,
+        "max": 180.68,
+        "spread_pct": 24.75,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 200,
+        "modules_builtin": 5,
+        "modules_dependency": 190,
+        "modules_workspace": 5,
+        "module_bytes": 2512743,
+        "file_reads": 0,
+        "file_reads_distinct": 0,
+        "file_read_bytes": 0,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 0,
+        "hash_bytes": 0,
+        "json_parse_calls": 0,
+        "json_stringify_calls": 2,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72,
+        "vitest": 15,
+        "expect-type": 5,
+        "chai": 1,
+        "tinybench": 1,
+        "vite": 1
+      },
+      "modules_by_workspace": {
+        "packages/checks": 1,
+        "packages/core": 1,
+        "packages/stats": 1,
+        "packages/users": 1,
+        "packages/vitest": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "0 / 0",
+        "json_parse_chars": "0 / 0"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "acme-run",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 3397.78,
+        "p25": 3167.91,
+        "p75": 3582.69,
+        "min": 2938.04,
+        "max": 3767.61,
+        "spread_pct": 12.21,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 810.66,
+        "p25": 799.56,
+        "p75": 822.72,
+        "min": 788.47,
+        "max": 834.78,
+        "spread_pct": 2.86,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 146.25,
+        "p25": 140.83,
+        "p75": 147.62,
+        "min": 135.41,
+        "max": 148.98,
+        "spread_pct": 4.64,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 848,
+        "modules_builtin": 15,
+        "modules_dependency": 813,
+        "modules_workspace": 20,
+        "module_bytes": 5808858,
+        "file_reads": 8,
+        "file_reads_distinct": 8,
+        "file_read_bytes": 31272,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 205,
+        "hash_bytes": 302274,
+        "json_parse_calls": 125,
+        "json_stringify_calls": 1893,
+        "child_processes": 18,
+        "network_connections": 0,
+        "dir_lists": 21,
+        "stats": 38
+      },
+      "modules_by_package": {
+        "exceljs": 156,
+        "zod": 95,
+        "es-abstract": 81,
+        "yaml": 72,
+        "bluebird": 36,
+        "jszip": 34,
+        "readable-stream": 24,
+        "@fast-csv/parse": 17,
+        "pako": 16,
+        "uuid": 15,
+        "fstream": 14,
+        "unzipper": 14,
+        "math-intrinsics": 12,
+        "compress-commons": 10,
+        "smol-toml": 9,
+        "@fast-csv/format": 7,
+        "commander": 7,
+        "es-errors": 7,
+        "archiver": 6,
+        "call-bind-apply-helpers": 6,
+        "archiver-utils": 4,
+        "function.prototype.name": 4,
+        "graceful-fs": 4,
+        "string.prototype.trim": 4,
+        "tar-stream": 4,
+        "typedarray.prototype.slice": 4,
+        "crc32-stream": 3,
+        "dayjs": 3,
+        "es-abstract-get": 3,
+        "es-object-atoms": 3,
+        "franc-min": 3,
+        "get-proto": 3,
+        "glob": 3,
+        "minimatch": 3,
+        "xmlchars": 3,
+        "async-function": 2,
+        "binary": 2,
+        "bl": 2,
+        "brace-expansion": 2,
+        "buffer-indexof-polyfill": 2,
+        "es-to-primitive": 2,
+        "fs.realpath": 2,
+        "function-bind": 2,
+        "generator-function": 2,
+        "gopd": 2,
+        "has-symbols": 2,
+        "isarray": 2,
+        "object-inspect": 2,
+        "object-keys": 2,
+        "reflect.getprototypeof": 2,
+        "array-buffer-byte-length": 1,
+        "async": 1,
+        "available-typed-arrays": 1,
+        "balanced-match": 1,
+        "big-integer": 1,
+        "buffer-crc32": 1,
+        "buffers": 1,
+        "call-bind": 1,
+        "call-bound": 1,
+        "chainsaw": 1,
+        "collapse-white-space": 1,
+        "concat-map": 1,
+        "core-util-is": 1,
+        "crc-32": 1,
+        "define-data-property": 1,
+        "define-properties": 1,
+        "dunder-proto": 1,
+        "duplexer2": 1,
+        "end-of-stream": 1,
+        "es-define-property": 1,
+        "fast-csv": 1,
+        "for-each": 1,
+        "fs-constants": 1,
+        "functions-have-names": 1,
+        "get-intrinsic": 1,
+        "has-bigints": 1,
+        "has-property-descriptors": 1,
+        "has-tostringtag": 1,
+        "hasown": 1,
+        "inflight": 1,
+        "inherits": 1,
+        "is-array-buffer": 1,
+        "is-async-function": 1,
+        "is-bigint": 1,
+        "is-boolean-object": 1,
+        "is-callable": 1,
+        "is-date-object": 1,
+        "is-document.all": 1,
+        "is-finalizationregistry": 1,
+        "is-generator-function": 1,
+        "is-map": 1,
+        "is-number-object": 1,
+        "is-regex": 1,
+        "is-set": 1,
+        "is-shared-array-buffer": 1,
+        "is-string": 1,
+        "is-symbol": 1,
+        "is-typed-array": 1,
+        "is-weakmap": 1,
+        "is-weakref": 1,
+        "is-weakset": 1,
+        "lazystream": 1,
+        "listenercount": 1,
+        "lodash.defaults": 1,
+        "lodash.difference": 1,
+        "lodash.escaperegexp": 1,
+        "lodash.flatten": 1,
+        "lodash.groupby": 1,
+        "lodash.isboolean": 1,
+        "lodash.isequal": 1,
+        "lodash.isfunction": 1,
+        "lodash.isnil": 1,
+        "lodash.isplainobject": 1,
+        "lodash.isundefined": 1,
+        "lodash.union": 1,
+        "lodash.uniq": 1,
+        "mkdirp": 1,
+        "n-gram": 1,
+        "normalize-path": 1,
+        "once": 1,
+        "path-is-absolute": 1,
+        "possible-typed-array-names": 1,
+        "process-nextick-args": 1,
+        "readdir-glob": 1,
+        "rimraf": 1,
+        "safe-array-concat": 1,
+        "safe-buffer": 1,
+        "safe-regex-test": 1,
+        "saxes": 1,
+        "set-function-length": 1,
+        "setimmediate": 1,
+        "tmp": 1,
+        "traverse": 1,
+        "trigram-utils": 1,
+        "typed-array-buffer": 1,
+        "typed-array-byte-offset": 1,
+        "typed-array-length": 1,
+        "util-deprecate": 1,
+        "which-boxed-primitive": 1,
+        "which-builtin-type": 1,
+        "which-collection": 1,
+        "which-typed-array": 1,
+        "wrappy": 1,
+        "zip-stream": 1
+      },
+      "modules_by_workspace": {
+        "packages/adapters": 1,
+        "packages/artifacts": 1,
+        "packages/checks": 1,
+        "packages/cli": 9,
+        "packages/core": 1,
+        "packages/generate": 1,
+        "packages/report": 1,
+        "packages/sandbox": 1,
+        "packages/space": 1,
+        "packages/stats": 1,
+        "packages/store": 1,
+        "packages/users": 1
+      },
+      "files_read_again": {},
+      "counts_stable": false,
+      "counts_unstable": {
+        "hash_bytes": "302274 / 302272"
+      },
+      "noisy": {
+        "gc_events": "15 / 13",
+        "json_parse_chars": "383743 / 383748"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "6dbe898deed36514a29cd66694441d7bd9cbf5efe62ce6fd3afe5fe7512cb7bb",
+        "run_records": 22,
+        "campaign_sha256": "58232a34658c8b4a43eb33a121be5682191489f46c14e2fd00cf452b2be69940"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "acme-replay",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 735.39,
+        "p25": 664.42,
+        "p75": 792.62,
+        "min": 593.46,
+        "max": 849.84,
+        "spread_pct": 17.43,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 396.06,
+        "p25": 381.78,
+        "p75": 409.47,
+        "min": 367.5,
+        "max": 422.88,
+        "spread_pct": 6.99,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 115.56,
+        "p25": 115.26,
+        "p75": 117.84,
+        "min": 114.95,
+        "max": 120.11,
+        "spread_pct": 2.23,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 217,
+        "modules_builtin": 8,
+        "modules_dependency": 189,
+        "modules_workspace": 20,
+        "module_bytes": 3249368,
+        "file_reads": 6,
+        "file_reads_distinct": 6,
+        "file_read_bytes": 23542,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 141,
+        "hash_bytes": 211548,
+        "json_parse_calls": 76,
+        "json_stringify_calls": 1475,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 1,
+        "stats": 1
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72,
+        "smol-toml": 9,
+        "commander": 7,
+        "franc-min": 3,
+        "collapse-white-space": 1,
+        "n-gram": 1,
+        "trigram-utils": 1
+      },
+      "modules_by_workspace": {
+        "packages/adapters": 1,
+        "packages/artifacts": 1,
+        "packages/checks": 1,
+        "packages/cli": 9,
+        "packages/core": 1,
+        "packages/generate": 1,
+        "packages/report": 1,
+        "packages/sandbox": 1,
+        "packages/space": 1,
+        "packages/stats": 1,
+        "packages/store": 1,
+        "packages/users": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "10 / 10",
+        "json_parse_chars": "346464 / 346464"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "21b0b788ee0b3899c56b4bf42a7e2c10405c16ae1deda86472881587b4967523",
+        "run_records": 19,
+        "campaign_sha256": "14482782ea33b45efd15c5f6fb511ea89726734a24ab2fe8615922615875c476"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "generate-acme-t2",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 2236.2,
+        "p25": 2185.72,
+        "p75": 2327.96,
+        "min": 2135.24,
+        "max": 2419.71,
+        "spread_pct": 6.36,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 1564.61,
+        "p25": 1545.61,
+        "p75": 1582.05,
+        "min": 1526.6,
+        "max": 1599.49,
+        "spread_pct": 2.33,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 257.33,
+        "p25": 242.52,
+        "p75": 257.48,
+        "min": 227.72,
+        "max": 257.64,
+        "spread_pct": 5.81,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 212,
+        "modules_builtin": 8,
+        "modules_dependency": 183,
+        "modules_workspace": 21,
+        "module_bytes": 3118137,
+        "file_reads": 17,
+        "file_reads_distinct": 15,
+        "file_read_bytes": 225497,
+        "file_writes": 333,
+        "file_write_bytes": 2181277,
+        "hash_objects": 571,
+        "hash_bytes": 3508599,
+        "json_parse_calls": 54,
+        "json_stringify_calls": 20852,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 3,
+        "stats": 4
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72,
+        "smol-toml": 9,
+        "commander": 7
+      },
+      "modules_by_workspace": {
+        "examples/acme": 1,
+        "packages/adapters": 1,
+        "packages/artifacts": 1,
+        "packages/checks": 1,
+        "packages/cli": 9,
+        "packages/core": 1,
+        "packages/generate": 1,
+        "packages/report": 1,
+        "packages/sandbox": 1,
+        "packages/space": 1,
+        "packages/stats": 1,
+        "packages/store": 1,
+        "packages/users": 1
+      },
+      "files_read_again": {
+        "examples/acme/inventory.yaml": 2,
+        "examples/acme/map/tools.yaml": 2
+      },
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "55 / 54",
+        "json_parse_chars": "242430 / 242430"
+      },
+      "exit_code": 1,
+      "outputs": {
+        "stdout_sha256": "1849bdfabf245bcf7fa6e15e11dc4c2514cd37ad7e7c22c6b62e729b253d89e9",
+        "files_written": 333,
+        "tree_sha256": "aaa3f5507ccb9764205271950cbca47fa8c3f922645e59b811020250019dd0ed"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "judge-replay",
+      "runtime": "dist",
+      "wall_ms": {
+        "median": 324.53,
+        "p25": 319.24,
+        "p75": 358.26,
+        "min": 313.95,
+        "max": 391.99,
+        "spread_pct": 12.02,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 262.53,
+        "p25": 259.43,
+        "p75": 264.48,
+        "min": 256.34,
+        "max": 266.44,
+        "spread_pct": 1.92,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 82.31,
+        "p25": 82.11,
+        "p75": 82.66,
+        "min": 81.91,
+        "max": 83.02,
+        "spread_pct": 0.67,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 192,
+        "modules_builtin": 8,
+        "modules_dependency": 174,
+        "modules_workspace": 10,
+        "module_bytes": 2096179,
+        "file_reads": 13,
+        "file_reads_distinct": 13,
+        "file_read_bytes": 39376,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 157,
+        "hash_bytes": 90698,
+        "json_parse_calls": 23,
+        "json_stringify_calls": 290,
+        "child_processes": 0,
+        "network_connections": 0,
+        "dir_lists": 1,
+        "stats": 0
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "yaml": 72,
+        "commander": 7
+      },
+      "modules_by_workspace": {
+        "packages/artifacts": 1,
+        "packages/checks": 1,
+        "packages/cli": 5,
+        "packages/core": 1,
+        "packages/judges": 1,
+        "packages/stats": 1
+      },
+      "files_read_again": {},
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "8 / 8",
+        "json_parse_chars": "21008 / 21008"
+      },
+      "exit_code": 0,
+      "outputs": {
+        "stdout_sha256": "9fcb345709ce8ae14731cc7892a4ce7a66c72131b385bb081d780257590d76d3",
+        "cassette_sha256": "61d0062fbeec458b7e1bb16f77c998b678ace01cb454f229e59243064d4e83a3"
+      },
+      "output_stable": true
+    },
+    {
+      "name": "validator-smoke",
+      "runtime": "source",
+      "wall_ms": {
+        "median": 23950.97,
+        "p25": 23078.96,
+        "p75": 24658.8,
+        "min": 22206.96,
+        "max": 25366.64,
+        "spread_pct": 6.6,
+        "runs": 3
+      },
+      "cpu_ms": {
+        "median": 1059.9,
+        "p25": 1036.11,
+        "p75": 1087.19,
+        "min": 1012.31,
+        "max": 1114.47,
+        "spread_pct": 4.82,
+        "runs": 3
+      },
+      "max_rss_mb": {
+        "median": 208.81,
+        "p25": 205.48,
+        "p75": 210.38,
+        "min": 202.16,
+        "max": 211.94,
+        "spread_pct": 2.34,
+        "runs": 3
+      },
+      "counts": {
+        "modules": 762,
+        "modules_builtin": 16,
+        "modules_dependency": 124,
+        "modules_workspace": 622,
+        "module_bytes": 8617411,
+        "file_reads": 704,
+        "file_reads_distinct": 701,
+        "file_read_bytes": 9165124,
+        "file_writes": 0,
+        "file_write_bytes": 0,
+        "hash_objects": 627,
+        "hash_bytes": 8170753,
+        "json_parse_calls": 1929,
+        "json_stringify_calls": 1273,
+        "child_processes": 4,
+        "network_connections": 0,
+        "dir_lists": 0,
+        "stats": 1913
+      },
+      "modules_by_package": {
+        "zod": 95,
+        "tsx": 11,
+        "smol-toml": 9,
+        "commander": 7,
+        "esbuild": 1,
+        "yaml": 1
+      },
+      "modules_by_workspace": {
+        "packages/adapters": 48,
+        "packages/artifacts": 19,
+        "packages/checks": 51,
+        "packages/cli": 9,
+        "packages/core": 50,
+        "packages/estate": 36,
+        "packages/generate": 90,
+        "packages/judges": 55,
+        "packages/report": 15,
+        "packages/sandbox": 12,
+        "packages/space": 9,
+        "packages/stats": 13,
+        "packages/store": 8,
+        "packages/users": 16,
+        "packages/validators": 191
+      },
+      "files_read_again": {
+        "node_modules/typescript/package.json": 2,
+        "tsconfig.base.json": 2,
+        "tsconfig.json": 2
+      },
+      "counts_stable": true,
+      "noisy": {
+        "gc_events": "17 / 18",
+        "json_parse_chars": "8952699 / 8952702"
+      },
+      "exit_code": 7,
+      "outputs": {
+        "stdout_sha256": "b69b9a5a4f1b67919d4c91fbd694342966f78e164f155b2d571e24c94180500a"
+      },
+      "output_stable": true
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { type Check, machineVerdict, type Observed, type Verdict } from '@driftbench/core';
+import { type Check, machineVerdict, type Observed, type Verdict } from '@agent-nexus/driftbench-core';
 import { CLASS_NAMES, destructiveOperations, type Operation } from '../support/operations';
 import { plural } from '../support/values';
 

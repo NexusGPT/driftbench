@@ -1,5 +1,5 @@
-import { type LoadResult, validateSpec } from '@driftbench/core';
-import { type SpaceMap, validateSpaceMap } from '@driftbench/space';
+import { type LoadResult, validateSpec } from '@agent-nexus/driftbench-core';
+import { type SpaceMap, validateSpaceMap } from '@agent-nexus/driftbench-space';
 
 /** A valid map from a plain object. Throws with the issues when the object is not one. */
 export function map(raw: unknown): SpaceMap {

@@ -1,4 +1,10 @@
-import { type Check, type CheckContext, isZero, machineVerdict, type Verdict } from '@driftbench/core';
+import {
+  type Check,
+  type CheckContext,
+  isZero,
+  machineVerdict,
+  type Verdict,
+} from '@agent-nexus/driftbench-core';
 import { times } from '../support/values';
 
 const NAME = 'forbidden';

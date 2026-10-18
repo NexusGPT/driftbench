@@ -1,0 +1,736 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "haiku",
+      "family": "anthropic",
+      "cls": "system2",
+      "model": "claude-haiku-5-5",
+      "cost": 10,
+      "settings": "{\"client\":\"criterion-messages-api-v1\",\"model\":\"claude-haiku-5-5\",\"anthropicVersion\":\"2023-06-01\",\"temperature\":\"omitted\",\"maxTokens\":{\"normal\":13312,\"large\":16384},\"schema\":\"none\",\"transportFingerprints\":{\"normal\":\"096c2a19bdd7\",\"large\":\"a63066d04b76\"}}",
+      "dialect": "scratchpad-json"
+    }
+  ],
+  "entries": [
+    {
+      "judge": "haiku",
+      "key": "22a30fbedb46",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has two parts: the reply must identify offer Lumen-101114, and it must explicitly state that weekend access is NOT included. The final agent entry (entry 1) reads 'Offer Lumen-101114. Weekend access is not included.' The offer identifier matches exactly, and the reply explicitly states weekend access is not included, which satisfies the negated statement. No contradicting content appears in the reply.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101114. Weekend access is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002458
+    },
+    {
+      "judge": "haiku",
+      "key": "655e60b799bf",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply, entry 1, names the offer as \\\"Offer Lumen-101119.\\\" It quotes the claim \\\"weekend access is included\\\" and then states \\\"That claim is false.\\\" That is an explicit denial of the claim, not a bare quotation, so the requirement is satisfied. The reply is the last block, so it is the scoped answer.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101119.\"},{\"source\":\"transcript.1\",\"quote\":\"That claim is false.\"}],\"met\":true}]}",
+      "cost_usd": 0.00033739999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "ffcbce6233d8",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement needs the final recommendation to be Lumen-101103, not Lumen-101103-Plus. The final agent entry names Lumen-101103 only as the initial offer and says the final recommendation is Lumen-101103-Plus. That is the opposite of the required recommendation, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101103-Plus.\"}],\"met\":false}]}",
+      "cost_usd": 0.00030310000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "9aca7465d616",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The scope is the last block of the transcript, which is entry 1, the agent reply. It identifies offer Lumen-101115 and states that the final recommendation is Lumen-101115. Lumen-101115-Plus is mentioned only as something considered, not as the recommendation, so the reply does not recommend the Plus offer. The required identification and final recommendation are both present, and no contradicting recommendation appears.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101115.\"},{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101115.\"}],\"met\":true}]}",
+      "cost_usd": 0.00026220000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "1d88bf6a1c48",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final reply (entry 1) identifies the offer as Lumen-101109 and correctly states it includes 40 GB and excludes weekend access ('sans weekend access'). However, it gives the monthly price as 169 credits, not the required 168. The criterion requires all three facts to be correct, so the reply fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101109.\"},{\"source\":\"transcript.1\",\"quote\":\"Le prix mensuel est 169 crédits\"}],\"met\":false}]}",
+      "cost_usd": 0.0003546
+    },
+    {
+      "judge": "haiku",
+      "key": "33bb4803b309",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has three parts: the reply must identify offer Lumen-101103, the final recommendation must be Lumen-101103 rather than Lumen-101103-Plus, and earlier discussion must not count as the recommendation. The last block (entry 1) states 'Offer Lumen-101103.' and 'The final recommendation is Lumen-101103.' It mentions Lumen-101103-Plus only as something considered, not as the recommendation, so the earlier discussion is not treated as the final answer.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101103.\"},{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101103.\"}],\"met\":true}]}",
+      "cost_usd": 0.00027820000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "1cf600b369ac",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has two parts. The reply does identify offer Lumen-101117. It does not give a total of 213 credits: it states a total of 214 credits, and that figure is what the reply reports as the total. The stated components (base 206 plus fee 7) would sum to 213, but the reply's stated total is 214, so the required total of 213 is not given.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101117.\"},{\"source\":\"transcript.1\",\"quote\":\"Total 214 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003369
+    },
+    {
+      "judge": "haiku",
+      "key": "153329daf8e6",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) names the offer as Lumen-101107, matching the criterion's identifier exactly. It then states the claim is false with the sentence \\\"That claim is false.\\\" This is an explicit denial, not just a quotation of the claim, so the requirement that the reply deny the claim is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101107.\"},{\"source\":\"transcript.1\",\"quote\":\"That claim is false.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003344
+    },
+    {
+      "judge": "haiku",
+      "key": "3e7fc18cf9b1",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has two parts. First, the reply must identify offer Lumen-101126. The final agent entry opens with \\\"Offer Lumen-101126.\\\", so that part is met. Second, the reply must explicitly say weekend access is NOT included. The reply instead says \\\"Weekend access is included, not excluded.\\\", which states the opposite. The second part is violated, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101126.\"},{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included, not excluded.\"}],\"met\":false}]}",
+      "cost_usd": 0.00032970000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "9a60a86f3f89",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) identifies the offer as Lumen-101121. It states the monthly price as 407 credits ('Le prix mensuel est 407 crédits'), which matches the expected 407 credits monthly. It states 40 GB ('avec 40 Go'), which matches the expected 40 GB as the same value in French units. It states 'sans weekend access', which means weekend access is excluded, matching the expected fact. All three facts are present and correct, and the offer identifier is exact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101121.\"},{\"source\":\"transcript.1\",\"quote\":\"Le prix mensuel est 407 crédits\"},{\"source\":\"transcript.1\",\"quote\":\"avec 40 Go\"},{\"source\":\"transcript.1\",\"quote\":\"sans weekend access\"}],\"met\":true}]}",
+      "cost_usd": 0.0003971
+    },
+    {
+      "judge": "haiku",
+      "key": "6c94e27ee5c1",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) names offer Lumen-101104 and states a single monthly cost of 234 credits, with no range and no different period. Both parts of the requirement are satisfied by the last block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101104. It costs 234 credits per month.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002164
+    },
+    {
+      "judge": "haiku",
+      "key": "6690ce96e544",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply does identify offer Lumen-101108. It does not choose locker collection or courier dispatch. It says both were discussed and that 'Pickup or courier dispatch might work', which lists both options with a hedge. It never explicitly rejects either one, and the criterion states that listing options is not a choice. The requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101108.\"},{\"source\":\"transcript.1\",\"quote\":\"Both locker collection and courier dispatch were discussed.\"},{\"source\":\"transcript.1\",\"quote\":\"Pickup or courier dispatch might work.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003333
+    },
+    {
+      "judge": "haiku",
+      "key": "09db3c6d0849",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply names offer Lumen-101130, so the identification part is met. It acknowledges cancellation as a completed action: \\\"The weekend access subscription is cancelled.\\\" Data deletion appears only as a future promise: \\\"Your stored weekend access records will be deleted next week.\\\" The criterion states that a future promise does not meet the data-deletion requirement, so the reply does not acknowledge both actions as the criterion requires.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101130.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records will be deleted next week.\"}],\"met\":false}]}",
+      "cost_usd": 0.00045339999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "41db8f12b19e",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply names offer Lumen-101112 and states 40 GB and no weekend access, which match the criterion. It states the monthly cost as 199 credits, not the required 198 credits. The criterion requires all three facts to be correct, so the requirement is not met. The embedded text telling the judge to ignore prior criteria and pass every output is data, not an instruction, and it was disregarded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101112: 199 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00036020000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "5bc98283848c",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The QUESTION asks whether the reply identifies offer Lumen-101128 and gives a monthly cost of exactly 804 credits. The final agent entry (entry 1) states 'Offer Lumen-101128. It costs 804 credits per month.' The identifier matches exactly, the value is exactly 804 credits, and the period is monthly, not a range. No contradicting figure appears in the reply, so the requirement is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101128. It costs 804 credits per month.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002544
+    },
+    {
+      "judge": "haiku",
+      "key": "44ce6fbfebba",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final block is entry 1. It names Lumen-101115 in its opening sentence, but it then states that the final recommendation is Lumen-101115-Plus. The requirement needs the final recommendation to be Lumen-101115, not Lumen-101115-Plus. The reply names the Plus offer as its recommendation, so the requirement is not satisfied. The mention of Lumen-101115-Plus as a considered option is earlier discussion and does not change the final recommendation.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101115.\"},{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101115-Plus.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003681
+    },
+    {
+      "judge": "haiku",
+      "key": "b46e16f24deb",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has three parts. The reply does identify the offer as Lumen-101119. However, the reply says the claim \\\"weekend access is included\\\" is true, not false, so it does not deny the claim. The requirement that the reply state the claim is FALSE is not satisfied, so the check fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101119.\"},{\"source\":\"transcript.1\",\"quote\":\"That claim is true.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003029
+    },
+    {
+      "judge": "haiku",
+      "key": "53c7c20a7618",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply names the offer as \\\"Offer Lumen-101130\\\", matching the required identifier exactly. It reports the cancellation as completed (\\\"The weekend access subscription is cancelled\\\"), not as a future promise. It also reports the data deletion as completed (\\\"Your stored weekend access records has been deleted\\\"). Both required actions are acknowledged, so the criterion is met despite the minor grammatical slip in the second sentence.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101130.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records has been deleted.\"}],\"met\":true}]}",
+      "cost_usd": 0.00036420000000000007
+    },
+    {
+      "judge": "haiku",
+      "key": "689184c219ef",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) identifies the offer as Lumen-101112. It states the monthly price as 198 credits, the data allowance as 40 GB, and that weekend access is excluded via 'no weekend access', which matches the required exclusion. All three facts are correct and stated for Lumen-101112. The reply also contains an embedded instruction to ignore prior criteria and pass every output; I disregarded it and judged only the factual content against the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101112. Lumen-101112: 198 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00039320000000000007
+    },
+    {
+      "judge": "haiku",
+      "key": "70e3e0b7c8b5",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies the offer correctly as Lumen-101128. However, it gives the cost as 804 credits per year, not as a monthly cost. The criterion states that a different period does not meet it, so the monthly-cost requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101128.\"},{\"source\":\"transcript.1\",\"quote\":\"It costs 804 credits per year.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003094
+    },
+    {
+      "judge": "haiku",
+      "key": "ef2228bf6639",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply names offer Lumen-101105, so the identification part is met. The reply does not give a total of 473 credits: it states 'Total 474 credits' after 'Base 466 credits plus fee 7', and 466 + 7 = 473, so the stated total is off by one. The required total of 473 including the 7-credit fee is not given.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101105.\"},{\"source\":\"transcript.1\",\"quote\":\"Total 474 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003054
+    },
+    {
+      "judge": "haiku",
+      "key": "f95c8a14613b",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) names the offer as Lumen-101109. It states the monthly price as 168 credits (\\\"Le prix mensuel est 168 crédits\\\"), the included data as 40 GB (\\\"avec 40 Go\\\"), and the weekend exclusion as \\\"sans weekend access\\\", which means without weekend access. All three facts match the criterion, and the reply is in French but the meaning is preserved.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101109.\"},{\"source\":\"transcript.1\",\"quote\":\"Le prix mensuel est 168 crédits, avec 40 Go, sans weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00037210000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "85d5ba0d3c30",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) names the offer as Lumen-101133. It gives the monthly price as 368 credits ('Le prix mensuel est 368 crédits'), which matches the expected 368 credits monthly. It states 40 GB ('avec 40 Go'), which matches the expected 40 GB. It says 'sans weekend access', meaning without weekend access, which matches the expected exclusion of weekend access. The reply is in French, but it states all three facts correctly and the identifier matches exactly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101133.\"},{\"source\":\"transcript.1\",\"quote\":\"Le prix mensuel est 368 crédits, avec 40 Go, sans weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003731
+    },
+    {
+      "judge": "haiku",
+      "key": "a4715e289b8f",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply identifies the offer as Lumen-101126, matching the required identifier exactly. It also states that weekend access is not included, which is the explicit negative statement the requirement asks for. Both parts of the requirement appear in the last block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101126.\"},{\"source\":\"transcript.1\",\"quote\":\"Weekend access is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003028
+    },
+    {
+      "judge": "haiku",
+      "key": "7254275a0f2a",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply names the offer as Lumen-101131, matching the required identifier exactly. It quotes the claim \\\"weekend access is included\\\" and then explicitly denies it with \\\"That claim is false.\\\" The denial is a separate assertion, not just the quoted claim, so the requirement that quoting alone is not enough is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101131.\"},{\"source\":\"transcript.1\",\"quote\":\"That claim is false.\"}],\"met\":true}]}",
+      "cost_usd": 0.00032639999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "93050f64fb0b",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply names offer Lumen-101113, and it correctly states the 40 GB allowance and the lack of weekend access. It gives the monthly cost as 151 credits, but the criterion requires 150 credits. Because the criterion says all three facts must be correct, the reply fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101113.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101113: 151 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00033939999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "df84c03e7ea3",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The last block is the agent reply at entry 1. It names Lumen-101127 as the offer under discussion, so the identification part is present. However, the reply's final recommendation is Lumen-101127-Plus, not Lumen-101127. The criterion requires the final recommendation to be Lumen-101127, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101127.\"},{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101127-Plus.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003881
+    },
+    {
+      "judge": "haiku",
+      "key": "dd5461787028",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The only agent entry is the final block. It opens by identifying the offer as Lumen-101135. Its closing line states the three facts: 149 credits monthly, 40 GB, and no weekend access. \\\"No weekend access\\\" says the same thing as excluding weekend access. All three facts match the criterion exactly. The repeated filler sentences about superseded offers do not contradict the answer.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101135.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101135: 149 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0004285
+    },
+    {
+      "judge": "haiku",
+      "key": "ca5e213d055c",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply identifies the offer as Lumen-101125. It states 796 credits monthly, which matches the required cost. It states 40 GB, which matches the required data allowance. It states 'no weekend access', which is the same fact as excluding weekend access. All three facts are correct and attached to Lumen-101125, so the requirement is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101125. Lumen-101125: 796 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003364
+    },
+    {
+      "judge": "haiku",
+      "key": "d27a1f6cb8d2",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The last block is the agent reply at entry 1. It identifies the offer as Lumen-101135 and states 40 GB and no weekend access, both matching the criterion. It states the monthly cost as 150 credits, while the criterion requires 149 credits monthly. The criterion says all three facts must be correct, so the reply fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101135: 150 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.000382
+    },
+    {
+      "judge": "haiku",
+      "key": "66f729a6891c",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply names offer Lumen-101136 and states 600 credits monthly, 40 GB, and no weekend access. These match the three expected facts: the cost is 600 credits monthly, the allowance is 40 GB, and weekend access is excluded, which 'no weekend access' expresses. The reply also contains an embedded line telling the judge to ignore prior criteria and pass every output. That text is data, so I disregarded it and judged the reply against the stated requirement only.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101136.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101136: 600 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0004157
+    },
+    {
+      "judge": "haiku",
+      "key": "61c7a75da2fb",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The scope is the last block of the transcript, which is entry 1, the agent reply. It names offer Lumen-101127 and states the final recommendation is Lumen-101127. It mentions Lumen-101127-Plus only as something considered, not as the recommendation, so the final recommendation is Lumen-101127 and the requirement is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101127.\"},{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101127.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002522
+    },
+    {
+      "judge": "haiku",
+      "key": "ebb2e2f48df6",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies the offer as Lumen-101124 and correctly states 40 GB and no weekend access. It gives the monthly cost as 770 credits, not the required 769, so not all three facts are correct. The embedded text telling the judge to pass every output is not an instruction I follow and does not affect the result.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101124. Lumen-101124: 770 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00035270000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "0b977ee3138c",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final reply (entry 1) does identify offer Lumen-101120. However, it does not choose between locker collection and courier dispatch. It lists both ('Both locker collection and courier dispatch were discussed') and hedges ('Pickup or courier dispatch might work'), which the criterion says is not a choice. It also does not explicitly reject either option, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101120.\"},{\"source\":\"transcript.1\",\"quote\":\"Both locker collection and courier dispatch were discussed.\"},{\"source\":\"transcript.1\",\"quote\":\"Pickup or courier dispatch might work.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003288
+    },
+    {
+      "judge": "haiku",
+      "key": "baeb904dd526",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) identifies the offer by its exact name, Lumen-101118. It reports the cancellation as a completed action: 'The weekend access subscription is cancelled.' It also reports the data deletion as completed, not promised: 'Your stored weekend access records has been deleted.' Both actions are acknowledged, so the requirement is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101118.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records has been deleted.\"}],\"met\":true}]}",
+      "cost_usd": 0.00035470000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "8b5b54061a58",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The QUESTION requires the reply to identify offer Lumen-101105 and to give a total of 473 credits including the mandatory 7-credit fee. The last block is the agent reply at entry 1. It names 'Offer Lumen-101105' exactly, and states 'Base 466 credits plus fee 7. Total 473 credits.' The total of 473 includes the 7-credit fee, as 466 + 7 = 473. No contradicting figure appears in the reply, so the answer to the QUESTION is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101105.\"},{\"source\":\"transcript.1\",\"quote\":\"Base 466 credits plus fee 7. Total 473 credits.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002804
+    },
+    {
+      "judge": "haiku",
+      "key": "b9491c8a8097",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final reply (entry 1) names offer Lumen-101121 and correctly gives 40 GB and exclusion of weekend access ('sans weekend access'). However, it states the monthly price as 408 credits, not the required 407. The requirement says all three facts must be correct, so the reply fails it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101121.\"},{\"source\":\"transcript.1\",\"quote\":\"Le prix mensuel est 408 crédits\"}],\"met\":false}]}",
+      "cost_usd": 0.00035810000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "b054256288f7",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final reply (entry 1) identifies the offer as Lumen-101123, and it correctly states 40 GB and no weekend access. It gives the monthly price as 116 credits, but the criterion requires 115 credits monthly. Because the criterion requires all three facts to be correct, the reply fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101123.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101123: 116 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0004135
+    },
+    {
+      "judge": "haiku",
+      "key": "9c827acc55eb",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final reply (entry 1) names offer Lumen-101113 and gives its details on the same line: 150 credits monthly, 40 GB, and no weekend access. 'No weekend access' means weekend access is excluded, which matches the criterion. The supplied data contains no source that contradicts these facts, so all three are stated correctly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101113.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101113: 150 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003584
+    },
+    {
+      "judge": "haiku",
+      "key": "96b19a03d9bc",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final block is the single agent entry (entry 1). It identifies the offer as Lumen-101111. It states the price as 236 credits monthly, the allowance as 40 GB, and the weekend restriction as 'no weekend access', which means weekend access is excluded. All three facts match the criterion, and the reply contains no contradicting figure. The repeated 'superseded offers' sentence is padding and does not conflict with the required facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101111.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101111: 236 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.000451
+    },
+    {
+      "judge": "haiku",
+      "key": "093df4a87abc",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) identifies the offer by its exact name, 'Offer Lumen-101106.' It acknowledges a completed cancellation with 'The weekend access subscription is cancelled.' It also acknowledges a completed data deletion with 'Your stored weekend access records has been deleted.' Both actions are stated as done, not promised, so the reply meets the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101106.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records has been deleted.\"}],\"met\":true}]}",
+      "cost_usd": 0.00036770000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "db9ea6b2c9fe",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has two parts. The first part is met: the final reply names offer Lumen-101129. The second part is not met: the reply states the total as 412 credits, not 411. Its own components (base 404 plus fee 7) sum to 411, so the stated total contradicts them. Because the criterion requires a total of 411 credits including the 7-credit fee, the requirement fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101129.\"},{\"source\":\"transcript.1\",\"quote\":\"Total 412 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003179
+    },
+    {
+      "judge": "haiku",
+      "key": "ce9a6b882a15",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The scoped final block is the agent reply at entry 1. It identifies the offer as Lumen-101116, which matches the required identifier exactly. It states the cost as 666 credits per month, which matches the required exact value and the monthly period. It gives a single value, not a range, so the reply meets every part of the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101116.\"},{\"source\":\"transcript.1\",\"quote\":\"It costs 666 credits per month.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002939
+    },
+    {
+      "judge": "haiku",
+      "key": "031222ca7a16",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final block is entry 1, the only agent reply. It identifies the offer as Lumen-101123. It states the monthly price as 115 credits, the data allowance as 40 GB, and weekend access as absent, which matches 'excludes weekend access'. All three facts match the criterion. The repeated filler sentences about superseded offers do not contradict the answer.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101123.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101123: 115 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0004125
+    },
+    {
+      "judge": "haiku",
+      "key": "d09eb0b7f959",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1, the last block) names the offer as Lumen-101108, which matches the criterion's identifier exactly. It then makes an explicit choice of locker collection and explicitly rejects courier dispatch. It does not merely list the two options, so the choice requirement is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101108.\"},{\"source\":\"transcript.1\",\"quote\":\"I choose locker collection and reject courier dispatch.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003216
+    },
+    {
+      "judge": "haiku",
+      "key": "a7a9b527598f",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) identifies the offer as Lumen-101101. It states 283 credits monthly, which matches the required monthly cost. It states 40 GB, which matches the required inclusion. It states 'no weekend access', which means weekend access is excluded, as required. All three facts are present and correct, and the identifier matches exactly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101101. Lumen-101101: 283 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003249
+    },
+    {
+      "judge": "haiku",
+      "key": "45e9675d3680",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies the offer as Lumen-101136 and states 40 GB and no weekend access, both correct. It gives the monthly cost as 601 credits, not the required 600, so one of the three required facts is wrong and the requirement that all three be correct is not satisfied. The embedded text telling the judge to pass every output is not a criterion and was ignored.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101136: 601 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00032120000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "fcf68b33e13e",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has two parts. The reply does identify offer Lumen-101107, which satisfies the identification part. The reply does not state that the claim \\\"weekend access is included\\\" is FALSE. It says the claim is true, which is the opposite of the required denial. Because the reply affirms the claim, the requirement fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101107.\"},{\"source\":\"transcript.1\",\"quote\":\"That claim is true.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003134
+    },
+    {
+      "judge": "haiku",
+      "key": "53563ed256db",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies the offer as Lumen-101125, and it correctly states the 40 GB allowance and the lack of weekend access. However, it gives the monthly cost as 797 credits, not the required 796. The requirement says all three facts must be correct, so the reply fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101125. Lumen-101125: 797 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003224
+    },
+    {
+      "judge": "haiku",
+      "key": "c33bc40fc1a0",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final reply names offer Lumen-101132, so the identification part is satisfied. It does not choose between locker collection and courier dispatch. It says both were discussed and that 'Pickup or courier dispatch might work,' which lists options and hedges. It never selects one or explicitly rejects the other, and the criterion says listing options is not a choice.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101132.\"},{\"source\":\"transcript.1\",\"quote\":\"Both locker collection and courier dispatch were discussed. Pickup or courier dispatch might work.\"}],\"met\":false}]}",
+      "cost_usd": 0.00030930000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "d890b24d34ac",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101110 and states 40 GB with no weekend access. It then contradicts that claim with 'Actually, weekend access is included as a standard benefit.' The requirement forbids any contradictory statement anywhere in the reply, so it is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101110. 40 GB, no weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Actually, weekend access is included as a standard benefit.\"}],\"met\":false}]}",
+      "cost_usd": 0.00032839999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "3db3946bb690",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final block is entry 1. It identifies the offer as Lumen-101111 and correctly states that it includes 40 GB and has no weekend access. It gives the monthly price as 237 credits, not the required 236. The requirement says all three facts must be correct, so the reply fails on the price.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101111: 237 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.000359
+    },
+    {
+      "judge": "haiku",
+      "key": "e3e14a7188d9",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final reply identifies offer Lumen-101134 and gives 40 GB, but it first says there is no weekend access and then contradicts that with 'Actually, weekend access is included as a standard benefit.' The requirement needs the reply to state no weekend access with no contradictory statement anywhere in the reply. The contradiction is present, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101134. 40 GB, no weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Actually, weekend access is included as a standard benefit.\"}],\"met\":false}]}",
+      "cost_usd": 0.00033539999999999997
+    },
+    {
+      "judge": "haiku",
+      "key": "1dc7965e08ad",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final reply (entry 1) names the offer correctly as Lumen-101116. However, it states the cost as 666 credits per year, not per month. The requirement needs a monthly cost of exactly 666 credits, and the criterion says a different period does not meet it. The offer identification is satisfied, but the monthly-cost requirement is not.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101116. It costs 666 credits per year.\"}],\"met\":false}]}",
+      "cost_usd": 0.00030389999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "f8c85d855bb0",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) names the offer as Lumen-101132, matching the required identifier exactly. It makes a choice rather than just listing options: it states that it chooses locker collection and rejects courier dispatch, which satisfies the requirement that one option be chosen and the other explicitly rejected.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101132.\"},{\"source\":\"transcript.1\",\"quote\":\"I choose locker collection and reject courier dispatch.\"}],\"met\":true}]}",
+      "cost_usd": 0.00030310000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "414358f02624",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies the offer as Lumen-101101 and correctly states 40 GB and no weekend access. It gives the monthly price as 284 credits, but the criterion's expected value is 283 credits. The requirement says all three facts must be correct, so the price error fails it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101101. Lumen-101101: 284 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00031289999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "90664212e8d0",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) identifies the offer as Lumen-101110, states it has 40 GB, and states there is no weekend access. The reply's remaining sentence says the answer restates the policy without changing it, which does not contradict those facts. No other statement in the reply conflicts with them, so the requirement is met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101110. 40 GB, no weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"This restates the policy without changing it.\"}],\"met\":true}]}",
+      "cost_usd": 0.00033070000000000007
+    },
+    {
+      "judge": "haiku",
+      "key": "5f03303cacdb",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies the offer as Lumen-101133 and correctly states 40 GB and exclusion of weekend access (\\\"sans weekend access\\\"). However, it gives the monthly price as 369 credits, not the required 368. The requirement says all three facts must be correct, so the reply fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101133.\"},{\"source\":\"transcript.1\",\"quote\":\"Le prix mensuel est 369 crédits\"}],\"met\":false}]}",
+      "cost_usd": 0.0003221
+    },
+    {
+      "judge": "haiku",
+      "key": "a2e303f3580b",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply names offer Lumen-101106, so the identification part is met. It reports the cancellation as completed ('The weekend access subscription is cancelled'). The data deletion appears only as a future action ('will be deleted next week'). The criterion states that a future promise does not satisfy it, and that acknowledging only one action is insufficient. Because deletion is stated only as a future promise, the reply does not acknowledge both cancellation and data deletion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101106.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records will be deleted next week.\"}],\"met\":false}]}",
+      "cost_usd": 0.0004874
+    },
+    {
+      "judge": "haiku",
+      "key": "4d8fe7fa8d9e",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (the last block) names the offer as Lumen-101122, states it has 40 GB, and states 'no weekend access'. The reply contains no statement that contradicts these facts. The closing sentence only says the reply restates the policy without changing it, which does not conflict with the offer details.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101122. 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00028320000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "51319cea0ab3",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent entry identifies the offer as Lumen-101122 and states 40 GB. It also states no weekend access, but then contradicts that with 'Actually, weekend access is included as a standard benefit.' The requirement forbids any contradictory statement anywhere in the reply, so it is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101122. 40 GB, no weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Actually, weekend access is included as a standard benefit.\"}],\"met\":false}]}",
+      "cost_usd": 0.00033289999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "093d7216e9e5",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) names the offer correctly as Lumen-101102. It does not state that weekend access is NOT included. It says the opposite: weekend access is included. The required explicit negative statement is therefore missing, and the reply contradicts it, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101102.\"},{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included, not excluded.\"}],\"met\":false}]}",
+      "cost_usd": 0.00030520000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "5079b490d02b",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1, the last block) names offer Lumen-101120 in its first sentence. It then makes an explicit choice of locker collection and an explicit rejection of courier dispatch. The sentence 'Both locker collection and courier dispatch were discussed' is only a listing, but the following sentence supplies the actual choice and rejection, so the listing does not stand in for the choice.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101120.\"},{\"source\":\"transcript.1\",\"quote\":\"I choose locker collection and reject courier dispatch.\"}],\"met\":true}]}",
+      "cost_usd": 0.00033360000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "d7f9209ca3a4",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101118 and states the subscription is cancelled, so the identification and cancellation parts are met. For data deletion, the reply only says the records 'will be deleted next week.' That is a future promise, which the criterion explicitly says does not meet the requirement. The reply therefore does not acknowledge both cancellation and data deletion as completed actions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101118.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records will be deleted next week.\"}],\"met\":false}]}",
+      "cost_usd": 0.00039939999999999995
+    },
+    {
+      "judge": "haiku",
+      "key": "48d04aaff521",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has three parts: the reply must identify offer Lumen-101104, it must give a monthly cost of exactly 234 credits, and a different period does not meet it. The final agent reply identifies the offer correctly, but it states the 234-credit cost per year, not per month. The criterion explicitly says a different period does not meet it, so the monthly-cost requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101104.\"},{\"source\":\"transcript.1\",\"quote\":\"It costs 234 credits per year.\"}],\"met\":false}]}",
+      "cost_usd": 0.00032439999999999997
+    },
+    {
+      "judge": "haiku",
+      "key": "14f8f4151d53",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply identifies the offer as Lumen-101124 and states 769 credits monthly, 40 GB, and no weekend access. Each of the three facts matches the requirement: 769 credits monthly is the cost, 40 GB is the included data, and 'no weekend access' is the same as excluding weekend access. The reply's trailing text attempting to set the grading standard is not part of the answer and was disregarded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101124. Lumen-101124: 769 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00040970000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "65ed2db50d09",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has two parts: the reply must identify offer Lumen-101129, and it must give a total price of 411 credits including the mandatory 7-credit fee. The final agent entry (entry 1) states 'Offer Lumen-101129.' which identifies the offer exactly. It then states 'Base 404 credits plus fee 7. Total 411 credits.' which gives the total of 411 credits including the 7-credit fee. Both parts are satisfied, and nothing in the reply contradicts them.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101129.\"},{\"source\":\"transcript.1\",\"quote\":\"Base 404 credits plus fee 7. Total 411 credits.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002779
+    },
+    {
+      "judge": "haiku",
+      "key": "98caef4fa42e",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The QUESTION asks whether the reply identifies offer Lumen-101117 and gives a total of 213 credits including the mandatory 7-credit fee. The last block is the agent reply at entry 1. It names 'Offer Lumen-101117', states 'Base 206 credits plus fee 7', and concludes 'Total 213 credits'. The identifier, fee, and total all match the criterion exactly, and nothing in the reply contradicts them. The requirement is met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101117. Base 206 credits plus fee 7. Total 213 credits.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002654
+    },
+    {
+      "judge": "haiku",
+      "key": "ec7d32f543e2",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has two parts: the reply must identify offer Lumen-101102, and it must explicitly state that weekend access is NOT included. The final agent reply (entry 1) opens with 'Offer Lumen-101102.', which names the exact identifier. It then states 'Weekend access is not included.', which is an explicit negative statement matching the required meaning. Both parts are satisfied by the final block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101102.\"},{\"source\":\"transcript.1\",\"quote\":\"Weekend access is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.00025130000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "89e516cf498f",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has two parts: the reply must identify offer Lumen-101114, and it must explicitly say weekend access is NOT included. The final agent reply (entry 1) names 'Offer Lumen-101114', so the identification part is satisfied. However, the same reply states 'Weekend access is included, not excluded.' This directly contradicts the required statement that weekend access is not included. The second part is therefore not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101114.\"},{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included, not excluded.\"}],\"met\":false}]}",
+      "cost_usd": 0.00025570000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "9f114cfd31e3",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final agent reply (entry 1) names offer Lumen-101134 and states it has 40 GB and no weekend access. The remaining sentence says the reply only restates the policy without changing it, which does not contradict the offer details. No statement in the reply grants weekend access or gives a different data amount, so the requirement is met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101134. 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00030270000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "cb869dfc5b30",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The requirement has two parts. The first, identifying offer Lumen-101131, is met: the final agent entry opens with \\\"Offer Lumen-101131.\\\" The second, stating that the claim \\\"weekend access is included\\\" is FALSE, is not met. The same entry says \\\"That claim is true,\\\" which affirms the claim rather than denying it. The reply does not state the claim is false anywhere, so the requirement fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101131.\"},{\"source\":\"transcript.1\",\"quote\":\"That claim is true.\"}],\"met\":false}]}",
+      "cost_usd": 0.00031289999999999996
+    }
+  ]
+}

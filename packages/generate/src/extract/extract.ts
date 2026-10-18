@@ -1,9 +1,12 @@
 import { ModelError, type ModelPort } from '../model/port';
 import { acceptAnswer, type Draft, type Refusal } from './accept';
+import { chunkSources } from './chunks';
+import { rawizeAnswer, viewSources } from './containers';
 import { parseAnswer, retryNote, SECTIONS, type Section, type SourceText, sectionRequest } from './contract';
 import { inventoryPrepass } from './prepass';
 import { checkQuotes, PROPOSAL_VERSION, type Proposal, validateProposal } from './proposal';
 import { QuoteIndex, shortQuote } from './quote';
+import { requoted, tableInventory } from './tables';
 import { toolsPrepass } from './tools';
 
 export type ExtractInput = {
@@ -67,8 +70,17 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
   const paths = new Set(input.sources.map((source) => source.path));
   if (paths.size !== input.sources.length) return inputError('', 'EXTRACT_INPUT', 'a source is given twice');
 
-  const format = inventory.path.toLowerCase().endsWith('.json') ? 'json' : 'yaml';
-  const fromInventory = inventoryPrepass(inventory.text, inventory.path, format);
+  const lower = inventory.path.toLowerCase();
+  const format = lower.endsWith('.json') ? 'json' : 'yaml';
+  // An inventory kept as markdown tables or CSV is read into the mapping an inventory holds.
+  const table = lower.endsWith('.csv')
+    ? tableInventory(inventory.text, 'csv')
+    : lower.endsWith('.md') || lower.endsWith('.markdown')
+      ? tableInventory(inventory.text, 'markdown')
+      : undefined;
+  const fromInventory = table
+    ? requoted(inventoryPrepass(table.yaml, inventory.path, 'yaml'), table.requote)
+    : inventoryPrepass(inventory.text, inventory.path, format);
   if (!fromInventory.ok) {
     return {
       ok: false,
@@ -99,16 +111,35 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
   };
 
   const texts = new Map(input.sources.map((source) => [source.path, source.text]));
+  const seen = viewSources(input.sources);
   const quotes = new QuoteIndex(texts);
   const sections: SectionRun[] = [];
   const refusals: Refusal[] = [];
   const duplicates: string[] = [];
+  const deferred: Array<{ section: Section; raw: unknown; entry: string }> = [];
   if (input.port) {
     for (const section of SECTIONS) {
-      const run = await runSection(section, input.port, input.sources, draft, quotes, input.maxTokens);
+      const run = await runSection(section, input.port, seen, draft, quotes, input.maxTokens, input.sources);
       sections.push(run.run);
       refusals.push(...run.refusals);
       duplicates.push(...run.duplicates);
+      deferred.push(...run.deferred.map((entry) => ({ section, ...entry })));
+    }
+    // A constraint can be stated in a chunk before the chunk that names its values: it waits for the whole map.
+    for (const entry of deferred) {
+      const again = acceptAnswer(
+        entry.section,
+        { section: entry.section, dimensions: [], constraints: [entry.raw], phrases: [], relations: [] },
+        draft,
+        quotes,
+      );
+      if (again.accepted === 0) continue;
+      const index = refusals.findIndex(
+        (refusal) => refusal.section === entry.section && refusal.entry === entry.entry,
+      );
+      if (index >= 0) refusals.splice(index, 1);
+      const run = sections.find((one) => one.section === entry.section);
+      if (run) run.accepted += again.accepted;
     }
   }
 
@@ -147,6 +178,13 @@ export async function extractMap(input: ExtractInput): Promise<ExtractResult> {
   };
 }
 
+type SectionOutcome = {
+  run: SectionRun;
+  refusals: Refusal[];
+  duplicates: string[];
+  deferred: Array<{ raw: unknown; entry: string }>;
+};
+
 async function runSection(
   section: Section,
   port: ModelPort,
@@ -154,7 +192,41 @@ async function runSection(
   draft: Draft,
   quotes: QuoteIndex,
   maxTokens: number | undefined,
-): Promise<{ run: SectionRun; refusals: Refusal[]; duplicates: string[] }> {
+  files: readonly SourceText[],
+): Promise<SectionOutcome> {
+  // A long prompt is read in chunks, one request each; the short sources go in every request.
+  const rounds = chunkSources(sources);
+  const total: SectionOutcome = {
+    run: { section, calls: 0, status: 'done', accepted: 0 },
+    refusals: [],
+    duplicates: [],
+    deferred: [],
+  };
+  for (const chunk of rounds) {
+    const one = await runRequest(section, port, chunk, draft, quotes, maxTokens, files);
+    total.run.calls += one.run.calls;
+    total.run.accepted += one.run.accepted;
+    if (one.run.status === 'failed') {
+      total.run.status = 'failed';
+      total.run.error = one.run.error;
+      if (one.run.excerpt) total.run.excerpt = one.run.excerpt;
+    }
+    total.refusals.push(...one.refusals);
+    total.duplicates.push(...one.duplicates);
+    total.deferred.push(...one.deferred);
+  }
+  return total;
+}
+
+async function runRequest(
+  section: Section,
+  port: ModelPort,
+  sources: readonly SourceText[],
+  draft: Draft,
+  quotes: QuoteIndex,
+  maxTokens: number | undefined,
+  files: readonly SourceText[],
+): Promise<SectionOutcome> {
   const request = sectionRequest(section, sources, draft, maxTokens);
   let reason = '';
   let excerpt = '';
@@ -175,15 +247,17 @@ async function runSection(
         },
         refusals: [],
         duplicates: [],
+        deferred: [],
       };
     }
     const parsed = parseAnswer(section, text);
     if (parsed.ok) {
-      const accepted = acceptAnswer(section, parsed.answer, draft, quotes);
+      const accepted = acceptAnswer(section, rawizeAnswer(parsed.answer, files), draft, quotes);
       return {
         run: { section, calls: attempt, status: 'done', accepted: accepted.accepted },
         refusals: accepted.refusals,
         duplicates: accepted.duplicates,
+        deferred: accepted.deferred,
       };
     }
     reason = parsed.reason;
@@ -200,6 +274,7 @@ async function runSection(
     },
     refusals: [],
     duplicates: [],
+    deferred: [],
   };
 }
 

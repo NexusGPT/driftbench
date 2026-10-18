@@ -1,4 +1,4 @@
-import type { JudgeAnswer, JudgeRequest, TranscriptEntry } from '@driftbench/judges';
+import type { JudgeAnswer, JudgeRequest, TranscriptEntry } from '@agent-nexus/driftbench-judges';
 
 /**
  * Scripted judges: code that reads a judge request the way a careful judge would, with no model. They exist

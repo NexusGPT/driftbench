@@ -4,14 +4,16 @@ import {
   type AdapterCapabilities,
   type AgentAdapter,
   AgentFailure,
+  copyHistory,
   type Observed,
   type ResolvedGiven,
   type Session,
+  type Stimulus,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import type { ReplaySession } from './session';
 
-export const CLAUDE_CODE_REPLAY_VERSION = '0.1.0';
+export const CLAUDE_CODE_REPLAY_VERSION = '0.1.2';
 
 export type ReplayAdapterOptions = {
   /** The mapped session. */
@@ -31,8 +33,8 @@ const MAX_ARTIFACT_BYTES = 100 * 1024 * 1024;
 /**
  * The replay adapter: serves a recorded session to the runner, block by block, with no model call. The
  * spec's block k reads the session's block `fromBlock + k`. The stimulus the spec writes is not sent
- * anywhere: the recorded user message is what the agent answered. A spec longer than what is left of the
- * session fails the run with an AgentFailure that says so.
+ * anywhere: it must match the recorded user message, after trimming outer whitespace. A different
+ * stimulus or a spec longer than the remaining session fails the run with an AgentFailure.
  */
 export function replayAdapter(options: ReplayAdapterOptions): AgentAdapter {
   const from = options.fromBlock ?? 0;
@@ -59,10 +61,11 @@ export function replayAdapter(options: ReplayAdapterOptions): AgentAdapter {
         adapter: 'claude-code',
         target: given.target,
         given,
-        history: structuredClone(given.prefix),
+        history: copyHistory(given.prefix),
       };
     },
     async send(_session: Session, turn: Turn): Promise<Observed> {
+      copyHistory(_session.history);
       const index = from + turn.index;
       const block = blocks[index];
       if (!block) {
@@ -70,11 +73,23 @@ export function replayAdapter(options: ReplayAdapterOptions): AgentAdapter {
           `the spec reads session block ${index}, but the session has ${blocks.length} block${blocks.length === 1 ? '' : 's'} (0 to ${blocks.length - 1})`,
         );
       }
+      if (messages(turn.stimulus) !== messages(block.stimulus)) {
+        throw new AgentFailure(
+          `stimulus mismatch at session block ${index}: requested ${JSON.stringify(turn.stimulus)}; recorded ${JSON.stringify(block.stimulus)}`,
+        );
+      }
       return structuredClone(block.observed);
     },
     async close() {},
     ...(options.files === undefined ? {} : { readArtifact: artifactReader(options.files) }),
   };
+}
+
+/** Compare delivered messages, preserving burst boundaries and ignoring only outer whitespace. */
+function messages(stimulus: Stimulus): string {
+  const texts =
+    'user' in stimulus ? [stimulus.user] : 'burst' in stimulus ? stimulus.burst : [stimulus.injection.user];
+  return JSON.stringify(texts.map((text) => text.trim()));
 }
 
 /** Reads a file under the folder, refusing a path that leaves it and a file over the bound. */

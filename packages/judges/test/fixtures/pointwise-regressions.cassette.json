@@ -1,0 +1,267 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "claude-haiku",
+      "family": "anthropic",
+      "cls": "system2",
+      "model": "haiku",
+      "cost": 10,
+      "settings": "[\"-p\",\"--output-format\",\"json\",\"--tools\",\"\",\"--setting-sources\",\"\",\"--strict-mcp-config\",\"--no-session-persistence\",\"--max-turns\",\"1\"]"
+    }
+  ],
+  "entries": [
+    {
+      "judge": "claude-haiku",
+      "key": "bf6bac150abf",
+      "criterion": "relevancy",
+      "answerContract": "ledger",
+      "note": "relevancy-entity-swap-4-a",
+      "raw": "{\"checks\":[{\"id\":\"relevancy\",\"reasoning\":\"The user asked for Acme Cedar 4's price (explicitly not Amber's) and Acme Cedar 4's data allowance. The reply gives a monthly price of $59 and a data allowance of 78 GB, both for Acme Cedar 4. It does not discuss Amber or any other product, and it addresses both parts of the ask in a short reply.\",\"evidence\":\"Acme Cedar 4 is $59 monthly and includes 78 GB.\",\"met\":true}]}",
+      "cost_usd": 0.0004711
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "68d82e33f1bb",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "note": "factuality.006",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 65 credits monthly, 40 GB, and no roaming. The CURRENT AUTHORIZED RECORD in reference.txt says Lumen-135 costs 65 credits per month, includes 40 GB, and excludes roaming. The reply's 'no roaming' is an equivalent paraphrase of 'excludes roaming', so all three facts match and none is contradicted. The reply's remark about reviewing the complete portfolio is not a factual claim that conflicts with the reference.\",\"evidence\":\"65 credits monthly, 40 GB and no roaming\",\"met\":true}]}",
+      "cost_usd": 0.00076993
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "0e2ef51a1dd8",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "note": "qa-negation-0",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is the submitted answer. Its double negation ('It is false that Room 71 at Luma Annex lacks the following offer') means Room 71 has the offer. That offer lists the upload limit as 320 Mbps, the setup fee as 24 USD, and the booking duration as 6 hours. These match the trusted reference, with 'Mbps' as an accepted unit equivalent of megabits per second. The block adds no extra condition and contains no contradicting figure. The phrasing is awkward but the meaning is the correct affirmative set of facts.\",\"evidence\":\"It is false that Room 71 at Luma Annex lacks the following offer: upload 320 Mbps, setup 24 USD, booking 6 hours.\",\"met\":true}]}",
+      "cost_usd": 0.0006080300000000001
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "1ff7f3803a02",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "note": "qa-negation-2",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is a double negation: 'It is false that Room 73 at Luma Annex lacks the following offer'. Read as a whole, it asserts that Room 73 has the offer with upload 336 Mbps, setup 26 USD, and booking 8 hours. These match the trusted reference on all three facts. The block adds no contradicting statement and no extra condition, and it is the only final answer in the scope. The phrasing is indirect, but its meaning is affirmative, so the facts are stated and not negated.\",\"evidence\":\"It is false that Room 73 at Luma Annex lacks the following offer: upload 336 Mbps, setup 26 USD, booking 8 hours.\",\"met\":true}]}",
+      "cost_usd": 0.0006750300000000001
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "18a404649f83",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "note": "qa-negation-4",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The requirement needs the final answer to state Room 75 at Luma Annex's upload limit (352 Mbps), setup fee (28 USD), and booking duration (10 hours) without contradiction. The only final block is an agent statement that it is false that Room 75 lacks the offer, restating 352 Mbps, 28 USD, and 10 hours. This is a double-negative framing rather than a direct statement, but it does assert all three facts as the offer for Room 75 and does not contradict them or add conditions. The three values match the trusted reference exactly.\",\"evidence\":\"It is false that Room 75 at Luma Annex lacks the following offer: upload 352 Mbps, setup 28 USD, booking 10 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00042403
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "46b65ba055cd",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "note": "qa-negation-6",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final answer is a double negation: 'It is false that Room 77 at Luma Annex lacks the following offer.' Its meaning is that Room 77 has the offer. The offer it names is 368 Mbps upload, 30 USD setup fee, and 12-hour booking duration, which match the trusted reference. Mbps is an equivalent unit for megabits per second. The answer adds no contradiction or extra condition, so all three facts are asserted correctly for Room 77 at Luma Annex.\",\"evidence\":\"It is false that Room 77 at Luma Annex lacks the following offer: upload 368 Mbps, setup 30 USD, booking 12 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00071353
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "d3c4033b9ff9",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "note": "qa-negation-8",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block says it is false that Room 79 at Luma Annex lacks the offer. The double negation means the room has the offer. That gives an upload limit of 384 Mbps, a setup fee of 32 USD, and a booking duration of 14 hours. All three match the trusted reference, and the block adds no contradicting or extra condition. The phrasing is awkward, but the meaning is affirmative, so it is not a negated fact.\",\"evidence\":\"It is false that Room 79 at Luma Annex lacks the following offer: upload 384 Mbps, setup 32 USD, booking 14 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00060103
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "bf6bac150abf",
+      "criterion": "relevancy",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"relevancy\",\"reasoning\":\"The user asked for Acme Cedar 4's price (not Amber's) and Acme Cedar 4's data allowance. The reply gives a monthly price of $59 and a 78 GB data allowance, both for Acme Cedar 4 and not Amber. It answers both parts of the ask directly and stays on subject.\",\"evidence\":\"Acme Cedar 4 is $59 monthly and includes 78 GB.\",\"met\":true}]}",
+      "cost_usd": 0.00022494000000000002,
+      "note": "relevancy-entity-swap-4-a repeat 1"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "68d82e33f1bb",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states Lumen-135 costs 65 credits monthly, includes 40 GB, and has no roaming. The CURRENT AUTHORIZED RECORD in reference.txt says Lumen-135 costs 65 credits per month, includes 40 GB, and excludes roaming. All three facts match. The reply's remark about reviewing the complete product portfolio is a process claim that reference.txt does not contradict.\",\"evidence\":\"Lumen-135 costs 65 credits per month, includes 40 GB, and excludes roaming.\",\"met\":true}]}",
+      "cost_usd": 0.00036543000000000003,
+      "note": "factuality.006 repeat 1"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "0e2ef51a1dd8",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is the only submitted answer. It uses a double negation: it says it is false that Room 71 at Luma Annex lacks the offer, which means the offer exists. The offer is listed as upload 320 Mbps, setup 24 USD, and booking 6 hours. These match the trusted reference (320 megabits per second, 24 USD, 6 hours), and 320 Mbps is an equivalent unit. The answer contains no contradiction and no added condition. The affirmative meaning is clear, so the requirement is met even though the phrasing is negated.\",\"evidence\":\"It is false that Room 71 at Luma Annex lacks the following offer: upload 320 Mbps, setup 24 USD, booking 6 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00055671,
+      "note": "qa-negation-0 repeat 1"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "1ff7f3803a02",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is the only submitted answer. Its double negation ('It is false that Room 73 at Luma Annex lacks the following offer') means Room 73 at Luma Annex has all three requested facts: upload 336 Mbps (equivalent to the 336 megabits per second reference), setup 26 USD, and booking 8 hours. All three match the trusted reference. The statement contains no contradiction and no added condition, and the entity is correctly tied to the facts.\",\"evidence\":\"It is false that Room 73 at Luma Annex lacks the following offer: upload 336 Mbps, setup 26 USD, booking 8 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00053071,
+      "note": "qa-negation-2 repeat 1"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "18a404649f83",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is a double negation: 'It is false that Room 75 at Luma Annex lacks the following offer'. Its meaning is that Room 75 has all three facts: upload 352 Mbps, setup 28 USD, and booking 10 hours. These match the trusted reference exactly. The statement has no contradiction and no added condition. Per the rules, the negated form is evaluated by its meaning and does not need affirmative phrasing.\",\"evidence\":\"It is false that Room 75 at Luma Annex lacks the following offer: upload 352 Mbps, setup 28 USD, booking 10 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00040221,
+      "note": "qa-negation-4 repeat 1"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "46b65ba055cd",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is the only submitted answer. It uses a double negation ('It is false that ... lacks the following offer') that asserts Room 77 at Luma Annex has all three values: 368 Mbps, 30 USD, and 12 hours. 'Mbps' is an equivalent unit for megabits per second, which the criterion accepts. The statement adds no extra condition and no contradiction, so the facts are present and correct for the requested entity.\",\"evidence\":\"It is false that Room 77 at Luma Annex lacks the following offer: upload 368 Mbps, setup 30 USD, booking 12 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00059571,
+      "note": "qa-negation-6 repeat 1"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "d3c4033b9ff9",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is a double negation: it says it is false that Room 79 lacks the offer. Read as a whole, it affirms that Room 79 at Luma Annex has an upload limit of 384 Mbps (equivalent to 384 megabits per second), a setup fee of 32 USD, and a booking duration of 14 hours, matching the trusted reference. The block contains no contradiction and no added condition. The phrasing is indirect, but the meaning is affirmative and all three facts are present for the requested entity.\",\"evidence\":\"It is false that Room 79 at Luma Annex lacks the following offer: upload 384 Mbps, setup 32 USD, booking 14 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00048171,
+      "note": "qa-negation-8 repeat 1"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "bf6bac150abf",
+      "criterion": "relevancy",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"relevancy\",\"reasoning\":\"The user asked for Acme Cedar 4's price (explicitly not Amber's) and Acme Cedar 4's data allowance. The reply gives a monthly price of $59 and a data allowance of 78 GB, both for Acme Cedar 4. It does not discuss Amber or any unrelated subject, and it covers both parts of the ask concisely.\",\"evidence\":\"Acme Cedar 4 is $59 monthly and includes 78 GB.\",\"met\":true}]}",
+      "cost_usd": 0.00010831999999999999,
+      "note": "relevancy-entity-swap-4-a repeat 2"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "68d82e33f1bb",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference's CURRENT AUTHORIZED RECORD states Lumen-135 costs 65 credits per month, includes 40 GB, and excludes roaming. The final reply states 65 credits monthly, 40 GB, and no roaming. All three facts match the reference, and the reply adds no contradicting claim. Its statement about reviewing the portfolio is not a factual claim the reference contradicts.\",\"evidence\":\"65 credits monthly, 40 GB and no roaming.\",\"met\":true}]}",
+      "cost_usd": 0.00025281,
+      "note": "factuality.006 repeat 2"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "0e2ef51a1dd8",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block says it is false that Room 71 lacks the offer, then lists upload 320 Mbps, setup 24 USD, and booking 6 hours. The double negation affirms all three facts for Room 71 at Luma Annex. These match the trusted reference (320 megabits per second, 24 USD, 6 hours), with Mbps as an equivalent unit. No contradiction or extra condition appears in the final answer. The phrasing is awkward, but its meaning is affirmative.\",\"evidence\":\"It is false that Room 71 at Luma Annex lacks the following offer: upload 320 Mbps, setup 24 USD, booking 6 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00040209,
+      "note": "qa-negation-0 repeat 2"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "1ff7f3803a02",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The requirement needs the final answer to state Room 73's upload limit (336 Mbps), setup fee (26 USD), and booking duration (8 hours) with no contradiction or extra condition. The only scoped output is a denial that Room 73 lacks the offer, which does not itself state the three facts as a direct answer to the question. The statement affirms the trusted values by negating the negation, but it is a double negative rather than a plain statement of each fact, and the data does not show a separate direct answer giving all three values for Room 73 at Luma Annex. Because the final answer is not clearly a direct statement of all three facts, the check cannot be confirmed as met.\",\"evidence\":\"It is false that Room 73 at Luma Annex lacks the following offer: upload 336 Mbps, setup 26 USD, booking 8 hours.\",\"met\":null}]}",
+      "cost_usd": 0.00016909,
+      "note": "qa-negation-2 repeat 2"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "18a404649f83",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is the answer. It says it is false that Room 75 at Luma Annex lacks the offer, which is a double negation meaning Room 75 has the offer. The offer lists an upload limit of 352 Mbps (equivalent to 352 megabits per second), a setup fee of 28 USD, and a booking duration of 10 hours. All three match the trusted reference, and the block adds no contradicting statement or extra condition.\",\"evidence\":\"It is false that Room 75 at Luma Annex lacks the following offer: upload 352 Mbps, setup 28 USD, booking 10 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00034559,
+      "note": "qa-negation-4 repeat 2"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "46b65ba055cd",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is a double negation: 'It is false that Room 77 at Luma Annex lacks the following offer.' Read as meaning, it asserts that Room 77 has the offer. The three facts are then stated: upload 368 Mbps (equivalent to 368 megabits per second), setup 30 USD, and booking 12 hours. These match the trusted reference. No contradiction or extra condition appears in the final block. The phrasing is awkward, but the negation resolves to an affirmative statement of all three facts, so the requirement is satisfied.\",\"evidence\":\"It is false that Room 77 at Luma Annex lacks the following offer: upload 368 Mbps, setup 30 USD, booking 12 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00036559,
+      "note": "qa-negation-6 repeat 2"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "d3c4033b9ff9",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is the only submitted answer. It says 'It is false that Room 79 at Luma Annex lacks the following offer: upload 384 Mbps, setup 32 USD, booking 14 hours.' The double negation means Room 79 has the offer. It states an upload limit of 384 Mbps (equivalent to the reference's 384 megabits per second), a setup fee of 32 USD, and a booking duration of 14 hours, all matching the trusted reference. The block adds no contradicting value and no extra condition, so all three requested facts are present and correct for the requested entity.\",\"evidence\":\"It is false that Room 79 at Luma Annex lacks the following offer: upload 384 Mbps, setup 32 USD, booking 14 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00035359000000000003,
+      "note": "qa-negation-8 repeat 2"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "bf6bac150abf",
+      "criterion": "relevancy",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"relevancy\",\"reasoning\":\"The user asked for Acme Cedar 4's price (not Amber's) and Acme Cedar 4's data allowance. The reply gives a monthly price of $59 and a data allowance of 78 GB, both for Acme Cedar 4, so it answers both parts of the ask without switching to Amber or changing the subject.\",\"evidence\":\"Acme Cedar 4 is $59 monthly and includes 78 GB.\",\"met\":true}]}",
+      "cost_usd": 0.00010232000000000001,
+      "note": "relevancy-entity-swap-4-a repeat 3"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "68d82e33f1bb",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference's CURRENT AUTHORIZED RECORD states Lumen-135 costs 65 credits per month, includes 40 GB, and excludes roaming. The final agent reply states 65 credits monthly, 40 GB, and no roaming. All three facts match the reference in substance, so the reply contains no factual disagreement with reference.txt.\",\"evidence\":\"Lumen-135 costs 65 credits per month, includes 40 GB, and excludes roaming.\",\"met\":true}]}",
+      "cost_usd": 0.00024481000000000004,
+      "note": "factuality.006 repeat 3"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "0e2ef51a1dd8",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block says it is false that Room 71 at Luma Annex lacks the offer. The double negation asserts that the room has the offer, which lists an upload limit of 320 Mbps (equivalent to 320 megabits per second), a setup fee of 24 USD, and a booking duration of 6 hours. All three values match the trusted reference, and the block adds no contradiction or extra condition. The statement is indirect in phrasing, but its meaning is affirmative, and the criterion evaluates meaning including negation.\",\"evidence\":\"It is false that Room 71 at Luma Annex lacks the following offer: upload 320 Mbps, setup 24 USD, booking 6 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00036809,
+      "note": "qa-negation-0 repeat 3"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "1ff7f3803a02",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is the only submitted answer. It states that the claim that Room 73 at Luma Annex lacks the offer is false. The double negation means the room has the offer, so the answer affirms all three facts: upload 336 Mbps (equivalent to the 336 megabits per second reference), setup 26 USD, and booking 8 hours. All three match the trusted reference, and the block adds no contradiction or extra condition.\",\"evidence\":\"It is false that Room 73 at Luma Annex lacks the following offer: upload 336 Mbps, setup 26 USD, booking 8 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00043759,
+      "note": "qa-negation-2 repeat 3"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "18a404649f83",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The only final answer is a double negative: it says it is false that Room 75 at Luma Annex lacks the offer. Its meaning is that Room 75 has all three facts. The upload limit of 352 Mbps matches 352 megabits per second, which is an accepted unit equivalent. The setup fee of 28 USD and the booking duration of 10 hours match the trusted reference exactly. The answer names the correct entity and adds no extra condition or current contradiction. The phrasing is awkward, but the stated meaning is affirmative and correct.\",\"evidence\":\"It is false that Room 75 at Luma Annex lacks the following offer: upload 352 Mbps, setup 28 USD, booking 10 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00045559,
+      "note": "qa-negation-4 repeat 3"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "46b65ba055cd",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block says it is false that Room 77 at Luma Annex lacks the offer. Two negations cancel, so the statement affirms that the offer includes all three facts: upload 368 Mbps (equivalent to the reference 368 megabits per second), setup 30 USD, and booking 12 hours. All three match the trusted reference for the requested entity. The statement adds no contradiction or extra condition.\",\"evidence\":\"It is false that Room 77 at Luma Annex lacks the following offer: upload 368 Mbps, setup 30 USD, booking 12 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00026959,
+      "note": "qa-negation-6 repeat 3"
+    },
+    {
+      "judge": "claude-haiku",
+      "key": "d3c4033b9ff9",
+      "criterion": "factual_content",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factual_content\",\"reasoning\":\"The final block is a double negation: it says it is false that Room 79 at Luma Annex lacks the offer. Read plainly, that means the offer exists. The stated values match the trusted reference: 384 Mbps equals 384 megabits per second, 32 USD is the setup fee, and 14 hours is the booking duration. The statement contains no contradiction and no added condition.\",\"evidence\":\"It is false that Room 79 at Luma Annex lacks the following offer: upload 384 Mbps, setup 32 USD, booking 14 hours.\",\"met\":true}]}",
+      "cost_usd": 0.00028809,
+      "note": "qa-negation-8 repeat 3"
+    }
+  ]
+}

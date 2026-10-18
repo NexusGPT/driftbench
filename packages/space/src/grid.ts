@@ -43,11 +43,14 @@ export const DEFAULT_MAX_CELLS = 250_000;
 export function compileSpace(map: SpaceMap): CompiledSpace {
   let uniform = true;
   const dimensions = map.dimensions.map((dimension): CompiledDimension => {
-    const fitted = map.prior.weights?.[dimension.id];
+    // An own-property lookup: a dimension named constructor or a value named toString is not in a prior that omits it.
+    const weights = map.prior.weights;
+    const fitted =
+      weights !== undefined && Object.hasOwn(weights, dimension.id) ? weights[dimension.id] : undefined;
     const written = dimension.values.some((value) => value.weight !== undefined);
     if (fitted || written) uniform = false;
     const raw = dimension.values.map((value) => {
-      if (fitted) return fitted[value.id] ?? 0;
+      if (fitted) return Object.hasOwn(fitted, value.id) ? (fitted[value.id] ?? 0) : 0;
       return written ? (value.weight ?? 0) : 1;
     });
     const total = raw.reduce((sum, weight) => sum + weight, 0);
@@ -89,24 +92,42 @@ export function isForbidden(space: CompiledSpace, cell: readonly number[]): bool
 /**
  * Calls `visit` with every allowed cell of the full grid, in odometer order (the last dimension turns
  * fastest). The array passed is reused between calls: copy it to keep it.
+ *
+ * A constraint can only match once its last dimension holds a value, so each is checked once there, and a
+ * match drops every cell under the values chosen so far. The cost follows the allowed cells and the dropped
+ * branches, not the full grid times the constraint list.
  */
 export function forEachAllowedCell(space: CompiledSpace, visit: (cell: readonly number[]) => void): void {
-  const sizes = space.dimensions.map((dimension) => dimension.values.length);
-  const cell = sizes.map(() => 0);
-  for (;;) {
-    if (!isForbidden(space, cell)) visit(cell);
-    let dimension = cell.length - 1;
-    while (dimension >= 0) {
-      const next = (cell[dimension] ?? 0) + 1;
-      if (next < (sizes[dimension] ?? 0)) {
-        cell[dimension] = next;
-        break;
-      }
-      cell[dimension] = 0;
-      dimension -= 1;
-    }
-    if (dimension < 0) return;
+  // A dimension without a value still holds position 0, as the odometer always did.
+  const sizes = space.dimensions.map((dimension) => Math.max(1, dimension.values.length));
+  const closing: CompiledConstraint[][] = sizes.map(() => []);
+  for (const constraint of space.constraints) {
+    let last = -1;
+    for (const [dimension] of constraint) if (dimension > last) last = dimension;
+    // A constraint that names no dimension of the grid matches no cell.
+    closing[last]?.push(constraint);
   }
+  const cell = sizes.map(() => 0);
+  const walk = (dimension: number): void => {
+    if (dimension === sizes.length) {
+      visit(cell);
+      return;
+    }
+    const constraints = closing[dimension] ?? [];
+    const size = sizes[dimension] ?? 0;
+    for (let value = 0; value < size; value += 1) {
+      cell[dimension] = value;
+      let forbidden = false;
+      for (const constraint of constraints) {
+        if (constraint.every(([at, held]) => cell[at] === held)) {
+          forbidden = true;
+          break;
+        }
+      }
+      if (!forbidden) walk(dimension + 1);
+    }
+  };
+  walk(0);
 }
 
 /**

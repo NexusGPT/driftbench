@@ -1,0 +1,65 @@
+{
+  "counts": {
+    "gpt-6.1-sol": {
+      "driftbench-verify-uncertainty-cascade": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      },
+      "promptfoo": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      }
+    }
+  },
+  "limits": [],
+  "unmappedLimits": [],
+  "unclassifiedHistoricalNativeErrors": [],
+  "refusals": [],
+  "refusalCounts": {
+    "gpt-6.1-sol": {
+      "driftbench-verify-uncertainty-cascade": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      },
+      "promptfoo": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      }
+    }
+  },
+  "unmappedRefusals": [],
+  "rule": "Strict is primary; any confirmed output limit makes every consuming contestant/item an error. Product-final preserves the original verdict, including fallback.",
+  "source": "evidence/scoring-freeze.json; evidence/request-attribution.json; receipts/calls.jsonl; receipts/errors.jsonl; receipts/native/*.json"
+}

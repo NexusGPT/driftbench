@@ -1,0 +1,10 @@
+{
+  "stamp": "2026-10-13T08:10:12.281414+00:00",
+  "authorization": "Owner: Then finish the primary and dialect runs, at most 4 calls in total.",
+  "combined_call_limit": 4,
+  "drained_previous_workers_at": "2026-10-13T08:09:02.459919+00:00",
+  "queue_policy": "Rotate independently across experiment/provider queues. Provider limits are nested under the combined cap. No in-flight call interrupted.",
+  "sha256": {
+    "comparisons/ledger-hard/resume.py": "7b1615e18952a32a21f82667835f62a92f3205d30578b541718c0b9189d9ac6e"
+  }
+}

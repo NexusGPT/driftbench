@@ -14,20 +14,20 @@ interface Frequencies {
   readonly f2: number;
 }
 
-function frequencies(counts: readonly number[]): Frequencies {
+function frequencies(fn: string, counts: readonly number[]): Frequencies {
   let n = 0;
   let observed = 0;
   let f1 = 0;
   let f2 = 0;
   counts.forEach((c, i) => {
     if (!Number.isInteger(c) || c < 0)
-      throw new RangeError(`counts[${i}] must be a non-negative integer, got ${c}`);
+      throw new RangeError(`${fn}: counts[${i}] must be a non-negative integer, got ${c}`);
     n += c;
     if (c > 0) observed += 1;
     if (c === 1) f1 += 1;
     if (c === 2) f2 += 1;
   });
-  if (n === 0) throw new RangeError('no observations');
+  if (n === 0) throw new RangeError(`${fn}: counts must hold at least one observation`);
   return { n, observed, f1, f2 };
 }
 
@@ -40,7 +40,7 @@ export interface GoodTuringResult extends Frequencies {
 
 /** Good-Turing: the discovery probability f1 / n and the coverage 1 - f1 / n, from the abundance per class. */
 export function goodTuring(counts: readonly number[]): GoodTuringResult {
-  const f = frequencies(counts);
+  const f = frequencies('goodTuring', counts);
   const discoveryProbability = f.f1 / f.n;
   return { ...f, discoveryProbability, coverage: 1 - discoveryProbability };
 }
@@ -60,7 +60,7 @@ export interface ChaoResult extends Frequencies {
  * S_obs + ((n - 1) / n) f1 (f1 - 1) / 2.
  */
 export function chaoCoverage(counts: readonly number[]): ChaoResult {
-  const f = frequencies(counts);
+  const f = frequencies('chaoCoverage', counts);
   const { n, observed, f1, f2 } = f;
   let coverage: number;
   if (f1 === 0) coverage = 1;
@@ -75,11 +75,19 @@ export function chaoCoverage(counts: readonly number[]): ChaoResult {
 
 /** The Hill number of order q (the effective number of classes), plug-in from the abundances. */
 export function hillNumber(counts: readonly number[], q: number): number {
-  const f = frequencies(counts);
+  const f = frequencies('hillNumber', counts);
+  if (!Number.isFinite(q)) throw new RangeError(`hillNumber: q must be finite, got ${q}`);
   const ps = counts.filter((c) => c > 0).map((c) => c / f.n);
   if (q === 0) return ps.length;
   if (q === 1) return Math.exp(-ps.reduce((s, p) => s + p * Math.log(p), 0));
-  return ps.reduce((s, p) => s + p ** q, 0) ** (1 / (1 - q));
+  // sum p^q = 1 + sum p (p^(q-1) - 1) because the p sum to 1; expm1 and log1p keep the digits when q is near 1.
+  const excess = ps.reduce((s, p) => s + p * Math.expm1((q - 1) * Math.log(p)), 0);
+  if (excess > -0.5) return Math.exp(Math.log1p(excess) / (1 - q));
+  // sum p^q is below one half (large q): 1 + excess cancels to a few digits, or to zero. Sum the positive terms in log space.
+  const logs = ps.map((p) => q * Math.log(p));
+  const top = logs.reduce((m, l) => Math.max(m, l), Number.NEGATIVE_INFINITY);
+  const logSum = top + Math.log(logs.reduce((s, l) => s + Math.exp(l - top), 0));
+  return Math.exp(logSum / (1 - q));
 }
 
 export interface HillNumbers {
@@ -93,5 +101,6 @@ export interface HillNumbers {
 
 /** Hill numbers at q = 0, 1 and 2. */
 export function hillNumbers(counts: readonly number[]): HillNumbers {
+  frequencies('hillNumbers', counts);
   return { q0: hillNumber(counts, 0), q1: hillNumber(counts, 1), q2: hillNumber(counts, 2) };
 }

@@ -1,0 +1,22 @@
+{
+  "commit": "a1dbea8",
+  "source": "https://github.com/UKGovernmentBEIS/inspect_ai/blob/a1dbea8/src/inspect_ai/scorer/_model.py",
+  "sha256": "75c525f7a869fcf829bd83b66ad2431acae80f2a6fef8f2bfa5c11ec5a0e2817",
+  "files": [
+    {
+      "local": "upstream-model.py",
+      "sha256": "75c525f7a869fcf829bd83b66ad2431acae80f2a6fef8f2bfa5c11ec5a0e2817",
+      "source": "https://github.com/UKGovernmentBEIS/inspect_ai/blob/a1dbea8/src/inspect_ai/scorer/_model.py"
+    },
+    {
+      "local": "upstream-multi.py",
+      "sha256": "4547d9923c10e3eb1d2d884bd69caa011e6016defcf32f909140b6037966ed44",
+      "source": "https://github.com/UKGovernmentBEIS/inspect_ai/blob/a1dbea8/src/inspect_ai/scorer/_multi.py"
+    },
+    {
+      "local": "upstream-reducer.py",
+      "sha256": "e18e2181c2350301ac055dedbeb46ccee9c459b8dd657ba7cf75a4227fa88ca5",
+      "source": "https://github.com/UKGovernmentBEIS/inspect_ai/blob/a1dbea8/src/inspect_ai/scorer/_reducer/reducer.py"
+    }
+  ]
+}

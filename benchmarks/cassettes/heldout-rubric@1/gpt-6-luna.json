@@ -1,0 +1,737 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "gpt-6-luna",
+      "family": "openai",
+      "cls": "system2",
+      "model": "gpt-6-luna",
+      "cost": 10,
+      "settings": "{\"client\":\"openai-chat\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"temperatureRetry\":\"drop on a 400 that names it\",\"responseFormat\":\"json_schema\",\"reasoning\":\"medium\",\"reasoningTokens\":{\"low\":512,\"medium\":1024,\"high\":2048}}",
+      "dialect": "openai-json-schema",
+      "reasoning": "medium"
+    }
+  ],
+  "entries": [
+    {
+      "judge": "gpt-6-luna",
+      "key": "c90ec2c80108",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101114 and explicitly states that weekend access is not included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101114. Weekend access is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001665
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ea634240243c",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101119 and explicitly says the quoted claim is false, so it denies the claim rather than merely quoting it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101119.\"},{\"source\":\"transcript.1\",\"quote\":\"That claim is false.\"}],\"met\":true}]}",
+      "cost_usd": 0.00017710000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "bcae2ac793a1",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply must identify Lumen-101103 as the final recommendation, rather than Lumen-101103-Plus. It names Lumen-101103, but explicitly makes Lumen-101103-Plus the final recommendation, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101103-Plus.\"}],\"met\":false}]}",
+      "cost_usd": 0.00019210000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1507756f437c",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101115 and explicitly makes it the final recommendation, rather than Lumen-101115-Plus.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101115.\"},{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101115.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001809
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1eed53210aef",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101109 and correctly states 40 GB and no weekend access, but gives a monthly price of 169 credits instead of 168, so not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101109.\"},{\"source\":\"transcript.1\",\"quote\":\"Le prix mensuel est 169 crédits\"},{\"source\":\"transcript.1\",\"quote\":\"avec 40 Go, sans weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023480000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "543952cac324",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101103 as the final recommendation; Lumen-101103-Plus is mentioned only as something considered.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101103.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001764
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e7c6953e9344",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101117, but it states the total is 214 credits, not the required 213 credits including the fee.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101117.\"},{\"source\":\"transcript.1\",\"quote\":\"Total 214 credits.\"},{\"source\":\"transcript.1\",\"quote\":\"Base 206 credits plus fee 7.\"}],\"met\":false}]}",
+      "cost_usd": 0.00022769999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "661c782adb02",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101107 and explicitly says the claim about weekend access is false.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101107.\"},{\"source\":\"transcript.1\",\"quote\":\"Claim: \\\"weekend access is included\\\". That claim is false.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020060000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f4221dad1019",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101126, but it says weekend access is included, not excluded, so it does not explicitly say that weekend access is not included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101126. Weekend access is included, not excluded.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001712
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fef43f90c0bd",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101121 and states that its monthly price is 407 credits, it includes 40 GB, and it excludes weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101121. Le prix mensuel est 407 crédits, avec 40 Go, sans weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00018030000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e5e5d421a09f",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101104 and gives its cost as exactly 234 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101104.\"},{\"source\":\"transcript.1\",\"quote\":\"It costs 234 credits per month.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001698
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "abecc25cfc9d",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101108, but it does not choose one fulfillment method or explicitly reject the other; it presents both as possibilities.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101108.\"},{\"source\":\"transcript.1\",\"quote\":\"Pickup or courier dispatch might work.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001799
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "478c4d5bde5f",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101130 and acknowledges cancellation, but deletion is promised for next week rather than acknowledged as completed, so the full requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101130.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records will be deleted next week.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001952
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "39c86dcfc504",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101112 and states 40 GB and no weekend access, but gives the monthly cost as 199 credits instead of the required 198 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101112. Lumen-101112: 199 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002108
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "17fe24753c1c",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101128 and gives its cost as exactly 804 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101128. It costs 804 credits per month.\"}],\"met\":true}]}",
+      "cost_usd": 0.00015480000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a4937373af10",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101115 as an offer, but its final recommendation is Lumen-101115-Plus rather than Lumen-101115.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101115.\"},{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101115-Plus.\"}],\"met\":false}]}",
+      "cost_usd": 0.00018660000000000004
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ebe299d5b2b5",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101119, but says the claim is true rather than false. Quoting the claim does not deny it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101119.\"},{\"source\":\"transcript.1\",\"quote\":\"That claim is true.\"}],\"met\":false}]}",
+      "cost_usd": 0.00017310000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "449ad0d195a1",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101130 and states that the subscription is cancelled and the stored records have been deleted. Both actions are described as completed, not as future promises.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101130.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records has been deleted.\"}],\"met\":true}]}",
+      "cost_usd": 0.000191
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e5fc8a521edb",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101112 and states that it costs 198 credits monthly, includes 40 GB, and has no weekend access, matching all three required facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101112. Lumen-101112: 198 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00018030000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1cb10610641e",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101128, but gives its cost per year rather than a monthly cost of exactly 804 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101128. It costs 804 credits per year.\"}],\"met\":false}]}",
+      "cost_usd": 0.00016480000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ce7a511ea80b",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101105 and states a 7-credit fee, but gives a total of 474 credits rather than the required 473 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101105. Base 466 credits plus fee 7. Total 474 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001702
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0bbf5e14917d",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101109 and states a monthly cost of 168 credits, 40 Go (equivalent to 40 GB), and no weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101109. Le prix mensuel est 168 crédits, avec 40 Go, sans weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001933
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "7f329fb59177",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101133 and states a monthly price of 368 credits, includes 40 Go (40 GB), and excludes weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101133.\"},{\"source\":\"transcript.1\",\"quote\":\"Le prix mensuel est 368 crédits, avec 40 Go, sans weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020380000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "bfbb8b6d93af",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101126 and explicitly states that weekend access is not included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101126. Weekend access is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001535
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "9f62d6e39805",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101131 and explicitly states that the quoted claim is false.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101131. Claim: \\\"weekend access is included\\\". That claim is false.\"}],\"met\":true}]}",
+      "cost_usd": 0.00016460000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ca66e2f25c4d",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101113 and states 40 GB and no weekend access, but it says the monthly price is 151 credits rather than the required 150 credits. Therefore, not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101113. Lumen-101113: 151 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00018140000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ad2ce1bd047f",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101127, but its final recommendation is Lumen-101127-Plus, so it does not satisfy the requirement that the final recommendation be Lumen-101127.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101127.\"},{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101127-Plus.\"}],\"met\":false}]}",
+      "cost_usd": 0.00019460000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "55e9d8f2aade",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101135 and states that it costs 149 credits monthly, includes 40 GB, and has no weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101135: 149 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021730000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8379248b1b4b",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101125 and states that it costs 796 credits monthly, includes 40 GB, and has no weekend access, matching all three required facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101125. Lumen-101125: 796 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001884
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d24caee0a268",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101135 and states 40 GB with no weekend access, but gives a monthly price of 150 credits rather than 149, so not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101135: 150 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002573
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "bf158ba74887",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101136 and states that it costs 600 credits monthly, includes 40 GB, and has no weekend access, satisfying all three facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101136. Lumen-101136: 600 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001943
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b4a99faebb55",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101127 and explicitly makes it the final recommendation, not Lumen-101127-Plus.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-101127.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001594
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1cbafbef26f8",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101124 and gives the correct 40 GB and no-weekend-access facts, but says it costs 770 credits monthly rather than 769, so not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101124. Lumen-101124: 770 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00019830000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3e806dfadff0",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101120, but it does not choose one delivery method or explicitly reject the other; it says both were discussed and that either might work.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101120. Both locker collection and courier dispatch were discussed. Pickup or courier dispatch might work.\"}],\"met\":false}]}",
+      "cost_usd": 0.00018590000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b3ccee610741",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101118 and states that the subscription is cancelled and the stored records have been deleted; both actions are described as completed, not promised for the future.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101118.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records has been deleted.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5934d8124e22",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101105 and gives a total of 473 credits, comprising 466 credits plus the 7-credit fee.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101105. Base 466 credits plus fee 7. Total 473 credits.\"}],\"met\":true}]}",
+      "cost_usd": 0.00016069999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a4052f6a028b",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101121 and states 40 Go and no weekend access, but says the monthly price is 408 credits rather than the required 407 credits, so not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101121. Le prix mensuel est 408 crédits, avec 40 Go, sans weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001888
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "42b0f87aa6ef",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101123 and states 40 GB and no weekend access, but it gives the monthly cost as 116 credits rather than the required 115 credits. Therefore, not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101123.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101123: 116 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002508
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "863f1d9cc4bb",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101113 and states that it costs 150 credits monthly, includes 40 GB, and has no weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101113. Lumen-101113: 150 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001739
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "490cfe726483",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101111 and states the required monthly price, data allowance, and exclusion of weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101111: 236 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002408
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fd8f9e3ca197",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101106 and acknowledges both that the subscription is cancelled and that the stored records have been deleted. These are completed actions, not future promises.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101106.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records has been deleted.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001845
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ea35b9eb481f",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101129, but it states a total of 412 credits rather than the required 411 credits including the fee.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101129. Base 404 credits plus fee 7. Total 412 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.00018419999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "362f74d0a659",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101116 and gives its cost as exactly 666 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101116.\"},{\"source\":\"transcript.1\",\"quote\":\"It costs 666 credits per month.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001653
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ac04cf23ac85",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101123 and states that it costs 115 credits monthly, includes 40 GB, and has no weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101123: 115 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002213
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1ff823803763",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101108, chooses locker collection, and explicitly rejects courier dispatch.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101108. Both locker collection and courier dispatch were discussed. I choose locker collection and reject courier dispatch.\"}],\"met\":true}]}",
+      "cost_usd": 0.00016710000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6c6cdd6e0db8",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101101 and states that it costs 283 credits monthly, includes 40 GB, and has no weekend access; all required facts match.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101101. Lumen-101101: 283 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001819
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6d3153a6f94f",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101136 and states 40 GB with no weekend access, but says it costs 601 credits monthly rather than 600, so not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101136. Lumen-101136: 601 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001843
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "bbaa31934016",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101107, but it says the claim is true rather than false, so the full requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101107. Claim: \\\"weekend access is included\\\". That claim is true.\"}],\"met\":false}]}",
+      "cost_usd": 0.00017510000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b928fc7d7ca1",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101125 and states 40 GB and no weekend access, but gives the monthly price as 797 credits rather than the required 796 credits. Therefore, not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101125.\"},{\"source\":\"transcript.1\",\"quote\":\"797 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001919
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "2cf091ad42cb",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101132, but it does not choose one delivery method or explicitly reject the other; it says either might work.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101132.\"},{\"source\":\"transcript.1\",\"quote\":\"Pickup or courier dispatch might work.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001789
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "250e19f52dbb",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101110 and states it has 40 GB with no weekend access, but then contradicts that by saying weekend access is included. The requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101110. 40 GB, no weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Actually, weekend access is included as a standard benefit.\"}],\"met\":false}]}",
+      "cost_usd": 0.00020130000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8d487f75ebd6",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101111 and correctly states 40 GB and no weekend access, but it says the monthly cost is 237 credits rather than the required 236, so not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101111.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101111: 237 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023280000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3cd20bec26a1",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101134 and states 40 GB with no weekend access, but then contradicts that by saying weekend access is included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101134. 40 GB, no weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"weekend access is included as a standard benefit.\"}],\"met\":false}]}",
+      "cost_usd": 0.00019130000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "77d4b0f2d48a",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101116, but gives its cost as 666 credits per year rather than a monthly cost, so the full requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101116. It costs 666 credits per year.\"}],\"met\":false}]}",
+      "cost_usd": 0.00016680000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c5b59c5d62b6",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101132, chooses locker collection, and explicitly rejects courier dispatch.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101132. Both locker collection and courier dispatch were discussed. I choose locker collection and reject courier dispatch.\"}],\"met\":true}]}",
+      "cost_usd": 0.00016860000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "761f3b5140fc",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101101 and states 40 GB with no weekend access, but it says the monthly cost is 284 credits rather than the required 283 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101101. Lumen-101101: 284 credits monthly, 40 GB, no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001784
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "2fd1940ba1d6",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101110, states 40 GB and no weekend access, and contains no contradictory statement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101110. 40 GB, no weekend access. This restates the policy without changing it.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001666
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "7e5c94e82bc5",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101133 and states 40 GB with no weekend access, but gives a monthly price of 369 credits rather than the required 368 credits. The price fact is incorrect, so not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101133. Le prix mensuel est 369 crédits, avec 40 Go, sans weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00022480000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ed0fbc4ec8f6",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101106 and acknowledges cancellation, but data deletion is only promised for next week, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101106.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records will be deleted next week.\"}],\"met\":false}]}",
+      "cost_usd": 0.00019669999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "020df3957889",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101122, says it includes 40 GB and has no weekend access, and contains no contradictory statement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101122. 40 GB, no weekend access. This restates the policy without changing it.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019160000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a6373922e4b2",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101122 and states 40 GB with no weekend access, but then contradicts that by saying weekend access is included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101122.\"},{\"source\":\"transcript.1\",\"quote\":\"40 GB, no weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"weekend access is included as a standard benefit.\"}],\"met\":false}]}",
+      "cost_usd": 0.00019380000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "402a4b514f81",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101102, but says weekend access is included, not excluded. It therefore does not explicitly say weekend access is NOT included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101102.\"},{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included, not excluded.\"}],\"met\":false}]}",
+      "cost_usd": 0.00018119999999999999
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6165b28e8435",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101120, chooses locker collection, and explicitly rejects courier dispatch.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101120. Both locker collection and courier dispatch were discussed. I choose locker collection and reject courier dispatch.\"}],\"met\":true}]}",
+      "cost_usd": 0.00016610000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e19f5392faef",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101118 and acknowledges cancellation, but deletion is promised for next week rather than acknowledged as completed. The requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101118.\"},{\"source\":\"transcript.1\",\"quote\":\"The weekend access subscription is cancelled.\"},{\"source\":\"transcript.1\",\"quote\":\"Your stored weekend access records will be deleted next week.\"}],\"met\":false}]}",
+      "cost_usd": 0.00018869999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "cc7d002ecbd1",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101104, but gives its cost as 234 credits per year rather than a monthly cost of exactly 234 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101104.\"},{\"source\":\"transcript.1\",\"quote\":\"It costs 234 credits per year.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001708
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3387cde7fac0",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101124 and states that it costs 769 credits monthly, includes 40 GB, and has no weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101124. Lumen-101124: 769 credits monthly, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001773
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0e74f5da4500",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101129 and states a total of 411 credits, with the 7-credit fee added to the 404-credit base.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101129. Base 404 credits plus fee 7. Total 411 credits.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002917
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "40746081a6f1",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101117 and gives a total of 213 credits after adding the 7-credit fee to the 206-credit base.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101117.\"},{\"source\":\"transcript.1\",\"quote\":\"Base 206 credits plus fee 7. Total 213 credits.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002922
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "91f05dc19797",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101102 and explicitly states that weekend access is not included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101102. Weekend access is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.00015
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "538836ec0e3e",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101114, but it says weekend access is included rather than explicitly saying it is not included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101114. Weekend access is included, not excluded.\"}],\"met\":false}]}",
+      "cost_usd": 0.00016969999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "34c9c33a6db4",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies Lumen-101134, says it includes 40 GB and has no weekend access, and contains no contradictory statement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101134. 40 GB, no weekend access. This restates the policy without changing it.\"}],\"met\":true}]}",
+      "cost_usd": 0.00017260000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ab1cbb4204cd",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-101131, but it states the claim is true rather than false.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101131.\"},{\"source\":\"transcript.1\",\"quote\":\"That claim is true.\"}],\"met\":false}]}",
+      "cost_usd": 0.00017610000000000002
+    }
+  ]
+}

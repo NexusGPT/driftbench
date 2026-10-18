@@ -1,0 +1,1 @@
+Prototype v1 is excluded from published accuracy. Missing-response cases placed an agent receipt after a truncation marker. The v2 set puts the receipt before the unanswered request, preserving all labels. Old calls remain in the cumulative spend cache. One possible unfinished call is charged its full 0.03 USD reservation.

@@ -1,18 +1,22 @@
 import {
   type BlockSpec,
+  blockCell,
   canonicalJson,
-  type Expect,
+  deviationOf,
+  generatedMeta,
   isPlainObject,
-  type Spec,
-  type Stimulus,
-} from '@driftbench/core';
-import {
-  type GateOptions,
   OBSERVED_FIELDS,
   type ObservedField,
-  type StageVerdict,
+  type Spec,
+  type Stimulus,
   type ThenField,
-} from './types';
+  thenFields,
+} from '@agent-nexus/driftbench-core';
+import type { GateOptions, StageVerdict } from './types';
+
+// The Then fields, the block's cell and its deviation class are read by core's blast radius too: they
+// live there, and the gate exports them as before.
+export { blockCell, deviationOf, generatedMeta, thenFields };
 
 /**
  * Stage 1 and what the later stages read from a block: the fields its Then reads, its own cell, its When
@@ -24,59 +28,6 @@ const OBSERVED: ReadonlySet<string> = new Set(OBSERVED_FIELDS);
 
 export function isObservedField(field: ThenField): field is ObservedField {
   return OBSERVED.has(field);
-}
-
-/** The fields the Then of block `index` reads, in a fixed order. Judged criteria read none. */
-export function thenFields(spec: Spec, index: number): ThenField[] {
-  const expect: Expect = spec.blocks[index]?.expect ?? {};
-  const fields = new Set<ThenField>();
-  if ((expect.tools?.length ?? 0) > 0 || expect.tool_order !== undefined) fields.add('tools');
-  if (expect.stage !== undefined) fields.add('stage');
-  if ((expect.must?.length ?? 0) > 0 || (expect.must_not?.length ?? 0) > 0) fields.add('text');
-  if (expect.lang !== undefined) fields.add('lang');
-  if ((expect.cards?.length ?? 0) > 0) fields.add('cards');
-  if ((expect.skills?.length ?? 0) > 0) fields.add('skills');
-  if ((expect.guards?.length ?? 0) > 0) fields.add('guards');
-  if (expect.execution !== undefined) fields.add('execution');
-  if ((expect.artifacts?.length ?? 0) > 0) fields.add('artifacts');
-  if (expect.workspace !== undefined) fields.add('workspace');
-  if (expect.safety !== undefined) fields.add('safety');
-  const rules = spec.rules;
-  if (rules) {
-    if (Object.keys(rules.max_calls ?? {}).length > 0 || (rules.forbidden_tools?.length ?? 0) > 0) {
-      fields.add('tools');
-    }
-    if (rules.lang_stable === true) fields.add('lang');
-    if (rules.one_message_per_turn === true) fields.add('format');
-    if (Object.keys(rules.custom ?? {}).length > 0) fields.add('custom');
-  }
-  if (spec.end_state !== undefined && index === spec.blocks.length - 1) fields.add('end_state');
-  const order: readonly ThenField[] = [...OBSERVED_FIELDS, 'text', 'lang', 'format'];
-  return order.filter((field) => fields.has(field));
-}
-
-/** The generator's record of a spec, when a generator wrote it. */
-export function generatedMeta(spec: Spec): Record<string, unknown> | undefined {
-  const generated = spec.metadata?.generated;
-  return isPlainObject(generated) ? generated : undefined;
-}
-
-/**
- * The block's own cell: the slot its When was phrased from, as the generator recorded it (the
- * `metadata.generated.blocks[].cell` entry without its `spec` pointer). Empty for a hand-written block.
- */
-export function blockCell(spec: Spec, index: number): Record<string, string> {
-  const blocks = generatedMeta(spec)?.blocks;
-  if (!Array.isArray(blocks)) return {};
-  const id = spec.blocks[index]?.id;
-  const entry = blocks.find((each) => isPlainObject(each) && id !== undefined && each.block === id);
-  const cell = isPlainObject(entry) ? entry.cell : undefined;
-  if (!isPlainObject(cell)) return {};
-  const out: Record<string, string> = {};
-  for (const [key, value] of Object.entries(cell)) {
-    if (key !== 'spec' && (typeof value === 'string' || typeof value === 'number')) out[key] = String(value);
-  }
-  return out;
 }
 
 /** The family a block's label is audited in: the seeder that wrote it, or `hand-written`. */
@@ -99,13 +50,6 @@ export function mapHashOf(spec: Spec): string | undefined {
   const map = generatedMeta(spec)?.map;
   const hash = isPlainObject(map) ? map.hash : undefined;
   return typeof hash === 'string' ? hash : undefined;
-}
-
-/** The deviation class a block carries: its injection's class, else the one its cell names. */
-export function deviationOf(spec: Spec, index: number): string | undefined {
-  const when = spec.blocks[index]?.when;
-  if (when && 'injection' in when) return when.injection.class;
-  return blockCell(spec, index).deviation;
 }
 
 /** The text of the stimulus: the user message, the burst joined, or the injected message. */

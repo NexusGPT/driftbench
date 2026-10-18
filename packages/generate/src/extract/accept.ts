@@ -1,5 +1,5 @@
-import { canonicalJson, DeviationClass } from '@driftbench/core';
-import { NONE } from '@driftbench/space';
+import { canonicalJson, DeviationClass } from '@agent-nexus/driftbench-core';
+import { NONE } from '@agent-nexus/driftbench-space';
 import {
   type Answer,
   AnswerConstraint,
@@ -46,6 +46,8 @@ export type Accepted = {
   refusals: Refusal[];
   /** Entries already in the draft, skipped. */
   duplicates: string[];
+  /** Constraints refused only because a value they name is not proposed yet; a later chunk may propose it. */
+  deferred: Array<{ raw: unknown; entry: string }>;
 };
 
 /**
@@ -55,7 +57,7 @@ export type Accepted = {
  * exist.
  */
 export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quotes: QuoteIndex): Accepted {
-  const result: Accepted = { accepted: 0, refusals: [], duplicates: [] };
+  const result: Accepted = { accepted: 0, refusals: [], duplicates: [], deferred: [] };
   const refuse = (entry: string, reason: string): void => {
     result.refusals.push({ section, entry, reason });
   };
@@ -131,8 +133,9 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
         refuse(valueLabel, found);
         continue;
       }
+      const { source: _source, quote: _quote, ...rest } = value.data;
       known.add(value.data.id);
-      values.push({ id: value.data.id, title: value.data.title, evidence: found, produced_by: 'model' });
+      values.push({ ...rest, evidence: found, produced_by: 'model' });
     }
     if (values.length === 0) continue;
     result.accepted += values.length;
@@ -142,7 +145,7 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
         id: dimension.id,
         title: dimension.title,
         kind: dimension.kind,
-        role: proposeRole(draft.dimensions, dimension.kind, false),
+        role: dimension.role ?? proposeRole(draft.dimensions, dimension.kind, false),
         produced_by: 'model',
         approved: false,
         values,
@@ -172,6 +175,7 @@ export function acceptAnswer(section: Section, answer: Answer, draft: Draft, quo
     const unknown = pairs.find(([dimension, value]) => !hasValue(draft, dimension, value));
     if (unknown) {
       refuse(named, `${unknown[0]}=${unknown[1]} is not a proposed value`);
+      result.deferred.push({ raw, entry: named });
       continue;
     }
     const key = combinationKey(constraint.forbid);
@@ -338,6 +342,7 @@ function unknownInRelation(draft: Draft, relation: ProposalRelation): string | u
         relation.when ? unknownWhen(draft, relation.when) : undefined,
       );
     case 'uses_tool':
+    case 'states':
       return first(
         value(relation.subject.dimension, relation.subject.value),
         stage(relation.stage),
@@ -346,7 +351,12 @@ function unknownInRelation(draft: Draft, relation: ProposalRelation): string | u
       );
     case 'binds':
     case 'reply_language':
+    case 'reply_text':
+    case 'route':
       return value(relation.subject.dimension, relation.subject.value);
+    case 'tool_order':
+    case 'reply_count':
+      return undefined;
     case 'recovery': {
       const deviation = draft.dimensions.find((dimension) => dimension.kind === 'deviation');
       return first(
@@ -360,6 +370,19 @@ function unknownInRelation(draft: Draft, relation: ProposalRelation): string | u
           : stage(relation.stage_after),
       );
     }
+    case 'task_family': {
+      const deviation = draft.dimensions.find((dimension) => dimension.kind === 'deviation');
+      return first(
+        value(FLOW_DIMENSION, relation.flow),
+        ...relation.stages.map(stage),
+        relation.holds ? unknownWhen(draft, relation.holds) : undefined,
+        ...(relation.deviations ?? []).map((cls) =>
+          deviation?.values.some((entry) => entry.id === cls)
+            ? undefined
+            : `${cls} is not a proposed deviation class`,
+        ),
+      );
+    }
   }
 }
 
@@ -371,7 +394,7 @@ function unknownInRelation(draft: Draft, relation: ProposalRelation): string | u
 function valueClash(draft: Draft, dimension: string, kind: string, id: string): string | undefined {
   if (id === NONE) return `"${NONE}" is reserved: code adds it where a dimension needs it`;
   if (kind === 'deviation' && !DeviationClass.safeParse(id).success) {
-    return `"${id}" is not a deviation class: use D1_off_topic to D10_return`;
+    return `"${id}" is not a deviation class: use D1_off_topic to D12_prompt_extraction`;
   }
   if (kind === 'stage' || kind === 'deviation' || kind === 'channel') return undefined;
   const owner = draft.dimensions.find(

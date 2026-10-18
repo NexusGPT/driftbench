@@ -1,4 +1,4 @@
-import { isPlainObject, type Message, type Segment } from '@driftbench/core';
+import { isPlainObject, type Message, type Segment } from '@agent-nexus/driftbench-core';
 import {
   addUsage,
   errorOf,
@@ -8,7 +8,7 @@ import {
   type ToolOutcome,
   type Usage,
 } from '../anthropic/common';
-import { contentText } from '../shared';
+import { contentText, HistoryCompiler } from '../shared';
 
 /**
  * The slice of LangGraph the adapter speaks, mirrored from `@langchain/langgraph` 1.4.21 with
@@ -98,7 +98,7 @@ export function kindOf(message: unknown): string {
  */
 export function toLangChainMessages(history: readonly Message[], labels: ToolLabels): LangChainMessageLike[] {
   const out: LangChainMessageLike[] = [];
-  let unnamed = 0;
+  const compiler = new HistoryCompiler({ fallback: (n) => `call_h${n}` });
   for (const message of history) {
     if (message.role === 'user' || message.role === 'tool') {
       out.push({ role: 'user', content: message.content });
@@ -108,36 +108,35 @@ export function toLangChainMessages(history: readonly Message[], labels: ToolLab
       out.push({ role: 'system', content: message.content });
       continue;
     }
-    const recorded = message.tool_calls ?? [];
+    const recorded = compiler.calls(message);
     if (recorded.length === 0) {
       out.push({ role: 'assistant', content: message.content });
       continue;
     }
-    const ids = recorded.map((call) => call.id ?? `call_h${++unnamed}`);
     out.push({
       role: 'assistant',
       content: '',
-      tool_calls: recorded.map((call, index) => ({
-        id: ids[index] as string,
+      tool_calls: recorded.map((call) => ({
+        id: call.id as string,
         name: labels.name(call.label),
         args: isPlainObject(call.input) ? call.input : {},
       })),
     });
-    recorded.forEach((call, index) => {
+    recorded.forEach((call) => {
       const answer: LangChainMessageLike =
-        call.error !== undefined
+        call.result.kind === 'error'
           ? {
               role: 'tool',
-              tool_call_id: ids[index] as string,
+              tool_call_id: call.id as string,
               name: labels.name(call.label),
-              content: call.error,
+              content: call.result.message,
               status: 'error',
             }
           : {
               role: 'tool',
-              tool_call_id: ids[index] as string,
+              tool_call_id: call.id as string,
               name: labels.name(call.label),
-              content: outputText(call.output),
+              content: outputText(call.result.value),
             };
       out.push(answer);
     });
@@ -176,7 +175,7 @@ export function mapMessages(messages: readonly unknown[], usage: Usage, toolLabe
         const id = call.id ?? `call-${++unnamed}`;
         const label = toolLabels.label(call.name ?? 'tool');
         labels.set(id, label);
-        segments.push({ type: 'tool_call', id, label, input: call.args ?? {}, ...take() });
+        segments.push({ type: 'tool_call', id, label, input: call.args ?? null, ...take() });
       }
     } else if (kind === 'tool') {
       const id = message.tool_call_id ?? `call-${++unnamed}`;

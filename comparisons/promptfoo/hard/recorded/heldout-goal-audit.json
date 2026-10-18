@@ -1,0 +1,586 @@
+{
+  "row": "goal",
+  "side": "audit",
+  "set": "heldout",
+  "stamp": "2026-10-13T02:07:31+02:00",
+  "fresh_calls": 72,
+  "billed_usd": 0.03172488000000001,
+  "rows": [
+    {
+      "id": "heldout-goal.001",
+      "truth": true,
+      "kind": "draft-status",
+      "outcome": "pass",
+      "request_sha256": "4aca8f66d1b80aae81a0bd677dce84433842233c34a5f651d3212be92e3e5452",
+      "call_cost": 0.00035469000000000006
+    },
+    {
+      "id": "heldout-goal.002",
+      "truth": false,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "4d0be40e4300bed6406e8d0060244b04c8655c323e278d88fdd8ddf0dae375c7",
+      "call_cost": 0.00032569
+    },
+    {
+      "id": "heldout-goal.003",
+      "truth": true,
+      "kind": "stale-attempt",
+      "outcome": "pass",
+      "request_sha256": "1e659e4492a38c361197d67fffff798bd2159f1b0c8e485e4d587663ac1ffc67",
+      "call_cost": 0.00047689
+    },
+    {
+      "id": "heldout-goal.004",
+      "truth": false,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "8ae9f083296370e95a2673ced06ef4c1a11a06e035febe025f7b37a6436e8fb5",
+      "call_cost": 0.0005249899999999999
+    },
+    {
+      "id": "heldout-goal.005",
+      "truth": true,
+      "kind": "nested-distractor",
+      "outcome": "pass",
+      "request_sha256": "e7dd3918306381308e6063bbe05875f84ffc28fe5b0d061b6d3c81627f92e752",
+      "call_cost": 0.00042359
+    },
+    {
+      "id": "heldout-goal.006",
+      "truth": false,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "5941a237b840ee48996371287e34844ad2f1528d180313d4206febbbba29ff72",
+      "call_cost": 0.00047469000000000005
+    },
+    {
+      "id": "heldout-goal.007",
+      "truth": false,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "e7b61e471f7c8ac978f53d222b55b816f485aa06bbb671c2f2cafd84cdc31ced",
+      "call_cost": 0.00039179000000000004
+    },
+    {
+      "id": "heldout-goal.008",
+      "truth": true,
+      "kind": "wrong-quantity",
+      "outcome": "pass",
+      "request_sha256": "15ad5aeb40a576f2ddfdaf4e969b24eab9d388384bfe033f2555a4284bd7371e",
+      "call_cost": 0.00029619
+    },
+    {
+      "id": "heldout-goal.009",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "1f2302bf787c984e522784ee397dc924bfa74a915c635bc993dfab0feaf2bac9",
+      "call_cost": 0.00050479
+    },
+    {
+      "id": "heldout-goal.010",
+      "truth": true,
+      "kind": "empty-state",
+      "outcome": "pass",
+      "request_sha256": "0bf7257658b3b4742d065bc1ddc4028c91f30ff1b4f51a2e9c18bb8ca183796b",
+      "call_cost": 0.00034269000000000004
+    },
+    {
+      "id": "heldout-goal.011",
+      "truth": true,
+      "kind": "contradictory-reply",
+      "outcome": "pass",
+      "request_sha256": "c67ae7cd83c87499d94fc7a9566f4befaba01a5bb4c4767531ffeaf8732afc23",
+      "call_cost": 0.00046599
+    },
+    {
+      "id": "heldout-goal.012",
+      "truth": true,
+      "kind": "wrong-plan",
+      "outcome": "pass",
+      "request_sha256": "57d23e9c7a16168b0f99b92ec8286e4f6cc92962b8af127c2f00de30d76476bd",
+      "call_cost": 0.00029269
+    },
+    {
+      "id": "heldout-goal.013",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "2e3dc50d489459125d9fea3e686ce7fb482397723439394c87676b416523d118",
+      "call_cost": 0.00044529
+    },
+    {
+      "id": "heldout-goal.014",
+      "truth": false,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "d9f1fd896d1a82bc874fa92194f3f895bfb2655304a70d8240f84ecb52543bf0",
+      "call_cost": 0.00053179
+    },
+    {
+      "id": "heldout-goal.015",
+      "truth": false,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "9bba840214a6487d334becdfa77e617d325d543ecd6c8df2144692d84c39efe0",
+      "call_cost": 0.00044389
+    },
+    {
+      "id": "heldout-goal.016",
+      "truth": false,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "7697c0946cc529cfcd45d0e035e37a25691fb55da77a95a0db772b5f48790f89",
+      "call_cost": 0.00041998999999999997
+    },
+    {
+      "id": "heldout-goal.017",
+      "truth": true,
+      "kind": "draft-status",
+      "outcome": "pass",
+      "request_sha256": "6a76ef3903ce3c186be678b20c5c3327e0db857fa4948add3194209401c38d69",
+      "call_cost": 0.00035119000000000003
+    },
+    {
+      "id": "heldout-goal.018",
+      "truth": true,
+      "kind": "nested-distractor",
+      "outcome": "pass",
+      "request_sha256": "6d142c34fb8ebfa2c476acee7e51d05e38b0d3ad37009477e3c58c0bc970237d",
+      "call_cost": 0.00042908999999999997
+    },
+    {
+      "id": "heldout-goal.019",
+      "truth": false,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "499c5bc6c4eafb8c291f7347da6dd07a72f77cfbaedb4f57a7e88072f34f9b4c",
+      "call_cost": 0.00060649
+    },
+    {
+      "id": "heldout-goal.020",
+      "truth": true,
+      "kind": "wrong-plan",
+      "outcome": "pass",
+      "request_sha256": "9d82cb34b4ace0f236557013aeb05795ef6a1f401bc1165a6e68a0144268ade8",
+      "call_cost": 0.00037919000000000006
+    },
+    {
+      "id": "heldout-goal.021",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "request_sha256": "8e428aa8460e3d355df0b3bee98f5f765bea8ae3904f539016638f0e0dab9a7a",
+      "call_cost": 0.00049329
+    },
+    {
+      "id": "heldout-goal.022",
+      "truth": false,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "245da5f8bbfdaca0a3db1d852e37feae1551719260defe3ff1d33481a819360c",
+      "call_cost": 0.00034469000000000004
+    },
+    {
+      "id": "heldout-goal.023",
+      "truth": false,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "9396ee133209b23d2804f3b342e58abbb4982f21839bcec2d31f306d4785f00c",
+      "call_cost": 0.00051339
+    },
+    {
+      "id": "heldout-goal.024",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "pass",
+      "request_sha256": "9c2bb5e30bccf80816976a0f5cb84d182bd13868174d6492927d7b5c40f4a27f",
+      "call_cost": 0.00044059000000000004
+    },
+    {
+      "id": "heldout-goal.025",
+      "truth": false,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "e58f9d072663d6a48ff3b5108ea65cd8a98996394f4e197a4c319609058606e1",
+      "call_cost": 0.00038679000000000003
+    },
+    {
+      "id": "heldout-goal.026",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "pass",
+      "request_sha256": "ef073dd2422653cc216c947655afa16a9002853329419ed4860056a17927c240",
+      "call_cost": 0.00043258999999999995
+    },
+    {
+      "id": "heldout-goal.027",
+      "truth": false,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "0a46e9c507e1be24ec16945e0b28ac3a4896e73aebfb60f82f03d7f2a6074922",
+      "call_cost": 0.00037139
+    },
+    {
+      "id": "heldout-goal.028",
+      "truth": false,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "abab45c72adce2b8fc8ca8f60987a49e0dc279a02a007129caae36ab7d93dc5a",
+      "call_cost": 0.00046529000000000004
+    },
+    {
+      "id": "heldout-goal.029",
+      "truth": true,
+      "kind": "stale-attempt",
+      "outcome": "pass",
+      "request_sha256": "16b7d866718819829214b79b363498932aae1dbe20db34540a13fb0148c81954",
+      "call_cost": 0.00051339
+    },
+    {
+      "id": "heldout-goal.030",
+      "truth": true,
+      "kind": "wrong-quantity",
+      "outcome": "pass",
+      "request_sha256": "2e3ad16d3bd34e17b566d62f0f45a64c2a8973c5a0b563bc53b610cceecdf8a8",
+      "call_cost": 0.00034819000000000007
+    },
+    {
+      "id": "heldout-goal.031",
+      "truth": false,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "7344bd6d1033ae836f4a3bf89c4dae109ad9a981673ca8ec0a41f3c976c325f4",
+      "call_cost": 0.00037579000000000003
+    },
+    {
+      "id": "heldout-goal.032",
+      "truth": true,
+      "kind": "draft-status",
+      "outcome": "pass",
+      "request_sha256": "c94ef00b51329fe053207ae4a46d4a809d8a0adcdcc0eb5b61aabfc039fffdb0",
+      "call_cost": 0.00035569000000000003
+    },
+    {
+      "id": "heldout-goal.033",
+      "truth": false,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "346750529af1f790286e8569d6ab02f0cbedcf1766c544efe51e231cb55e74ef",
+      "call_cost": 0.00053999
+    },
+    {
+      "id": "heldout-goal.034",
+      "truth": true,
+      "kind": "wrong-currency",
+      "outcome": "pass",
+      "request_sha256": "5096f8461c02b5edc8ea0e7587f12a16e942205d093871dcbfc1e996a8c4edfb",
+      "call_cost": 0.00041669000000000005
+    },
+    {
+      "id": "heldout-goal.035",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "pass",
+      "request_sha256": "4a489cf22409623055ebe5d3b321d17c72a598d063b0d360d3f8f2062348585e",
+      "call_cost": 0.00041058999999999996
+    },
+    {
+      "id": "heldout-goal.036",
+      "truth": true,
+      "kind": "nested-distractor",
+      "outcome": "pass",
+      "request_sha256": "07396930edaadf692587a921bd21d9da9ce3f7e4cc42df8de626c2d244f4c226",
+      "call_cost": 0.00042908999999999997
+    },
+    {
+      "id": "heldout-goal.037",
+      "truth": true,
+      "kind": "empty-state",
+      "outcome": "pass",
+      "request_sha256": "990814008079437b7ac4b5a31215ba85e575b6b1fa8152cd09b3571c4acfd2cc",
+      "call_cost": 0.00043568999999999997
+    },
+    {
+      "id": "heldout-goal.038",
+      "truth": false,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "939f5fca17a270a6e56a277d399c2f87f3ce8bdd8292c7313bdcfb2095f53bd1",
+      "call_cost": 0.00027039
+    },
+    {
+      "id": "heldout-goal.039",
+      "truth": false,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "ee05b3cb082cf82f912cede56f1ec66965d0e2cda468a5379e6b5a1fd0766d96",
+      "call_cost": 0.00052049
+    },
+    {
+      "id": "heldout-goal.040",
+      "truth": true,
+      "kind": "wrong-quantity",
+      "outcome": "pass",
+      "request_sha256": "f19ca9101b58ce4263a9043346f372c576e0286f7561ac4963de646992077e3e",
+      "call_cost": 0.00034869
+    },
+    {
+      "id": "heldout-goal.041",
+      "truth": true,
+      "kind": "long-fluent",
+      "outcome": "pass",
+      "request_sha256": "76dd5497e6df430573f236ea7bb0ae53178a30efea71679b4888ad52c9b61f70",
+      "call_cost": 0.00040559000000000005
+    },
+    {
+      "id": "heldout-goal.042",
+      "truth": false,
+      "kind": "nested-distractor",
+      "outcome": "fail",
+      "request_sha256": "92b8cca440d6bd6bf1e95f780fe71dc049c88e870a92d241f1945960cd1f2b02",
+      "call_cost": 0.00049779
+    },
+    {
+      "id": "heldout-goal.043",
+      "truth": true,
+      "kind": "empty-state",
+      "outcome": "pass",
+      "request_sha256": "8270405fd57c26f643372c200e2d7f59938eba44e1ff4910d951b58cf4e795c3",
+      "call_cost": 0.00033769000000000003
+    },
+    {
+      "id": "heldout-goal.044",
+      "truth": false,
+      "kind": "stale-attempt",
+      "outcome": "fail",
+      "request_sha256": "3a4f17754a190d3ddce34917274b818c113ac08fa216e8d9fb27f8dc11f4a909",
+      "call_cost": 0.0005234899999999999
+    },
+    {
+      "id": "heldout-goal.045",
+      "truth": true,
+      "kind": "long-fluent",
+      "outcome": "pass",
+      "request_sha256": "85478d561afaf01608ffad2217178c6b73bc6bb02abd8797629d6671265e428e",
+      "call_cost": 0.0005485900000000001
+    },
+    {
+      "id": "heldout-goal.046",
+      "truth": false,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "9cc11b561853a890b4e143f0408411ee891dc654de3b1720f87d9a63d78ac7dc",
+      "call_cost": 0.00068759
+    },
+    {
+      "id": "heldout-goal.047",
+      "truth": true,
+      "kind": "near-price",
+      "outcome": "pass",
+      "request_sha256": "3f5a118e94e2d1954f406ea8157f0d2a6a94fca60ca529a064d8375d96ccc32b",
+      "call_cost": 0.00044119000000000005
+    },
+    {
+      "id": "heldout-goal.048",
+      "truth": false,
+      "kind": "empty-state",
+      "outcome": "fail",
+      "request_sha256": "795fb7a092b1063900630822a52d10fc5d5cce0a60d8b2d3c9e61b9cdd6403c8",
+      "call_cost": 0.00053189
+    },
+    {
+      "id": "heldout-goal.049",
+      "truth": true,
+      "kind": "wrong-currency",
+      "outcome": "pass",
+      "request_sha256": "713b51e70be330acdd2086c57dfaa16224a3b969dc7c937aba23d392b70cd3fd",
+      "call_cost": 0.00031469000000000007
+    },
+    {
+      "id": "heldout-goal.050",
+      "truth": true,
+      "kind": "contradictory-reply",
+      "outcome": "pass",
+      "request_sha256": "f8157e0d8e1d51a65d33128ed9f6628f15196e573a38d060f26faa783c26fd6e",
+      "call_cost": 0.00045998999999999996
+    },
+    {
+      "id": "heldout-goal.051",
+      "truth": true,
+      "kind": "tag-injection",
+      "outcome": "pass",
+      "request_sha256": "d1f36e26111bfa413137f539511b8f06f59b5f625b0ca8bdab3d5a31a5573690",
+      "call_cost": 0.00035879
+    },
+    {
+      "id": "heldout-goal.052",
+      "truth": true,
+      "kind": "near-price",
+      "outcome": "pass",
+      "request_sha256": "8e6ea64e6784493836194d25a52b2fde8f856146e0c0c81885187bc756374990",
+      "call_cost": 0.00043669
+    },
+    {
+      "id": "heldout-goal.053",
+      "truth": false,
+      "kind": "wrong-currency",
+      "outcome": "fail",
+      "request_sha256": "5ef616398e856d4c456fb58e9df20f6101165b8c34e7dd816b8dfc5fa326ab70",
+      "call_cost": 0.00045639
+    },
+    {
+      "id": "heldout-goal.054",
+      "truth": false,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "df260eb2a950f04d05d2d8a53cb799588e095c86478464e7083404ce882d7db6",
+      "call_cost": 0.00048248999999999997
+    },
+    {
+      "id": "heldout-goal.055",
+      "truth": true,
+      "kind": "wrong-currency",
+      "outcome": "pass",
+      "request_sha256": "8a7bfd1ab6bef6a15d0676f8a9b262c7e0ac761eccfe5cbe07fbd83522f01f45",
+      "call_cost": 0.00045069
+    },
+    {
+      "id": "heldout-goal.056",
+      "truth": true,
+      "kind": "near-price",
+      "outcome": "pass",
+      "request_sha256": "0e5d3d5845e41dfc0b2ce3e35b92100658b65a693be8107feda58b0de6c0a066",
+      "call_cost": 0.00039919
+    },
+    {
+      "id": "heldout-goal.057",
+      "truth": false,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "2a9fb7409d48e0d67865e55826460e5d4971646df0f1709b011135b3435c7615",
+      "call_cost": 0.00037229000000000006
+    },
+    {
+      "id": "heldout-goal.058",
+      "truth": true,
+      "kind": "tag-injection",
+      "outcome": "pass",
+      "request_sha256": "924f63575ab7d5848675b316a5a1f2e324a5ba825d25229e74fd4cac01811f52",
+      "call_cost": 0.00040479000000000003
+    },
+    {
+      "id": "heldout-goal.059",
+      "truth": false,
+      "kind": "tag-injection",
+      "outcome": "fail",
+      "request_sha256": "0f3a57b134946f513740566761e76df93cf7d2a57acd503550cfcb73b567fead",
+      "call_cost": 0.00043879
+    },
+    {
+      "id": "heldout-goal.060",
+      "truth": false,
+      "kind": "near-price",
+      "outcome": "fail",
+      "request_sha256": "9a292b70dd906730138b1bb6b55ed64be605008f08db7514bc920eafaf879196",
+      "call_cost": 0.00049319
+    },
+    {
+      "id": "heldout-goal.061",
+      "truth": true,
+      "kind": "wrong-plan",
+      "outcome": "pass",
+      "request_sha256": "50b7fbc791b5b6e7552329c4f90433e0dd05a9f64b438ad5342cfa97a547b2dc",
+      "call_cost": 0.00025319000000000003
+    },
+    {
+      "id": "heldout-goal.062",
+      "truth": true,
+      "kind": "tag-injection",
+      "outcome": "pass",
+      "request_sha256": "535117a74cedd35b36a10d1087262b438f02bb9993f017f0440b56504683a93f",
+      "call_cost": 0.00049079
+    },
+    {
+      "id": "heldout-goal.063",
+      "truth": false,
+      "kind": "contradictory-reply",
+      "outcome": "fail",
+      "request_sha256": "54f96ed958426628e3d3532390a53fd15a4f65f82d2c417f253791f60a24c8cf",
+      "call_cost": 0.00057949
+    },
+    {
+      "id": "heldout-goal.064",
+      "truth": true,
+      "kind": "contradictory-reply",
+      "outcome": "pass",
+      "request_sha256": "137cb10e085135b62444f6f688489df771e04bbf1b038e17bd74a053f5ad2158",
+      "call_cost": 0.00049349
+    },
+    {
+      "id": "heldout-goal.065",
+      "truth": false,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "8f0bfb02a4afd0440b2171514046847161b66a4f581d198c101239f9085ec69f",
+      "call_cost": 0.00054559
+    },
+    {
+      "id": "heldout-goal.066",
+      "truth": true,
+      "kind": "stale-attempt",
+      "outcome": "pass",
+      "request_sha256": "674f5bbe1c1bc8d0682ab501cddd8bd29db05abac0ebd47b44f14a53398edfb0",
+      "call_cost": 0.00047789
+    },
+    {
+      "id": "heldout-goal.067",
+      "truth": false,
+      "kind": "long-fluent",
+      "outcome": "fail",
+      "request_sha256": "7232fa4978bab21b4040a691391ec961c6893b7eda49f28d8c4af3c4e6eba618",
+      "call_cost": 0.00072659
+    },
+    {
+      "id": "heldout-goal.068",
+      "truth": false,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "3759549e3a7240628d868b07c930817ff4c21a645b4eadd430b20cdf9cdb3064",
+      "call_cost": 0.00037069
+    },
+    {
+      "id": "heldout-goal.069",
+      "truth": false,
+      "kind": "wrong-plan",
+      "outcome": "fail",
+      "request_sha256": "2091b2a6a8294a405c481ecc922a7485ca94c9b87bae15ea1f67e118bc565adb",
+      "call_cost": 0.00054449
+    },
+    {
+      "id": "heldout-goal.070",
+      "truth": false,
+      "kind": "draft-status",
+      "outcome": "fail",
+      "request_sha256": "6762114e33dd490b1d252c65af8a5863ca5e5178fb952e36957180c1578bf67a",
+      "call_cost": 0.00041679
+    },
+    {
+      "id": "heldout-goal.071",
+      "truth": false,
+      "kind": "wrong-quantity",
+      "outcome": "fail",
+      "request_sha256": "5c62f5895d820792ae5b2ded8627deb4ee8ba53a32fb267b78bb51f3ebfe4845",
+      "call_cost": 0.00036769000000000005
+    },
+    {
+      "id": "heldout-goal.072",
+      "truth": true,
+      "kind": "long-fluent",
+      "outcome": "pass",
+      "request_sha256": "ffd7f756c1d693c022498a959a5889cac27e8c23ffc629153294601adee0303f",
+      "call_cost": 0.00052209
+    }
+  ]
+}

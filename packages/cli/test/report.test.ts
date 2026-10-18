@@ -1,15 +1,17 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openStore } from '@driftbench/store';
+import { type LoadedSpec, loadSpecs } from '@agent-nexus/driftbench-core';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';
 import { registerReportCommand } from '../src/commands/report';
 import { type Io, main } from '../src/index';
 
+const ROOT_DIR = fileURLToPath(new URL('../../../', import.meta.url));
 const PILOT = fileURLToPath(new URL('../../../examples/acme/pilot/acme-random', import.meta.url));
 
 let dir = '';
@@ -77,13 +79,176 @@ describe('driftbench report', () => {
     ]);
     expect(err).toBe('');
     expect(code).toBe(0);
-    expect(out).toContain('Campaign c-x3: 32 runs');
+    expect(out).toContain('Campaign c-x3: 34 runs');
+    // The suite headline of every mode: the mean over goldens, its hierarchical interval, n_eff and the detectable drop.
+    expect(out).toMatch(
+      /Suite pass rate, mode F: \d+\.\d% \[\d+\.\d%, \d+\.\d%\] \(hierarchical 95% interval\); \d+ goldens, n_eff [\d.]+ runs \(design effect [\d.]+\)/,
+    );
     expect(out).toContain('Wrote out/card.html and out/junit.xml.');
     const html = readFileSync(join(dir, 'out/card.html'), 'utf8');
     expect(html).toContain('<title>Scorecard c-x3</title>');
     expect(html).not.toContain('<section id="compare">');
     const xml = readFileSync(join(dir, 'out/junit.xml'), 'utf8');
-    expect(xml).toMatch(/<testsuites name="c-x3" tests="32" failures="[1-9]\d*" errors="0"/);
+    expect(xml).toMatch(/<testsuites name="c-x3" tests="34" failures="[1-9]\d*" errors="0"/);
+  });
+
+  it('scores --aggregate criteria over the campaign, prints each, and refuses one it cannot read', async () => {
+    const { code, out, err } = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'out/agg.html',
+      '--aggregate',
+      'pass-rate:>=0.99',
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    expect(out).toContain('aggregate pass-rate >= 0.99: fails');
+    const bad = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'out/bad.html',
+      '--aggregate',
+      'nope:>=1',
+    ]);
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('unknown aggregate nope');
+  });
+
+  it('prints the aggregate interval on the effective runs, with the goldens behind it', async () => {
+    const { code, out, err } = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'out/agg-goldens.html',
+      '--aggregate',
+      'pass-rate:>=0.99',
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    const line = out.split('\n').find((entry) => entry.startsWith('aggregate pass-rate')) ?? '';
+    expect(line).toMatch(
+      /Wilson 95% interval on the effective runs \d\.\d{3} to \d\.\d{3} over \d+ runs in \d+ goldens/,
+    );
+    expect(line).toMatch(/design effect \d+\.\d+/);
+    expect(line).toMatch(/undecided: \d+ goldens like these \(\d+ runs\) would decide it|, decided\)/);
+  });
+
+  it('scores the aggregates of the project config --config names', async () => {
+    writeFileSync(join(dir, 'project.yaml'), 'aggregates:\n  - pass-rate:>=0.99\n');
+    const { code, out, err } = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'out/config.html',
+      '--config',
+      'project.yaml',
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    expect(out).toContain('aggregate pass-rate >= 0.99: fails');
+  });
+
+  it('reports the aggregates of a campaign with no runs as inconclusive and exits 0', async () => {
+    let emptyErr = '';
+    const emptyCode = await main(
+      [
+        'campaign',
+        'run',
+        join(ROOT_DIR, 'examples/acme/specs/conversations/plan-upgrade.yaml'),
+        '--target',
+        'function:acme',
+        '--campaign',
+        'c-no-runs',
+        '--store',
+        'no-runs.db',
+        '--budget-usd',
+        '0',
+      ],
+      {
+        out: () => {},
+        err: (text) => {
+          emptyErr += text;
+        },
+        cwd: dir,
+      },
+    );
+    expect(emptyErr).toBe('');
+    expect(emptyCode).toBe(1);
+    const { code, out, err } = await cli([
+      'report',
+      'c-no-runs',
+      '--store',
+      'no-runs.db',
+      '--out',
+      'out/no-runs.html',
+      '--aggregate',
+      'pass-rate:>=0.9',
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    expect(out).toContain('aggregate pass-rate >= 0.9: no runs (no runs in the campaign: inconclusive');
+  });
+
+  it('scores two --aggregate flags of one name as two criteria', async () => {
+    const { code, out } = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'out/two.html',
+      '--aggregate',
+      'pass-rate:>=0',
+      '--aggregate',
+      'pass-rate:>=0.99',
+    ]);
+    expect(code).toBe(0);
+    expect(out).toContain('aggregate pass-rate >= 0: passes');
+    expect(out).toContain('aggregate pass-rate >= 0.99: fails');
+  });
+
+  it('chooses the margin from the baseline by default, as compare and ci do, and prints it', async () => {
+    const { code, out } = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'auto.html',
+      '--baseline',
+      'c-acme',
+    ]);
+    expect(code).toBe(0);
+    expect(out).toMatch(
+      /^Margin auto: \d+\.\d points, the smallest half point at which the baseline compared with itself is non-inferior/m,
+    );
+    const margin = /Margin auto: (\d+\.\d) points/.exec(out)?.[1];
+    expect(out).toContain(`Against baseline c-acme: regressed, margin ${margin} points.`);
+    const strict = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'strict.html',
+      '--baseline',
+      'c-acme',
+      '--strict',
+      '--min-goldens',
+      '2',
+    ]);
+    expect(strict.code).toBe(0);
+    expect(strict.out).toContain('Against baseline c-acme: regressed');
   });
 
   it('adds the compare diff against a baseline and the pilot report', async () => {
@@ -128,7 +293,7 @@ describe('driftbench report', () => {
     };
     expect(json.campaign.campaignId).toBe('c-x3');
     expect(json.spread.mode).toBe('P');
-    expect(json.lines.length).toBe(16);
+    expect(json.lines.length).toBe(17);
     expect(existsSync(join(dir, 'latest.html'))).toBe(true);
   });
 
@@ -148,6 +313,8 @@ describe('driftbench report', () => {
   });
 
   it('exits 2 on a store that holds no campaign', async () => {
+    // An existing store with no campaign; a missing store is refused before it is opened.
+    await openStore(join(dir, 'empty.db')).close();
     const { code, err } = await cli(['report', '--store', 'empty.db', '--out', 'bad.html']);
     expect(code).toBe(2);
     expect(err).toContain('The store holds no campaign.');
@@ -166,5 +333,62 @@ describe('driftbench report', () => {
     expect(out).toContain('--out <file.html>');
     expect(out).toContain('--junit <file.xml>');
     expect(out).toContain('--pilot <path>');
+  });
+});
+
+describe('driftbench report on a campaign of generated specs with an incomplete run', () => {
+  const GENERATED = fileURLToPath(new URL('../../../examples/acme/generated/specs/twise', import.meta.url));
+
+  beforeAll(async () => {
+    const specs: LoadedSpec[] = [];
+    for (const name of ['gen-twise-001.yaml', 'gen-twise-002.yaml', 'gen-twise-003.yaml']) {
+      const [loaded] = await loadSpecs([join(GENERATED, name)]);
+      if (!loaded?.ok) throw new Error(`invalid generated spec ${name}`);
+      specs.push(loaded);
+    }
+    const store = openStore(join(dir, 'generated.db'));
+    try {
+      await storeAcmeCampaign(store, { campaignId: 'c-gen', modes: ['F'], repeats: 2, specs });
+      // One run that did not complete: a stopped run counts as failing, and its line is incomplete.
+      const [run] = await store.listRuns({ campaignId: 'c-gen' });
+      if (!run) throw new Error('no stored run');
+      await store.putRun('c-gen', { ...run, status: 'stopped' });
+    } finally {
+      await store.close();
+    }
+  }, 120_000);
+
+  type Card = {
+    spread: { by: string[] };
+    lines: Array<{ incomplete: number; withheld?: boolean; passK: unknown[] }>;
+  };
+  const card = async (...flags: string[]) => {
+    const { code, out, err } = await cli([
+      'report',
+      'c-gen',
+      '--store',
+      'generated.db',
+      '--out',
+      `gen-${flags.join('-') || 'plain'}.html`,
+      '--json',
+      ...flags,
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    return JSON.parse(out) as Card;
+  };
+
+  it('names spread cells by --by, and by behaviour without it', async () => {
+    expect((await card()).spread.by).toEqual(['behaviour']);
+    expect((await card('--by', 'flow,channel')).spread.by).toEqual(['flow', 'channel']);
+  });
+
+  it('withholds the at-k value of a line with incomplete runs with --withhold-incomplete, and reports it without', async () => {
+    const plain = (await card()).lines.find((line) => line.incomplete > 0);
+    expect(plain?.withheld ?? false).toBe(false);
+    expect(plain?.passK.length).toBeGreaterThan(0);
+    const withheld = (await card('--withhold-incomplete')).lines.find((line) => line.incomplete > 0);
+    expect(withheld?.withheld).toBe(true);
+    expect(withheld?.passK).toEqual([]);
   });
 });

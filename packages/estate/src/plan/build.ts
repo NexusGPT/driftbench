@@ -1,6 +1,6 @@
-import { contentHash } from '@driftbench/core';
-import { Feasibility } from '@driftbench/generate';
-import { compileSpace, gridSize, type SpaceMap } from '@driftbench/space';
+import { contentHash } from '@agent-nexus/driftbench-core';
+import { Feasibility } from '@agent-nexus/driftbench-generate';
+import { compileSpace, gridSize, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { toEstateSpaceMap } from '../map/space';
 import { AtomKind, type EstateMap, type Plan, type PlanRow, TestType } from '../schema';
 import { contractRows, type DraftRow, MODE_OF, NO_CONTRACT, PRIMARY_TYPE } from './contract';

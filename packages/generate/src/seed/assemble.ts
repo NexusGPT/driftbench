@@ -7,23 +7,30 @@ import type {
   Rules,
   ToolExpect,
   WorldState,
-} from '@driftbench/core';
-import { NONE } from '@driftbench/space';
-import { stringify } from 'yaml';
+} from '@agent-nexus/driftbench-core';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
+import { NONE } from '@agent-nexus/driftbench-space';
 import type { ProposalPhrase } from '../extract/proposal';
+import { supplying, usedPaths, worldCarried } from './data-carrier';
 import { DEVIATION_EXPECTED, isDeviationClass } from './deviation';
 import { dimensionId, type PreparedMap, phraseKey, valueId } from './map';
 import { pick, type Rng } from './random';
+import { stringifyGeneratedYaml } from './yaml';
 
 /**
  * Turns a seeder's draft into a driftbench spec. A draft names values by index; the spec names them the
- * way `@driftbench/space` places a spec: behaviour values in `covers`, persona, data and task values as
+ * way `@agent-nexus/driftbench-space` places a spec: behaviour values in `covers`, persona, data and task values as
  * `persona:<id>`, `data:<id>` and `task:<id>` tags, the channel in `channel`, the stage in `expect.stage`,
  * the deviation as an injection block or a perturbation. The user turns are approved phrases, picked by
  * the seeded stream; a block whose cell has none gets a placeholder that fails lint.
  */
 
-export const SEEDERS = ['graph', 'twise', 'boundary', 'deviation', 'metamorphic'] as const;
+/**
+ * The seeders, in the order they run. `task` writes nothing itself: it places the specs the map's task
+ * families built (`task_family`). `cover` runs last: it builds one scenario for each allowed cell of the
+ * axis map that no complete spec of the others covers.
+ */
+export const SEEDERS = ['graph', 'twise', 'boundary', 'deviation', 'metamorphic', 'task', 'cover'] as const;
 export type Seeder = (typeof SEEDERS)[number];
 
 /** A dimension index and a value index. */
@@ -42,6 +49,8 @@ export type BlockDraft = {
   injection?: string;
   /** The stage the block must reach. */
   stage?: string;
+  /** The stage a deviation is said at; move cells record the stage they reach instead. */
+  saidAt?: string;
   /** Values the block itself carries (the stimulus value, an injected class), as picks. */
   carries: Pick[];
   given?: { world?: WorldState };
@@ -64,6 +73,8 @@ export type SpecDraft = {
   cell: Pick[];
   blocks: BlockDraft[];
   world?: WorldState;
+  /** Numeric budget settings the runner delivers to the adapter. */
+  vars?: Record<string, number>;
   perturbations?: PerturbationSpec[];
   rules?: Rules;
   criteria: CriterionDef[];
@@ -170,6 +181,10 @@ export type Rendered = {
   blocks: number;
 };
 
+// Only fresh objects allocated by this renderer are marked, never values supplied by the map or
+// draft. The disk/eager generation paths serialize them before they can escape to a caller.
+const plainNodes = new WeakMap<Rendered, ReadonlySet<object>>();
+
 /** Builds the spec object of a draft. Pure. */
 export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIdentity): Rendered {
   const covers: string[] = [];
@@ -181,17 +196,22 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     const id = valueId(prepared, dimension, value);
     if (!compiled || id === '') continue;
     if (compiled.kind === 'stage' || compiled.kind === 'deviation') continue;
-    const listed = specCell[compiled.id]?.split(' + ') ?? [];
-    if (!listed.includes(id)) listed.push(id);
-    specCell[compiled.id] = listed.join(' + ');
+    const previous = specCell[compiled.id];
+    if (previous === undefined) specCell[compiled.id] = id;
+    else {
+      const listed = previous.split(' + ');
+      if (!listed.includes(id)) listed.push(id);
+      specCell[compiled.id] = listed.join(' + ');
+    }
     if (id === NONE) continue;
     // A value that is an inventory flow gets the core's flow tag, so `spec coverage` joins it.
     const flowTag = `flow:${id}`;
     if (compiled.kind === 'behaviour' && prepared.inventory?.flows.some((flow) => flow.id === id)) {
       if (!tags.includes(flowTag)) tags.push(flowTag);
     }
-    // Only axis values are placed: a detail lives inside the cell, in the record and the Given.
-    if (!prepared.axes.has(dimension)) continue;
+    // Only axis values are placed: a detail lives inside the cell, in the record and the Given. A task
+    // setting is never placed on a conversation.
+    if (!prepared.axes.has(dimension) || compiled.kind === 'task') continue;
     if (compiled.kind === 'behaviour') {
       if (!covers.includes(id)) covers.push(id);
     } else if (compiled.kind === 'channel') channel = id;
@@ -210,6 +230,15 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
 
   const ruled =
     (draft.rules?.forbidden_tools?.length ?? 0) > 0 || Object.keys(draft.rules?.max_calls ?? {}).length > 0;
+  // A class carried in the world arrives as supplied data: the approved instruction is a file's content and
+  // the turn says nothing. A written workspace replaces the one before it, so the world each block starts
+  // from is kept: `held[i]` is the workspace before block i. The file is part of the world for its own turn
+  // only: the next block returns to the workspace before it, so each later turn is judged as it was planned.
+  const used = usedPaths(draft.world, draft.blocks, draft.perturbations);
+  const deviationId =
+    prepared.deviation === undefined ? undefined : dimensionId(prepared, prepared.deviation);
+  const held: Array<NonNullable<WorldState['workspace']> | undefined> = [draft.world?.workspace];
+  let restore: NonNullable<WorldState['workspace']> | undefined;
   const blocks = draft.blocks.map((block, position) => {
     const text =
       block.stimulus.kind === 'phrase'
@@ -219,8 +248,11 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
       placeholders.push({ dimension: block.stimulus.dimension, value: block.stimulus.value });
     }
     const expect: Expect = {};
-    if (block.stage !== undefined) expect.stage = block.stage;
-    if (block.tools && block.tools.length > 0) expect.tools = block.tools;
+    if (block.stage !== undefined) {
+      expect.stage = block.stage;
+      expect.stage_reported = true;
+    }
+    if (block.tools && block.tools.length > 0) expect.tools = closeKnownInputs(prepared, block.tools);
     if (block.guards && block.guards.length > 0) expect.guards = block.guards;
     if (block.must && block.must.length > 0) expect.must = block.must;
     if (block.must_not && block.must_not.length > 0) expect.must_not = block.must_not;
@@ -239,10 +271,23 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     }
     if (block.stimulus.kind === 'placeholder') criteria.push(PLACEHOLDER_CRITERION);
     if (criteria.length > 0) expect.criteria = criteria;
+    const supplied =
+      worldCarried(block.injection) &&
+      block.stimulus.kind === 'phrase' &&
+      block.stimulus.phrase.dimension === deviationId &&
+      block.stimulus.phrase.value === block.injection;
+    const written = block.given?.world?.workspace ?? restore;
+    const workspace = supplied ? supplying(written ?? held[position], used, text) : written;
+    restore = supplied ? (written ?? held[position] ?? { files: {} }) : undefined;
+    const given =
+      workspace === undefined ? block.given : { ...block.given, world: { ...block.given?.world, workspace } };
+    held.push(workspace ?? held[position]);
     return {
       id: block.id,
-      when: block.injection ? { injection: { class: block.injection, user: text } } : { user: text },
-      ...(block.given ? { given: block.given } : {}),
+      when: block.injection
+        ? { injection: { class: block.injection, user: supplied ? '' : text } }
+        : { user: text },
+      ...(given ? { given } : {}),
       expect,
     };
   });
@@ -266,6 +311,25 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     }
   }
   const perturbations = draft.perturbations?.map((perturbation) => {
+    // A world-carried class written as a message only: the message is the supplied data, sent in a turn
+    // that says nothing, with the world as it is at the injected block.
+    if (
+      worldCarried(perturbation.class) &&
+      perturbation.user !== undefined &&
+      perturbation.world === undefined
+    ) {
+      perturbation = {
+        ...perturbation,
+        user: '',
+        world: { workspace: supplying(held[perturbation.inject_at], used, perturbation.user) },
+      };
+    }
+    if (perturbation.expect?.tools) {
+      perturbation = {
+        ...perturbation,
+        expect: { ...perturbation.expect, tools: closeKnownInputs(prepared, perturbation.expect.tools) },
+      };
+    }
     if (!incomplete || !perturbation.expect?.criteria) return perturbation;
     const { criteria: _dropped, ...expect } = perturbation.expect;
     return { ...perturbation, expect };
@@ -287,7 +351,10 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
       cell[dimensionId(prepared, dimension)] = valueId(prepared, dimension, value);
     }
     if (block.stage !== undefined && prepared.stage !== undefined) {
-      cell[dimensionId(prepared, prepared.stage)] = block.stage;
+      // A move is an event at its destination. A deviation is an event where it is injected, even
+      // when its recovery reaches another stage. Keep the same convention as reachability.
+      cell[dimensionId(prepared, prepared.stage)] =
+        (block.injection ? block.saidAt : undefined) ?? block.stage;
     }
     return {
       block: block.id,
@@ -305,41 +372,123 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     version: prepared.hash,
     kind: 'conversation',
     title: draft.title,
-    ...(channel === undefined ? {} : { channel }),
-    ...(lang === undefined ? {} : { lang }),
-    tier: 'generated',
-    ...(tags.length > 0 ? { tags } : {}),
-    ...(covers.length > 0 ? { covers } : {}),
-    ...(draft.world ? { given: { world: draft.world } } : {}),
-    ...(stages ? { stages } : {}),
-    ...(!incomplete && draft.criteria.length > 0 ? { criteria: draft.criteria } : {}),
-    blocks,
-    ...(draft.rules ? { rules: draft.rules } : {}),
-    ...(draft.end_state ? { end_state: draft.end_state } : {}),
-    ...(perturbations && perturbations.length > 0 ? { perturbations } : {}),
-    metadata: {
-      generated: {
-        by: 'driftbench generate',
-        seeder: draft.seeder,
-        seed: run.seed,
-        stream: draft.stream,
-        map: { path: run.mapPath, agent: prepared.agent, version: prepared.version, hash: prepared.hash },
-        ...(draft.path ? { path: draft.path } : {}),
-        cell: specCell,
-        blocks: blockRecords,
-        ...(draft.concrete ? { concrete: draft.concrete } : {}),
-        ...(draft.metamorphic ? { metamorphic: draft.metamorphic } : {}),
-        ...(placeholders.length > 0 ? { needs_phrase: placeholders } : {}),
-        ...(noThen.length > 0 ? { needs_then: noThen } : {}),
-        ...(reasons.length > 0 ? { needs_then_why: reasons } : {}),
-      },
-    },
   };
-  return { id: draft.id, seeder: draft.seeder, spec, placeholders, noThen, reasons, blocks: blocks.length };
+  if (channel !== undefined) spec.channel = channel;
+  if (lang !== undefined) spec.lang = lang;
+  spec.tier = 'generated';
+  if (tags.length > 0) spec.tags = tags;
+  if (covers.length > 0) spec.covers = covers;
+  if (draft.world || draft.vars) {
+    const given: Record<string, unknown> = {};
+    if (draft.world) given.world = draft.world;
+    if (draft.vars) given.vars = draft.vars;
+    spec.given = given;
+  }
+  if (stages) spec.stages = stages;
+  if (!incomplete && draft.criteria.length > 0) spec.criteria = draft.criteria;
+  spec.blocks = blocks;
+  // One reply per user turn unless the map says otherwise (`reply_count`), so a doubled reply fails.
+  if (prepared.relations.repliesPerTurn === 'one')
+    spec.rules = { ...(draft.rules ?? {}), one_message_per_turn: true };
+  else if (draft.rules) spec.rules = draft.rules;
+  if (draft.end_state) spec.end_state = draft.end_state;
+  if (perturbations && perturbations.length > 0) spec.perturbations = perturbations;
+  const generated: Record<string, unknown> = {
+    by: 'driftbench generate',
+    seeder: draft.seeder,
+    seed: run.seed,
+    stream: draft.stream,
+    map: { path: run.mapPath, agent: prepared.agent, version: prepared.version, hash: prepared.hash },
+  };
+  if (draft.path) generated.path = draft.path;
+  generated.cell = specCell;
+  generated.blocks = blockRecords;
+  if (draft.concrete) generated.concrete = draft.concrete;
+  if (draft.metamorphic) generated.metamorphic = draft.metamorphic;
+  if (placeholders.length > 0) generated.needs_phrase = placeholders;
+  if (noThen.length > 0) generated.needs_then = noThen;
+  if (reasons.length > 0) generated.needs_then_why = reasons;
+
+  spec.metadata = { generated };
+  const rendered = {
+    id: draft.id,
+    seeder: draft.seeder,
+    spec,
+    placeholders,
+    noThen,
+    reasons,
+    blocks: blocks.length,
+  };
+  const plain = new Set<object>([
+    spec,
+    specCell,
+    covers,
+    tags,
+    blocks,
+    blockRecords,
+    placeholders,
+    noThen,
+    reasons,
+  ]);
+  if (stages) plain.add(stages);
+  if (perturbations) plain.add(perturbations);
+  if (spec.given) plain.add(spec.given as object);
+  const metadata = spec.metadata as { generated: { map: object } };
+  plain.add(metadata);
+  plain.add(metadata.generated);
+  plain.add(metadata.generated.map);
+  for (const block of blocks) {
+    plain.add(block);
+    plain.add(block.when);
+    if (block.when.injection) plain.add(block.when.injection);
+    plain.add(block.expect);
+    if (block.expect.criteria) plain.add(block.expect.criteria);
+    if (block.expect.tools) plain.add(block.expect.tools);
+  }
+  for (const record of blockRecords) {
+    plain.add(record);
+    plain.add(record.cell);
+    if (record.phrase) plain.add(record.phrase);
+  }
+  for (const placeholder of placeholders) plain.add(placeholder);
+  plainNodes.set(rendered, plain);
+  return rendered;
+}
+
+/** A partial map assertion cannot establish that other schema-declared arguments are forbidden. */
+function closeKnownInputs(prepared: PreparedMap, tools: ToolExpect[]): ToolExpect[] {
+  return tools.map((tool) => {
+    if (tool.input_closed !== true) return tool;
+    const properties = prepared.tools.find((entry) => entry.name === tool.label)?.input?.properties;
+    if (
+      isPlainObject(properties) &&
+      Object.keys(properties).every((key) => Object.hasOwn(tool.input ?? {}, key))
+    )
+      return tool;
+    const { input_closed: _closed, ...partial } = tool;
+    return partial;
+  });
 }
 
 /** The YAML text of a rendered spec, with a header. Deterministic: no clock, no absolute path. */
 export function specText(rendered: Rendered, run: RunIdentity, hash: string): string {
+  plainNodes.delete(rendered);
+  return renderedText(rendered, run, hash);
+}
+
+/** Internal generation path: called before any of the renderer's fresh objects escape. */
+export function generatedSpecText(rendered: Rendered, run: RunIdentity, hash: string): string {
+  const plain = plainNodes.get(rendered);
+  plainNodes.delete(rendered);
+  return renderedText(rendered, run, hash, plain);
+}
+
+function renderedText(
+  rendered: Rendered,
+  run: RunIdentity,
+  hash: string,
+  plain?: ReadonlySet<object>,
+): string {
   const header = [
     `# Generated by driftbench generate (seeder ${rendered.seeder}, seed ${run.seed}) from ${run.mapPath}, map hash ${hash}.`,
     '# Code wrote it from the approved map: the user turns are approved phrases, the Then comes from the map.',
@@ -356,6 +505,6 @@ export function specText(rendered: Rendered, run: RunIdentity, hash: string): st
     );
   }
   for (const reason of rendered.reasons) header.push(`# Why: ${reason}.`);
-  const body = stringify(rendered.spec, { lineWidth: 0, aliasDuplicateObjects: false });
+  const body = stringifyGeneratedYaml(rendered.spec, plain);
   return `${header.join('\n')}\n${body}`;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/estate",
+  "name": "@agent-nexus/driftbench-estate",
   "version": "0.1.0",
   "description": "Test a code-interpreter agent as a whole estate: atoms, the estate graph, lint, plans, mutants and maintenance.",
   "keywords": [
@@ -21,10 +21,10 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/estate"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -35,17 +35,21 @@
     }
   },
   "files": [
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
     "dist"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
-    "@driftbench/space": "workspace:*",
+    "@agent-nexus/driftbench-core": "workspace:*",
+    "@agent-nexus/driftbench-space": "workspace:*",
+    "@agent-nexus/driftbench-stats": "workspace:*",
     "zod": "^4.6.5",
     "yaml": "^2.9.1",
-    "@driftbench/generate": "workspace:*"
+    "@agent-nexus/driftbench-generate": "workspace:*",
+    "@agent-nexus/driftbench-sandbox": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

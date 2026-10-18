@@ -68,7 +68,7 @@ describe('driftbench gate', () => {
       const specs = await folder([
         join(HAND, 'order-loose-confirmation.yaml'),
         join(HAND, 'tool-failure.yaml'),
-        join(GENERATED, 'gen-deviation-004.yaml'),
+        join(GENERATED, 'gen-deviation-005.yaml'),
       ]);
       const out = join(await temp(), 'gated');
       const result = await run(['gate', specs, ...BASE, '--holdout', '0', '--out', out]);
@@ -91,7 +91,7 @@ describe('driftbench gate', () => {
       );
       // The generated probe walks an approved path: its loose yes at the recap passes the reference and
       // goes red on the fault that orders on a loose yes.
-      expect(files).toContain('specs/gen-deviation-004.yaml');
+      expect(files).toContain('specs/gen-deviation-005.yaml');
       const report = JSON.parse(await readFile(join(out, 'gate-report.json'), 'utf8'));
       expect(report.summary.specs).toBe(3);
       expect(report.funnel.map((row: { stage: string }) => row.stage)).toEqual([
@@ -106,7 +106,7 @@ describe('driftbench gate', () => {
         'freshness',
       ]);
       const probe = report.blocks.find(
-        (block: { key: string }) => block.key === 'gen-deviation-004#b5-D4_loose_confirmation',
+        (block: { key: string }) => block.key === 'gen-deviation-005#b5-D4_loose_confirmation',
       );
       expect(probe).toMatchObject({ status: 'accepted' });
       expect(probe.faults['d4-order-on-loose-yes']).toMatchObject({ outcome: 'fail' });
@@ -137,22 +137,84 @@ describe('driftbench gate', () => {
   it(
     'exits 1 when no candidate block passes',
     async () => {
-      // Two specs no path could build: their blocks hold judged criteria only, so stage 1 rejects them.
+      // Two specs no path could build: their blocks hold judged criteria and the one-reply rule only. Stage
+      // 1 rejects the two whose Then reads words alone; the constant agent passes the third.
       const specs = await folder([
-        join(INCOMPLETE, 'gen-twise-133.yaml'),
-        join(INCOMPLETE, 'gen-twise-025.yaml'),
+        join(INCOMPLETE, 'gen-twise-108.yaml'),
+        join(INCOMPLETE, '../boundary/gen-boundary-008.yaml'),
       ]);
       const out = join(await temp(), 'gated');
       const result = await run(['gate', specs, ...BASE, '--out', out]);
       expect(result.code).toBe(1);
       expect(result.out).toContain('Accepted 0 of 3 blocks.');
-      expect(result.out).toContain('no-machine-then 3');
+      expect(result.out).toContain('words-only 2');
+      expect(result.out).toContain('passed-by-constant 1');
       expect(await tree(out)).toEqual([
         'gate-report.json',
         'holdout/seal.json',
         'label-audit.yaml',
         'review.yaml',
       ]);
+    },
+    SLOW,
+  );
+
+  it(
+    'rejects a block whose 13-grams are in the --origin specs above --overlap, and keeps it under a higher bar',
+    async () => {
+      const source = join(HAND, 'tool-failure.yaml');
+      const specs = await folder([source]);
+      type Block = { key: string; stages: { leakage: { status: string; reason?: string } } };
+      const leaked = async (overlap: string[]) => {
+        const out = join(await temp(), 'gated');
+        const result = await run([
+          'gate',
+          specs,
+          ...BASE,
+          '--origin',
+          source,
+          ...overlap,
+          '--out',
+          out,
+          '--json',
+        ]);
+        expect(result.err).toBe('');
+        const report = JSON.parse(result.out) as { blocks: Block[] };
+        return report.blocks.filter((block) => block.stages.leakage.reason === 'ngram-overlap');
+      };
+      // The candidate is its own origin: every block long enough to hold a 13-gram shares all of them.
+      const rejected = await leaked([]);
+      expect(rejected.length).toBeGreaterThan(0);
+      for (const block of rejected) expect(block.stages.leakage.status).toBe('reject');
+      // A share can never be above 1, so --overlap 1 rejects no block for overlap.
+      expect(await leaked(['--overlap', '1'])).toEqual([]);
+    },
+    SLOW,
+  );
+
+  it(
+    'samples --audit accepted blocks per family for the label audit, and none with --audit 0',
+    async () => {
+      const specs = await folder([
+        join(HAND, 'order-loose-confirmation.yaml'),
+        join(HAND, 'tool-failure.yaml'),
+      ]);
+      type Block = { family: string; status: string; stages: { label_audit: { status: string } } };
+      const sampled = async (audit: string) => {
+        const out = join(await temp(), 'gated');
+        const result = await run(['gate', specs, ...BASE, '--audit', audit, '--out', out, '--json']);
+        expect(result.err).toBe('');
+        const report = JSON.parse(result.out) as { blocks: Block[] };
+        const accepted = report.blocks.filter((block) => block.status === 'accepted');
+        expect(accepted.length).toBeGreaterThan(1);
+        const marked = accepted.filter((block) => block.stages.label_audit.status === 'mark');
+        const families = new Set(accepted.map((block) => block.family));
+        return { marked, families, accepted };
+      };
+      expect((await sampled('0')).marked).toEqual([]);
+      const one = await sampled('1');
+      expect(one.marked).toHaveLength(one.families.size);
+      expect(new Set(one.marked.map((block) => block.family)).size).toBe(one.families.size);
     },
     SLOW,
   );

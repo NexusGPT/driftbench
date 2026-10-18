@@ -1,0 +1,248 @@
+comparisons/langwatch/hard/canonicalize-final-v2.mts:50:53 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    48 │   originalMeasurementsUnchanged: true,
+    49 │ };
+  > 50 │ writeFileSync(join(here, 'adapter-v2-freeze.json'), JSON.stringify(freeze, null, 2) + '\n');
+       │                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    51 │ const unused = JSON.parse(readFileSync(join(here, 'compliance-freeze.json'), 'utf8'));
+    52 │ unused.fixtureSha256 = digest(readFileSync(join(here, 'judges-heldout-v2.json')));
+  
+  i Unsafe fix: Use a template literal.
+  
+    48 48 │     originalMeasurementsUnchanged: true,
+    49 49 │   };
+    50    │ - writeFileSync(join(here,·'adapter-v2-freeze.json'),·JSON.stringify(freeze,·null,·2)·+·'\n');
+       50 │ + writeFileSync(join(here,·'adapter-v2-freeze.json'),·`${JSON.stringify(freeze,·null,·2)}\n`);
+    51 51 │   const unused = JSON.parse(readFileSync(join(here, 'compliance-freeze.json'), 'utf8'));
+    52 52 │   unused.fixtureSha256 = digest(readFileSync(join(here, 'judges-heldout-v2.json')));
+  
+
+comparisons/langwatch/hard/canonicalize-final-v2.mts:55:53 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    53 │ unused.storageFormatting =
+    54 │   'Unused seed18 fixture canonicalized; no measurement occurred on it. Candidate prompt/decoder unchanged.';
+  > 55 │ writeFileSync(join(here, 'compliance-freeze.json'), JSON.stringify(unused, null, 2) + '\n');
+       │                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    56 │ execFileSync(
+    57 │   'pnpm',
+  
+  i Unsafe fix: Use a template literal.
+  
+    53 53 │   unused.storageFormatting =
+    54 54 │     'Unused seed18 fixture canonicalized; no measurement occurred on it. Candidate prompt/decoder unchanged.';
+    55    │ - writeFileSync(join(here,·'compliance-freeze.json'),·JSON.stringify(unused,·null,·2)·+·'\n');
+       55 │ + writeFileSync(join(here,·'compliance-freeze.json'),·`${JSON.stringify(unused,·null,·2)}\n`);
+    56 56 │   execFileSync(
+    57 57 │     'pnpm',
+  
+
+comparisons/langwatch/hard/canonicalize-final-v2.mts:81:58 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    79 │   measuredAt: new Date().toISOString(),
+    80 │ };
+  > 81 │ writeFileSync(join(here, 'final-format-migration.json'), JSON.stringify(certificate, null, 2) + '\n');
+       │                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    82 │ console.log(
+    83 │   JSON.stringify({
+  
+  i Unsafe fix: Use a template literal.
+  
+    79 79 │     measuredAt: new Date().toISOString(),
+    80 80 │   };
+    81    │ - writeFileSync(join(here,·'final-format-migration.json'),·JSON.stringify(certificate,·null,·2)·+·'\n');
+       81 │ + writeFileSync(join(here,·'final-format-migration.json'),·`${JSON.stringify(certificate,·null,·2)}\n`);
+    82 82 │   console.log(
+    83 83 │     JSON.stringify({
+  
+
+comparisons/langwatch/hard/freeze-compliance.mts:35:58 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    33 │ };
+    34 │ if (process.argv.includes('--dry-run')) console.log(JSON.stringify(manifest));
+  > 35 │ else writeFileSync(join(here, 'compliance-freeze.json'), JSON.stringify(manifest, null, 2) + '\n');
+       │                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    36 │ 
+  
+  i Unsafe fix: Use a template literal.
+  
+    33 33 │   };
+    34 34 │   if (process.argv.includes('--dry-run')) console.log(JSON.stringify(manifest));
+    35    │ - else·writeFileSync(join(here,·'compliance-freeze.json'),·JSON.stringify(manifest,·null,·2)·+·'\n');
+       35 │ + else·writeFileSync(join(here,·'compliance-freeze.json'),·`${JSON.stringify(manifest,·null,·2)}\n`);
+    36 36 │   
+  
+
+comparisons/langwatch/hard/parallel-last.mts:28:23 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    26 │       'Lead authorized six simultaneous calls and doubled cap after 23 cases; frozen input/procedure bytes unchanged',
+    27 │   };
+  > 28 │   writeFileSync(file, JSON.stringify(record, null, 2) + '\n');
+       │                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    29 │ };
+    30 │ async function worker() {
+  
+  i Unsafe fix: Use a template literal.
+  
+    26 26 │         'Lead authorized six simultaneous calls and doubled cap after 23 cases; frozen input/procedure bytes unchanged',
+    27 27 │     };
+    28    │ - ··writeFileSync(file,·JSON.stringify(record,·null,·2)·+·'\n');
+       28 │ + ··writeFileSync(file,·`${JSON.stringify(record,·null,·2)}\n`);
+    29 29 │   };
+    30 30 │   async function worker() {
+  
+
+comparisons/langwatch/hard/pr115-criteria.mts:27:7 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    25 │         longtrace ? 'longtrace-pr115.json' : `judges-pr115${heldout ? '-heldout' : ''}.json`,
+    26 │       ),
+  > 27 │       JSON.stringify(
+       │       ^^^^^^^^^^^^^^^
+  > 28 │         {
+        ...
+  > 41 │         2,
+  > 42 │       ) + '\n',
+       │       ^^^^^^^^
+    43 │     );
+    44 │   try {
+  
+  i Unsafe fix: Use a template literal.
+  
+    25 25 │           longtrace ? 'longtrace-pr115.json' : `judges-pr115${heldout ? '-heldout' : ''}.json`,
+    26 26 │         ),
+    27    │ - ······JSON.stringify(
+       27 │ + ······`${JSON.stringify(
+    28 28 │           {
+    29 29 │             variant: 'PR 115 default',
+    ····· │ 
+    40 40 │           null,
+    41 41 │           2,
+    42    │ - ······)·+·'\n',
+       42 │ + ······)}\n`,
+    43 43 │       );
+    44 44 │     try {
+  
+
+comparisons/langwatch/hard/rename-request-digests.mjs:245:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    243 │ writeFileSync(
+    244 │   compliancePath,
+  > 245 │   JSON.stringify(
+        │   ^^^^^^^^^^^^^^^
+  > 246 │     {
+         ...
+  > 252 │     2,
+  > 253 │   ) + '\n',
+        │   ^^^^^^^^
+    254 │ );
+    255 │ 
+  
+  i Unsafe fix: Use a template literal.
+  
+    243 243 │   writeFileSync(
+    244 244 │     compliancePath,
+    245     │ - ··JSON.stringify(
+        245 │ + ··`${JSON.stringify(
+    246 246 │       {
+    247 247 │         ...complianceOriginal,
+    ······· │ 
+    251 251 │       null,
+    252 252 │       2,
+    253     │ - ··)·+·'\n',
+        253 │ + ··)}\n`,
+    254 254 │   );
+    255 255 │   
+  
+
+comparisons/langwatch/hard/extras-batch.mts:3:26 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+    1 │ import { spawn } from 'node:child_process';
+    2 │ import { createHash } from 'node:crypto';
+  > 3 │ import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+      │                          ^^^^^^^^^^
+    4 │ import { join } from 'node:path';
+    5 │ import { here } from './runner.mts';
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    3 │ import·{·appendFileSync,·existsSync,·readFileSync·}·from·'node:fs';
+      │                          ------------                              
+
+comparisons/langwatch/hard/freeze-compliance.mts:15:23 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    13 │   ...JSON.parse(read('judges-heldout-v4.json').toString()),
+    14 │ ];
+  > 15 │ const signature = (c: any) => JSON.stringify([c.scenario, c.criteria, c.transcript]);
+       │                       ^^^
+    16 │ assert.equal(fresh.length, 60);
+    17 │ assert.equal(fresh.filter((c: any) => old.some((o: any) => signature(c) === signature(o))).length, 0);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+comparisons/langwatch/hard/freeze-compliance.mts:17:31 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    15 │ const signature = (c: any) => JSON.stringify([c.scenario, c.criteria, c.transcript]);
+    16 │ assert.equal(fresh.length, 60);
+  > 17 │ assert.equal(fresh.filter((c: any) => old.some((o: any) => signature(c) === signature(o))).length, 0);
+       │                               ^^^
+    18 │ const manifest = {
+    19 │   createdAt: new Date().toISOString(),
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+comparisons/langwatch/hard/freeze-compliance.mts:17:52 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    15 │ const signature = (c: any) => JSON.stringify([c.scenario, c.criteria, c.transcript]);
+    16 │ assert.equal(fresh.length, 60);
+  > 17 │ assert.equal(fresh.filter((c: any) => old.some((o: any) => signature(c) === signature(o))).length, 0);
+       │                                                    ^^^
+    18 │ const manifest = {
+    19 │   createdAt: new Date().toISOString(),
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+comparisons/langwatch/hard/longtrace/hard.json check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! The size of the file is 2.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.
+    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+  
+
+comparisons/langwatch/hard/recorded/gitleaks-before.json check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! The size of the file is 1.5 MiB, which exceeds the configured maximum of 1.0 MiB for this project.
+    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+  
+
+Skipped 8 suggested fixes.
+If you wish to apply the suggested (unsafe) fixes, use the command biome check --write --unsafe
+
+Checked 107 files in 135ms. Fixed 3 files.
+Found 6 warnings.
+Found 7 infos.
+Formatted 109 files; frozen bytes and all JSON values preserved.

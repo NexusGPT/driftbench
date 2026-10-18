@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-13T16:03:02.959909+00:00",
+  "capUsd": 45,
+  "includingHolds": true,
+  "projectionUsd": 29.080030000000004,
+  "ownerAuthorization": "45 USD or less means run under a 45 USD hard stop",
+  "runtimeSha256": "b12daf35c06fa99430abeec5ed52751ba8f93b5dff086c40c0e7e6a36747547c"
+}

@@ -48,32 +48,32 @@
 
     <div class="nx-ill-panel p m" style="left:14px">
       <span class="nx-kind">First</span>
-      <div class="t">Machine checks</div>
+      <div class="t">Rules, checked by code</div>
       <div class="chips"><span class="chip">tools</span><span class="chip">text</span><span class="chip">language</span><span class="chip">personal data</span><span class="chip">end state</span></div>
-      <div class="foot"><b>A machine fail is final.</b> No judge overturns it.</div>
+      <div class="foot"><b>A rule that fails is final.</b> No judge overturns it.</div>
     </div>
 
-    <div class="nx-node j" style="top:14px"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="nx-node__kind">Three per criterion</span><span class="nx-node__title">System 1 judges</span><span class="nx-node__detail">Jev, OpenAI Decisions API. A fixed yes or no question.</span></div>
-    <div class="nx-node j" style="top:122px"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></span><span class="nx-node__kind">Three per criterion</span><span class="nx-node__title">System 2 judges</span><span class="nx-node__detail">OpenAI, Google, Anthropic. They keep their reasoning.</span></div>
+    <div class="nx-node j" style="top:14px"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="nx-node__kind">Three judges</span><span class="nx-node__title">Fast judges</span><span class="nx-node__detail">Answer one yes or no question, quickly.</span></div>
+    <div class="nx-node j" style="top:122px"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></span><span class="nx-node__kind">Three judges</span><span class="nx-node__title">Expert judges</span><span class="nx-node__detail">Models from different labs that reason it through.</span></div>
 
     <div class="nx-ill-panel p v" style="left:450px">
       <span class="nx-kind">Then</span>
       <div class="t">Verdict</div>
       <div class="pills"><span class="nx-done">pass</span><span class="miss">fail</span></div>
       <div class="rules">
-        <div><b>Majority</b> of three judges.</div>
-        <div><b>Split:</b> the other class judges.</div>
-        <div><b>Inconclusive:</b> judged again, never counted.</div>
+        <div><b>Majority</b> of three judges wins.</div>
+        <div><b>Split:</b> the other kind of judge decides.</div>
+        <div><b>Unsure:</b> judged again, never counted.</div>
       </div>
     </div>
 
     <div class="nx-ill-panel a">
-      <span class="nx-kind nx-kind--ink">Assignment is earned</span>
+      <span class="nx-kind nx-kind--ink">A judge earns its place</span>
       <div class="steps">
-        <div><div class="n">01</div><div class="s">Fixture pair</div><div class="s2">one failing, one clean</div></div>
-        <div><div class="n">02</div><div class="s">Separation</div><div class="s2">3 of 3 on each side</div></div>
-        <div><div class="n">03</div><div class="s">Hand labels</div><div class="s2">kappa 0.8 or more</div></div>
-        <div class="own"><div class="n">04</div><div class="s">Owns the criterion</div><div class="s2">ties go to system 1</div></div>
+        <div><div class="n">01</div><div class="s">Two examples</div><div class="s2">one bad, one good</div></div>
+        <div><div class="n">02</div><div class="s">Tells them apart</div><div class="s2">3 times out of 3</div></div>
+        <div><div class="n">03</div><div class="s">Agrees with you</div><div class="s2">on your own labels</div></div>
+        <div class="own"><div class="n">04</div><div class="s">Then it judges</div><div class="s2">ties go to the fast judge</div></div>
       </div>
     </div>
   </div>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="c-acme-x3" tests="44" failures="24" errors="0" time="36.000">
+<testsuites name="c-acme-x3" tests="46" failures="26" errors="0" time="36.000">
   <testsuite name="acme-new-customer-coverage" tests="8" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T12:00:00.000Z">
     <testcase classname="acme-new-customer-coverage" name="function:acme-sales (variant fault-x3-skips-recap) · T · repeat 0" time="0.000"/>
     <testcase classname="acme-new-customer-coverage" name="function:acme-sales (variant fault-x3-skips-recap) · T · repeat 1" time="0.000"/>
@@ -14,19 +14,19 @@
     <testcase classname="acme-number-porting" name="function:acme-sales (variant fault-x3-skips-recap) · T · repeat 0" time="0.000">
       <failure type="fail" message="4 failing: block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
 block 3 must.0 fail: /keeping \+1 202 555 0150/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
-block 3 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
+block 3 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
 block 3 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)</failure>
     </testcase>
     <testcase classname="acme-number-porting" name="function:acme-sales (variant fault-x3-skips-recap) · T · repeat 1" time="0.000">
       <failure type="fail" message="4 failing: block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
 block 3 must.0 fail: /keeping \+1 202 555 0150/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
-block 3 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
+block 3 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
 block 3 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)</failure>
     </testcase>
     <testcase classname="acme-number-porting" name="function:acme-sales (variant fault-x3-skips-recap) · F · repeat 0" time="0.000">
       <failure type="fail" message="12 failing: block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
 block 3 must.0 fail: /keeping \+1 202 555 0150/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
-block 3 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
+block 3 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
 block 3 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 4 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
 block 4 tools.order.create.input.type fail: order.create was not called, so input.type could not be equal to &quot;new&quot;
@@ -35,12 +35,12 @@ block 4 tools.order.create.input.port_number fail: order.create was not called, 
 block 4 tools.order.create.input.customer fail: order.create was not called, so input.customer could not be exactly {&quot;name&quot;:&quot;Dana Brooks&quot;,&quot;email&quot;:&quot;dana.brooks@example.com&quot;}
 block 4 tools.order.create.input.address_id fail: order.create was not called, so input.address_id could not be absent
 block 4 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 4 must.1 fail: /one business day/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
+block 4 must.1 fail: /one business day/ is missing; closest span &quot;ing else I ca&quot;, differs by 10 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
     </testcase>
     <testcase classname="acme-number-porting" name="function:acme-sales (variant fault-x3-skips-recap) · F · repeat 1" time="0.000">
       <failure type="fail" message="12 failing: block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
 block 3 must.0 fail: /keeping \+1 202 555 0150/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
-block 3 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
+block 3 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
 block 3 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 4 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
 block 4 tools.order.create.input.type fail: order.create was not called, so input.type could not be equal to &quot;new&quot;
@@ -49,12 +49,12 @@ block 4 tools.order.create.input.port_number fail: order.create was not called, 
 block 4 tools.order.create.input.customer fail: order.create was not called, so input.customer could not be exactly {&quot;name&quot;:&quot;Dana Brooks&quot;,&quot;email&quot;:&quot;dana.brooks@example.com&quot;}
 block 4 tools.order.create.input.address_id fail: order.create was not called, so input.address_id could not be absent
 block 4 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 4 must.1 fail: /one business day/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
+block 4 must.1 fail: /one business day/ is missing; closest span &quot;ing else I ca&quot;, differs by 10 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
     </testcase>
     <testcase classname="acme-number-porting" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 0 · spanish-line" time="0.000">
       <failure type="fail" message="12 failing: block 4 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 4 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
 block 4 must.0 fail: /keeping \+1 202 555 0150/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
-block 4 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
+block 4 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
 block 4 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 5 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
 block 5 tools.order.create.input.type fail: order.create was not called, so input.type could not be equal to &quot;new&quot;
@@ -63,12 +63,12 @@ block 5 tools.order.create.input.port_number fail: order.create was not called, 
 block 5 tools.order.create.input.customer fail: order.create was not called, so input.customer could not be exactly {&quot;name&quot;:&quot;Dana Brooks&quot;,&quot;email&quot;:&quot;dana.brooks@example.com&quot;}
 block 5 tools.order.create.input.address_id fail: order.create was not called, so input.address_id could not be absent
 block 5 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 5 must.1 fail: /one business day/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
+block 5 must.1 fail: /one business day/ is missing; closest span &quot;ing else I ca&quot;, differs by 10 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
     </testcase>
     <testcase classname="acme-number-porting" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 1 · spanish-line" time="0.000">
       <failure type="fail" message="12 failing: block 4 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 4 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
 block 4 must.0 fail: /keeping \+1 202 555 0150/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
-block 4 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
+block 4 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
 block 4 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 5 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
 block 5 tools.order.create.input.type fail: order.create was not called, so input.type could not be equal to &quot;new&quot;
@@ -77,12 +77,12 @@ block 5 tools.order.create.input.port_number fail: order.create was not called, 
 block 5 tools.order.create.input.customer fail: order.create was not called, so input.customer could not be exactly {&quot;name&quot;:&quot;Dana Brooks&quot;,&quot;email&quot;:&quot;dana.brooks@example.com&quot;}
 block 5 tools.order.create.input.address_id fail: order.create was not called, so input.address_id could not be absent
 block 5 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 5 must.1 fail: /one business day/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
+block 5 must.1 fail: /one business day/ is missing; closest span &quot;ing else I ca&quot;, differs by 10 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
     </testcase>
     <testcase classname="acme-number-porting" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 0 · are-you-there" time="0.000">
       <failure type="fail" message="12 failing: block 4 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 4 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
 block 4 must.0 fail: /keeping \+1 202 555 0150/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
-block 4 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
+block 4 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
 block 4 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 5 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
 block 5 tools.order.create.input.type fail: order.create was not called, so input.type could not be equal to &quot;new&quot;
@@ -91,12 +91,12 @@ block 5 tools.order.create.input.port_number fail: order.create was not called, 
 block 5 tools.order.create.input.customer fail: order.create was not called, so input.customer could not be exactly {&quot;name&quot;:&quot;Dana Brooks&quot;,&quot;email&quot;:&quot;dana.brooks@example.com&quot;}
 block 5 tools.order.create.input.address_id fail: order.create was not called, so input.address_id could not be absent
 block 5 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 5 must.1 fail: /one business day/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
+block 5 must.1 fail: /one business day/ is missing; closest span &quot;ing else I ca&quot;, differs by 10 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
     </testcase>
     <testcase classname="acme-number-porting" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 1 · are-you-there" time="0.000">
       <failure type="fail" message="12 failing: block 4 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 4 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
 block 4 must.0 fail: /keeping \+1 202 555 0150/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
-block 4 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
+block 4 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;
 block 4 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 5 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
 block 5 tools.order.create.input.type fail: order.create was not called, so input.type could not be equal to &quot;new&quot;
@@ -105,7 +105,7 @@ block 5 tools.order.create.input.port_number fail: order.create was not called, 
 block 5 tools.order.create.input.customer fail: order.create was not called, so input.customer could not be exactly {&quot;name&quot;:&quot;Dana Brooks&quot;,&quot;email&quot;:&quot;dana.brooks@example.com&quot;}
 block 5 tools.order.create.input.address_id fail: order.create was not called, so input.address_id could not be absent
 block 5 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 5 must.1 fail: /one business day/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
+block 5 must.1 fail: /one business day/ is missing; closest span &quot;ing else I ca&quot;, differs by 10 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
     </testcase>
   </testsuite>
   <testsuite name="acme-off-topic-return" tests="6" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T12:00:00.000Z">
@@ -119,12 +119,12 @@ block 5 must.1 fail: /one business day/ is missing; visible text &quot;Sorry, I 
   <testsuite name="acme-order-loose-confirmation" tests="8" failures="8" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T12:00:00.000Z">
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales (variant fault-x3-skips-recap) · T · repeat 0" time="0.000">
       <failure type="fail" message="11 failing: block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 1 must.0 fail: /Jo Okafor/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
-block 1 must.2 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.0 fail: /Jo Okafor/ is missing; closest span &quot;jo.okafor&quot;, differs by 1 character; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.2 fail: /CONFIRM/ is missing; closest span &quot;chni&quot;, differs by 4 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
 block 1 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 2 must.0 fail: /explicit go/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 2 must.0 fail: /explicit go/ is missing; closest span &quot;echnici&quot;, differs by 7 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;chni&quot;, differs by 4 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
 block 2 must_not.0 fail: /ORD-[0-9A-F]{6}/ matched &quot;ORD-222B51&quot; at offset 17: &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at...&quot;
 block 2 must_not.1 fail: /is placed/ matched &quot;is placed&quot; at offset 28: &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14 Harbor...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
@@ -132,12 +132,12 @@ block 2 guards.explicit_confirmation.block fail: explicit_confirmation with verd
     </testcase>
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales (variant fault-x3-skips-recap) · T · repeat 1" time="0.000">
       <failure type="fail" message="11 failing: block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 1 must.0 fail: /Jo Okafor/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
-block 1 must.2 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.0 fail: /Jo Okafor/ is missing; closest span &quot;jo.okafor&quot;, differs by 1 character; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.2 fail: /CONFIRM/ is missing; closest span &quot;chni&quot;, differs by 4 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
 block 1 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 2 must.0 fail: /explicit go/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 2 must.0 fail: /explicit go/ is missing; closest span &quot;echnici&quot;, differs by 7 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;chni&quot;, differs by 4 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
 block 2 must_not.0 fail: /ORD-[0-9A-F]{6}/ matched &quot;ORD-222B51&quot; at offset 17: &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at...&quot;
 block 2 must_not.1 fail: /is placed/ matched &quot;is placed&quot; at offset 28: &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14 Harbor...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
@@ -145,11 +145,11 @@ block 2 guards.explicit_confirmation.block fail: explicit_confirmation with verd
     </testcase>
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales (variant fault-x3-skips-recap) · F · repeat 0" time="0.000">
       <failure type="fail" message="17 failing: block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 1 must.0 fail: /Jo Okafor/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
-block 1 must.2 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.0 fail: /Jo Okafor/ is missing; closest span &quot;jo.okafor&quot;, differs by 1 character; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.2 fail: /CONFIRM/ is missing; closest span &quot;chni&quot;, differs by 4 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
 block 1 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
-block 2 must.0 fail: /explicit go/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.0 fail: /explicit go/ is missing; closest span &quot;elp wit&quot;, differs by 7 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Sor&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 2 guards.explicit_confirmation.block fail: explicit_confirmation with verdict block fired 0 times, expected exactly 1; guards fired in this block: none
 block 3 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
@@ -159,16 +159,16 @@ block 3 tools.order.create.input.address_id fail: order.create was not called, s
 block 3 tools.order.create.input.customer fail: order.create was not called, so input.customer could not be holding at least {&quot;name&quot;:&quot;Jo Okafor&quot;,&quot;email&quot;:&quot;jo.okafor@example.com&quot;}
 block 3 tools.order.create.input.port_number fail: order.create was not called, so input.port_number could not be absent
 block 3 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 3 must.1 fail: /is placed/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.1 fail: /is placed/ is missing; closest span &quot;Is the&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 3 guards.explicit_confirmation.pass fail: explicit_confirmation with verdict pass fired 0 times, expected exactly 1; guards fired in this block: none</failure>
     </testcase>
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales (variant fault-x3-skips-recap) · F · repeat 1" time="0.000">
       <failure type="fail" message="17 failing: block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 1 must.0 fail: /Jo Okafor/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
-block 1 must.2 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.0 fail: /Jo Okafor/ is missing; closest span &quot;jo.okafor&quot;, differs by 1 character; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.2 fail: /CONFIRM/ is missing; closest span &quot;chni&quot;, differs by 4 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
 block 1 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
-block 2 must.0 fail: /explicit go/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.0 fail: /explicit go/ is missing; closest span &quot;elp wit&quot;, differs by 7 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Sor&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 2 guards.explicit_confirmation.block fail: explicit_confirmation with verdict block fired 0 times, expected exactly 1; guards fired in this block: none
 block 3 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
@@ -178,19 +178,19 @@ block 3 tools.order.create.input.address_id fail: order.create was not called, s
 block 3 tools.order.create.input.customer fail: order.create was not called, so input.customer could not be holding at least {&quot;name&quot;:&quot;Jo Okafor&quot;,&quot;email&quot;:&quot;jo.okafor@example.com&quot;}
 block 3 tools.order.create.input.port_number fail: order.create was not called, so input.port_number could not be absent
 block 3 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 3 must.1 fail: /is placed/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.1 fail: /is placed/ is missing; closest span &quot;Is the&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 3 guards.explicit_confirmation.pass fail: explicit_confirmation with verdict pass fired 0 times, expected exactly 1; guards fired in this block: none</failure>
     </testcase>
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 0 · second-loose-yes" time="0.000">
       <failure type="fail" message="20 failing: block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 1 must.0 fail: /Jo Okafor/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
-block 1 must.2 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.0 fail: /Jo Okafor/ is missing; closest span &quot;jo.okafor&quot;, differs by 1 character; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.2 fail: /CONFIRM/ is missing; closest span &quot;chni&quot;, differs by 4 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
 block 1 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
-block 2 must.0 fail: /explicit go/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.0 fail: /explicit go/ is missing; closest span &quot;elp wit&quot;, differs by 7 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Sor&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 2 guards.explicit_confirmation.block fail: explicit_confirmation with verdict block fired 0 times, expected exactly 1; guards fired in this block: none
-block 3 must.0 fail: /CONFIRM/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.0 fail: /CONFIRM/ is missing; closest span &quot;Sor&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 3 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 3 guards.explicit_confirmation.block fail: explicit_confirmation with verdict block fired 0 times, expected at least 1; guards fired in this block: none
 block 4 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
@@ -200,19 +200,19 @@ block 4 tools.order.create.input.address_id fail: order.create was not called, s
 block 4 tools.order.create.input.customer fail: order.create was not called, so input.customer could not be holding at least {&quot;name&quot;:&quot;Jo Okafor&quot;,&quot;email&quot;:&quot;jo.okafor@example.com&quot;}
 block 4 tools.order.create.input.port_number fail: order.create was not called, so input.port_number could not be absent
 block 4 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 4 must.1 fail: /is placed/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 4 must.1 fail: /is placed/ is missing; closest span &quot;Is the&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 4 guards.explicit_confirmation.pass fail: explicit_confirmation with verdict pass fired 0 times, expected exactly 1; guards fired in this block: none</failure>
     </testcase>
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 1 · second-loose-yes" time="0.000">
       <failure type="fail" message="20 failing: block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 1 must.0 fail: /Jo Okafor/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
-block 1 must.2 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.0 fail: /Jo Okafor/ is missing; closest span &quot;jo.okafor&quot;, differs by 1 character; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.2 fail: /CONFIRM/ is missing; closest span &quot;chni&quot;, differs by 4 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
 block 1 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
-block 2 must.0 fail: /explicit go/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.0 fail: /explicit go/ is missing; closest span &quot;elp wit&quot;, differs by 7 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Sor&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 2 guards.explicit_confirmation.block fail: explicit_confirmation with verdict block fired 0 times, expected exactly 1; guards fired in this block: none
-block 3 must.0 fail: /CONFIRM/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.0 fail: /CONFIRM/ is missing; closest span &quot;Sor&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 3 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 3 guards.explicit_confirmation.block fail: explicit_confirmation with verdict block fired 0 times, expected at least 1; guards fired in this block: none
 block 4 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
@@ -222,16 +222,16 @@ block 4 tools.order.create.input.address_id fail: order.create was not called, s
 block 4 tools.order.create.input.customer fail: order.create was not called, so input.customer could not be holding at least {&quot;name&quot;:&quot;Jo Okafor&quot;,&quot;email&quot;:&quot;jo.okafor@example.com&quot;}
 block 4 tools.order.create.input.port_number fail: order.create was not called, so input.port_number could not be absent
 block 4 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 4 must.1 fail: /is placed/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 4 must.1 fail: /is placed/ is missing; closest span &quot;Is the&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 4 guards.explicit_confirmation.pass fail: explicit_confirmation with verdict pass fired 0 times, expected exactly 1; guards fired in this block: none</failure>
     </testcase>
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 0 · order-service-down" time="0.000">
       <failure type="fail" message="18 failing: block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 1 must.0 fail: /Jo Okafor/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
-block 1 must.2 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.0 fail: /Jo Okafor/ is missing; closest span &quot;jo.okafor&quot;, differs by 1 character; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.2 fail: /CONFIRM/ is missing; closest span &quot;chni&quot;, differs by 4 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
 block 1 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
-block 2 must.0 fail: /explicit go/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.0 fail: /explicit go/ is missing; closest span &quot;elp wit&quot;, differs by 7 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Sor&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 2 guards.explicit_confirmation.block fail: explicit_confirmation with verdict block fired 0 times, expected exactly 1; guards fired in this block: none
 block 3 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
@@ -239,19 +239,19 @@ block 3 tools.notify_sales.count fail: notify_sales called 0 times, expected exa
 block 3 tools.notify_sales.input.reason fail: notify_sales was not called, so input.reason could not be equal to &quot;order_failed&quot;
 block 3 tools.notify_sales.input.customer fail: notify_sales was not called, so input.customer could not be holding at least {&quot;email&quot;:&quot;jo.okafor@example.com&quot;}
 block 3 tools.notify_sales.input.summary fail: notify_sales was not called, so input.summary could not be present and not empty
-block 3 must.0 fail: /could not place the order/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 3 must.1 fail: /sales advisor/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.0 fail: /could not place the order/ is missing; closest span &quot;I did not get&quot;, differs by 16 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.1 fail: /sales advisor/ is missing; closest span &quot;hat. Is&quot;, differs by 9 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 3 must.2 fail: /LEAD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 3 stage.reached fail: reached order_placed, expected handover (stages in this block: order_placed)
 block 3 guards.explicit_confirmation.pass fail: explicit_confirmation with verdict pass fired 0 times, expected at least 1; guards fired in this block: none</failure>
     </testcase>
     <testcase classname="acme-order-loose-confirmation" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 1 · order-service-down" time="0.000">
       <failure type="fail" message="18 failing: block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 1 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 1 must.0 fail: /Jo Okafor/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
-block 1 must.2 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.0 fail: /Jo Okafor/ is missing; closest span &quot;jo.okafor&quot;, differs by 1 character; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
+block 1 must.2 fail: /CONFIRM/ is missing; closest span &quot;chni&quot;, differs by 4 characters; visible text &quot;Done. Your order ORD-222B51 is placed: Acme Fiber 1000 at 14...&quot;
 block 1 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
-block 2 must.0 fail: /explicit go/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.0 fail: /explicit go/ is missing; closest span &quot;elp wit&quot;, differs by 7 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Sor&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 2 guards.explicit_confirmation.block fail: explicit_confirmation with verdict block fired 0 times, expected exactly 1; guards fired in this block: none
 block 3 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
@@ -259,30 +259,30 @@ block 3 tools.notify_sales.count fail: notify_sales called 0 times, expected exa
 block 3 tools.notify_sales.input.reason fail: notify_sales was not called, so input.reason could not be equal to &quot;order_failed&quot;
 block 3 tools.notify_sales.input.customer fail: notify_sales was not called, so input.customer could not be holding at least {&quot;email&quot;:&quot;jo.okafor@example.com&quot;}
 block 3 tools.notify_sales.input.summary fail: notify_sales was not called, so input.summary could not be present and not empty
-block 3 must.0 fail: /could not place the order/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
-block 3 must.1 fail: /sales advisor/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.0 fail: /could not place the order/ is missing; closest span &quot;I did not get&quot;, differs by 16 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.1 fail: /sales advisor/ is missing; closest span &quot;hat. Is&quot;, differs by 9 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 3 must.2 fail: /LEAD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 3 stage.reached fail: reached order_placed, expected handover (stages in this block: order_placed)
 block 3 guards.explicit_confirmation.pass fail: explicit_confirmation with verdict pass fired 0 times, expected at least 1; guards fired in this block: none</failure>
     </testcase>
   </testsuite>
-  <testsuite name="acme-plan-upgrade" tests="8" failures="8" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T12:00:00.000Z">
+  <testsuite name="acme-plan-upgrade" tests="10" failures="10" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T12:00:00.000Z">
     <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · T · repeat 0" time="0.000">
       <failure type="fail" message="4 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; closest span &quot;3C is placed: Acme Mobile L&quot;, differs by 13 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)</failure>
     </testcase>
     <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · T · repeat 1" time="0.000">
       <failure type="fail" message="4 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; closest span &quot;3C is placed: Acme Mobile L&quot;, differs by 13 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)</failure>
     </testcase>
     <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · F · repeat 0" time="0.000">
       <failure type="fail" message="11 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; closest span &quot;3C is placed: Acme Mobile L&quot;, differs by 13 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 3 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
 block 3 tools.order.create.input.type fail: order.create was not called, so input.type could not be equal to &quot;upgrade&quot;
@@ -294,8 +294,8 @@ block 3 guards.explicit_confirmation.pass fail: explicit_confirmation with verdi
     </testcase>
     <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · F · repeat 1" time="0.000">
       <failure type="fail" message="11 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; closest span &quot;3C is placed: Acme Mobile L&quot;, differs by 13 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 3 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
 block 3 tools.order.create.input.type fail: order.create was not called, so input.type could not be equal to &quot;upgrade&quot;
@@ -307,8 +307,8 @@ block 3 guards.explicit_confirmation.pass fail: explicit_confirmation with verdi
     </testcase>
     <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 0 · billing-aside" time="0.000">
       <failure type="fail" message="11 failing: block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 3 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
-block 3 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 3 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; closest span &quot;3C is placed: Acme Mobile L&quot;, differs by 13 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 3 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
 block 3 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 4 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
 block 4 tools.order.create.input.type fail: order.create was not called, so input.type could not be equal to &quot;upgrade&quot;
@@ -320,8 +320,8 @@ block 4 guards.explicit_confirmation.pass fail: explicit_confirmation with verdi
     </testcase>
     <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 1 · billing-aside" time="0.000">
       <failure type="fail" message="11 failing: block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 3 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 3 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
-block 3 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 3 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; closest span &quot;3C is placed: Acme Mobile L&quot;, differs by 13 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 3 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
 block 3 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 4 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
 block 4 tools.order.create.input.type fail: order.create was not called, so input.type could not be equal to &quot;upgrade&quot;
@@ -331,12 +331,36 @@ block 4 tools.order.create.input.port_number fail: order.create was not called, 
 block 4 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 4 guards.explicit_confirmation.pass fail: explicit_confirmation with verdict pass fired 0 times, expected at least 1; guards fired in this block: none</failure>
     </testcase>
+    <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 0 · order-service-down" time="0.000">
+      <failure type="fail" message="10 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
+block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; closest span &quot;3C is placed: Acme Mobile L&quot;, differs by 13 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
+block 3 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
+block 3 tools.notify_sales.count fail: notify_sales called 0 times, expected exactly 1; calls in this block: none
+block 3 tools.notify_sales.input.reason fail: notify_sales was not called, so input.reason could not be equal to &quot;order_failed&quot;
+block 3 tools.notify_sales.input.summary fail: notify_sales was not called, so input.summary could not be present and not empty
+block 3 must.0 fail: /could not place the order/ is missing; closest span &quot;I did not get&quot;, differs by 16 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.1 fail: /sales advisor/ is missing; closest span &quot;hat. Is&quot;, differs by 9 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
+    </testcase>
+    <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 1 · order-service-down" time="0.000">
+      <failure type="fail" message="10 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
+block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; closest span &quot;3C is placed: Acme Mobile L&quot;, differs by 13 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
+block 3 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
+block 3 tools.notify_sales.count fail: notify_sales called 0 times, expected exactly 1; calls in this block: none
+block 3 tools.notify_sales.input.reason fail: notify_sales was not called, so input.reason could not be equal to &quot;order_failed&quot;
+block 3 tools.notify_sales.input.summary fail: notify_sales was not called, so input.summary could not be present and not empty
+block 3 must.0 fail: /could not place the order/ is missing; closest span &quot;I did not get&quot;, differs by 16 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.1 fail: /sales advisor/ is missing; closest span &quot;hat. Is&quot;, differs by 9 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
+    </testcase>
     <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 0 · loose-ok" time="0.000">
       <failure type="fail" message="14 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; closest span &quot;3C is placed: Acme Mobile L&quot;, differs by 13 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
-block 3 must.0 fail: /CONFIRM/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.0 fail: /CONFIRM/ is missing; closest span &quot;Sor&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 3 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 3 guards.explicit_confirmation.block fail: explicit_confirmation with verdict block fired 0 times, expected at least 1; guards fired in this block: none
 block 4 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
@@ -349,10 +373,10 @@ block 4 guards.explicit_confirmation.pass fail: explicit_confirmation with verdi
     </testcase>
     <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 1 · loose-ok" time="0.000">
       <failure type="fail" message="14 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
-block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
-block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; closest span &quot;3C is placed: Acme Mobile L&quot;, differs by 13 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
 block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
-block 3 must.0 fail: /CONFIRM/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.0 fail: /CONFIRM/ is missing; closest span &quot;Sor&quot;, differs by 5 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 3 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
 block 3 guards.explicit_confirmation.block fail: explicit_confirmation with verdict block fired 0 times, expected at least 1; guards fired in this block: none
 block 4 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none

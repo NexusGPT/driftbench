@@ -1,0 +1,78 @@
+{
+  "sourceCommit": "73939d09686bd7d214acc6dfcc74b831d1ed991d",
+  "sources": {
+    "comparisons/langwatch/hard/judges-entries-v2.json": {
+      "sha256": "a0d53f13c6b6161f62be0cf50244e41211a17549010fc8cad668209394227238",
+      "bytes": 207181
+    },
+    "comparisons/langwatch/hard/longtrace-v2/hard.json": {
+      "sha256": "a6e66b7e1b53ab6a63fdc714e2f26c8db671a92a40b01179c8dcdefc6342b029",
+      "bytes": 4901932
+    },
+    "comparisons/langwatch/hard/recorded/adapter-v2-compliance.json": {
+      "sha256": "ec1594067fb01e25049c1f7394a2114d0e20252a965b5b1fcf2378431549abf5",
+      "bytes": 48967
+    },
+    "comparisons/langwatch/hard/recorded/longtrace-v2-compliance.json": {
+      "sha256": "136e3ac17fa0a0fb610255b060d45fe6e3013f5cd76113bb8b13cf89d01c02b5",
+      "bytes": 49955
+    },
+    "comparisons/langwatch/hard/compliance-freeze.json": {
+      "sha256": "b9c9e9bd60f9e9a9321f453b246ec6449b11f22dcab1d2035684a12a77356e25",
+      "bytes": 1554
+    },
+    "comparisons/langwatch/hard/recorded/calls.jsonl": {
+      "sha256": "a0224d6880c772c9e7d58f9bec7aeef48de64ae99aa8d1cb5244366960dbc59c",
+      "bytes": 44921938
+    },
+    "comparisons/langwatch/hard/compliance.mts": {
+      "sha256": "77feb3b7e553fecbcd0c18214216e18f0cb7666a18e65aacbef915bb401e2006",
+      "bytes": 4564
+    },
+    "comparisons/langwatch/hard/judges.mts": {
+      "sha256": "587313d04a6a67f26d1cde89633b4316bb7af58ed1e8e11a9bc516984cc37012",
+      "bytes": 7764
+    },
+    "comparisons/langwatch/hard/trusted-adapter-v2.mts": {
+      "sha256": "b5ea569cfbdfbb82ec205a0d325f7f71feeb2dd2038eee704d966b94e2c78a27",
+      "bytes": 1345
+    },
+    "comparisons/langwatch/hard/runner.mts": {
+      "sha256": "efbf4af9393f785e2d2956b74cc4448214c690ec8fdf55f5aa40472ed912aaf5",
+      "bytes": 5508
+    }
+  },
+  "fixtures": {
+    "short-inputs.json.gz": {
+      "sha256": "f7eea63a1eabf453fec7064d94698d5218f8bd5c46c210673773a174bbe91781",
+      "decodedSha256": "a0d53f13c6b6161f62be0cf50244e41211a17549010fc8cad668209394227238",
+      "decodedBytes": 207181
+    },
+    "long-inputs.json.gz": {
+      "sha256": "5be6af9bbdc154b47578f92505c55e503eb5632e0994cc46865a969bd6a5b0ab",
+      "decodedSha256": "a6e66b7e1b53ab6a63fdc714e2f26c8db671a92a40b01179c8dcdefc6342b029",
+      "decodedBytes": 4901932
+    },
+    "short-report.json.gz": {
+      "sha256": "e8c49cc7f2cff63351ba6ba7d6ceee344619d74f43aa48c2110dc35c0edabc8a",
+      "decodedSha256": "ec1594067fb01e25049c1f7394a2114d0e20252a965b5b1fcf2378431549abf5",
+      "decodedBytes": 48967
+    },
+    "long-report.json.gz": {
+      "sha256": "81e6550090030e4690f1ef8235af5746e765d7017c4ab5419534e61e43a18ff9",
+      "decodedSha256": "136e3ac17fa0a0fb610255b060d45fe6e3013f5cd76113bb8b13cf89d01c02b5",
+      "decodedBytes": 49955
+    },
+    "freeze.json": {
+      "sha256": "b9c9e9bd60f9e9a9321f453b246ec6449b11f22dcab1d2035684a12a77356e25",
+      "decodedSha256": "b9c9e9bd60f9e9a9321f453b246ec6449b11f22dcab1d2035684a12a77356e25",
+      "decodedBytes": 1554
+    },
+    "calls.jsonl.gz": {
+      "sha256": "c1323975849a6537c93e1aa3621538bc66d636c006b509fed9c02ade03d7d599",
+      "decodedSha256": "cdccafe318e42cbc5a7d4a1b25cb0c4bd33a3854e99eb71c061fa92b78218bdc",
+      "decodedBytes": 7193204,
+      "calls": 480
+    }
+  }
+}

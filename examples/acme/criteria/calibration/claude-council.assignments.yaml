@@ -1,0 +1,143 @@
+# Written by driftbench judge calibrate. A criterion is owned by the cheapest judge that separates its
+# fixture pair in every repeat and reaches kappa 0.8 against the hand labels, in a class with three
+# such judges. An unassigned criterion is judged but never gates.
+version: 1
+mode: llm
+repeats: 3
+kappa_min: 0.8
+criteria:
+  - criterion: care_redirect
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1
+  - criterion: checks_before_promising
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1
+  - criterion: coverage_before_offer
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1
+  - criterion: explicit_confirmation
+    status: unassigned
+    reason: "no class has 3 judges at the bar (system2 has 2 of 3 judges at the bar): claude-haiku kappa 0.40 is under 0.8"
+  - criterion: holds_instructions
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1
+  - criterion: honest_failure
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1
+  - criterion: ledger_intact
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1
+  - criterion: no_invented_data
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1
+  - criterion: one_question_per_turn
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1
+  - criterion: plain_language
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1
+  - criterion: resumes_pending_step
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1
+  - criterion: sheet_matches_catalog
+    status: assigned
+    owner: claude-haiku
+    class: system2
+    judges:
+      - claude-haiku
+      - claude-sonnet
+      - claude-opus
+    rejudge: []
+    single_family: anthropic
+    separation: 3 of 3
+    kappa: 1

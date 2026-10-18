@@ -1,0 +1,602 @@
+{
+  "H028": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H090": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H055": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.catalog.search.input.category,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H091": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.coverage.check.input.address,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H034": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H021": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H074": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "forbidden.refund.create",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, refund.create; first difference: call 3 is extra: saw refund.create"
+  },
+  "H081": {
+    "default": "pass",
+    "exact": "fail",
+    "default_evidence": "",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw catalog.search, coverage.check; first difference: call 1 differs: expected coverage.check, saw catalog.search"
+  },
+  "H046": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H042": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H079": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,tools.catalog.search.input.category,tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check; first difference: call 2 is missing: expected catalog.search"
+  },
+  "H003": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H085": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,forbidden.max_calls.catalog.search",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, catalog.search; first difference: call 3 is extra: saw catalog.search"
+  },
+  "H084": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.catalog.search.input.category,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H008": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H070": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.coverage.check.input.address,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H027": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H014": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H054": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "forbidden.refund.create",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, refund.create; first difference: call 3 is extra: saw refund.create"
+  },
+  "H006": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H002": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H038": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H071": {
+    "default": "pass",
+    "exact": "fail",
+    "default_evidence": "",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw catalog.search, coverage.check; first difference: call 1 differs: expected coverage.check, saw catalog.search"
+  },
+  "H032": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H099": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "forbidden.refund.create",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, refund.create; first difference: call 3 is extra: saw refund.create"
+  },
+  "H064": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,tools.catalog.search.input.category,tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check; first difference: call 2 is missing: expected catalog.search"
+  },
+  "H043": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H039": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H096": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.coverage.check.input.address,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H049": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H035": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H093": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,forbidden.max_calls.catalog.search",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, catalog.search; first difference: call 3 is extra: saw catalog.search"
+  },
+  "H065": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,tools.catalog.search.input.category,tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check; first difference: call 2 is missing: expected catalog.search"
+  },
+  "H047": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H025": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H075": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,forbidden.max_calls.catalog.search",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, catalog.search; first difference: call 3 is extra: saw catalog.search"
+  },
+  "H097": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,tools.catalog.search.input.category,tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check; first difference: call 2 is missing: expected catalog.search"
+  },
+  "H023": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H031": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H012": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H026": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H076": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,forbidden.max_calls.catalog.search",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, catalog.search; first difference: call 3 is extra: saw catalog.search"
+  },
+  "H053": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.coverage.check.input.address,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H077": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.coverage.check.input.address,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H060": {
+    "default": "pass",
+    "exact": "fail",
+    "default_evidence": "",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw catalog.search, coverage.check; first difference: call 1 differs: expected coverage.check, saw catalog.search"
+  },
+  "H083": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "forbidden.refund.create",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, refund.create; first difference: call 3 is extra: saw refund.create"
+  },
+  "H052": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "forbidden.refund.create",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, refund.create; first difference: call 3 is extra: saw refund.create"
+  },
+  "H004": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H072": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H062": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H057": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,tools.catalog.search.input.category,tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check; first difference: call 2 is missing: expected catalog.search"
+  },
+  "H018": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H061": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.coverage.check.input.address,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H022": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H098": {
+    "default": "pass",
+    "exact": "fail",
+    "default_evidence": "",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw catalog.search, coverage.check; first difference: call 1 differs: expected coverage.check, saw catalog.search"
+  },
+  "H011": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H041": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H010": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H024": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H017": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H059": {
+    "default": "pass",
+    "exact": "fail",
+    "default_evidence": "",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw catalog.search, coverage.check; first difference: call 1 differs: expected coverage.check, saw catalog.search"
+  },
+  "H020": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H005": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H013": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H019": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H086": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "forbidden.refund.create",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, refund.create; first difference: call 3 is extra: saw refund.create"
+  },
+  "H015": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H048": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H068": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "forbidden.refund.create",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, refund.create; first difference: call 3 is extra: saw refund.create"
+  },
+  "H058": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "forbidden.refund.create",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, refund.create; first difference: call 3 is extra: saw refund.create"
+  },
+  "H050": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "forbidden.refund.create",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, refund.create; first difference: call 3 is extra: saw refund.create"
+  },
+  "H009": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H094": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.coverage.check.input.address,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H007": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H040": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H037": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H056": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,forbidden.max_calls.catalog.search",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, catalog.search; first difference: call 3 is extra: saw catalog.search"
+  },
+  "H080": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H088": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H082": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "forbidden.refund.create",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, refund.create; first difference: call 3 is extra: saw refund.create"
+  },
+  "H016": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H092": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,forbidden.max_calls.catalog.search",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, catalog.search; first difference: call 3 is extra: saw catalog.search"
+  },
+  "H030": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H036": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H000": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H067": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,forbidden.max_calls.catalog.search",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, catalog.search; first difference: call 3 is extra: saw catalog.search"
+  },
+  "H087": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,forbidden.max_calls.catalog.search",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, catalog.search; first difference: call 3 is extra: saw catalog.search"
+  },
+  "H044": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H063": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.coverage.check.input.address,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H029": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H078": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H095": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.catalog.search.input.category,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H089": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,forbidden.max_calls.catalog.search",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, catalog.search; first difference: call 3 is extra: saw catalog.search"
+  },
+  "H069": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.catalog.search.input.category,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H045": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H073": {
+    "default": "fail",
+    "exact": "pass",
+    "default_evidence": "tools.catalog.search.input.category,tools.argument_accuracy",
+    "exact_evidence": ""
+  },
+  "H066": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "forbidden.refund.create",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check, catalog.search, refund.create; first difference: call 3 is extra: saw refund.create"
+  },
+  "H051": {
+    "default": "fail",
+    "exact": "fail",
+    "default_evidence": "tools.catalog.search.count,tools.catalog.search.input.category,tools.catalog.search.input.address_id,tools.argument_accuracy",
+    "exact_evidence": "exact: expected exactly these calls, in this order, and no other: coverage.check (exactly 1), catalog.search (exactly 1); saw coverage.check; first difference: call 2 is missing: expected catalog.search"
+  },
+  "H033": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  },
+  "H001": {
+    "default": "pass",
+    "exact": "pass",
+    "default_evidence": "",
+    "exact_evidence": ""
+  }
+}

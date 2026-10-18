@@ -1,0 +1,406 @@
+{
+  "model": "sonnet",
+  "cost_usd": 0.0,
+  "rows": [
+    {
+      "id": "H076",
+      "dag": "pass"
+    },
+    {
+      "id": "H029",
+      "dag": "pass"
+    },
+    {
+      "id": "H045",
+      "dag": "pass"
+    },
+    {
+      "id": "H074",
+      "dag": "fail"
+    },
+    {
+      "id": "H020",
+      "dag": "pass"
+    },
+    {
+      "id": "H095",
+      "dag": "pass"
+    },
+    {
+      "id": "H046",
+      "dag": "pass"
+    },
+    {
+      "id": "H054",
+      "dag": "fail"
+    },
+    {
+      "id": "H099",
+      "dag": "fail"
+    },
+    {
+      "id": "H036",
+      "dag": "pass"
+    },
+    {
+      "id": "H079",
+      "dag": "fail"
+    },
+    {
+      "id": "H080",
+      "dag": "fail"
+    },
+    {
+      "id": "H096",
+      "dag": "fail"
+    },
+    {
+      "id": "H009",
+      "dag": "pass"
+    },
+    {
+      "id": "H050",
+      "dag": "pass"
+    },
+    {
+      "id": "H018",
+      "dag": "pass"
+    },
+    {
+      "id": "H098",
+      "dag": "fail"
+    },
+    {
+      "id": "H049",
+      "dag": "pass"
+    },
+    {
+      "id": "H075",
+      "dag": "fail"
+    },
+    {
+      "id": "H019",
+      "dag": "pass"
+    },
+    {
+      "id": "H092",
+      "dag": "fail"
+    },
+    {
+      "id": "H082",
+      "dag": "fail"
+    },
+    {
+      "id": "H037",
+      "dag": "pass"
+    },
+    {
+      "id": "H043",
+      "dag": "pass"
+    },
+    {
+      "id": "H017",
+      "dag": "pass"
+    },
+    {
+      "id": "H008",
+      "dag": "pass"
+    },
+    {
+      "id": "H062",
+      "dag": "fail"
+    },
+    {
+      "id": "H010",
+      "dag": "pass"
+    },
+    {
+      "id": "H048",
+      "dag": "pass"
+    },
+    {
+      "id": "H060",
+      "dag": "fail"
+    },
+    {
+      "id": "H097",
+      "dag": "fail"
+    },
+    {
+      "id": "H025",
+      "dag": "pass"
+    },
+    {
+      "id": "H002",
+      "dag": "pass"
+    },
+    {
+      "id": "H003",
+      "dag": "pass"
+    },
+    {
+      "id": "H084",
+      "dag": "fail"
+    },
+    {
+      "id": "H078",
+      "dag": "fail"
+    },
+    {
+      "id": "H085",
+      "dag": "fail"
+    },
+    {
+      "id": "H034",
+      "dag": "pass"
+    },
+    {
+      "id": "H027",
+      "dag": "pass"
+    },
+    {
+      "id": "H028",
+      "dag": "pass"
+    },
+    {
+      "id": "H042",
+      "dag": "pass"
+    },
+    {
+      "id": "H081",
+      "dag": "fail"
+    },
+    {
+      "id": "H012",
+      "dag": "pass"
+    },
+    {
+      "id": "H064",
+      "dag": "fail"
+    },
+    {
+      "id": "H063",
+      "dag": "fail"
+    },
+    {
+      "id": "H001",
+      "dag": "pass"
+    },
+    {
+      "id": "H061",
+      "dag": "fail"
+    },
+    {
+      "id": "H067",
+      "dag": "fail"
+    },
+    {
+      "id": "H051",
+      "dag": "fail"
+    },
+    {
+      "id": "H073",
+      "dag": "fail"
+    },
+    {
+      "id": "H004",
+      "dag": "pass"
+    },
+    {
+      "id": "H032",
+      "dag": "pass"
+    },
+    {
+      "id": "H068",
+      "dag": "fail"
+    },
+    {
+      "id": "H026",
+      "dag": "pass"
+    },
+    {
+      "id": "H031",
+      "dag": "pass"
+    },
+    {
+      "id": "H083",
+      "dag": "fail"
+    },
+    {
+      "id": "H069",
+      "dag": "fail"
+    },
+    {
+      "id": "H044",
+      "dag": "pass"
+    },
+    {
+      "id": "H071",
+      "dag": "fail"
+    },
+    {
+      "id": "H015",
+      "dag": "pass"
+    },
+    {
+      "id": "H038",
+      "dag": "pass"
+    },
+    {
+      "id": "H005",
+      "dag": "pass"
+    },
+    {
+      "id": "H059",
+      "dag": "fail"
+    },
+    {
+      "id": "H014",
+      "dag": "pass"
+    },
+    {
+      "id": "H077",
+      "dag": "fail"
+    },
+    {
+      "id": "H091",
+      "dag": "fail"
+    },
+    {
+      "id": "H087",
+      "dag": "fail"
+    },
+    {
+      "id": "H088",
+      "dag": "fail"
+    },
+    {
+      "id": "H023",
+      "dag": "pass"
+    },
+    {
+      "id": "H035",
+      "dag": "pass"
+    },
+    {
+      "id": "H040",
+      "dag": "pass"
+    },
+    {
+      "id": "H030",
+      "dag": "pass"
+    },
+    {
+      "id": "H058",
+      "dag": "fail"
+    },
+    {
+      "id": "H033",
+      "dag": "pass"
+    },
+    {
+      "id": "H090",
+      "dag": "fail"
+    },
+    {
+      "id": "H089",
+      "dag": "pass"
+    },
+    {
+      "id": "H065",
+      "dag": "fail"
+    },
+    {
+      "id": "H011",
+      "dag": "pass"
+    },
+    {
+      "id": "H024",
+      "dag": "pass"
+    },
+    {
+      "id": "H047",
+      "dag": "pass"
+    },
+    {
+      "id": "H053",
+      "dag": "fail"
+    },
+    {
+      "id": "H066",
+      "dag": "fail"
+    },
+    {
+      "id": "H057",
+      "dag": "fail"
+    },
+    {
+      "id": "H016",
+      "dag": "pass"
+    },
+    {
+      "id": "H100",
+      "dag": "fail"
+    },
+    {
+      "id": "H052",
+      "dag": "fail"
+    },
+    {
+      "id": "H072",
+      "dag": "fail"
+    },
+    {
+      "id": "H022",
+      "dag": "pass"
+    },
+    {
+      "id": "H086",
+      "dag": "fail"
+    },
+    {
+      "id": "H094",
+      "dag": "fail"
+    },
+    {
+      "id": "H007",
+      "dag": "pass"
+    },
+    {
+      "id": "H039",
+      "dag": "pass"
+    },
+    {
+      "id": "H055",
+      "dag": "fail"
+    },
+    {
+      "id": "H013",
+      "dag": "pass"
+    },
+    {
+      "id": "H093",
+      "dag": "fail"
+    },
+    {
+      "id": "H070",
+      "dag": "fail"
+    },
+    {
+      "id": "H041",
+      "dag": "pass"
+    },
+    {
+      "id": "H056",
+      "dag": "fail"
+    },
+    {
+      "id": "H021",
+      "dag": "pass"
+    },
+    {
+      "id": "H006",
+      "dag": "pass"
+    }
+  ]
+}

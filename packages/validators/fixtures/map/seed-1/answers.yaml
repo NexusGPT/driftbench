@@ -1,0 +1,186 @@
+# The perfect model answers, each dimension with its declared role, of the map validator, seed 1. Written by code from the hidden specification; every name is fictional.
+family: oracle
+model: perfect model written by code from the hidden specification
+answers:
+  stages:
+    section: stages
+    dimensions:
+      - id: stage
+        title: The stage a conversation is in
+        kind: stage
+        role: axis
+        values:
+          - id: greet
+            title: the assistant greets the customer and asks what they need
+            source: prompt.md
+            quote: "greet: the assistant greets the customer and asks what they need."
+          - id: recap
+            title: the assistant repeats the request back in full
+            source: prompt.md
+            quote: "recap: the assistant repeats the request back in full."
+          - id: confirm
+            title: the assistant waits for an explicit yes
+            source: prompt.md
+            quote: "confirm: the assistant waits for an explicit yes."
+          - id: close
+            title: the assistant says goodbye and ends the conversation
+            source: prompt.md
+            quote: "close: the assistant says goodbye and ends the conversation."
+    constraints:
+      - forbid:
+          stage: recap
+          channel: web
+        reason: the stage happens on one channel only
+        source: prompt.md
+        quote: The recap stage happens only on email.
+    phrases: []
+  rules:
+    section: rules
+    dimensions:
+      - id: rule
+        title: The rules the assistant follows
+        kind: behaviour
+        role: detail
+        values:
+          - id: R-01
+            title: Always greet the customer by name when the account gives a name
+            source: prompt.md
+            quote: Always greet the customer by name when the account gives a name.
+          - id: R-02
+            title: Read the refund policy page first before you promise any money back
+            source: prompt.md
+            quote: Read the refund policy page first before you promise any money back.
+          - id: R-03
+            title: Use the plan comparison skill when the customer weighs two plans
+            source: prompt.md
+            quote: Use the plan comparison skill when the customer weighs two plans.
+          - id: R-04
+            title: Ask the scheduling helper for slots when the customer wants a visit
+            source: prompt.md
+            quote: When the customer wants a visit, ask the scheduling helper for slots.
+          - id: R-05
+            title: Never change an account until the account reference is checked
+            source: prompt.md
+            quote: Until the account reference is checked, never change an account.
+          - id: R-06
+            title: Write in short plain sentences whatever the topic
+            source: prompt.md
+            quote: Write in short plain sentences whatever the topic.
+      - id: deviation
+        title: The deviation classes the flows must be perturbed with
+        kind: deviation
+        role: axis
+        values:
+          - id: D8_tool_failure
+            title: If a tool fails, say so and offer a callback
+            source: prompt.md
+            quote: If a tool fails, say so and offer a callback.
+    constraints: []
+    phrases: []
+  personas:
+    section: personas
+    dimensions:
+      - id: customer_type
+        title: The kind of customer
+        kind: persona
+        role: detail
+        values:
+          - id: member
+            title: a customer with an active plan
+            source: prompt.md
+            quote: "member: a customer with an active plan."
+          - id: guest
+            title: a visitor with no account yet
+            source: prompt.md
+            quote: "guest: a visitor with no account yet."
+          - id: former
+            title: a customer whose plan has ended
+            source: prompt.md
+            quote: "former: a customer whose plan has ended."
+      - id: language
+        title: The language the customer writes in
+        kind: persona
+        role: axis
+        values:
+          - id: en
+            title: a customer who writes in English
+            source: prompt.md
+            quote: "en: a customer who writes in English."
+          - id: fr
+            title: a customer who writes in French
+            source: prompt.md
+            quote: "fr: a customer who writes in French."
+          - id: de
+            title: a customer who writes in German
+            source: prompt.md
+            quote: "de: a customer who writes in German."
+    constraints:
+      - forbid:
+          customer_type: member
+          channel: web
+        reason: this kind of customer never uses that channel
+        source: prompt.md
+        quote: On web there is never a member customer.
+      - forbid:
+          customer_type: guest
+          channel: email
+        reason: this kind of customer never uses that channel
+        source: prompt.md
+        quote: On email there is never a guest customer.
+    phrases: []
+  data:
+    section: data
+    dimensions:
+      - id: slot_result
+        title: What a visit slot search returns
+        kind: data
+        role: axis
+        values:
+          - id: slot-free
+            title: a free slot exists; offer the first two
+            source: prompt.md
+            quote: "slot-free: a free slot exists; offer the first two."
+          - id: slot-none
+            title: no slot is free this month; offer the waiting list
+            source: prompt.md
+            quote: "slot-none: no slot is free this month; offer the waiting list."
+          - id: slot-error
+            title: the search fails; say so and offer a callback
+            source: prompt.md
+            quote: "slot-error: the search fails; say so and offer a callback."
+    constraints: []
+    phrases: []
+  phrases:
+    section: phrases
+    dimensions: []
+    constraints: []
+    phrases:
+      - dimension: flow
+        value: refund
+        text: I was charged twice this month and would like the extra charge back.
+        lang: en
+        source: prompt.md
+        quote: I was charged twice this month and would like the extra charge back.
+      - dimension: flow
+        value: cancellation
+        text: Please end my plan at the end of this month.
+        lang: en
+        source: prompt.md
+        quote: Please end my plan at the end of this month.
+      - dimension: language
+        value: fr
+        text: Bonjour, je voudrais changer mon forfait.
+        lang: fr
+        source: prompt.md
+        quote: Bonjour, je voudrais changer mon forfait.
+      - dimension: language
+        value: de
+        text: Hallo, ich möchte meinen Tarif ändern.
+        lang: de
+        source: prompt.md
+        quote: Hallo, ich möchte meinen Tarif ändern.
+  relations:
+    section: relations
+    dimensions: []
+    constraints: []
+    phrases: []

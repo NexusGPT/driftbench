@@ -4,7 +4,7 @@
 id: estate.pairwise.0400
 version: be2e7a0919cb
 kind: task
-title: "register_sample: Currency code after the amount"
+title: "register_sample: At most one question per reply"
 lang: EN
 tier: generated
 tags:
@@ -19,8 +19,8 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_restart
-    event: process_restart
+    session_state: after_compaction
+    event: rate_wave
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -50,8 +50,8 @@ given:
           2
           ## Shipments late
 criteria:
-  - name: register.standing.currency-code-after-the-amount
-    rubric: Currency code after the amount
+  - name: register.standing.at-most-one-question-per-reply
+    rubric: At most one question per reply
     gating: false
     scope: block
 blocks:
@@ -59,10 +59,12 @@ blocks:
     when:
       user: Give me a short status of invoices, shipments and supplier emails.
     expect:
+      must_not:
+        - (?:\?[\s\S]*){2}
       workspace:
         others_untouched: true
       criteria:
-        - register.standing.currency-code-after-the-amount
+        - register.standing.at-most-one-question-per-reply
 perturbations:
   - id: deviation-D5_language_switch
     class: D5_language_switch
@@ -73,16 +75,16 @@ perturbations:
 metadata:
   estate:
     atoms:
-      - register.standing.currency-code-after-the-amount
+      - register.standing.at-most-one-question-per-reply
     planRow: pairwise.0400
     cell:
       ask_class: research
-      ask_shape: multi_part
-      session_state: after_restart
-      owner_signal: no_questions
+      ask_shape: concrete
+      session_state: after_compaction
+      owner_signal: language_switch
       deviation: D5_language_switch
-      estate_hazard: process_restart
-      atoms.register: register.standing.currency-code-after-the-amount
+      estate_hazard: rate_wave
+      atoms.register: register.standing.at-most-one-question-per-reply
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -92,3 +94,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: open-items
     phrase: 1
+    ask: bank
+    outcome: bank

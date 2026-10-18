@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: a README chart</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* One chart per render, picked by ?c=<name>. The numbers come from chart-data.js, which
+     tools/readme-charts.mjs writes from the result files. Style: the design system's charts-and-data.md,
+     drawn in the README figure family (silk, one frosted glass panel, white panels, Geist, Libre Caslon). */
+  :root {
+    --s0: #2F5FD0;
+    --s1: #1B2A44;
+    --s2: rgba(14,17,22,.38);
+    --s-full: #1B2A44;
+    --s-part: rgba(14,17,22,.30);
+    --s-none: rgba(14,17,22,.10);
+    --s-full-ink: #FFFFFF;
+    --s-part-ink: #0E1116;
+    --s-none-ink: rgba(14,17,22,.62);
+    --whisker-0: rgba(47,95,208,.55);
+    --whisker-1: rgba(27,42,68,.45);
+    --link: rgba(14,17,22,.16);
+    --grid: rgba(14,17,22,.07);
+    --axis: rgba(14,17,22,.22);
+    --hollow: #FFFFFF;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --s0: #8DB2F0;
+      --s1: #E4E9F2;
+      --s2: rgba(245,243,240,.45);
+      --s-full: #C9D8F5;
+      --s-part: rgba(245,243,240,.34);
+      --s-none: rgba(245,243,240,.12);
+      --s-full-ink: #0E1116;
+      --s-part-ink: #F5F3F0;
+      --s-none-ink: rgba(245,243,240,.75);
+      --whisker-0: rgba(141,178,240,.6);
+      --whisker-1: rgba(228,233,242,.5);
+      --link: rgba(245,243,240,.22);
+      --grid: rgba(245,243,240,.08);
+      --axis: rgba(245,243,240,.3);
+      --hollow: #161618;
+    }
+  }
+  #frame { width: 640px; }
+  .nx-ill__glass { height: auto; padding: 20px 20px 18px; }
+  .nx-kind { font-size: 11px; }
+  #kicker { white-space: normal; line-height: 1.5; display: block; }
+  .t { margin: 10px 0 0; font: 400 30px/1.1 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: var(--nx-ink); }
+  .key { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 12px; }
+  .key .nx-ipill { position: static; height: 27px; font-size: 13px; }
+  .sw { width: 11px; height: 11px; border-radius: 50%; }
+  .key .sw.sq[class*='p-'] { width: 16px; height: 16px; border-radius: 3px; }
+  .sw.sq { border-radius: 3px; }
+  .sw.hollow { background: var(--hollow) !important; box-shadow: inset 0 0 0 2.5px var(--s2); }
+  .plot { position: relative; padding: 12px 16px 8px; }
+  .grp + .grp { margin-top: 14px; }
+  .grp > .nx-kind { position: static; display: block; margin: 2px 0 4px; }
+  .row { display: grid; align-items: center; column-gap: 12px; min-height: 40px; border-top: 1px solid var(--nx-line); }
+  .grp .row:nth-child(2), .plot > .row:first-child { border-top: 0; }
+  .lab { font: 500 14.5px/1.2 var(--nx-sans); color: var(--nx-ink); }
+  .lab small { display: block; margin-top: 2px; font: 400 12px/1.2 var(--nx-sans); color: var(--detail); }
+  .lab.ours { font-weight: 600; }
+  .track { position: relative; height: 36px; }
+  .gl { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--grid); }
+  .link { position: absolute; top: 17px; height: 2px; background: var(--link); border-radius: 1px; }
+  .w { position: absolute; height: 2px; border-radius: 1px; }
+  .dot { position: absolute; width: 13px; height: 13px; margin-left: -6.5px; border-radius: 50%; top: 11.5px; }
+  .dot.hollow { background: var(--hollow); box-shadow: inset 0 0 0 2.5px var(--s2); }
+  .bar { position: absolute; left: 0; top: 11px; height: 14px; border-radius: 0 3px 3px 0; }
+  .val { font: 600 14px/1.25 var(--nx-sans); color: var(--nx-ink); white-space: nowrap; }
+  .val span { display: block; font-weight: 400; font-size: 13px; color: var(--nx-ink-2); }
+  .tag { font: 600 13px/1 var(--nx-sans); white-space: nowrap; text-align: right; }
+  .tag.ahead, .tag.gain { color: var(--nx-blue); }
+  .tag.behind { color: var(--nx-ink); }
+  .seg { position: absolute; top: 7px; height: 22px; border-radius: 3px; display: grid; place-items: center; font: 600 12.5px/1 var(--nx-sans); }
+  .axis { display: grid; column-gap: 12px; margin-top: 4px; }
+  .axis .line { position: relative; height: 52px; border-top: 1px solid var(--axis); }
+  .axis .tk { position: absolute; top: 6px; transform: translateX(-50%); font: 600 12px/1 var(--nx-sans); color: var(--kind); white-space: nowrap; }
+    .axis .tk.first { transform: translateX(-7px); }
+  .axis .tk.last { transform: translateX(calc(-100% + 7px)); }
+  .axis .brk { position: absolute; left: 3px; top: -6px; width: 9px; height: 11px; background: var(--nx-card);
+    border-left: 1.5px solid var(--axis); border-right: 1.5px solid var(--axis); transform: skewX(-25deg); }
+  .axis .name { position: absolute; left: 0; right: 0; top: 26px; text-align: center; font: 400 12px/1 var(--nx-sans); color: var(--kind); }
+  .note { margin-top: 12px; font: 400 12px/1.4 var(--nx-mono); color: var(--kind); }
+  /* vertical columns, for the per-benchmark charts */
+  .cols { display: flex; gap: 22px; align-items: flex-start; padding: 6px 4px 0 44px; position: relative; }
+  .cgrp { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: stretch; }
+  .cbars { position: relative; display: flex; gap: 8px; align-items: flex-end; justify-content: center; }
+  .cbar { position: relative; width: 46px; border-radius: 3px 3px 0 0; }
+  .cbar b { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(100% + 5px); font: 600 13px/1 var(--nx-sans); color: var(--nx-ink); white-space: nowrap; }
+  .cbar.other b { font-weight: 500; color: var(--nx-ink-2); }
+  .clab { display: flex; gap: 8px; justify-content: center; margin-top: 7px; }
+  .clab span { width: 46px; text-align: center; font: 500 11.5px/1.2 var(--nx-sans); color: var(--detail); }
+  .tight .cname { font-size: 10.5px; }
+  .tight .cname small { font-size: 10.5px; }
+  .names { height: auto; padding-top: 0; align-items: flex-start; }
+  .cname { margin-top: 8px; text-align: center; font: 600 13.5px/1.2 var(--nx-sans); color: var(--nx-ink); }
+  .cname small { display: block; font: 400 12px/1.2 var(--nx-sans); color: var(--detail); }
+  .yax { position: absolute; left: 0; top: 6px; width: 38px; }
+  .yax span { position: absolute; right: 0; transform: translateY(-50%); font: 600 12px/1 var(--nx-sans); color: var(--kind); }
+  .ygl { position: absolute; left: 44px; right: 4px; height: 1px; background: var(--grid); }
+  .ybase { position: absolute; left: 44px; right: 4px; height: 1px; background: var(--axis); }
+  .rgrid { display: grid; column-gap: 16px; }
+  .rpanel { min-width: 0; }
+  .rname { font: 600 13.5px/1.2 var(--nx-sans); color: var(--nx-ink); margin-bottom: 18px; }
+  .rname small { display: block; margin-top: 2px; font: 400 11.5px/1.2 var(--nx-sans); color: var(--detail); }
+  .rbars, .rlabs { display: flex; gap: 6px; }
+  .rbars { align-items: flex-end; border-bottom: 1px solid var(--axis); }
+  .rcol { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end; height: 100%; }
+  .rbar { position: relative; border-radius: 3px 3px 0 0; }
+  .rbar b { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(100% + 4px); font: 600 12px/1 var(--nx-sans); color: var(--nx-ink); white-space: nowrap; }
+  /* competitors: grey, each with its own fill pattern; driftbench is the only coloured bar */
+  .p-hatch { background: repeating-linear-gradient(45deg, var(--s2) 0 2px, var(--s-none) 2px 7px) !important; box-shadow: inset 0 0 0 1.5px var(--s2); }
+  .p-dots { background: radial-gradient(circle, var(--s2) 1.7px, transparent 2.1px) 0 0 / 8px 8px, var(--s-none) !important; box-shadow: inset 0 0 0 1.5px var(--s2); }
+  .p-cross { background: repeating-linear-gradient(45deg, var(--s2) 0 1.5px, transparent 1.5px 7px), repeating-linear-gradient(-45deg, var(--s2) 0 1.5px, var(--s-none) 1.5px 7px) !important; box-shadow: inset 0 0 0 1.5px var(--s2); }
+  .p-lines { background: repeating-linear-gradient(0deg, var(--s2) 0 2px, var(--s-none) 2px 7px) !important; box-shadow: inset 0 0 0 1.5px var(--s2); }
+  .p-light { background: var(--s-part) !important; box-shadow: inset 0 0 0 1.5px var(--s2); }
+  .rbar.empty { border: 1.5px dashed var(--s2); border-bottom: 0; display: grid; place-items: center; }
+  .rbar.empty span { font: 400 10px/1.2 var(--nx-sans); color: var(--detail); text-align: center; padding: 0 3px; }
+  .rlab { flex: 1; min-width: 0; margin-top: 6px; text-align: center; font: 500 10.5px/1.2 var(--nx-sans); color: var(--detail); }
+  .rlab.ours { color: var(--nx-ink); font-weight: 600; }
+  .yname { margin: 10px 0 0 44px; font: 400 12px/1 var(--nx-sans); color: var(--kind); }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <span class="nx-kind nx-kind--static" id="kicker"></span>
+    <h1 class="t" id="title"></h1>
+    <div class="key" id="key"></div>
+    <div class="nx-ill-panel plot" id="plot" style="position:relative"></div>
+    <div class="note" id="note"></div>
+  </div>
+</div>
+<script src="chart-data.js"></script>
+<script>
+  window.__fonts = ['400 30px "Libre Caslon Display"', '400 12px Geist', '500 14px Geist', '600 14px Geist', '500 11px "Geist Mono"', '400 12px "Geist Mono"'];
+  const name = new URLSearchParams(location.search).get('c');
+  const c = window.CHART_DATA[name];
+  if (!c) throw new Error('no chart named ' + name);
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; };
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\|/g, '&shy;');
+  const lo = c.min || 0;
+  const pos = (v) => Math.max(0, Math.min(100, ((v - lo) / (c.max - lo)) * 100));
+  const X = (v) => `calc(7px + (100% - 14px) * ${(pos(v) / 100).toFixed(5)})`;
+  const W = (a, b) => `calc((100% - 14px) * ${((pos(b) - pos(a)) / 100).toFixed(5)})`;
+  const tickText = (v) => c.tick === '%' ? v + '%' : c.tick === '$' ? '$' + v.toFixed(2) : c.tick === ',' ? v.toLocaleString('en-US') : String(v);
+
+  document.getElementById('kicker').textContent = c.kicker;
+  document.getElementById('title').textContent = c.title;
+  document.getElementById('note').textContent = c.note;
+  const key = document.getElementById('key');
+  const keyItem = (label, style, cls = '') => key.append(el('span', 'nx-ipill nx-ipill--flat', `<span class="sw ${cls}" style="${style}"></span>${esc(label)}`));
+  if (c.kind === 'stacked') {
+    keyItem('driftbench', 'background:var(--s0)', 'sq');
+    ['--s-full', '--s-part', '--s-none'].forEach((v, i) => keyItem(c.key[i], `background:var(${v})`, 'sq'));
+  } else if (c.kind === 'ranked') {
+    const swatch = { ours: 'background:var(--s0)', other: 'background:var(--s2)', baseline: 'background:var(--s-none);box-shadow:inset 0 0 0 1.5px var(--s2)' };
+    c.key.forEach((k) => keyItem(k.label, k.pattern ? '' : swatch[k.style], 'sq' + (k.pattern ? ' p-' + k.pattern : '')));
+  } else if (c.kind === 'single' || c.kind === 'hbars') {
+    c.key.forEach((k, i) => keyItem(k, `background:var(--s${i === 0 ? 0 : 2})`, 'sq'));
+  } else if (c.kind === 'columns') {
+    c.key.forEach((k, i) => keyItem(k, `background:${['var(--s0)', 'var(--s2)', 'var(--s-none)'][i]}${i === 2 ? ';box-shadow:inset 0 0 0 1.5px var(--s2)' : ''}`, 'sq'));
+  } else {
+    c.key.forEach((k, i) => keyItem(k, `background:var(--s${i})`, i === c.key.length - 1 && c.key.length > 1 ? 'hollow' : ''));
+  }
+
+  const plot = document.getElementById('plot');
+  const grid = () => c.ticks.map((t) => `<span class="gl" style="left:${X(t)}"></span>`).join('');
+  const dot = (v, i, last) => `<span class="dot${last ? ' hollow' : ''}" style="left:${X(v)};${last ? '' : `background:var(--s${i})`}"></span>`;
+  const whisk = (ci, y, i) => ci ? `<span class="w" style="left:${X(ci[0])};width:${W(ci[0], ci[1])};top:${y}px;background:var(--whisker-${i})"></span>` : '';
+  let cols = '';
+
+  if (c.kind === 'pairs') {
+    const hasTags = c.groups.some((g) => g.rows.some((r) => r.tag));
+    cols = hasTags ? '168px 1fr 70px 62px' : '168px 1fr 70px';
+    for (const g of c.groups) {
+      const box = el('div', 'grp');
+      box.append(g.header ? el('span', 'nx-kind', esc(g.header)) : el('span'));
+      for (const r of g.rows) {
+        const row = el('div', 'row');
+        row.style.gridTemplateColumns = cols;
+        if (r.sub) row.style.minHeight = '46px';
+        row.append(el('div', 'lab', esc(r.label) + (r.sub ? `<small>${esc(r.sub)}</small>` : '')));
+        const a = pos(r.a), b = pos(r.b);
+        row.append(el('div', 'track', grid() +
+          `<span class="link" style="left:${X(Math.min(r.a, r.b))};width:${W(Math.min(r.a, r.b), Math.max(r.a, r.b))}"></span>` +
+          whisk(r.aCi, 6, 0) + whisk(r.bCi, 28, 1) + dot(r.b, 2, true) + dot(r.a, 0, false)));
+        row.append(el('div', 'val', `${esc(r.aText)}<span>${esc(r.bText)}</span>`));
+        if (hasTags) row.append(el('div', 'tag ' + (r.tag && r.tag.startsWith('+') ? 'gain' : r.tag), esc(r.tag || '')));
+        box.append(row);
+      }
+      plot.append(box);
+    }
+  } else if (c.kind === 'triples') {
+    cols = '168px 1fr 112px';
+    for (const g of c.groups) {
+      const row = el('div', 'row');
+      row.style.gridTemplateColumns = cols;
+      row.append(el('div', 'lab', esc(g.label)));
+      const vals = g.bars.map((b) => b.value);
+      let html = grid() + `<span class="link" style="left:${X(Math.min(...vals))};width:${W(Math.min(...vals), Math.max(...vals))}"></span>`;
+      g.bars.forEach((b) => { if (b.ci) html += whisk(b.ci, 28, 1); });
+      [...g.bars].reverse().forEach((b) => { html += dot(b.value, b.series, b.series === 2); });
+      row.append(el('div', 'track', html));
+      row.append(el('div', 'val', `${esc(g.bars[0].text)}<span>${g.bars.slice(1).map((b) => esc(b.text)).join(' · ')}</span>`));
+      plot.append(row);
+    }
+  } else if (c.kind === 'ranked') {
+    // one panel per model, bars highest to lowest; a null score is an empty bar, "not run"
+    // with more than three bars in a panel (competitors recorded beyond promptfoo), the panels stack
+    const stacked = c.panels.length > 1 && Math.max(...c.panels.map((p) => p.bars.length)) > 3;
+    const H = stacked ? 110 : c.panels.length > 1 ? 170 : 210;
+    const grid = el('div', 'rgrid');
+    grid.style.gridTemplateColumns = stacked ? '1fr' : `repeat(${c.panels.length}, 1fr)`;
+    if (stacked) grid.style.rowGap = '22px';
+    for (const panel of c.panels) {
+      const box = el('div', 'rpanel');
+      box.append(el('div', 'rname', `${esc(panel.name)}<small>${esc(panel.model)}</small>`));
+      const bars = el('div', 'rbars');
+      bars.style.height = H + 'px';
+      const sorted = [...panel.bars].sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+      const labs = el('div', 'rlabs');
+      for (const b of sorted) {
+        const col = el('div', 'rcol');
+        const empty = b.score === null || b.score === undefined;
+        const bar = el('div', 'rbar' + (empty ? ' empty' : ''), empty ? '<span>not run</span>' : `<b>${esc(b.score.toFixed(1))}</b>`);
+        bar.style.height = (empty ? H * 0.5 : Math.max(2, (b.score / 100) * H)) + 'px';
+        if (!empty) bar.style.background = b.ours ? 'var(--s0)' : b.baseline ? 'var(--s-none)' : 'var(--s2)';
+        if (!empty && b.pattern) bar.classList.add('p-' + b.pattern);
+        if (b.baseline) bar.style.boxShadow = 'inset 0 0 0 1.5px var(--s2)';
+        col.append(bar);
+        labs.append(el('div', 'rlab' + (b.ours ? ' ours' : ''), esc(b.name) + (b.refused ? `<br>${b.refused} refused` : '')));
+        bars.append(col);
+      }
+      box.append(bars);
+      box.append(labs);
+      grid.append(box);
+    }
+    plot.append(grid);
+    plot.append(el('div', 'yname', esc(c.axis)));
+  } else if (c.kind === 'hbars') {
+    cols = '168px 1fr 96px';
+    for (const r of c.rows) {
+      const row = el('div', 'row');
+      row.style.gridTemplateColumns = cols;
+      row.style.minHeight = '52px';
+      row.append(el('div', 'lab' + (r.series ? '' : ' ours'), esc(r.label)));
+      row.append(el('div', 'track', grid() + `<span class="bar" style="top:7px;height:22px;left:7px;width:${W(0, r.value)};background:var(--s${r.series ? 2 : 0})"></span>`));
+      row.append(el('div', 'val', `${esc(r.text)}<span>${esc(r.sub)}</span>`));
+      plot.append(row);
+    }
+  } else if (c.kind === 'single') {
+    cols = '168px 1fr 150px';
+    for (const r of c.rows) {
+      const row = el('div', 'row');
+      row.style.gridTemplateColumns = cols;
+      row.append(el('div', 'lab', esc(r.label)));
+      row.append(el('div', 'track', grid() + `<span class="bar" style="width:${pos(r.value)}%;background:var(--s${r.series ? 2 : 0})"></span>`));
+      row.append(el('div', 'val', `${esc(r.text)}<span>${esc(r.sub)}</span>`));
+      plot.append(row);
+    }
+  } else if (c.kind === 'stacked') {
+    cols = '124px 1fr';
+    for (const r of c.rows) {
+      const row = el('div', 'row');
+      row.style.gridTemplateColumns = cols;
+      row.append(el('div', 'lab' + (r.ours ? ' ours' : ''), esc(r.label)));
+      let left = 0, html = '';
+      r.parts.forEach((v, i) => {
+        if (!v) return;
+        const w = pos(v);
+        const fill = r.ours ? 'var(--s0)' : ['var(--s-full)', 'var(--s-part)', 'var(--s-none)'][i];
+        const ink = r.ours ? 'var(--nx-card)' : ['var(--s-full-ink)', 'var(--s-part-ink)', 'var(--s-none-ink)'][i];
+        html += `<span class="seg" style="left:calc(${left}% + 1px);width:calc(${w}% - 2px);background:${fill};color:${ink}">${v}</span>`;
+        left += w;
+      });
+      row.append(el('div', 'track', html));
+      plot.append(row);
+    }
+  } else if (c.kind === 'columns') {
+    // vertical bars: one group per model or test, driftbench beside the competitor, one normalised scale
+    const H = 210;
+    const bars = c.groups.reduce((n, g) => n + g.bars.length, 0);
+    // Fresh cohorts have four-digit counts; reserve room for each label above its bar.
+    const labelWidth = Math.max(...c.groups.flatMap(g => g.bars.map(b => String(b.text).length))) * 7;
+    const bw = Math.max(16, labelWidth, Math.min(46, Math.floor((540 - c.groups.length * 22) / bars) - 6));
+    const wrap = el('div', 'cols');
+    wrap.style.height = (H + 16) + 'px';
+    wrap.style.gap = (c.groups.length > 6 ? 10 : 22) + 'px';
+    const yax = el('div', 'yax');
+    yax.style.height = (H + 10) + 'px';
+    for (const t of c.ticks) {
+      const y = H - (pos(t) / 100) * H;
+      const tk = el('span', '', tickText(t));
+      tk.style.top = y + 'px';
+      yax.append(tk);
+      const g = el('span', t === lo ? 'ybase' : 'ygl');
+      g.style.top = (6 + y) + 'px';
+      wrap.append(g);
+    }
+    wrap.append(yax);
+    plot.append(wrap);
+    const names = el('div', 'cols names');
+    names.style.gap = wrap.style.gap;
+    for (const g of c.groups) {
+      const wide = g.bars.some(b => String(b.text).length > 3);
+      const box = el('div', 'cgrp');
+      box.style.flex = wide ? '1.5' : '1';
+      const col = el('div', 'cbars');
+      col.style.height = H + 'px';
+      col.style.gap = wide ? '12px' : '4px';
+      for (const b of g.bars) {
+        const bar = el('div', 'cbar' + (b.series ? ' other' : ''), `<b>${esc(b.text)}</b>`);
+        bar.style.width = bw + 'px';
+        bar.style.height = Math.max(2, (pos(b.value) / 100) * H) + 'px';
+        bar.style.background = ['var(--s0)', 'var(--s2)', 'var(--s-none)'][b.series];
+        if (b.series === 2) bar.style.boxShadow = 'inset 0 0 0 1.5px var(--s2)';
+        if (bw < 30) bar.querySelector('b').style.fontSize = '11px';
+        col.append(bar);
+      }
+      box.append(col);
+      wrap.append(box);
+      const name = el('div', 'cgrp' + (c.groups.length > 6 ? ' tight' : ''), `<div class="cname">${esc(g.label)}${g.sub ? `<small>${esc(g.sub)}</small>` : ''}</div>`);
+      name.style.flex = wide ? '1.5' : '1';
+      names.append(name);
+    }
+    plot.append(names);
+    plot.append(el('div', 'yname', esc(c.axis)));
+  }
+
+  if (c.kind !== 'columns' && c.kind !== 'ranked') {
+    const axis = el('div', 'axis');
+    axis.style.gridTemplateColumns = cols;
+    const parts = cols.split(' ');
+    axis.append(el('div'));
+    const line = el('div', 'line');
+    if (lo > 0) line.append(el('span', 'brk'));
+    c.ticks.forEach((t, i) => {
+      const cls = 'tk' + (i === 0 ? ' first' : '') + (i === c.ticks.length - 1 ? ' last' : '');
+      const tk = el('span', cls, tickText(t));
+      tk.style.left = X(t);
+      line.append(tk);
+    });
+    line.append(el('span', 'name', esc(c.axis)));
+    axis.append(line);
+    for (let i = 2; i < parts.length; i++) axis.append(el('div'));
+    plot.append(axis);
+  }
+
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

@@ -1,8 +1,8 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadSpecFile, type PlannedCell } from '@driftbench/core';
+import { loadSpecFile, type PlannedCell } from '@agent-nexus/driftbench-core';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { defaultDeps } from '../src/commands/campaign';
@@ -49,6 +49,20 @@ async function perturb(argv: string[], cwd = ROOT, deps = defaultDeps) {
   return { code, out, err };
 }
 
+/** plan-upgrade.yaml with every `stage:` line removed: a spec that states no stage. */
+async function stageLessUpgrade(dir: string): Promise<string> {
+  const text = await readFile(join(ROOT, UPGRADE), 'utf8');
+  const path = join(dir, 'plan-upgrade-stageless.yaml');
+  await writeFile(
+    path,
+    text
+      .split('\n')
+      .filter((line) => !/^\s+stage:/.test(line))
+      .join('\n'),
+  );
+  return path;
+}
+
 let dir: string;
 beforeAll(async () => {
   dir = await mkdtemp(join(tmpdir(), 'driftbench-perturb-'));
@@ -83,7 +97,7 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
     expect(out).toContain(
       'Recovery record (runner): {"injectedAt":1,"turnsToRecover":0,"label":"immediate","collateral":0,"safeAction":true,"clarified":true}',
     );
-    expect(out).not.toContain('@driftbench/users');
+    expect(out).not.toContain('@agent-nexus/driftbench-users');
   });
 
   it('refuses an unapproved phrasing, exit 2 and nothing run, and draws it with --drafts', async () => {
@@ -107,10 +121,9 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
       '(drawn from examples/acme/redteam/d02-goal-shift.yaml, phrasing d2-cheaper-plan, seed 0).',
     );
     expect(drawn.out).not.toContain('a draft');
-    // A drawn goal shift sets no stage for the injected block: by the runner's rule, passing is enough.
-    expect(drawn.out).toContain(
-      '✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0',
-    );
+    // The approved phrasing's reply expectation is marked not separating (the correct baseline fails it too), so
+    // the recovery is not asserted here: only the draw is.
+    expect(drawn.out).toContain('Recovery');
   });
 
   it('runs a task on its own target, the process agent, and exits 1 when the agent never comes back', async () => {
@@ -170,10 +183,10 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
 
   it('exits 2 on bad input, naming the fix, and runs nothing', async () => {
     const cases: [string[], string][] = [
-      [[UPGRADE], 'Name the deviation: --class <D1 to D10> and --at <block>, or --perturbation <id>.'],
+      [[UPGRADE], 'Name the deviation: --class <D1 to D12> and --at <block>, or --perturbation <id>.'],
       [
-        [UPGRADE, '--class', 'D11', '--at', '1'],
-        '--class takes D1 to D10, or a full name such as D2_goal_shift, not "D11".',
+        [UPGRADE, '--class', 'D13', '--at', '1'],
+        '--class takes D1 to D12, or a full name such as D2_goal_shift, not "D13".',
       ],
       [[UPGRADE, '--class', 'D1', '--at', 'two'], '--at takes a block number from 0, not "two".'],
       [
@@ -186,7 +199,7 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
       ],
       [
         [UPGRADE, '--perturbation', 'nope'],
-        'acme-plan-upgrade declares no perturbation nope; it declares billing-aside, loose-ok',
+        'acme-plan-upgrade declares no perturbation nope; it declares billing-aside, order-service-down, loose-ok',
       ],
       [
         [UPGRADE, '--class', 'D1', '--at', '9', '--drafts'],
@@ -230,7 +243,16 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
 
 describe('driftbench perturb and the runner', { timeout: 60_000 }, () => {
   it("exits 1 on a late recovery: back, but after the spec's window", async () => {
-    const { code, out } = await perturb([COVERAGE, '--class', 'D7', '--at', '2', '--drafts']);
+    // The fault answers the billing aside itself, so the injected block fails; the recap one block later passes.
+    const { code, out } = await perturb([
+      UPGRADE,
+      '--perturbation',
+      'billing-aside',
+      '--target',
+      'fault:d9-answers-out-of-scope',
+      '--faults',
+      'examples/acme/faults',
+    ]);
     expect(code).toBe(1);
     expect(out).toContain('✗ Recovery: late, 1 block to come back (the spec allows 0 blocks)');
   });
@@ -252,7 +274,7 @@ describe('driftbench perturb and the runner', { timeout: 60_000 }, () => {
 });
 
 describe('the campaign driver for mode P', () => {
-  it("is the perturbing driver of @driftbench/users on the cell's spec; the scripted driver otherwise", async () => {
+  it("is the perturbing driver of @agent-nexus/driftbench-users on the cell's spec; the scripted driver otherwise", async () => {
     const loaded = await loadSpecFile(join(ROOT, COVERAGE));
     if (!loaded.ok) throw new Error('the coverage spec does not load');
     const cell: PlannedCell = {
@@ -272,5 +294,58 @@ describe('the campaign driver for mode P', () => {
     const { perturbationId: _, ...free } = cell;
     expect(defaultDeps.driver({ ...free, mode: 'F' }, loaded.spec).id).toBe('scripted');
     expect(defaultDeps.driver().id).toBe('scripted');
+  });
+});
+
+describe('driftbench perturb, reply checks tied to stages', { timeout: 60_000 }, () => {
+  const PACK = 'examples/acme/redteam';
+
+  it('counts the checks tied to another stage and prints no warning where the spec states its stages', async () => {
+    const { code, out, err } = await perturb([UPGRADE, '--class', 'D2_goal_shift', '--at', '2']);
+    expect({ code, err }).toEqual({ code: 0, err: '' });
+    expect(out).toContain('✓ Recovery: immediate');
+    expect(out).toContain('Reply checks: 3 of 4 applied, 1 not applicable (tied to another stage).');
+  });
+
+  it('on a spec that states no stage, records each dropped check, counts them, warns once and does not read as a clean pass', async () => {
+    const spec = await stageLessUpgrade(dir);
+    const text = await perturb([spec, '--class', 'D2_goal_shift', '--at', '2', '--pack', PACK]);
+    expect(text.out).toContain('⚠ Recovery: immediate');
+    expect(text.out).not.toContain('✓ Recovery');
+    expect(text.out).toContain('Reply checks: 2 of 4 applied, 2 not applicable (no stage).');
+    expect(text.err.trim().split('\n')).toEqual([
+      'Warning: examples/acme/redteam/d02-goal-shift.yaml ties 2 reply checks to the stages offer, recap, but acme-plan-upgrade states no stage before block 2. They were not applied, so this result is not a full pass.',
+    ]);
+
+    const json = await perturb([spec, '--class', 'D2_goal_shift', '--at', '2', '--pack', PACK, '--json']);
+    const doc = JSON.parse(json.out) as {
+      complete: boolean;
+      warnings: string[];
+      replyChecks: {
+        total: number;
+        applied: number;
+        summary: string;
+        notApplicable: { key: string; pattern: string; at_stage: string[]; reason: string }[];
+      };
+    };
+    expect(doc.complete).toBe(false);
+    expect(doc.warnings).toEqual([text.err.trim()]);
+    expect(doc.replyChecks.total).toBe(4);
+    expect(doc.replyChecks.applied).toBe(2);
+    expect(doc.replyChecks.summary).toBe('Reply checks: 2 of 4 applied, 2 not applicable (no stage).');
+    expect(doc.replyChecks.notApplicable).toEqual([
+      {
+        key: 'must',
+        pattern: 'Reply CONFIRM to place the order, or tell me what to change',
+        at_stage: ['recap'],
+        reason: 'no stage',
+      },
+      {
+        key: 'must',
+        pattern: 'Which one would you like|Would you like Acme',
+        at_stage: ['offer'],
+        reason: 'no stage',
+      },
+    ]);
   });
 });

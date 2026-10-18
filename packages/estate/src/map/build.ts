@@ -1,4 +1,4 @@
-import type { ModelPort } from '@driftbench/generate';
+import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import { analyzeGraph, type GraphAnalysis } from '../graph/analyze';
 import { buildGraph } from '../graph/edges';
 import { DEFAULT_STANDING_CEILING, invariantAtoms, measureInvariants, scanAtoms } from '../scan/invariants';
@@ -6,6 +6,9 @@ import type { ChunkRun, ProseRefusal } from '../scan/prose';
 import type { EstateReader, RawEstate } from '../scan/reader';
 import { quoteAtSpan, sha256 } from '../scan/text';
 import type { Atom, Edge, EstateMap } from '../schema';
+
+/** The atom kinds that are rules a guard can enforce. */
+const RULE_KINDS = new Set(['instruction', 'gate', 'register']);
 
 /**
  * The whole scan, from a folder to an estate map: the reader reads the files, code reads every structured
@@ -42,6 +45,19 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     ...(input.maxTokens !== undefined ? { maxTokens: input.maxTokens } : {}),
   });
   const { builder } = scanned;
+  // A rule's concrete forms often sit on its lines beside the words quoted: keep every backticked span of
+  // its whole source lines, so a guard that enforces it can be sent what it checks.
+  const lineTexts = new Map(raw.files.map((file) => [file.path, file.text.split('\n')]));
+  for (const atom of builder.atoms) {
+    if (!RULE_KINDS.has(atom.kind)) continue;
+    const lines = lineTexts.get(atom.provenance.file);
+    if (!lines) continue;
+    const text = lines.slice(atom.provenance.startLine - 1, atom.provenance.endLine).join('\n');
+    const spans = [...new Set([...text.matchAll(/`([^`\n]+)`/g)].map((match) => match[1] ?? ''))].filter(
+      (span) => span.trim() !== '',
+    );
+    if (spans.length > 0) atom.fields = { ...atom.fields, spans };
+  }
   const graph = buildGraph(builder.atoms, raw);
   for (const [guard, entries] of graph.enforces) {
     const atom = builder.atoms.find((candidate) => candidate.id === guard);

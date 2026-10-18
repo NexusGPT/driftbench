@@ -1,10 +1,10 @@
 # vitest
 
-`@driftbench/vitest` runs a spec inside a vitest suite, one test per block. It is not on npm yet: version 0.1.0 is prepared (see [Releasing](releasing.md)).
+`@agent-nexus/driftbench-vitest` runs a spec inside a vitest suite, one test per block. Version 0.1.0 is on npm as `@agent-nexus/driftbench-vitest`.
 
 ```ts
-import { functionAdapter } from '@driftbench/adapters';
-import { describeSpec } from '@driftbench/vitest';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { describeSpec } from '@agent-nexus/driftbench-vitest';
 import { createAcmeAgent } from './acme';
 
 describeSpec('specs/plan-upgrade.yaml', functionAdapter({ respond: createAcmeAgent().respond }));
@@ -14,7 +14,7 @@ describeSpec('specs/plan-upgrade.yaml', functionAdapter({ respond: createAcmeAge
 
 | Option | Meaning |
 |---|---|
-| `checks` | the machine checks; `defaultChecks()` of `@driftbench/checks` by default |
+| `checks` | the machine checks; `defaultChecks()` of `@agent-nexus/driftbench-checks` by default |
 | `driver` | the user driver; the scripted driver by default |
 | `repeat` | the repeat number the run records, 0 by default |
 | `timeoutMs` | the timeout of each test, 60000 by default: the first test waits for the whole run |
@@ -40,5 +40,7 @@ A test is named `block <n>`, then the block id when it has one, then its user me
  ✓ packages/vitest/test/fixtures/broken.fixture.ts > acme-plan-upgrade > block 4: No, that's all. Thanks! 0ms
  ✓ packages/vitest/test/fixtures/broken.fixture.ts > acme-plan-upgrade > end state 0ms
 ```
+
+A block the runner did not send (`not_run`, such as a forced tool result on an adapter without `toolStubs`, or `blocked` behind a failed ancestor) is no pass and no failure of the agent. Its test is skipped with the reason, as the JUnit report skips it, for example `block 0 was not run (unsupported, check capability): expected ...; got ...`, and the end state test is skipped because no end state was compared.
 
 For the [Python](python.md) side, the pytest plugin does the same per spec.

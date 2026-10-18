@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import type { WorldState } from '@driftbench/core';
+import type { WorldState } from '@agent-nexus/driftbench-core';
 import { toE164 } from './parse';
 import { type AcmeData, type AcmeStore, type Plan, withSeed } from './store';
 

@@ -1,5 +1,5 @@
-/** User drivers: scripted (phase 1), perturbing and simulated (phase 3), the red-team pack and recovery. */
-export const packageName = '@driftbench/users';
+/** User drivers: scripted (phase 1), perturbing and simulated (phase 3), the red-team pack, recovery and the multi-turn red-team user. */
+export const packageName = '@agent-nexus/driftbench-users';
 export {
   AttackError,
   type AttackOptions,
@@ -26,6 +26,7 @@ export {
   type PerturbationSource,
   type PerturbingDriver,
   type PerturbingDriverOptions,
+  replyChecksFor,
   resolvePerturbation,
 } from './perturb';
 export { seededIndex } from './random';
@@ -34,14 +35,57 @@ export {
   type DrawOptions,
   drawPhrasing,
   loadRedteamPack,
+  type NotApplicable,
   PackFile,
   Phrasing,
   type PhrasingKind,
   PhrasingKinds,
   type RedteamPack,
   RedteamPackError,
+  type ReplyChecks,
   redteamPack,
 } from './redteam';
+export {
+  type AttackerOutput,
+  createRedTeamUser,
+  crescendoStrategy,
+  DEFAULT_GOAT_TECHNIQUES,
+  DEFAULT_METAPROMPT_TEMPLATE,
+  detectRefusal,
+  ENCODINGS,
+  type Encoding,
+  extractChosenIds,
+  type GoatTechnique,
+  goatStrategy,
+  JSON_OUTPUT_CONTRACT,
+  parseScore,
+  RedTeamError,
+  type RedTeamRecording,
+  type RedTeamStrategy,
+  type RedTeamTurn,
+  type RedTeamUser,
+  type RedTeamUserOptions,
+  renderCatalogue,
+  renderMetapromptTemplate,
+  type StrategyPromptParams,
+  scorePrompt,
+} from './redteam-agent';
+export {
+  HARM_PLUGINS,
+  loadRedteamPlugins,
+  PluginFamilies,
+  type PluginFamily,
+  type PluginToSpecOptions,
+  POLICY_PLUGINS,
+  pluginToSpec,
+  REDTEAM_PLUGINS,
+  RedteamPlugin,
+  renderPlugin,
+  renderText,
+  SECURITY_PLUGINS,
+  SKIPPED_PLUGINS,
+  type SkippedPlugin,
+} from './redteam-plugins/index';
 export { createScriptedDriver } from './scripted';
 export {
   checkUserFamilies,

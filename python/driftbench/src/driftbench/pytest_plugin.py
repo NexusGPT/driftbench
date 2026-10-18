@@ -14,7 +14,7 @@ from typing import Any
 
 import pytest
 
-from .results import CampaignResult, Cell
+from .results import CampaignResult, Cell, verdict_of
 from .runner import run_specs
 
 SPEC_ID = re.compile(r"^id:\s*['\"]?([A-Za-z0-9][A-Za-z0-9._-]*)['\"]?\s*$", re.MULTILINE)
@@ -79,7 +79,11 @@ class SpecItem(pytest.Item):
             repeats=config.getoption("driftbench_repeats"),
             cli=config.getoption("driftbench_cli"),
         )
-        if not result.passed:
+        verdict = verdict_of(result)
+        # A spec whose cells were only not run or blocked measured nothing: skipped with why, never a pass.
+        if verdict in ("not_run", "blocked"):
+            pytest.skip(describe(result))
+        if verdict != "pass":
             raise SpecFailed(result)
 
     def repr_failure(self, excinfo: pytest.ExceptionInfo[BaseException], style: Any = None) -> str:
@@ -91,13 +95,29 @@ class SpecItem(pytest.Item):
         return self.path, None, f"driftbench spec {self.name}"
 
 
+def unmeasured(result: CampaignResult) -> bool:
+    """True when no cell failed but some cell was not run or blocked: the spec is skipped, never passed."""
+    return verdict_of(result) in ("not_run", "blocked")
+
+
 def describe(result: CampaignResult) -> str:
     """Every cell that did not pass, and why: its error, each failing block with its evidence, its end state."""
-    lines = [f"campaign {result.campaign_id}: {result.summary.passed} of {result.summary.cells} cells pass"]
+    verdicts = [verdict_of(cell) for cell in result.cells]
+    not_run, blocked = verdicts.count("not_run"), verdicts.count("blocked")
+    unscored = ", ".join(
+        part for part in (f"{not_run} not run" if not_run else "", f"{blocked} blocked" if blocked else "") if part
+    )
+    scored = len(verdicts) - not_run - blocked
+    lines = [
+        f"campaign {result.campaign_id}: {verdicts.count('pass')} of {scored} cells pass"
+        + (f" ({unscored})" if unscored else "")
+    ]
     for cell in result.cells:
-        if cell.passed:
+        verdict = verdict_of(cell)
+        if verdict == "pass":
             continue
-        lines.append(f"{cell.spec_id} on {cell.target}, mode {cell.mode}, repeat {cell.repeat}: {cell.state}")
+        state = {"not_run": "not run", "blocked": "blocked"}.get(verdict, cell.state)
+        lines.append(f"{cell.spec_id} on {cell.target}, mode {cell.mode}, repeat {cell.repeat}: {state}")
         lines += describe_cell(cell)
     return "\n".join(lines)
 
@@ -107,9 +127,13 @@ def describe_cell(cell: Cell) -> list[str]:
     if cell.error:
         lines.append(f"  error: {cell.error}")
     for block in cell.blocks:
-        if block.passed:
+        verdict = verdict_of(block)
+        if verdict == "pass":
             continue
         name = f"block {block.index}" + (f" ({block.block_id})" if block.block_id else "")
+        if verdict != "fail":
+            lines.append(f"  {name} {block.reason}")
+            continue
         lines.append(f"  {name} failed")
         for verdict in block.failing:
             lines.append(f"    {verdict.id} {verdict.outcome}: {verdict.evidence}")

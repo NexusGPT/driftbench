@@ -1,0 +1,14 @@
+{
+  "stamp": "2026-10-13T12:52:30.251594+00:00",
+  "completed": 6560,
+  "planned": 6560,
+  "remaining": {
+    "primary": 0,
+    "dialect": 0
+  },
+  "inflight": 0,
+  "cell_measured_usd": 8.182032900000005,
+  "combined_plus_reserve_usd": 17.579673200000006,
+  "stop_reason": null,
+  "limited_batch": null
+}

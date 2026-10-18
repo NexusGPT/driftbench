@@ -1,0 +1,35 @@
+{
+  "legacyAdapter": {
+    "version": 1,
+    "datasetOracleVersion": 4,
+    "modules": ["judges.mts", "pr115-criteria.mts"],
+    "defect": "Entire agent receipt, user request and context/tool trace serialized inside one agent entry.",
+    "historicalRecordsManifest": "historical-records-freeze.json",
+    "pr115PublishedPrimary": {
+      "hard": "119/120",
+      "fresh": "59/60"
+    },
+    "status": "Retained historical recordings; defective adapter qualification, no corrected rerun on these sets."
+  },
+  "trustedAdapter": {
+    "version": 2,
+    "modules": ["trusted-adapter-v2.mts", "criteria-v2.mts"],
+    "roles": "Explicit fixture construction-time entries; no bracket-tag parsing.",
+    "literalRoleText": "Nested [agent] inside context text stays literal context.",
+    "freeze": "adapter-v2-freeze.json",
+    "preregistration": "ADAPTER-V2-PREREGISTRATION.md",
+    "newCohorts": [
+      {
+        "fixture": "judges-entries-v2.json",
+        "seed": 20261019,
+        "cases": 120
+      },
+      {
+        "fixture": "longtrace-v2/hard.json",
+        "seed": 20261020,
+        "cases": 120
+      }
+    ],
+    "allProcedures": ["ours", "audit", "theirs", "compliance", "pr115"]
+  }
+}

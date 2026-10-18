@@ -3,11 +3,14 @@ import {
   AgentFailure,
   type Message,
   type Observed,
+  runSpec,
   type Session,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import { type AcmeStore, createAcmeAgent, createStore } from '../../../examples/acme/src/index';
+import { specOf } from '../../core/test/runner/support';
 import { functionAdapter } from '../src/function/index';
 import {
   acmeGiven,
@@ -59,6 +62,272 @@ const reply = (text: string): Observed => ({
 });
 
 describe('function adapter', () => {
+  it.each(['F', 'T'] as const)('rejects an accessor in a runner prefix in mode %s', async (mode) => {
+    const spec = specOf({ id: 'accessor-prefix', blocks: [{ user: 'hello' }] });
+    const block = spec.blocks[0];
+    if (!block) throw new Error('missing fixture block');
+    block.given = {
+      prefix: [
+        {
+          role: 'user',
+          get content() {
+            return 'prefix';
+          },
+        },
+      ],
+    };
+    const result = await runSpec(spec, {
+      adapter: functionAdapter({ respond: () => reply('ok') }),
+      driver: createScriptedDriver(),
+      checks: [],
+      mode,
+      repeat: 0,
+    });
+    expect(result.status).toBe('failed');
+    expect(result.error).toMatch(/content.*accessor/);
+  });
+
+  it('rejects the accessor-setter history bypass at open before creating the agent', async () => {
+    let text = 'before';
+    let created = false;
+    const message: Message = {
+      role: 'user',
+      get content() {
+        return text;
+      },
+      set content(value) {
+        text = value;
+      },
+    };
+    const adapter = functionAdapter({
+      create: () => {
+        created = true;
+      },
+      respond: () => reply('ok'),
+    });
+    await expect(adapter.open({ ...acmeGiven(target), prefix: [message] })).rejects.toThrow(
+      /content.*accessor/,
+    );
+    expect(created).toBe(false);
+    expect(text).toBe('before');
+  });
+
+  it.each(['F', 'T', 'P'] as const)(
+    'records a tool call without output and completes in mode %s',
+    async (mode) => {
+      const spec = specOf({ id: 'no-output-call', blocks: [{ user: 'one' }, { user: 'two' }] });
+      const histories: Message[][] = [];
+      const result = await runSpec(spec, {
+        adapter: functionAdapter({
+          respond: (messages) => {
+            histories.push(messages);
+            return { ...reply('ok'), toolCalls: [{ label: 'lookup', input: { q: 1 } }] };
+          },
+        }),
+        driver: createScriptedDriver(),
+        checks: [],
+        mode,
+        repeat: 0,
+      });
+      expect(result.error).toBeUndefined();
+      expect(result.status).toBe('completed');
+      const recorded = histories.at(-1)?.find((message) => message.tool_calls)?.tool_calls?.[0];
+      if (mode !== 'T') expect(recorded).toEqual({ label: 'lookup', input: { q: 1 } });
+      if (recorded) expect(Object.hasOwn(recorded, 'output')).toBe(false);
+    },
+  );
+
+  it('rejects a Proxy message at open before creating the agent', async () => {
+    let created = false;
+    const live = [{ label: 'lookup', input: { q: 'before' } }];
+    const message = new Proxy({ role: 'assistant', content: 'x' } as Message, {
+      get: (target, key, receiver) => (key === 'tool_calls' ? live : Reflect.get(target, key, receiver)),
+    });
+    const adapter = functionAdapter({
+      create: () => {
+        created = true;
+      },
+      respond: () => reply('ok'),
+    });
+    await expect(adapter.open({ ...acmeGiven(target), prefix: [message] })).rejects.toThrow(
+      /message: Proxy object/,
+    );
+    expect(created).toBe(false);
+  });
+
+  it.each(['F', 'T', 'P'] as const)(
+    'shares frozen messages in fresh callback arrays in mode %s',
+    async (mode) => {
+      const seen: Message[][] = [];
+      const adapter = functionAdapter({
+        respond: (messages) => {
+          const first = messages[0] as Message;
+          expect(() => {
+            first.content = 'changed';
+          }).toThrow(TypeError);
+          const input = first.tool_calls?.[0]?.input as {
+            parts: { text: string }[];
+            metadata: { tag: string };
+          };
+          expect(() => {
+            (input.parts[0] as { text: string }).text = 'changed';
+          }).toThrow(TypeError);
+          expect(() => {
+            input.metadata.tag = 'changed';
+          }).toThrow(TypeError);
+          expect(() => {
+            first.tool_calls?.push({ label: 'injected' });
+          }).toThrow(TypeError);
+          for (const message of messages) {
+            expect(Object.isFrozen(message)).toBe(true);
+            if (message.tool_calls) {
+              expect(Object.isFrozen(message.tool_calls)).toBe(true);
+              expect(Object.isFrozen(message.tool_calls[0]?.input)).toBe(true);
+            }
+          }
+          seen.push(messages);
+          return reply('ok');
+        },
+      });
+      const spec = specOf({
+        id: 'readonly-history',
+        blocks: [
+          {
+            given: {
+              prefix: [
+                {
+                  role: 'assistant',
+                  content: 'prefix',
+                  tool_calls: [
+                    {
+                      label: 'lookup',
+                      input: { parts: [{ text: 'original' }], metadata: { tag: 'original' } },
+                      // A prefix call carries its result: one without is a Given error, and the block is not run.
+                      output: { found: true },
+                    },
+                  ],
+                },
+              ],
+            },
+            user: 'one',
+          },
+          { user: 'two' },
+          { user: 'three' },
+        ],
+      });
+      const result = await runSpec(spec, {
+        adapter,
+        driver: createScriptedDriver(),
+        checks: [],
+        mode,
+        repeat: 0,
+      });
+      expect(result.error).toBeUndefined();
+      expect(result.status).toBe('completed');
+      expect(seen).toHaveLength(3);
+      expect(seen[0]).not.toBe(seen[1]);
+      if (mode !== 'T') expect(seen[0]?.[0]).toBe(seen[1]?.[0]);
+      expect(seen[1]?.[0]).toBe(seen[2]?.[0]);
+      expect(seen[0]).toHaveLength(2);
+      expect(seen[1]).toHaveLength(4);
+      const copied = structuredClone(seen[0]?.[0] as Message);
+      copied.content = 'private';
+      expect(seen[0]?.[0]?.content).toBe('prefix');
+      seen[0]?.push(copied);
+      expect(seen[1]).toHaveLength(4);
+    },
+  );
+
+  it('reports an uncaught history write as an agent failure with the read-only field', async () => {
+    const adapter = functionAdapter({
+      respond: (messages) => {
+        (messages[0] as Message).content = 'changed';
+        return reply('never');
+      },
+    });
+    const result = await runSpec(specOf({ id: 'history-write', blocks: [{ user: 'hello' }] }), {
+      adapter,
+      driver: createScriptedDriver(),
+      checks: [],
+      mode: 'F',
+      repeat: 0,
+    });
+    expect(result.status).toBe('failed');
+    expect(result.error).toMatch(/AgentFailure.*read only property 'content'/);
+  });
+
+  it('freezes ordinary caller messages at open and send, including replaced entries', async () => {
+    const prefix: Message[] = [
+      { role: 'user', content: 'first', tool_calls: [{ label: 'lookup', input: { parts: ['original'] } }] },
+    ];
+    const given = { ...acmeGiven(target), prefix };
+    const adapter = functionAdapter({
+      respond: (messages) => {
+        expect(() => {
+          (messages[0] as Message).content = 'changed';
+        }).toThrow(TypeError);
+        expect(() => {
+          (messages.at(-1) as Message).content = 'changed';
+        }).toThrow(TypeError);
+        return reply('ok');
+      },
+    });
+    const session = await adapter.open(given);
+    expect(session.history[0]).toBe(prefix[0]);
+    expect(() => {
+      (prefix[0] as Message).content = 'changed';
+    }).toThrow(TypeError);
+    session.history.push({ role: 'user', content: 'new' });
+    await adapter.send(session, userTurn(0, 'new', given));
+    session.history[0] = { role: 'user', content: 'replacement' };
+    await adapter.send(session, userTurn(1, 'new', given));
+    expect(() => {
+      (session.history[0] as Message).content = 'changed';
+    }).toThrow(TypeError);
+  });
+
+  it('shares one deeply frozen message across sessions without sharing their arrays', async () => {
+    const message: Message = {
+      role: 'user',
+      content: 'shared',
+      tool_calls: [{ label: 'lookup', input: { tag: 'original' } }],
+    };
+    const adapter = functionAdapter({ respond: () => reply('ok') });
+    const first = await adapter.open({ ...acmeGiven(target), prefix: [message] });
+    const second = await adapter.open({ ...acmeGiven(target), prefix: [message] });
+    expect(first.history).not.toBe(second.history);
+    expect(first.history[0]).toBe(message);
+    expect(second.history[0]).toBe(message);
+    expect(Object.isFrozen(message.tool_calls?.[0]?.input)).toBe(true);
+    first.history.push({ role: 'user', content: 'private' });
+    expect(second.history).toHaveLength(1);
+    await adapter.close(first);
+    await adapter.close(second);
+  });
+
+  it('an agent that calls a tool through context.callTool: a denied tool never runs', async () => {
+    let ran = 0;
+    const adapter = functionAdapter({
+      toolPolicy: [{ pattern: 'order.create', action: 'deny' }],
+      respond: async (_messages, _world, _vars, _session, context) => {
+        let error: string | undefined;
+        try {
+          await context.callTool('order.create', () => {
+            ran += 1;
+            return { ok: true };
+          });
+        } catch (cause) {
+          error = cause instanceof Error ? cause.message : String(cause);
+        }
+        return { ...reply(error ?? 'ran'), toolCalls: [{ label: 'order.create', input: {}, error }] };
+      },
+    });
+    const session = await adapter.open(acmeGiven(target));
+    const observed = await sendUser(adapter, session, COVERAGE_QUESTION, 0);
+    expect(ran, 'the denied tool was not called').toBe(0);
+    expect(observed.text).toBe('denied by tool policy rule order.create');
+  });
+
   it('wraps a plain (messages, world, vars) function such as createAcmeAgent().respond', async () => {
     const adapter = functionAdapter({ respond: createAcmeAgent().respond });
     expect(adapter.capabilities()).toEqual({
@@ -107,9 +376,11 @@ describe('function adapter', () => {
     expect(seen[0]?.state).toBe(`state of ${start.hash}`);
   });
 
-  it('keeps the history and the Given safe from an agent that mutates its arguments', async () => {
+  it('keeps array edits and world edits private to the callback', async () => {
     const adapter = functionAdapter({
-      respond: (messages, world) => {
+      respond: (messages, world, vars, _state, context) => {
+        vars.channel = 'changed';
+        context.target.agent = 'changed';
         messages.push({ role: 'user', content: 'injected' });
         world.tools = { 'coverage.check': { error: 'mutated' } };
         return reply('ok');
@@ -123,6 +394,8 @@ describe('function adapter', () => {
       { role: 'user', content: 'second' },
     ]);
     expect(start.world).toEqual({});
+    expect(start.vars.channel).toBe('chat');
+    expect(start.target.agent).toBe('acme-sales');
   });
 
   it('turns an agent error into AgentFailure and passes the contract errors through', async () => {

@@ -4,10 +4,12 @@ import { fileURLToPath } from 'node:url';
 import {
   type Cassette,
   type CassetteEntry,
+  dataKey,
   fixtureRequest,
   type JudgeRequest,
+  type KeyClient,
   requestKey,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import { loadPool } from '../../src/ladders/judges/pool';
 import {
   allEdits,
@@ -39,7 +41,11 @@ export const FIXTURES_DIR = 'packages/validators/fixtures/judges';
 export const PERSONAS = ['good', 'brittle', 'injectable', 'flaky', 'council'] as const;
 export type Persona = (typeof PERSONAS)[number];
 
-type Asked = { key: string; request: JudgeRequest; kind?: TransformKind };
+/** Every scripted judge is a system 1 judge with no model and no settings: one cassette key per request. */
+const SCRIPTED: KeyClient = { cls: 'system1' };
+
+/** `key` is the cassette key; `data` the prompt-free data key the scripted misses are drawn from. */
+type Asked = { key: string; data: string; request: JudgeRequest; kind?: TransformKind };
 
 /** Every request a run of the judge validator can ask, once each, in a stable order. */
 export async function requestsToRecord(root: string): Promise<Asked[]> {
@@ -49,10 +55,10 @@ export async function requestsToRecord(root: string): Promise<Asked[]> {
   const out: Asked[] = [];
   const seen = new Set<string>();
   const add = (request: JudgeRequest, kind?: TransformKind) => {
-    const key = requestKey(request);
+    const key = requestKey(request, SCRIPTED);
     if (seen.has(key)) return;
     seen.add(key);
-    out.push({ key, request, ...(kind ? { kind } : {}) });
+    out.push({ key, data: dataKey(request), request, ...(kind ? { kind } : {}) });
   };
   for (const criterion of pool.criteria) {
     add(fixtureRequest(criterion, 'pass'));
@@ -85,7 +91,7 @@ export function recordPersona(persona: Persona, asked: readonly Asked[]): Casset
     const members = ['council-a', 'council-b', 'council-c'];
     for (const entry of asked) {
       const truth = oracle(entry.request);
-      const bucket = hash32(entry.key) % 20;
+      const bucket = hash32(entry.data) % 20;
       members.forEach((judge, index) => {
         const wrong = bucket >= index * 3 && bucket < index * 3 + 3;
         const verdict = wrong ? flip(truth.verdict) : truth.verdict;
@@ -101,7 +107,7 @@ export function recordPersona(persona: Persona, asked: readonly Asked[]): Casset
   }
   for (const entry of asked) {
     const truth = oracle(entry.request);
-    const h = hash32(entry.key);
+    const h = hash32(entry.data);
     if (persona === 'good') push('good', entry, truth.verdict, truth.reason);
     if (persona === 'brittle') {
       const moved =

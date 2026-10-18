@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { loadInventory } from '@driftbench/core';
+import { loadInventory } from '@agent-nexus/driftbench-core';
 import { pendingEntries } from '../extract/approve';
 import { countEntries, loadProposal, type ProposalIssue } from '../extract/proposal';
 import { type PreparedMap, prepareMap, readToolSchemas, type ToolSchema } from '../seed/map';

@@ -1,0 +1,1916 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "haiku",
+      "family": "anthropic",
+      "cls": "system2",
+      "model": "claude-haiku-5-5",
+      "cost": 10,
+      "settings": "{\"client\":\"criterion-messages-api-v1\",\"model\":\"claude-haiku-5-5\",\"anthropicVersion\":\"2023-06-01\",\"temperature\":\"omitted\",\"maxTokens\":{\"normal\":13312,\"large\":16384},\"schema\":\"none\",\"transportFingerprints\":{\"normal\":\"096c2a19bdd7\",\"large\":\"a63066d04b76\"}}",
+      "dialect": "scratchpad-json"
+    }
+  ],
+  "entries": [
+    {
+      "judge": "haiku",
+      "key": "7fd254222d9e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked to complete the sequence `( [ { (` so that the parentheses are closed properly. The open brackets, innermost last, are `(`, `{`, `[`, `(`, so proper closing requires `)`, `}`, `]`, `)` in that order. The final answer `) } ] )` supplies exactly these four closers in the correct nesting order. It is complete, since each of the four open brackets is closed, and it adds nothing extra.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( [ { (\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: ) } ] )\"}],\"met\":true}]}",
+      "cost_usd": 0.00035360000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "5931053faa4a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input opens four brackets in the order ( [ { (. Closing them properly requires ) } ] ) in that order, since the innermost open bracket closes first. The agent's final answer is \\\") } ] ]\\\", which closes the first three correctly but ends with ] where the outermost open parenthesis needs ). The answer is therefore incorrect and does not complete the sequence with properly closed parentheses.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: ) } ] ]\"}],\"met\":false}]}",
+      "cost_usd": 0.00035470000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "72f43430bd70",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two distinct marbles drawn uniformly from numbers 10 through 19. Each marble appears in a given draw with probability 2/10, so the expected sum is 2 times the mean of 10 through 19, which is 2 × 14.5 = 29. The agent's final answer is 29, which matches the correct value. The reply gives only the final number with no explanation, but the request asks for a single value, so the objective requirement is fully satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 29\"}],\"met\":true}]}",
+      "cost_usd": 0.0003036
+    },
+    {
+      "judge": "haiku",
+      "key": "3e84f233ba74",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two distinct marbles drawn uniformly from numbers 10 through 19. The mean of those numbers is (10+19)/2 = 14.5, and by linearity of expectation the expected sum of two distinct draws is 2 × 14.5 = 29. The response's final answer is 30, which is incorrect, so the response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 30\"}],\"met\":false}]}",
+      "cost_usd": 0.00028960000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "ab3e76dec364",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for all prime factors of 13013, including repetitions, in ascending order. 13013 = 7 × 11 × 13 × 13 (7 × 1859, and 1859 = 11 × 169 = 11 × 13²). The reply lists 7, 11, 13, 13: all four prime factors with the repeated 13, in ascending order, and nothing extra. The final answer is correct and complete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 7, 11, 13, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.00032120000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "b3780c544868",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for all prime factors of 13013, with repetitions, in ascending order. 13013 = 7 × 11 × 13 × 13, so the correct list is 7, 11, 13, 13. The response gives 7, 11, 13, 15. The final entry includes 15, which is not prime (15 = 3 × 5), and it omits the second 13. The response therefore does not correctly or completely satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 7, 11, 13, 15\"}],\"met\":false}]}",
+      "cost_usd": 0.00031270000000000007
+    },
+    {
+      "judge": "haiku",
+      "key": "92f387fdacac",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the probability that two different integers chosen from 10 through 39 have different tens digits. There are 30 integers, giving C(30,2) = 435 unordered pairs. Pairs sharing a tens digit come from three decades of 10 numbers each, giving 3 × C(10,2) = 3 × 45 = 135 pairs. Pairs with different tens digits number 435 − 135 = 300, so the probability is 300/435 = 20/29. The final answer 20/29 matches this value exactly, and the reply is a complete answer to the question.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 20/29\"}],\"met\":true}]}",
+      "cost_usd": 0.0003675
+    },
+    {
+      "judge": "haiku",
+      "key": "2cb92720cbbc",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the probability that two different integers chosen from 10 through 39 have different tens digits. There are 30 integers, with 10 in each tens group (1x, 2x, 3x). Total unordered pairs are C(30,2) = 435. Pairs sharing a tens digit number 3 × C(10,2) = 135, so pairs with different tens digits number 435 − 135 = 300. The probability is 300/435 = 20/29 = 2000/2900. The response gives 2029/2900, which is not equal to 20/29 and is therefore incorrect. The response does not satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2029/2900\"}],\"met\":false}]}",
+      "cost_usd": 0.00040270000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "5435e00db945",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the final price as a percentage of the original after three successive reductions: 70% of original, then a 10% cut, then a 15% cut. Computing 0.70 × 0.90 × 0.85 = 0.5355, which is 53.55% of the original. The reply gives 1071/20%, and 1071/20 = 53.55, so the stated value matches exactly. The reply gives a single final answer, which is complete. The unusual fraction-over-percent format does not change the value.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 1071/20%\"}],\"met\":true}]}",
+      "cost_usd": 0.0003511
+    },
+    {
+      "judge": "haiku",
+      "key": "32b33b1e7d60",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the final price as a percentage of the original after three successive reductions: 70% of original, then a 10% cut, then a 15% cut. Computing 70 × 0.90 × 0.85 gives 53.55%, which is 1071/20%. The response states 1091/20%, which equals 54.55%. The final value is off by 1 percentage point, so the response does not correctly satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 1091/20%\"}],\"met\":false}]}",
+      "cost_usd": 0.00031610000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "60e0982486e5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for xy given 3^(x+y) = 9 and 9^(x-y) = 3, expressed as a fraction. From 3^(x+y) = 9 = 3^2, x+y = 2. From 9^(x-y) = 3, i.e. 3^(2(x-y)) = 3^1, 2(x-y) = 1 so x-y = 1/2. Solving gives x = 5/4 and y = 3/4, so xy = 15/16. The final reply states 15/16 as a fraction, which matches the correct value and the requested format, and the reply contains no extra content that conflicts with it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 15/16\"}],\"met\":true}]}",
+      "cost_usd": 0.0003409
+    },
+    {
+      "judge": "haiku",
+      "key": "d74853c3b5fd",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for xy as a fraction, given 3^(x+y) = 9 and 9^(x-y) = 3. From 3^(x+y) = 9 = 3^2, x+y = 2. From 9^(x-y) = 3, i.e. 3^(2(x-y)) = 3^1, x-y = 1/2. So x = 5/4 and y = 3/4, giving xy = 15/16. The response states 19/16, which is incorrect, so it does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 19/16\"}],\"met\":false}]}",
+      "cost_usd": 0.00032189999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "e46568ec4069",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for the locus of a point equidistant from (2,0) and the line x=-2. Setting sqrt((x-2)^2+y^2) = |x+2| and squaring gives x^2-4x+4+y^2 = x^2+4x+4, so y^2 = 8x. The agent's final answer is exactly \\\"y^2 = 8x\\\", which matches this derivation. The reply gives the requested locus equation and nothing that contradicts it.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Find its locus equation.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 8x\"}],\"met\":true}]}",
+      "cost_usd": 0.00032889999999999997
+    },
+    {
+      "judge": "haiku",
+      "key": "7bebcc20d48f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for the locus of a point equidistant from (2,0) and the line x=-2. Squaring the distance equality sqrt((x-2)^2+y^2) = |x+2| gives x^2-4x+4+y^2 = x^2+4x+4, so y^2 = 8x. The response's final answer, y^2 = 12x, has the wrong coefficient, so it does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 12x\"}],\"met\":false}]}",
+      "cost_usd": 0.00033489999999999995
+    },
+    {
+      "judge": "haiku",
+      "key": "3f580caac83a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(2,3), so A = diag(1/2,1/3). Then A+I = diag(3/2,4/3), (A+I)^2 = diag(9/4,16/9), and its inverse is diag(4/9,9/16). The agent's final answer is diag(4/9,9/16), which matches. It gives only the final value with no working, but the request asks only for the inverse, so the answer fully satisfies the objective.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(4/9,9/16)\"}],\"met\":true}]}",
+      "cost_usd": 0.0003351
+    },
+    {
+      "judge": "haiku",
+      "key": "86b8add27f14",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(2,3) implies A = diag(1/2,1/3), so A+I = diag(3/2,4/3) and (A+I)^2 = diag(9/4,16/9). The inverse of (A+I)^2 is therefore diag(4/9,9/16). The agent's final answer is diag(13/9,9/16). The second entry, 9/16, is correct, but the first entry, 13/9, should be 4/9. The response is therefore incorrect and does not satisfy the objective request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(13/9,9/16)\"}],\"met\":false}]}",
+      "cost_usd": 0.0003391
+    },
+    {
+      "judge": "haiku",
+      "key": "2f122557ffe9",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for Nori0's color and states that no color rule is given. The final agent reply says the color is not specified. That is the correct answer because the prompt gives no color for Nori0, and the reply addresses the single question asked without adding unsupported claims. The reply is brief but complete for this question.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated. What color is Nori0?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.00029670000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "868a18d23486",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user states that Luma0 is a yellow swan, that Nori0 is a rhino, and that no color rule is stated, then asks what color Nori0 is. The only supported conclusion is that Nori0's color cannot be determined from the given information. The yellow color belongs to Luma0, a different entity, and nothing links Nori0 to it. The final reply asserts a definite color without any stated basis, so it does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.00031370000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "21633399903a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+24=5n gives n=12. f+2q=0 with 0=-4f+2q+20 gives f=4, q=-2. Then b=(f/n)/(1/4)=(4/12)*4=4/3. The agent's final answer is 4/3, which is correct and given as a fraction as requested.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 4/3\"}],\"met\":true}]}",
+      "cost_usd": 0.00035289999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "4069e3f0f7e8",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3*n + 24 = 5*n gives n = 12. From f + 2*q = 0, f = -2*q; substituting into 0 = -4*f + 2*q + 20 gives 10*q = -20, so q = -2 and f = 4. Then b = (f/n)/(1/4) = (4/12)/(1/4) = 4/3. The final answer in entry 1 is 7/3, which does not match the correct value of 4/3. The response therefore does not correctly satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 7/3\"}],\"met\":false}]}",
+      "cost_usd": 0.0003369
+    },
+    {
+      "judge": "haiku",
+      "key": "81965ec61476",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked to complete the sequence `( [ { < <` so that the brackets are closed properly. The open brackets, innermost last, are ( [ { < <, so the closers must come in reverse order: > > } ] ). The agent's final reply gives exactly `> > } ] )`, which closes every open bracket in the correct order with nothing missing or extra. The reply fulfils the objective.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: > > } ] )\"}],\"met\":true}]}",
+      "cost_usd": 0.00032970000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "21d10ebcfbc8",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for the rest of the sequence to be completed with parentheses closed properly, given the input ( [ { < <. The open stack, innermost first, is < <, {, [, (, so a correct completion is > > } ] ). The agent answered \\\"> > } ] ]\\\", which ends in a second ] where the ( should be closed. The closing for the ( is missing and an extra ] appears, so the response is not correct and does not satisfy the objective.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"making sure that the parentheses are closed properly\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: > > } ] ]\"}],\"met\":false}]}",
+      "cost_usd": 0.0003518
+    },
+    {
+      "judge": "haiku",
+      "key": "6150731c35d3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two distinct marbles drawn uniformly from numbers 3 through 12. The mean of those numbers is (3+12)/2 = 7.5, so the expected sum of two distinct draws is 2 × 7.5 = 15. The agent's final answer is 15, which is correct and answers the question as asked. The reply is minimal, but the objective requirement is a correct, complete answer, and it gives one.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"What is the expected sum of their numbers?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: 15\"}],\"met\":true}]}",
+      "cost_usd": 0.0003306
+    },
+    {
+      "judge": "haiku",
+      "key": "25251a4d7a57",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two distinct marbles drawn from numbers 3 through 12. The mean of those ten numbers is (3+12)/2 = 7.5, and by linearity the expected sum of two distinct draws is 2 × 7.5 = 15. The agent's final answer is 16, which is incorrect, so the response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 16\"}],\"met\":false}]}",
+      "cost_usd": 0.00029610000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "6314faef411d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 3465, including repetitions, in ascending order. 3465 = 5 × 693 = 5 × 7 × 99 = 3² × 5 × 7 × 11, and 3 × 3 × 5 × 7 × 11 = 3465. The reply lists exactly 3, 3, 5, 7, 11, which includes the repeated 3, has no missing or extra factors, and is in ascending order. The final answer satisfies the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 5, 7, 11\"}],\"met\":true}]}",
+      "cost_usd": 0.000348
+    },
+    {
+      "judge": "haiku",
+      "key": "c0e6ad575752",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 3465, with repetitions, in ascending order. Factoring gives 3465 = 5 × 693 = 5 × 3 × 231 = 5 × 3 × 3 × 77 = 3 × 3 × 5 × 7 × 11. The agent's final answer lists 3, 3, 5, 7, 13, which ends in 13 instead of 11. Those factors multiply to 4095, not 3465, so the response is incorrect and does not satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 5, 7, 13\"}],\"met\":false}]}",
+      "cost_usd": 0.0003635
+    },
+    {
+      "judge": "haiku",
+      "key": "333457b21bbf",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the probability that 3 distinct integers chosen from 10 through 49 have different tens digits. There are 40 integers, so C(40,3) = 9880 equally likely unordered triples. The tens digits are 1, 2, 3 and 4, with 10 numbers each. A favorable triple uses 3 of the 4 tens digits (C(4,3) = 4 ways) and one number from each chosen digit (10^3 = 1000 ways), giving 4000 favorable triples. The probability is 4000/9880 = 100/247. The response's final answer, 100/247, matches this. The response gives only the final answer with no working, but the objective requirement is the probability value, which is correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 100/247\"}],\"met\":true}]}",
+      "cost_usd": 0.0004305
+    },
+    {
+      "judge": "haiku",
+      "key": "4a422863f6de",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The question asks for the probability that 3 different integers chosen from 10 through 49 have pairwise different tens digits. There are 40 integers, 10 per tens digit (1, 2, 3, 4). The total number of unordered 3-subsets is C(40,3) = 9880. Favorable subsets pick 3 of the 4 tens digits (C(4,3) = 4 ways) and one number from each chosen digit (10^3 = 1000 ways), giving 4000. The probability is 4000/9880 = 100/247 ≈ 0.4049. The response gives 10247/24700 ≈ 0.4149, which does not match. The response is incorrect and does not satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 10247/24700\"}],\"met\":false}]}",
+      "cost_usd": 0.00046870000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "e01d1e886e92",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The question asks for the final price as a percentage of the original after successive reductions: 71% × (1 − 0.11) × (1 − 0.16) = 0.71 × 0.89 × 0.84 = 0.530796, which is 53.0796%. The reply gives 132699/2500%. Dividing 132699 by 2500 gives 53.0796, so the reply's value matches the correct result exactly. It states the answer directly as a percentage of the original price, which is what was requested.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 132699/2500%\"}],\"met\":true}]}",
+      "cost_usd": 0.00035520000000000007
+    },
+    {
+      "judge": "haiku",
+      "key": "e2d50e9fd3ce",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the final price as a percentage of the original after three successive reductions: 71% of original, then a further 11% cut, then a further 16% cut. The correct multiplier is 0.71 × 0.89 × 0.84 = 0.530796, which is 53.0796% of the original, or 132699/2500%. The agent's answer is 135199/2500%, which equals 54.0796%. That differs from the correct value of 53.0796%, so the response does not correctly answer the objective question.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 135199/2500%\"}],\"met\":false}]}",
+      "cost_usd": 0.0003512
+    },
+    {
+      "judge": "haiku",
+      "key": "917bc58807c0",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the equations: 3^(x+y)=27 gives x+y=3, and 27^(x-y)=3 gives 3(x-y)=1, so x-y=1/3. Then x=5/3 and y=4/3, so xy=20/9. The reply's final answer 20/9 is correct and is given as a fraction, as the user asked. The reply gives no working, but the request only asks for the value and its form, so both objective requirements are satisfied.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"what is xy? Express the answer as a fraction.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: 20/9\"}],\"met\":true}]}",
+      "cost_usd": 0.0003559
+    },
+    {
+      "judge": "haiku",
+      "key": "106477765ac7",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for xy as a fraction, given 3^(x+y)=27 and 27^(x-y)=3. From 3^(x+y)=27, x+y=3. From 27^(x-y)=3, i.e. 3^(3(x-y))=3, x-y=1/3. So x=5/3 and y=4/3, giving xy=20/9. The agent's final answer is 89/36, which does not match 20/9. The response is therefore incorrect and does not satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 89/36\"}],\"met\":false}]}",
+      "cost_usd": 0.00034589999999999995
+    },
+    {
+      "judge": "haiku",
+      "key": "b60793f55e70",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from the point (3,0) and the line x=-3. Setting the distance to the focus equal to the distance to the line gives sqrt((x-3)^2+y^2) = |x+3|. Squaring gives x^2-6x+9+y^2 = x^2+6x+9, so y^2 = 12x. The final agent reply states y^2 = 12x, which matches this derivation. The reply gives the locus equation the user asked for and nothing else is required.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 12x\"}],\"met\":true}]}",
+      "cost_usd": 0.00035789999999999997
+    },
+    {
+      "judge": "haiku",
+      "key": "d5691b1fd092",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The point is equidistant from focus (3,0) and the line x=-3. Setting sqrt((x-3)^2+y^2) = |x+3| and squaring gives x^2-6x+9+y^2 = x^2+6x+9, so y^2 = 12x. The agent's final answer is y^2 = 16x, which does not match the correct locus. The response therefore fails to correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 16x\"}],\"met\":false}]}",
+      "cost_usd": 0.0003234
+    },
+    {
+      "judge": "haiku",
+      "key": "f862144f8b34",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(3,4), so A = diag(1/3,1/4). Then A+I = diag(4/3,5/4), and (A+I)^2 = diag(16/9,25/16). Its inverse is diag(9/16,16/25). The final agent reply gives diag(9/16,16/25), which matches exactly. The reply is a single final answer with no extra claims that contradict it, so the request is fully answered.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(9/16,16/25)\"}],\"met\":true}]}",
+      "cost_usd": 0.0003211
+    },
+    {
+      "judge": "haiku",
+      "key": "5e2fc9eba237",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(3,4), so A = diag(1/3,1/4). Then A+I = diag(4/3,5/4), and (A+I)^2 = diag(16/9,25/16). Its inverse is diag(9/16,16/25). The response gives diag(25/16,16/25), which has the first entry wrong: 25/16 should be 9/16. The second entry, 16/25, is correct. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(25/16,16/25)\"}],\"met\":false}]}",
+      "cost_usd": 0.00037660000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "3f27d5e53cd3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for Nori1's color and states that no color rule is given. The final reply answers that the color is not specified. That is the correct answer to the question, and the reply addresses the whole request with no extra or missing objective requirements.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated. What color is Nori1?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.00028070000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "92e39f37ce5e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for Nori1's color and states that no color rule is given. The only color fact is that Luma1, a swan, is yellow, and Nori1 is a rhino, so nothing in the prompt determines Nori1's color. The final reply asserts \\\"yellow\\\" without any supporting rule or stated fact. It does not note that the color cannot be determined from the given information, so the objective requirement of a correct answer is not satisfied.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated. What color is Nori1?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.00034170000000000007
+    },
+    {
+      "judge": "haiku",
+      "key": "9cf0c716e77f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+32=5n gives n=16. Substituting f=-2q into -4f+2q+30=0 gives q=-3 and f=6. Then b=(f/n)/(1/14)=(6/16)*14=84/16=21/4. The final agent reply states 21/4, which matches the correct value. It is given as a fraction, as the user asked. The reply shows no working, but the objective requirement is the correct value, and it is delivered.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 21/4\"}],\"met\":true}]}",
+      "cost_usd": 0.0003614
+    },
+    {
+      "judge": "haiku",
+      "key": "6965888a34e5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+32=5n gives n=16. The system 0=-4f+2q+30 and f+2q=0 gives f=6 and q=-3. Then b=(f/n)/(1/14)=(6/16)*14=21/4. The agent's final answer is 25/4, which does not match the correct value of 21/4. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 25/4\"}],\"met\":false}]}",
+      "cost_usd": 0.00035039999999999995
+    },
+    {
+      "judge": "haiku",
+      "key": "a8af91a83ce5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked to complete the bracket sequence so the parentheses close properly. The input opens with { { [ { < [, leaving six unclosed openers. Closing them in reverse order requires ] (closes [), > (closes <), } (closes {), ] (closes [), } (closes {), } (closes {). The agent's final answer is ] > } ] } }, which is exactly that sequence of six closers, in the correct order, with nothing missing or extra.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { { [ { < [\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: ] > } ] } }\"}],\"met\":true}]}",
+      "cost_usd": 0.0003834
+    },
+    {
+      "judge": "haiku",
+      "key": "8c18c41335fc",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input opens six brackets in the order {, {, [, {, <, [. Closing them in reverse requires ], >, }, ], }, }. The response gives ] > } ] } ), so its first five closers are correct but the sixth is ')' instead of the required '}' that matches the outermost '{'. The response therefore does not correctly close the sequence, and the objective requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { { [ { < [\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: ] > } ] } )\"}],\"met\":false}]}",
+      "cost_usd": 0.00038189999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "80cd78ff732a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two different marbles drawn uniformly from numbers 15 through 19. The mean of those five numbers is 17, and each of the two drawn marbles has expected value 17, so the expected sum is 2 × 17 = 34. The agent's final reply is \\\"Final answer: 34\\\", which matches the correct value. The reply is a bare answer with no working, but the request asks only for the expected sum, so the answer is complete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 34\"}],\"met\":true}]}",
+      "cost_usd": 0.0003021
+    },
+    {
+      "judge": "haiku",
+      "key": "781bb41941ed",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two different marbles drawn uniformly from numbers 15 through 19. Each marble has expected value (15+16+17+18+19)/5 = 17, so the expected sum of two distinct marbles is 2 × 17 = 34. The agent's final answer is 35, which is incorrect. The response therefore does not correctly satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 35\"}],\"met\":false}]}",
+      "cost_usd": 0.00028260000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "bfcb676d3365",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for all prime factors of 55770, with repetitions, in ascending order. Factoring gives 55770 = 2 × 3 × 5 × 11 × 13 × 13 (check: 2×3×5×11 = 330, and 330 × 169 = 55770). The response lists 2, 3, 5, 11, 13, 13. That matches the complete factorization, includes the repeated 13, and is in ascending order. It is a single-line answer with no extra content that contradicts it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 3, 5, 11, 13, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.00035380000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "8ddc7e621594",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 55770, including repetitions, in ascending order. Factoring gives 55770 = 2 × 3 × 5 × 11 × 13 × 13, so the correct list is 2, 3, 5, 11, 13, 13. The response lists 2, 3, 5, 11, 13, 15. The final entry includes 15, which is not prime (15 = 3 × 5), and omits the repeated 13. The response therefore does not correctly or completely satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 3, 5, 11, 13, 15\"}],\"met\":false}]}",
+      "cost_usd": 0.0003703
+    },
+    {
+      "judge": "haiku",
+      "key": "4a3cbe3ab6a1",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the probability that two different integers chosen from 10 through 59 have different tens digits. There are 50 integers, forming five tens groups of 10 each. After fixing the first integer, 49 remain, and 40 of them lie in other tens groups. The probability is 40/49, which matches the agent's final answer. The reply gives only the final answer with no working, but the request asks only for the probability, so the answer is complete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 40/49\"}],\"met\":true}]}",
+      "cost_usd": 0.0003385
+    },
+    {
+      "judge": "haiku",
+      "key": "cd14f38a249f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The range 10 through 59 has 50 integers, split into five decades (tens digits 1 through 5) of 10 each. After the first integer is chosen, 9 of the remaining 49 share its tens digit, so the probability of a different tens digit is 40/49 = 3920/4900. The reply's final answer, 4049/4900, does not equal this value, so the response does not correctly answer the question.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 4049/4900\"}],\"met\":false}]}",
+      "cost_usd": 0.00038820000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "0a62a25b72db",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The question asks for the final price as a percentage of the original after three successive changes: 72%, then 88% of that (a 12% reduction), then 83% of that (a 17% reduction). The product is 0.72 × 0.88 × 0.83 = 0.525888, which is 52.5888%. The response gives 32868/625%. Since 625 × 52.5888 = 32868, this is the exact value, and the fraction is fully reduced because 32868 is not divisible by 5. The response states the final value directly, which is all the request asks for.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 32868/625%\"}],\"met\":true}]}",
+      "cost_usd": 0.0004001
+    },
+    {
+      "judge": "haiku",
+      "key": "9f35a5ebc79c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the final price as a percentage of the original after three successive reductions: 72% × 0.88 × 0.83 = 0.525888, which is 52.5888% of the original. This equals 32868/625%. The response gives 33493/625%, which equals 53.5888%, so the final value is wrong. The response does not satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 33493/625%\"}],\"met\":false}]}",
+      "cost_usd": 0.00035810000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "a29e4f3a878e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"From 3^(x+y) = 81 = 3^4, x+y = 4. From 81^(x-y) = 3, i.e. 3^(4(x-y)) = 3, x-y = 1/4. So x = 17/8 and y = 15/8, giving xy = 255/64. The response's final answer is 255/64, which is correct and is given as a fraction as the user requested.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Express the answer as a fraction.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: 255/64\"}],\"met\":true}]}",
+      "cost_usd": 0.0003654
+    },
+    {
+      "judge": "haiku",
+      "key": "0fa573b1fe49",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for xy as a fraction. From 3^(x+y) = 81 = 3^4, x+y = 4. From 81^(x-y) = 3, i.e. 3^(4(x-y)) = 3^1, x-y = 1/4. So x = 17/8 and y = 15/8, giving xy = 255/64. The agent's final answer is 271/64, which is not the correct value. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"what is xy? Express the answer as a fraction.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: 271/64\"}],\"met\":false}]}",
+      "cost_usd": 0.0003294
+    },
+    {
+      "judge": "haiku",
+      "key": "e4d400b9add2",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from (4,0) and the line x=-4. Setting sqrt((x-4)^2+y^2) = |x+4| and squaring gives x^2-8x+16+y^2 = x^2+8x+16, so y^2 = 16x. The agent's final answer is y^2 = 16x, which matches this derivation. The reply states the requested locus equation and nothing in it contradicts that.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 16x\"}],\"met\":true}]}",
+      "cost_usd": 0.00033339999999999997
+    },
+    {
+      "judge": "haiku",
+      "key": "aa9ccd752a47",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from (4,0) and the line x=-4. Setting sqrt((x-4)^2+y^2) = |x+4| and squaring gives x^2-8x+16+y^2 = x^2+8x+16, so y^2 = 16x. The agent's final answer is y^2 = 20x, which has the wrong coefficient. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 20x\"}],\"met\":false}]}",
+      "cost_usd": 0.0003159
+    },
+    {
+      "judge": "haiku",
+      "key": "5aaee345ce1c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(4,5), so A = diag(1/4,1/5) and A+I = diag(5/4,6/5). Then (A+I)^2 = diag(25/16,36/25), and its inverse is diag(16/25,25/36). The agent's final answer matches this exactly. The request asks only for the inverse, so the bare final answer is complete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(16/25,25/36)\"}],\"met\":true}]}",
+      "cost_usd": 0.0003221
+    },
+    {
+      "judge": "haiku",
+      "key": "36d01b686df3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(4,5), so A = diag(1/4,1/5) and A+I = diag(5/4,6/5). Then (A+I)^2 = diag(25/16,36/25), and its inverse is diag(16/25,25/36). The response gives diag(41/25,25/36). The second entry matches, but the first entry is 41/25 where the correct value is 16/25. The final answer is therefore incorrect and does not satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(41/25,25/36)\"}],\"met\":false}]}",
+      "cost_usd": 0.0003371
+    },
+    {
+      "judge": "haiku",
+      "key": "698d9ac072c3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for Nori2's color and states that no color rule is given. The final reply answers that the color is not specified. Since the prompt provides no color rule for Nori2, that answer is the correct and complete response to the objective request. The reply does not invent a color or add unsupported claims.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.00026520000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "11afcac58f42",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user states that Luma2 is a yellow swan, that Nori2 is a rhino, and that no color rule is stated. The question asks for Nori2's color. The data gives no link between Nori2 and Luma2's color, so the correct response is that the color cannot be determined from the given information. The final answer instead asserts a color with no supporting basis in the prompt, so it is neither correct nor complete for the objective request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.00033570000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "2b59752ff151",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+28=5n gives n=14. From f+2q=0 we get q=-f/2, and substituting into 0=-4f+2q+25 gives -5f+25=0, so f=5. Then b=(f/n)/(1/13)=(5/14)*13=65/14. The final answer states 65/14 as a fraction, which matches the computed value and answers the request completely.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 65/14\"}],\"met\":true}]}",
+      "cost_usd": 0.0003454
+    },
+    {
+      "judge": "haiku",
+      "key": "1c4ec0de3db7",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+28=5n gives n=14. From f+2q=0, q=-f/2; substituting into 0=-4f+2q+25 gives f=5 (check: -20-5+25=0). Then b=(f/n)/(1/13)=(5/14)*13=65/14. The final answer given is 79/14, which does not match the correct value of 65/14. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 79/14\"}],\"met\":false}]}",
+      "cost_usd": 0.0003739
+    },
+    {
+      "judge": "haiku",
+      "key": "7413df41113f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked to complete the sequence so the brackets are closed properly. The input opens as [ [ ( [ < ( ( , so the closers must be the reverse of the open stack: ) ) > ] ) ] ]. The final answer gives exactly ) ) > ] ) ] ], which closes every open bracket in the correct nested order and completes the sequence as requested.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: ) ) > ] ) ] ]\"}],\"met\":true}]}",
+      "cost_usd": 0.0003634
+    },
+    {
+      "judge": "haiku",
+      "key": "2552b52aa9eb",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input has seven unclosed openers: [ [ ( [ < ( (. Closing them in reverse order requires ) ) > ] ) ] ]. The final answer is ) ) > ] ) ] ), which has the correct first six closers but ends with ')' where the outermost '[' needs ']'. The bracket sequence is therefore not closed properly, so the objective requirement is not fully satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: ) ) > ] ) ] )\"}],\"met\":false}]}",
+      "cost_usd": 0.0004618
+    },
+    {
+      "judge": "haiku",
+      "key": "95b004be7311",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two distinct marbles drawn from numbers 5 through 13 (nine marbles). The mean of those numbers is (5+13)/2 = 9, and by linearity of expectation the expected sum of two distinct draws is 2 × 9 = 18. The agent's reply states 'Final answer: 18', which matches the correct value. The reply gives the single requested quantity, so it satisfies the objective request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 18\"}],\"met\":true}]}",
+      "cost_usd": 0.00032460000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "65d43b8e1d4c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two distinct marbles drawn from numbers 5 through 13. The mean of 5..13 is (5+13)/2 = 9, and by linearity of expectation the expected sum of two distinct draws is 2 × 9 = 18. The agent's final answer is 19, which is incorrect, so the response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 19\"}],\"met\":false}]}",
+      "cost_usd": 0.0002931
+    },
+    {
+      "judge": "haiku",
+      "key": "b423610ac93e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 858, including repetitions, in ascending order. 858 = 2 × 3 × 11 × 13, and each prime appears once, so no repetitions exist. The reply's list 2, 3, 11, 13 is correct, complete, and in ascending order, and it gives no extra content that conflicts with the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 3, 11, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.0003241
+    },
+    {
+      "judge": "haiku",
+      "key": "66fb3931d481",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for all prime factors of 858, including repetitions, in ascending order. 858 = 2 × 3 × 11 × 13, so the correct list is 2, 3, 11, 13. The reply gives 2, 3, 11, 15. It includes 15, which is not prime (15 = 3 × 5), and it omits 13. The reply therefore is neither correct nor complete for the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 3, 11, 15\"}],\"met\":false}]}",
+      "cost_usd": 0.0003326
+    },
+    {
+      "judge": "haiku",
+      "key": "c93d3dbd3224",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The integers 10 through 69 give 60 numbers, with tens digits 1 through 6 each appearing 10 times. Choosing 3 distinct integers gives C(60,3) = 34220 equally likely subsets. Favorable subsets pick 3 distinct tens digits from 6 (C(6,3) = 20) and one number from each (10^3), giving 20000. The probability is 20000/34220 = 1000/1711, which matches the agent's final answer. The response gives the correct value as the requested final answer.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 1000/1711\"}],\"met\":true}]}",
+      "cost_usd": 0.0004292
+    },
+    {
+      "judge": "haiku",
+      "key": "e47a1da2ce6b",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The numbers 10 through 69 give 60 integers, with tens digits 1 through 6, each appearing for 10 integers. The total number of ways to choose 3 distinct integers is C(60,3) = 34220. Favorable choices pick 3 distinct tens digits from 6 (C(6,3) = 20) and then one integer from each of those decades (10^3 = 1000), giving 20000. The correct probability is 20000/34220 = 1000/1711, or 100000/171100. The response gives 101711/171100, which is a different value (about 0.5945 versus about 0.5845). The final answer is therefore incorrect and does not satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 101711/171100\"}],\"met\":false}]}",
+      "cost_usd": 0.00047670000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "be9dce87e792",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The question asks for the final price as a percentage of the original after three successive reductions: 73% of the original, then 13% off, then 18% off. The product is 0.73 × 0.87 × 0.82 = 0.520782, which is 52.0782%. The reply gives 260391/5000%, and 260391/5000 = 52.0782, so the value is exact and matches. The fraction is already in lowest terms (5000 = 2^3·5^4, and 260391 is odd and does not end in 0 or 5). The reply gives a single final answer and addresses the full question, so the objective requirement is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 260391/5000%\"}],\"met\":true}]}",
+      "cost_usd": 0.00045520000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "75ba159f0a45",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the final price as a percentage of the original after three successive reductions: 73%, then ×0.87, then ×0.82. The product is 0.73 × 0.87 = 0.6351, and 0.6351 × 0.82 = 0.520782, so the correct answer is 52.0782%. The response states 265391/5000%, which equals 53.0782%. That is off by one percentage point, so the final answer is incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 265391/5000%\"}],\"met\":false}]}",
+      "cost_usd": 0.00034070000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "888227e4fda4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for xy as a fraction given 3^(x+y)=243 and 243^(x-y)=3. Since 243=3^5, x+y=5 and 5(x-y)=1, so x-y=1/5. That gives x=13/5 and y=12/5, so xy=156/25. The agent's reply states exactly 156/25 as a fraction, which is correct and answers the single objective requirement. The reply gives no working, but the request does not ask for it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 156/25\"}],\"met\":true}]}",
+      "cost_usd": 0.0003589
+    },
+    {
+      "judge": "haiku",
+      "key": "ee388fc96567",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for xy as a fraction, given 3^(x+y) = 243 and 243^(x-y) = 3. Since 243 = 3^5, the first equation gives x+y = 5. The second gives 5(x-y) = 1, so x-y = 1/5. Then x = 13/5 and y = 12/5, so xy = 156/25. The final answer is 'Final answer: 649/100', which is not 156/25. The response does not correctly answer the objective question.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 649/100\"}],\"met\":false}]}",
+      "cost_usd": 0.00031689999999999995
+    },
+    {
+      "judge": "haiku",
+      "key": "f73276207be6",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from (5,0) and the line x=-5. Setting sqrt((x-5)^2+y^2) = |x+5| and squaring gives x^2-10x+25+y^2 = x^2+10x+25, so y^2 = 20x. The agent's final answer is y^2 = 20x, which matches. The reply is a single final answer with no extra requirements in the request to miss.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 20x\"}],\"met\":true}]}",
+      "cost_usd": 0.0003229
+    },
+    {
+      "judge": "haiku",
+      "key": "c4c8954c9357",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from (5,0) and the line x=-5. Setting sqrt((x-5)^2+y^2) = |x+5| and squaring gives x^2-10x+25+y^2 = x^2+10x+25, so y^2 = 20x. The agent's final answer is y^2 = 24x, which does not match the correct locus. The response therefore does not correctly satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 24x\"}],\"met\":false}]}",
+      "cost_usd": 0.00031939999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "f5d9c650cb46",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(5,6), so A = diag(1/5,1/6) and A+I = diag(6/5,7/6). Then (A+I)^2 = diag(36/25,49/36), and its inverse is diag(25/36,36/49). The final reply gives exactly diag(25/36,36/49), which matches. It is a single final answer with no missing parts of the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(25/36,36/49)\"}],\"met\":true}]}",
+      "cost_usd": 0.00032260000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "86478dc6752c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(5,6), so A = diag(1/5,1/6) and A+I = diag(6/5,7/6). Then (A+I)^2 = diag(36/25,49/36), and its inverse is diag(25/36,36/49). The agent's final answer is diag(61/36,36/49). The second entry, 36/49, is correct, but the first entry should be 25/36, not 61/36. The final answer is therefore incorrect, so the response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(61/36,36/49)\"}],\"met\":false}]}",
+      "cost_usd": 0.0003701
+    },
+    {
+      "judge": "haiku",
+      "key": "c4840808e3f4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks the color of Nori3 and states that no color rule is given. The final reply answers that the color is not specified, which is the correct response to a question with no supporting rule. The reply is short and addresses the only objective requirement, so it is complete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002547
+    },
+    {
+      "judge": "haiku",
+      "key": "0928f3bec1ad",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for Nori3's color and states that no color rule is given. The only described fact is that Luma3 is a yellow swan, which says nothing about Nori3, a rhino. The correct response is that the color cannot be determined from the information given. The agent instead answers 'yellow', a value with no support in the prompt. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated. What color is Nori3?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.00034070000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "6add2b2b0320",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+32=5n gives n=16. The second system gives q=-f/2, and substituting into 0=-4f+2q+40 gives f=8. Then b=(f/n)/(1/2)=(8/16)/(1/2)=1. The final reply 'Final answer: 1' matches this value. The request asks for a fraction, and 1 is equal to 1/1, so the value is presented acceptably. The reply is terse and shows no working, but it gives the single requested value.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 1\"}],\"met\":true}]}",
+      "cost_usd": 0.00042170000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "3edf31d74bd1",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+32=5n gives n=16. From f+2q=0, q=-f/2; substituting into 0=-4f+2q+40 gives -5f+40=0, so f=8. Then b=(f/n)/(1/2)=(8/16)/(1/2)=1. The response's final answer is 2, which does not match the correct value of 1. The response therefore does not correctly satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2\"}],\"met\":false}]}",
+      "cost_usd": 0.00035270000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "a49ca03cf28f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input sequence is { ( ( < < < ( {. Its unclosed openers, from top of stack to bottom, are {, (, <, <, <, (, (, {. Closing them in reverse order gives } ) > > > ) ) }. The final answer is exactly } ) > > > ) ) }, so it correctly and completely completes the sequence with the parentheses closed properly.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { ( ( < < < ( {\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: } ) > > > ) ) }\"}],\"met\":true}]}",
+      "cost_usd": 0.0004416
+    },
+    {
+      "judge": "haiku",
+      "key": "50f872b122e5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input opens with a stack of brackets: {, (, (, <, <, <, (, {. Closing in reverse order requires } ) > > > ) ) }. The outermost opener is a curly brace, so the final closer must be }. The agent's final answer ends in ')' instead, so the sequence is not closed properly and the response does not correctly complete the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: } ) > > > ) ) )\"}],\"met\":false}]}",
+      "cost_usd": 0.0004466
+    },
+    {
+      "judge": "haiku",
+      "key": "74ea05a3186e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two different marbles drawn uniformly from numbers 7 through 17 (11 marbles). The mean of 7 to 17 is (7+17)/2 = 12, so the expected sum of two distinct draws is 2 × 12 = 24. The agent's final answer is 24, which is correct and directly answers the question with no extra content that conflicts with it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 24\"}],\"met\":true}]}",
+      "cost_usd": 0.0003011
+    },
+    {
+      "judge": "haiku",
+      "key": "52570e397633",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The numbers 7 through 17 are 11 marbles with mean (7+17)/2 = 12. Two different marbles drawn uniformly have expected sum 2 × 12 = 24. The agent's final answer is 25, which does not match the correct expected sum of 24. The response therefore fails to correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 25\"}],\"met\":false}]}",
+      "cost_usd": 0.0002836
+    },
+    {
+      "judge": "haiku",
+      "key": "30db2f5b4c5d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 10725, with repetitions, in ascending order. Factoring 10725 gives 3 × 5 × 5 × 11 × 13, and 3·5·5·11·13 = 10725. The final answer lists 3, 5, 5, 11, 13: these are all the prime factors, the repeated 5 is included, and the order is ascending. The response meets the objective requirements.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"List all prime factors of 10725, including repetitions, in ascending order.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 5, 5, 11, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.000342
+    },
+    {
+      "judge": "haiku",
+      "key": "16ac4df18d41",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for all prime factors of 10725, with repetitions, in ascending order. 10725 = 5² × 3 × 11 × 13 (25 × 429, and 429 = 3 × 11 × 13), so the correct list is 3, 5, 5, 11, 13. The final answer lists 15 instead of 13. 15 is not prime (3 × 5), so the answer contains a non-prime and omits the prime 13. The response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 5, 5, 11, 15\"}],\"met\":false}]}",
+      "cost_usd": 0.000318
+    },
+    {
+      "judge": "haiku",
+      "key": "1e2d2857e54b",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the probability that two distinct integers chosen from 10 through 79 have different tens digits. There are 70 integers, with tens digits 1 through 7, each appearing 10 times. Total unordered pairs are C(70,2) = 2415. Same-tens pairs number 7 × C(10,2) = 315, so different-tens pairs number 2415 − 315 = 2100. The probability is 2100/2415 = 20/23. The response's final answer, 20/23, matches this value exactly. It gives no work, but the objective requirement is the correct answer, and that is supplied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 20/23\"}],\"met\":true}]}",
+      "cost_usd": 0.000427
+    },
+    {
+      "judge": "haiku",
+      "key": "9cec74c6aa28",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the probability that two different integers chosen from 10 through 79 have different tens digits. There are 70 integers in 7 decades of 10 each. Same-decade unordered pairs number 7 × C(10,2) = 315, out of C(70,2) = 2415 total pairs. That leaves 2100 different-decade pairs, so the probability is 2100/2415 = 20/23 = 2000/2300. The response's final answer is 2023/2300, which is a different value. The response therefore does not correctly satisfy the request's objective.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2023/2300\"}],\"met\":false}]}",
+      "cost_usd": 0.00047270000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "8e125944c587",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The question asks for the final price as a percentage of the original after successive multiplicative reductions. The price factor is 0.74 × 0.86 × 0.81 = 0.515484, which is 51.5484%. The reply gives 128871/2500%, and 128871/2500 = 51.5484. That fraction is in lowest terms because 2500 = 2²·5⁴ and 128871 is odd and not divisible by 5. The reply states the requested final answer as a percentage of the original, so it meets the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 128871/2500%\"}],\"met\":true}]}",
+      "cost_usd": 0.00041170000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "cc3865604542",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the final price as a percentage of the original after three successive reductions: 74% of original, then a 14% reduction, then a 19% reduction. The correct product is 0.74 × 0.86 × 0.81 = 0.515484, i.e. 51.5484% of the original. The response gives 131371/2500%, which equals 52.5484%. That differs from the correct value by exactly one percentage point, so the final answer is wrong and the objective requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 131371/2500%\"}],\"met\":false}]}",
+      "cost_usd": 0.00035520000000000007
+    },
+    {
+      "judge": "haiku",
+      "key": "427bd321e1c3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3^(x+y)=729=3^6 gives x+y=6. 729^(x-y)=3 gives 3^(6(x-y))=3^1, so x-y=1/6. Then x=37/12 and y=35/12, so xy=1295/144. The reply's final answer is 1295/144, which is correct and expressed as a fraction as the user asked. The reply gives only the final answer with no working, but the user's objective requirements (correct value, fraction form) are fully satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 1295/144\"}],\"met\":true}]}",
+      "cost_usd": 0.0003905
+    },
+    {
+      "judge": "haiku",
+      "key": "4fc0ac79e7bc",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for xy as a fraction. Since 729 = 3^6, the first equation gives x+y = 6. The second gives 6(x-y) = 1, so x-y = 1/6. Then x = 37/12 and y = 35/12, so xy = 1295/144. The response's final answer is 1331/144, which is a different value. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 1331/144\"}],\"met\":false}]}",
+      "cost_usd": 0.000331
+    },
+    {
+      "judge": "haiku",
+      "key": "88a782c33cbe",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from (6,0) and the line x=-6. Setting sqrt((x-6)^2+y^2) = |x+6| and squaring gives x^2-12x+36+y^2 = x^2+12x+36, so y^2 = 24x. The agent's final answer is y^2 = 24x, which is correct and is the locus equation the user requested.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Find its locus equation.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 24x\"}],\"met\":true}]}",
+      "cost_usd": 0.0003324
+    },
+    {
+      "judge": "haiku",
+      "key": "c8b210f25279",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from (6,0) and the line x=-6. Setting sqrt((x-6)^2+y^2) = |x+6| and squaring gives x^2-12x+36+y^2 = x^2+12x+36, so y^2 = 24x. The response's final answer is 'y^2 = 28x', which has the wrong coefficient. The objective requirement, a correct locus equation, is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 28x\"}],\"met\":false}]}",
+      "cost_usd": 0.0003314
+    },
+    {
+      "judge": "haiku",
+      "key": "a8289ce2d2f1",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(6,7), so A = diag(1/6,1/7). Then A+I = diag(7/6,8/7), (A+I)^2 = diag(49/36,64/49), and its inverse is diag(36/49,49/64). The response's final answer is diag(36/49,49/64), which matches. It gives the single requested result with no extra or missing parts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(36/49,49/64)\"}],\"met\":true}]}",
+      "cost_usd": 0.0003401
+    },
+    {
+      "judge": "haiku",
+      "key": "0fbbd6e9c408",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(6,7), so A = diag(1/6,1/7) and A+I = diag(7/6,8/7). Then (A+I)^2 = diag(49/36,64/49), and its inverse is diag(36/49,49/64). The agent's final answer is diag(85/49,49/64). The second entry, 49/64, is correct, but the first entry, 85/49, should be 36/49. The response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(85/49,49/64)\"}],\"met\":false}]}",
+      "cost_usd": 0.0003706
+    },
+    {
+      "judge": "haiku",
+      "key": "cd04afd88c9d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for Nori4's color and states that no color rule is given. The final reply answers that the color is not specified. That is the correct response to a question with no supporting rule, and it addresses the single objective requirement in the request without adding unsupported claims.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated. What color is Nori4?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.00029020000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "ebf63566e36a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user states that Luma4 is a yellow swan, that Nori4 is a rhino, and that no color rule is stated. The question asks for Nori4's color. Nothing in the prompt links Nori4 to yellow, so the color cannot be determined from the given facts. The agent's final answer says the color is yellow, which is unsupported by the prompt and does not correctly satisfy the objective request. The answer does not acknowledge that the color is not stated.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.00033970000000000007
+    },
+    {
+      "judge": "haiku",
+      "key": "1b8b462fcbda",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+36=5n gives n=18. From f+2q=0, q=-f/2; substituting into 0=-4f+2q+20 gives -5f+20=0, so f=4. Then b=(f/n)/(1/6)=(4/18)*6=24/18=4/3. The response's final answer of 4/3 matches this value and is given as a fraction, as requested. The reply is a single final answer with no other objective requirements in the request left unaddressed.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 4/3\"}],\"met\":true}]}",
+      "cost_usd": 0.00036889999999999997
+    },
+    {
+      "judge": "haiku",
+      "key": "18ace383996e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the stated problem: 3n+36=5n gives n=18. From f+2q=0 and 0=-4f+2q+20, f=-2q, so 10q=-20, giving q=-2 and f=4. Then b=(f/n)/(1/6)=(4/18)*6=4/3. The final reply gives 7/3, which does not match the correct value of 4/3. The objective requirement to give the correct value of b is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 7/3\"}],\"met\":false}]}",
+      "cost_usd": 0.00035939999999999995
+    },
+    {
+      "judge": "haiku",
+      "key": "11d4e0b6176f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for the rest of the bracket sequence to be completed with all brackets closed properly. The input is { ( < ( < < { { [, which has 9 openers. Closing them in reverse order of opening gives ] } } > > ) > ) }. The agent's final answer is exactly ] } } > > ) > ) }, which has 9 closers in the correct nested order. The response therefore satisfies the objective requirement.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Input: { ( < ( < < { { [\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: ] } } > > ) > ) }\"}],\"met\":true}]}",
+      "cost_usd": 0.00040420000000000007
+    },
+    {
+      "judge": "haiku",
+      "key": "2df1f49e9955",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input opens with nine brackets: { ( < ( < < { { [. Closing them in reverse order requires ] } } > > ) > ) }, where the final } closes the outermost {. The response gives ] } } > > ) > ) ), ending in ')'. That closes the outermost '{' with the wrong bracket type, so the sequence is not closed properly. The request asked for properly closed parentheses, so the response does not correctly satisfy the objective.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: ] } } > > ) > ) )\"}],\"met\":false}]}",
+      "cost_usd": 0.0005272
+    },
+    {
+      "judge": "haiku",
+      "key": "ee3e05cfe82c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two distinct marbles drawn uniformly from numbers 11 through 18. The mean of 11 to 18 is 14.5, so the expected sum of two distinct draws is 2 × 14.5 = 29. The final agent reply gives exactly 29, which is correct and answers the single objective question with no missing parts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 29\"}],\"met\":true}]}",
+      "cost_usd": 0.0003011
+    },
+    {
+      "judge": "haiku",
+      "key": "c72c2e79145a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two different marbles drawn uniformly from numbers 11 through 18. Each marble has expected value (11+18)/2 = 14.5, so the expected sum of two draws is 2 × 14.5 = 29. The response's final answer is 30, which is incorrect. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 30\"}],\"met\":false}]}",
+      "cost_usd": 0.0002776
+    },
+    {
+      "judge": "haiku",
+      "key": "3fac73c959ac",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 38025, with repetitions, in ascending order. 38025 = 25 × 1521 = 5² × 39² = 3² × 5² × 13², so the full list is 3, 3, 5, 5, 13, 13. The final agent reply gives exactly this list in ascending order, with no missing or extra factors.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 5, 5, 13, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.0003208
+    },
+    {
+      "judge": "haiku",
+      "key": "197e4ac32d2b",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"38025 factors as 3^2 × 5^2 × 13^2 (225 × 169 = 38025), so the complete ascending list of prime factors with repetition is 3, 3, 5, 5, 13, 13. The agent's final answer is 3, 3, 5, 5, 13, 15. It lists 15, which is not prime (15 = 3 × 5), and it omits the second 13. The response therefore does not correctly and completely answer the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 5, 5, 13, 15\"}],\"met\":false}]}",
+      "cost_usd": 0.0003353
+    },
+    {
+      "judge": "haiku",
+      "key": "25be3f325a95",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The question asks for the probability that 3 distinct integers from 10 through 89 have pairwise different tens digits. There are 80 integers, giving C(80,3) = 82160 unordered triples. The tens digits run from 1 to 8, so choosing 3 distinct tens digits gives C(8,3) = 56 digit sets, and each digit has 10 units choices, so 56 × 10^3 = 56000 favorable triples. The probability is 56000/82160 = 700/1027. The agent's final answer, 700/1027, matches this exactly and is fully reduced.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 700/1027\"}],\"met\":true}]}",
+      "cost_usd": 0.0004421
+    },
+    {
+      "judge": "haiku",
+      "key": "7aea5c450265",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The question asks for the probability that 3 distinct integers chosen from 10 through 89 have pairwise different tens digits. There are 80 integers, with tens digits 1 through 8, each covering 10 integers. Unordered triples total C(80,3) = 82160. Favorable triples choose 3 of the 8 tens digits (C(8,3) = 56) and one integer from each digit (10^3 = 1000), giving 56000. The correct probability is 56000/82160 = 700/1027 ≈ 0.6816. The same result holds with ordered selection: 336000/492960 = 700/1027. The response's final answer, 71027/102700 ≈ 0.6916, does not equal 700/1027 (which is 70000/102700). The response is therefore incorrect and does not satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 71027/102700\"}],\"met\":false}]}",
+      "cost_usd": 0.0005627000000000001
+    },
+    {
+      "judge": "haiku",
+      "key": "2caf67e1945b",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the final price as a percentage of the original after three successive changes: 75% of original, then a 15% reduction, then a 20% reduction. Computing 0.75 × 0.85 = 0.6375, then 0.6375 × 0.80 = 0.51, so the final price is 51% of the original. The agent's reply gives exactly that value with the requested unit and no extra requirements in the request to miss. The reply is brief but fully answers the single objective question.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 51%\"}],\"met\":true}]}",
+      "cost_usd": 0.0003018
+    },
+    {
+      "judge": "haiku",
+      "key": "e9fa41ff48a7",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the final price as a percentage of the original after three successive changes: 75% of original, then a 15% reduction, then a 20% reduction. Computing 0.75 × 0.85 = 0.6375, then × 0.80 = 0.51, so the correct final price is 51% of the original. The agent's only reply states 52%, which is incorrect. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 52%\"}],\"met\":false}]}",
+      "cost_usd": 0.0002858
+    },
+    {
+      "judge": "haiku",
+      "key": "e1544f8b2688",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"From 3^(x+y) = 2187 = 3^7, x+y = 7. From 2187^(x-y) = 3, i.e. 3^(7(x-y)) = 3, x-y = 1/7. Then xy = ((x+y)^2 - (x-y)^2)/4 = (49 - 1/49)/4 = 600/49. The response gives 600/49 as a fraction, which is correct and answers the requested form.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 600/49\"}],\"met\":true}]}",
+      "cost_usd": 0.0003636
+    },
+    {
+      "judge": "haiku",
+      "key": "7d86dacf36c5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for xy as a fraction, given 3^(x+y) = 2187 and 2187^(x-y) = 3. Since 2187 = 3^7, the first equation gives x+y = 7. The second gives 3^(7(x-y)) = 3, so x-y = 1/7. Then xy = ((x+y)^2 - (x-y)^2)/4 = (49 - 1/49)/4 = 600/49. The response states 'Final answer: 2449/196', which does not equal 600/49 (decimal about 12.24 versus 3.06). The response is therefore incorrect and does not satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2449/196\"}],\"met\":false}]}",
+      "cost_usd": 0.00035870000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "d1e233bfb082",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The point (x,y) must satisfy sqrt((x-7)^2+y^2) = |x+7|. Squaring gives x^2-14x+49+y^2 = x^2+14x+49, so y^2 = 28x. The agent's final answer is y^2 = 28x, which is correct and is the complete locus equation the user asked for.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 28x\"}],\"met\":true}]}",
+      "cost_usd": 0.0003159
+    },
+    {
+      "judge": "haiku",
+      "key": "25404b4832da",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the locus of a point equidistant from the point (7,0) and the line x=-7. Setting sqrt((x-7)^2+y^2) = |x+7| and squaring gives x^2-14x+49+y^2 = x^2+14x+49, so y^2 = 28x. The agent's final answer is y^2 = 32x, which does not match the correct locus. The objective requirement of a correct answer is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 32x\"}],\"met\":false}]}",
+      "cost_usd": 0.00032189999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "d1bf2efc02d3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(7,8), so A = diag(1/7,1/8) and A+I = diag(8/7,9/8). Then (A+I)^2 = diag(64/49,81/64), and its inverse is diag(49/64,64/81). The agent's final answer, diag(49/64,64/81), matches this value exactly, and it answers the single objective request to find the inverse of (A+I)^2.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(49/64,64/81)\"}],\"met\":true}]}",
+      "cost_usd": 0.0003556
+    },
+    {
+      "judge": "haiku",
+      "key": "168b6eb8983c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"From A^(-1) = diag(7,8), A = diag(1/7,1/8), so A+I = diag(8/7,9/8) and (A+I)^2 = diag(64/49,81/64). The inverse of (A+I)^2 is therefore diag(49/64,64/81). The agent's final answer is diag(113/64,64/81). Its second entry, 64/81, is correct, but its first entry, 113/64, should be 49/64. The response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(113/64,64/81)\"}],\"met\":false}]}",
+      "cost_usd": 0.0003526
+    },
+    {
+      "judge": "haiku",
+      "key": "78732d5a9377",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks what color Nori5 is and states that no color rule is given. The final agent entry answers that the color is not specified. That matches the stated premise, since Luma5's yellow color does not carry over to Nori5, and the reply directly answers the single question without adding unsupported claims.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated. What color is Nori5?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002952
+    },
+    {
+      "judge": "haiku",
+      "key": "0a6284210b27",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for Nori5's color and states that no color rule is given. The only link between the two animals is that Luma5 is a yellow swan, and Nori5 is a rhino, so nothing in the prompt supports a color for Nori5. The reply nonetheless asserts 'yellow' as a final answer. A correct response would say the color cannot be determined from the information given. The reply therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.00034270000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "45b017b31ec5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+44=5n gives n=22. f+2q=0 gives f=-2q, and 0=-4f+2q+60 then gives q=-6 and f=12. So b=(f/n)/(1/5)=(12/22)*5=60/22=30/11. The response's final answer, 30/11, matches this value and is given as a fraction as requested.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 30/11\"}],\"met\":true}]}",
+      "cost_usd": 0.00032839999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "45558e70c889",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+44=5n gives n=22. From f+2q=0, f=-2q; substituting into 0=-4f+2q+60 gives 10q+60=0, so q=-6 and f=12. Then b=(f/n)/(1/5)=(12/22)*5=30/11. The agent's final answer is 41/11, which does not match the correct value 30/11. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 41/11\"}],\"met\":false}]}",
+      "cost_usd": 0.0003409
+    },
+    {
+      "judge": "haiku",
+      "key": "339d12e5c662",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input sequence is { [ { ( < ( [ { ( {, which has 10 unclosed openers. Closing them in reverse order gives } ) } ] ) > ) } ] }, which is 10 closers. The agent's final answer is exactly this sequence, so it completes the sequence and closes every parenthesis properly, as the user requested.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: } ) } ] ) > ) } ] }\"}],\"met\":true}]}",
+      "cost_usd": 0.0004769
+    },
+    {
+      "judge": "haiku",
+      "key": "1b74fed0eedd",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input has 10 unclosed openers: { [ { ( < ( [ { ( {. Closing them in reverse order gives } ) } ] ) > ) } ] }. The agent's final answer matches this for the first nine tokens but ends with ')' where the innermost-first... more precisely, the first opener { requires '}', so the final token should be '}'. The agent ends with ')', which does not close the opening '{'. The response is therefore incorrect and does not fully complete the sequence correctly.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"making sure that the parentheses are closed properly. Input: { [ { ( < ( [ { ( {\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: } ) } ] ) > ) } ] )\"}],\"met\":false}]}",
+      "cost_usd": 0.0005193999999999999
+    },
+    {
+      "judge": "haiku",
+      "key": "015ed56a4696",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two different marbles drawn from numbers 12 through 25. There are 14 numbers, so the mean marble value is (12+25)/2 = 18.5, and by linearity of expectation the expected sum of two distinct draws is 2 × 18.5 = 37. The agent's reply gives exactly that value, and it answers the only objective question asked, so the response is both correct and complete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 37\"}],\"met\":true}]}",
+      "cost_usd": 0.0003301
+    },
+    {
+      "judge": "haiku",
+      "key": "a5c5e2dcde76",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two different marbles drawn uniformly from 14 marbles numbered 12 through 25. Each marble is equally likely to be in any draw position, so the expected value of each drawn number is the mean of 12 through 25, which is (12+25)/2 = 18.5. The expected sum of two draws is 2 × 18.5 = 37. The response's final answer is 38, which does not match the correct value of 37. The response therefore does not correctly satisfy the objective request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 38\"}],\"met\":false}]}",
+      "cost_usd": 0.00032510000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "1b306d0622ca",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 770, including repetitions, in ascending order. 770 = 2 × 5 × 7 × 11, and each factor is prime. The factorization has no repeated primes, so including repetitions adds nothing. The final reply lists 2, 5, 7, 11, which is complete, correct, and in ascending order.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 5, 7, 11\"}],\"met\":true}]}",
+      "cost_usd": 0.00031160000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "02caae8ad4d9",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 770, with repetitions, in ascending order. 770 = 2 × 5 × 7 × 11, so the correct list is 2, 5, 7, 11. The final answer lists 2, 5, 7, 13. The prime 13 is wrong and should be 11, so the response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 5, 7, 13\"}],\"met\":false}]}",
+      "cost_usd": 0.0003171
+    },
+    {
+      "judge": "haiku",
+      "key": "92f387fdacac",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the probability that two different integers chosen from 10 through 39 have different tens digits. The range has 30 integers, with tens digits 1, 2 and 3 each appearing 10 times. Unordered pairs total C(30,2)=435. Pairs sharing a tens digit number 3·C(10,2)=3·45=135. Pairs with different tens digits number 435−135=300, so the probability is 300/435=20/29. The ordered-pair version gives the same ratio. The final answer 20/29 is correct and answers the question completely.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 20/29\"}],\"met\":true}]}",
+      "cost_usd": 0.000364
+    },
+    {
+      "judge": "haiku",
+      "key": "2cb92720cbbc",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The question asks for the probability that two different integers chosen from 10 through 39 have different tens digits. There are 30 integers, so C(30,2)=435 unordered pairs. Each tens digit (1, 2, 3) covers 10 integers, so same-tens pairs number 3·C(10,2)=3·45=135. Different-tens pairs number 435−135=300, giving 300/435=20/29=2000/2900. The response answers 2029/2900, which is not equal to 20/29 and is not correct. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2029/2900\"}],\"met\":false}]}",
+      "cost_usd": 0.00043520000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "934130ee9dd4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the final price as a percentage of the original after three successive reductions: 76% of original, then a 16% cut, then a 21% cut. Computing 0.76 × 0.84 × 0.79 = 0.504336, which is 50.4336%. The reply gives 31521/625%, and 31521/625 = 50.4336 exactly (625 × 50 = 31250, remainder 271, and 271/625 = 0.4336). The reply is a single exact final answer in the requested form, so it correctly and completely answers the objective.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 31521/625%\"}],\"met\":true}]}",
+      "cost_usd": 0.0003621
+    },
+    {
+      "judge": "haiku",
+      "key": "205e50a70be9",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the final price as a percentage of the original after three successive reductions: 76% of original, then reduced by 16%, then reduced by 21%. The product is 0.76 × 0.84 × 0.79 = 0.504336, which is 50.4336% of the original. The reply gives 32146/625%, and 32146/625 = 51.4336%, which is a different value. The final answer is therefore incorrect, so the response does not satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 32146/625%\"}],\"met\":false}]}",
+      "cost_usd": 0.00034260000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "7f04bfd187a6",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the problem: 3^(x+y) = 6561 = 3^8 gives x+y = 8. Then 6561^(x-y) = 3 gives 3^(8(x-y)) = 3, so x-y = 1/8. Thus x = 65/16 and y = 63/16, and xy = 4095/256. The response's final answer, 4095/256, matches this value and is expressed as a fraction as requested. The response is terse and shows no working, but the user asked only for the value as a fraction, so the objective requirements are satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 4095/256\"}],\"met\":true}]}",
+      "cost_usd": 0.00037920000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "74b66a03b658",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Since 6561 = 3^8, the first equation gives x+y = 8. The second gives 8(x-y) = 1, so x-y = 1/8. Therefore x = 65/16 and y = 63/16, and xy = 4095/256. The response states 'Final answer: 4159/256', which is a different value (digits transposed), so the response does not correctly answer the question. It also gives no derivation, so it is not complete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 4159/256\"}],\"met\":false}]}",
+      "cost_usd": 0.00033120000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "11e1320d9fb2",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from (8,0) and the line x=-8. Setting sqrt((x-8)^2+y^2) = |x+8| and squaring gives x^2-16x+64+y^2 = x^2+16x+64, so y^2 = 32x. The agent's final answer is y^2 = 32x, which matches the correct locus and fully answers the request, which asks only for the locus equation.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 32x\"}],\"met\":true}]}",
+      "cost_usd": 0.00032439999999999997
+    },
+    {
+      "judge": "haiku",
+      "key": "33832a20da9f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from the point (8,0) and the line x=-8. Setting sqrt((x-8)^2+y^2) = |x+8| and squaring gives x^2-16x+64+y^2 = x^2+16x+64, so y^2 = 32x. The agent's final answer is y^2 = 36x, which does not match the correct locus. The objective requirement of a correct answer is therefore not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 36x\"}],\"met\":false}]}",
+      "cost_usd": 0.0003429
+    },
+    {
+      "judge": "haiku",
+      "key": "0ed537524283",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"From A^(-1) = diag(8,9), A = diag(1/8,1/9), so A+I = diag(9/8,10/9) and (A+I)^2 = diag(81/64,100/81). The inverse of that is diag(64/81,81/100). The agent's final answer, diag(64/81,81/100), matches this exactly, and it is the only deliverable the user asked for.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(64/81,81/100)\"}],\"met\":true}]}",
+      "cost_usd": 0.00031360000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "c0c217fbd1c2",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"From A^(-1) = diag(8,9), A = diag(1/8, 1/9). Then A+I = diag(9/8, 10/9), so (A+I)^2 = diag(81/64, 100/81), and its inverse is diag(64/81, 81/100). The response gives diag(145/81, 81/100). The second entry 81/100 is correct, but the first entry 145/81 does not match the correct 64/81 (145/81 equals 1 + 64/81, which suggests the identity was added after inversion). The final answer is therefore incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(145/81,81/100)\"}],\"met\":false}]}",
+      "cost_usd": 0.00036060000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "8e6b2ae554b4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked what color Nori6 is and stated that no color rule is given. The final agent reply says the color is not specified, which is the correct and complete answer to that question. The reply does not invent a color for the rhino or for Luma6, and it answers the one objective question asked.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated. What color is Nori6?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.00030270000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "03a840c18170",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user states that Luma6 is a yellow swan, that Nori6 is a rhino, and that no color rule is stated. The reply answers 'yellow' with no supporting rule. The only yellow fact concerns Luma6, a different individual of a different kind, so nothing in the request supports that color for Nori6. The correct response would note that the color cannot be determined from the given information. The reply therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated. What color is Nori6?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.00036520000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "bc631e8dfa24",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+34=5n gives n=17. From f+2q=0 and 0=-4f+2q+40, f=8. Then b=(8/17)/(1/7)=56/17. The final answer states 56/17, which is correct and given as a fraction, as the request asks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 56/17\"}],\"met\":true}]}",
+      "cost_usd": 0.00033539999999999997
+    },
+    {
+      "judge": "haiku",
+      "key": "236322e99947",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+34=5n gives n=17. Then 0=-4f+2q+40 with f+2q=0 gives q=-f/2, so -5f+40=0 and f=8. Then b=(f/n)/(1/7)=(8/17)*7=56/17. The final answer 73/17 does not match 56/17, so the response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Let b be (f/n)/(1/7). Give the value of b as a fraction.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: 73/17\"}],\"met\":false}]}",
+      "cost_usd": 0.0003479
+    },
+    {
+      "judge": "haiku",
+      "key": "fdfe93a197ef",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input opens with [ [ < [ ( { { [ ( ( [ (11 unclosed openers). Closing them in reverse order gives ] ) ) ] } } ) ] > ] ]. The agent's final answer is exactly that sequence, so it completes the sequence and closes every bracket in the correct nesting order, as the user requested.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: ] ) ) ] } } ) ] > ] ]\"}],\"met\":true}]}",
+      "cost_usd": 0.0004536
+    },
+    {
+      "judge": "haiku",
+      "key": "32a708a4e1b1",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input is [ [ < [ ( { { [ ( ( [, which leaves 11 unclosed openers. Closing them in reverse order requires ] ) ) ] } } ) ] > ] ]. The agent's final answer is ] ) ) ] } } ) ] > ] ), which matches the first 10 closers but ends with ')'. The final closer must match the outermost '[' (input token 1), so it should be ']'. The answer therefore does not correctly complete the sequence, even though the parentheses before it are right.\",\"evidence\":[{\"source\":\"input.user\",\"quote\":\"[ [ < [ ( { { [ ( ( [\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: ] ) ) ] } } ) ] > ] )\"}],\"met\":false}]}",
+      "cost_usd": 0.0005715
+    },
+    {
+      "judge": "haiku",
+      "key": "26019dde5b57",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two distinct marbles drawn uniformly from numbers 9 through 20. There are 12 numbers with mean (9+20)/2 = 14.5, and by linearity of expectation the expected sum of two distinct draws is 2 × 14.5 = 29. The final agent reply gives 29, which is correct and directly answers the single objective requirement. The reply is a bare answer with no working, but the request asked only for the value.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 29\"}],\"met\":true}]}",
+      "cost_usd": 0.00031560000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "7bd2f97f0725",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two distinct marbles drawn from numbers 9 through 20. The mean of those 12 numbers is (9+20)/2 = 14.5, and the expected sum of two distinct draws is 2 × 14.5 = 29. The agent's final answer is 30, which does not match the correct value of 29. The objective requirement (a correct answer) is therefore not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 30\"}],\"met\":false}]}",
+      "cost_usd": 0.0002951
+    },
+    {
+      "judge": "haiku",
+      "key": "e0eb1c2984f4",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 7623, including repetitions, in ascending order. Checking: 7623 = 3 × 3 × 847, and 847 = 7 × 11 × 11. So the full prime factorization is 3 × 3 × 7 × 11 × 11, and 9 × 7 × 121 = 7623. The reply gives exactly 3, 3, 7, 11, 11. These are all prime, they include the repeated factors, and they are in ascending order. The reply is correct and complete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 7, 11, 11\"}],\"met\":true}]}",
+      "cost_usd": 0.000332
+    },
+    {
+      "judge": "haiku",
+      "key": "4949a3bfe715",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for all prime factors of 7623, including repetitions, in ascending order. Factoring gives 7623 = 3 × 3 × 7 × 11 × 11, since 7623/3 = 2541, 2541/3 = 847, and 847 = 7 × 121 = 7 × 11 × 11. Check: 9 × 7 × 121 = 7623. The response's final answer is 3, 3, 7, 11, 13. It lists 13 where the correct factor is a second 11, so the product would be 3 × 3 × 7 × 11 × 13 = 9009, not 7623. The response is therefore incorrect and does not satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 7, 11, 13\"}],\"met\":false}]}",
+      "cost_usd": 0.0003885
+    },
+    {
+      "judge": "haiku",
+      "key": "333457b21bbf",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the probability that 3 distinct integers chosen from 10 through 49 have pairwise different tens digits. There are 40 integers, with tens digits 1, 2, 3, 4, each shared by 10 integers. Total unordered choices: C(40,3) = 9880. Favorable choices: pick 3 of the 4 tens digits (C(4,3) = 4 ways), then one units value for each (10^3 = 1000), giving 4000. The probability is 4000/9880 = 100/247. The response's final answer, 100/247, matches this value exactly and is given as the complete answer to the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 100/247\"}],\"met\":true}]}",
+      "cost_usd": 0.0004255
+    },
+    {
+      "judge": "haiku",
+      "key": "4a422863f6de",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The requirement is that the response correctly and completely satisfies the user's objective request. The request asks for the probability that 3 different integers chosen from 10 through 49 have distinct tens digits. There are 40 integers, 10 per tens digit (1 to 4). Unordered choices total C(40,3)=9880. Favorable choices pick 3 of the 4 tens digits (4 ways) and one number from each (10^3), giving 4000. The probability is 4000/9880 = 100/247 ≈ 0.4049. The response gives 10247/24700 ≈ 0.4149, which is incorrect, so the response does not satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 10247/24700\"}],\"met\":false}]}",
+      "cost_usd": 0.00044720000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "3404892d06af",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the final price as a percentage of the original after three successive reductions: 77% of original, then a 17% cut, then a 22% cut. Computing 0.77 × 0.83 × 0.78 = 0.498498, which is 49.8498% of the original. The agent's answer 249249/5000% equals 49.8498%, so the value is correct. The reply states only the final answer with no working, but the request asks only for that value, so it is complete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 249249/5000%\"}],\"met\":true}]}",
+      "cost_usd": 0.00036720000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "c42f78d6135f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The question asks for the final price as a percentage of the original after three successive reductions. The factors are 0.77, 0.83 and 0.78, so the product is 77×83×78/10^6 = 498498/10^6 = 0.498498. As a percentage this is 49.8498%, which equals 249249/5000%. The response gives 254249/5000%, whose numerator differs from the correct 249249 by a digit, so the final answer is wrong.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 254249/5000%\"}],\"met\":false}]}",
+      "cost_usd": 0.00041220000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "27d7eb0585c5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for xy given 3^(x+y) = 19683 and 19683^(x-y) = 3, expressed as a fraction. Since 19683 = 3^9, the first equation gives x+y = 9, and the second gives 9(x-y) = 1, so x-y = 1/9. Then x = 41/9 and y = 40/9, so xy = 1640/81. The response gives 'Final answer: 1640/81', which is correct and is a fraction as requested. The response is a bare final answer with no working, but the request asked only for the value in fraction form, so it is complete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 1640/81\"}],\"met\":true}]}",
+      "cost_usd": 0.00038620000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "9cf985a6e447",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Since 19683 = 3^9, the first equation gives x+y = 9. The second gives 9(x-y) = 1, so x-y = 1/9. Then xy = ((x+y)^2 - (x-y)^2)/4 = (81 - 1/81)/4 = 1640/81. The response states 6641/324, which is not equal to 1640/81 (about 20.49 versus about 20.25). The response does not correctly answer the question, so the objective requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 6641/324\"}],\"met\":false}]}",
+      "cost_usd": 0.00038320000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "07645cff1a8f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for the locus of a point equidistant from (9,0) and the line x=-9. Setting sqrt((x-9)^2+y^2) = |x+9| and squaring gives x^2-18x+81+y^2 = x^2+18x+81, so y^2 = 36x. The agent's final answer is y^2 = 36x, which matches the correct locus. The reply gives only the final equation with no derivation, but the request asked only for the locus equation, so the objective is fully satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 36x\"}],\"met\":true}]}",
+      "cost_usd": 0.00035539999999999997
+    },
+    {
+      "judge": "haiku",
+      "key": "8f6aafd7d32c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from the focus (9,0) and the directrix x=-9. Setting sqrt((x-9)^2+y^2) = |x+9| and squaring gives x^2-18x+81+y^2 = x^2+18x+81, so y^2 = 36x. The agent's final answer is y^2 = 40x, which has the wrong coefficient. The objective requirement, a correct locus equation, is not satisfied.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Find its locus equation.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 40x\"}],\"met\":false}]}",
+      "cost_usd": 0.0003254
+    },
+    {
+      "judge": "haiku",
+      "key": "d860fe218123",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(9,10), so A = diag(1/9,1/10). Then A+I = diag(10/9,11/10), and (A+I)^2 = diag(100/81,121/100). Its inverse is diag(81/100,100/121). The agent's final answer matches this exactly, and it answers the question asked.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(81/100,100/121)\"}],\"met\":true}]}",
+      "cost_usd": 0.0003326
+    },
+    {
+      "judge": "haiku",
+      "key": "4dbbda75c237",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"From A^(-1) = diag(9,10), A = diag(1/9,1/10), so A+I = diag(10/9,11/10) and (A+I)^2 = diag(100/81,121/100). The inverse of (A+I)^2 is therefore diag(81/100,100/121). The response gives diag(181/100,100/121). The first entry, 181/100, is wrong (correct value 81/100), so the response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(181/100,100/121)\"}],\"met\":false}]}",
+      "cost_usd": 0.0003436
+    },
+    {
+      "judge": "haiku",
+      "key": "d923cb835784",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for Nori7's color and states that no color rule is given. The final agent reply says the color is not specified, which is the correct answer because nothing in the prompt assigns Nori7 a color. The reply answers the single question asked and does not invent a color or claim one is implied by Luma7's yellow color.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated. What color is Nori7?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.00030170000000000007
+    },
+    {
+      "judge": "haiku",
+      "key": "40ed9fe1211a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for Nori7's color and stated that no color rule applies. The only color given is for Luma7, a different entity (a yellow swan). Nori7 is a rhino, so nothing in the prompt supports 'yellow' for Nori7. The correct response would say the color cannot be determined from the information given. The agent instead gave a definite answer, 'yellow', that is unsupported by the prompt. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.00034570000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "13416b4454f5",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+46=5n gives n=23. From f+2q=0 and 0=-4f+2q+50, f=10 and q=-5. Then b=(f/n)/(1/2)=(10/23)·2=20/23. The final reply gives 20/23 as a fraction, which is the value the user asked for, so the objective requirement is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 20/23\"}],\"met\":true}]}",
+      "cost_usd": 0.0003499
+    },
+    {
+      "judge": "haiku",
+      "key": "5d2f31ed212e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Solving the request: 3n+46=5n gives n=23. From f+2q=0, f=-2q. Substituting into 0=-4f+2q+50 gives -10q=50, so q=-5 and f=10. Then b=(f/n)/(1/2)=(10/23)*2=20/23. The response gives 43/23, which does not match the correct value of 20/23. The response is therefore not correct and does not satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 43/23\"}],\"met\":false}]}",
+      "cost_usd": 0.0003559
+    },
+    {
+      "judge": "haiku",
+      "key": "20ae839d1fdb",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input has 12 unclosed openers. Reading the stack from the innermost opener outward gives the required closers: < < → > >, [ → ], ( ( → ) ), < → >, { → }, ( → ), [ → ], ( → ), < → >, [ → ]. This yields \\\"> > ] ) ) > } ) ] ) > ]\\\". The agent's final answer is exactly that sequence, with all 12 closers in the correct order, so the request is fully satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: > > ] ) ) > } ) ] ) > ]\"}],\"met\":true}]}",
+      "cost_usd": 0.0005132
+    },
+    {
+      "judge": "haiku",
+      "key": "4dd2eaa3c20e",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input opens with '[' as its first unmatched bracket, so the final closer must be ']'. Closing the stack in reverse order gives: > > ] ) ) > } ) ] ) > ]. The response's last token is ')' instead of ']', so the completion does not close the sequence properly. The request asked for proper closing, and the response misses that objective.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: > > ] ) ) > } ) ] ) > )\"}],\"met\":false}]}",
+      "cost_usd": 0.0005226
+    },
+    {
+      "judge": "haiku",
+      "key": "e086aac1d71a",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the expected sum of two different marbles drawn from numbers 17 through 29 (13 marbles). The mean marble number is (17+29)/2 = 23, so the expected sum of two distinct draws is 2 × 23 = 46. The final agent reply gives 46, which matches. The reply is brief but answers the single objective question asked, so it is correct and complete.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"What is the expected sum of their numbers?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: 46\"}],\"met\":true}]}",
+      "cost_usd": 0.00033360000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "f5b310bbcd67",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The numbers 17 through 29 have mean (17+29)/2 = 23. For two distinct marbles drawn uniformly, each marble is equally likely to be any of the 13 numbers, so the expected sum is 2 × 23 = 46. The response's final answer is 47, which is incorrect. The response therefore does not correctly satisfy the request's objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 47\"}],\"met\":false}]}",
+      "cost_usd": 0.0003021
+    },
+    {
+      "judge": "haiku",
+      "key": "5c382485cbb1",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 53235, with repetitions, in ascending order. Factoring gives 53235 = 3 × 3 × 5 × 7 × 13 × 13. Check: 9 × 5 = 45, 45 × 7 = 315, and 315 × 169 = 53235. The final reply lists exactly these six primes, including both repeated 3s and both repeated 13s, in ascending order. It is correct and complete.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"List all prime factors of 53235, including repetitions, in ascending order.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 5, 7, 13, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.00038280000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "53eec8e28143",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for all prime factors of 53235, with repetitions, in ascending order. Factoring gives 53235 = 5 × 3 × 3 × 7 × 13 × 13, since 53235 / 5 = 10647, 10647 / 3 = 3549, 3549 / 3 = 1183, and 1183 = 7 × 13 × 13. The correct list is 3, 3, 5, 7, 13, 13. The reply gives 3, 3, 5, 7, 13, 15. The final entry includes 15, which is not prime (15 = 3 × 5), and it omits the second 13. The reply therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 3, 3, 5, 7, 13, 15\"}],\"met\":false}]}",
+      "cost_usd": 0.0003613
+    },
+    {
+      "judge": "haiku",
+      "key": "4a3cbe3ab6a1",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The population is the 50 integers 10 through 59, with 10 numbers in each tens group (1 through 5). After the first integer is picked, 9 of the remaining 49 share its tens digit, so 40 of 49 have a different tens digit. The probability is 40/49, which matches the agent's final answer. The reply gives only that final answer, and it is correct and complete for the question asked.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 40/49\"}],\"met\":true}]}",
+      "cost_usd": 0.000343
+    },
+    {
+      "judge": "haiku",
+      "key": "cd14f38a249f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The integers 10 through 59 give 50 numbers, with tens digits 1 through 5, each appearing 10 times. Unordered pairs total C(50,2) = 1225. Pairs sharing a tens digit total 5 × C(10,2) = 5 × 45 = 225, so pairs with different tens digits total 1225 − 225 = 1000. The probability is 1000/1225 = 40/49 = 4000/4900. The response gives 4049/4900, which is a different value (about 0.8263 versus 0.8163). The final answer is therefore incorrect, so the response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 4049/4900\"}],\"met\":false}]}",
+      "cost_usd": 0.00042970000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "68e8eb7d5711",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the final price as a percentage of the original after three successive reductions: 78%, then a further 18% cut, then a further 23% cut. Computing 0.78 × 0.82 × 0.77 = 0.492492, which is 49.2492%. The response gives 123123/2500%, and 123123/2500 = 49.2492. The fraction is in lowest terms (2500 = 2²·5⁴, and 123123 is odd and does not end in 0 or 5). The response is correct and gives the requested form. It contains no working, but the request does not require any.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 123123/2500%\"}],\"met\":true}]}",
+      "cost_usd": 0.00040170000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "45d5cdacfc16",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The shirt's final price is 0.78 × 0.82 × 0.77 = 0.492492 of the original, which is 49.2492% = 123123/2500%. The response gives 125623/2500%, which is about 50.2492%, so the final value is wrong. The response also gives only that single value, so it does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 125623/2500%\"}],\"met\":false}]}",
+      "cost_usd": 0.00033270000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "02d80d0741f3",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Since 59049 = 3^10, the first condition gives x+y = 10. The second gives 10(x-y) = 1, so x-y = 1/10. Then xy = ((x+y)^2 - (x-y)^2)/4 = (100 - 1/100)/4 = 9999/400. The response's final answer, 9999/400, matches this value and is given as a fraction, as the user requested. The reply is a bare final answer with no working, but the user asked only for the value, so the objective requirements are fully satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 9999/400\"}],\"met\":true}]}",
+      "cost_usd": 0.00036770000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "264c60f13153",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"Since 59049 = 3^10, the first equation gives x+y = 10. The second gives 10(x-y) = 1, so x-y = 1/10. Then x = 101/20 and y = 99/20, so xy = 9999/400. The response states 10099/400, which is a different value, so it does not correctly answer the question.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 10099/400\"}],\"met\":false}]}",
+      "cost_usd": 0.00031170000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "d73a673824e6",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from (10,0) and the line x=-10. Setting sqrt((x-10)^2+y^2) = |x+10| and squaring gives x^2-20x+100+y^2 = x^2+20x+100, so y^2 = 40x. The final agent entry states exactly this equation and nothing else is requested, so the response correctly and completely satisfies the request.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Find its locus equation.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 40x\"}],\"met\":true}]}",
+      "cost_usd": 0.00033939999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "5b1b05c7e9be",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the locus of a point equidistant from (10,0) and the line x=-10. Equating the distance to the focus, sqrt((x-10)^2+y^2), with the distance to the line, |x+10|, and squaring gives (x-10)^2+y^2=(x+10)^2, which simplifies to y^2=40x. The agent's final answer is y^2=44x, which has the wrong coefficient. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: y^2 = 44x\"}],\"met\":false}]}",
+      "cost_usd": 0.00034639999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "a9f0665310a6",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(10,11), so A = diag(1/10,1/11) and A+I = diag(11/10,12/11). Then (A+I)^2 = diag(121/100,144/121), and its inverse is diag(100/121,121/144). The agent's final answer matches this exactly, and it fully answers the single request to find the inverse.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(100/121,121/144)\"}],\"met\":true}]}",
+      "cost_usd": 0.0003266
+    },
+    {
+      "judge": "haiku",
+      "key": "5a6f54b1dbde",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"A^(-1) = diag(10,11) gives A = diag(1/10, 1/11). Then A+I = diag(11/10, 12/11), so (A+I)^2 = diag(121/100, 144/121) and its inverse is diag(100/121, 121/144). The response gives diag(221/121,121/144). The second entry matches, but the first entry is 221/121 where the correct value is 100/121. The response therefore does not correctly answer the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: diag(221/121,121/144)\"}],\"met\":false}]}",
+      "cost_usd": 0.0004016
+    },
+    {
+      "judge": "haiku",
+      "key": "3608e6c96c80",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked what color Nori8 is, noting that no color rule is stated. The final agent entry answers that the color is not specified. That is the correct response to a question with no stated color rule, and it addresses the only objective requirement in the request. The reply does not invent a color or a rule, so nothing in the FAIL picture is present.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"No color rule is stated. What color is Nori8?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is not specified.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002932
+    },
+    {
+      "judge": "haiku",
+      "key": "39694c594557",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for Nori8's color and stated that no color rule applies. The only color given is Luma8's (a yellow swan), and nothing links Nori8 (a rhino) to Luma8 or to yellow. The correct response is that the color cannot be determined from the given information. The agent instead answered 'yellow' with no supporting rule, so it does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: The color is yellow.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003222
+    },
+    {
+      "judge": "haiku",
+      "key": "a069f2b6aa2c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the value of b as a fraction. Solving the system: 3n+26=5n gives n=13. From f+2q=0, q=-f/2; substituting into 0=-4f+2q+20 gives -5f+20=0, so f=4. Then b=(f/n)/(1/3)=(4/13)*3=12/13. The final agent answer is 12/13, which is correct and given as a fraction, so the objective requirement is fully satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 12/13\"}],\"met\":true}]}",
+      "cost_usd": 0.00036639999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "5720853804ce",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asks for the value of b as a fraction. Solving the constraints: 3n+26=5n gives n=13. From f+2q=0, f=-2q, and substituting into 0=-4f+2q+20 gives 10q=-20, so q=-2 and f=4. Then b=(f/n)/(1/3)=(4/13)*3=12/13. The response gives 25/13, which is incorrect, so the response does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 25/13\"}],\"met\":false}]}",
+      "cost_usd": 0.0003339
+    },
+    {
+      "judge": "haiku",
+      "key": "c6d40952ffee",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input leaves 13 open brackets. Closing them from innermost to outermost gives } ] > ] ) ] > ] > > > ) ), which matches the agent's final answer token for token. The response is correct and complete, and it closes every open bracket, including the parentheses the user asked about.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: } ] > ] ) ] > ] > > > ) )\"}],\"met\":true}]}",
+      "cost_usd": 0.00044530000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "9df992585a93",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The input opens 13 brackets: ( ( < < < [ < [ ( [ < [ {. Closing them in reverse order requires: } ] > ] ) ] > ] > > > ) ). The agent's final answer is } ] > ] ) ] > ] > > > ) ], which has the same first 12 closers but ends with ']' where the outermost '(' requires ')'. The response therefore does not correctly close the sequence, so it does not satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Complete the rest of the sequence, making sure that the parentheses are closed properly.\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: } ] > ] ) ] > ] > > > ) ]\"}],\"met\":false}]}",
+      "cost_usd": 0.0010214
+    },
+    {
+      "judge": "haiku",
+      "key": "4eb07daa565f",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for the expected sum of two distinct marbles drawn uniformly from numbers 20 through 27. The mean of those eight numbers is (20+27)/2 = 23.5, and by linearity of expectation the expected sum of two distinct draws is 2 × 23.5 = 47. The final agent entry gives exactly 47, which is correct and answers the single objective question asked.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"What is the expected sum of their numbers?\"},{\"source\":\"transcript.1\",\"quote\":\"Final answer: 47\"}],\"met\":true}]}",
+      "cost_usd": 0.0003151
+    },
+    {
+      "judge": "haiku",
+      "key": "e5ec4aa36cfd",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The marbles are numbered 20 through 27, so their mean is (20+27)/2 = 23.5. For two distinct marbles drawn uniformly, each marble appears in a given draw with probability 1/4 per position, so the expected sum is 2 × 23.5 = 47. The final answer given is 48, which is incorrect. The response therefore does not correctly satisfy the request's objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 48\"}],\"met\":false}]}",
+      "cost_usd": 0.0002841
+    },
+    {
+      "judge": "haiku",
+      "key": "f0dd6b26a28c",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for all prime factors of 2002, with repetitions, in ascending order. 2002 = 2 × 1001 = 2 × 7 × 11 × 13, and 2002 is squarefree, so no prime repeats. The reply's list 2, 7, 11, 13 is correct, complete, and ascending, and it matches the requested format.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 7, 11, 13\"}],\"met\":true}]}",
+      "cost_usd": 0.00030320000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "670e9002f2ba",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The user asked for all prime factors of 2002, including repetitions, in ascending order. 2002 = 2 × 7 × 11 × 13, so the correct list is 2, 7, 11, 13. The final answer given is 2, 7, 11, 15. It lists 15, which is not prime (15 = 3 × 5), and it omits 13. The response therefore does not correctly satisfy the objective requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 2, 7, 11, 15\"}],\"met\":false}]}",
+      "cost_usd": 0.00031220000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "c93d3dbd3224",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the probability that three different integers chosen from 10 through 69 have pairwise different tens digits. There are 60 integers, six tens digits (1 through 6), and ten integers per tens digit. The total number of unordered triples is C(60,3) = 34220. Favorable triples pick three of the six tens digits (C(6,3) = 20) and one integer from each chosen decade (10^3 = 1000), giving 20000. The probability is 20000/34220 = 1000/1711, which matches the response's final answer. The response is brief and shows no work, but the objective requirement is to give the correct answer, and it does.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 1000/1711\"}],\"met\":true}]}",
+      "cost_usd": 0.00045670000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "e47a1da2ce6b",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The question asks for the probability that 3 distinct integers from 10 to 69 have pairwise different tens digits. There are 60 integers, and the tens digits 1 through 6 each cover 10 integers. The total number of 3-element sets is C(60,3) = 34220. The favorable sets choose 3 of the 6 tens digits (C(6,3) = 20) and one integer from each chosen decade (10^3 = 1000), giving 20000. The probability is 20000/34220 = 1000/1711 = 100000/171100 ≈ 0.5845. The response's final answer is 101711/171100 ≈ 0.5945, which does not match. The response therefore does not correctly satisfy the request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 101711/171100\"}],\"met\":false}]}",
+      "cost_usd": 0.0004932000000000001
+    },
+    {
+      "judge": "haiku",
+      "key": "0ac74d66cd5d",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the final price as a percentage of the original after three successive reductions: 79%, then 19% off, then 24% off. The multiplier is 0.79 × 0.81 × 0.76 = 0.486324, which is 48.6324%. The reply gives 121581/2500%, and 121581/2500 = 48.6324, so the exact value matches. The reply answers the single question asked, so it is both correct and complete.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 121581/2500%\"}],\"met\":true}]}",
+      "cost_usd": 0.00036920000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "f8fc813f9503",
+      "criterion": "planted-verify",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-verify\",\"reasoning\":\"The request asks for the final price as a percentage of the original after three successive reductions: 79%, then 81% of that (a 19% cut), then 76% of that (a 24% cut). The product is 0.79 × 0.81 × 0.76 = 0.486324, which is 48.6324% of the original, or 121581/2500%. The response gives 124081/2500%, which equals 49.6324%. That differs from the correct value, so the response does not correctly answer the question.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Final answer: 124081/2500%\"}],\"met\":false}]}",
+      "cost_usd": 0.00033820000000000003
+    }
+  ]
+}

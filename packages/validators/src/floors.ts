@@ -93,7 +93,13 @@ export function emptyFloors(): FloorsFile {
 export function migrateFloors(file: z.infer<typeof FloorsFileV1>): FloorsFile {
   return {
     version: 2,
-    ladderVersion: Object.fromEntries(Object.keys(file.floors).map((component) => [component, 1])),
+    // Every component the file names, by a floor or by evidence alone, was measured on ladder version 1.
+    ladderVersion: Object.fromEntries(
+      [...new Set([...Object.keys(file.floors), ...Object.keys(file.evidence ?? {})])].map((component) => [
+        component,
+        1,
+      ]),
+    ),
     floors: { ...file.floors },
     ...(file.evidence
       ? {

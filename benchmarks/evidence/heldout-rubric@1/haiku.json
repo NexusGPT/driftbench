@@ -1,0 +1,1344 @@
+{
+  "format": "driftbench-bench-record-v1",
+  "report": {
+    "format": "driftbench-bench-v1",
+    "slice": "heldout-rubric",
+    "datasetVersion": 1,
+    "datasetHash": "4945358cf23be5efe35954fb71dc2e7d3d3825656e434fe4f6748e132ef89fbb",
+    "judge": "haiku",
+    "model": "claude-haiku-5-5",
+    "settings": "{\"client\":\"criterion-messages-api-v1\",\"model\":\"claude-haiku-5-5\",\"anthropicVersion\":\"2023-06-01\",\"temperature\":\"omitted\",\"maxTokens\":{\"normal\":13312,\"large\":16384},\"schema\":\"none\",\"transportFingerprints\":{\"normal\":\"096c2a19bdd7\",\"large\":\"a63066d04b76\"}}",
+    "fingerprint": "b55396660b27",
+    "head": "f516a3a177364ffe7a3706af927da94cf606c4e1",
+    "startedAt": "2026-10-15T18:11:43.926Z",
+    "finishedAt": "2026-10-15T18:12:35.285Z",
+    "n": 72,
+    "correct": 72,
+    "wilson": {
+      "estimate": 1,
+      "lower": 0.9493488274035422,
+      "upper": 1
+    },
+    "familyBootstrap": {
+      "estimate": 1,
+      "lower": 1,
+      "upper": 1,
+      "iterations": 2000,
+      "clusters": 12,
+      "method": "percentile",
+      "seed": 1
+    },
+    "zeroFailure": {
+      "requiredCleanCases": 59,
+      "independentCasesRequired": true,
+      "observedClean": true
+    },
+    "results": [
+      {
+        "id": "heldout-rubric.001",
+        "family": "negation",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.002",
+        "family": "quoted-claim",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.003",
+        "family": "scope",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.004",
+        "family": "scope",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.005",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.006",
+        "family": "scope",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.007",
+        "family": "arithmetic",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.008",
+        "family": "quoted-claim",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.009",
+        "family": "negation",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.010",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.011",
+        "family": "period",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.012",
+        "family": "disjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.013",
+        "family": "partial-completion",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.014",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.015",
+        "family": "period",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.016",
+        "family": "scope",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.017",
+        "family": "quoted-claim",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.018",
+        "family": "partial-completion",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.019",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.020",
+        "family": "period",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.021",
+        "family": "arithmetic",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.022",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.023",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.024",
+        "family": "negation",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.025",
+        "family": "quoted-claim",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.026",
+        "family": "conjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.027",
+        "family": "scope",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.028",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.029",
+        "family": "conjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.030",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.031",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.032",
+        "family": "scope",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.033",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.034",
+        "family": "disjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.035",
+        "family": "partial-completion",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.036",
+        "family": "arithmetic",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.037",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.038",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.039",
+        "family": "conjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.040",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.041",
+        "family": "partial-completion",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.042",
+        "family": "arithmetic",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.043",
+        "family": "period",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.044",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.045",
+        "family": "disjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.046",
+        "family": "conjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.047",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.048",
+        "family": "quoted-claim",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.049",
+        "family": "conjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.050",
+        "family": "disjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.051",
+        "family": "later-contradiction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.052",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.053",
+        "family": "later-contradiction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.054",
+        "family": "period",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.055",
+        "family": "disjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.056",
+        "family": "conjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.057",
+        "family": "later-contradiction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.058",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.059",
+        "family": "partial-completion",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.060",
+        "family": "later-contradiction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.061",
+        "family": "later-contradiction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.062",
+        "family": "negation",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.063",
+        "family": "disjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.064",
+        "family": "partial-completion",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.065",
+        "family": "period",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.066",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.067",
+        "family": "arithmetic",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.068",
+        "family": "arithmetic",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.069",
+        "family": "negation",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.070",
+        "family": "negation",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.071",
+        "family": "later-contradiction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "heldout-rubric.072",
+        "family": "quoted-claim",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      }
+    ]
+  },
+  "cassetteSha256": "764c8ba6a3ae6d2d467d24d658b0c05b133bc36151941e99960a2ed9ed63b8bf",
+  "resolvedModels": [
+    "claude-haiku-5-5"
+  ],
+  "costUsd": 0.0240966,
+  "chargedUsd": 0.0240966,
+  "calls": 72,
+  "spend": [
+    {
+      "at": "2026-10-15T18:11:50.948Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002458,
+      "chargedUsd": 0.0002458,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1408,
+      "outputTokens": 210
+    },
+    {
+      "at": "2026-10-15T18:11:53.671Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030310000000000005,
+      "chargedUsd": 0.00030310000000000005,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1481,
+      "outputTokens": 310
+    },
+    {
+      "at": "2026-10-15T18:11:53.913Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00026220000000000003,
+      "chargedUsd": 0.00026220000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1477,
+      "outputTokens": 229
+    },
+    {
+      "at": "2026-10-15T18:11:54.113Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003546,
+      "chargedUsd": 0.0003546,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1496,
+      "outputTokens": 410
+    },
+    {
+      "at": "2026-10-15T18:11:54.123Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033739999999999996,
+      "chargedUsd": 0.00033739999999999996,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1459,
+      "outputTokens": 383
+    },
+    {
+      "at": "2026-10-15T18:11:55.509Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00027820000000000004,
+      "chargedUsd": 0.00027820000000000004,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1477,
+      "outputTokens": 261
+    },
+    {
+      "at": "2026-10-15T18:11:56.486Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032970000000000005,
+      "chargedUsd": 0.00032970000000000005,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1412,
+      "outputTokens": 377
+    },
+    {
+      "at": "2026-10-15T18:11:56.574Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003344,
+      "chargedUsd": 0.0003344,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1459,
+      "outputTokens": 377
+    },
+    {
+      "at": "2026-10-15T18:11:56.685Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003369,
+      "chargedUsd": 0.0003369,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1439,
+      "outputTokens": 386
+    },
+    {
+      "at": "2026-10-15T18:11:57.738Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002164,
+      "chargedUsd": 0.0002164,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1444,
+      "outputTokens": 144
+    },
+    {
+      "at": "2026-10-15T18:11:57.867Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003971,
+      "chargedUsd": 0.0003971,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1496,
+      "outputTokens": 495
+    },
+    {
+      "at": "2026-10-15T18:11:58.779Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003333,
+      "chargedUsd": 0.0003333,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1473,
+      "outputTokens": 372
+    },
+    {
+      "at": "2026-10-15T18:11:59.450Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002544,
+      "chargedUsd": 0.0002544,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1444,
+      "outputTokens": 220
+    },
+    {
+      "at": "2026-10-15T18:11:59.642Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00045339999999999996,
+      "chargedUsd": 0.00045339999999999996,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1474,
+      "outputTokens": 612
+    },
+    {
+      "at": "2026-10-15T18:12:00.747Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00036020000000000003,
+      "chargedUsd": 0.00036020000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 413
+    },
+    {
+      "at": "2026-10-15T18:12:01.419Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003681,
+      "chargedUsd": 0.0003681,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1481,
+      "outputTokens": 440
+    },
+    {
+      "at": "2026-10-15T18:12:01.578Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003029,
+      "chargedUsd": 0.0003029,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1459,
+      "outputTokens": 314
+    },
+    {
+      "at": "2026-10-15T18:12:02.060Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00036420000000000007,
+      "chargedUsd": 0.00036420000000000007,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1472,
+      "outputTokens": 434
+    },
+    {
+      "at": "2026-10-15T18:12:03.182Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00039320000000000007,
+      "chargedUsd": 0.00039320000000000007,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 479
+    },
+    {
+      "at": "2026-10-15T18:12:03.490Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003054,
+      "chargedUsd": 0.0003054,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1439,
+      "outputTokens": 323
+    },
+    {
+      "at": "2026-10-15T18:12:04.381Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00037210000000000005,
+      "chargedUsd": 0.00037210000000000005,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1496,
+      "outputTokens": 445
+    },
+    {
+      "at": "2026-10-15T18:12:05.437Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003028,
+      "chargedUsd": 0.0003028,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1408,
+      "outputTokens": 324
+    },
+    {
+      "at": "2026-10-15T18:12:05.696Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003731,
+      "chargedUsd": 0.0003731,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1496,
+      "outputTokens": 447
+    },
+    {
+      "at": "2026-10-15T18:12:07.499Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032639999999999996,
+      "chargedUsd": 0.00032639999999999996,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1459,
+      "outputTokens": 361
+    },
+    {
+      "at": "2026-10-15T18:12:07.528Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033939999999999996,
+      "chargedUsd": 0.00033939999999999996,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1494,
+      "outputTokens": 380
+    },
+    {
+      "at": "2026-10-15T18:12:08.943Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003881,
+      "chargedUsd": 0.0003881,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1481,
+      "outputTokens": 480
+    },
+    {
+      "at": "2026-10-15T18:12:09.682Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003364,
+      "chargedUsd": 0.0003364,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1494,
+      "outputTokens": 374
+    },
+    {
+      "at": "2026-10-15T18:12:09.820Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004285,
+      "chargedUsd": 0.0004285,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2070,
+      "outputTokens": 443
+    },
+    {
+      "at": "2026-10-15T18:12:10.931Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000382,
+      "chargedUsd": 0.000382,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2070,
+      "outputTokens": 350
+    },
+    {
+      "at": "2026-10-15T18:12:11.324Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002522,
+      "chargedUsd": 0.0002522,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1477,
+      "outputTokens": 209
+    },
+    {
+      "at": "2026-10-15T18:12:12.607Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004157,
+      "chargedUsd": 0.0004157,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 524
+    },
+    {
+      "at": "2026-10-15T18:12:13.158Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003094,
+      "chargedUsd": 0.0003094,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1444,
+      "outputTokens": 330
+    },
+    {
+      "at": "2026-10-15T18:12:13.379Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035270000000000006,
+      "chargedUsd": 0.00035270000000000006,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 398
+    },
+    {
+      "at": "2026-10-15T18:12:13.543Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003288,
+      "chargedUsd": 0.0003288,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1473,
+      "outputTokens": 363
+    },
+    {
+      "at": "2026-10-15T18:12:14.842Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002804,
+      "chargedUsd": 0.0002804,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1439,
+      "outputTokens": 273
+    },
+    {
+      "at": "2026-10-15T18:12:14.846Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035470000000000006,
+      "chargedUsd": 0.00035470000000000006,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1472,
+      "outputTokens": 415
+    },
+    {
+      "at": "2026-10-15T18:12:15.765Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035810000000000003,
+      "chargedUsd": 0.00035810000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1496,
+      "outputTokens": 417
+    },
+    {
+      "at": "2026-10-15T18:12:16.221Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004135,
+      "chargedUsd": 0.0004135,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2070,
+      "outputTokens": 413
+    },
+    {
+      "at": "2026-10-15T18:12:17.199Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003584,
+      "chargedUsd": 0.0003584,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1494,
+      "outputTokens": 418
+    },
+    {
+      "at": "2026-10-15T18:12:17.453Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000451,
+      "chargedUsd": 0.000451,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2070,
+      "outputTokens": 488
+    },
+    {
+      "at": "2026-10-15T18:12:18.192Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00036770000000000005,
+      "chargedUsd": 0.00036770000000000005,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1472,
+      "outputTokens": 441
+    },
+    {
+      "at": "2026-10-15T18:12:19.150Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003179,
+      "chargedUsd": 0.0003179,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1439,
+      "outputTokens": 348
+    },
+    {
+      "at": "2026-10-15T18:12:19.652Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002939,
+      "chargedUsd": 0.0002939,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1444,
+      "outputTokens": 299
+    },
+    {
+      "at": "2026-10-15T18:12:19.732Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004125,
+      "chargedUsd": 0.0004125,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2070,
+      "outputTokens": 411
+    },
+    {
+      "at": "2026-10-15T18:12:20.191Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003216,
+      "chargedUsd": 0.0003216,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1476,
+      "outputTokens": 348
+    },
+    {
+      "at": "2026-10-15T18:12:21.644Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003134,
+      "chargedUsd": 0.0003134,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1459,
+      "outputTokens": 335
+    },
+    {
+      "at": "2026-10-15T18:12:21.648Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003249,
+      "chargedUsd": 0.0003249,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1494,
+      "outputTokens": 351
+    },
+    {
+      "at": "2026-10-15T18:12:21.732Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032120000000000006,
+      "chargedUsd": 0.00032120000000000006,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 335
+    },
+    {
+      "at": "2026-10-15T18:12:22.168Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003224,
+      "chargedUsd": 0.0003224,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1494,
+      "outputTokens": 346
+    },
+    {
+      "at": "2026-10-15T18:12:23.501Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030930000000000004,
+      "chargedUsd": 0.00030930000000000004,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1473,
+      "outputTokens": 324
+    },
+    {
+      "at": "2026-10-15T18:12:23.583Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000359,
+      "chargedUsd": 0.000359,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 2070,
+      "outputTokens": 304
+    },
+    {
+      "at": "2026-10-15T18:12:23.633Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032839999999999996,
+      "chargedUsd": 0.00032839999999999996,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1479,
+      "outputTokens": 361
+    },
+    {
+      "at": "2026-10-15T18:12:24.108Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033539999999999997,
+      "chargedUsd": 0.00033539999999999997,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1479,
+      "outputTokens": 375
+    },
+    {
+      "at": "2026-10-15T18:12:25.404Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00031289999999999996,
+      "chargedUsd": 0.00031289999999999996,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1494,
+      "outputTokens": 327
+    },
+    {
+      "at": "2026-10-15T18:12:25.410Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030389999999999996,
+      "chargedUsd": 0.00030389999999999996,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1444,
+      "outputTokens": 319
+    },
+    {
+      "at": "2026-10-15T18:12:25.899Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030310000000000005,
+      "chargedUsd": 0.00030310000000000005,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1476,
+      "outputTokens": 311
+    },
+    {
+      "at": "2026-10-15T18:12:26.363Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033070000000000007,
+      "chargedUsd": 0.00033070000000000007,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1472,
+      "outputTokens": 367
+    },
+    {
+      "at": "2026-10-15T18:12:27.410Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003221,
+      "chargedUsd": 0.0003221,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1496,
+      "outputTokens": 345
+    },
+    {
+      "at": "2026-10-15T18:12:27.984Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00028320000000000005,
+      "chargedUsd": 0.00028320000000000005,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1472,
+      "outputTokens": 272
+    },
+    {
+      "at": "2026-10-15T18:12:28.461Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004874,
+      "chargedUsd": 0.0004874,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1474,
+      "outputTokens": 680
+    },
+    {
+      "at": "2026-10-15T18:12:28.463Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033289999999999996,
+      "chargedUsd": 0.00033289999999999996,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1479,
+      "outputTokens": 370
+    },
+    {
+      "at": "2026-10-15T18:12:30.050Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030520000000000005,
+      "chargedUsd": 0.00030520000000000005,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1412,
+      "outputTokens": 328
+    },
+    {
+      "at": "2026-10-15T18:12:30.175Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033360000000000003,
+      "chargedUsd": 0.00033360000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1476,
+      "outputTokens": 372
+    },
+    {
+      "at": "2026-10-15T18:12:30.705Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032439999999999997,
+      "chargedUsd": 0.00032439999999999997,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1444,
+      "outputTokens": 360
+    },
+    {
+      "at": "2026-10-15T18:12:31.095Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00039939999999999995,
+      "chargedUsd": 0.00039939999999999995,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1474,
+      "outputTokens": 504
+    },
+    {
+      "at": "2026-10-15T18:12:31.637Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002779,
+      "chargedUsd": 0.0002779,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1439,
+      "outputTokens": 268
+    },
+    {
+      "at": "2026-10-15T18:12:32.205Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002654,
+      "chargedUsd": 0.0002654,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1439,
+      "outputTokens": 243
+    },
+    {
+      "at": "2026-10-15T18:12:32.673Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00025130000000000004,
+      "chargedUsd": 0.00025130000000000004,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1408,
+      "outputTokens": 221
+    },
+    {
+      "at": "2026-10-15T18:12:32.688Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00040970000000000004,
+      "chargedUsd": 0.00040970000000000004,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1537,
+      "outputTokens": 512
+    },
+    {
+      "at": "2026-10-15T18:12:33.186Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00025570000000000004,
+      "chargedUsd": 0.00025570000000000004,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1412,
+      "outputTokens": 229
+    },
+    {
+      "at": "2026-10-15T18:12:34.945Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00031289999999999996,
+      "chargedUsd": 0.00031289999999999996,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1459,
+      "outputTokens": 334
+    },
+    {
+      "at": "2026-10-15T18:12:35.284Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030270000000000004,
+      "chargedUsd": 0.00030270000000000004,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1472,
+      "outputTokens": 311
+    }
+  ]
+}

@@ -1,0 +1,1966 @@
+{
+  "format": "driftbench-bench-record-v1",
+  "report": {
+    "format": "driftbench-bench-v1",
+    "slice": "hard-goal",
+    "datasetVersion": 1,
+    "datasetHash": "241a06a4e210d4fd1789b4970352d29a6099878b3df4c151c27d75b8237c59b4",
+    "judge": "haiku",
+    "model": "claude-haiku-5-5",
+    "settings": "[\"-p\",\"--output-format\",\"json\",\"--tools\",\"\",\"--setting-sources\",\"\",\"--strict-mcp-config\",\"--no-session-persistence\",\"--max-turns\",\"1\"]",
+    "fingerprint": "19cf28d04b13",
+    "head": "893474ebad6a3604c735e213b22c053516408849",
+    "startedAt": "2026-10-13T07:24:37.242Z",
+    "finishedAt": "2026-10-13T07:25:33.803Z",
+    "n": 120,
+    "correct": 111,
+    "wilson": {
+      "estimate": 0.925,
+      "lower": 0.8635908239400624,
+      "upper": 0.9600428846040397
+    },
+    "familyBootstrap": {
+      "estimate": 0.925,
+      "lower": 0.825,
+      "upper": 1,
+      "iterations": 2000,
+      "clusters": 12,
+      "method": "percentile",
+      "seed": 1
+    },
+    "zeroFailure": {
+      "requiredCleanCases": 59,
+      "independentCasesRequired": true,
+      "observedClean": false
+    },
+    "results": [
+      {
+        "id": "goal.001",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.002",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.003",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.004",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.005",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.006",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.007",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.008",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.009",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.010",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.011",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.012",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.013",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.014",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.015",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.016",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.017",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.018",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.019",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.020",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.021",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.022",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.023",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.024",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.025",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.026",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "pass",
+        "correct": false
+      },
+      {
+        "id": "goal.027",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.028",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.029",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.030",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.031",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.032",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.033",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.034",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.035",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.036",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.037",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.038",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.039",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "pass",
+        "correct": false
+      },
+      {
+        "id": "goal.040",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.041",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.042",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.043",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.044",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.045",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.046",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.047",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.048",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.049",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.050",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.051",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.052",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.053",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.054",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.055",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.056",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.057",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "pass",
+        "correct": false
+      },
+      {
+        "id": "goal.058",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.059",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.060",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.061",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.062",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.063",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.064",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.065",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.066",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.067",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.068",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.069",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.070",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.071",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.072",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.073",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.074",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.075",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.076",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.077",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.078",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.079",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.080",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.081",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.082",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.083",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.084",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.085",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.086",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.087",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.088",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.089",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.090",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.091",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.092",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.093",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.094",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.095",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.096",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.097",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.098",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.099",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.100",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.101",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.102",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.103",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.104",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.105",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.106",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.107",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.108",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.109",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.110",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.111",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.112",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.113",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.114",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.115",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.116",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.117",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.118",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.119",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "pass",
+        "correct": false
+      },
+      {
+        "id": "goal.120",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      }
+    ]
+  },
+  "cassetteSha256": "f48175ec93d6022dc8dcd392f10e94682aea950ebb9cab59129b7dd48ec0ca53",
+  "resolvedModels": ["claude-haiku-5-5"],
+  "costUsd": 0.0602825,
+  "chargedUsd": 0.0602825,
+  "calls": 120,
+  "spend": [
+    {
+      "at": "2026-10-13T07:24:42.013Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003153,
+      "chargedUsd": 0.0003153,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:42.209Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003912,
+      "chargedUsd": 0.0003912,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:42.246Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003459,
+      "chargedUsd": 0.0003459,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:42.689Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003767,
+      "chargedUsd": 0.0003767,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:43.081Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004868,
+      "chargedUsd": 0.0004868,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:43.111Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00043160000000000003,
+      "chargedUsd": 0.00043160000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:43.207Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004642,
+      "chargedUsd": 0.0004642,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:43.272Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004449,
+      "chargedUsd": 0.0004449,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:43.376Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005057,
+      "chargedUsd": 0.0005057,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:43.503Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004246,
+      "chargedUsd": 0.0004246,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:43.585Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005165,
+      "chargedUsd": 0.0005165,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:43.589Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005204000000000001,
+      "chargedUsd": 0.0005204000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:43.804Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000532,
+      "chargedUsd": 0.000532,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:44.069Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005944,
+      "chargedUsd": 0.0005944,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:44.126Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006931000000000001,
+      "chargedUsd": 0.0006931000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:44.206Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00043020000000000005,
+      "chargedUsd": 0.00043020000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:47.866Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006251,
+      "chargedUsd": 0.0006251,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:47.925Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004705,
+      "chargedUsd": 0.0004705,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:48.151Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003932,
+      "chargedUsd": 0.0003932,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:48.314Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004621,
+      "chargedUsd": 0.0004621,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:48.530Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006837,
+      "chargedUsd": 0.0006837,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:48.718Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004931,
+      "chargedUsd": 0.0004931,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:48.726Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005585,
+      "chargedUsd": 0.0005585,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:48.881Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004171,
+      "chargedUsd": 0.0004171,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:49.149Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004582,
+      "chargedUsd": 0.0004582,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:49.391Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005211,
+      "chargedUsd": 0.0005211,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:49.492Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004897,
+      "chargedUsd": 0.0004897,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:49.510Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005111,
+      "chargedUsd": 0.0005111,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:49.641Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005375,
+      "chargedUsd": 0.0005375,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:49.951Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004812,
+      "chargedUsd": 0.0004812,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:50.522Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00047349999999999996,
+      "chargedUsd": 0.00047349999999999996,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:50.841Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005127,
+      "chargedUsd": 0.0005127,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:54.734Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00037600000000000003,
+      "chargedUsd": 0.00037600000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:55.966Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00045610000000000003,
+      "chargedUsd": 0.00045610000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:56.077Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004052,
+      "chargedUsd": 0.0004052,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:56.823Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004677,
+      "chargedUsd": 0.0004677,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:56.859Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005091000000000001,
+      "chargedUsd": 0.0005091000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:56.885Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004756,
+      "chargedUsd": 0.0004756,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:56.936Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004728,
+      "chargedUsd": 0.0004728,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:56.950Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00045990000000000007,
+      "chargedUsd": 0.00045990000000000007,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:57.116Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005388999999999999,
+      "chargedUsd": 0.0005388999999999999,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:58.715Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004247,
+      "chargedUsd": 0.0004247,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:59.566Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004435,
+      "chargedUsd": 0.0004435,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:24:59.784Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005155,
+      "chargedUsd": 0.0005155,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:00.535Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005092,
+      "chargedUsd": 0.0005092,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:00.724Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005204000000000001,
+      "chargedUsd": 0.0005204000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:01.376Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00048440000000000006,
+      "chargedUsd": 0.00048440000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:01.766Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00046120000000000004,
+      "chargedUsd": 0.00046120000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:01.811Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004992,
+      "chargedUsd": 0.0004992,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:02.152Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003962,
+      "chargedUsd": 0.0003962,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:02.304Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004292,
+      "chargedUsd": 0.0004292,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:02.960Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004557,
+      "chargedUsd": 0.0004557,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:03.018Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005147,
+      "chargedUsd": 0.0005147,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:03.357Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0007086999999999999,
+      "chargedUsd": 0.0007086999999999999,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:03.884Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006841,
+      "chargedUsd": 0.0006841,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:04.498Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005026000000000001,
+      "chargedUsd": 0.0005026000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:04.705Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000694,
+      "chargedUsd": 0.000694,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:04.724Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00045870000000000004,
+      "chargedUsd": 0.00045870000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:05.781Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004849,
+      "chargedUsd": 0.0004849,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:06.532Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00043630000000000003,
+      "chargedUsd": 0.00043630000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:06.887Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005119,
+      "chargedUsd": 0.0005119,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:07.130Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0007565,
+      "chargedUsd": 0.0007565,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:08.278Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00047250000000000005,
+      "chargedUsd": 0.00047250000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:08.285Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005027,
+      "chargedUsd": 0.0005027,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:08.463Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006141,
+      "chargedUsd": 0.0006141,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:08.540Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004862,
+      "chargedUsd": 0.0004862,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:09.436Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003292,
+      "chargedUsd": 0.0003292,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:09.582Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004896,
+      "chargedUsd": 0.0004896,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:09.611Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006836,
+      "chargedUsd": 0.0006836,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:09.690Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004381,
+      "chargedUsd": 0.0004381,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:09.859Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005127,
+      "chargedUsd": 0.0005127,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:11.395Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004857,
+      "chargedUsd": 0.0004857,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:12.575Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0008786999999999999,
+      "chargedUsd": 0.0008786999999999999,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:13.074Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004038,
+      "chargedUsd": 0.0004038,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:13.511Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005596,
+      "chargedUsd": 0.0005596,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:13.801Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005204000000000001,
+      "chargedUsd": 0.0005204000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:13.996Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003735,
+      "chargedUsd": 0.0003735,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:14.343Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003956,
+      "chargedUsd": 0.0003956,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:14.925Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0007536999999999999,
+      "chargedUsd": 0.0007536999999999999,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:14.975Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0007306999999999999,
+      "chargedUsd": 0.0007306999999999999,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:16.485Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005367,
+      "chargedUsd": 0.0005367,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:17.131Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005357000000000001,
+      "chargedUsd": 0.0005357000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:17.334Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004662,
+      "chargedUsd": 0.0004662,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:17.339Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004763,
+      "chargedUsd": 0.0004763,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:17.343Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000553,
+      "chargedUsd": 0.000553,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:17.346Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005835,
+      "chargedUsd": 0.0005835,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:18.737Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004557,
+      "chargedUsd": 0.0004557,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:19.919Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006580000000000001,
+      "chargedUsd": 0.0006580000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:22.068Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003158,
+      "chargedUsd": 0.0003158,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:22.085Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005564000000000001,
+      "chargedUsd": 0.0005564000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:22.375Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005442,
+      "chargedUsd": 0.0005442,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:22.385Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00044269999999999997,
+      "chargedUsd": 0.00044269999999999997,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:22.606Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004096,
+      "chargedUsd": 0.0004096,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:22.709Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005099000000000001,
+      "chargedUsd": 0.0005099000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:22.723Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006486,
+      "chargedUsd": 0.0006486,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:23.037Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004962,
+      "chargedUsd": 0.0004962,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:24.961Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004515,
+      "chargedUsd": 0.0004515,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:25.244Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004902,
+      "chargedUsd": 0.0004902,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:25.518Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000534,
+      "chargedUsd": 0.000534,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:25.717Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004827,
+      "chargedUsd": 0.0004827,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:25.743Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005325,
+      "chargedUsd": 0.0005325,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:26.122Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005562,
+      "chargedUsd": 0.0005562,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:26.212Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004287,
+      "chargedUsd": 0.0004287,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:26.419Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004491,
+      "chargedUsd": 0.0004491,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:26.592Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006205,
+      "chargedUsd": 0.0006205,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:26.866Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003583,
+      "chargedUsd": 0.0003583,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:27.917Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004142,
+      "chargedUsd": 0.0004142,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:28.244Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006606,
+      "chargedUsd": 0.0006606,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:28.708Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005087,
+      "chargedUsd": 0.0005087,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:28.985Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005714,
+      "chargedUsd": 0.0005714,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:29.168Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005870000000000001,
+      "chargedUsd": 0.0005870000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:30.394Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003345,
+      "chargedUsd": 0.0003345,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:31.086Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004965,
+      "chargedUsd": 0.0004965,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:31.540Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00039900000000000005,
+      "chargedUsd": 0.00039900000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:31.716Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005327,
+      "chargedUsd": 0.0005327,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:31.990Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004278,
+      "chargedUsd": 0.0004278,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:32.085Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005309000000000001,
+      "chargedUsd": 0.0005309000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:32.223Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004763,
+      "chargedUsd": 0.0004763,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:32.482Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005205,
+      "chargedUsd": 0.0005205,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:25:33.802Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00048510000000000003,
+      "chargedUsd": 0.00048510000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    }
+  ]
+}

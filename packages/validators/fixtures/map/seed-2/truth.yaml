@@ -1,0 +1,799 @@
+# The truth of the map validator, seed 2. Written by code from the hidden specification; every name is fictional.
+structural:
+  - dimension: behaviour
+    kind: behaviour
+    value: B-001
+    from: inventory
+  - dimension: behaviour
+    kind: behaviour
+    value: B-002
+    from: inventory
+  - dimension: behaviour
+    kind: behaviour
+    value: B-003
+    from: inventory
+  - dimension: behaviour
+    kind: behaviour
+    value: B-004
+    from: inventory
+  - dimension: behaviour
+    kind: behaviour
+    value: B-005
+    from: inventory
+  - dimension: flow
+    kind: behaviour
+    value: renewal
+    from: inventory
+  - dimension: flow
+    kind: behaviour
+    value: address-change
+    from: inventory
+  - dimension: flow
+    kind: behaviour
+    value: new-order
+    from: inventory
+  - dimension: flow
+    kind: behaviour
+    value: cancellation
+    from: inventory
+  - dimension: deviation
+    kind: deviation
+    value: D1_off_topic
+    from: inventory
+  - dimension: deviation
+    kind: deviation
+    value: D3_contradiction
+    from: inventory
+  - dimension: deviation
+    kind: deviation
+    value: D4_loose_confirmation
+    from: inventory
+  - dimension: deviation
+    kind: deviation
+    value: D8_tool_failure
+    from: inventory
+  - dimension: channel
+    kind: channel
+    value: sms
+    from: inventory
+  - dimension: channel
+    kind: channel
+    value: voice
+    from: inventory
+  - dimension: channel
+    kind: channel
+    value: web
+    from: inventory
+  - dimension: order.place.in.reference
+    kind: data
+    value: order.place.in.reference.at-max-length
+    from: tools
+  - dimension: order.place.in.reference
+    kind: data
+    value: order.place.in.reference.above-max-length
+    from: tools
+  - dimension: order.place.in.verified
+    kind: data
+    value: order.place.in.verified.true
+    from: tools
+  - dimension: order.place.in.verified
+    kind: data
+    value: order.place.in.verified.false
+    from: tools
+  - dimension: order.place.in.verified
+    kind: data
+    value: order.place.in.verified.absent
+    from: tools
+  - dimension: order.place.in.quantity
+    kind: data
+    value: order.place.in.quantity.below-minimum
+    from: tools
+  - dimension: order.place.in.quantity
+    kind: data
+    value: order.place.in.quantity.at-minimum
+    from: tools
+  - dimension: order.place.in.quantity
+    kind: data
+    value: order.place.in.quantity.above-minimum
+    from: tools
+  - dimension: order.place.in.quantity
+    kind: data
+    value: order.place.in.quantity.below-maximum
+    from: tools
+  - dimension: order.place.in.quantity
+    kind: data
+    value: order.place.in.quantity.at-maximum
+    from: tools
+  - dimension: order.place.in.quantity
+    kind: data
+    value: order.place.in.quantity.above-maximum
+    from: tools
+  - dimension: order.place.out.reason_code
+    kind: data
+    value: order.place.out.reason_code.basic
+    from: tools
+  - dimension: order.place.out.reason_code
+    kind: data
+    value: order.place.out.reason_code.plus
+    from: tools
+  - dimension: order.place.out.reason_code
+    kind: data
+    value: order.place.out.reason_code.max
+    from: tools
+  - dimension: order.place.out.owner
+    kind: data
+    value: order.place.out.owner.present
+    from: tools
+  - dimension: order.place.out.owner
+    kind: data
+    value: order.place.out.owner.null
+    from: tools
+  - dimension: order.place.out.owner
+    kind: data
+    value: order.place.out.owner.absent
+    from: tools
+  - dimension: order.place.out.owner.reference
+    kind: data
+    value: order.place.out.owner.reference.below-min-length
+    from: tools
+  - dimension: order.place.out.owner.reference
+    kind: data
+    value: order.place.out.owner.reference.at-min-length
+    from: tools
+  - dimension: order.place.out.owner.reference
+    kind: data
+    value: order.place.out.owner.reference.absent
+    from: tools
+  - dimension: order.place.out.owner.lines
+    kind: data
+    value: order.place.out.owner.lines.empty
+    from: tools
+  - dimension: order.place.out.owner.lines
+    kind: data
+    value: order.place.out.owner.lines.one-item
+    from: tools
+  - dimension: order.place.out.owner.lines
+    kind: data
+    value: order.place.out.owner.lines.several-items
+    from: tools
+  - dimension: order.place.out.comment
+    kind: data
+    value: order.place.out.comment.present
+    from: tools
+  - dimension: order.place.out.comment
+    kind: data
+    value: order.place.out.comment.absent
+    from: tools
+  - dimension: address.check.in.contact_email
+    kind: data
+    value: address.check.in.contact_email.well-formed
+    from: tools
+  - dimension: address.check.in.contact_email
+    kind: data
+    value: address.check.in.contact_email.malformed
+    from: tools
+  - dimension: address.check.in.reason_code
+    kind: data
+    value: address.check.in.reason_code.moved
+    from: tools
+  - dimension: address.check.in.reason_code
+    kind: data
+    value: address.check.in.reason_code.unhappy
+    from: tools
+  - dimension: address.check.in.reason_code
+    kind: data
+    value: address.check.in.reason_code.duplicate
+    from: tools
+  - dimension: address.check.in.reason_code
+    kind: data
+    value: address.check.in.reason_code.other
+    from: tools
+  - dimension: address.check.in.tier
+    kind: data
+    value: address.check.in.tier.basic
+    from: tools
+  - dimension: address.check.in.tier
+    kind: data
+    value: address.check.in.tier.plus
+    from: tools
+  - dimension: address.check.in.tier
+    kind: data
+    value: address.check.in.tier.max
+    from: tools
+  - dimension: address.check.in.tier
+    kind: data
+    value: address.check.in.tier.absent
+    from: tools
+  - dimension: address.check.in.count
+    kind: data
+    value: address.check.in.count.below-minimum
+    from: tools
+  - dimension: address.check.in.count
+    kind: data
+    value: address.check.in.count.at-minimum
+    from: tools
+  - dimension: address.check.in.count
+    kind: data
+    value: address.check.in.count.above-minimum
+    from: tools
+  - dimension: address.check.in.count
+    kind: data
+    value: address.check.in.count.below-maximum
+    from: tools
+  - dimension: address.check.in.count
+    kind: data
+    value: address.check.in.count.at-maximum
+    from: tools
+  - dimension: address.check.in.count
+    kind: data
+    value: address.check.in.count.above-maximum
+    from: tools
+  - dimension: address.check.in.count
+    kind: data
+    value: address.check.in.count.absent
+    from: tools
+  - dimension: address.check.out.summary
+    kind: data
+    value: address.check.out.summary.below-min-length
+    from: tools
+  - dimension: address.check.out.summary
+    kind: data
+    value: address.check.out.summary.at-min-length
+    from: tools
+  - dimension: address.check.out.slot
+    kind: data
+    value: address.check.out.slot.present
+    from: tools
+  - dimension: address.check.out.slot
+    kind: data
+    value: address.check.out.slot.null
+    from: tools
+  - dimension: address.check.out.slot
+    kind: data
+    value: address.check.out.slot.absent
+    from: tools
+  - dimension: address.check.out.slot.queued
+    kind: data
+    value: address.check.out.slot.queued.true
+    from: tools
+  - dimension: address.check.out.slot.queued
+    kind: data
+    value: address.check.out.slot.queued.false
+    from: tools
+  - dimension: address.check.out.slot.queued
+    kind: data
+    value: address.check.out.slot.queued.absent
+    from: tools
+  - dimension: visit.book.in.verified
+    kind: data
+    value: visit.book.in.verified.true
+    from: tools
+  - dimension: visit.book.in.verified
+    kind: data
+    value: visit.book.in.verified.false
+    from: tools
+  - dimension: visit.book.in.urgent
+    kind: data
+    value: visit.book.in.urgent.true
+    from: tools
+  - dimension: visit.book.in.urgent
+    kind: data
+    value: visit.book.in.urgent.false
+    from: tools
+  - dimension: visit.book.in.slot
+    kind: data
+    value: visit.book.in.slot.present
+    from: tools
+  - dimension: visit.book.in.slot
+    kind: data
+    value: visit.book.in.slot.null
+    from: tools
+  - dimension: visit.book.in.slot.priority
+    kind: data
+    value: visit.book.in.slot.priority.open
+    from: tools
+  - dimension: visit.book.in.slot.priority
+    kind: data
+    value: visit.book.in.slot.priority.pending
+    from: tools
+  - dimension: visit.book.in.slot.priority
+    kind: data
+    value: visit.book.in.slot.priority.closed
+    from: tools
+  - dimension: visit.book.in.slot.priority
+    kind: data
+    value: visit.book.in.slot.priority.absent
+    from: tools
+  - dimension: visit.book.in.start_date
+    kind: data
+    value: visit.book.in.start_date.well-formed
+    from: tools
+  - dimension: visit.book.in.start_date
+    kind: data
+    value: visit.book.in.start_date.malformed
+    from: tools
+  - dimension: visit.book.out.tier
+    kind: data
+    value: visit.book.out.tier.moved
+    from: tools
+  - dimension: visit.book.out.tier
+    kind: data
+    value: visit.book.out.tier.unhappy
+    from: tools
+  - dimension: visit.book.out.tier
+    kind: data
+    value: visit.book.out.tier.duplicate
+    from: tools
+  - dimension: visit.book.out.tier
+    kind: data
+    value: visit.book.out.tier.other
+    from: tools
+  - dimension: ticket.open.in.items
+    kind: data
+    value: ticket.open.in.items.empty
+    from: tools
+  - dimension: ticket.open.in.items
+    kind: data
+    value: ticket.open.in.items.one-item
+    from: tools
+  - dimension: ticket.open.in.items
+    kind: data
+    value: ticket.open.in.items.several-items
+    from: tools
+  - dimension: ticket.open.in.tier
+    kind: data
+    value: ticket.open.in.tier.basic
+    from: tools
+  - dimension: ticket.open.in.tier
+    kind: data
+    value: ticket.open.in.tier.plus
+    from: tools
+  - dimension: ticket.open.in.tier
+    kind: data
+    value: ticket.open.in.tier.max
+    from: tools
+  - dimension: ticket.open.in.reference
+    kind: data
+    value: ticket.open.in.reference.at-min-length
+    from: tools
+  - dimension: ticket.open.in.reference
+    kind: data
+    value: ticket.open.in.reference.absent
+    from: tools
+  - dimension: ticket.open.in.term_months
+    kind: data
+    value: ticket.open.in.term_months.below-minimum
+    from: tools
+  - dimension: ticket.open.in.term_months
+    kind: data
+    value: ticket.open.in.term_months.at-minimum
+    from: tools
+  - dimension: ticket.open.in.term_months
+    kind: data
+    value: ticket.open.in.term_months.above-minimum
+    from: tools
+  - dimension: ticket.open.out.slot
+    kind: data
+    value: ticket.open.out.slot.present
+    from: tools
+  - dimension: ticket.open.out.slot
+    kind: data
+    value: ticket.open.out.slot.null
+    from: tools
+  - dimension: ticket.open.out.contact_email
+    kind: data
+    value: ticket.open.out.contact_email.well-formed
+    from: tools
+  - dimension: ticket.open.out.contact_email
+    kind: data
+    value: ticket.open.out.contact_email.malformed
+    from: tools
+  - dimension: ticket.open.out.term_months
+    kind: data
+    value: ticket.open.out.term_months.below-maximum
+    from: tools
+  - dimension: ticket.open.out.term_months
+    kind: data
+    value: ticket.open.out.term_months.at-maximum
+    from: tools
+  - dimension: ticket.open.out.term_months
+    kind: data
+    value: ticket.open.out.term_months.above-maximum
+    from: tools
+prose:
+  - id: stage/greet
+    section: stages
+    type: value
+    dimension: stage
+    kind: stage
+    value: greet
+  - id: stage/identify
+    section: stages
+    type: value
+    dimension: stage
+    kind: stage
+    value: identify
+  - id: stage/verify
+    section: stages
+    type: value
+    dimension: stage
+    kind: stage
+    value: verify
+  - id: stage/propose
+    section: stages
+    type: value
+    dimension: stage
+    kind: stage
+    value: propose
+  - id: stage/recap
+    section: stages
+    type: value
+    dimension: stage
+    kind: stage
+    value: recap
+  - id: stage/close
+    section: stages
+    type: value
+    dimension: stage
+    kind: stage
+    value: close
+  - id: rule/R-01
+    section: rules
+    type: value
+    dimension: rule
+    kind: behaviour
+    value: R-01
+  - id: rule/R-02
+    section: rules
+    type: value
+    dimension: rule
+    kind: behaviour
+    value: R-02
+  - id: rule/R-03
+    section: rules
+    type: value
+    dimension: rule
+    kind: behaviour
+    value: R-03
+  - id: rule/R-04
+    section: rules
+    type: value
+    dimension: rule
+    kind: behaviour
+    value: R-04
+  - id: rule/R-05
+    section: rules
+    type: value
+    dimension: rule
+    kind: behaviour
+    value: R-05
+  - id: deviation/D2_goal_shift
+    section: rules
+    type: value
+    dimension: deviation
+    kind: deviation
+    value: D2_goal_shift
+  - id: customer_type/member
+    section: personas
+    type: value
+    dimension: customer_type
+    kind: persona
+    value: member
+  - id: customer_type/guest
+    section: personas
+    type: value
+    dimension: customer_type
+    kind: persona
+    value: guest
+  - id: customer_type/partner
+    section: personas
+    type: value
+    dimension: customer_type
+    kind: persona
+    value: partner
+  - id: customer_type/former
+    section: personas
+    type: value
+    dimension: customer_type
+    kind: persona
+    value: former
+  - id: language/en
+    section: personas
+    type: value
+    dimension: language
+    kind: persona
+    value: en
+  - id: language/nl
+    section: personas
+    type: value
+    dimension: language
+    kind: persona
+    value: nl
+  - id: balance_state/balance-clear
+    section: data
+    type: value
+    dimension: balance_state
+    kind: data
+    value: balance-clear
+  - id: balance_state/balance-overdue
+    section: data
+    type: value
+    dimension: balance_state
+    kind: data
+    value: balance-overdue
+  - id: phrase/flow/renewal/en
+    section: phrases
+    type: phrase
+    dimension: flow
+    kind: behaviour
+    value: renewal
+    lang: en
+    text: My plan ends next week and I want to keep it for another year.
+  - id: phrase/flow/new-order/en
+    section: phrases
+    type: phrase
+    dimension: flow
+    kind: behaviour
+    value: new-order
+    lang: en
+    text: I have no account yet and want to sign up for a plan.
+  - id: phrase/flow/cancellation/en
+    section: phrases
+    type: phrase
+    dimension: flow
+    kind: behaviour
+    value: cancellation
+    lang: en
+    text: Please end my plan at the end of this month.
+  - id: phrase/language/nl/nl
+    section: phrases
+    type: phrase
+    dimension: language
+    kind: persona
+    value: nl
+    lang: nl
+    text: Hallo, ik wil mijn abonnement aanpassen.
+constraints:
+  - id: behaviour=B-005,channel=sms
+    forbid:
+      behaviour: B-005
+      channel: sms
+    from: inventory
+  - id: behaviour=B-001,flow=cancellation
+    forbid:
+      behaviour: B-001
+      flow: cancellation
+    from: inventory
+  - id: behaviour=B-002,flow=renewal
+    forbid:
+      behaviour: B-002
+      flow: renewal
+    from: inventory
+  - id: behaviour=B-002,flow=address-change
+    forbid:
+      behaviour: B-002
+      flow: address-change
+    from: inventory
+  - id: behaviour=B-002,flow=cancellation
+    forbid:
+      behaviour: B-002
+      flow: cancellation
+    from: inventory
+  - id: behaviour=B-003,flow=address-change
+    forbid:
+      behaviour: B-003
+      flow: address-change
+    from: inventory
+  - id: behaviour=B-003,flow=new-order
+    forbid:
+      behaviour: B-003
+      flow: new-order
+    from: inventory
+  - id: behaviour=B-003,flow=cancellation
+    forbid:
+      behaviour: B-003
+      flow: cancellation
+    from: inventory
+  - id: customer_type=member,channel=voice
+    forbid:
+      customer_type: member
+      channel: voice
+    from: prose
+    section: personas
+roles:
+  - dimension: behaviour
+    role: axis
+  - dimension: flow
+    role: detail
+  - dimension: deviation
+    role: axis
+  - dimension: channel
+    role: axis
+  - dimension: order.place.in.reference
+    role: detail
+  - dimension: order.place.in.verified
+    role: detail
+  - dimension: order.place.in.quantity
+    role: detail
+  - dimension: order.place.out.reason_code
+    role: detail
+  - dimension: order.place.out.owner
+    role: detail
+  - dimension: order.place.out.owner.reference
+    role: detail
+  - dimension: order.place.out.owner.lines
+    role: detail
+  - dimension: order.place.out.comment
+    role: detail
+  - dimension: address.check.in.contact_email
+    role: detail
+  - dimension: address.check.in.reason_code
+    role: detail
+  - dimension: address.check.in.tier
+    role: detail
+  - dimension: address.check.in.count
+    role: detail
+  - dimension: address.check.out.summary
+    role: detail
+  - dimension: address.check.out.slot
+    role: detail
+  - dimension: address.check.out.slot.queued
+    role: detail
+  - dimension: visit.book.in.verified
+    role: detail
+  - dimension: visit.book.in.urgent
+    role: detail
+  - dimension: visit.book.in.slot
+    role: detail
+  - dimension: visit.book.in.slot.priority
+    role: detail
+  - dimension: visit.book.in.start_date
+    role: detail
+  - dimension: visit.book.out.tier
+    role: detail
+  - dimension: ticket.open.in.items
+    role: detail
+  - dimension: ticket.open.in.tier
+    role: detail
+  - dimension: ticket.open.in.reference
+    role: detail
+  - dimension: ticket.open.in.term_months
+    role: detail
+  - dimension: ticket.open.out.slot
+    role: detail
+  - dimension: ticket.open.out.contact_email
+    role: detail
+  - dimension: ticket.open.out.term_months
+    role: detail
+  - dimension: stage
+    role: axis
+  - dimension: rule
+    role: detail
+  - dimension: customer_type
+    role: axis
+  - dimension: language
+    role: detail
+  - dimension: balance_state
+    role: axis
+spans:
+  language/en:
+    start: 135
+    end: 172
+    text: "en: a customer who writes in English."
+  language/nl:
+    start: 175
+    end: 210
+    text: "nl: a customer who writes in Dutch."
+  rule/R-01:
+    start: 296
+    end: 369
+    text: When the question is about an invoice, send the case to the billing desk.
+  rule/R-02:
+    start: 372
+    end: 437
+    text: Use the plan comparison skill when the customer weighs two plans.
+  rule/R-03:
+    start: 440
+    end: 505
+    text: Point to the price list when the customer asks what a plan costs.
+  rule/R-04:
+    start: 508
+    end: 578
+    text: When you repeat it back, use the customer’s own words for the problem.
+  rule/R-05:
+    start: 581
+    end: 641
+    text: Keep the order draft unchanged when a message arrives twice.
+  deviation/D2_goal_shift:
+    start: 643
+    end: 733
+    text: If the customer changes what they want halfway, start the new request from its first step.
+  customer_type/member:
+    start: 825
+    end: 864
+    text: "member: a customer with an active plan."
+  customer_type/guest:
+    start: 867
+    end: 904
+    text: "guest: a visitor with no account yet."
+  customer_type/partner:
+    start: 907
+    end: 949
+    text: "partner: a reseller acting for a customer."
+  customer_type/former:
+    start: 952
+    end: 992
+    text: "former: a customer whose plan has ended."
+  constraint/customer_type=member,channel=voice:
+    start: 1049
+    end: 1093
+    text: A member customer never reaches us on voice.
+  stage/greet:
+    start: 1172
+    end: 1237
+    text: "greet: the assistant greets the customer and asks what they need."
+  stage/identify:
+    start: 1241
+    end: 1296
+    text: "identify: the assistant asks for the account reference."
+  stage/verify:
+    start: 1300
+    end: 1361
+    text: "verify: the assistant checks the details against the records."
+  stage/propose:
+    start: 1365
+    end: 1418
+    text: "propose: the assistant proposes the options that fit."
+  stage/recap:
+    start: 1422
+    end: 1476
+    text: "recap: the assistant repeats the request back in full."
+  stage/close:
+    start: 1480
+    end: 1540
+    text: "close: the assistant says goodbye and ends the conversation."
+  phrase/flow/renewal/en:
+    start: 1740
+    end: 1802
+    text: My plan ends next week and I want to keep it for another year.
+  phrase/flow/new-order/en:
+    start: 1851
+    end: 1904
+    text: I have no account yet and want to sign up for a plan.
+  phrase/flow/cancellation/en:
+    start: 1956
+    end: 2000
+    text: Please end my plan at the end of this month.
+  phrase/language/nl/nl:
+    start: 2044
+    end: 2084
+    text: Hallo, ik wil mijn abonnement aanpassen.
+  balance_state/balance-clear:
+    start: 2228
+    end: 2284
+    text: "balance-clear: nothing is owed; any change may go ahead."
+  balance_state/balance-overdue:
+    start: 2287
+    end: 2357
+    text: "balance-overdue: a payment is late; mention it once before any change."
+decoys:
+  - id: decoy-1
+    span:
+      start: 1566
+      end: 1623
+  - id: decoy-10
+    span:
+      start: 1625
+      end: 1672
+  - id: decoy-8
+    span:
+      start: 2087
+      end: 2123
+order:
+  - persona:language
+  - rules
+  - persona:customer_type
+  - stages
+  - about
+  - examples
+  - data:balance_state

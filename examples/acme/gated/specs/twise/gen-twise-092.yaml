@@ -2,17 +2,16 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-092
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 92 of 154: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D3_contradiction at offer"
+title: "t-wise row 92 of 132: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D3_contradiction at offer"
 channel: whatsapp
 lang: EN
 tier: generated
 tags:
-  - persona:existing-customer
-  - data:no-service
-  - task:existing-workbook
-  - flow:upgrade
+  - persona:new-customer
+  - data:fiber
+  - flow:order
 covers:
   - B-009
 stages:
@@ -27,13 +26,15 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-009
     rubric: Treat a loose yes as no confirmation and ask for CONFIRM again
     gating: false
     scope: conversation
-  - name: flow.upgrade
-    rubric: An existing customer moves to a plan with more data
+  - name: flow.order
+    rubric: Recap, explicit confirmation and order placement
     gating: false
     scope: conversation
   - name: deviation.D3_contradiction
@@ -41,12 +42,14 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-identify
+  - id: b1-needs-to-address
     when:
-      user: Hi, I already have an Acme plan and I need more data.
+      user: Do you have home internet where I live?
     expect:
-      stage: identify
+      stage: address
       tools:
+        - label: coverage.check
+          count: 0
         - label: catalog.search
           count: 0
         - label: order.create
@@ -54,29 +57,39 @@ blocks:
       lang: EN
       criteria:
         - behaviour.B-009
-        - flow.upgrade
-  - id: b2-identify-to-offer
+        - flow.order
+  - id: b2-address-to-offer
     when:
-      user: It's sam.rivera@example.com.
+      user: The address is 14 Harbor Road, Acmeville.
     expect:
       stage: offer
       tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 14 Harbor Road, Acmeville
         - label: catalog.search
           count: 1
           input:
-            category: mobile
-            customer_email: sam.rivera@example.com
+            category: home
+            address_id: addr-101
         - label: order.create
           count: 0
+      must:
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
   - id: b3-D3_contradiction
     when:
       injection:
         class: D3_contradiction
-        user: "Acme Mobile M. No, wait: Acme Mobile L."
+        user: "Acme Fiber 300. No, wait: Acme Fiber 1000."
     expect:
       stage: offer
       tools:
+        - label: coverage.check
+          count: 0
         - label: catalog.search
           count: 0
         - label: order.create
@@ -86,41 +99,51 @@ blocks:
       lang: EN
       criteria:
         - deviation.D3_contradiction
-  - id: b4-offer-to-recap
+  - id: b4-offer-to-details
     when:
-      user: The unlimited one, please.
+      user: I'll take Acme Fiber 1000.
     expect:
-      stage: recap
+      stage: details
       tools:
+        - label: coverage.check
+          count: 0
         - label: catalog.search
           count: 0
         - label: order.create
           count: 0
       lang: EN
-  - id: b5-recap-to-order_placed
+  - id: b5-details-to-recap
     when:
-      user: Confirm
+      user: Jo Okafor, jo.okafor@example.com
+    expect:
+      stage: recap
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+  - id: b6-recap-to-order_placed
+    when:
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
         - label: order.create
           count: 1
           input:
-            type: upgrade
-            customer_id: cust-001
-            plan_id: mobile-l
-        - label: catalog.search
+            type: new
+            plan_id: fiber-1000
+            address_id: addr-101
+            customer:
+              subset:
+                name: Jo Okafor
+                email: jo.okafor@example.com
+        - label: coverage.check
           count: 0
-      lang: EN
-  - id: b6-order_placed-to-closing
-    when:
-      user: No, that's all. Thanks!
-    expect:
-      stage: closing
-      tools:
         - label: catalog.search
-          count: 0
-        - label: order.create
           count: 0
       lang: EN
 metadata:
@@ -133,37 +156,36 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: upgrade-order
+      hash: 6d29ed7a7539
+    path: order-named-plan
     cell:
       behaviour: B-009
       channel: whatsapp
-      user_type: existing-customer
-      coverage_result: no-service
-      workspace_start: existing-workbook
-      flow: upgrade
-      account_lookup: found
+      user_type: new-customer
+      coverage_result: fiber
+      flow: order
       plan_choice: names-one
+      customer_details: name-and-email
     blocks:
-      - block: b1-needs-to-identify
+      - block: b1-needs-to-address
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-identify
-          stage: identify
+          stage_transition: needs-to-address
+          stage: address
         phrase:
           dimension: stage_transition
-          value: needs-to-identify
-      - block: b2-identify-to-offer
+          value: needs-to-address
+      - block: b2-address-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: identify-to-offer
-          account_lookup: found
+          stage_transition: address-to-offer
+          coverage_result: fiber
           stage: offer
         phrase:
           dimension: stage_transition
-          value: identify-to-offer
+          value: address-to-offer
       - block: b3-D3_contradiction
         seeder: twise
         cell:
@@ -173,71 +195,76 @@ metadata:
         phrase:
           dimension: deviation
           value: D3_contradiction
-      - block: b4-offer-to-recap
+      - block: b4-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: offer-to-recap
+          stage_transition: offer-to-details
+          stage: details
+        phrase:
+          dimension: stage_transition
+          value: offer-to-details
+      - block: b5-details-to-recap
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: details-to-recap
+          customer_details: name-and-email
           stage: recap
         phrase:
           dimension: stage_transition
-          value: offer-to-recap
-      - block: b5-recap-to-order_placed
+          value: details-to-recap
+      - block: b6-recap-to-order_placed
         seeder: twise
         cell:
           spec: metadata.generated.cell
           stage_transition: recap-to-order_placed
-          account_lookup: found
+          coverage_result: fiber
+          customer_details: name-and-email
           stage: order_placed
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
-      - block: b6-order_placed-to-closing
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: order_placed-to-closing
-          stage: closing
-        phrase:
-          dimension: stage_transition
-          value: order_placed-to-closing
   gate:
     by: driftbench gate
     date: 2026-10-11
     blocks:
-      - block: b1-needs-to-identify
+      - block: b1-needs-to-address
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-identify-to-offer
+      - block: b2-address-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.692
+        pass_probability: 0.538
       - block: b3-D3_contradiction
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b4-offer-to-recap
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.615
-      - block: b5-recap-to-order_placed
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.615
-      - block: b6-order_placed-to-closing
+      - block: b4-offer-to-details
         status: accepted
         pass_k: 1
         pass_probability: 0.692
+      - block: b5-details-to-recap
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+      - block: b6-recap-to-order_placed
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
 rules:
   forbidden_tools:
-    - coverage.check
     - port.check
     - notify_sales
 end_state:
   source: tool:order.create
   mode: subset
   expect:
-    type: upgrade
-    customer_id: cust-001
-    plan_id: mobile-l
+    type: new
+    plan_id: fiber-1000
+    address_id: addr-101
+    customer:
+      subset:
+        name: Jo Okafor
+        email: jo.okafor@example.com

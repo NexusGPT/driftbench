@@ -1,5 +1,5 @@
-import { docxReader } from '@driftbench/artifacts';
-import type { ArtifactDocument } from '@driftbench/core';
+import { docxReader } from '@agent-nexus/driftbench-artifacts';
+import type { ArtifactDocument } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { bytesOf, docx, para, runCases, STYLES, table } from './fixtures';
 

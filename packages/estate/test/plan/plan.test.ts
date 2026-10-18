@@ -48,8 +48,9 @@ describe('the estate plan', () => {
     expect(details.rows.total).toBe(details.rows.contract + details.rows.journey + details.rows.pairwise);
     expect(summary.coveringArraySize).toBe(details.rows.pairwise);
     expect(summary.perKind.instruction).toBe(129);
-    expect(summary.perKind.setting).toBeUndefined();
-    expect(details.noContract).toHaveLength(4);
+    expect(summary.perKind.setting).toBe(4);
+    expect(summary.perTestType.setting).toBe(4);
+    expect(details.noContract).toEqual([]);
     expect(summary.unenforcedAtoms).toEqual(
       map.atoms
         .filter(
@@ -59,7 +60,7 @@ describe('the estate plan', () => {
     );
     expect(summary.unenforcedAtoms).toHaveLength(54);
     expect(summary.edgesWithoutJourney).toBe(7);
-    expect(details.gridCells).toBe(2_142_095_155_200);
+    expect(details.gridCells).toBe(2_531_567_001_600);
     expect(details.tuples.covered).toBe(details.tuples.allowed);
   }, 60_000);
 
@@ -132,6 +133,32 @@ describe('approving plan rows', () => {
   async function text(): Promise<string> {
     return renderPlan(buildPlan(await approvedFixture()).plan);
   }
+
+  it('counts already approved rows with all, excluding struck rows and preserving their statuses', async () => {
+    const parsed = parsePlanText(await readFile(join(FIXTURE, 'plan.yaml'), 'utf8'));
+    if (!parsed.ok) throw new Error('invalid fixture plan');
+    const statuses = ['approved', 'proposed', 'struck'] as const;
+    parsed.plan.rows = parsed.plan.rows.slice(0, statuses.length).map((row, index) => ({
+      ...row,
+      status: statuses[index] ?? 'proposed',
+    }));
+    const before = renderPlan(parsed.plan);
+    const result = approvePlanRows(before, { all: true });
+    if (!result.ok) throw new Error('approve failed');
+    expect(result.changed).toEqual([parsed.plan.rows[1]?.id]);
+    expect(result.unchanged).toBe(1);
+    expect(result.text).toBe(before.replace('status: proposed,', 'status: approved,'));
+    const again = approvePlanRows(result.text, { all: true });
+    if (!again.ok) throw new Error('approve failed');
+    expect(again.changed).toEqual([]);
+    expect(again.unchanged).toBe(2);
+    expect(again.text).toBe(result.text);
+    const selected = approvePlanRows(result.text, { ids: [parsed.plan.rows[2]?.id ?? ''], strike: true });
+    if (!selected.ok) throw new Error('strike failed');
+    expect(selected.changed).toEqual([]);
+    expect(selected.unchanged).toBe(1);
+    expect(selected.text).toBe(result.text);
+  });
 
   it('approves every proposed row with all, and leaves struck rows struck', async () => {
     const struck = approvePlanRows(await text(), { ids: ['journey.01'], strike: true });

@@ -1,0 +1,10 @@
+{
+  "sourceCommit": "82cc403c01aa2992b109a24d739e2febe4bd33f5",
+  "sourceBranch": "codex/hard-promptfoo",
+  "sourcePath": "comparisons/promptfoo/hard/heldout-factuality.json",
+  "sourceSha256": "e442decf7d7de5139cd26961d0082f9b682e8f6cdbd202a808a0a65c6420f8c6",
+  "sourceRows": 72,
+  "population": 72,
+  "labels": "Construction labels retained outside each model request.",
+  "mapping": "Verbatim request mapping from comparisons/promptfoo/hard/render.mts. Labels and construction metadata are outside the model request."
+}

@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { openMemoryStore } from '@driftbench/store';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { type CampaignData, loadCampaign, ReportInputError, runPassed } from '../src/data';
 import type { Estimate } from '../src/estimate';
@@ -79,8 +79,13 @@ describe('the scorecard of a stored Acme campaign', () => {
   it('is one file with no script and no external asset, and escapes what the agent wrote', () => {
     const html = renderHtml(buildScorecard(fault, { baseline: acme, margin: 0.15 }));
     expect(html.startsWith('<!doctype html>')).toBe(true);
-    expect(html).not.toMatch(/<script|<link|<img|src=|href=["']?https?:|@import|url\(/i);
-    expect(html).toContain('prefers-color-scheme: dark');
+    // The one url() the page holds is an embedded font: data, never a request.
+    expect(html).not.toMatch(
+      /<script|<link|<img|src=|href=["']?https?:|@import|url\((?!data:font\/woff2;base64,)/i,
+    );
+    expect(html).toContain(
+      '<input type="checkbox" id="theme-light" class="theme-input" aria-label="Light theme">',
+    );
     const tricky = dataOf([
       run({
         blocks: [
@@ -103,13 +108,15 @@ describe('the scorecard of a stored Acme campaign', () => {
     expect(html).toContain('acme-plan-upgrade · F');
   });
 
-  it('opens failing runs in full in the drilldown, failing first, with the evidence of what failed', () => {
+  it('gives every run its own panel, failing runs first, with the evidence of what failed', () => {
     const card = buildScorecard(fault, { baseline: acme, margin: 0.15 });
     const firstPass = card.drilldown.findIndex((entry) => entry.pass);
     expect(firstPass).toBeGreaterThan(0);
     expect(card.drilldown.slice(firstPass).every((entry) => entry.pass)).toBe(true);
     const html = renderHtml(card);
-    expect(html).toMatch(/<details class="run run-fail" id="run-[^"]+" open>/);
+    expect(html).toMatch(
+      /<section class="drawer" id="run-[^"]+" aria-label="Run [^"]+">\n<div class="dh">\n<p class="row">.*<\/p>\n<p class="dstatus"><span class="chip fail">Fail<\/span>/,
+    );
     expect(html).toContain('Verdicts with evidence: every one that did not pass, every judged one');
     const limited = buildScorecard(fault, { maxRuns: 2 });
     expect(limited.drilldown).toHaveLength(2);
@@ -227,7 +234,8 @@ describe('rendering for the viewer', () => {
   it('links each run of the drilldown when given its address, and leaves the file alone without one', () => {
     const card = buildScorecard(fault, { maxRuns: 2 });
     const linked = renderHtml(card, { runHref: (runId) => `/run/${runId}`, nav: '<nav class="top">x</nav>' });
-    expect(linked.match(/<a class="open" href="\/run\/[^"]+">open the run<\/a>/g)).toHaveLength(2);
+    // Each run links twice: from its panel and from the drilldown list.
+    expect(linked.match(/<a class="open" href="\/run\/[^"]+">open the run<\/a>/g)).toHaveLength(4);
     expect(linked).toContain('<nav class="top">x</nav>');
     expect(renderHtml(card)).not.toContain('class="open"');
   });

@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -87,6 +87,39 @@ describe('campaign run --process-command', () => {
     );
     expect(code).toBe(1);
     expect(out).toMatch(/✗ echo · process:echo · F · repeat 0 {2}fail {2}block 1 must\.0/);
+  });
+
+  it('says where the command runs when an argument is a file of the working folder, given by a relative path', async () => {
+    const dir = await folder();
+    await copyFile(AGENT, join(dir, 'agent.mjs'));
+    const { code, out, err } = await cli(
+      ['campaign', 'run', 'echo.yaml', '--target', 'process:echo', '--process-command', 'node agent.mjs'],
+      dir,
+    );
+    // The run is unchanged: the agent is not in the sandbox, so it prints nothing and the first block fails.
+    expect(code).toBe(1);
+    expect(out).toMatch(/✗ echo · process:echo · F · repeat 0 {2}fail {2}block 0/);
+    expect(err).toContain('--process-command runs in the workspace of each sandbox');
+    expect(err).toContain('agent.mjs is a file of the working folder');
+    expect(err).toContain(JSON.stringify(join(dir, 'agent.mjs')));
+  });
+
+  it('says nothing about an absolute path, or a word that names no file of the working folder', async () => {
+    const dir = await folder();
+    await copyFile(AGENT, join(dir, 'agent.mjs'));
+    const { err } = await cli(
+      [
+        'campaign',
+        'run',
+        'echo.yaml',
+        '--target',
+        'process:echo',
+        '--process-command',
+        `node ${AGENT} echo.txt`,
+      ],
+      dir,
+    );
+    expect(err).toBe('');
   });
 
   it('refuses a process command that is not a JSON list of strings or a word list', async () => {

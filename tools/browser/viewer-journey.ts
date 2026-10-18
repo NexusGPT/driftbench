@@ -14,9 +14,10 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { loadLabels } from '@driftbench/judges';
-import { openStore } from '@driftbench/store';
+import { loadLabels } from '@agent-nexus/driftbench-judges';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { type Browser, chromium } from 'playwright-core';
+import { main } from '../../packages/cli/src/index';
 import { startViewer } from '../../packages/cli/src/view/server';
 import { storeAcmeCampaign } from '../../packages/report/test/support';
 
@@ -46,6 +47,12 @@ try {
 } finally {
   await store.close();
 }
+const queued = await main(['queue', 'create', '--store', db, '--campaign', 'c-acme-x3', '--labels', labels], {
+  out: () => {},
+  err: (text) => failures.push(`queue create: ${text.trim()}`),
+  cwd: dir,
+});
+expect(queued === 0, `queue create exited ${queued}`);
 const viewer = await startViewer({ store: db, labels, port: 0, labelledBy: 'the browser journey' });
 
 let browser: Browser;
@@ -80,9 +87,15 @@ try {
     await page.goto(`${viewer.url}/`);
     await check('campaigns');
     await page.click('a[href="/campaign/c-acme-x3"]');
-    await page.waitForSelector('#spread');
+    // The scorecard opens on its three zones; the detailed tables, the spread view among them, are folded below.
+    await page.waitForSelector('#tests');
+    await page.waitForSelector('#spread', { state: 'attached' });
     await check('scorecard');
-    await page.locator('details.run-fail a.open').first().click();
+    // A failing run's row opens its panel, which links to the run's own page.
+    await page.locator('.run-row.r-fail a.rowlink').first().click();
+    await page.waitForSelector('.drawer:target');
+    await check('run-panel');
+    await page.locator('.drawer:target a.open').click();
     await page.waitForSelector('#labelling');
     await check('run');
 
@@ -109,6 +122,80 @@ try {
     const saved = (loaded.labels.get(criterion) ?? []).find((block) => block.note === note);
     record.push({ width, labelsFile: saved ? { id: saved.id, label: saved.label } : null });
     expect(saved?.label === 'fail', `${width} px: the label is not in ${criterion}.yaml`);
+
+    await page.goto(`${viewer.url}/queue`);
+    await check('queue');
+    await page.locator('#queue tbody a, #queue tbody button').first().waitFor();
+    await page.keyboard.press('j');
+    const focusedInQueue = await page.evaluate(
+      "!!document.activeElement && !!document.activeElement.closest('#queue')",
+    );
+    record.push({ width, keyboardFocusInQueue: focusedInQueue });
+    expect(focusedInQueue === true, `${width} px: the j key does not move focus into the queue`);
+    const takeRow = page.locator('#queue tbody tr', { has: page.locator('button') }).first();
+    const queuedCriterion = (await takeRow.locator('td').nth(1).innerText()).trim();
+    await takeRow.locator('button').click();
+    await page.waitForSelector('#queue tbody tr:has-text("assigned")');
+    await check('queue-taken');
+    const heldBy = await page.locator('#queue tbody tr:has-text("assigned") td').nth(3).innerText();
+    expect(
+      heldBy.trim() === 'the browser journey',
+      `${width} px: the queue shows the item held by "${heldBy}"`,
+    );
+    const labelLink = page.locator('#queue a', { hasText: 'Label it' }).first();
+    const labelHref = (await labelLink.getAttribute('href')) ?? '';
+    const queueIndex = labelHref.split('#block-')[1] ?? '';
+    await page.goto(`${viewer.url}${labelHref}`);
+    await page.waitForSelector(`#block-${queueIndex} form`);
+    const queueForm = page.locator(`#block-${queueIndex} form`);
+    await queueForm.locator('select[name=criterion]').selectOption(queuedCriterion);
+    await queueForm.locator('select[name=criterion]').focus();
+    await page.keyboard.press('1');
+    const passChecked = await queueForm.locator('input[value=pass]').isChecked();
+    expect(passChecked, `${width} px: key 1 did not check pass`);
+    await page.keyboard.press('ControlOrMeta+Enter');
+    await page.waitForSelector('.saved');
+    await check('label-by-keys');
+    const blockBefore = await page.evaluate(
+      "document.activeElement && document.activeElement.closest('div.block') ? document.activeElement.closest('div.block').id : ''",
+    );
+    await page.keyboard.press('ArrowDown');
+    const blockAfter = await page.evaluate(
+      "document.activeElement && document.activeElement.closest('div.block') ? document.activeElement.closest('div.block').id : ''",
+    );
+    record.push({ width, arrows: { blockBefore, blockAfter } });
+    expect(
+      blockAfter !== '' && blockAfter !== blockBefore,
+      `${width} px: ArrowDown did not move focus to the next block (${blockBefore} to ${blockAfter})`,
+    );
+    await page.keyboard.press('?');
+    await page.waitForURL('**/keys');
+    const cheatsheet = await page.locator('#keys').count();
+    record.push({ width, cheatsheet });
+    expect(cheatsheet === 1, `${width} px: the ? key did not open the cheatsheet`);
+    record.push({ width, keyLabelling: { passChecked } });
+
+    const plain = await browser.newContext({ viewport: { width, height: 900 }, javaScriptEnabled: false });
+    const plainPage = await plain.newPage();
+    await plainPage.goto(`${viewer.url}${labelHref}`);
+    const plainForm = plainPage.locator(`#block-${queueIndex} form`);
+    await plainForm.locator('select[name=criterion]').selectOption(queuedCriterion);
+    await plainForm.locator('input[value=fail]').check();
+    await plainForm.locator('button[type=submit]').click();
+    await plainPage.waitForSelector('.saved');
+    const plainBanner = await plainPage.locator('.saved').innerText();
+    record.push({ width, scriptOff: { banner: plainBanner } });
+    expect(
+      plainBanner.startsWith('Label saved'),
+      `${width} px: the script-off form did not save: "${plainBanner}"`,
+    );
+    await plain.close();
+    await page.goto(`${viewer.url}/queue`);
+    await page.waitForSelector('#queue tbody tr:has-text("done")');
+    await check('queue-done');
+    const doneCount = await page.locator('#queue tbody tr:has-text("done")').count();
+    record.push({ width, queuedCriterion, queueIndex, doneCount });
+    expect(doneCount >= 1, `${width} px: no queue item reads done after its label was saved`);
 
     await page.goto(`${viewer.url}/compare`);
     await page.selectOption('select[name=baseline]', 'c-acme');

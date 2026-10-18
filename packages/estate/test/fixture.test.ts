@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { loadSpaceMap } from '@driftbench/space';
+import { loadSpaceMap } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { approveAtoms, loadEstateMap, toEstateSpaceMap } from '../src/index';
 import { FIXTURE, scanFixture } from './support';

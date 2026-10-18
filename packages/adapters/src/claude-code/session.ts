@@ -9,8 +9,8 @@ import type {
   Stimulus,
   ToolCall,
   WorkspaceDiff,
-} from '@driftbench/core';
-import { globMatches } from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
+import { globMatches } from '@agent-nexus/driftbench-core';
 import {
   type DecisionRow,
   decisionRow,
@@ -44,6 +44,10 @@ import {
  *   session never saw the path before, and changes it otherwise. With a before and after tree the last
  *   block's diff is the diff of the trees, which also sees deletions.
  * - A compaction boundary is a marker in the block's `raw.markers`, with the number of tool calls before it.
+ * - A `system` record with `subtype: init` names the tools the runtime offered (`tools`). They become
+ *   `runtime.offered` of the block it falls in and of every later block, until the next init record. A block
+ *   before any init record has no `offered` at all, never an empty list, so a check of offered tools is
+ *   inconclusive there.
  * - Every record the mapping does not use (thinking, snapshots, helper records, unknown types, lines that
  *   are not JSON) is kept in `raw.kept` of its block, or in `meta.preamble` before the first turn.
  */
@@ -192,6 +196,10 @@ const OUTPUT_LIMIT = 4000;
 type PendingCall = { call: ToolCall; at?: string; line: number };
 
 class BlockBuilder {
+  /** The tools the runtime offered in this block, from the last init record; undefined when none was seen. */
+  offered?: string[];
+  /** The stop reason of the last model message in the block, as the transcript records it. */
+  finishReason?: string;
   readonly segments: Segment[] = [];
   readonly texts: string[] = [];
   readonly toolCalls: ToolCall[] = [];
@@ -234,6 +242,7 @@ class BlockBuilder {
 
 /** Maps parsed session files onto blocks. Pure: the same input gives the same output. */
 export function mapSession(input: SessionInput): ReplaySession {
+  assertTranscript(input);
   const meta: SessionMeta = {
     ...(input.file === undefined ? {} : { file: input.file }),
     records: input.transcript.length,
@@ -250,6 +259,8 @@ export function mapSession(input: SessionInput): ReplaySession {
   /** Paths the session has seen exist: read, edited or written. */
   const known = new Set<string>();
   let anonymous = 0;
+  /** The tools offered from the last init record on; undefined until one is seen. */
+  let offered: string[] | undefined;
 
   const current = () => builders.at(-1);
   const keep = (line: number, reason: string, record: unknown) => {
@@ -294,7 +305,15 @@ export function mapSession(input: SessionInput): ReplaySession {
     }
     if (type === 'system') {
       const block = current();
-      if (stringField(record, 'subtype') === 'compact_boundary') {
+      if (stringField(record, 'subtype') === 'init' && Array.isArray(record.tools)) {
+        // The runtime's init record names the tools it offered: a tool a setting denies is not offered.
+        offered = record.tools.filter((tool): tool is string => typeof tool === 'string');
+        if (block) {
+          block.offered = offered;
+          block.touch(line, at);
+        }
+        keep(line, 'the init record (its tools are the offered tools)', record);
+      } else if (stringField(record, 'subtype') === 'compact_boundary') {
         const data = isRecord(record.compactMetadata) ? record.compactMetadata : {};
         const marker: Marker = {
           kind: 'compaction',
@@ -361,6 +380,7 @@ export function mapSession(input: SessionInput): ReplaySession {
         continue;
       }
       const block = new BlockBuilder(builders.length, { user: text }, line, at);
+      if (offered !== undefined) block.offered = offered;
       if (Array.isArray(content)) {
         for (const part of content) {
           if (!isRecord(part) || part.type !== 'text') {
@@ -379,6 +399,7 @@ export function mapSession(input: SessionInput): ReplaySession {
       }
       block.touch(line, at);
       const message = isRecord(record.message) ? record.message : {};
+      if (typeof message.stop_reason === 'string') block.finishReason = message.stop_reason;
       const usage = isRecord(message.usage) ? message.usage : undefined;
       if (usage) {
         const id = typeof message.id === 'string' ? message.id : `anonymous-${anonymous++}`;
@@ -548,6 +569,9 @@ export function mapSession(input: SessionInput): ReplaySession {
       subagents: block.subagents,
       ...(meta.decisions ? { guards: block.guards } : {}),
       ...(meta.steps ? { stages: block.stages } : {}),
+      // Absent, never empty, when no init record named the offered tools: the check is then inconclusive.
+      ...(block.offered === undefined ? {} : { offered: [...block.offered] }),
+      ...(block.finishReason === undefined ? {} : { finishReason: block.finishReason }),
     };
     const diff =
       treeDiff && index === builders.length - 1
@@ -589,7 +613,7 @@ export function mapSession(input: SessionInput): ReplaySession {
 /** Puts decision-log rows into `runtime.guards` and step-feed rows into `runtime.stages`, by time window. */
 function placeRows(input: SessionInput, meta: SessionMeta, builders: BlockBuilder[]): void {
   const starts = builders.map((block) => (block.at === undefined ? Number.NaN : Date.parse(block.at)));
-  const blockAt = (at: string): BlockBuilder | string => {
+  const blockAt = (at: string): { block: BlockBuilder; carried?: true } | string => {
     if (builders.length === 0) return 'the session has no user turn';
     const time = Date.parse(at);
     let found: BlockBuilder | undefined;
@@ -597,9 +621,9 @@ function placeRows(input: SessionInput, meta: SessionMeta, builders: BlockBuilde
       const start = starts[index] ?? Number.NaN;
       if (!Number.isNaN(start) && start <= time) found = block;
     });
-    if (found) return found;
+    if (found) return { block: found };
     if (starts.every((start) => Number.isNaN(start))) return 'the transcript has no timestamps';
-    return builders[0] as BlockBuilder;
+    return { block: builders[0] as BlockBuilder, carried: true };
   };
   let otherSession = 0;
   const guards: Array<{ row: DecisionRow; block: BlockBuilder }> = [];
@@ -613,28 +637,38 @@ function placeRows(input: SessionInput, meta: SessionMeta, builders: BlockBuilde
       otherSession += 1;
       continue;
     }
-    const block = blockAt(row.at);
-    if (typeof block === 'string') meta.unplaced.guards.push({ row, reason: block });
-    else guards.push({ row, block });
+    const placement = blockAt(row.at);
+    if (typeof placement === 'string') meta.unplaced.guards.push({ row, reason: placement });
+    else guards.push({ row, block: placement.block });
   }
   if (otherSession > 0) {
     meta.issues.push(`${otherSession} decision-log rows belong to another session and were left out`);
   }
   for (const { row, block } of sortByAt(guards)) {
-    block.guards.push({ name: row.check, verdict: row.verdict, at: row.at });
+    block.guards.push({
+      name: row.check,
+      verdict: row.verdict,
+      at: row.at,
+      ...(row.stdout === undefined ? {} : { stdout: row.stdout }),
+      ...(row.stderr === undefined ? {} : { stderr: row.stderr }),
+      ...(row.exitCode === undefined ? {} : { exitCode: row.exitCode }),
+      ...(row.outcome === undefined ? {} : { outcome: row.outcome }),
+    });
   }
-  const stages: Array<{ row: StepRow; block: BlockBuilder }> = [];
+  const stages: Array<{ row: StepRow; block: BlockBuilder; carried?: true }> = [];
   for (const entry of input.steps ?? []) {
     const row = entry.ok ? stepRow(entry.value) : `line ${entry.line} is not JSON: ${entry.error}`;
     if (typeof row === 'string') {
       meta.unplaced.stages.push({ row: entry.ok ? entry.value : entry.text, reason: row });
       continue;
     }
-    const block = blockAt(row.at);
-    if (typeof block === 'string') meta.unplaced.stages.push({ row, reason: block });
-    else stages.push({ row, block });
+    const placement = blockAt(row.at);
+    if (typeof placement === 'string') meta.unplaced.stages.push({ row, reason: placement });
+    else stages.push({ row, ...placement });
   }
-  for (const { row, block } of sortByAt(stages)) block.stages.push({ name: row.step, at: row.at });
+  for (const { row, block, carried } of sortByAt(stages)) {
+    block.stages.push({ name: row.step, at: row.at, ...(carried ? { carried } : {}) });
+  }
 }
 
 function sortByAt<T extends { row: { at: string } }>(rows: T[]): T[] {
@@ -692,4 +726,37 @@ function relativeTo(cwd: string | undefined, path: string): string {
   if (cwd === undefined) return path;
   const base = cwd.endsWith('/') ? cwd : `${cwd}/`;
   return path.startsWith(base) ? path.slice(base.length) : path;
+}
+
+/** Thrown when a file is not a Claude Code transcript, so a corpus in another shape never reads as empty sessions. */
+export class NotATranscriptError extends Error {
+  override name = 'NotATranscriptError';
+}
+
+const TRANSCRIPT_TYPES = new Set(['user', 'assistant']);
+
+/**
+ * A transcript holds at least one record of type user or assistant. A file with none (another JSONL shape,
+ * only lines that are not JSON, or nothing at all) is refused with what its first line holds.
+ */
+function assertTranscript(input: SessionInput): void {
+  const where = input.file === undefined ? 'the transcript' : input.file;
+  const parsed = input.transcript.filter((entry) => entry.ok);
+  const typed = parsed.some(
+    (entry) => entry.ok && isRecord(entry.value) && TRANSCRIPT_TYPES.has(String(entry.value.type)),
+  );
+  if (typed) return;
+  if (input.transcript.length === 0) {
+    throw new NotATranscriptError(`${where} is not a Claude Code transcript: it holds no record`);
+  }
+  const first = input.transcript[0];
+  const shape =
+    first === undefined || !first.ok
+      ? `line ${first?.line ?? 1} is not JSON`
+      : isRecord(first.value)
+        ? `line ${first.line} has the keys ${Object.keys(first.value).slice(0, 6).join(', ') || '(none)'}`
+        : `line ${first.line} is not an object`;
+  throw new NotATranscriptError(
+    `${where} is not a Claude Code transcript: no record has type user or assistant (${shape})`,
+  );
 }

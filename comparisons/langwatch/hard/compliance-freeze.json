@@ -1,0 +1,28 @@
+{
+  "createdAt": "2026-10-13T00:16:27.832Z",
+  "label": "not yet the shipped default",
+  "seed": 20261018,
+  "cases": 60,
+  "designData": "Only hard original audit/shipped failures; no fresh predictions used to design",
+  "promptSha256": "61d42dc8ca698ed447a8d37d4155922acd285f3d3fcf12882b623a1e8d078772",
+  "decoderSha256": "512c28512c7ad3bae12b5f758a93495251251e33ec94d855dca9a7a7934d0c1b",
+  "userBuilderSha256": "d2e67535bdc5600c12ac8c2ea9bf59e95b54911bbe152eebb8021a33174b067b",
+  "fixtureSha256": "09ab6bac2e5c991b845349edbf9e62e5517aa00675377696ca36672144de806e",
+  "hardFixtureSha256": "07cd3452b7fdce4e78f2f7f16879fca4eaec82685838cf6971107ed16ec41a93",
+  "sourceHashes": {
+    "compliance.mts": "77feb3b7e553fecbcd0c18214216e18f0cb7666a18e65aacbef915bb401e2006",
+    "fresh-judges.mts": "63ff9e017caec299ce3b163e9656c47a78c1b645d5bd7dbb6689c43b64d4c25d",
+    "generate-judges.py": "66a7fcd757020823154e54cad695f979abeacabc147a800ab2b80d4c965c4be2"
+  },
+  "zeroCompleteInputOverlap": true,
+  "storageMigration": {
+    "measuredAt": "2026-10-13T01:22:54.883Z",
+    "originalManifest": "pre-storage-rename/frozen.json",
+    "beforeCallsOriginalFreeze": "2026-10-12T22:04:29.608Z",
+    "promptHashesUnchanged": true,
+    "decoderHashesUnchanged": true,
+    "fixtureHashesUnchanged": true,
+    "reason": "Lead-approved request digest field rename; no outcome, input, prompt, decoder, label or CLI setting changes"
+  },
+  "storageFormatting": "Unused seed18 fixture canonicalized; no measurement occurred on it. Candidate prompt/decoder unchanged."
+}

@@ -2,13 +2,13 @@
   "version": 1,
   "judges": [
     {
-      "id": "jev-a",
+      "id": "s1p-a",
       "family": "jev",
       "cls": "system1",
       "cost": 1
     },
     {
-      "id": "jev-b",
+      "id": "s1p-b",
       "family": "jev",
       "cls": "system1",
       "cost": 1
@@ -40,96 +40,96 @@
   ],
   "entries": [
     {
-      "judge": "jev-a",
-      "key": "271a17d48c45",
+      "judge": "s1p-a",
+      "key": "6d606674998d",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "01372fe4757d",
+      "judge": "s1p-a",
+      "key": "8cd9f92272d2",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "170d45fdaa57",
+      "judge": "s1p-a",
+      "key": "ecedd50c972a",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "566f06c12e0e",
+      "judge": "s1p-a",
+      "key": "4cb3ee511fa7",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "cb47c693f6df",
+      "judge": "s1p-a",
+      "key": "26703bef4176",
       "criterion": "checks_before_promising",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "df8b5d51b87e",
+      "judge": "s1p-a",
+      "key": "bdf80be9af12",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "295d131cb6f8",
+      "judge": "s1p-a",
+      "key": "f356121ade58",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "217d8bae940f",
+      "judge": "s1p-a",
+      "key": "4dd3d74dd19d",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
       "judge": "google-chat",
-      "key": "32e748519a3a",
+      "key": "b92aca549156",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "pass",
@@ -139,7 +139,7 @@
     },
     {
       "judge": "openai-chat",
-      "key": "32e748519a3a",
+      "key": "b92aca549156",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "pass",
@@ -150,7 +150,7 @@
     },
     {
       "judge": "anthropic-chat",
-      "key": "32e748519a3a",
+      "key": "b92aca549156",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "pass",
@@ -160,30 +160,30 @@
       "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "91e489e33373",
+      "judge": "s1p-a",
+      "key": "2669c9963436",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "2dd9c6b5fc90",
+      "judge": "s1p-a",
+      "key": "ba9dc200b925",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
       "judge": "google-chat",
-      "key": "80721b4e8b08",
+      "key": "e172251c0443",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -193,7 +193,7 @@
     },
     {
       "judge": "openai-chat",
-      "key": "80721b4e8b08",
+      "key": "e172251c0443",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -204,7 +204,7 @@
     },
     {
       "judge": "anthropic-chat",
-      "key": "80721b4e8b08",
+      "key": "e172251c0443",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -214,19 +214,19 @@
       "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "82908ff9ed5c",
+      "judge": "s1p-a",
+      "key": "adb29d1e6908",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
       "judge": "google-chat",
-      "key": "a31208427bf7",
+      "key": "ee0e91eca1f3",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -236,7 +236,7 @@
     },
     {
       "judge": "openai-chat",
-      "key": "a31208427bf7",
+      "key": "ee0e91eca1f3",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -247,7 +247,7 @@
     },
     {
       "judge": "anthropic-chat",
-      "key": "a31208427bf7",
+      "key": "ee0e91eca1f3",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -257,19 +257,19 @@
       "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "e5de3be0b8b8",
+      "judge": "s1p-a",
+      "key": "f356e19cd67e",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
       "judge": "google-chat",
-      "key": "6cd5e771e8cd",
+      "key": "b13f36ba462c",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -279,7 +279,7 @@
     },
     {
       "judge": "openai-chat",
-      "key": "6cd5e771e8cd",
+      "key": "b13f36ba462c",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -290,7 +290,7 @@
     },
     {
       "judge": "anthropic-chat",
-      "key": "6cd5e771e8cd",
+      "key": "b13f36ba462c",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -301,7 +301,7 @@
     },
     {
       "judge": "google-chat",
-      "key": "18afe52daaf8",
+      "key": "064200e1cc90",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "pass",
@@ -311,7 +311,7 @@
     },
     {
       "judge": "openai-chat",
-      "key": "18afe52daaf8",
+      "key": "064200e1cc90",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "pass",
@@ -322,7 +322,7 @@
     },
     {
       "judge": "anthropic-chat",
-      "key": "18afe52daaf8",
+      "key": "064200e1cc90",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "pass",
@@ -333,7 +333,7 @@
     },
     {
       "judge": "google-chat",
-      "key": "d5bed6c1e868",
+      "key": "327f9c1b9896",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "pass",
@@ -343,7 +343,7 @@
     },
     {
       "judge": "openai-chat",
-      "key": "d5bed6c1e868",
+      "key": "327f9c1b9896",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "pass",
@@ -354,7 +354,7 @@
     },
     {
       "judge": "anthropic-chat",
-      "key": "d5bed6c1e868",
+      "key": "327f9c1b9896",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "pass",
@@ -364,19 +364,19 @@
       "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "0ea786f006cc",
+      "judge": "s1p-a",
+      "key": "b67813a53a07",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: every catalog row is in the workbook"
+        "reasoning": "s1p-a: every catalog row is in the workbook"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: every catalog row is in the workbook\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: every catalog row is in the workbook\"}"
     },
     {
       "judge": "google-chat",
-      "key": "00886501ef37",
+      "key": "fe35112becb3",
       "criterion": "reports_what_it_did",
       "answer": {
         "outcome": "pass",
@@ -386,7 +386,7 @@
     },
     {
       "judge": "openai-chat",
-      "key": "00886501ef37",
+      "key": "fe35112becb3",
       "criterion": "reports_what_it_did",
       "answer": {
         "outcome": "pass",
@@ -397,7 +397,7 @@
     },
     {
       "judge": "anthropic-chat",
-      "key": "00886501ef37",
+      "key": "fe35112becb3",
       "criterion": "reports_what_it_did",
       "answer": {
         "outcome": "pass",
@@ -407,19 +407,19 @@
       "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
-      "key": "d3727aac6986",
+      "judge": "s1p-a",
+      "key": "6021146c9bda",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: every catalog row is in the workbook"
+        "reasoning": "s1p-a: every catalog row is in the workbook"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: every catalog row is in the workbook\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: every catalog row is in the workbook\"}"
     },
     {
       "judge": "google-chat",
-      "key": "e781bb864941",
+      "key": "e1a507d42d05",
       "criterion": "reports_what_it_did",
       "answer": {
         "outcome": "pass",
@@ -429,7 +429,7 @@
     },
     {
       "judge": "openai-chat",
-      "key": "e781bb864941",
+      "key": "e1a507d42d05",
       "criterion": "reports_what_it_did",
       "answer": {
         "outcome": "pass",
@@ -440,7 +440,7 @@
     },
     {
       "judge": "anthropic-chat",
-      "key": "e781bb864941",
+      "key": "e1a507d42d05",
       "criterion": "reports_what_it_did",
       "answer": {
         "outcome": "pass",

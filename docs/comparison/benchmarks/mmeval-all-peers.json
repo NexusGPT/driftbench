@@ -1,0 +1,185 @@
+{
+ "bench": "mmeval",
+ "title": "MM-Eval",
+ "model": "claude-haiku-5-5",
+ "kind": "pair",
+ "unit": "item, macro over five subsets",
+ "final": false,
+ "contestants": [
+  {
+   "contestant": "driftbench",
+   "items": 600,
+   "present": 600,
+   "transportMissing": 0,
+   "primary": {
+    "score": 0.8886261261261261,
+    "n": 591,
+    "driftbenchMinusThis": 0.0
+   },
+   "all": {
+    "score": 0.8766666666666667,
+    "n": 600,
+    "driftbenchMinusThis": 0.0
+   }
+  },
+  {
+   "contestant": "promptfoo",
+   "items": 600,
+   "present": 600,
+   "transportMissing": 0,
+   "primary": {
+    "score": 0.8645045045045044,
+    "n": 591,
+    "driftbenchMinusThis": 0.02412162162162168,
+    "driftbenchWins": 71,
+    "driftbenchLosses": 35,
+    "exactTwoSidedP": 0.0006060762772090586,
+    "holmP": 0.006060762772090587
+   },
+   "all": {
+    "score": 0.8550000000000001,
+    "n": 600,
+    "driftbenchMinusThis": 0.021666666666666612,
+    "driftbenchWins": 71,
+    "driftbenchLosses": 37,
+    "exactTwoSidedP": 0.0013816410213383493
+   }
+  },
+  {
+   "contestant": "deepeval",
+   "items": 600,
+   "present": 597,
+   "transportMissing": 3,
+   "grader": "ArenaGEval (DeepEval 4.2.8)",
+   "mode": "native",
+   "graderErrors": 0,
+   "ties": 0,
+   "spend": {
+    "usd": 1.0437331,
+    "attempts": 1208,
+    "answered": 1197,
+    "noAnswer": 11,
+    "estimatedUsd": 0.0
+   },
+   "primary": {
+    "score": 0.8409459459459458,
+    "n": 591,
+    "driftbenchMinusThis": 0.047680180180180276,
+    "driftbenchWins": 83,
+    "driftbenchLosses": 30,
+    "exactTwoSidedP": 6.30671510083091e-07,
+    "holmP": 1.0090744161329456e-05
+   },
+   "all": {
+    "score": 0.8391666666666667,
+    "n": 600,
+    "driftbenchMinusThis": 0.03749999999999998,
+    "driftbenchWins": 83,
+    "driftbenchLosses": 36,
+    "exactTwoSidedP": 1.9611841673751277e-05
+   }
+  },
+  {
+   "contestant": "inspect",
+   "items": 600,
+   "present": 593,
+   "transportMissing": 7,
+   "grader": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+   "mode": "pointwise grader, higher score wins",
+   "graderErrors": 0,
+   "ties": 242,
+   "spend": {
+    "usd": 0.8228746999999996,
+    "attempts": 1206,
+    "answered": 1185,
+    "noAnswer": 21,
+    "estimatedUsd": 0.0
+   },
+   "primary": {
+    "score": 0.7535585585585586,
+    "n": 591,
+    "driftbenchMinusThis": 0.13506756756756755,
+    "driftbenchWins": 202,
+    "driftbenchLosses": 47,
+    "exactTwoSidedP": 4.481996990588629e-24,
+    "holmP": 8.963993981177258e-23
+   },
+   "all": {
+    "score": 0.7466666666666667,
+    "n": 600,
+    "driftbenchMinusThis": 0.13,
+    "driftbenchWins": 202,
+    "driftbenchLosses": 50,
+    "exactTwoSidedP": 7.678980212097965e-23
+   }
+  },
+  {
+   "contestant": "langfuse",
+   "items": 600,
+   "present": 594,
+   "transportMissing": 6,
+   "grader": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+   "mode": "pointwise grader, higher score wins",
+   "graderErrors": 2,
+   "ties": 245,
+   "spend": {
+    "usd": 0.4621811999999997,
+    "attempts": 1207,
+    "answered": 1187,
+    "noAnswer": 20,
+    "estimatedUsd": 0.0
+   },
+   "primary": {
+    "score": 0.734527027027027,
+    "n": 591,
+    "driftbenchMinusThis": 0.15409909909909913,
+    "driftbenchWins": 218,
+    "driftbenchLosses": 43,
+    "exactTwoSidedP": 2.340671351436472e-29,
+    "holmP": 4.915409838016591e-28
+   },
+   "all": {
+    "score": 0.7275,
+    "n": 600,
+    "driftbenchMinusThis": 0.14916666666666667,
+    "driftbenchWins": 218,
+    "driftbenchLosses": 46,
+    "exactTwoSidedP": 5.9438981566961684e-28
+   }
+  },
+  {
+   "contestant": "langwatch",
+   "items": 600,
+   "present": 593,
+   "transportMissing": 7,
+   "grader": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+   "mode": "native",
+   "graderErrors": 2,
+   "ties": 0,
+   "spend": {
+    "usd": 0.6708329999999997,
+    "attempts": 1212,
+    "answered": 1189,
+    "noAnswer": 23,
+    "estimatedUsd": 0.1
+   },
+   "primary": {
+    "score": 0.8386936936936937,
+    "n": 591,
+    "driftbenchMinusThis": 0.049932432432432394,
+    "driftbenchWins": 47,
+    "driftbenchLosses": 15,
+    "exactTwoSidedP": 5.778372004920304e-05,
+    "holmP": 0.0006934046405904365
+   },
+   "all": {
+    "score": 0.8300000000000001,
+    "n": 600,
+    "driftbenchMinusThis": 0.046666666666666634,
+    "driftbenchWins": 47,
+    "driftbenchLosses": 17,
+    "exactTwoSidedP": 0.0002268823828832806
+   }
+  }
+ ]
+}

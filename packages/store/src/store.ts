@@ -2,6 +2,8 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { DatabaseSync, SQLInputValue, StatementSync } from 'node:sqlite';
 import {
+  applyRealizedTextPolicy,
+  blockStatus,
   Campaign,
   type CostUnit,
   canonicalJson,
@@ -11,12 +13,13 @@ import {
   RunResult,
   type Store,
   validateSpec,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { type BundleSource, type CampaignBundle, readCampaignBundle, writeCampaignBundle } from './bundle';
 import { describeCause, describeIssues, StoreError } from './errors';
 import {
   checkName,
   entriesOf,
+  isVersionPath,
   isVersionRecord,
   REGISTRY_KINDS,
   type RegistryFile,
@@ -45,6 +48,7 @@ export function openStore(path: string): SqliteStore {
     if (path !== ':memory:' && !path.startsWith('file:')) mkdirSync(dirname(path), { recursive: true });
     db = new DatabaseSync(path);
     setUp(db, path);
+    return new SqliteStore(db, path);
   } catch (cause) {
     closeQuietly(db);
     if (cause instanceof StoreError) throw cause;
@@ -52,7 +56,6 @@ export function openStore(path: string): SqliteStore {
       cause,
     });
   }
-  return new SqliteStore(db, path);
 }
 
 /** A store held in memory, with the same tables and the same behaviour. Its content goes with `close`. */
@@ -60,9 +63,18 @@ export function openMemoryStore(): SqliteStore {
   return openStore(':memory:');
 }
 
+/**
+ * How long a call waits for another connection that holds the file, in milliseconds. SQLite takes the whole
+ * file for a commit, and a live holder can be slow: a large commit, a loaded machine, a process the scheduler has
+ * not run for seconds. A call that waits only five seconds then fails with `database is locked` although the
+ * holder is alive and will finish; a holder that is gone drops its lock with the process, so a long wait costs
+ * only when the holder is alive. Every call is synchronous, so this is also the longest a call blocks.
+ */
+const BUSY_TIMEOUT_MS = 30_000;
+
 function setUp(db: DatabaseSync, path: string): void {
   db.exec('PRAGMA foreign_keys = ON');
-  db.exec('PRAGMA busy_timeout = 5000');
+  db.exec(`PRAGMA busy_timeout = ${BUSY_TIMEOUT_MS}`);
   const version = Number(db.prepare('PRAGMA user_version').get()?.user_version ?? 0);
   if (version > SCHEMA_VERSION) {
     throw new StoreError(
@@ -103,6 +115,20 @@ function transaction<T>(db: DatabaseSync, work: () => T): T {
   }
 }
 
+/** Runs reads in one transaction, so they all see one version of the file. A writer waits until it ends. */
+function readTransaction<T>(db: DatabaseSync, work: () => T): T {
+  db.exec('BEGIN');
+  try {
+    return work();
+  } finally {
+    try {
+      db.exec('COMMIT');
+    } catch {
+      // SQLite already ended it; the error worth reporting is the one the work raised.
+    }
+  }
+}
+
 function statements(db: DatabaseSync) {
   return {
     upsertSpec: db.prepare(
@@ -110,7 +136,9 @@ function statements(db: DatabaseSync) {
        ON CONFLICT (id, hash) DO UPDATE SET path = excluded.path, yaml = excluded.yaml`,
     ),
     selectSpec: db.prepare('SELECT path, yaml FROM specs WHERE id = ? AND hash = ?'),
-    insertCampaign: db.prepare('INSERT INTO campaigns (id, json, created_at) VALUES (?, ?, ?)'),
+    insertCampaignIfNew: db.prepare(
+      'INSERT INTO campaigns (id, json, created_at) VALUES (?, ?, ?) ON CONFLICT (id) DO NOTHING',
+    ),
     selectCampaign: db.prepare('SELECT id, json FROM campaigns WHERE id = ?'),
     selectCampaigns: db.prepare('SELECT id, json FROM campaigns'),
     deleteBlocks: db.prepare('DELETE FROM blocks WHERE campaign_id = ? AND run_id = ?'),
@@ -125,9 +153,11 @@ function statements(db: DatabaseSync) {
          pass, json)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ),
-    selectRun: db.prepare('SELECT campaign_id, run_id, json FROM runs WHERE campaign_id = ? AND run_id = ?'),
+    selectRun: db.prepare(
+      'SELECT campaign_id, run_id, spec_id, mode, status, json FROM runs WHERE campaign_id = ? AND run_id = ?',
+    ),
     selectRunsById: db.prepare(
-      'SELECT campaign_id, run_id, json FROM runs WHERE run_id = ? ORDER BY campaign_id',
+      'SELECT campaign_id, run_id, spec_id, mode, status, json FROM runs WHERE run_id = ? ORDER BY campaign_id',
     ),
     selectBlocks: db.prepare(
       `SELECT "index", observed_json, verdicts_json, drift_json, json FROM blocks
@@ -139,11 +169,14 @@ function statements(db: DatabaseSync) {
          expires_at = excluded.expires_at`,
     ),
     selectCache: db.prepare('SELECT observed_json, expires_at FROM cache WHERE key = ?'),
-    deleteCache: db.prepare('DELETE FROM cache WHERE key = ?'),
+    /** Deletes the entry only while it still holds the expiry that was read: a fresher put stays. */
+    deleteExpiredCache: db.prepare('DELETE FROM cache WHERE key = ? AND expires_at = ?'),
     upsertUnit: db.prepare(
       `INSERT INTO units (adapter, metric, usd, samples, measured_at) VALUES (?, ?, ?, ?, ?)
        ON CONFLICT (adapter, metric) DO UPDATE SET usd = excluded.usd, samples = excluded.samples,
-         measured_at = excluded.measured_at`,
+         measured_at = excluded.measured_at
+       WHERE julianday(excluded.measured_at) >= julianday(units.measured_at)
+         OR julianday(units.measured_at) IS NULL`,
     ),
     selectUnits: db.prepare(
       'SELECT adapter, metric, usd, samples, measured_at FROM units ORDER BY adapter, metric',
@@ -164,6 +197,9 @@ export class SqliteStore implements Store {
   private readonly db: DatabaseSync;
   private readonly sql: ReturnType<typeof statements>;
   private closed = false;
+  // Run writes need only this policy. Keep one validated row, not the full campaign per run.
+  // Compare the current database bytes on every write so other connections' changes are still checked.
+  private runCampaignPolicy?: { id: string; json: string; realizedText: boolean };
 
   constructor(db: DatabaseSync, path: string) {
     this.db = db;
@@ -238,9 +274,15 @@ export class SqliteStore implements Store {
   async getRun(runId: string, campaignId?: string): Promise<RunResult | undefined> {
     this.live();
     if (campaignId !== undefined) {
-      const row = this.sql.selectRun.get(campaignId, runId);
-      return row === undefined ? undefined : this.readRun(row);
+      return readTransaction(this.db, () => {
+        const row = this.sql.selectRun.get(campaignId, runId);
+        return row === undefined ? undefined : this.readRun(row);
+      });
     }
+    return readTransaction(this.db, () => this.getRunById(runId));
+  }
+
+  private getRunById(runId: string): RunResult | undefined {
     const rows = this.sql.selectRunsById.all(runId);
     const [row] = rows;
     if (row === undefined) return undefined;
@@ -270,10 +312,14 @@ export class SqliteStore implements Store {
       params.push(value);
     }
     const where = clauses.length === 0 ? '' : ` WHERE ${clauses.join(' AND ')}`;
-    const rows = this.db
-      .prepare(`SELECT campaign_id, run_id, json FROM runs${where} ORDER BY started_at, campaign_id, run_id`)
-      .all(...params);
-    return rows.map((row) => this.readRun(row));
+    return readTransaction(this.db, () => {
+      const rows = this.db
+        .prepare(
+          `SELECT campaign_id, run_id, spec_id, mode, status, json FROM runs${where} ORDER BY started_at, campaign_id, run_id`,
+        )
+        .all(...params);
+      return rows.map((row) => this.readRun(row));
+    });
   }
 
   async cacheGet(key: string): Promise<Observed | undefined> {
@@ -285,7 +331,7 @@ export class SqliteStore implements Store {
       const expiresAt = Date.parse(text(row, 'expires_at', where));
       if (Number.isNaN(expiresAt)) throw corrupt(`${where} holds an expiry that is not a date`);
       if (Date.now() >= expiresAt) {
-        this.sql.deleteCache.run(key);
+        this.sql.deleteExpiredCache.run(key, text(row, 'expires_at', where));
         return undefined;
       }
     }
@@ -390,11 +436,18 @@ export class SqliteStore implements Store {
 
   /**
    * Reads a folder `exportCampaign` wrote and stores its campaign and runs, all or nothing. The
-   * campaign must be new to this store or equal to the one it holds. Returns what it read.
+   * campaign must be new to this store or equal to the one it holds. Returns the stored runs
+   * after applying its text policy, alongside the verified source manifest.
    */
   async importCampaign(folder: string): Promise<CampaignBundle> {
     this.live();
     const bundle = await readCampaignBundle(folder);
+    bundle.runs = bundle.runs.map((run) =>
+      applyRealizedTextPolicy(run, bundle.campaign.provenance?.realizedText === true, {
+        fromRun: run.runId,
+        fromCampaign: bundle.campaign.campaignId,
+      }),
+    );
     this.live();
     transaction(this.db, () => {
       for (const source of bundle.sources) this.importVersionNow(source.version, source.files);
@@ -427,6 +480,14 @@ export class SqliteStore implements Store {
       .get(kind, name, hash);
     if (held !== undefined) return { version: readVersion(held, `${kind} ${name}`), created: false };
     return transaction(this.db, () => {
+      // Checked again under the write lock: the same content pushed by another process in between is
+      // given back, not inserted twice.
+      const committed = this.db
+        .prepare('SELECT json FROM versions WHERE kind = ? AND name = ? AND hash = ?')
+        .get(kind, name, hash);
+      if (committed !== undefined) {
+        return { version: readVersion(committed, `${kind} ${name}`), created: false };
+      }
       const insertBlob = this.db.prepare(
         'INSERT OR IGNORE INTO blobs (sha256, size, bytes) VALUES (?, ?, ?)',
       );
@@ -474,7 +535,10 @@ export class SqliteStore implements Store {
   async getVersion(kind: RegistryKind, name: string, ref?: string): Promise<RegistryVersion | undefined> {
     const versions = await this.listVersions(kind, name);
     if (ref === undefined || ref === 'latest') return versions.at(-1);
-    if (/^\d+$/.test(ref)) return versions.find((each) => each.version === Number(ref));
+    if (/^\d+$/.test(ref)) {
+      const numbered = versions.find((each) => each.version === Number(ref));
+      if (numbered || ref.length < 6 || ref.length > 64) return numbered;
+    }
     if (/^[0-9a-f]{6,64}$/.test(ref)) {
       const found = versions.filter((each) => each.hash.startsWith(ref));
       if (found.length > 1) {
@@ -517,6 +581,15 @@ export class SqliteStore implements Store {
     checkKind(version.kind);
     checkName(version.name);
     const label = `${version.kind} ${version.name}@${version.version}`;
+    const escaping = [...version.files.map((entry) => entry.path), ...files.map((file) => file.path)].find(
+      (path) => !isVersionPath(path),
+    );
+    if (escaping !== undefined) {
+      throw new StoreError(
+        'BUNDLE_INVALID',
+        `${label} names the file path "${escaping}", which leaves the version`,
+      );
+    }
     const held = this.db
       .prepare('SELECT hash FROM versions WHERE kind = ? AND name = ? AND (hash = ? OR version = ?)')
       .all(version.kind, version.name, version.hash, version.version);
@@ -544,6 +617,7 @@ export class SqliteStore implements Store {
   async close(): Promise<void> {
     if (this.closed) return;
     this.closed = true;
+    this.runCampaignPolicy = undefined;
     this.db.close();
   }
 
@@ -560,15 +634,20 @@ export class SqliteStore implements Store {
       );
     }
     const { campaignId } = parsed.data;
+    // Insert first, compare after: one statement, so a campaign another process commits between a check and
+    // the write is compared, never hit as a raw constraint error.
+    const inserted = this.sql.insertCampaignIfNew.run(
+      campaignId,
+      toJson(parsed.data, `campaign ${campaignId}`),
+      now(),
+    );
+    if (Number(inserted.changes) > 0) return;
     const row = this.sql.selectCampaign.get(campaignId);
-    if (row !== undefined) {
-      if (canonicalJson(readCampaign(row)) === canonicalJson(parsed.data)) return;
-      throw new StoreError(
-        'CAMPAIGN_CONFLICT',
-        `campaign ${campaignId} is already stored with other content; a campaign is immutable, so a re-run takes a new campaign id`,
-      );
-    }
-    this.sql.insertCampaign.run(campaignId, toJson(parsed.data, `campaign ${campaignId}`), now());
+    if (row !== undefined && canonicalJson(readCampaign(row)) === canonicalJson(parsed.data)) return;
+    throw new StoreError(
+      'CAMPAIGN_CONFLICT',
+      `campaign ${campaignId} is already stored with other content; a campaign is immutable, so a re-run takes a new campaign id`,
+    );
   }
 
   private putRunNow(campaignId: string, run: RunResult): void {
@@ -579,7 +658,25 @@ export class SqliteStore implements Store {
         `putRun refused an invalid RunResult: ${describeIssues(parsed.error.issues)}`,
       );
     }
-    const { blocks, ...summary } = parsed.data;
+    const campaignRow = this.sql.selectCampaign.get(campaignId);
+    if (campaignRow === undefined) {
+      throw new StoreError(
+        'CAMPAIGN_MISSING',
+        `putRun: campaign ${campaignId} is not in the store; put the campaign before its runs`,
+      );
+    }
+    const campaignJson = text(campaignRow, 'json', `the campaigns row ${campaignId}`);
+    let policy = this.runCampaignPolicy;
+    if (policy?.id !== campaignId || policy.json !== campaignJson) {
+      const campaign = readCampaign(campaignRow);
+      policy = {
+        id: campaignId,
+        json: campaignJson,
+        realizedText: campaign.provenance?.realizedText === true,
+      };
+      this.runCampaignPolicy = policy;
+    }
+    const { blocks, ...summary } = applyRealizedTextPolicy(parsed.data, policy.realizedText);
     const what = `run ${summary.runId}`;
     let previous = -1;
     for (const block of blocks) {
@@ -590,12 +687,6 @@ export class SqliteStore implements Store {
         );
       }
       previous = block.index;
-    }
-    if (this.sql.selectCampaign.get(campaignId) === undefined) {
-      throw new StoreError(
-        'CAMPAIGN_MISSING',
-        `putRun: campaign ${campaignId} is not in the store; put the campaign before its runs`,
-      );
     }
     const rows = blocks.map((block) => {
       const { observed, verdicts, drift, ...rest } = block;
@@ -608,7 +699,7 @@ export class SqliteStore implements Store {
         toJson(observed, label),
         toJson(verdicts, label),
         toJson(drift, label),
-        block.pass ? 1 : 0,
+        blockStatus(block) === 'pass' ? 1 : 0,
         toJson(rest, label),
       ] satisfies SQLInputValue[];
     });
@@ -654,6 +745,16 @@ export class SqliteStore implements Store {
       throw corrupt(`${where} does not match the RunResult schema: ${describeIssues(parsed.error.issues)}`);
     }
     if (parsed.data.runId !== runId) throw corrupt(`${where} holds run ${parsed.data.runId}`);
+    // The columns a filter reads must agree with the record, or a filter returns a run it does not match.
+    for (const [column, held] of [
+      ['spec_id', parsed.data.specId],
+      ['mode', parsed.data.mode],
+      ['status', parsed.data.status],
+    ] as const) {
+      if (row[column] !== undefined && row[column] !== held) {
+        throw corrupt(`${where} has ${column} ${String(row[column])}, its record holds ${held}`);
+      }
+    }
     parsed.data.blocks.forEach((block, i) => {
       if (block.index !== blockRows[i]?.index) {
         throw corrupt(`${where} has block row ${String(blockRows[i]?.index)} holding block ${block.index}`);

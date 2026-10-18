@@ -1,4 +1,4 @@
-# @driftbench/store
+# @agent-nexus/driftbench-store
 
 The driftbench result store: specs, campaigns, runs, the response cache and cost units in one SQLite file through node:sqlite.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install @driftbench/store
+npm install @agent-nexus/driftbench-store
 ```
 
 Node.js 22.13 or newer. ESM only, with TypeScript types.
@@ -28,4 +28,4 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## License
 
-Apache-2.0
+MIT

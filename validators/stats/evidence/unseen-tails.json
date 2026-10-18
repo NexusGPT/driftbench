@@ -1,0 +1,633 @@
+{
+  "base": "a09da6e202240986b885f443c0027346e7a2d624",
+  "implementation": "a1fd7524d",
+  "reusedImplementation": "106a8a8ace59afb6fa8bc43a2a9cb421c15fd1aa",
+  "workflow": "https://github.com/achammah/driftbench/actions/runs/38535046073",
+  "method": "Each actual bank item supplies four samples. Its first sample with the old bar reproduces the old item. The mean of all four with the new bar is asserted to match the current item outcome. Calibration seeds 1..20000; held-out seeds 20001..70000; planted faults 1..200.",
+  "bars": {
+    "chao1": {
+      "before": 0.05,
+      "after": 0.05
+    },
+    "q1": {
+      "before": 0.05,
+      "after": 0.035
+    },
+    "q2": {
+      "before": 0.1,
+      "after": 0.06
+    }
+  },
+  "calibration": [
+    {
+      "id": "analytic.unseen.hill-q1.s40-tail5",
+      "first": 1,
+      "last": 20000,
+      "seeds": 20000,
+      "oldBar": 0.05,
+      "newBar": 0.035,
+      "before": [154, 12290, 12734],
+      "after": [],
+      "quantile9999": 0.028996469387169436,
+      "max": 0.02951707474093336,
+      "zeroFailureUpper95": 0.000149775396222962,
+      "detection": {}
+    },
+    {
+      "id": "analytic.unseen.hill-q2.s40-tail5",
+      "first": 1,
+      "last": 20000,
+      "seeds": 20000,
+      "oldBar": 0.1,
+      "newBar": 0.06,
+      "before": [3577],
+      "after": [],
+      "quantile9999": 0.04838401304713552,
+      "max": 0.049014147290493255,
+      "zeroFailureUpper95": 0.000149775396222962,
+      "detection": {}
+    },
+    {
+      "id": "analytic.unseen.chao1-large.s80-tail10",
+      "first": 1,
+      "last": 20000,
+      "seeds": 20000,
+      "oldBar": 0.05,
+      "newBar": 0.05,
+      "before": [
+        1808, 3222, 10150, 10581, 11665, 12258, 14161, 15120, 16406, 16658, 17166, 17613, 18762, 19559
+      ],
+      "after": [],
+      "quantile9999": 0.020299804687499902,
+      "max": 0.024984375000000014,
+      "zeroFailureUpper95": 0.000149775396222962,
+      "detection": {}
+    }
+  ],
+  "heldout": [
+    {
+      "id": "analytic.unseen.hill-q1.s40-tail5",
+      "first": 20001,
+      "last": 70000,
+      "seeds": 50000,
+      "oldBar": 0.05,
+      "newBar": 0.035,
+      "before": [21238, 36190, 46215, 48856, 50601, 56427, 60930, 66655],
+      "after": [],
+      "quantile9999": 0.02854734588761003,
+      "max": 0.028972097865813708,
+      "zeroFailureUpper95": 5.991285062456608e-5,
+      "detection": {}
+    },
+    {
+      "id": "analytic.unseen.hill-q2.s40-tail5",
+      "first": 20001,
+      "last": 70000,
+      "seeds": 50000,
+      "oldBar": 0.1,
+      "newBar": 0.06,
+      "before": [],
+      "after": [],
+      "quantile9999": 0.04991874813205185,
+      "max": 0.05358942771771145,
+      "zeroFailureUpper95": 5.991285062456608e-5,
+      "detection": {}
+    },
+    {
+      "id": "analytic.unseen.chao1-large.s80-tail10",
+      "first": 20001,
+      "last": 70000,
+      "seeds": 50000,
+      "oldBar": 0.05,
+      "newBar": 0.05,
+      "before": [
+        20362, 23986, 24054, 27112, 29175, 31225, 32766, 36840, 39086, 41630, 45842, 46352, 48356, 48561,
+        54384, 57058, 57129, 59443, 60110, 60657, 61427, 64678, 66521
+      ],
+      "after": [],
+      "quantile9999": 0.020299804687499902,
+      "max": 0.024984375000000014,
+      "zeroFailureUpper95": 5.991285062456608e-5,
+      "detection": {}
+    }
+  ],
+  "mutants": [
+    {
+      "id": "analytic.unseen.chao1-large.s20-even",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.05,
+      "newBar": 0.05,
+      "before": [],
+      "after": [],
+      "quantile9999": 0,
+      "max": 0,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "observed-only": {
+          "before": 0,
+          "after": 0
+        },
+        "double-unseen": {
+          "before": 0,
+          "after": 0
+        },
+        "jackknife": {
+          "before": 0,
+          "after": 0
+        },
+        "times-1.1": {
+          "before": 200,
+          "after": 200
+        },
+        "times-0.9": {
+          "before": 200,
+          "after": 200
+        }
+      }
+    },
+    {
+      "id": "analytic.unseen.hill-q1.s20-even",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.05,
+      "newBar": 0.035,
+      "before": [],
+      "after": [],
+      "quantile9999": 0.015211502845652983,
+      "max": 0.015211502845652983,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "other-order": {
+          "before": 0,
+          "after": 0
+        },
+        "richness": {
+          "before": 0,
+          "after": 0
+        },
+        "order-2.2": {
+          "before": 0,
+          "after": 0
+        },
+        "times-1.1": {
+          "before": 200,
+          "after": 200
+        },
+        "times-0.9": {
+          "before": 200,
+          "after": 200
+        }
+      }
+    },
+    {
+      "id": "analytic.unseen.hill-q2.s20-even",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.1,
+      "newBar": 0.06,
+      "before": [],
+      "after": [],
+      "quantile9999": 0.026480238960343717,
+      "max": 0.026480238960343717,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "other-order": {
+          "before": 0,
+          "after": 0
+        },
+        "richness": {
+          "before": 0,
+          "after": 0
+        },
+        "order-2.2": {
+          "before": 0,
+          "after": 0
+        },
+        "times-1.1": {
+          "before": 0,
+          "after": 200
+        },
+        "times-0.9": {
+          "before": 200,
+          "after": 200
+        }
+      }
+    },
+    {
+      "id": "analytic.unseen.chao1-large.s40-tail5",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.05,
+      "newBar": 0.05,
+      "before": [],
+      "after": [],
+      "quantile9999": 0.00625,
+      "max": 0.00625,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "observed-only": {
+          "before": 0,
+          "after": 0
+        },
+        "double-unseen": {
+          "before": 0,
+          "after": 0
+        },
+        "jackknife": {
+          "before": 0,
+          "after": 0
+        },
+        "times-1.1": {
+          "before": 200,
+          "after": 200
+        },
+        "times-0.9": {
+          "before": 200,
+          "after": 200
+        }
+      }
+    },
+    {
+      "id": "analytic.unseen.hill-q1.s40-tail5",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.05,
+      "newBar": 0.035,
+      "before": [154],
+      "after": [],
+      "quantile9999": 0.025299010834206156,
+      "max": 0.025299010834206156,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "other-order": {
+          "before": 200,
+          "after": 200
+        },
+        "richness": {
+          "before": 200,
+          "after": 200
+        },
+        "order-2.2": {
+          "before": 200,
+          "after": 200
+        },
+        "times-1.1": {
+          "before": 199,
+          "after": 200
+        },
+        "times-0.9": {
+          "before": 200,
+          "after": 200
+        }
+      }
+    },
+    {
+      "id": "analytic.unseen.hill-q2.s40-tail5",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.1,
+      "newBar": 0.06,
+      "before": [],
+      "after": [],
+      "quantile9999": 0.03596786835624396,
+      "max": 0.03596786835624396,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "other-order": {
+          "before": 17,
+          "after": 200
+        },
+        "richness": {
+          "before": 200,
+          "after": 200
+        },
+        "order-2.2": {
+          "before": 0,
+          "after": 0
+        },
+        "times-1.1": {
+          "before": 37,
+          "after": 200
+        },
+        "times-0.9": {
+          "before": 163,
+          "after": 200
+        }
+      }
+    },
+    {
+      "id": "analytic.unseen.chao1-large.s80-tail10",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.05,
+      "newBar": 0.05,
+      "before": [],
+      "after": [],
+      "quantile9999": 0.007807617187500071,
+      "max": 0.007807617187500071,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "observed-only": {
+          "before": 0,
+          "after": 0
+        },
+        "double-unseen": {
+          "before": 0,
+          "after": 0
+        },
+        "jackknife": {
+          "before": 0,
+          "after": 0
+        },
+        "times-1.1": {
+          "before": 200,
+          "after": 200
+        },
+        "times-0.9": {
+          "before": 200,
+          "after": 200
+        }
+      }
+    },
+    {
+      "id": "analytic.unseen.hill-q1.s80-tail10",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.05,
+      "newBar": 0.035,
+      "before": [],
+      "after": [],
+      "quantile9999": 0.021057328448944923,
+      "max": 0.021057328448944923,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "other-order": {
+          "before": 200,
+          "after": 200
+        },
+        "richness": {
+          "before": 200,
+          "after": 200
+        },
+        "order-2.2": {
+          "before": 200,
+          "after": 200
+        },
+        "times-1.1": {
+          "before": 200,
+          "after": 200
+        },
+        "times-0.9": {
+          "before": 200,
+          "after": 200
+        }
+      }
+    },
+    {
+      "id": "analytic.unseen.hill-q2.s80-tail10",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.1,
+      "newBar": 0.06,
+      "before": [],
+      "after": [],
+      "quantile9999": 0.038833374324312005,
+      "max": 0.038833374324312005,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "other-order": {
+          "before": 200,
+          "after": 200
+        },
+        "richness": {
+          "before": 200,
+          "after": 200
+        },
+        "order-2.2": {
+          "before": 0,
+          "after": 1
+        },
+        "times-1.1": {
+          "before": 42,
+          "after": 199
+        },
+        "times-0.9": {
+          "before": 158,
+          "after": 200
+        }
+      }
+    },
+    {
+      "id": "analytic.unseen.chao1-large.s150-tail3",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.05,
+      "newBar": 0.05,
+      "before": [],
+      "after": [],
+      "quantile9999": 0,
+      "max": 0,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "observed-only": {
+          "before": 0,
+          "after": 0
+        },
+        "double-unseen": {
+          "before": 0,
+          "after": 0
+        },
+        "jackknife": {
+          "before": 0,
+          "after": 0
+        },
+        "times-1.1": {
+          "before": 200,
+          "after": 200
+        },
+        "times-0.9": {
+          "before": 200,
+          "after": 200
+        }
+      }
+    },
+    {
+      "id": "analytic.unseen.hill-q1.s150-tail3",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.05,
+      "newBar": 0.035,
+      "before": [],
+      "after": [],
+      "quantile9999": 0.016097234376594858,
+      "max": 0.016097234376594858,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "other-order": {
+          "before": 198,
+          "after": 200
+        },
+        "richness": {
+          "before": 200,
+          "after": 200
+        },
+        "order-2.2": {
+          "before": 200,
+          "after": 200
+        },
+        "times-1.1": {
+          "before": 200,
+          "after": 200
+        },
+        "times-0.9": {
+          "before": 200,
+          "after": 200
+        }
+      }
+    },
+    {
+      "id": "analytic.unseen.hill-q2.s150-tail3",
+      "first": 1,
+      "last": 200,
+      "seeds": 200,
+      "oldBar": 0.1,
+      "newBar": 0.06,
+      "before": [],
+      "after": [],
+      "quantile9999": 0.026970070247767108,
+      "max": 0.026970070247767108,
+      "zeroFailureUpper95": 0.014867039231272083,
+      "detection": {
+        "other-order": {
+          "before": 0,
+          "after": 0
+        },
+        "richness": {
+          "before": 0,
+          "after": 200
+        },
+        "order-2.2": {
+          "before": 0,
+          "after": 0
+        },
+        "times-1.1": {
+          "before": 0,
+          "after": 200
+        },
+        "times-0.9": {
+          "before": 200,
+          "after": 200
+        }
+      }
+    }
+  ],
+  "interpretation": "Zero of 50000 held-out seeds failed each target item. A one-sided exact 95 percent upper bound is 1 - 0.05^(1/50000) = 0.000059913 per seed. This is an empirical confidence statement, not a proof over all seeds. No bar was loosened. No measured per-item planted-fault detection count decreased. Observed-only, double-unseen, and jackknife Chao1 faults remain undetected by the large-sample items on these 200 seeds; order 2.2 for q2 remains poorly detected.",
+  "heldoutJoint": {
+    "seeds": 50000,
+    "failuresOfAnyTarget": 0,
+    "oneSidedUpper99": 9.209916233143822e-5,
+    "assumption": "Binomial confidence bound for the simulated seed population; no extrapolation guarantee for all 32-bit seeds."
+  },
+  "checks": {
+    "packageTests": {
+      "command": "pnpm exec vitest run packages/validators/test packages/stats/test tools/docs --maxWorkers=2",
+      "passedFiles": 86,
+      "passedTests": 1126,
+      "failedTests": 0,
+      "job": 115755775179
+    },
+    "otherChecks": ["pnpm typecheck", "Biome on all four changed TypeScript files"],
+    "regressionRed": {
+      "command": "pnpm exec vitest run packages/validators/test/stats/unseen-bar.test.ts --maxWorkers=2",
+      "oldBank": "a09da6e20",
+      "failed": 3,
+      "passed": 2,
+      "failures": [
+        "correct estimator at historical seed 154",
+        "q1 returned for q2 on s40-tail5",
+        "Chao1 multiplied by 0.9 on a historical failing seed"
+      ],
+      "restoredFixedBank": true
+    },
+    "workflowLimitation": "The remote checks job passed its tests, typecheck and Biome, then failed the extra regression-red setup because the shallow checkout lacked a09da6e20. The regression-red check was completed locally with the fixed source restored afterwards."
+  },
+  "ladderBase": {
+    "firstSeed": 1,
+    "lastSeed": 200,
+    "full": true,
+    "mode": "statsLadder({ inProcess: true }), runLadder({ full: true })",
+    "levelCounts": {
+      "7": 197,
+      "4": 3
+    },
+    "failedSeeds": [
+      {
+        "seed": 113,
+        "level": 4,
+        "failures": [
+          {
+            "id": "simulation.shares.pooled",
+            "component": "packages/generate/src/pilot/analyse.ts",
+            "detail": "[coverage-simulation, tier 4, cause: simulation.shares.pooled] analysePilot recovered 0.90625 of the planted shares over 8 datasets (bar 0.93): estimator analysePilot (pooled variance share, cluster bootstrap), seed 113, dataset 3 of 8, level wording: truth 0.0570732, estimate 0, interval [0, 0.0561439] | estimator analysePilot (pooled variance share, cluster bootstrap), seed 113, dataset 4 of 8, level conversation: truth 0.110124, estimate 0.0721402, interval [0.00355489, 0.102333] | estimator analysePilot (pooled variance share, cluster bootstrap), seed 113, dataset 7 of 8, level wording: truth 0.0554281, estimate 0, interval [0, 0.0543038]",
+            "family": "coverage-simulation",
+            "tier": 4,
+            "cause": "simulation.shares.pooled"
+          }
+        ]
+      },
+      {
+        "seed": 180,
+        "level": 4,
+        "failures": [
+          {
+            "id": "simulation.wilson-coverage.n200",
+            "component": "packages/stats/src/intervals.ts",
+            "detail": "[coverage-simulation, tier 3, cause: simulation.wilson-coverage.n200] wilson at n 200: 0.926 of 1000 intervals hold a true rate drawn uniform on [0.1, 0.9] (bar 0.93); first miss draw 3: truth 0.5297160647809506, interval [0.37297819251185865, 0.5092832466534134].",
+            "family": "coverage-simulation",
+            "tier": 3,
+            "cause": "simulation.wilson-coverage.n200"
+          }
+        ]
+      },
+      {
+        "seed": 195,
+        "level": 4,
+        "failures": [
+          {
+            "id": "simulation.shares.pooled",
+            "component": "packages/generate/src/pilot/analyse.ts",
+            "detail": "[coverage-simulation, tier 4, cause: simulation.shares.pooled] analysePilot recovered 0.90625 of the planted shares over 8 datasets (bar 0.93): estimator analysePilot (pooled variance share, cluster bootstrap), seed 195, dataset 1 of 8, level conversation: truth 0.107975, estimate 0.067091, interval [0, 0.10676] | estimator analysePilot (pooled variance share, cluster bootstrap), seed 195, dataset 2 of 8, level conversation: truth 0.0780366, estimate 0.0380219, interval [0, 0.0702429] | estimator analysePilot (pooled variance share, cluster bootstrap), seed 195, dataset 7 of 8, level conversation: truth 0.0828038, estimate 0.0409641, interval [0, 0.0763974]",
+            "family": "coverage-simulation",
+            "tier": 4,
+            "cause": "simulation.shares.pooled"
+          },
+          {
+            "id": "simulation.shares.conversation",
+            "component": "packages/generate/src/pilot/analyse.ts",
+            "detail": "[coverage-simulation, tier 4, cause: simulation.shares.conversation] the planted conversation share fell outside the analysePilot bootstrap interval on 3 of 8 datasets (at most 2 for a 95 percent interval): estimator analysePilot (pooled variance share, cluster bootstrap), seed 195, dataset 1 of 8, level conversation: truth 0.107975, estimate 0.067091, interval [0, 0.10676] | estimator analysePilot (pooled variance share, cluster bootstrap), seed 195, dataset 2 of 8, level conversation: truth 0.0780366, estimate 0.0380219, interval [0, 0.0702429]",
+            "family": "coverage-simulation",
+            "tier": 4,
+            "cause": "simulation.shares.conversation"
+          }
+        ]
+      }
+    ],
+    "seed154": {
+      "seed": 154,
+      "level": 7,
+      "failures": []
+    }
+  }
+}

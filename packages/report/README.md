@@ -1,4 +1,4 @@
-# @driftbench/report
+# @agent-nexus/driftbench-report
 
 Scorecards, run comparisons, spread views, HTML, text and JUnit output from a stored driftbench campaign.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install @driftbench/report
+npm install @agent-nexus/driftbench-report
 ```
 
 Node.js 22.13 or newer. ESM only, with TypeScript types.
@@ -29,4 +29,4 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## License
 
-Apache-2.0
+MIT

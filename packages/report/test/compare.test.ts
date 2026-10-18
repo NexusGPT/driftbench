@@ -1,8 +1,23 @@
-import type { RunResult } from '@driftbench/core';
-import { benjaminiHochberg, mcnemar, pairedRateDifference, wilcoxonSignedRank } from '@driftbench/stats';
-import { openMemoryStore } from '@driftbench/store';
+import type { RunResult } from '@agent-nexus/driftbench-core';
+import {
+  benjaminiHochberg,
+  mcnemar,
+  mde,
+  pairedRateDifference,
+  wilcoxonSignedRank,
+} from '@agent-nexus/driftbench-stats';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { describe, expect, it } from 'vitest';
-import { compareCampaigns, criterionOf, unitsOf } from '../src/compare';
+import {
+  AUTO_MARGIN_WARN,
+  autoMargin,
+  compareCampaigns,
+  criterionOf,
+  goldensNeeded,
+  MIN_GOLDENS,
+  marginFloor,
+  unitsOf,
+} from '../src/compare';
 import { loadCampaign } from '../src/data';
 import { compareText } from '../src/text';
 import { dataOf, run, storeAcmeCampaign, verdict } from './support';
@@ -201,6 +216,120 @@ describe('compareCampaigns', () => {
   });
 });
 
+/** n goldens in F that all pass `must`; the first `thin` of them also decide a `guards` criterion. */
+function withThinCriterion(id: string, n: number, thin: number, guardFails: number[] = []) {
+  const runs: RunResult[] = [];
+  for (let i = 0; i < n; i += 1) {
+    const guardFail = guardFails.includes(i);
+    runs.push(
+      run({
+        specId: `g${String(i).padStart(2, '0')}`,
+        blocks: [
+          {
+            pass: !guardFail,
+            verdicts: [
+              { id: 'must.0', outcome: 'pass' as const },
+              ...(i < thin
+                ? [{ id: 'guards.no_pii', outcome: guardFail ? ('fail' as const) : ('pass' as const) }]
+                : []),
+            ],
+          },
+        ],
+      }),
+    );
+  }
+  return dataOf(runs, {}, id);
+}
+
+describe('underpowered criteria, planning numbers and the automatic margin', () => {
+  it('leaves a gating criterion on fewer than minGoldens goldens out of the parity test, and --strict puts it back', () => {
+    const base = withThinCriterion('b', 60, 6);
+    const cand = withThinCriterion('c', 60, 6);
+    const loose = compareCampaigns(base, cand, { margin: 0.1 });
+    expect(loose.minGoldens).toBe(MIN_GOLDENS);
+    expect(loose.criteria.find((row) => row.criterion === 'guards')).toMatchObject({
+      units: 6,
+      underpowered: true,
+      nonInferior: false,
+    });
+    expect(loose.criteria.find((row) => row.criterion === 'must')?.underpowered).toBe(false);
+    expect(loose.verdict).toBe('non-inferior');
+    expect(
+      loose.reasons.some((reason) => reason.startsWith('guards: underpowered, decided on 6 goldens')),
+    ).toBe(true);
+    const strict = compareCampaigns(base, cand, { margin: 0.1, strict: true });
+    expect(strict.verdict).toBe('unproven');
+    expect(strict.reasons.some((reason) => reason.startsWith('guards: the upper bound'))).toBe(true);
+    const edge = (thin: number) =>
+      compareCampaigns(withThinCriterion('b', 60, thin), withThinCriterion('c', 60, thin), {
+        margin: 0.1,
+      }).criteria.find((row) => row.criterion === 'guards')?.underpowered;
+    expect(edge(MIN_GOLDENS - 1)).toBe(true);
+    expect(edge(MIN_GOLDENS)).toBe(false);
+    const lower = compareCampaigns(base, cand, { margin: 0.1, minGoldens: 5 });
+    expect(lower.criteria.find((row) => row.criterion === 'guards')?.underpowered).toBe(false);
+    expect(lower.verdict).toBe('unproven');
+  });
+
+  it('still calls a significant regression or a new flag a regression on an underpowered criterion', () => {
+    const fails = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const result = compareCampaigns(withThinCriterion('b', 60, 20), withThinCriterion('c', 60, 20, fails), {
+      margin: 0.5,
+    });
+    const guards = result.criteria.find((row) => row.criterion === 'guards');
+    expect(guards?.underpowered).toBe(true);
+    expect(guards?.significantRegression).toBe(true);
+    expect(result.verdict).toBe('regressed');
+    const flagged = compareCampaigns(campaign('b', 10), campaign('c', 10, { forbidden: [4] }), {
+      margin: 0.9,
+    });
+    expect(flagged.criteria.every((row) => row.underpowered)).toBe(true);
+    expect(flagged.verdict).toBe('regressed');
+  });
+
+  it('prints the floor, the drop detected at 80% power and the goldens a 10 point margin needs, per criterion', () => {
+    const result = compareCampaigns(campaign('b', 60), campaign('c', 60, { fails: [1, 2, 3] }), {
+      margin: 0.1,
+    });
+    const tools = result.criteria.find((row) => row.criterion === 'tools');
+    expect(tools?.floor).toBeCloseTo(marginFloor(60), 12);
+    expect(tools?.detectable).toBeCloseTo(
+      mde({ n: 60, baselineRate: 1 - 0.5 / 60, power: 0.8 }).effect as number,
+      12,
+    );
+    expect(tools?.goldensFor10).toBe(goldensNeeded(0.1, 3 / 60));
+    expect(result.allPass.floor).toBeCloseTo(marginFloor(60), 12);
+    expect(compareText(result)).toMatch(/^ +tools +yes +60 +3 +0 .* +\d+\.\d +[\d.]+ points +\d+$/m);
+  });
+
+  it('sizes a suite: marginFloor shrinks with n, goldensNeeded is the first n below the margin, or more with discordance', () => {
+    expect(marginFloor(10)).toBeCloseTo(0.2775, 4);
+    expect(marginFloor(134)).toBeCloseTo(0.0279, 4);
+    expect(goldensNeeded(0.1, 0)).toBe(35);
+    expect(marginFloor(35)).toBeLessThan(0.1);
+    expect(marginFloor(34)).toBeGreaterThanOrEqual(0.1);
+    expect(goldensNeeded(0.1, 0.2)).toBe(157);
+  });
+
+  it('chooses the margin from the data: the smallest half point at which the baseline compared with itself is non-inferior', () => {
+    const big = autoMargin(withThinCriterion('b', 60, 6));
+    expect(big.limitedBy).toBe('the all-pass flag');
+    expect(big.needed).toBeCloseTo(marginFloor(60), 12);
+    expect(big.margin).toBe(Math.floor(marginFloor(60) * 200 + 1) / 200);
+    expect(big.warning).toBeUndefined();
+    expect(
+      compareCampaigns(withThinCriterion('b', 60, 6), withThinCriterion('c', 60, 6), { margin: big.margin })
+        .verdict,
+    ).toBe('non-inferior');
+    const strict = autoMargin(withThinCriterion('b', 60, 6), { strict: true });
+    expect(strict.limitedBy).toBe('guards');
+    expect(strict.margin).toBeGreaterThan(AUTO_MARGIN_WARN);
+    expect(strict.warning).toContain(
+      `cannot show parity under ${AUTO_MARGIN_WARN * 100} points (guards needs`,
+    );
+  });
+});
+
 describe('compare on stored Acme campaigns', () => {
   it('finds the fault that skips the recap regressed against the Acme agent', async () => {
     const store = openMemoryStore();
@@ -214,7 +343,7 @@ describe('compare on stored Acme campaigns', () => {
     const baseline = await loadCampaign(store, 'c-acme');
     const candidate = await loadCampaign(store, 'c-x3');
     const result = compareCampaigns(baseline, candidate, { margin: 0.15 });
-    expect(result.pairs).toHaveLength(16);
+    expect(result.pairs).toHaveLength(17);
     expect(result.allPass.table.regressed).toBeGreaterThan(0);
     expect(result.allPass.table.improved).toBe(0);
     expect(result.verdict).toBe('regressed');

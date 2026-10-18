@@ -1,5 +1,5 @@
-import type { RunResult, Spec } from '@driftbench/core';
-import { repeatsForFloor, wilson, Z95 } from '@driftbench/stats';
+import type { RunResult, Spec } from '@agent-nexus/driftbench-core';
+import { repeatsForFloor, wilson, Z95 } from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { clustered } from '../src/estimate';
 import { factorsOf, judgeFlip, spread } from '../src/spread';
@@ -114,7 +114,11 @@ describe('spread', () => {
     expect(s.source).toBe('pilot');
     expect(s.mode).toBe('F');
     const byName = new Map(s.cells.map((cell) => [cell.cell, cell]));
-    expect(byName.get('B')?.rate).toMatchObject({ estimate: 0.75, method: 'cluster bootstrap', clusters: 4 });
+    expect(byName.get('B')?.rate).toMatchObject({
+      estimate: 0.75,
+      method: 'wilson, design effect',
+      clusters: 4,
+    });
     expect(byName.get('A')?.rate.method).toBe('wilson, clusters');
     // One conversation: Wilson over its runs.
     expect(byName.get('D')?.rate).toMatchObject({ estimate: 0.25, method: 'wilson', k: 1, n: 4 });

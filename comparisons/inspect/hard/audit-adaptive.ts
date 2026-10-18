@@ -1,0 +1,19 @@
+import type { Outcome } from './harness';
+
+// Frozen before any scope-set calls. A grounded conclusive ledger ends the
+// decision; another identical request is needed only after an unscored ledger.
+// Later votes cannot influence an earlier conclusive decision.
+export function adaptiveLedger(
+  votes: Outcome[],
+  maximum = 3,
+): {
+  outcome: Outcome;
+  used: number;
+  complete: boolean;
+} {
+  const available = votes.slice(0, maximum);
+  for (const [index, outcome] of available.entries()) {
+    if (outcome !== 'inconclusive') return { outcome, used: index + 1, complete: true };
+  }
+  return { outcome: 'inconclusive', used: available.length, complete: available.length === maximum };
+}

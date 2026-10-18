@@ -1,0 +1,6 @@
+{
+  "rule": "After main pass, reuse successful parity recordings for fresh timeout chains; never bill an already-answered request again. Only remaining unanswered timeout requests get one API retry; concurrency 3; original settings unchanged.",
+  "runner_digest": "e76d5df0f99d6c52e1bf8fd3df9ac64d91925414a88cc1718540570ec909929a",
+  "main_results_modified": false,
+  "parity_replaces_completed_main_cases": false
+}

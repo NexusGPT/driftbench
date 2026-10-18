@@ -1,0 +1,2 @@
+{"stamp": "2026-10-13T14:13:10.237756+00:00", "request_sha256": "d2dbfa996286b97a5aafda54da2812410c9bb14d6b17746919d1e3639b0e14ae", "reason": "two consecutive connection failures", "consecutive_failures": 2}
+{"stamp": "2026-10-13T14:13:37.755462+00:00", "request_sha256": "031655d604538c9b7469b506a26b93b07da4f9d5df48a20e4454bf1f751eed6a", "reason": "two consecutive connection failures", "consecutive_failures": 2}

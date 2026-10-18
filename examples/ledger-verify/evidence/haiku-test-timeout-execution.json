@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-13T14:51:10.022250+00:00",
+  "authorization": "Owner network amendment: missing-only zero-token no-output transport recoveries, including Haiku timeouts, are unlimited after ten healthy provider probes spaced 30 seconds apart; concurrency two and one model cell at a time. After three consecutive connection failures, pause ten minutes and repeat the gate. Retain answers, receipts and holds; never resubmit any returned answer. No sealed result is final while transport-missing items remain.",
+  "originalTransportSha256": "c621bb49d72cd20d7aa23e8b6d974026bbdae1ca6461680324098be849a3226a",
+  "recoveryTransportSha256": "d666e8f3a6cfa5f86c6302a51c462a03b13e3e793307ce92ab065c4cfd48a374",
+  "maxAdditionalSubmissionsEach": null,
+  "unknownHoldsRetainedUsd": 3.0,
+  "networkPolicy": "evidence/network-pause-20261013.json",
+  "requests": [
+    {
+      "key": "56bebfa085abfe96206a",
+      "fingerprint": "9a935f6394bb6cfa8438700ccb7feaefaf6657c8de2774c853d1a8c1e64c6d6c"
+    },
+    {
+      "key": "69aa3929651d3477aab7",
+      "fingerprint": "2d2b648ee7db9348f7966f8717c3c20ab83fff1615410ad1759388d37f8d6cc1"
+    },
+    {
+      "key": "a2864f1aba00dd7dc2b7",
+      "fingerprint": "ec31b95c0f02344e6b85e0b7d644645b463ee2a2ec2fcdb40a408c778adbf14a"
+    },
+    {
+      "key": "7678be8b5413c4550794",
+      "fingerprint": "b32a97dbf9524b856d1e057b4ed98e23ee79fc936b8543b3a57ce2b8fceca1f8"
+    },
+    {
+      "key": "cb7367b99e093fed2116",
+      "fingerprint": "d362855a67300547f1ca362f356a95a39e8ebfadb2380df711593c1555c2ad9a"
+    },
+    {
+      "key": "610e897857bff2e6922b",
+      "fingerprint": "ee28d90faae77b16da1d8edfcd03e9fc645096f318e2563c5b8a2320b90b2f1d"
+    }
+  ]
+}

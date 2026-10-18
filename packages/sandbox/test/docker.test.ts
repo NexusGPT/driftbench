@@ -4,7 +4,12 @@ import { chmod, copyFile, mkdir, mkdtemp, readdir, readFile, realpath, rm } from
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DOCKER_WORKSPACE, type DockerSandbox, dockerProvider, TIMEOUT_EXIT_CODE } from '@driftbench/sandbox';
+import {
+  DOCKER_WORKSPACE,
+  type DockerSandbox,
+  dockerProvider,
+  TIMEOUT_EXIT_CODE,
+} from '@agent-nexus/driftbench-sandbox';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 /**
@@ -80,6 +85,149 @@ describe('the docker sandbox, on the fake docker command line', () => {
     }
   });
 
+  it('starts the container with no network by default, so a command cannot reach a host or the internet', async () => {
+    const fake = await fakeDocker('network-default');
+    const provider = dockerProvider({ image: 'acme/agent:1', binary: fake.binary, dir: fake.workspaces });
+    const box = (await provider.create()) as DockerSandbox;
+    try {
+      const [run] = await fake.calls();
+      const at = run?.indexOf('--network') ?? -1;
+      expect(at).toBeGreaterThan(-1);
+      expect(run?.[at + 1]).toBe('none');
+      expect(run).toContain('acme/agent:1');
+    } finally {
+      await box.destroy();
+    }
+  });
+
+  it('starts the container on the network the provider names', async () => {
+    const fake = await fakeDocker('network-bridge');
+    const provider = dockerProvider({
+      image: 'acme/agent:1',
+      binary: fake.binary,
+      dir: fake.workspaces,
+      network: 'bridge',
+    });
+    const box = (await provider.create()) as DockerSandbox;
+    try {
+      const [run] = await fake.calls();
+      const at = run?.indexOf('--network') ?? -1;
+      expect(at).toBeGreaterThan(-1);
+      expect(run?.[at + 1]).toBe('bridge');
+    } finally {
+      await box.destroy();
+    }
+  });
+
+  it('bounds resources and drops privileges by default', async () => {
+    const fake = await fakeDocker('limits-default');
+    const box = await dockerProvider({
+      image: 'acme/agent:1',
+      binary: fake.binary,
+      dir: fake.workspaces,
+    }).create();
+    try {
+      const [run] = await fake.calls();
+      for (const [flag, value] of [
+        ['--memory', '1g'],
+        ['--cpus', '1'],
+        ['--pids-limit', '256'],
+        ['--cap-drop', 'ALL'],
+        ['--security-opt', 'no-new-privileges'],
+        ['--network', 'none'],
+      ]) {
+        expect(run).toContain(flag);
+        expect(run?.[(run?.indexOf(flag as string) ?? -1) + 1]).toBe(value);
+      }
+    } finally {
+      await box.destroy();
+    }
+  });
+
+  it('uses each explicit resource and privilege override', async () => {
+    const fake = await fakeDocker('limits-overrides');
+    const box = await dockerProvider({
+      image: 'acme/agent:1',
+      binary: fake.binary,
+      dir: fake.workspaces,
+      memory: '2g',
+      cpus: 0.5,
+      pidsLimit: 64,
+      capDrop: ['NET_RAW', 'SYS_ADMIN'],
+      noNewPrivileges: false,
+    }).create();
+    try {
+      const [run] = await fake.calls();
+      for (const [flag, value] of [
+        ['--memory', '2g'],
+        ['--cpus', '0.5'],
+        ['--pids-limit', '64'],
+      ]) {
+        expect(run).toContain(flag);
+        expect(run?.[(run?.indexOf(flag as string) ?? -1) + 1]).toBe(value);
+      }
+      expect(run?.filter((_, index) => run[index - 1] === '--cap-drop')).toEqual(['NET_RAW', 'SYS_ADMIN']);
+      expect(run).not.toContain('--security-opt');
+    } finally {
+      await box.destroy();
+    }
+  });
+
+  it('preserves explicit zero limits and an empty capability-drop list', async () => {
+    const fake = await fakeDocker('limits-disabled');
+    const box = await dockerProvider({
+      image: 'acme/agent:1',
+      binary: fake.binary,
+      dir: fake.workspaces,
+      memory: '0',
+      cpus: 0,
+      pidsLimit: -1,
+      capDrop: [],
+    }).create();
+    try {
+      const [run] = await fake.calls();
+      for (const [flag, value] of [
+        ['--memory', '0'],
+        ['--cpus', '0'],
+        ['--pids-limit', '-1'],
+      ]) {
+        expect(run).toContain(flag);
+        expect(run?.[(run?.indexOf(flag as string) ?? -1) + 1]).toBe(value);
+      }
+      expect(run).not.toContain('--cap-drop');
+      expect(run).toContain('no-new-privileges');
+    } finally {
+      await box.destroy();
+    }
+  });
+
+  it('keeps exec environment values out of argv while preserving values and stdin', async () => {
+    const fake = await fakeDocker('env-private');
+    const box = await dockerProvider({
+      image: 'acme/agent:1',
+      binary: fake.binary,
+      dir: fake.workspaces,
+    }).create();
+    const env = { FIXTURE_VALUE: "fictional=value with spaces and 'quotes'", EMPTY_VALUE: '' };
+    try {
+      const record = await box.exec('printf "%s|%s|%s" "$FIXTURE_VALUE" "$EMPTY_VALUE" "$(cat)" > env.txt', {
+        env,
+        stdin: 'input preserved',
+      });
+      expect(record.exitCode).toBe(0);
+      expect(Buffer.from(await box.readFile('env.txt')).toString('utf8')).toBe(
+        `${env.FIXTURE_VALUE}||input preserved`,
+      );
+      const exec = (await fake.calls()).find((call) => call[0] === 'exec');
+      expect(exec).toContain('--env-file');
+      expect(exec?.some((arg) => arg.includes(env.FIXTURE_VALUE))).toBe(false);
+      expect((await box.exec('printenv FIXTURE_VALUE')).exitCode).toBe(1);
+      expect(process.env.FIXTURE_VALUE).toBeUndefined();
+    } finally {
+      await box.destroy();
+    }
+  });
+
   it('runs commands in the container path with only the given variables, and diffs the mounted folder', async () => {
     const fake = await fakeDocker('exec');
     const box = (await dockerProvider({
@@ -102,8 +250,8 @@ describe('the docker sandbox, on the fake docker command line', () => {
         '-i',
         '-w',
         '/workspace/sub',
-        '-e',
-        'GREETING=hello',
+        '--env-file',
+        expect.any(String),
         box.container,
       ]);
       expect(Buffer.from(await box.readFile('sub/made.txt')).toString('utf8')).toBe('hello|from stdin');
@@ -126,20 +274,24 @@ describe('the docker sandbox, on the fake docker command line', () => {
       dir: fake.workspaces,
     }).create()) as DockerSandbox;
     try {
+      // The command outlives the restart by a wide margin: each fake docker call starts a Node process,
+      // which takes over a second on a loaded host, and a command that ends before the restart lands
+      // writes late.txt whatever the sandbox does. The check waits past the command's own end.
+      const late = 4000;
       const started = Date.now();
-      const record = await box.exec('sleep 1; echo late > late.txt', { timeoutMs: 300 });
-      expect(Date.now() - started).toBeLessThan(5000);
+      const record = await box.exec(`sleep ${late / 1000}; echo late > late.txt`, { timeoutMs: 300 });
+      expect(Date.now() - started).toBeLessThan(late);
       expect(record.exitCode).toBe(TIMEOUT_EXIT_CODE);
       expect(record.stderr).toContain('timed out after 300 ms');
       expect(await fake.calls()).toContainEqual(['restart', '-t', '0', box.container]);
       expect((await fake.state(box.container)).restarts).toBe(1);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, late + 500 - (Date.now() - started)));
       expect(existsSync(join(box.folder, 'late.txt'))).toBe(false);
       expect((await box.exec('echo again')).stdout).toBe('again\n');
     } finally {
       await box.destroy();
     }
-  });
+  }, 20_000);
 
   it('removes the container and the folder, keeps the folder with keep, and is safe to call twice', async () => {
     const fake = await fakeDocker('destroy');

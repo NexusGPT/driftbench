@@ -3,7 +3,13 @@ import { mkdir, mkdtemp, readFile, realpath, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type CheckContext, type LoadedSpec, loadSpecs, type Observed, type Spec } from '@driftbench/core';
+import {
+  type CheckContext,
+  type LoadedSpec,
+  loadSpecs,
+  type Observed,
+  type Spec,
+} from '@agent-nexus/driftbench-core';
 import ExcelJS from 'exceljs';
 import { taskArtifactText } from '../../src/index';
 

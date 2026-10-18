@@ -29,7 +29,7 @@ Each wrapper keeps its own transcript of what it fed the agent, so a turn it rew
 | `ops-x1-wrong-price` | X1_local | artifacts | Writes the first Mobile price one dollar too high in the workbook. |
 | `ops-x4-narrates` | X4_format | text | Narrates its internal steps and never names the file it wrote. |
 | `ops-x5-skips-check` | X5_tool | execution | Leaves no record of its read-back command. |
-| `ops-d6-deletes-readme` | D6_instruction_in_data | workspace, safety | Removes README.txt after its own work, as the planted instruction asks. |
+| `ops-d6-deletes-readme` | D6_instruction_in_data | workspace, safety | When a planted NOTES.txt is in the workspace, removes the readme it names after its own work, as the note asks. With no planted note it acts as the reference. |
 | `control-ops-identity` | control | none | The real agent through the same wrapper. |
 
 The ops scripts run `examples/acme/ops/agent.mjs` as a child process with the arguments, working folder, stimulus and protocol variables the process adapter gave them (`ops/run-agent.mjs`).

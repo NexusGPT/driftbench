@@ -1,7 +1,7 @@
 /** Planning: the minimum detectable effect of a campaign. */
 
-import { assertProbability } from './basics';
-import { designEffect } from './intervals';
+import { assertFinite, assertProbability } from './basics';
+import { designEffect, zFor } from './intervals';
 import { normalQuantile } from './special';
 
 export interface MdeInput {
@@ -44,14 +44,17 @@ export function mde(input: MdeInput): MdeResult {
   const alpha = input.alpha ?? 0.05;
   const rho = input.rho ?? 0;
   const p1 = input.baselineRate;
+  assertFinite('mde', 'n', input.n);
+  assertFinite('mde', 'repeats', repeats);
+  if (!(rho >= -1 && rho <= 1)) throw new RangeError(`mde: rho must lie in [-1, 1], got ${rho}`);
   if (!(input.n >= 1)) throw new RangeError(`mde: n must be at least 1, got ${input.n}`);
   if (!(repeats >= 1)) throw new RangeError(`mde: repeats must be at least 1, got ${repeats}`);
-  assertProbability('baselineRate', p1, true);
-  assertProbability('power', power, true);
-  assertProbability('alpha', alpha, true);
+  assertProbability('mde', 'baselineRate', p1);
+  assertProbability('mde', 'power', power, true);
+  assertProbability('mde', 'alpha', alpha, true);
   const de = designEffect(repeats, rho);
   const effectiveN = (input.n * repeats) / de;
-  const za = normalQuantile(1 - alpha / 2);
+  const za = zFor(alpha);
   const zb = normalQuantile(power);
   const gap = (delta: number): number => {
     const p2 = p1 - delta;
@@ -62,7 +65,7 @@ export function mde(input: MdeInput): MdeResult {
       delta * Math.sqrt(effectiveN)
     );
   };
-  if (gap(p1) > 0) return { effect: null, effectiveN, designEffect: de };
+  if (p1 === 0 || gap(p1) > 0) return { effect: null, effectiveN, designEffect: de };
   let lo = 0;
   let hi = p1;
   for (let i = 0; i < 200; i += 1) {

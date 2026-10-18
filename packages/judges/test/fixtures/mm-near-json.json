@@ -1,0 +1,23 @@
+[
+  {
+    "id": "2017",
+    "group": "language mixing",
+    "order": "BA",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.08, \"reasoning\": \"The two replies have the same content, but Reply A contains stray non-Bengali fragments (\"ответ\", \"نہیں\", \"المالية الصحة\", \"组合\"), breaking the requirement to reply in the user's language. Reply B is clean Bengali, so it satisfies the criterion better.\", \"evidence\": \"Reply A: \\\"স্পষ্ট ответ نہیں দেয়\\\"\"}",
+    "recordingHash": "0d8661cf8d1ce9f640df"
+  },
+  {
+    "id": "1951",
+    "group": "reasoning",
+    "order": "AB",
+    "original": "{\"outcome\": \"fail\", \"score\": 0.03, \"reasoning\": \"Reply B reaches the correct answer of 8 gallons with a coherent setup that checks out (large 32 = 4 × small 8). Reply A is self-contradictory, reverses the ratio, and gives the wrong final answer of 16, so B satisfies the criterion better.\", \"evidence\": \"小水池现在有 \\(24 - 16 = 8\\) 加仑的水。答案是 8。\"}",
+    "recordingHash": "6e1145f89a176ca03b33"
+  },
+  {
+    "id": "761",
+    "group": "reasoning",
+    "order": "AB",
+    "original": "{\"outcome\": \"pass\", \"score\": 0.95, \"reasoning\": \"Reply A correctly sets Brooke's age as x and Seth's as 2x, giving 3x + 4 = 28, so x = 8 and Seth is 16. Reply B writes Brooke's future age as 2B + 2 instead of B + 2, which produces the wrong answer of 12.\", \"evidence\": \"Dans deux ans, l'âge de Brooke sera \\(B + 2\\)... Cela fait \\(2B + 2 + S + 2 = 28\\)\"}",
+    "recordingHash": "01c65db16a1543befe99"
+  }
+]

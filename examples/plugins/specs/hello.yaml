@@ -1,0 +1,13 @@
+id: plugins-hello
+version: '1'
+title: A plugin adapter answers and a plugin check reads the answer
+channel: chat
+lang: EN
+target: { adapter: echo, agent: demo }
+rules:
+  custom:
+    polite: { banned: [stupid] }
+blocks:
+  - user: Hello there
+    expect:
+      must: ['You said: Hello there']

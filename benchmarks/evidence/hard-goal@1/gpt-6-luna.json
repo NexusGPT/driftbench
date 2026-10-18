@@ -1,0 +1,2208 @@
+{
+  "format": "driftbench-bench-record-v1",
+  "report": {
+    "format": "driftbench-bench-v1",
+    "slice": "hard-goal",
+    "datasetVersion": 1,
+    "datasetHash": "241a06a4e210d4fd1789b4970352d29a6099878b3df4c151c27d75b8237c59b4",
+    "judge": "gpt-6-luna",
+    "model": "gpt-6-luna",
+    "settings": "{\"client\":\"openai-chat\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"temperatureRetry\":\"drop on a 400 that names it\",\"responseFormat\":\"json_schema\",\"reasoning\":\"medium\",\"reasoningTokens\":{\"low\":512,\"medium\":1024,\"high\":2048}}",
+    "fingerprint": "b55396660b27",
+    "head": "f1e520bbd4bc12582cc0ce1b966fd7e3dd504f97",
+    "startedAt": "2026-10-15T15:53:57.341Z",
+    "finishedAt": "2026-10-15T15:55:44.274Z",
+    "n": 120,
+    "correct": 119,
+    "wilson": {
+      "estimate": 0.9916666666666667,
+      "lower": 0.9543037087549505,
+      "upper": 0.998527444266658
+    },
+    "familyBootstrap": {
+      "estimate": 0.9916666666666667,
+      "lower": 0.975,
+      "upper": 1,
+      "iterations": 2000,
+      "clusters": 12,
+      "method": "percentile",
+      "seed": 1
+    },
+    "zeroFailure": {
+      "requiredCleanCases": 59,
+      "independentCasesRequired": true,
+      "observedClean": false
+    },
+    "results": [
+      {
+        "id": "goal.001",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.002",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.003",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.004",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.005",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.006",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.007",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.008",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.009",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.010",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.011",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.012",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.013",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.014",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.015",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.016",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.017",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.018",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.019",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.020",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.021",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.022",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.023",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.024",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.025",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.026",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.027",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.028",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.029",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.030",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.031",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.032",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.033",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.034",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.035",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.036",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.037",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.038",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.039",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.040",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.041",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.042",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.043",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.044",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.045",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.046",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.047",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.048",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.049",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.050",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.051",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.052",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.053",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.054",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.055",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.056",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.057",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.058",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.059",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.060",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.061",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.062",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.063",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.064",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.065",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.066",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.067",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.068",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.069",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.070",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.071",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.072",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.073",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.074",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.075",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.076",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.077",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.078",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.079",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.080",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.081",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.082",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.083",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.084",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.085",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.086",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.087",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.088",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.089",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.090",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.091",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.092",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.093",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.094",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.095",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.096",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.097",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.098",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.099",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.100",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.101",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.102",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.103",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.104",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.105",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.106",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.107",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.108",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.109",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.110",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.111",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.112",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.113",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.114",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.115",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.116",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.117",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.118",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.119",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.120",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      }
+    ]
+  },
+  "cassetteSha256": "68029698b841e9a289a612047bd362e1cd69ea9767045ce89cb5b19a40362711",
+  "resolvedModels": [
+    "gpt-6-luna"
+  ],
+  "costUsd": 0.0249465,
+  "chargedUsd": 0.0249465,
+  "calls": 120,
+  "spend": [
+    {
+      "at": "2026-10-15T15:54:00.701Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001734,
+      "chargedUsd": 0.0001734,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 123
+    },
+    {
+      "at": "2026-10-15T15:54:03.294Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001954,
+      "chargedUsd": 0.0001954,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 167
+    },
+    {
+      "at": "2026-10-15T15:54:03.362Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001974,
+      "chargedUsd": 0.0001974,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 171
+    },
+    {
+      "at": "2026-10-15T15:54:03.405Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002223,
+      "chargedUsd": 0.0002223,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 218
+    },
+    {
+      "at": "2026-10-15T15:54:04.035Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002164,
+      "chargedUsd": 0.0002164,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1094,
+      "outputTokens": 214
+    },
+    {
+      "at": "2026-10-15T15:54:06.191Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000179,
+      "chargedUsd": 0.000179,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1115,
+      "outputTokens": 135
+    },
+    {
+      "at": "2026-10-15T15:54:06.334Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019319999999999998,
+      "chargedUsd": 0.00019319999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1137,
+      "outputTokens": 159
+    },
+    {
+      "at": "2026-10-15T15:54:06.352Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002269,
+      "chargedUsd": 0.0002269,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 230
+    },
+    {
+      "at": "2026-10-15T15:54:06.890Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002541,
+      "chargedUsd": 0.0002541,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1511,
+      "outputTokens": 206
+    },
+    {
+      "at": "2026-10-15T15:54:09.144Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002258,
+      "chargedUsd": 0.0002258,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 225
+    },
+    {
+      "at": "2026-10-15T15:54:09.474Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001834,
+      "chargedUsd": 0.0001834,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 143
+    },
+    {
+      "at": "2026-10-15T15:54:09.499Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001784,
+      "chargedUsd": 0.0001784,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 133
+    },
+    {
+      "at": "2026-10-15T15:54:09.560Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002479,
+      "chargedUsd": 0.0002479,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1094,
+      "outputTokens": 277
+    },
+    {
+      "at": "2026-10-15T15:54:11.361Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00017240000000000002,
+      "chargedUsd": 0.00017240000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 121
+    },
+    {
+      "at": "2026-10-15T15:54:12.238Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002034,
+      "chargedUsd": 0.0002034,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1104,
+      "outputTokens": 186
+    },
+    {
+      "at": "2026-10-15T15:54:12.931Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020760000000000003,
+      "chargedUsd": 0.00020760000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1121,
+      "outputTokens": 191
+    },
+    {
+      "at": "2026-10-15T15:54:13.207Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019380000000000002,
+      "chargedUsd": 0.00019380000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 161
+    },
+    {
+      "at": "2026-10-15T15:54:14.789Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020760000000000003,
+      "chargedUsd": 0.00020760000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1121,
+      "outputTokens": 191
+    },
+    {
+      "at": "2026-10-15T15:54:15.491Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001709,
+      "chargedUsd": 0.0001709,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 118
+    },
+    {
+      "at": "2026-10-15T15:54:15.577Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002441,
+      "chargedUsd": 0.0002441,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1511,
+      "outputTokens": 186
+    },
+    {
+      "at": "2026-10-15T15:54:15.674Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019769999999999998,
+      "chargedUsd": 0.00019769999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1137,
+      "outputTokens": 168
+    },
+    {
+      "at": "2026-10-15T15:54:17.529Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002164,
+      "chargedUsd": 0.0002164,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1094,
+      "outputTokens": 214
+    },
+    {
+      "at": "2026-10-15T15:54:18.393Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001923,
+      "chargedUsd": 0.0001923,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 158
+    },
+    {
+      "at": "2026-10-15T15:54:19.102Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002207,
+      "chargedUsd": 0.0002207,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1147,
+      "outputTokens": 212
+    },
+    {
+      "at": "2026-10-15T15:54:19.842Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000212,
+      "chargedUsd": 0.000212,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1115,
+      "outputTokens": 201
+    },
+    {
+      "at": "2026-10-15T15:54:21.008Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000187,
+      "chargedUsd": 0.000187,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1115,
+      "outputTokens": 151
+    },
+    {
+      "at": "2026-10-15T15:54:21.176Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00023260000000000002,
+      "chargedUsd": 0.00023260000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1121,
+      "outputTokens": 241
+    },
+    {
+      "at": "2026-10-15T15:54:22.218Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001979,
+      "chargedUsd": 0.0001979,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 172
+    },
+    {
+      "at": "2026-10-15T15:54:22.581Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002324,
+      "chargedUsd": 0.0002324,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 241
+    },
+    {
+      "at": "2026-10-15T15:54:24.037Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002134,
+      "chargedUsd": 0.0002134,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 203
+    },
+    {
+      "at": "2026-10-15T15:54:24.047Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002226,
+      "chargedUsd": 0.0002226,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1511,
+      "outputTokens": 143
+    },
+    {
+      "at": "2026-10-15T15:54:24.363Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001729,
+      "chargedUsd": 0.0001729,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 122
+    },
+    {
+      "at": "2026-10-15T15:54:25.221Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001874,
+      "chargedUsd": 0.0001874,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 151
+    },
+    {
+      "at": "2026-10-15T15:54:26.658Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001933,
+      "chargedUsd": 0.0001933,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 160
+    },
+    {
+      "at": "2026-10-15T15:54:26.782Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001937,
+      "chargedUsd": 0.0001937,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1147,
+      "outputTokens": 158
+    },
+    {
+      "at": "2026-10-15T15:54:27.323Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000218,
+      "chargedUsd": 0.000218,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1115,
+      "outputTokens": 213
+    },
+    {
+      "at": "2026-10-15T15:54:28.354Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019690000000000002,
+      "chargedUsd": 0.00019690000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1104,
+      "outputTokens": 173
+    },
+    {
+      "at": "2026-10-15T15:54:29.690Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002334,
+      "chargedUsd": 0.0002334,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 243
+    },
+    {
+      "at": "2026-10-15T15:54:29.782Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00021160000000000002,
+      "chargedUsd": 0.00021160000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1121,
+      "outputTokens": 199
+    },
+    {
+      "at": "2026-10-15T15:54:29.932Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001999,
+      "chargedUsd": 0.0001999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 176
+    },
+    {
+      "at": "2026-10-15T15:54:31.281Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002168,
+      "chargedUsd": 0.0002168,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 207
+    },
+    {
+      "at": "2026-10-15T15:54:33.276Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001734,
+      "chargedUsd": 0.0001734,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 123
+    },
+    {
+      "at": "2026-10-15T15:54:33.329Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002413,
+      "chargedUsd": 0.0002413,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 256
+    },
+    {
+      "at": "2026-10-15T15:54:33.996Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002476,
+      "chargedUsd": 0.0002476,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1511,
+      "outputTokens": 193
+    },
+    {
+      "at": "2026-10-15T15:54:34.129Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002592,
+      "chargedUsd": 0.0002592,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1147,
+      "outputTokens": 289
+    },
+    {
+      "at": "2026-10-15T15:54:35.578Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001849,
+      "chargedUsd": 0.0001849,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 146
+    },
+    {
+      "at": "2026-10-15T15:54:36.405Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002509,
+      "chargedUsd": 0.0002509,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 278
+    },
+    {
+      "at": "2026-10-15T15:54:39.652Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002054,
+      "chargedUsd": 0.0002054,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 187
+    },
+    {
+      "at": "2026-10-15T15:54:40.938Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001984,
+      "chargedUsd": 0.0001984,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 173
+    },
+    {
+      "at": "2026-10-15T15:54:40.983Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00018680000000000001,
+      "chargedUsd": 0.00018680000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 147
+    },
+    {
+      "at": "2026-10-15T15:54:42.682Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019690000000000002,
+      "chargedUsd": 0.00019690000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 170
+    },
+    {
+      "at": "2026-10-15T15:54:43.186Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019140000000000002,
+      "chargedUsd": 0.00019140000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 159
+    },
+    {
+      "at": "2026-10-15T15:54:44.924Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002376,
+      "chargedUsd": 0.0002376,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1511,
+      "outputTokens": 173
+    },
+    {
+      "at": "2026-10-15T15:54:45.712Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002224,
+      "chargedUsd": 0.0002224,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 221
+    },
+    {
+      "at": "2026-10-15T15:54:45.765Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020360000000000002,
+      "chargedUsd": 0.00020360000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1121,
+      "outputTokens": 183
+    },
+    {
+      "at": "2026-10-15T15:54:45.863Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020690000000000001,
+      "chargedUsd": 0.00020690000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 190
+    },
+    {
+      "at": "2026-10-15T15:54:47.657Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002156,
+      "chargedUsd": 0.0002156,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1121,
+      "outputTokens": 207
+    },
+    {
+      "at": "2026-10-15T15:54:48.619Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001902,
+      "chargedUsd": 0.0001902,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1147,
+      "outputTokens": 151
+    },
+    {
+      "at": "2026-10-15T15:54:49.134Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002354,
+      "chargedUsd": 0.0002354,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 247
+    },
+    {
+      "at": "2026-10-15T15:54:49.531Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001953,
+      "chargedUsd": 0.0001953,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 164
+    },
+    {
+      "at": "2026-10-15T15:54:50.195Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020280000000000002,
+      "chargedUsd": 0.00020280000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 179
+    },
+    {
+      "at": "2026-10-15T15:54:51.219Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001789,
+      "chargedUsd": 0.0001789,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 134
+    },
+    {
+      "at": "2026-10-15T15:54:51.447Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002216,
+      "chargedUsd": 0.0002216,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1511,
+      "outputTokens": 141
+    },
+    {
+      "at": "2026-10-15T15:54:51.733Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00023140000000000001,
+      "chargedUsd": 0.00023140000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 239
+    },
+    {
+      "at": "2026-10-15T15:54:52.757Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002039,
+      "chargedUsd": 0.0002039,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 184
+    },
+    {
+      "at": "2026-10-15T15:54:54.047Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00024359999999999999,
+      "chargedUsd": 0.00024359999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1511,
+      "outputTokens": 185
+    },
+    {
+      "at": "2026-10-15T15:54:54.645Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00018969999999999998,
+      "chargedUsd": 0.00018969999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1137,
+      "outputTokens": 152
+    },
+    {
+      "at": "2026-10-15T15:54:55.222Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000254,
+      "chargedUsd": 0.000254,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1115,
+      "outputTokens": 285
+    },
+    {
+      "at": "2026-10-15T15:54:56.143Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002529,
+      "chargedUsd": 0.0002529,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1104,
+      "outputTokens": 285
+    },
+    {
+      "at": "2026-10-15T15:54:56.898Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002044,
+      "chargedUsd": 0.0002044,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 185
+    },
+    {
+      "at": "2026-10-15T15:54:57.195Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000193,
+      "chargedUsd": 0.000193,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1115,
+      "outputTokens": 163
+    },
+    {
+      "at": "2026-10-15T15:54:57.577Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001984,
+      "chargedUsd": 0.0001984,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 173
+    },
+    {
+      "at": "2026-10-15T15:54:59.382Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001995,
+      "chargedUsd": 0.0001995,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1115,
+      "outputTokens": 176
+    },
+    {
+      "at": "2026-10-15T15:54:59.884Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002144,
+      "chargedUsd": 0.0002144,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1104,
+      "outputTokens": 208
+    },
+    {
+      "at": "2026-10-15T15:55:00.059Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002034,
+      "chargedUsd": 0.0002034,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 183
+    },
+    {
+      "at": "2026-10-15T15:55:00.475Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019240000000000001,
+      "chargedUsd": 0.00019240000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1104,
+      "outputTokens": 164
+    },
+    {
+      "at": "2026-10-15T15:55:01.502Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001854,
+      "chargedUsd": 0.0001854,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 147
+    },
+    {
+      "at": "2026-10-15T15:55:02.958Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001699,
+      "chargedUsd": 0.0001699,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 116
+    },
+    {
+      "at": "2026-10-15T15:55:04.946Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002463,
+      "chargedUsd": 0.0002463,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 266
+    },
+    {
+      "at": "2026-10-15T15:55:04.969Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001979,
+      "chargedUsd": 0.0001979,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1094,
+      "outputTokens": 177
+    },
+    {
+      "at": "2026-10-15T15:55:05.577Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001994,
+      "chargedUsd": 0.0001994,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 175
+    },
+    {
+      "at": "2026-10-15T15:55:08.005Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019240000000000001,
+      "chargedUsd": 0.00019240000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 161
+    },
+    {
+      "at": "2026-10-15T15:55:08.204Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020569999999999999,
+      "chargedUsd": 0.00020569999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1137,
+      "outputTokens": 184
+    },
+    {
+      "at": "2026-10-15T15:55:08.401Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00021590000000000002,
+      "chargedUsd": 0.00021590000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 208
+    },
+    {
+      "at": "2026-10-15T15:55:08.615Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002282,
+      "chargedUsd": 0.0002282,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1137,
+      "outputTokens": 229
+    },
+    {
+      "at": "2026-10-15T15:55:12.394Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002185,
+      "chargedUsd": 0.0002185,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1115,
+      "outputTokens": 214
+    },
+    {
+      "at": "2026-10-15T15:55:12.396Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001933,
+      "chargedUsd": 0.0001933,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 160
+    },
+    {
+      "at": "2026-10-15T15:55:12.398Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002309,
+      "chargedUsd": 0.0002309,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 238
+    },
+    {
+      "at": "2026-10-15T15:55:12.746Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00023960000000000002,
+      "chargedUsd": 0.00023960000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1121,
+      "outputTokens": 255
+    },
+    {
+      "at": "2026-10-15T15:55:14.606Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001819,
+      "chargedUsd": 0.0001819,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 140
+    },
+    {
+      "at": "2026-10-15T15:55:14.731Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002009,
+      "chargedUsd": 0.0002009,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 178
+    },
+    {
+      "at": "2026-10-15T15:55:14.914Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00018790000000000001,
+      "chargedUsd": 0.00018790000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 152
+    },
+    {
+      "at": "2026-10-15T15:55:15.303Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002266,
+      "chargedUsd": 0.0002266,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1511,
+      "outputTokens": 151
+    },
+    {
+      "at": "2026-10-15T15:55:17.518Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001909,
+      "chargedUsd": 0.0001909,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 158
+    },
+    {
+      "at": "2026-10-15T15:55:18.384Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001927,
+      "chargedUsd": 0.0001927,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1137,
+      "outputTokens": 158
+    },
+    {
+      "at": "2026-10-15T15:55:18.906Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002154,
+      "chargedUsd": 0.0002154,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1094,
+      "outputTokens": 212
+    },
+    {
+      "at": "2026-10-15T15:55:20.014Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001949,
+      "chargedUsd": 0.0001949,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 166
+    },
+    {
+      "at": "2026-10-15T15:55:21.057Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001994,
+      "chargedUsd": 0.0001994,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 175
+    },
+    {
+      "at": "2026-10-15T15:55:22.586Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020510000000000003,
+      "chargedUsd": 0.00020510000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1121,
+      "outputTokens": 186
+    },
+    {
+      "at": "2026-10-15T15:55:24.460Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001917,
+      "chargedUsd": 0.0001917,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1137,
+      "outputTokens": 156
+    },
+    {
+      "at": "2026-10-15T15:55:25.564Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002201,
+      "chargedUsd": 0.0002201,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1121,
+      "outputTokens": 216
+    },
+    {
+      "at": "2026-10-15T15:55:26.099Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001904,
+      "chargedUsd": 0.0001904,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 157
+    },
+    {
+      "at": "2026-10-15T15:55:26.615Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002009,
+      "chargedUsd": 0.0002009,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 178
+    },
+    {
+      "at": "2026-10-15T15:55:26.661Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00017690000000000002,
+      "chargedUsd": 0.00017690000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 130
+    },
+    {
+      "at": "2026-10-15T15:55:29.699Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002179,
+      "chargedUsd": 0.0002179,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 212
+    },
+    {
+      "at": "2026-10-15T15:55:30.240Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001819,
+      "chargedUsd": 0.0001819,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 140
+    },
+    {
+      "at": "2026-10-15T15:55:30.401Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002571,
+      "chargedUsd": 0.0002571,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1511,
+      "outputTokens": 212
+    },
+    {
+      "at": "2026-10-15T15:55:32.363Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002411,
+      "chargedUsd": 0.0002411,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1511,
+      "outputTokens": 180
+    },
+    {
+      "at": "2026-10-15T15:55:33.657Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020240000000000001,
+      "chargedUsd": 0.00020240000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 181
+    },
+    {
+      "at": "2026-10-15T15:55:34.417Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001827,
+      "chargedUsd": 0.0001827,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1137,
+      "outputTokens": 138
+    },
+    {
+      "at": "2026-10-15T15:55:34.955Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002072,
+      "chargedUsd": 0.0002072,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1147,
+      "outputTokens": 185
+    },
+    {
+      "at": "2026-10-15T15:55:35.010Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002163,
+      "chargedUsd": 0.0002163,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 206
+    },
+    {
+      "at": "2026-10-15T15:55:37.255Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00023319999999999998,
+      "chargedUsd": 0.00023319999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1137,
+      "outputTokens": 239
+    },
+    {
+      "at": "2026-10-15T15:55:38.243Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002088,
+      "chargedUsd": 0.0002088,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 191
+    },
+    {
+      "at": "2026-10-15T15:55:39.586Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002199,
+      "chargedUsd": 0.0002199,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1119,
+      "outputTokens": 216
+    },
+    {
+      "at": "2026-10-15T15:55:39.634Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002188,
+      "chargedUsd": 0.0002188,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1133,
+      "outputTokens": 211
+    },
+    {
+      "at": "2026-10-15T15:55:39.672Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001805,
+      "chargedUsd": 0.0001805,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1115,
+      "outputTokens": 138
+    },
+    {
+      "at": "2026-10-15T15:55:42.808Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001862,
+      "chargedUsd": 0.0001862,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1137,
+      "outputTokens": 145
+    },
+    {
+      "at": "2026-10-15T15:55:43.545Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001825,
+      "chargedUsd": 0.0001825,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1115,
+      "outputTokens": 142
+    },
+    {
+      "at": "2026-10-15T15:55:44.271Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00024110000000000003,
+      "chargedUsd": 0.00024110000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1121,
+      "outputTokens": 258
+    }
+  ]
+}

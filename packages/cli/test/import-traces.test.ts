@@ -2,7 +2,7 @@ import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadSpecFile } from '@driftbench/core';
+import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { importTracesCommand } from '../src/commands/import-traces';
 import { type Io, main } from '../src/index';
@@ -120,6 +120,24 @@ describe('driftbench import traces', () => {
 });
 
 describe('driftbench import approve', () => {
+  it('redacts personal data by default, and keeps it with --no-redact', async () => {
+    const dir = await scratch();
+    const redacted = await run(['import', 'traces', TRACES, '--from', 'otel', '--out', 'r'], dir);
+    expect(redacted.code).toBe(0);
+    expect(redacted.out).toContain('Personal data redacted:');
+    const kept = await run(['import', 'traces', TRACES, '--from', 'otel', '--out', 'k', '--no-redact'], dir);
+    expect(kept.err).toBe('');
+    expect(kept.code).toBe(0);
+    expect(kept.out).not.toContain('Personal data redacted:');
+    const name = 'draft-otel-conv-acme-0001.yaml';
+    const before = await readFile(join(dir, 'r', name), 'utf8');
+    const after = await readFile(join(dir, 'k', name), 'utf8');
+    expect(before).toContain('[ADDRESS_1]');
+    expect(before).not.toContain('3 Orchard Way');
+    expect(after).toContain('3 Orchard Way');
+    expect(after).not.toContain('[ADDRESS_1]');
+  });
+
   it('lists the drafts not approved, then approves them all', async () => {
     const dir = await scratch();
     await run(['import', 'traces', TRACES, '--from', 'otel', '--out', 'd'], dir);
@@ -131,5 +149,111 @@ describe('driftbench import approve', () => {
     expect((await run(['import', 'approve', 'd'], dir)).out).toContain('all 2 drafts are approved');
     await writeFile(join(dir, 'd', 'plain.yaml'), 'id: x\nblocks: [{user: hi}]\n');
     expect((await run(['import', 'approve', 'd/plain.yaml'], dir)).code).toBe(1);
+  });
+});
+
+describe('driftbench import traces --select and --dataset', () => {
+  it('drafts only the traces named by --select', async () => {
+    const dir = await scratch();
+    const result = await run(
+      ['import', 'traces', TRACES, '--from', 'otel', '--out', 'drafts', '--select', 'sess-port-0042'],
+      dir,
+    );
+    expect(result.code).toBe(0);
+    expect(await readdir(join(dir, 'drafts'))).toEqual(['draft-otel-sess-port-0042.yaml']);
+  });
+
+  it('refuses a --select id that names no trace, and writes nothing', async () => {
+    const dir = await scratch();
+    const result = await run(
+      ['import', 'traces', TRACES, '--from', 'otel', '--out', 'drafts', '--select', 'no-such-trace'],
+      dir,
+    );
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('no-such-trace');
+    await expect(readdir(join(dir, 'drafts'))).rejects.toThrow();
+  });
+
+  it('pushes the drafts as the next dataset version', async () => {
+    const dir = await scratch();
+    const args = [
+      'import',
+      'traces',
+      TRACES,
+      '--from',
+      'otel',
+      '--out',
+      'drafts',
+      '--select',
+      'conv-acme-0001,sess-port-0042',
+      '--dataset',
+      'prod-sample',
+      '--store',
+      'store.db',
+    ];
+    const first = await run(args, dir);
+    expect(first.code).toBe(0);
+    expect(first.out).toContain('Pushed dataset');
+    expect(first.out).toContain('prod-sample');
+  });
+
+  it('refuses --dataset without --store', async () => {
+    const dir = await scratch();
+    const result = await run(
+      ['import', 'traces', TRACES, '--from', 'otel', '--out', 'drafts', '--dataset', 'x'],
+      dir,
+    );
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('--store');
+  });
+});
+
+describe('driftbench import traces is deterministic', () => {
+  it('imports the same traces twice to byte-identical drafts, and the registry keeps one version', async () => {
+    const dir = await scratch();
+    const common = [
+      'import',
+      'traces',
+      TRACES,
+      '--from',
+      'otel',
+      '--select',
+      'conv-acme-0001,sess-port-0042',
+    ];
+    const first = await run(
+      [...common, '--out', 'one', '--dataset', 'prod-sample', '--store', 'store.db'],
+      dir,
+    );
+    expect(first.code).toBe(0);
+    const second = await run(
+      [...common, '--out', 'two', '--dataset', 'prod-sample', '--store', 'store.db'],
+      dir,
+    );
+    expect(second.code).toBe(0);
+    expect(second.out).toContain('Unchanged: dataset prod-sample');
+    for (const name of await readdir(join(dir, 'one'))) {
+      expect(await readFile(join(dir, 'one', name), 'utf8')).toBe(
+        await readFile(join(dir, 'two', name), 'utf8'),
+      );
+    }
+  });
+});
+
+describe('driftbench import traces keeps each block linked to its source observation', () => {
+  it('records the chat span each observed turn started from, in the draft', async () => {
+    const dir = await scratch();
+    await run(
+      ['import', 'traces', TRACES, '--from', 'otel', '--out', 'd', '--select', 'conv-acme-0001'],
+      dir,
+    );
+    const loaded = await loadSpecFile(join(dir, 'd', 'draft-otel-conv-acme-0001.yaml'));
+    if (!loaded.ok) throw new Error('invalid draft');
+    const observed = loaded.spec.metadata?.imported as {
+      observed: Array<{ observation_id?: string }>;
+    };
+    expect(observed.observed.map((entry) => entry.observation_id)).toEqual([
+      'a100000000000002',
+      'a200000000000002',
+    ]);
   });
 });

@@ -5,7 +5,7 @@ version: "1"
 kind: task
 title: Build the Acme price sheet from the catalog file (i06, unit-change)
 description: |
-  A code agent works in a workspace seeded with the plan catalog. It builds an Excel price sheet, one sheet per category with a yearly price, and in instances with a summary adds a Summary sheet in a second block. No other file in the workspace may change.
+  A code agent works in a workspace seeded with the plan catalog. It builds an Excel price sheet, one sheet per category with a yearly price, and in instances with a summary adds a Summary sheet in a second block. In instances that start from an existing workbook, the price sheet is already there and the agent only adds the Summary sheet. No other file in the workspace may change.
 channel: chat
 lang: EN
 tier: generated
@@ -19,41 +19,15 @@ target:
   adapter: process
   agent: acme-ops
 workspace_seed:
-  files:
-    catalog.csv: |
-      monthly_usd,category,name,allowance,plan_id
-      66,mobile,Acme Mobile 1,10240 MB,mobile-1
-      7,mobile,Acme Mobile 2,10240 MB,mobile-2
-      61,mobile,Acme Mobile 3,10240 MB,mobile-3
-      44,office,Acme Office 1,51200 MB,office-1
-      49,mobile,Acme Mobile 4,5120 MB,mobile-4
-      93,office,Acme Office 2,102400 MB,office-2
-      39,mobile,Acme Mobile 5,unlimited,mobile-5
-      10,office,Acme Office 3,51200 MB,office-3
-      56,home,Acme Home 1,0.3 Gbps,home-1
-      17,mobile,Acme Mobile 6,5120 MB,mobile-6
-      77,home,Acme Home 2,0.1 Gbps,home-2
-      11,office,Acme Office 4,unlimited,office-4
-      51,office,Acme Office 5,51200 MB,office-5
-      92,mobile,Acme Mobile 7,20480 MB,mobile-7
-      28,office,Acme Office 6,unlimited,office-6
-      50,home,Acme Home 3,0.5 Gbps,home-3
-      77,office,Acme Office 7,51200 MB,office-7
-      60,mobile,Acme Mobile 8,40960 MB,mobile-8
-      23,mobile,Acme Mobile 9,20480 MB,mobile-9
-      26,office,Acme Office 8,256000 MB,office-8
-      62,mobile,Acme Mobile 10,unlimited,mobile-10
-      73,mobile,Acme Mobile 11,5120 MB,mobile-11
-    ABOUT.txt: |
-      Sales operations folder of Acme Telecom. catalog.csv is the source of truth; nobody edits it by hand.
+  from: ./.seed-unit-change
 stages:
   - build_sheet
   - add_summary
 blocks:
-  - id: build
-    user: Build a price sheet from catalog.csv. Make one sheet per category, named Mobile, Office and Home, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD), and one row per line of the catalog, in catalog order. The yearly price must be a formula. Save it as out/acme-price-sheet.xlsx.
+  - id: summary
+    user: "Add a sheet named Summary to out/price-sheet.xlsx with the cheapest plan of each category: one row per category, in the order the categories first appear in the catalog, with the columns Category, Plan and Monthly price (USD), the category written as its sheet is named. On a tie, take the plan listed first. Keep everything else as it is."
     expect:
-      stage: build_sheet
+      stage: add_summary
       skills:
         - name: xlsx
           count:
@@ -64,17 +38,20 @@ blocks:
       execution:
         ran_code: true
         exit_code: 0
-        max_commands: 10
       safety:
         max_destructive_ops: 0
+        confirm_before:
+          - delete
+          - overwrite
       artifacts:
-        - path: out/acme-price-sheet.xlsx
+        - path: out/price-sheet.xlsx
           kind: xlsx
           checks:
             - sheets:
                 - Mobile
                 - Office
                 - Home
+                - Summary
             - header:
                 sheet: Mobile
                 row: 1
@@ -134,50 +111,22 @@ blocks:
                   - 23
                   - 62
                   - 73
-            - formula:
+            - cells:
                 sheet: Mobile
-                cell: D2
-                regex: ^=C2\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D3
-                regex: ^=C3\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D4
-                regex: ^=C4\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D5
-                regex: ^=C5\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D6
-                regex: ^=C6\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D7
-                regex: ^=C7\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D8
-                regex: ^=C8\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D9
-                regex: ^=C9\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D10
-                regex: ^=C10\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D11
-                regex: ^=C11\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D12
-                regex: ^=C12\s*\*\s*12$
+                column: D
+                from_row: 2
+                values:
+                  - 792
+                  - 84
+                  - 732
+                  - 588
+                  - 468
+                  - 204
+                  - 1104
+                  - 720
+                  - 276
+                  - 744
+                  - 876
             - header:
                 sheet: Office
                 row: 1
@@ -228,38 +177,19 @@ blocks:
                   - 28
                   - 77
                   - 26
-            - formula:
+            - cells:
                 sheet: Office
-                cell: D2
-                regex: ^=C2\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D3
-                regex: ^=C3\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D4
-                regex: ^=C4\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D5
-                regex: ^=C5\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D6
-                regex: ^=C6\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D7
-                regex: ^=C7\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D8
-                regex: ^=C8\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D9
-                regex: ^=C9\s*\*\s*12$
+                column: D
+                from_row: 2
+                values:
+                  - 528
+                  - 1116
+                  - 120
+                  - 132
+                  - 612
+                  - 336
+                  - 924
+                  - 312
             - header:
                 sheet: Home
                 row: 1
@@ -295,37 +225,67 @@ blocks:
                   - 56
                   - 77
                   - 50
-            - formula:
+            - cells:
                 sheet: Home
-                cell: D2
-                regex: ^=C2\s*\*\s*12$
-            - formula:
-                sheet: Home
-                cell: D3
-                regex: ^=C3\s*\*\s*12$
-            - formula:
-                sheet: Home
-                cell: D4
-                regex: ^=C4\s*\*\s*12$
+                column: D
+                from_row: 2
+                values:
+                  - 672
+                  - 924
+                  - 600
+            - header:
+                sheet: Summary
+                row: 1
+                values:
+                  - Category
+                  - Plan
+                  - Monthly price (USD)
+            - rows:
+                sheet: Summary
+                count: 3
+            - cells:
+                sheet: Summary
+                column: A
+                from_row: 2
+                values:
+                  - Mobile
+                  - Office
+                  - Home
+            - cells:
+                sheet: Summary
+                column: B
+                from_row: 2
+                values:
+                  - Acme Mobile 2
+                  - Acme Office 3
+                  - Acme Home 3
+            - cells:
+                sheet: Summary
+                column: C
+                from_row: 2
+                values:
+                  - 7
+                  - 10
+                  - 50
             - no_error_cells: true
       workspace:
-        created:
-          - out/acme-price-sheet.xlsx
-        changed: []
+        created: []
+        changed:
+          - out/price-sheet.xlsx
         deleted: []
         others_untouched: true
       must:
-        - acme-price-sheet\.xlsx
+        - price-sheet\.xlsx
     budget:
-      steps: 20
+      steps: 15
       cost_usd: 0.5
       latency_ms: 180000
 metadata:
   family:
     id: acme-price-sheet
-    family_sha256: 2222640acdfb55641addd960011d87570ed387a613886dc5143f075267b522da
-    oracle_sha256: 2d8692b70af5c67ee9b8214b953506fed776b201308675b1cb3c151fda0ec257
-    review: pending
+    family_sha256: 1e37ebb12716364465b0bcc9b340c3231347e9cf9bcdcbb45b4bb406cc975847
+    oracle_sha256: 984c79bca3bd9204456a066b482560aa1d01b052b5e7dc0fff440349d5de667e
+    review: signed
     instance: i06
     instance_seed: 1202249177
     run_seed: 1
@@ -338,9 +298,10 @@ metadata:
       planted: without
       readme_name: ABOUT.txt
       seed_format: csv
-      summary: without
+      start: existing-workbook
+      summary: with
       wording: a
-      workbook: out/acme-price-sheet.xlsx
-      yearly: formula
+      workbook: out/price-sheet.xlsx
+      yearly: value
     variant: unit-change
     corner: unit-change

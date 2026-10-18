@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, relative, resolve } from 'node:path';
-import { type AgentAdapter, outcomeOf, type PlannedCell, runSpec } from '@driftbench/core';
+import { dirname, join, relative, resolve } from 'node:path';
+import { type AgentAdapter, outcomeOf, type PlannedCell, runSpec } from '@agent-nexus/driftbench-core';
 import {
   BUDGET_FILE,
   Budget,
@@ -13,10 +13,18 @@ import {
   SEALED_NOTE,
   SealedBundle,
   spendQuery,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
-import { type CampaignDeps, type CampaignScope, defaultDeps, parseTarget, showTarget } from './campaign';
+import { optionNumber } from '../number';
+import {
+  type CampaignDeps,
+  type CampaignScope,
+  defaultDeps,
+  parseTarget,
+  resolveAdapter,
+  showTarget,
+} from './campaign';
 import { display, exists, portable, readPool, table, whole } from './select';
 
 export type HoldoutDeps = Pick<CampaignDeps, 'adapterFor' | 'checks' | 'artifacts' | 'driver' | 'now'>;
@@ -112,6 +120,17 @@ export async function holdoutSealCommand(options: SealOptions, io: Io, deps: Hol
     split = 'gate';
     const missing = pool.sealed.filter((entry) => entry.spec === undefined);
     if (missing.length > 0) {
+      // `<gate output>/specs` reads the seal of its parent, so select leaves the sealed specs out; the
+      // sealed files themselves are beside that folder, not under it.
+      const outside = pool.seals.find((entry) => relative(root, entry.file).startsWith('..'));
+      if (outside !== undefined) {
+        const holdoutDir = dirname(outside.file);
+        const show = (path: string) => portable(display(path, io));
+        io.err(
+          `--specs ${show(root)} is the specs folder inside a gate output. The specs the gate sealed are beside it, in ${show(holdoutDir)}. Pass the gate's output folder: --specs ${show(dirname(holdoutDir))}\n`,
+        );
+        return 2;
+      }
       io.err(
         `The gate seal lists specs that are not under --specs: ${missing.map((entry) => entry.id).join(', ')}. Point --specs at the gate's output folder.\n`,
       );
@@ -247,9 +266,8 @@ export async function holdoutScoreCommand(options: ScoreOptions, io: Io, deps: H
   const scope = openScope();
   let adapter: AgentAdapter | undefined;
   try {
-    adapter = await deps.adapterFor(target, scope);
+    adapter = await resolveAdapter(target, () => deps.adapterFor(target, scope), io, [], { unspent: true });
     if (!adapter) {
-      io.err(`No adapter is set up for ${shown}: nothing ran, no query was spent.\n`);
       return 2;
     }
     // The query is spent before the first run: results seen once count, even when the run breaks off.
@@ -280,8 +298,15 @@ export async function holdoutScoreCommand(options: ScoreOptions, io: Io, deps: H
         repeat: 0,
         blocks: spec.blocks.length,
       };
+      // A conversation with a block not run or blocked, and no failure, is no measurement: it is listed with
+      // the ones not run and stays out of the rate.
+      const state = outcomeOf(cell, run).state;
+      if (state === 'not_run' || state === 'blocked') {
+        notRun.push(`${spec.id} (${state === 'not_run' ? 'a block not run' : 'a block blocked'})`);
+        continue;
+      }
       conversations += 1;
-      if (outcomeOf(cell, run).state === 'pass') passed += 1;
+      if (state === 'pass') passed += 1;
     }
     const rate = passRate(passed, conversations);
     const scored = {
@@ -337,7 +362,7 @@ export async function holdoutScoreCommand(options: ScoreOptions, io: Io, deps: H
 
 function shareOf(text: string | undefined): number | string {
   if (text === undefined) return 0.2;
-  const value = Number(text);
+  const value = optionNumber(text);
   if (text.trim() === '' || !Number.isFinite(value) || value <= 0 || value >= 1) {
     return `--share must be a number above 0 and below 1, got "${text}".`;
   }

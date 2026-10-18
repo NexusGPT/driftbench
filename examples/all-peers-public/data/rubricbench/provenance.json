@@ -1,0 +1,30 @@
+{
+ "branch": "origin/research/ledger-rb",
+ "commit": "4866af9957be1a1ffa25cb632d8e8de445225601",
+ "files": {
+  "seal": [
+   "examples/judge-benchmarks/experiments/ledger-rb/pool-seal.json",
+   "fa672db14ee5a29502ba08633f6e34ede41ab83ef279353dd1c085e08f201d84"
+  ],
+  "items": [
+   "rebuilt by the branch loader from the cached Hugging Face rows",
+   "a7e2c25e9cf5996821a0ac8cfab5d56d478e43e5b3857c4bd1a184a7ae0ab9a1"
+  ],
+  "recorded": {
+   "examples/judge-benchmarks/experiments/ledger-rb/decisions-test-000.jsonl": "8292225d2e55afc072267bbd7c0cafc20f14915c1b76da045820954b21c94a65",
+   "examples/judge-benchmarks/experiments/ledger-rb/decisions-test-001.jsonl": "5c7821470ee32e1dfd53d671a69c4ddf3320466fa0d3c6e9b0e48a644e5b0bba",
+   "examples/judge-benchmarks/experiments/ledger-rb/decisions-test-002.jsonl": "697ea77a64c9a27175196fb8632a72fe8db071dae537e51e2add0fb7b905e68c",
+   "examples/judge-benchmarks/experiments/ledger-rb/decisions-test-003.jsonl": "58b6caef63cc1b1255d84b527b63f5e123e655926fbd61c37b6ff0cbf1d56fc3",
+   "examples/judge-benchmarks/experiments/ledger-rb/decisions-test-004.jsonl": "a5f7fb922209dc7b7b7994395cfe16d2b53b618b3c80b207df4192d73f5f67be",
+   "examples/judge-benchmarks/experiments/ledger-rb/decisions-test-005.jsonl": "8029cea1c95941fc7dc0188a9b3c099e6ff5a42fdfcd2711cf82f1c567915434",
+   "examples/judge-benchmarks/experiments/ledger-rb/flash-lite/decisions-test-000.jsonl": "124f7e3f07f109482df2b920d23a1bbbe06bfc63c51965d72bf9018972cf32ae",
+   "examples/judge-benchmarks/experiments/ledger-rb/flash-lite/decisions-test-001.jsonl": "517923d6878780cdf06507e4607ed165a5cbdb8b122320e6b6d747afcbdf4d49"
+  }
+ },
+ "recordedCheck": {
+  "promptfoo": 1194,
+  "driftbench": 1306
+ },
+ "items": 790,
+ "itemsSha256": "e7895982545e0d7572a2f83e66712237b9072c69a11053891936c4eb7df22850"
+}

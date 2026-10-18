@@ -2,12 +2,13 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Observed } from '@driftbench/core';
+import { Observed } from '@agent-nexus/driftbench-core';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   diffTrees,
   type JsonlLine,
   mapSession,
+  NotATranscriptError,
   parseJsonl,
   type ReplayRaw,
   readSession,
@@ -421,4 +422,23 @@ describe('the fixture sessions', () => {
 
 afterEach(() => {
   clock = 0;
+});
+
+describe('D8: a file that is not a transcript is refused', () => {
+  it('refuses another JSONL shape, naming the keys of its first line', () => {
+    const other = parseJsonl(JSON.stringify({ id: 'conv-1', turns: [{ role: 'user', text: 'hello' }] }));
+    expect(() => mapSession({ transcript: other, file: 'conv.jsonl' })).toThrow(NotATranscriptError);
+    expect(() => mapSession({ transcript: other, file: 'conv.jsonl' })).toThrow(
+      'conv.jsonl is not a Claude Code transcript: no record has type user or assistant (line 1 has the keys id, turns)',
+    );
+  });
+
+  it('refuses an empty file and a file of lines that are not JSON', () => {
+    expect(() => mapSession({ transcript: [] })).toThrow('it holds no record');
+    expect(() => mapSession({ transcript: parseJsonl('nope') })).toThrow('line 1 is not JSON');
+  });
+
+  it('accepts a transcript whose only turn record is a user record', () => {
+    expect(map([user('just a question')]).blocks).toHaveLength(1);
+  });
 });

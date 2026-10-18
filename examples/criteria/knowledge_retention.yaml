@@ -1,9 +1,22 @@
-# The judge fallback of knowledge_retention: for a fact the ledger does not hold word for word. Fictional data.
+# Semantic retention; literal use remains a separate machine check. Fictional fixtures.
+# Keep this definition in sync with KNOWLEDGE_RETENTION_CRITERION in the judges package.
 criterion:
   name: knowledge_retention
-  rubric: The reply keeps what the user already gave in the conversation; it neither asks for it again nor contradicts it.
-  pass: A fact the user gave earlier is used as given, and never asked for again.
-  fail: The reply asks again for a fact the user already gave, or uses another value than the one given.
+  rubric: >-
+    The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact.
+    Use the earlier conversation and supplied ledger as context for that reply.
+    Evaluate all assistant text segments after the latest user message as one reply.
+    A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior.
+    Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries.
+    Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed.
+    Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values.
+    Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value.
+    Unmentioned facts need not be repeated or otherwise used. New information may be requested.
+    Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask.
+    Do not require independent source proof for other claims: this criterion tests retention, not factual grounding.
+    Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.
+  pass: The last reply keeps current user facts intact. It may use or acknowledge only some facts, leave others unmentioned, or request information not yet supplied.
+  fail: The last reply requests an already supplied fact again, uses an obsolete corrected value as current, assigns a conflicting value to the same owner and attribute, or violates a supplied restriction.
   judge_class: system1
   scope: conversation
 fixtures:

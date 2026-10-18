@@ -7,7 +7,7 @@ import {
   gridSize,
   isForbidden,
   resolveT,
-} from '@driftbench/space';
+} from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { HAND, map } from './support';
 

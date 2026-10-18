@@ -1,4 +1,4 @@
-import { AdapterTransportError, parseRetryAfter } from '@driftbench/core';
+import { AdapterTransportError, parseRetryAfter } from '@agent-nexus/driftbench-core';
 import { describeError } from './observed';
 
 /** The part of `fetch` the adapters use, so a test can hand in its own. */

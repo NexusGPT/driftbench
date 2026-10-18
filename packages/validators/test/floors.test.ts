@@ -181,6 +181,19 @@ describe('readFloors and writeFloors', () => {
     writeFloors(root, migrated);
     expect(JSON.parse(await readFile(join(root, 'validators/floors.json'), 'utf8'))).toEqual(migrated);
     expect(Object.keys(readFloors(root).floors)).toEqual(['a', 'b']);
+    // Evidence for a component without a floor keeps ladder version 1, so the written-back file reads again.
+    await writeFile(
+      join(root, 'validators/floors.json'),
+      JSON.stringify({
+        version: 1,
+        floors: { a: 2 },
+        evidence: { c: { level: 1, seeds: ['1', 'hidden'], hiddenSeed: 3 } },
+      }),
+    );
+    const evidenceOnly = readFloors(root);
+    expect(evidenceOnly.ladderVersion).toEqual({ a: 1, c: 1 });
+    writeFloors(root, evidenceOnly);
+    expect(readFloors(root)).toEqual(evidenceOnly);
     await writeFile(join(root, 'validators/floors.json'), '{"version":1,"floors":{"a":-1}}');
     expect(() => readFloors(root)).toThrow(/not a floors file/);
     await writeFile(

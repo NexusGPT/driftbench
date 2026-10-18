@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-13T13:10:35.048722+00:00",
+  "authorization": "Owner authorizes release of 24 fetch-stage connect-timeout holds; keeps one HTTP-200 ECONNRESET hold and 35 earlier holds. Recover 25 missing-only after probe, up to three total submissions each. Flash Lite four calls for rest of TEST.",
+  "maxTotalSubmissionsEach": 3,
+  "maxAdditionalSubmissionsEach": 2,
+  "phase": "test",
+  "noAnswerRequests": 25,
+  "concurrency": 4,
+  "capUsd": 24,
+  "originalReportSha256": "c9e18f26789b59a820ec81fc6c5a055704e2b7c9b0461879dca6e994ba36a73d",
+  "originalCassetteSha256": "b0ed710a84bf34ba1e964a159624f584fe45067d6d11e223c9e92eb7ff3a0589",
+  "firstFinalsPreserved": true,
+  "runtimeSha256": "453bdeeca15c767a64d2f43002cbde64a42b79ca3661c4938637c20a6c8b12fb",
+  "runtimeSourceHashes": {
+    "examples/ledger-verify/lite/budget.py": "6827b85f42aab411fbc04a6d9e61efff026125e82b1d4dbce615600c43fc9846",
+    "examples/ledger-verify/lite-transport.ts": "06e6cc3264db708eabd903cf9d7a5b6b1611025031e649e9bf80bd2543c20beb",
+    "examples/ledger-verify/lite-recovery-claim.py": "a98e5780c5d48d3252205b5ff5313e7a34d8ffb40b658a6ef445fc13008c3eae",
+    "examples/ledger-verify/recover-lite-test-network.py": "552931bce76f7ee95d713db6fb5a7f171af83c1db6f8163991566afc1a0fd9e1",
+    "examples/ledger-verify/resume-lite-test.ts": "e67c838aea2616428313c2e311c4a6c5af8f2f70a530b67950a36276f35bbfd7"
+  },
+  "retainedPriorResults": 117,
+  "retainedPriorValidVerdicts": 112,
+  "retainedPriorParseFailures": 5,
+  "offlineResumeCheck": {
+    "preservedCompletedItems": 117,
+    "preservedParseFailures": 5,
+    "newProviderCalls": 0
+  },
+  "replaySourceSha256": "d95431921bdfe82f34c163c6ebf30f1882999cb201f60b20c262727d6e859836"
+}

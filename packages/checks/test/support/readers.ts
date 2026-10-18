@@ -5,7 +5,7 @@ import type {
   ArtifactKind,
   ArtifactReader,
   ArtifactReaderRegistry,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 
 /** A workbook as the fake xlsx reader sees it: sheet name to rows, row 1 first. */
 export type FakeBook = Record<string, unknown[][]>;

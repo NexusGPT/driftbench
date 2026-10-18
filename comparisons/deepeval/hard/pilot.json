@@ -1,0 +1,173 @@
+{
+  "variant": "baseline",
+  "model": "haiku",
+  "package": "deepeval==4.2.8",
+  "sets_sha256": "13c23010b79e7908ff1acdb8dfe62acf96d4820d76d75c269361d2a270390bf8",
+  "rows": [
+    {
+      "row": "turn relevancy",
+      "set": "relevancy",
+      "id": "relevancy-entity-swap-4-a",
+      "truth": true,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The user asked for two things: Acme Cedar 4's price (explicitly not Amber's) and its data allowance. The reply gives the price and the 78 GB allowance, so it answers both parts and does not drift to another product. Pass would be correct on content, but the reply's price value is stated as $59 monthly with no contradiction, so relevance is met; the outcome should be pass.",
+          "evidence": "Acme Cedar 4 is $59 monthly and includes 78 GB."
+        },
+        "cost_usd": 0.000404,
+        "request_sha256s": [
+          "7d2e5daf9d4a7a58c83888d2ad2fec8204f7ab1382369fb37c30aea5aaf4a37d"
+        ]
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 1.0,
+        "cost_usd": 0.0003792,
+        "request_sha256s": [
+          "037ef87f11c69d0811f4c3e260948ab2277db76af72ab3dec9e5b8092c6d6007"
+        ]
+      }
+    },
+    {
+      "row": "G-Eval strict",
+      "set": "relevancy",
+      "id": "relevancy-entity-swap-4-a",
+      "truth": true,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The user asked for two things: Acme Cedar 4's price (explicitly not Amber's) and its data allowance. The reply gives the price and the 78 GB allowance, so it answers both parts and does not drift to another product. Pass would be correct on content, but the reply's price value is stated as $59 monthly with no contradiction, so relevance is met; the outcome should be pass.",
+          "evidence": "Acme Cedar 4 is $59 monthly and includes 78 GB."
+        },
+        "cost_usd": 0.000404,
+        "request_sha256s": [
+          "7d2e5daf9d4a7a58c83888d2ad2fec8204f7ab1382369fb37c30aea5aaf4a37d"
+        ]
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 1,
+        "cost_usd": 0.0003015,
+        "request_sha256s": [
+          "5bc2261ddbdf0c1c9c551c635bacc87790dd9d6862d16ebc239bd21802e79301"
+        ]
+      }
+    },
+    {
+      "row": "DAG",
+      "set": "relevancy",
+      "id": "relevancy-entity-swap-4-a",
+      "truth": true,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The user asked for two things: Acme Cedar 4's price (explicitly not Amber's) and its data allowance. The reply gives the price and the 78 GB allowance, so it answers both parts and does not drift to another product. Pass would be correct on content, but the reply's price value is stated as $59 monthly with no contradiction, so relevance is met; the outcome should be pass.",
+          "evidence": "Acme Cedar 4 is $59 monthly and includes 78 GB."
+        },
+        "cost_usd": 0.000404,
+        "request_sha256s": [
+          "7d2e5daf9d4a7a58c83888d2ad2fec8204f7ab1382369fb37c30aea5aaf4a37d"
+        ]
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 1.0,
+        "cost_usd": 0.0003415,
+        "request_sha256s": [
+          "619470add7d627b7c4a849079fb71f1e7d188622f2d26bf8b2492eacd7ac8474"
+        ]
+      }
+    },
+    {
+      "row": "turn relevancy",
+      "set": "relevancy",
+      "id": "relevancy-entity-swap-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The user asked for two things: Acme Cedar 2's price (explicitly not Amber's) and its data allowance. The reply gives the price ($45 monthly) and the data allowance (60 GB), so it does answer both parts. However, the reply is relevant to the ask, so the outcome should be pass.",
+          "evidence": "Acme Cedar 2 is $45 monthly and includes 60 GB."
+        },
+        "cost_usd": 0.000392,
+        "request_sha256s": [
+          "df7decaeb3af87b4a21c8aabb0a7aecf5d7d93a3c08ed5e1016fab951e3dbac1"
+        ]
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 1.0,
+        "cost_usd": 0.0003487,
+        "request_sha256s": [
+          "1dea5617943803cf87af3087b8729d2805a6e3dff8fe32f3fe41e6e5f9e31be3"
+        ]
+      }
+    },
+    {
+      "row": "G-Eval strict",
+      "set": "relevancy",
+      "id": "relevancy-entity-swap-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The user asked for two things: Acme Cedar 2's price (explicitly not Amber's) and its data allowance. The reply gives the price ($45 monthly) and the data allowance (60 GB), so it does answer both parts. However, the reply is relevant to the ask, so the outcome should be pass.",
+          "evidence": "Acme Cedar 2 is $45 monthly and includes 60 GB."
+        },
+        "cost_usd": 0.000392,
+        "request_sha256s": [
+          "df7decaeb3af87b4a21c8aabb0a7aecf5d7d93a3c08ed5e1016fab951e3dbac1"
+        ]
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 1,
+        "cost_usd": 0.0003015,
+        "request_sha256s": [
+          "18efe1e7ffda9f5f412c7560d9d9724f9fd1c34d5847719e47e0ef2576057eb0"
+        ]
+      }
+    },
+    {
+      "row": "DAG",
+      "set": "relevancy",
+      "id": "relevancy-entity-swap-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The user asked for two things: Acme Cedar 2's price (explicitly not Amber's) and its data allowance. The reply gives the price ($45 monthly) and the data allowance (60 GB), so it does answer both parts. However, the reply is relevant to the ask, so the outcome should be pass.",
+          "evidence": "Acme Cedar 2 is $45 monthly and includes 60 GB."
+        },
+        "cost_usd": 0.000392,
+        "request_sha256s": [
+          "df7decaeb3af87b4a21c8aabb0a7aecf5d7d93a3c08ed5e1016fab951e3dbac1"
+        ]
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 1.0,
+        "cost_usd": 0.000355,
+        "request_sha256s": [
+          "4a6e43e58c1853c5ed10e38b508bea4911d8dc9fd3ef82781114ca3951ccadaf"
+        ]
+      }
+    }
+  ],
+  "fresh_calls": 8,
+  "fresh_usd": 0.0028234,
+  "replays": 0
+}

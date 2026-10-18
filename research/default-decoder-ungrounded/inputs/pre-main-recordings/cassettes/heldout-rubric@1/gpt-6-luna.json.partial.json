@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "gpt-6-luna",
+      "family": "openai",
+      "cls": "system2",
+      "model": "gpt-6-luna",
+      "cost": 10
+    }
+  ],
+  "entries": [
+    {
+      "judge": "gpt-6-luna",
+      "key": "638bda962e20",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "error": "https://api.openai.com/v1/chat/completions answered 400: Unsupported value: 'temperature' does not support 0 with this model. Only the default (1) value is supported."
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e82e9d1f51b0",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "error": "https://api.openai.com/v1/chat/completions answered 400: Unsupported value: 'temperature' does not support 0 with this model. Only the default (1) value is supported."
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e5aa38b1ec20",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "error": "https://api.openai.com/v1/chat/completions answered 400: Unsupported value: 'temperature' does not support 0 with this model. Only the default (1) value is supported."
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a223ff730255",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "error": "https://api.openai.com/v1/chat/completions answered 400: Unsupported value: 'temperature' does not support 0 with this model. Only the default (1) value is supported."
+    }
+  ]
+}

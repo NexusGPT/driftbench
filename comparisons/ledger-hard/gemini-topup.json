@@ -1,0 +1,16 @@
+{
+  "stamp": "2026-10-13T10:14:55.440843+00:00",
+  "authorization": "Owner topped up Gemini. Resume Gemini missing-only: one probe call first; if it answers, continue at two calls with the 429 waits and 402 circuit break. Never re-send an answered call.",
+  "probe": {
+    "id": "ledger-hard-pii-g1-094",
+    "row": "pii",
+    "side": "audit",
+    "prompt_sha256": "73abd0eb1cf9190e24e60badfda2348aca488a070479f8eb576fd663cd5b79d4",
+    "model": "gemini-3.8-flash",
+    "provider": "google",
+    "request_sha256": "bb1c6b2fdfe709c77bd1a4a09264584ce426352770852bd7a60a2baf507bcb23"
+  },
+  "answered_before_probe": 7126,
+  "drained_at": "2026-10-13T10:14:22.311703+00:00",
+  "hold_release_condition": "The named missing request returns nonempty answer content; no answered key is submitted."
+}

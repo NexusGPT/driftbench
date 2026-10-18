@@ -58,7 +58,20 @@ function parse(args, valued) {
 if (verb === 'version') {
   process.stdout.write('27.0.0-fake\n');
 } else if (verb === 'run') {
-  const { flags, rest: tail } = parse(rest, ['--name', '-v', '-w', '-e', '--user', '--entrypoint']);
+  const { flags, rest: tail } = parse(rest, [
+    '--name',
+    '-v',
+    '-w',
+    '-e',
+    '--user',
+    '--network',
+    '--memory',
+    '--cpus',
+    '--pids-limit',
+    '--cap-drop',
+    '--security-opt',
+    '--entrypoint',
+  ]);
   const get = (flag) => flags.find(([name]) => name === flag)?.[1];
   const volume = String(get('-v'));
   const split = volume.lastIndexOf(':');
@@ -78,7 +91,7 @@ if (verb === 'version') {
     process.stdout.write(`${container.name}-id\n`);
   }
 } else if (verb === 'exec') {
-  const { flags, rest: tail } = parse(rest, ['-w', '-e']);
+  const { flags, rest: tail } = parse(rest, ['-w', '-e', '--env-file']);
   const [name, file, ...args] = tail;
   const container = load(name);
   if (container === undefined) {
@@ -89,10 +102,22 @@ if (verb === 'version') {
     const env = { PATH: process.env.PATH ?? '/usr/bin:/bin' };
     for (const pair of [
       ...container.env,
+      ...flags
+        .filter(([flag]) => flag === '--env-file')
+        .flatMap(([, path]) =>
+          readFileSync(path, 'utf8')
+            .split(/\r?\n/)
+            .map((line) => line.trimStart())
+            .filter((line) => line !== '' && !line.startsWith('#')),
+        ),
       ...flags.filter(([flag]) => flag === '-e').map(([, value]) => value),
     ]) {
       const at = pair.indexOf('=');
-      env[pair.slice(0, at)] = toHost(pair.slice(at + 1));
+      if (at === -1) {
+        if (process.env[pair] !== undefined) env[pair] = toHost(process.env[pair]);
+      } else {
+        env[pair.slice(0, at)] = toHost(pair.slice(at + 1));
+      }
     }
     const child = spawn(file, args.map(toHost), {
       cwd: toHost(workdir),

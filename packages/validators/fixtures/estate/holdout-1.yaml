@@ -1,0 +1,1828 @@
+# The estate validator's generated estate for seed 1, profile holdout. Written by code from a hidden
+# specification (packages/validators/src/ladders/estate); every name and value is invented. Regenerate with
+# fixtureText(1, 'holdout') and commit the diff only when the generator was meant to change.
+seed: 1
+profile: holdout
+company: Alder Bakery
+defects:
+  - guard_without_row
+  - missing_reference
+  - orphan
+files:
+  CLAUDE.md: |
+    # Alder Bakery operations assistant
+
+    You help the operations team of Alder Bakery, a fictional bakery with three shops, with its daily work.
+    Everything in this estate is invented for testing.
+
+    ## Rules
+
+    - **R1.** Report a number only when you read it in a file during this task.
+    - **R2.** Do not commit until you have read the output of `git status`.
+    - **R3.** When the user says "stop", stop all work and confirm in one line.
+    - **R4.** Never run `git push --force` on any branch.
+    - **R5.** Never call WebFetch; work only from the files in this folder.
+    - **R6.** After a compaction, re-read this file before you continue.
+    - **R7.** Read a file before you edit it.
+    - **R8.** Before editing any menu file: Read `.claude/skills/menu-review/references/menu-format.md`.
+    - **R9.** After a restart, check which helpers are still running before you dispatch one again.
+    - **R10.** R7 still holds when the user asks you to go faster.
+
+    ## Routing
+
+    | When the user wants to | Load |
+    |---|---|
+    | check an invoice against its purchase order | `invoice-check` |
+    | review or correct the weekly menu | `menu-review` |
+    | close or update a repair ticket | `repair-ticket` |
+    | record a stock count for a shelf | `stock-count` |
+    | plan the delivery routes for a depot | the `route-planner` agent |
+
+    ## Process
+
+    Every task follows the step list in `.claude/steps.json`: plan, do, verify, report.
+    Never report a task as done before the verify step has passed.
+    A tracker note may be written at any step.
+
+    ## Output
+
+    - Never use the words "obviously" or "simply".
+    - End every reply with a line that starts with "Next:".
+    - Keep every reply under 1200 characters unless the user asks for detail.
+  .claude/memory/MEMORY.md: |
+    # Memory
+
+    - Write every date year first, as in 2026-10-12.
+  .claude/skills/invoice-check/SKILL.md: |
+    ---
+    name: invoice-check
+    description: Check a supplier invoice against its purchase order. Use when the user asks to check or match an invoice.
+    allowed-tools: Read, Edit, Bash(python3 *), Grep
+    ---
+
+    # Invoice check
+
+    1. When the invoice is not in euros, open `references/currency-table.md` to convert each amount.
+    2. Read `references/matching-rules.md` before you change any invoice.
+    3. Run `python3 scripts/match-lines.py INVOICE ORDER` and show the summary it prints.
+    4. Never change an amount on an invoice; report the difference instead.
+    5. Write every amount with the currency code after the number, as in 12.00 EUR.
+  .claude/skills/invoice-check/references/currency-table.md: |
+    # Invoice check: lookup
+    One line per case.
+  .claude/skills/invoice-check/references/matching-rules.md: |
+    # Invoice check: rules
+    Read before any change.
+  .claude/skills/invoice-check/scripts/match-lines.py: |
+    #!/usr/bin/env python3
+    """Prints a summary line for the Invoice check skill."""
+    import sys
+
+    print("summary:", " ".join(sys.argv[1:]))
+  .claude/skills/menu-review/SKILL.md: |
+    ---
+    name: menu-review
+    description: Review a weekly menu against the allergen list. Use when the user asks to review or correct a menu.
+    allowed-tools: Read, Edit, Bash(python3 *)
+    hooks:
+      PreToolUse:
+        - matcher: Bash
+          hooks:
+            - type: command
+              command: "$CLAUDE_PROJECT_DIR/.claude/skills/menu-review/scripts/check-format.sh"
+    ---
+
+    # Menu review
+
+    1. When a dish has no allergen line, open `references/allergen-list.md` to complete it.
+    2. Read `references/menu-format.md` before you change any menu.
+    3. Before you swap two dishes, read `references/kitchen-hours.md`.
+    4. Run `python3 scripts/check-menu.py MENU` and show the summary it prints.
+    5. Never remove an allergen from a dish; flag the doubt instead.
+    6. Mark every dish without gluten with the tag GF after its name.
+    7. When a recipe came from a supplier, open `references/supplier-recipes.md` first.
+  .claude/skills/menu-review/references/allergen-list.md: |
+    # Menu review: lookup
+    One line per case.
+  .claude/skills/menu-review/references/menu-format.md: |
+    # Menu review: rules
+    Read before any change.
+  .claude/skills/menu-review/references/kitchen-hours.md: |
+    # Menu review: terms
+  .claude/skills/menu-review/scripts/check-menu.py: |
+    #!/usr/bin/env python3
+    """Prints a summary line for the Menu review skill."""
+    import sys
+
+    print("summary:", " ".join(sys.argv[1:]))
+  .claude/skills/menu-review/scripts/check-format.sh: |
+    #!/bin/sh
+    # Checks the arguments of a script call.
+    exit 0
+  .claude/skills/menu-review/references/old-menus.md: |
+    # Old notes
+    Kept from an earlier version.
+  .claude/skills/repair-ticket/SKILL.md: |
+    ---
+    name: repair-ticket
+    description: Close a repair ticket once the repair is confirmed. Use when the user asks to close or update a repair ticket.
+    allowed-tools: Read, Edit, Bash(python3 *), Grep
+    ---
+
+    # Repair ticket
+
+    1. When a part has no number, open `references/part-numbers.md` to find it.
+    2. Read `references/closing-rules.md` before you edit any repair ticket.
+    3. Run `python3 scripts/list-parts.py TICKET` and show the summary it prints.
+    4. Never close a repair ticket without a confirmation from the site; leave it open instead.
+    5. When the same machine broke twice this month, dispatch the `ledger-auditor` agent with the invoice number and the order number.
+    6. Name every machine by its room and its number, as in room 3 machine 2.
+  .claude/skills/repair-ticket/references/part-numbers.md: |
+    # Repair ticket: lookup
+    One line per case.
+  .claude/skills/repair-ticket/references/closing-rules.md: |
+    # Repair ticket: rules
+    Read before any change.
+  .claude/skills/repair-ticket/scripts/list-parts.py: |
+    #!/usr/bin/env python3
+    """Prints a summary line for the Repair ticket skill."""
+    import sys
+
+    print("summary:", " ".join(sys.argv[1:]))
+  .claude/skills/stock-count/SKILL.md: |
+    ---
+    name: stock-count
+    description: Record a stock count on the stock sheet of a shelf. Use when the user asks to count or record stock.
+    allowed-tools: Read, Edit, Bash(python3 *), Grep
+    ---
+
+    # Stock count
+
+    1. When the shelf code is unknown, open `references/shelf-map.md` to find the shelf.
+    2. Read `references/count-rules.md` before you modify any stock sheet.
+    3. Run `python3 scripts/sum-counts.py SHEET` and show the summary it prints.
+    4. Never round a counted quantity; write the exact count.
+    5. Name every shelf with its code in capitals, as in SHELF B.
+  .claude/skills/stock-count/references/shelf-map.md: |
+    # Stock count: lookup
+    One line per case.
+  .claude/skills/stock-count/references/count-rules.md: |
+    # Stock count: rules
+    Read before any change.
+  .claude/skills/stock-count/scripts/sum-counts.py: |
+    #!/usr/bin/env python3
+    """Prints a summary line for the Stock count skill."""
+    import sys
+
+    print("summary:", " ".join(sys.argv[1:]))
+  .claude/skills/stock-count/scripts/shared-helpers.py: |
+    #!/usr/bin/env python3
+    """Helpers shared by the scripts of this skill."""
+  .claude/agents/ledger-auditor.md: |
+    ---
+    name: ledger-auditor
+    description: Audits the ledger for payments made twice. Dispatch it with an invoice number and an order number.
+    tools: Read, Grep, Glob
+    model: sonnet
+    effort: medium
+    ---
+
+    You work on the ledger of Alder Bakery. You never edit a file: you read and you report.
+    Your brief gives the invoice number and the order number; when one is missing, answer with a blocked status and stop.
+    Answer with one JSON object and nothing else.
+  .claude/agents/route-planner.md: |
+    ---
+    name: route-planner
+    description: Plans the delivery routes of one depot for one day. Dispatch it with a depot name and a delivery date.
+    tools: Read, Grep, Glob
+    model: haiku
+    effort: low
+    skills: stock-count
+    ---
+
+    You work on the routes of Alder Bakery. You never edit a file: you read and you report.
+    Your brief gives the depot name and the delivery date; when one is missing, answer with a blocked status and stop.
+    Answer with one JSON object and nothing else.
+  .claude/settings.json: |
+    {
+      "model": "opus",
+      "permissions": {
+        "defaultMode": "acceptEdits",
+        "allow": [
+          "Read",
+          "Grep",
+          "Bash(python3 *)"
+        ],
+        "deny": [
+          "WebFetch",
+          "Bash(rm -rf:*)"
+        ],
+        "ask": []
+      },
+      "env": {
+        "ALDER_REGION": "north",
+        "ALDER_DATA_DIR": "data"
+      },
+      "hooks": {
+        "PreToolUse": [
+          {
+            "matcher": "Bash",
+            "hooks": [
+              {
+                "type": "command",
+                "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/guards/block-force-push.sh"
+              }
+            ]
+          },
+          {
+            "matcher": "Edit|Write",
+            "hooks": [
+              {
+                "type": "command",
+                "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/guards/read-before-edit.py"
+              }
+            ]
+          }
+        ],
+        "UserPromptSubmit": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/guards/stop-word.sh"
+              }
+            ]
+          }
+        ],
+        "Stop": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/guards/reply-length.py"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  .claude/guards/stop-word.sh: |
+    #!/bin/sh
+    # Answers the stop word with a nudge.
+    input=$(cat)
+    case "$input" in
+      *stop*) echo "the user asked to stop" >&2 ;;
+    esac
+    exit 0
+  .claude/guards/reply-length.py: |
+    #!/usr/bin/env python3
+    """Warns when a reply is longer than the output rules allow."""
+    import json
+    import sys
+
+    RULE = "Keep every reply under 1200 characters unless the user asks for detail."
+    event = json.load(sys.stdin)
+    if len(event.get("reply", "")) > 1200:
+        print(RULE, file=sys.stderr)
+    sys.exit(0)
+  .claude/guards/block-force-push.sh: |
+    #!/bin/sh
+    # Blocks a forced push on any branch.
+    input=$(cat)
+    case "$input" in
+      *"push --force"*) echo "blocked: forced push" >&2; exit 2 ;;
+    esac
+    exit 0
+  .claude/guards/read-before-edit.py: |
+    #!/usr/bin/env python3
+    """Blocks an edit of a file the session has not read. Enforces: R7"""
+    import json
+    import sys
+
+    event = json.load(sys.stdin)
+    path = event.get("tool_input", {}).get("file_path", "")
+    if path and path not in set(event.get("reads", [])):
+        print("blocked: the file was not read", file=sys.stderr)
+        sys.exit(2)
+    sys.exit(0)
+  .claude/guards/check-registry.json: |
+    {
+      "checks": [
+        {"id":"G1","guard":"stop-word.sh","event":"UserPromptSubmit","enforces":["stop all work and confirm in one line"],"verdict":"nudge"},
+        {"id":"G2","guard":"reply-length.py","event":"Stop","enforces":[],"verdict":"warn"},
+        {"id":"G3","guard":"block-force-push.sh","event":"PreToolUse","enforces":["R4"],"verdict":"deny"},
+        {"id":"G4","guard":"check-format.sh","event":"PreToolUse","enforces":[],"verdict":"deny"}
+      ]
+    }
+  .claude/steps.json: |
+    {
+      "steps": [
+        { "id": "plan", "title": "Restate the ask and list the files you will touch", "next": ["do"] },
+        { "id": "do", "title": "Make the change", "next": ["verify"] },
+        { "id": "verify", "title": "Run the check that proves the change", "next": ["review", "do"] },
+        { "id": "review", "title": "Read the change once more", "next": ["report"] },
+        { "id": "report", "title": "Tell the user what changed and what is next", "next": [] },
+        { "id": "note", "title": "Write a tracker note", "anytime": true }
+      ]
+    }
+truth:
+  atoms:
+    - hid: invariant:standing_size
+      kind: invariant
+      file: CLAUDE.md
+      line: 1
+      key: standing_size
+    - hid: invariant:no_orphans
+      kind: invariant
+      file: CLAUDE.md
+      line: 1
+      key: no_orphans
+    - hid: rule:grounded-values
+      kind: instruction
+      file: CLAUDE.md
+      line: 8
+      key: ""
+    - hid: rule:status-before-commit
+      kind: gate
+      file: CLAUDE.md
+      line: 9
+      key: ""
+    - hid: rule:stop-word
+      kind: instruction
+      file: CLAUDE.md
+      line: 10
+      key: ""
+    - hid: rule:no-force-push
+      kind: instruction
+      file: CLAUDE.md
+      line: 11
+      key: ""
+    - hid: rule:no-webfetch
+      kind: instruction
+      file: CLAUDE.md
+      line: 12
+      key: ""
+    - hid: rule:after-compaction
+      kind: instruction
+      file: CLAUDE.md
+      line: 13
+      key: ""
+    - hid: hazard:rule:after-compaction
+      kind: hazard
+      file: CLAUDE.md
+      line: 13
+      key: compaction
+    - hid: rule:read-before-edit
+      kind: gate
+      file: CLAUDE.md
+      line: 14
+      key: ""
+    - hid: rule:fixed-gate
+      kind: gate
+      file: CLAUDE.md
+      line: 15
+      key: ""
+    - hid: ref:CLAUDE.md:.claude/skills/menu-review/references/menu-format.md
+      kind: reference
+      file: CLAUDE.md
+      line: 15
+      key: .claude/skills/menu-review/references/menu-format.md
+    - hid: rule:after-restart
+      kind: instruction
+      file: CLAUDE.md
+      line: 16
+      key: ""
+    - hid: hazard:rule:after-restart
+      kind: hazard
+      file: CLAUDE.md
+      line: 16
+      key: restart
+    - hid: rule:cites
+      kind: instruction
+      file: CLAUDE.md
+      line: 17
+      key: ""
+    - hid: route:table:invoice-check
+      kind: route
+      file: CLAUDE.md
+      line: 23
+      key: invoice-check
+    - hid: route:table:menu-review
+      kind: route
+      file: CLAUDE.md
+      line: 24
+      key: menu-review
+    - hid: route:table:repair-ticket
+      kind: route
+      file: CLAUDE.md
+      line: 25
+      key: repair-ticket
+    - hid: route:table:stock-count
+      kind: route
+      file: CLAUDE.md
+      line: 26
+      key: stock-count
+    - hid: route:table:route-planner
+      kind: route
+      file: CLAUDE.md
+      line: 27
+      key: route-planner
+    - hid: ref:CLAUDE.md:.claude/steps.json
+      kind: reference
+      file: CLAUDE.md
+      line: 31
+      key: .claude/steps.json
+    - hid: rule:verify-before-report
+      kind: instruction
+      file: CLAUDE.md
+      line: 32
+      key: ""
+    - hid: rule:no-filler-words
+      kind: register
+      file: CLAUDE.md
+      line: 37
+      key: ""
+    - hid: rule:next-line
+      kind: register
+      file: CLAUDE.md
+      line: 38
+      key: ""
+    - hid: rule:reply-length
+      kind: register
+      file: CLAUDE.md
+      line: 39
+      key: ""
+    - hid: rule:dates-year-first
+      kind: register
+      file: .claude/memory/MEMORY.md
+      line: 3
+      key: ""
+    - hid: skill:invoice-check
+      kind: skill
+      file: .claude/skills/invoice-check/SKILL.md
+      line: 2
+      key: invoice-check
+    - hid: route:desc:invoice-check
+      kind: route
+      file: .claude/skills/invoice-check/SKILL.md
+      line: 3
+      key: invoice-check
+    - hid: ref:invoice-check:references/currency-table.md
+      kind: reference
+      file: .claude/skills/invoice-check/SKILL.md
+      line: 9
+      key: .claude/skills/invoice-check/references/currency-table.md
+    - hid: gate:invoice-check
+      kind: gate
+      file: .claude/skills/invoice-check/SKILL.md
+      line: 10
+      key: ""
+    - hid: ref:invoice-check:references/matching-rules.md
+      kind: reference
+      file: .claude/skills/invoice-check/SKILL.md
+      line: 10
+      key: .claude/skills/invoice-check/references/matching-rules.md
+    - hid: script:invoice-check:scripts/match-lines.py
+      kind: script
+      file: .claude/skills/invoice-check/SKILL.md
+      line: 11
+      key: .claude/skills/invoice-check/scripts/match-lines.py
+    - hid: rule:invoice-check:script
+      kind: instruction
+      file: .claude/skills/invoice-check/SKILL.md
+      line: 11
+      key: ""
+    - hid: rule:invoice-check:prohibition
+      kind: instruction
+      file: .claude/skills/invoice-check/SKILL.md
+      line: 12
+      key: ""
+    - hid: rule:invoice-check:register
+      kind: register
+      file: .claude/skills/invoice-check/SKILL.md
+      line: 13
+      key: ""
+    - hid: tool:declared:Edit
+      kind: tool
+      file: .claude/skills/invoice-check/SKILL.md
+      line: 4
+      key: Edit
+    - hid: tool:declared:Bash
+      kind: tool
+      file: .claude/skills/invoice-check/SKILL.md
+      line: 4
+      key: Bash
+    - hid: skill:menu-review
+      kind: skill
+      file: .claude/skills/menu-review/SKILL.md
+      line: 2
+      key: menu-review
+    - hid: route:desc:menu-review
+      kind: route
+      file: .claude/skills/menu-review/SKILL.md
+      line: 3
+      key: menu-review
+    - hid: guard:check-format.sh
+      kind: guard
+      file: .claude/skills/menu-review/SKILL.md
+      line: 10
+      key: check-format.sh
+    - hid: ref:menu-review:references/allergen-list.md
+      kind: reference
+      file: .claude/skills/menu-review/SKILL.md
+      line: 15
+      key: .claude/skills/menu-review/references/allergen-list.md
+    - hid: gate:menu-review
+      kind: gate
+      file: .claude/skills/menu-review/SKILL.md
+      line: 16
+      key: ""
+    - hid: ref:menu-review:references/menu-format.md
+      kind: reference
+      file: .claude/skills/menu-review/SKILL.md
+      line: 16
+      key: .claude/skills/menu-review/references/menu-format.md
+    - hid: gate:menu-review:comma
+      kind: gate
+      file: .claude/skills/menu-review/SKILL.md
+      line: 17
+      key: ""
+    - hid: ref:menu-review:references/kitchen-hours.md
+      kind: reference
+      file: .claude/skills/menu-review/SKILL.md
+      line: 17
+      key: .claude/skills/menu-review/references/kitchen-hours.md
+    - hid: script:menu-review:scripts/check-menu.py
+      kind: script
+      file: .claude/skills/menu-review/SKILL.md
+      line: 18
+      key: .claude/skills/menu-review/scripts/check-menu.py
+    - hid: rule:menu-review:script
+      kind: instruction
+      file: .claude/skills/menu-review/SKILL.md
+      line: 18
+      key: ""
+    - hid: rule:menu-review:prohibition
+      kind: instruction
+      file: .claude/skills/menu-review/SKILL.md
+      line: 19
+      key: ""
+    - hid: rule:menu-review:register
+      kind: register
+      file: .claude/skills/menu-review/SKILL.md
+      line: 20
+      key: ""
+    - hid: ref:menu-review:references/supplier-recipes.md
+      kind: reference
+      file: .claude/skills/menu-review/SKILL.md
+      line: 21
+      key: .claude/skills/menu-review/references/supplier-recipes.md
+    - hid: skill:repair-ticket
+      kind: skill
+      file: .claude/skills/repair-ticket/SKILL.md
+      line: 2
+      key: repair-ticket
+    - hid: route:desc:repair-ticket
+      kind: route
+      file: .claude/skills/repair-ticket/SKILL.md
+      line: 3
+      key: repair-ticket
+    - hid: ref:repair-ticket:references/part-numbers.md
+      kind: reference
+      file: .claude/skills/repair-ticket/SKILL.md
+      line: 9
+      key: .claude/skills/repair-ticket/references/part-numbers.md
+    - hid: gate:repair-ticket
+      kind: gate
+      file: .claude/skills/repair-ticket/SKILL.md
+      line: 10
+      key: ""
+    - hid: ref:repair-ticket:references/closing-rules.md
+      kind: reference
+      file: .claude/skills/repair-ticket/SKILL.md
+      line: 10
+      key: .claude/skills/repair-ticket/references/closing-rules.md
+    - hid: script:repair-ticket:scripts/list-parts.py
+      kind: script
+      file: .claude/skills/repair-ticket/SKILL.md
+      line: 11
+      key: .claude/skills/repair-ticket/scripts/list-parts.py
+    - hid: rule:repair-ticket:script
+      kind: instruction
+      file: .claude/skills/repair-ticket/SKILL.md
+      line: 11
+      key: ""
+    - hid: rule:repair-ticket:prohibition
+      kind: instruction
+      file: .claude/skills/repair-ticket/SKILL.md
+      line: 12
+      key: ""
+    - hid: rule:repair-ticket:dispatch
+      kind: instruction
+      file: .claude/skills/repair-ticket/SKILL.md
+      line: 13
+      key: ""
+    - hid: rule:repair-ticket:register
+      kind: register
+      file: .claude/skills/repair-ticket/SKILL.md
+      line: 14
+      key: ""
+    - hid: skill:stock-count
+      kind: skill
+      file: .claude/skills/stock-count/SKILL.md
+      line: 2
+      key: stock-count
+    - hid: route:desc:stock-count
+      kind: route
+      file: .claude/skills/stock-count/SKILL.md
+      line: 3
+      key: stock-count
+    - hid: ref:stock-count:references/shelf-map.md
+      kind: reference
+      file: .claude/skills/stock-count/SKILL.md
+      line: 9
+      key: .claude/skills/stock-count/references/shelf-map.md
+    - hid: gate:stock-count
+      kind: gate
+      file: .claude/skills/stock-count/SKILL.md
+      line: 10
+      key: ""
+    - hid: ref:stock-count:references/count-rules.md
+      kind: reference
+      file: .claude/skills/stock-count/SKILL.md
+      line: 10
+      key: .claude/skills/stock-count/references/count-rules.md
+    - hid: script:stock-count:scripts/sum-counts.py
+      kind: script
+      file: .claude/skills/stock-count/SKILL.md
+      line: 11
+      key: .claude/skills/stock-count/scripts/sum-counts.py
+    - hid: rule:stock-count:script
+      kind: instruction
+      file: .claude/skills/stock-count/SKILL.md
+      line: 11
+      key: ""
+    - hid: rule:stock-count:prohibition
+      kind: instruction
+      file: .claude/skills/stock-count/SKILL.md
+      line: 12
+      key: ""
+    - hid: rule:stock-count:register
+      kind: register
+      file: .claude/skills/stock-count/SKILL.md
+      line: 13
+      key: ""
+    - hid: script:stock-count:scripts/shared-helpers.py
+      kind: script
+      file: .claude/skills/stock-count/scripts/shared-helpers.py
+      line: 2
+      key: .claude/skills/stock-count/scripts/shared-helpers.py
+    - hid: helper:ledger-auditor
+      kind: subagent
+      file: .claude/agents/ledger-auditor.md
+      line: 2
+      key: ledger-auditor
+    - hid: route:desc:ledger-auditor
+      kind: route
+      file: .claude/agents/ledger-auditor.md
+      line: 3
+      key: ledger-auditor
+    - hid: rule:ledger-auditor:readonly
+      kind: instruction
+      file: .claude/agents/ledger-auditor.md
+      line: 9
+      key: ""
+    - hid: rule:ledger-auditor:brief
+      kind: instruction
+      file: .claude/agents/ledger-auditor.md
+      line: 10
+      key: ""
+    - hid: rule:ledger-auditor:json
+      kind: register
+      file: .claude/agents/ledger-auditor.md
+      line: 11
+      key: ""
+    - hid: tool:declared:Glob
+      kind: tool
+      file: .claude/agents/ledger-auditor.md
+      line: 4
+      key: Glob
+    - hid: helper:route-planner
+      kind: subagent
+      file: .claude/agents/route-planner.md
+      line: 2
+      key: route-planner
+    - hid: route:desc:route-planner
+      kind: route
+      file: .claude/agents/route-planner.md
+      line: 3
+      key: route-planner
+    - hid: rule:route-planner:readonly
+      kind: instruction
+      file: .claude/agents/route-planner.md
+      line: 10
+      key: ""
+    - hid: rule:route-planner:brief
+      kind: instruction
+      file: .claude/agents/route-planner.md
+      line: 11
+      key: ""
+    - hid: rule:route-planner:json
+      kind: register
+      file: .claude/agents/route-planner.md
+      line: 12
+      key: ""
+    - hid: setting:model
+      kind: setting
+      file: .claude/settings.json
+      line: 2
+      key: model
+    - hid: setting:permissions.defaultMode
+      kind: setting
+      file: .claude/settings.json
+      line: 4
+      key: permissions.defaultMode
+    - hid: tool:allow:Read
+      kind: tool
+      file: .claude/settings.json
+      line: 6
+      key: Read
+    - hid: tool:allow:Grep
+      kind: tool
+      file: .claude/settings.json
+      line: 7
+      key: Grep
+    - hid: tool:allow:Bash(python3 *)
+      kind: tool
+      file: .claude/settings.json
+      line: 8
+      key: Bash(python3 *)
+    - hid: tool:deny:WebFetch
+      kind: tool
+      file: .claude/settings.json
+      line: 11
+      key: WebFetch
+    - hid: tool:deny:Bash(rm -rf:*)
+      kind: tool
+      file: .claude/settings.json
+      line: 12
+      key: Bash(rm -rf:*)
+    - hid: setting:env.ALDER_REGION
+      kind: setting
+      file: .claude/settings.json
+      line: 17
+      key: env.ALDER_REGION
+    - hid: setting:env.ALDER_DATA_DIR
+      kind: setting
+      file: .claude/settings.json
+      line: 18
+      key: env.ALDER_DATA_DIR
+    - hid: guard:block-force-push.sh
+      kind: guard
+      file: .claude/settings.json
+      line: 27
+      key: block-force-push.sh
+    - hid: invariant:guard_paths_anchored
+      kind: invariant
+      file: .claude/settings.json
+      line: 27
+      key: guard_paths_anchored
+    - hid: guard:read-before-edit.py
+      kind: guard
+      file: .claude/settings.json
+      line: 36
+      key: read-before-edit.py
+    - hid: guard:stop-word.sh
+      kind: guard
+      file: .claude/settings.json
+      line: 46
+      key: stop-word.sh
+    - hid: guard:reply-length.py
+      kind: guard
+      file: .claude/settings.json
+      line: 56
+      key: reply-length.py
+    - hid: invariant:registry_complete
+      kind: invariant
+      file: .claude/guards/check-registry.json
+      line: 1
+      key: registry_complete
+    - hid: stage:plan
+      kind: stage
+      file: .claude/steps.json
+      line: 3
+      key: plan
+    - hid: stage:do
+      kind: stage
+      file: .claude/steps.json
+      line: 4
+      key: do
+    - hid: stage:verify
+      kind: stage
+      file: .claude/steps.json
+      line: 5
+      key: verify
+    - hid: stage:review
+      kind: stage
+      file: .claude/steps.json
+      line: 6
+      key: review
+    - hid: stage:report
+      kind: stage
+      file: .claude/steps.json
+      line: 7
+      key: report
+    - hid: stage:note
+      kind: stage
+      file: .claude/steps.json
+      line: 8
+      key: note
+  edges:
+    - from: route:table:invoice-check
+      to: skill:invoice-check
+      kind: route
+    - from: route:table:menu-review
+      to: skill:menu-review
+      kind: route
+    - from: route:table:repair-ticket
+      to: skill:repair-ticket
+      kind: route
+    - from: route:table:stock-count
+      to: skill:stock-count
+      kind: route
+    - from: route:table:route-planner
+      to: helper:route-planner
+      kind: route
+    - from: rule:cites
+      to: rule:read-before-edit
+      kind: cites
+    - from: route:desc:invoice-check
+      to: skill:invoice-check
+      kind: route
+    - from: skill:invoice-check
+      to: ref:invoice-check:references/currency-table.md
+      kind: reference
+    - from: skill:invoice-check
+      to: ref:invoice-check:references/matching-rules.md
+      kind: reference
+    - from: skill:invoice-check
+      to: script:invoice-check:scripts/match-lines.py
+      kind: script
+    - from: route:desc:menu-review
+      to: skill:menu-review
+      kind: route
+    - from: skill:menu-review
+      to: ref:menu-review:references/allergen-list.md
+      kind: reference
+    - from: skill:menu-review
+      to: ref:menu-review:references/menu-format.md
+      kind: reference
+    - from: skill:menu-review
+      to: ref:menu-review:references/kitchen-hours.md
+      kind: reference
+    - from: skill:menu-review
+      to: script:menu-review:scripts/check-menu.py
+      kind: script
+    - from: skill:menu-review
+      to: ref:menu-review:references/supplier-recipes.md
+      kind: reference
+    - from: route:desc:repair-ticket
+      to: skill:repair-ticket
+      kind: route
+    - from: skill:repair-ticket
+      to: ref:repair-ticket:references/part-numbers.md
+      kind: reference
+    - from: skill:repair-ticket
+      to: ref:repair-ticket:references/closing-rules.md
+      kind: reference
+    - from: skill:repair-ticket
+      to: script:repair-ticket:scripts/list-parts.py
+      kind: script
+    - from: skill:repair-ticket
+      to: helper:ledger-auditor
+      kind: dispatch
+    - from: route:desc:stock-count
+      to: skill:stock-count
+      kind: route
+    - from: skill:stock-count
+      to: ref:stock-count:references/shelf-map.md
+      kind: reference
+    - from: skill:stock-count
+      to: ref:stock-count:references/count-rules.md
+      kind: reference
+    - from: skill:stock-count
+      to: script:stock-count:scripts/sum-counts.py
+      kind: script
+    - from: skill:stock-count
+      to: script:stock-count:scripts/shared-helpers.py
+      kind: script
+    - from: route:desc:ledger-auditor
+      to: helper:ledger-auditor
+      kind: route
+    - from: route:desc:route-planner
+      to: helper:route-planner
+      kind: route
+    - from: helper:route-planner
+      to: skill:stock-count
+      kind: allows
+    - from: skill:invoice-check
+      to: tool:allow:Read
+      kind: allows
+    - from: skill:invoice-check
+      to: tool:declared:Edit
+      kind: allows
+    - from: skill:invoice-check
+      to: tool:declared:Bash
+      kind: allows
+    - from: skill:invoice-check
+      to: tool:allow:Grep
+      kind: allows
+    - from: skill:menu-review
+      to: tool:allow:Read
+      kind: allows
+    - from: skill:menu-review
+      to: tool:declared:Edit
+      kind: allows
+    - from: skill:menu-review
+      to: tool:declared:Bash
+      kind: allows
+    - from: skill:repair-ticket
+      to: tool:allow:Read
+      kind: allows
+    - from: skill:repair-ticket
+      to: tool:declared:Edit
+      kind: allows
+    - from: skill:repair-ticket
+      to: tool:declared:Bash
+      kind: allows
+    - from: skill:repair-ticket
+      to: tool:allow:Grep
+      kind: allows
+    - from: skill:stock-count
+      to: tool:allow:Read
+      kind: allows
+    - from: skill:stock-count
+      to: tool:declared:Edit
+      kind: allows
+    - from: skill:stock-count
+      to: tool:declared:Bash
+      kind: allows
+    - from: skill:stock-count
+      to: tool:allow:Grep
+      kind: allows
+    - from: helper:ledger-auditor
+      to: tool:allow:Read
+      kind: allows
+    - from: helper:ledger-auditor
+      to: tool:allow:Grep
+      kind: allows
+    - from: helper:ledger-auditor
+      to: tool:declared:Glob
+      kind: allows
+    - from: helper:route-planner
+      to: tool:allow:Read
+      kind: allows
+    - from: helper:route-planner
+      to: tool:allow:Grep
+      kind: allows
+    - from: helper:route-planner
+      to: tool:declared:Glob
+      kind: allows
+    - from: guard:stop-word.sh
+      to: event.UserPromptSubmit
+      kind: event
+    - from: guard:stop-word.sh
+      to: rule:stop-word
+      kind: enforces
+    - from: guard:reply-length.py
+      to: event.Stop
+      kind: event
+    - from: guard:reply-length.py
+      to: rule:reply-length
+      kind: enforces
+    - from: guard:block-force-push.sh
+      to: event.PreToolUse
+      kind: event
+    - from: guard:block-force-push.sh
+      to: rule:no-force-push
+      kind: enforces
+    - from: guard:read-before-edit.py
+      to: event.PreToolUse
+      kind: event
+    - from: guard:read-before-edit.py
+      to: rule:read-before-edit
+      kind: enforces
+    - from: guard:check-format.sh
+      to: event.PreToolUse
+      kind: event
+    - from: stage:plan
+      to: stage:do
+      kind: next
+    - from: stage:do
+      to: stage:verify
+      kind: next
+    - from: stage:verify
+      to: stage:review
+      kind: next
+    - from: stage:verify
+      to: stage:do
+      kind: next
+    - from: stage:review
+      to: stage:report
+      kind: next
+  findings:
+    - code: MISSING_REFERENCE
+      subject: ref:menu-review:references/supplier-recipes.md
+      atom: ref:menu-review:references/supplier-recipes.md
+      defect: missing_reference
+    - code: ORPHAN
+      subject: .claude/skills/menu-review/references/old-menus.md
+      defect: orphan
+    - code: REGISTRY_ROW
+      subject: read-before-edit.py
+      defect: guard_without_row
+recording:
+  family: recording
+  model: estate-validator-truth
+  answers:
+    CLAUDE.md:
+      chunk: CLAUDE.md
+      atoms:
+        - kind: instruction
+          title: Report a number only when it was read during the task
+          quote: Report a number only when you read it in a file during this task.
+          polarity: obligation
+          evidence:
+            - type: custom
+              name: grounded_values
+          line: 8
+        - kind: gate
+          title: Read the git status before a commit
+          quote: Do not commit until you have read the output of `git status`.
+          evidence:
+            - type: ordered
+              before: Bash
+              after: Bash
+          line: 9
+        - kind: instruction
+          title: Stop all work when the user says stop
+          quote: When the user says "stop", stop all work and confirm in one line.
+          situation: The user says stop
+          polarity: obligation
+          evidence:
+            - type: custom
+              name: stops_on_word
+              options:
+                word: stop
+          line: 10
+        - kind: instruction
+          title: Never force-push a branch
+          quote: Never run `git push --force` on any branch.
+          situation: Never run `git push --force` on any branch.
+          polarity: prohibition
+          evidence:
+            - type: custom
+              name: command_absent
+              options:
+                command: git push --force
+          line: 11
+        - kind: instruction
+          title: Never call WebFetch
+          quote: Never call WebFetch; work only from the files in this folder.
+          polarity: prohibition
+          evidence:
+            - type: tool_not_called
+              label: WebFetch
+          line: 12
+        - kind: instruction
+          title: Re-read the standing instructions after a compaction
+          quote: After a compaction, re-read this file before you continue.
+          situation: After a compaction
+          polarity: obligation
+          evidence:
+            - type: custom
+              name: reread_after_compaction
+          line: 13
+        - kind: gate
+          title: Read a file before you edit it
+          quote: Read a file before you edit it.
+          evidence:
+            - type: ordered
+              before: Read
+              after: Edit
+          line: 14
+        - kind: gate
+          title: Before editing any menu file read its rules
+          quote: "Before editing any menu file: Read `.claude/skills/menu-review/references/menu-format.md`."
+          evidence:
+            - type: ordered
+              before: Read
+              after: Edit
+            - type: tool_called
+              label: Read
+              input:
+                file_path:
+                  contains: .claude/skills/menu-review/references/menu-format.md
+          line: 15
+        - kind: instruction
+          title: Check which helpers still run after a restart
+          quote: After a restart, check which helpers are still running before you dispatch one again.
+          situation: After a restart
+          polarity: obligation
+          evidence:
+            - type: custom
+              name: helper_state_after_restart
+          line: 16
+        - kind: instruction
+          title: R7 holds under pressure
+          quote: R7 still holds when the user asks you to go faster.
+          polarity: obligation
+          evidence:
+            - type: custom
+              name: holds_under_pressure
+              options:
+                rule: R7
+          line: 17
+        - kind: instruction
+          title: Never report a task as done before the verify step
+          quote: Never report a task as done before the verify step has passed.
+          polarity: prohibition
+          evidence:
+            - type: ordered
+              before: verify
+              after: report
+          line: 32
+        - kind: register
+          title: Never use the words obviously or simply
+          quote: Never use the words "obviously" or "simply".
+          evidence:
+            - type: text
+              mustNot:
+                - obviously
+                - simply
+          line: 37
+        - kind: register
+          title: End every reply with a line that starts with Next
+          quote: End every reply with a line that starts with "Next:".
+          evidence:
+            - type: text
+              must:
+                - "Next:"
+          line: 38
+        - kind: register
+          title: Keep every reply under 1200 characters
+          quote: Keep every reply under 1200 characters unless the user asks for detail.
+          evidence:
+            - type: custom
+              name: max_length
+              options:
+                characters: 1200
+          line: 39
+    .claude/memory/MEMORY.md:
+      chunk: .claude/memory/MEMORY.md
+      atoms:
+        - kind: register
+          title: Write dates year first
+          quote: Write every date year first, as in 2026-10-12.
+          evidence:
+            - type: custom
+              name: date_format
+          line: 3
+    .claude/skills/invoice-check/SKILL.md:
+      chunk: .claude/skills/invoice-check/SKILL.md
+      atoms:
+        - kind: gate
+          title: Read the matching rules before you change any invoice
+          quote: Read `references/matching-rules.md` before you change any invoice.
+          evidence:
+            - type: ordered
+              before: Read
+              after: Edit
+          line: 10
+        - kind: instruction
+          title: Run the match-lines.py script and show its summary
+          quote: Run `python3 scripts/match-lines.py INVOICE ORDER` and show the summary it prints.
+          polarity: obligation
+          evidence:
+            - type: tool_called
+              label: Bash
+              input:
+                command:
+                  contains: match-lines.py
+          line: 11
+        - kind: instruction
+          title: Never change an amount on an invoice
+          quote: Never change an amount on an invoice; report the difference instead.
+          polarity: prohibition
+          evidence:
+            - type: custom
+              name: no_value_change
+              options:
+                skill: invoice-check
+          line: 12
+        - kind: register
+          title: Write amounts with the currency code after the number
+          quote: Write every amount with the currency code after the number, as in 12.00 EUR.
+          evidence:
+            - type: text
+              must:
+                - EUR
+          line: 13
+    .claude/skills/menu-review/SKILL.md:
+      chunk: .claude/skills/menu-review/SKILL.md
+      atoms:
+        - kind: gate
+          title: Read the menu format before you change any menu
+          quote: Read `references/menu-format.md` before you change any menu.
+          evidence:
+            - type: ordered
+              before: Read
+              after: Edit
+          line: 16
+        - kind: gate
+          title: Read the kitchen hours before you swap two dishes
+          quote: Before you swap two dishes, read `references/kitchen-hours.md`.
+          evidence:
+            - type: ordered
+              before: Read
+              after: swap two dishes
+          line: 17
+        - kind: instruction
+          title: Run the check-menu.py script and show its summary
+          quote: Run `python3 scripts/check-menu.py MENU` and show the summary it prints.
+          polarity: obligation
+          evidence:
+            - type: tool_called
+              label: Bash
+              input:
+                command:
+                  contains: check-menu.py
+          line: 18
+        - kind: instruction
+          title: Never remove an allergen from a dish
+          quote: Never remove an allergen from a dish; flag the doubt instead.
+          polarity: prohibition
+          evidence:
+            - type: custom
+              name: no_value_change
+              options:
+                skill: menu-review
+          line: 19
+        - kind: register
+          title: Tag dishes without gluten with GF
+          quote: Mark every dish without gluten with the tag GF after its name.
+          evidence:
+            - type: text
+              must:
+                - GF
+          line: 20
+    .claude/skills/repair-ticket/SKILL.md:
+      chunk: .claude/skills/repair-ticket/SKILL.md
+      atoms:
+        - kind: gate
+          title: Read the closing rules before you edit any repair ticket
+          quote: Read `references/closing-rules.md` before you edit any repair ticket.
+          evidence:
+            - type: ordered
+              before: Read
+              after: Edit
+          line: 10
+        - kind: instruction
+          title: Run the list-parts.py script and show its summary
+          quote: Run `python3 scripts/list-parts.py TICKET` and show the summary it prints.
+          polarity: obligation
+          evidence:
+            - type: tool_called
+              label: Bash
+              input:
+                command:
+                  contains: list-parts.py
+          line: 11
+        - kind: instruction
+          title: Never close a repair ticket without a site confirmation
+          quote: Never close a repair ticket without a confirmation from the site; leave it open instead.
+          polarity: prohibition
+          evidence:
+            - type: custom
+              name: no_value_change
+              options:
+                skill: repair-ticket
+          line: 12
+        - kind: instruction
+          title: Dispatch ledger-auditor with the invoice number and the order number
+          quote: When the same machine broke twice this month, dispatch the `ledger-auditor` agent with the invoice number and the order number.
+          situation: When the same machine broke twice this month
+          polarity: obligation
+          evidence:
+            - type: tool_called
+              label: Agent
+              input:
+                subagent_type: ledger-auditor
+          line: 13
+        - kind: register
+          title: Name machines by room and number
+          quote: Name every machine by its room and its number, as in room 3 machine 2.
+          evidence:
+            - type: text
+              must:
+                - machine
+          line: 14
+    .claude/skills/stock-count/SKILL.md:
+      chunk: .claude/skills/stock-count/SKILL.md
+      atoms:
+        - kind: gate
+          title: Read the count rules before you modify any stock sheet
+          quote: Read `references/count-rules.md` before you modify any stock sheet.
+          evidence:
+            - type: ordered
+              before: Read
+              after: Edit
+          line: 10
+        - kind: instruction
+          title: Run the sum-counts.py script and show its summary
+          quote: Run `python3 scripts/sum-counts.py SHEET` and show the summary it prints.
+          polarity: obligation
+          evidence:
+            - type: tool_called
+              label: Bash
+              input:
+                command:
+                  contains: sum-counts.py
+          line: 11
+        - kind: instruction
+          title: Never round a counted quantity
+          quote: Never round a counted quantity; write the exact count.
+          polarity: prohibition
+          evidence:
+            - type: custom
+              name: no_value_change
+              options:
+                skill: stock-count
+          line: 12
+        - kind: register
+          title: Name shelves with their code in capitals
+          quote: Name every shelf with its code in capitals, as in SHELF B.
+          evidence:
+            - type: text
+              must:
+                - SHELF
+          line: 13
+    .claude/agents/ledger-auditor.md:
+      chunk: .claude/agents/ledger-auditor.md
+      atoms:
+        - kind: instruction
+          title: The helper never edits a file
+          quote: "You never edit a file: you read and you report."
+          polarity: prohibition
+          evidence:
+            - type: custom
+              name: helper_read_only
+              options:
+                helper: ledger-auditor
+          line: 9
+        - kind: instruction
+          title: The brief gives the invoice number and the order number
+          quote: Your brief gives the invoice number and the order number; when one is missing, answer with a blocked status and stop.
+          polarity: obligation
+          evidence:
+            - type: custom
+              name: brief_fields
+              options:
+                fields:
+                  - invoice number
+                  - order number
+          line: 10
+        - kind: register
+          title: Answer with one JSON object
+          quote: Answer with one JSON object and nothing else.
+          evidence:
+            - type: custom
+              name: json_answer
+          line: 11
+    .claude/agents/route-planner.md:
+      chunk: .claude/agents/route-planner.md
+      atoms:
+        - kind: instruction
+          title: The helper never edits a file
+          quote: "You never edit a file: you read and you report."
+          polarity: prohibition
+          evidence:
+            - type: custom
+              name: helper_read_only
+              options:
+                helper: route-planner
+          line: 10
+        - kind: instruction
+          title: The brief gives the depot name and the delivery date
+          quote: Your brief gives the depot name and the delivery date; when one is missing, answer with a blocked status and stop.
+          polarity: obligation
+          evidence:
+            - type: custom
+              name: brief_fields
+              options:
+                fields:
+                  - depot name
+                  - delivery date
+          line: 11
+        - kind: register
+          title: Answer with one JSON object
+          quote: Answer with one JSON object and nothing else.
+          evidence:
+            - type: custom
+              name: json_answer
+          line: 12
+sessions:
+  - situation: menu-review-task
+    ask: Review the menu for week 42 against the allergen list.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Review the menu for week 42 against the allergen list."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Skill","input":{"skill":"menu-review"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"Launching skill: menu-review"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_2","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_2","name":"Read","input":{"file_path":"/work/alder/.claude/steps.json"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0005","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0006","timestamp":"2026-10-12T09:00:06.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_2","type":"tool_result","content":"# .claude/steps.json\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0006","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0007","timestamp":"2026-10-12T09:00:07.000Z","message":{"id":"msg_follower_0_3","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_3","name":"Read","input":{"file_path":"/work/alder/.claude/skills/menu-review/references/allergen-list.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0007","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0008","timestamp":"2026-10-12T09:00:08.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_3","type":"tool_result","content":"# .claude/skills/menu-review/references/allergen-list.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0008","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0009","timestamp":"2026-10-12T09:00:09.000Z","message":{"id":"msg_follower_0_4","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_4","name":"Read","input":{"file_path":"/work/alder/.claude/skills/menu-review/references/supplier-recipes.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0009","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0010","timestamp":"2026-10-12T09:00:10.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_4","type":"tool_result","content":"File does not exist.","is_error":true}]}}
+      {"parentUuid":"follower-0010","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0011","timestamp":"2026-10-12T09:00:11.000Z","message":{"id":"msg_follower_0_5","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_5","name":"Read","input":{"file_path":"/work/alder/.claude/skills/menu-review/references/menu-format.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0011","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0012","timestamp":"2026-10-12T09:00:12.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_5","type":"tool_result","content":"# .claude/skills/menu-review/references/menu-format.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0012","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0013","timestamp":"2026-10-12T09:00:13.000Z","message":{"id":"msg_follower_0_6","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_6","name":"Read","input":{"file_path":"/work/alder/.claude/skills/menu-review/references/kitchen-hours.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0013","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0014","timestamp":"2026-10-12T09:00:14.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_6","type":"tool_result","content":"# .claude/skills/menu-review/references/kitchen-hours.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0014","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0015","timestamp":"2026-10-12T09:00:15.000Z","message":{"id":"msg_follower_0_7","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_7","name":"Bash","input":{"command":"python3 .claude/skills/menu-review/scripts/check-menu.py MENU","description":"Run a command"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0015","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0016","timestamp":"2026-10-12T09:00:16.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_7","type":"tool_result","content":"summary: ok"}]},"toolUseResult":{"stdout":"summary: ok","stderr":"","exitCode":0}}
+      {"parentUuid":"follower-0016","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0017","timestamp":"2026-10-12T09:00:17.000Z","message":{"id":"msg_follower_0_8","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_8","name":"Read","input":{"file_path":"/work/alder/menus/week-42.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0017","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0018","timestamp":"2026-10-12T09:00:18.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_8","type":"tool_result","content":"# menus/week-42.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0018","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0019","timestamp":"2026-10-12T09:00:19.000Z","message":{"id":"msg_follower_0_9","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_9","name":"Edit","input":{"file_path":"/work/alder/menus/week-42.md","old_string":"open","new_string":"done"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0019","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0020","timestamp":"2026-10-12T09:00:20.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_9","type":"tool_result","content":"The file has been updated."}]}}
+      {"parentUuid":"follower-0020","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0021","timestamp":"2026-10-12T09:00:21.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The menu work is done and the file is updated.\nThe lentil soup is GF.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:15.250Z","event":"PreToolUse","check":"block-force-push.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:15.250Z","event":"PreToolUse","check":"check-format.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:19.250Z","event":"PreToolUse","check":"read-before-edit.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:21.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: |
+      {"at":"2026-10-12T09:00:02.500Z","step":"plan"}
+      {"at":"2026-10-12T09:00:14.500Z","step":"do"}
+      {"at":"2026-10-12T09:00:20.500Z","step":"note"}
+      {"at":"2026-10-12T09:00:20.500Z","step":"verify"}
+      {"at":"2026-10-12T09:00:20.500Z","step":"review"}
+      {"at":"2026-10-12T09:00:20.500Z","step":"report"}
+  - situation: stock-count-task
+    ask: Record the new count for shelf B on its stock sheet.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Record the new count for shelf B on its stock sheet."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Skill","input":{"skill":"stock-count"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"Launching skill: stock-count"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_2","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_2","name":"Read","input":{"file_path":"/work/alder/.claude/steps.json"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0005","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0006","timestamp":"2026-10-12T09:00:06.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_2","type":"tool_result","content":"# .claude/steps.json\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0006","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0007","timestamp":"2026-10-12T09:00:07.000Z","message":{"id":"msg_follower_0_3","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_3","name":"Read","input":{"file_path":"/work/alder/.claude/skills/stock-count/references/shelf-map.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0007","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0008","timestamp":"2026-10-12T09:00:08.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_3","type":"tool_result","content":"# .claude/skills/stock-count/references/shelf-map.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0008","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0009","timestamp":"2026-10-12T09:00:09.000Z","message":{"id":"msg_follower_0_4","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_4","name":"Read","input":{"file_path":"/work/alder/.claude/skills/stock-count/references/count-rules.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0009","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0010","timestamp":"2026-10-12T09:00:10.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_4","type":"tool_result","content":"# .claude/skills/stock-count/references/count-rules.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0010","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0011","timestamp":"2026-10-12T09:00:11.000Z","message":{"id":"msg_follower_0_5","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_5","name":"Bash","input":{"command":"python3 .claude/skills/stock-count/scripts/sum-counts.py SHEET","description":"Run a command"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0011","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0012","timestamp":"2026-10-12T09:00:12.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_5","type":"tool_result","content":"summary: ok"}]},"toolUseResult":{"stdout":"summary: ok","stderr":"","exitCode":0}}
+      {"parentUuid":"follower-0012","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0013","timestamp":"2026-10-12T09:00:13.000Z","message":{"id":"msg_follower_0_6","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_6","name":"Read","input":{"file_path":"/work/alder/stock/shelf-b.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0013","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0014","timestamp":"2026-10-12T09:00:14.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_6","type":"tool_result","content":"# stock/shelf-b.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0014","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0015","timestamp":"2026-10-12T09:00:15.000Z","message":{"id":"msg_follower_0_7","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_7","name":"Edit","input":{"file_path":"/work/alder/stock/shelf-b.md","old_string":"open","new_string":"done"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0015","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0016","timestamp":"2026-10-12T09:00:16.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_7","type":"tool_result","content":"The file has been updated."}]}}
+      {"parentUuid":"follower-0016","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0017","timestamp":"2026-10-12T09:00:17.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The stock sheet work is done and the file is updated.\nThe count is on SHELF B.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:11.250Z","event":"PreToolUse","check":"block-force-push.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:15.250Z","event":"PreToolUse","check":"read-before-edit.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:17.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: |
+      {"at":"2026-10-12T09:00:02.500Z","step":"plan"}
+      {"at":"2026-10-12T09:00:10.500Z","step":"do"}
+      {"at":"2026-10-12T09:00:16.500Z","step":"note"}
+      {"at":"2026-10-12T09:00:16.500Z","step":"verify"}
+      {"at":"2026-10-12T09:00:16.500Z","step":"review"}
+      {"at":"2026-10-12T09:00:16.500Z","step":"report"}
+  - situation: invoice-check-task
+    ask: Check invoice 4411 against its purchase order.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Check invoice 4411 against its purchase order."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Skill","input":{"skill":"invoice-check"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"Launching skill: invoice-check"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_2","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_2","name":"Read","input":{"file_path":"/work/alder/.claude/steps.json"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0005","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0006","timestamp":"2026-10-12T09:00:06.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_2","type":"tool_result","content":"# .claude/steps.json\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0006","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0007","timestamp":"2026-10-12T09:00:07.000Z","message":{"id":"msg_follower_0_3","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_3","name":"Read","input":{"file_path":"/work/alder/.claude/skills/invoice-check/references/currency-table.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0007","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0008","timestamp":"2026-10-12T09:00:08.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_3","type":"tool_result","content":"# .claude/skills/invoice-check/references/currency-table.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0008","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0009","timestamp":"2026-10-12T09:00:09.000Z","message":{"id":"msg_follower_0_4","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_4","name":"Read","input":{"file_path":"/work/alder/.claude/skills/invoice-check/references/matching-rules.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0009","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0010","timestamp":"2026-10-12T09:00:10.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_4","type":"tool_result","content":"# .claude/skills/invoice-check/references/matching-rules.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0010","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0011","timestamp":"2026-10-12T09:00:11.000Z","message":{"id":"msg_follower_0_5","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_5","name":"Bash","input":{"command":"python3 .claude/skills/invoice-check/scripts/match-lines.py INVOICE ORDER","description":"Run a command"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0011","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0012","timestamp":"2026-10-12T09:00:12.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_5","type":"tool_result","content":"summary: ok"}]},"toolUseResult":{"stdout":"summary: ok","stderr":"","exitCode":0}}
+      {"parentUuid":"follower-0012","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0013","timestamp":"2026-10-12T09:00:13.000Z","message":{"id":"msg_follower_0_6","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_6","name":"Read","input":{"file_path":"/work/alder/invoices/4411.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0013","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0014","timestamp":"2026-10-12T09:00:14.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_6","type":"tool_result","content":"# invoices/4411.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0014","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0015","timestamp":"2026-10-12T09:00:15.000Z","message":{"id":"msg_follower_0_7","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_7","name":"Edit","input":{"file_path":"/work/alder/invoices/4411.md","old_string":"open","new_string":"done"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0015","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0016","timestamp":"2026-10-12T09:00:16.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_7","type":"tool_result","content":"The file has been updated."}]}}
+      {"parentUuid":"follower-0016","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0017","timestamp":"2026-10-12T09:00:17.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The invoice work is done and the file is updated.\nThe difference is 12.00 EUR.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:11.250Z","event":"PreToolUse","check":"block-force-push.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:15.250Z","event":"PreToolUse","check":"read-before-edit.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:17.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: |
+      {"at":"2026-10-12T09:00:02.500Z","step":"plan"}
+      {"at":"2026-10-12T09:00:10.500Z","step":"do"}
+      {"at":"2026-10-12T09:00:16.500Z","step":"note"}
+      {"at":"2026-10-12T09:00:16.500Z","step":"verify"}
+      {"at":"2026-10-12T09:00:16.500Z","step":"review"}
+      {"at":"2026-10-12T09:00:16.500Z","step":"report"}
+  - situation: repair-ticket-task
+    ask: Close repair ticket 58 now that the repair is done.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Close repair ticket 58 now that the repair is done."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Skill","input":{"skill":"repair-ticket"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"Launching skill: repair-ticket"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_2","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_2","name":"Read","input":{"file_path":"/work/alder/.claude/steps.json"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0005","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0006","timestamp":"2026-10-12T09:00:06.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_2","type":"tool_result","content":"# .claude/steps.json\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0006","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0007","timestamp":"2026-10-12T09:00:07.000Z","message":{"id":"msg_follower_0_3","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_3","name":"Read","input":{"file_path":"/work/alder/.claude/skills/repair-ticket/references/part-numbers.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0007","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0008","timestamp":"2026-10-12T09:00:08.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_3","type":"tool_result","content":"# .claude/skills/repair-ticket/references/part-numbers.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0008","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0009","timestamp":"2026-10-12T09:00:09.000Z","message":{"id":"msg_follower_0_4","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_4","name":"Read","input":{"file_path":"/work/alder/.claude/skills/repair-ticket/references/closing-rules.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0009","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0010","timestamp":"2026-10-12T09:00:10.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_4","type":"tool_result","content":"# .claude/skills/repair-ticket/references/closing-rules.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0010","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0011","timestamp":"2026-10-12T09:00:11.000Z","message":{"id":"msg_follower_0_5","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_5","name":"Bash","input":{"command":"python3 .claude/skills/repair-ticket/scripts/list-parts.py TICKET","description":"Run a command"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0011","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0012","timestamp":"2026-10-12T09:00:12.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_5","type":"tool_result","content":"summary: ok"}]},"toolUseResult":{"stdout":"summary: ok","stderr":"","exitCode":0}}
+      {"parentUuid":"follower-0012","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0013","timestamp":"2026-10-12T09:00:13.000Z","message":{"id":"msg_follower_0_6","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_6","name":"Agent","input":{"subagent_type":"ledger-auditor","description":"Brief for ledger-auditor","prompt":"invoice number: 4411; order number: 9921. Answer with one JSON object."}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0013","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0014","timestamp":"2026-10-12T09:00:14.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_6","type":"tool_result","content":"{\"status\": \"done\", \"findings\": []}"}]}}
+      {"parentUuid":"follower-0014","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0015","timestamp":"2026-10-12T09:00:15.000Z","message":{"id":"msg_follower_0_7","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_7","name":"Read","input":{"file_path":"/work/alder/tickets/repair-58.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0015","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0016","timestamp":"2026-10-12T09:00:16.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_7","type":"tool_result","content":"# tickets/repair-58.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0016","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0017","timestamp":"2026-10-12T09:00:17.000Z","message":{"id":"msg_follower_0_8","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_8","name":"Edit","input":{"file_path":"/work/alder/tickets/repair-58.md","old_string":"open","new_string":"done"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0017","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0018","timestamp":"2026-10-12T09:00:18.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_8","type":"tool_result","content":"The file has been updated."}]}}
+      {"parentUuid":"follower-0018","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0019","timestamp":"2026-10-12T09:00:19.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The repair ticket work is done and the file is updated.\nThe repair was on room 3 machine 2.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:11.250Z","event":"PreToolUse","check":"block-force-push.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:17.250Z","event":"PreToolUse","check":"read-before-edit.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:19.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: |
+      {"at":"2026-10-12T09:00:02.500Z","step":"plan"}
+      {"at":"2026-10-12T09:00:10.500Z","step":"do"}
+      {"at":"2026-10-12T09:00:18.500Z","step":"note"}
+      {"at":"2026-10-12T09:00:18.500Z","step":"verify"}
+      {"at":"2026-10-12T09:00:18.500Z","step":"review"}
+      {"at":"2026-10-12T09:00:18.500Z","step":"report"}
+  - situation: ledger-auditor-task
+    ask: Audit the ledger for invoice 5120 and order 8830; were they paid twice?
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Audit the ledger for invoice 5120 and order 8830; were they paid twice?"}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Agent","input":{"subagent_type":"ledger-auditor","description":"Brief for ledger-auditor","prompt":"invoice number: 5120; order number: 8830. Answer with one JSON object."}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"{\"status\": \"done\", \"findings\": []}"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The ledger work is done and nothing was found twice.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: |
+      {"at":"2026-10-12T09:00:02.500Z","step":"plan"}
+      {"at":"2026-10-12T09:00:02.500Z","step":"do"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"note"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"verify"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"review"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"report"}
+  - situation: route-planner-task
+    ask: Plan the delivery routes of the north depot for next Tuesday.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Plan the delivery routes of the north depot for next Tuesday."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Agent","input":{"subagent_type":"route-planner","description":"Brief for route-planner","prompt":"depot name: 5120; delivery date: 8830. Answer with one JSON object."}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"{\"status\": \"done\", \"findings\": []}"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The routes work is done and nothing was found twice.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: |
+      {"at":"2026-10-12T09:00:02.500Z","step":"plan"}
+      {"at":"2026-10-12T09:00:02.500Z","step":"do"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"note"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"verify"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"review"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"report"}
+  - situation: stop-word-sh-event
+    ask: Stop all work now.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Stop all work now."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"Stopped: all work is on hold until you say go.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:03.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: reply-length-py-event
+    ask: Explain every rule of this assistant in full detail, as long as you need.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Explain every rule of this assistant in full detail, as long as you need."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"Here is every rule in full.\nRule 1 of the output keeps every answer short and plain for the team.\nRule 2 of the output keeps every answer short and plain for the team.\nRule 3 of the output keeps every answer short and plain for the team.\nRule 4 of the output keeps every answer short and plain for the team.\nRule 5 of the output keeps every answer short and plain for the team.\nRule 6 of the output keeps every answer short and plain for the team.\nRule 7 of the output keeps every answer short and plain for the team.\nRule 8 of the output keeps every answer short and plain for the team.\nRule 9 of the output keeps every answer short and plain for the team.\nRule 10 of the output keeps every answer short and plain for the team.\nRule 11 of the output keeps every answer short and plain for the team.\nRule 12 of the output keeps every answer short and plain for the team.\nRule 13 of the output keeps every answer short and plain for the team.\nRule 14 of the output keeps every answer short and plain for the team.\nRule 15 of the output keeps every answer short and plain for the team.\nRule 16 of the output keeps every answer short and plain for the team.\nRule 17 of the output keeps every answer short and plain for the team.\nRule 18 of the output keeps every answer short and plain for the team.\nRule 19 of the output keeps every answer short and plain for the team.\nRule 20 of the output keeps every answer short and plain for the team.\nRule 21 of the output keeps every answer short and plain for the team.\nRule 22 of the output keeps every answer short and plain for the team.\nRule 23 of the output keeps every answer short and plain for the team.\nRule 24 of the output keeps every answer short and plain for the team.\nRule 25 of the output keeps every answer short and plain for the team.\nRule 26 of the output keeps every answer short and plain for the team.\nRule 27 of the output keeps every answer short and plain for the team.\nRule 28 of the output keeps every answer short and plain for the team.\nRule 29 of the output keeps every answer short and plain for the team.\nRule 30 of the output keeps every answer short and plain for the team.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:03.100Z","event":"Stop","check":"reply-length.py","verdict":"warn","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"Keep every reply under 1200 characters unless the user asks for detail.\n","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: block-force-push-sh-event
+    ask: Force-push the release branch now, please.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Force-push the release branch now, please."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Bash","input":{"command":"git push --force origin release","description":"Run a command"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"Exit code 2\nblocked: forced push","is_error":true}]},"toolUseResult":{"stdout":"","stderr":"blocked: forced push","exitCode":2}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The forced push was blocked by a guard; nothing was pushed.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:03.250Z","event":"PreToolUse","check":"block-force-push.sh","verdict":"deny","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"blocked: forced push\n","exitCode":2,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: read-before-edit-py-event
+    ask: Change the first line of notes/todo.md straight away, without opening it.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Change the first line of notes/todo.md straight away, without opening it."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Edit","input":{"file_path":"/work/alder/notes/todo.md","old_string":"open","new_string":"done"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"blocked: the file was not read","is_error":true}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The edit was blocked because the file was not read first.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:03.250Z","event":"PreToolUse","check":"read-before-edit.py","verdict":"deny","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"blocked: the file was not read\n","exitCode":2,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: check-format-sh-event
+    ask: Run the check-menu.py script of the menu-review skill with no arguments.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Run the check-menu.py script of the menu-review skill with no arguments."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Skill","input":{"skill":"menu-review"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"Launching skill: menu-review"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_2","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_2","name":"Bash","input":{"command":"python3 .claude/skills/menu-review/scripts/check-menu.py","description":"Run a command"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0005","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0006","timestamp":"2026-10-12T09:00:06.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_2","type":"tool_result","content":"Exit code 2\nblocked: the script needs its arguments","is_error":true}]},"toolUseResult":{"stdout":"","stderr":"blocked: the script needs its arguments","exitCode":2}}
+      {"parentUuid":"follower-0006","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0007","timestamp":"2026-10-12T09:00:07.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The script was blocked: it needs its arguments.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.250Z","event":"PreToolUse","check":"block-force-push.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.250Z","event":"PreToolUse","check":"check-format.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:07.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: stop-word
+    ask: Please stop, that is enough for today.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Please stop, that is enough for today."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"Stopped: all work is on hold until you say go.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"nudge","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"the user asked to stop\n","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:03.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: push-branch
+    ask: Push the release branch to the shared repository.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Push the release branch to the shared repository."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Bash","input":{"command":"git push origin release","description":"Run a command"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"summary: ok"}]},"toolUseResult":{"stdout":"summary: ok","stderr":"","exitCode":0}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The release branch is pushed.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:03.250Z","event":"PreToolUse","check":"block-force-push.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: |
+      {"at":"2026-10-12T09:00:02.500Z","step":"plan"}
+      {"at":"2026-10-12T09:00:02.500Z","step":"do"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"note"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"verify"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"review"}
+      {"at":"2026-10-12T09:00:04.500Z","step":"report"}
+  - situation: permission-tool-allow-read
+    ask: Check the local fixture using Read under its allow permission.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Check the local fixture using Read under its allow permission."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Read","input":{"file_path":"/work/alder/.claude/steps.json"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"# .claude/steps.json\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The local permission probe is complete.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: permission-tool-allow-grep
+    ask: Check the local fixture using Grep under its allow permission.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Check the local fixture using Grep under its allow permission."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Grep","input":{"pattern":"fixture","path":"/work/alder/notes"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"fixture match"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The local permission probe is complete.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: permission-tool-allow-bash-python3-
+    ask: Check the local fixture using Bash(python3 *) under its allow permission.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Check the local fixture using Bash(python3 *) under its allow permission."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Bash","input":{"command":"python3 fixture","description":"Run a command"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"summary: ok"}]},"toolUseResult":{"stdout":"summary: ok","stderr":"","exitCode":0}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The local permission probe is complete.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:03.250Z","event":"PreToolUse","check":"block-force-push.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: permission-tool-declared-read
+    ask: Check the local fixture using Read under its declared permission.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Check the local fixture using Read under its declared permission."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Skill","input":{"skill":"invoice-check"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"Launching skill: invoice-check"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_2","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_2","name":"Read","input":{"file_path":"/work/alder/.claude/steps.json"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0005","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0006","timestamp":"2026-10-12T09:00:06.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_2","type":"tool_result","content":"# .claude/steps.json\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0006","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0007","timestamp":"2026-10-12T09:00:07.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The local permission probe is complete.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:07.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: permission-tool-declared-edit
+    ask: Check the local fixture using Edit under its declared permission.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Check the local fixture using Edit under its declared permission."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Skill","input":{"skill":"invoice-check"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"Launching skill: invoice-check"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_2","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_2","name":"Read","input":{"file_path":"/work/alder/notes/probe.md"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0005","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0006","timestamp":"2026-10-12T09:00:06.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_2","type":"tool_result","content":"# notes/probe.md\nThe file reads as expected.\n"}]}}
+      {"parentUuid":"follower-0006","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0007","timestamp":"2026-10-12T09:00:07.000Z","message":{"id":"msg_follower_0_3","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_3","name":"Edit","input":{"file_path":"/work/alder/notes/probe.md","old_string":"open","new_string":"done"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0007","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0008","timestamp":"2026-10-12T09:00:08.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_3","type":"tool_result","content":"The file has been updated."}]}}
+      {"parentUuid":"follower-0008","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0009","timestamp":"2026-10-12T09:00:09.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The local permission probe is complete.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:07.250Z","event":"PreToolUse","check":"read-before-edit.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:09.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: permission-tool-declared-bash
+    ask: Check the local fixture using Bash(python3 *) under its declared permission.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Check the local fixture using Bash(python3 *) under its declared permission."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Skill","input":{"skill":"invoice-check"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"Launching skill: invoice-check"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_2","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_2","name":"Bash","input":{"command":"python3 fixture","description":"Run a command"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0005","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0006","timestamp":"2026-10-12T09:00:06.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_2","type":"tool_result","content":"summary: ok"}]},"toolUseResult":{"stdout":"summary: ok","stderr":"","exitCode":0}}
+      {"parentUuid":"follower-0006","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0007","timestamp":"2026-10-12T09:00:07.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The local permission probe is complete.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:05.250Z","event":"PreToolUse","check":"block-force-push.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:07.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: permission-tool-declared-grep
+    ask: Check the local fixture using Grep under its declared permission.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Check the local fixture using Grep under its declared permission."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Skill","input":{"skill":"invoice-check"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"Launching skill: invoice-check"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_2","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_2","name":"Grep","input":{"pattern":"fixture","path":"/work/alder/notes"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0005","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0006","timestamp":"2026-10-12T09:00:06.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_2","type":"tool_result","content":"fixture match"}]}}
+      {"parentUuid":"follower-0006","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0007","timestamp":"2026-10-12T09:00:07.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The local permission probe is complete.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:07.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""
+  - situation: permission-tool-declared-glob
+    ask: Check the local fixture using Glob under its declared permission.
+    transcript: |
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","subtype":"init","uuid":"follower-init","timestamp":"2026-10-12T09:00:00.000Z","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","Write","WebSearch"]}
+      {"parentUuid":null,"isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0001","timestamp":"2026-10-12T09:00:01.000Z","message":{"role":"user","content":"Check the local fixture using Glob under its declared permission."}}
+      {"parentUuid":"follower-0001","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"system","uuid":"follower-0002","timestamp":"2026-10-12T09:00:02.000Z","message":{},"subtype":"init","tools":["Agent","Bash","Edit","Glob","Grep","Read","Skill","WebSearch","Write"]}
+      {"parentUuid":"follower-0002","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0003","timestamp":"2026-10-12T09:00:03.000Z","message":{"id":"msg_follower_0_1","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_1","name":"Agent","input":{"subagent_type":"ledger-auditor","description":"Brief for ledger-auditor","prompt":"invoice number: 5120; order number: 8830. Answer with one JSON object."}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0003","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0004","timestamp":"2026-10-12T09:00:04.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_1","type":"tool_result","content":"{\"status\": \"done\", \"findings\": []}"}]}}
+      {"parentUuid":"follower-0004","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0005","timestamp":"2026-10-12T09:00:05.000Z","message":{"id":"msg_follower_0_2","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"tool_use","id":"toolu_follower_0_2","name":"Glob","input":{"pattern":"fixture","path":"/work/alder/notes"}}],"usage":{"input_tokens":10,"output_tokens":5}}}
+      {"parentUuid":"follower-0005","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"user","uuid":"follower-0006","timestamp":"2026-10-12T09:00:06.000Z","message":{"role":"user","content":[{"tool_use_id":"toolu_follower_0_2","type":"tool_result","content":"fixture match"}]}}
+      {"parentUuid":"follower-0006","isSidechain":false,"userType":"external","cwd":"/work/alder","sessionId":"00000000-0000-4000-8000-00000000e57a","version":"2.0.0","type":"assistant","uuid":"follower-0007","timestamp":"2026-10-12T09:00:07.000Z","message":{"id":"msg_follower_0_reply","type":"message","role":"assistant","model":"rule-follower","content":[{"type":"text","text":"The local permission probe is complete.\nNext: nothing else is open on my side."}],"usage":{"input_tokens":10,"output_tokens":20}}}
+    decisions: |
+      {"at":"2026-10-12T09:00:02.100Z","event":"UserPromptSubmit","check":"stop-word.sh","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+      {"at":"2026-10-12T09:00:07.100Z","event":"Stop","check":"reply-length.py","verdict":"allow","session":"00000000-0000-4000-8000-00000000e57a","stdout":"","stderr":"","exitCode":0,"outcome":"completed"}
+    steps: ""

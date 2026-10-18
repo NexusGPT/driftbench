@@ -1,0 +1,6 @@
+# A change manifest for driftbench radius. Fictional data only.
+# The model changed. Nothing says which blocks it leaves alone: the whole suite.
+from: acme-v1
+to: acme-v2
+changes:
+  - kind: model

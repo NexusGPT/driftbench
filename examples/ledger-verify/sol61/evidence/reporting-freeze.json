@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-13T14:57:53.768376+00:00",
+  "sourceHashes": {
+    "examples/ledger-verify/sol61/stats.py": "6869846fd60ebe8b8d7647b6406a41370ed00b26151138dcc973d44f2c8693d6",
+    "examples/ledger-verify/sol61/validate.py": "318788033919432919d1e3e9653fcc8f5769fe257a23ef046090463f77e00af5",
+    "examples/ledger-verify/sol61/summarize.py": "fa46bb25511f7bca9872859586a4cd0b0c7fffee52fbe5cb06d0961bfa8b8d46",
+    "examples/ledger-verify/sol61/output_limits.py": "9ae7583d1090faf61f633c51a641092b23333d0c30c245a433dccdecce32bed1",
+    "examples/ledger-verify/new-cell-trace.ts": "70fdd3349e1779f3294f10b03d90dc226fc0d24546ab16c38f4f299a41ebaa17"
+  },
+  "algorithmEquality": {
+    "stats.py": "all non-main function ASTs identical to original frozen source",
+    "validate.py": "all non-main function ASTs identical to original frozen source"
+  },
+  "nativeStopReasonAmendment": {
+    "at": "2026-10-13T17:42:49.517121+00:00",
+    "beforeTEST": true,
+    "rule": "Native stop_reason=max_tokens directly proves an output-limit hit, including native subtype=success with empty text. Same strict error rule for both contestants. Product-final unchanged.",
+    "previousHash": "5c1387e3fcf96b93710a378990af83b97dac82e971d4a8e39b97e6762dedd685"
+  }
+}

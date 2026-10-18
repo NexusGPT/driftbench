@@ -6,7 +6,7 @@ import {
   type Segment,
   type Stimulus,
   type ToolCall,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 
 /**
  * What the adapters share about a turn: the messages a stimulus delivers, the text of a turn, the check on

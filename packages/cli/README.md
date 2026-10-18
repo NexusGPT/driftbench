@@ -1,4 +1,4 @@
-# @driftbench/cli
+# @agent-nexus/driftbench
 
 The `driftbench` command line: validate and run specs, campaigns in teacher-forced, free-running and perturbed modes, reports, generation and validators.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install --save-dev @driftbench/cli
+npm install --save-dev @agent-nexus/driftbench
 npx driftbench --help
 ```
 
@@ -30,4 +30,4 @@ driftbench ci --specs specs/ --target function:my-agent --baseline <store>  # ex
 
 ## License
 
-Apache-2.0
+MIT

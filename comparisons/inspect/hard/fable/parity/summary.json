@@ -1,0 +1,509 @@
+{
+  "items": 20,
+  "agree": 19,
+  "disagree": 1,
+  "apiCostUsd": 0.0077198000000000015,
+  "cliCostUsd": 0.011266900000000003,
+  "rows": [
+    {
+      "id": "heldout-800001-qa-near-number-7-50",
+      "row": "qa",
+      "side": "ours",
+      "cli": "fail",
+      "api": "fail",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1647,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 262,
+        "output_tokens_details": {
+          "thinking_tokens": 86
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00042854000000000004,
+      "apiCostUsd": 0.0002957
+    },
+    {
+      "id": "heldout-800001-qa-near-number-5-75",
+      "row": "qa",
+      "side": "ours",
+      "cli": "fail",
+      "api": "fail",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1647,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 200,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00049954,
+      "apiCostUsd": 0.0002647
+    },
+    {
+      "id": "heldout-800002-qa-near-number-1-36",
+      "row": "qa",
+      "side": "ours",
+      "cli": "fail",
+      "api": "fail",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1647,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 241,
+        "output_tokens_details": {
+          "thinking_tokens": 65
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00045554000000000005,
+      "apiCostUsd": 0.0002852
+    },
+    {
+      "id": "heldout-800002-qa-near-number-3-72",
+      "row": "qa",
+      "side": "ours",
+      "cli": "inconclusive (invalid criterion ledger: the evidence quote is not in the s)",
+      "api": "fail",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1647,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 328,
+        "output_tokens_details": {
+          "thinking_tokens": 86
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00045154000000000006,
+      "apiCostUsd": 0.0003287
+    },
+    {
+      "id": "heldout-800001-qa-near-number-6-21",
+      "row": "qa",
+      "side": "ours",
+      "cli": "pass",
+      "api": "pass",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1647,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 241,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00045054000000000003,
+      "apiCostUsd": 0.0002852
+    },
+    {
+      "id": "heldout-800003-qa-near-number-7-12",
+      "row": "qa",
+      "side": "ours",
+      "cli": "fail",
+      "api": "fail",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1647,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 174,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00051254,
+      "apiCostUsd": 0.0002517
+    },
+    {
+      "id": "heldout-800002-qa-near-number-4-49",
+      "row": "qa",
+      "side": "ours",
+      "cli": "pass",
+      "api": "pass",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1647,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 230,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.0004485400000000001,
+      "apiCostUsd": 0.0002797
+    },
+    {
+      "id": "heldout-800003-qa-near-number-8-16",
+      "row": "qa",
+      "side": "ours",
+      "cli": "pass",
+      "api": "pass",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1647,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 236,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.0004525400000000001,
+      "apiCostUsd": 0.0002827
+    },
+    {
+      "id": "heldout-800001-qa-unit-7-45",
+      "row": "qa",
+      "side": "ours",
+      "cli": "fail",
+      "api": "fail",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1635,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 754,
+        "output_tokens_details": {
+          "thinking_tokens": 432
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00067914,
+      "apiCostUsd": 0.0005405
+    },
+    {
+      "id": "heldout-800003-qa-near-number-6-68",
+      "row": "qa",
+      "side": "ours",
+      "cli": "pass",
+      "api": "pass",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1647,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 225,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00046204000000000004,
+      "apiCostUsd": 0.0002772
+    },
+    {
+      "id": "heldout-810001-panel-care_redirect-9-23",
+      "row": "panel",
+      "side": "ours",
+      "cli": "fail",
+      "api": "fail",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 2819,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 594,
+        "output_tokens_details": {
+          "thinking_tokens": 348
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00089394,
+      "apiCostUsd": 0.0005789
+    },
+    {
+      "id": "heldout-810002-panel-care_redirect-5-50",
+      "row": "panel",
+      "side": "ours",
+      "cli": "fail",
+      "api": "fail",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1640,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 455,
+        "output_tokens_details": {
+          "thinking_tokens": 189
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00045914,
+      "apiCostUsd": 0.00039150000000000003
+    },
+    {
+      "id": "heldout-810003-panel-care_redirect-9-11",
+      "row": "panel",
+      "side": "ours",
+      "cli": "fail",
+      "api": "fail",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 2819,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 644,
+        "output_tokens_details": {
+          "thinking_tokens": 336
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00080394,
+      "apiCostUsd": 0.0006039
+    },
+    {
+      "id": "heldout-810004-panel-care_redirect-9-77",
+      "row": "panel",
+      "side": "ours",
+      "cli": "fail",
+      "api": "fail",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 2819,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 668,
+        "output_tokens_details": {
+          "thinking_tokens": 409
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00083894,
+      "apiCostUsd": 0.0006159
+    },
+    {
+      "id": "heldout-810005-panel-care_redirect-5-74",
+      "row": "panel",
+      "side": "ours",
+      "cli": "fail",
+      "api": "fail",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1640,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 365,
+        "output_tokens_details": {
+          "thinking_tokens": 125
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00055114,
+      "apiCostUsd": 0.0003465
+    },
+    {
+      "id": "heldout-810001-panel-care_redirect-8-17",
+      "row": "panel",
+      "side": "ours",
+      "cli": "pass",
+      "api": "pass",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1655,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 527,
+        "output_tokens_details": {
+          "thinking_tokens": 264
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.0007021400000000001,
+      "apiCostUsd": 0.000429
+    },
+    {
+      "id": "heldout-810005-panel-care_redirect-2-78",
+      "row": "panel",
+      "side": "ours",
+      "cli": "pass",
+      "api": "pass",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1650,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 520,
+        "output_tokens_details": {
+          "thinking_tokens": 188
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00047714000000000003,
+      "apiCostUsd": 0.00042500000000000003
+    },
+    {
+      "id": "heldout-810006-panel-care_redirect-4-41",
+      "row": "panel",
+      "side": "ours",
+      "cli": "pass",
+      "api": "pass",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1663,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 536,
+        "output_tokens_details": {
+          "thinking_tokens": 231
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00049974,
+      "apiCostUsd": 0.0004343
+    },
+    {
+      "id": "heldout-810007-panel-care_redirect-8-25",
+      "row": "panel",
+      "side": "ours",
+      "cli": "pass",
+      "api": "pass",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1655,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 486,
+        "output_tokens_details": {
+          "thinking_tokens": 146
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.0007161400000000001,
+      "apiCostUsd": 0.0004085
+    },
+    {
+      "id": "heldout-810009-panel-care_redirect-2-10",
+      "row": "panel",
+      "side": "ours",
+      "cli": "pass",
+      "api": "pass",
+      "stop_reason": "end_turn",
+      "usage": {
+        "input_tokens": 1650,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 460,
+        "output_tokens_details": {
+          "thinking_tokens": 198
+        },
+        "service_tier": "standard",
+        "inference_geo": "global"
+      },
+      "cliCostUsd": 0.00048414,
+      "apiCostUsd": 0.000395
+    }
+  ]
+}

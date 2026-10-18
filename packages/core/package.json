@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/core",
+  "name": "@agent-nexus/driftbench-core",
   "version": "0.1.0",
   "description": "The driftbench core: the spec schema, blocks with Given, When and Then, the runner, the adapter contract and coverage.",
   "keywords": [
@@ -22,7 +22,7 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/core"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -36,12 +36,15 @@
     }
   },
   "files": [
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
     "dist"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
+    "@agent-nexus/driftbench-stats": "workspace:*",
     "yaml": "^2.9.1",
     "zod": "^4.6.5"
   },

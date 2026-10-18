@@ -1,0 +1,332 @@
+
+> driftbench-monorepo@ lint /Users/assem/Documents/GitHub/driftbench/.worktrees/codex-pairwise
+> biome check .
+
+comparisons/deepeval/judge/render.mts:15:60 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+
+    13 │ const crit = (f: string, dir = 'examples/criteria') =>
+    14 │   yaml.parse(readFileSync(join(root, dir, f), 'utf8')).criterion;
+  > 15 │ const ds = (n: string) => JSON.parse(readFileSync(join(DS, n + '.json'), 'utf8'));
+       │                                                            ^^^^^^^^^^^
+    16 │ const ASK = 'Hello, what can you help me with?';
+    17 │ const CONTEXTS = [
+
+  i Unsafe fix: Use a template literal.
+
+     13  13 │   const crit = (f: string, dir = 'examples/criteria') =>
+     14  14 │     yaml.parse(readFileSync(join(root, dir, f), 'utf8')).criterion;
+     15     │ - const·ds·=·(n:·string)·=>·JSON.parse(readFileSync(join(DS,·n·+·'.json'),·'utf8'));
+         15 │ + const·ds·=·(n:·string)·=>·JSON.parse(readFileSync(join(DS,·`${n}.json`),·'utf8'));
+     16  16 │   const ASK = 'Hello, what can you help me with?';
+     17  17 │   const CONTEXTS = [
+
+
+comparisons/deepeval/judge/render.mts:42:27 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+
+    40 │ const cV = crit('relevancy-vague.yaml', 'comparisons/deepeval/criteria');
+    41 │ for (const r of ds('relevancy-hard2'))
+  > 42 │   push('relevancy-hard2', 'p2-' + r.id, cR, [
+       │                           ^^^^^^^^^^^^
+    43 │     { role: 'user', text: r.ask },
+    44 │     { role: 'agent', text: r.reply },
+
+  i Unsafe fix: Use a template literal.
+
+     40  40 │   const cV = crit('relevancy-vague.yaml', 'comparisons/deepeval/criteria');
+     41  41 │   for (const r of ds('relevancy-hard2'))
+     42     │ - ··push('relevancy-hard2',·'p2-'·+·r.id,·cR,·[
+         42 │ + ··push('relevancy-hard2',·`p2-${r.id}`,·cR,·[
+     43  43 │       { role: 'user', text: r.ask },
+     44  44 │       { role: 'agent', text: r.reply },
+
+
+comparisons/deepeval/judge/render.mts:47:33 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+
+    45 │   ]);
+    46 │ for (const r of ds('relevancy-hard2'))
+  > 47 │   push('relevancy-hard2-vague', 'vague-' + r.id, cV, [
+       │                                 ^^^^^^^^^^^^^^^
+    48 │     { role: 'user', text: r.ask },
+    49 │     { role: 'agent', text: r.reply },
+
+  i Unsafe fix: Use a template literal.
+
+     45  45 │     ]);
+     46  46 │   for (const r of ds('relevancy-hard2'))
+     47     │ - ··push('relevancy-hard2-vague',·'vague-'·+·r.id,·cV,·[
+         47 │ + ··push('relevancy-hard2-vague',·`vague-${r.id}`,·cV,·[
+     48  48 │       { role: 'user', text: r.ask },
+     49  49 │       { role: 'agent', text: r.reply },
+
+
+comparisons/langwatch/hard/criteria-v2.mts:55:7 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+
+    53 │     writeFileSync(
+    54 │       join(here, 'recorded', `${long ? 'longtrace-v2' : 'adapter-v2'}-${variant}.json`),
+  > 55 │       JSON.stringify(
+       │       ^^^^^^^^^^^^^^^
+  > 56 │         {
+        ...
+  > 71 │         2,
+  > 72 │       ) + '\n',
+       │       ^^^^^^^^
+    73 │     );
+    74 │   try {
+
+  i Unsafe fix: Use a template literal.
+
+     53  53 │       writeFileSync(
+     54  54 │         join(here, 'recorded', `${long ? 'longtrace-v2' : 'adapter-v2'}-${variant}.json`),
+     55     │ - ······JSON.stringify(
+         55 │ + ······`${JSON.stringify(
+     56  56 │           {
+     57  57 │             variant,
+    ······· │
+     70  70 │           null,
+     71  71 │           2,
+     72     │ - ······)·+·'\n',
+         72 │ + ······)}\n`,
+     73  73 │       );
+     74  74 │     try {
+
+
+comparisons/langwatch/hard/freeze-compliance.mts:35:58 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+
+    33 │ };
+    34 │ if (process.argv.includes('--dry-run')) console.log(JSON.stringify(manifest));
+  > 35 │ else writeFileSync(join(here, 'compliance-freeze.json'), JSON.stringify(manifest, null, 2) + '\n');
+       │                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    36 │
+
+  i Unsafe fix: Use a template literal.
+
+    33 33 │   };
+    34 34 │   if (process.argv.includes('--dry-run')) console.log(JSON.stringify(manifest));
+    35    │ - else·writeFileSync(join(here,·'compliance-freeze.json'),·JSON.stringify(manifest,·null,·2)·+·'\n');
+       35 │ + else·writeFileSync(join(here,·'compliance-freeze.json'),·`${JSON.stringify(manifest,·null,·2)}\n`);
+    36 36 │
+
+
+comparisons/langwatch/hard/parallel-last.mts:28:23 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+
+    26 │       'Lead authorized six simultaneous calls and doubled cap after 23 cases; frozen input/procedure bytes unchanged',
+    27 │   };
+  > 28 │   writeFileSync(file, JSON.stringify(record, null, 2) + '\n');
+       │                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    29 │ };
+    30 │ async function worker() {
+
+  i Unsafe fix: Use a template literal.
+
+    26 26 │         'Lead authorized six simultaneous calls and doubled cap after 23 cases; frozen input/procedure bytes unchanged',
+    27 27 │     };
+    28    │ - ··writeFileSync(file,·JSON.stringify(record,·null,·2)·+·'\n');
+       28 │ + ··writeFileSync(file,·`${JSON.stringify(record,·null,·2)}\n`);
+    29 29 │   };
+    30 30 │   async function worker() {
+
+
+comparisons/deepeval/judge/ours-prompts.json check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! The size of the file is 2.0 MiB, which exceeds the configured maximum of 1.0 MiB for this project.
+    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+
+
+comparisons/deepeval/judge/render.mts:11:105 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+
+     9 │ const here = dirname(fileURLToPath(import.meta.url));
+    10 │ const root = resolve(here, '../../..');
+  > 11 │ const yaml = createRequire(join(root, 'packages/core/package.json'))('yaml') as { parse: (s: string) => any };
+       │                                                                                                         ^^^
+    12 │ const DS = join(here, '..', 'datasets');
+    13 │ const crit = (f: string, dir = 'examples/criteria') =>
+
+  i any disables many type checking rules. Its use should be avoided.
+
+
+comparisons/deepeval/judge/render.mts:25:51 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+
+    23 │ ];
+    24 │ const out: { id: string; set: string; system: string; user: string }[] = [];
+  > 25 │ const push = (set: string, id: string, criterion: any, transcript: any[], extra: any = {}) => {
+       │                                                   ^^^
+    26 │   const p = buildPrompt({ criterion, transcript, ...extra } as never);
+    27 │   out.push({ id, set, system: p.system, user: p.user });
+
+  i any disables many type checking rules. Its use should be avoided.
+
+
+comparisons/deepeval/judge/render.mts:25:68 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+
+    23 │ ];
+    24 │ const out: { id: string; set: string; system: string; user: string }[] = [];
+  > 25 │ const push = (set: string, id: string, criterion: any, transcript: any[], extra: any = {}) => {
+       │                                                                    ^^^
+    26 │   const p = buildPrompt({ criterion, transcript, ...extra } as never);
+    27 │   out.push({ id, set, system: p.system, user: p.user });
+
+  i any disables many type checking rules. Its use should be avoided.
+
+
+comparisons/deepeval/judge/render.mts:25:82 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+
+    23 │ ];
+    24 │ const out: { id: string; set: string; system: string; user: string }[] = [];
+  > 25 │ const push = (set: string, id: string, criterion: any, transcript: any[], extra: any = {}) => {
+       │                                                                                  ^^^
+    26 │   const p = buildPrompt({ criterion, transcript, ...extra } as never);
+    27 │   out.push({ id, set, system: p.system, user: p.user });
+
+  i any disables many type checking rules. Its use should be avoided.
+
+
+comparisons/deepeval/judge/render.mts:63:25 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+
+    61 │     r.id,
+    62 │     cC,
+  > 63 │     r.turns.flatMap((x: any) => [
+       │                         ^^^
+    64 │       { role: 'user', text: x.ask },
+    65 │       { role: 'agent', text: x.reply },
+
+  i any disables many type checking rules. Its use should be avoided.
+
+
+comparisons/deepeval/judge/render.mts:74:25 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+
+    72 │     r.id,
+    73 │     cD,
+  > 74 │     r.turns.flatMap((x: any) => [
+       │                         ^^^
+    75 │       { role: 'user', text: x.ask },
+    76 │       { role: 'agent', text: x.reply },
+
+  i any disables many type checking rules. Its use should be avoided.
+
+
+comparisons/deepeval/tools/tools_ours.mts:5:25 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+
+  ! Several of these imports are unused.
+
+    3 │ // Writes comparisons/deepeval/results/tools-ours.json.
+    4 │ import { readFileSync, writeFileSync } from 'node:fs';
+  > 5 │ import { dirname, join, resolve } from 'node:path';
+      │                         ^^^^^^^
+    6 │ import { fileURLToPath } from 'node:url';
+    7 │ import { forbidden } from '../../../packages/checks/src/checks/forbidden.ts';
+
+  i Unused imports might be the result of an incomplete refactoring.
+
+  i Unsafe fix: Remove the unused imports.
+
+    5 │ import·{·dirname,·join,·resolve·}·from·'node:path';
+      │                         --------
+
+comparisons/langwatch/hard/extras-batch.mts:3:26 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+
+  ! Several of these imports are unused.
+
+    1 │ import { spawn } from 'node:child_process';
+    2 │ import { createHash } from 'node:crypto';
+  > 3 │ import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+      │                          ^^^^^^^^^^
+    4 │ import { join } from 'node:path';
+    5 │ import { here } from './runner.mts';
+
+  i Unused imports might be the result of an incomplete refactoring.
+
+  i Unsafe fix: Remove the unused imports.
+
+    3 │ import·{·appendFileSync,·existsSync,·readFileSync·}·from·'node:fs';
+      │                          ------------
+
+comparisons/langwatch/hard/freeze-compliance.mts:15:23 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+
+    13 │   ...JSON.parse(read('judges-heldout-v4.json').toString()),
+    14 │ ];
+  > 15 │ const signature = (c: any) => JSON.stringify([c.scenario, c.criteria, c.transcript]);
+       │                       ^^^
+    16 │ assert.equal(fresh.length, 60);
+    17 │ assert.equal(fresh.filter((c: any) => old.some((o: any) => signature(c) === signature(o))).length, 0);
+
+  i any disables many type checking rules. Its use should be avoided.
+
+
+comparisons/langwatch/hard/freeze-compliance.mts:17:31 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+
+    15 │ const signature = (c: any) => JSON.stringify([c.scenario, c.criteria, c.transcript]);
+    16 │ assert.equal(fresh.length, 60);
+  > 17 │ assert.equal(fresh.filter((c: any) => old.some((o: any) => signature(c) === signature(o))).length, 0);
+       │                               ^^^
+    18 │ const manifest = {
+    19 │   createdAt: new Date().toISOString(),
+
+  i any disables many type checking rules. Its use should be avoided.
+
+
+comparisons/langwatch/hard/freeze-compliance.mts:17:52 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+
+    15 │ const signature = (c: any) => JSON.stringify([c.scenario, c.criteria, c.transcript]);
+    16 │ assert.equal(fresh.length, 60);
+  > 17 │ assert.equal(fresh.filter((c: any) => old.some((o: any) => signature(c) === signature(o))).length, 0);
+       │                                                    ^^^
+    18 │ const manifest = {
+    19 │   createdAt: new Date().toISOString(),
+
+  i any disables many type checking rules. Its use should be avoided.
+
+
+comparisons/langwatch/hard/longtrace-v2/hard.json check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! The size of the file is 4.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.
+    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+
+
+comparisons/langwatch/hard/longtrace/hard.json check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! The size of the file is 2.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.
+    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 11.
+Checked 1413 files in 1599ms. No fixes applied.
+Found 1 error.
+Found 18 warnings.
+Found 12 infos.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+
+
+ ELIFECYCLE  Command failed with exit code 1.

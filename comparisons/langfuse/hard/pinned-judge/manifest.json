@@ -1,0 +1,53 @@
+{
+  "commit": "8195902dd20c84267f85feba268c17868e00dfbe",
+  "sources": {
+    "packages/judges/src/prompt.ts": {
+      "file": "prompt.ts.txt",
+      "sha256": "e8cf6fee79af172c82a3c77ea6f53b3ece1a228c1be9f8aeed47ebceb19b9882"
+    },
+    "packages/judges/src/contract.ts": {
+      "file": "contract.ts.txt",
+      "sha256": "0f55a6cf4a9e98a76f1d563f4cb99b1a9f9f6fb2a92466308b5ae3a9a302d22c"
+    },
+    "packages/judges/src/criterion-ledger.ts": {
+      "file": "criterion-ledger.ts.txt",
+      "sha256": "ddf3123291029ca6a0d702e333369418595d68cf3c6c218670089aaa9d2d554c"
+    },
+    "packages/judges/src/assessment.ts": {
+      "file": "assessment.ts.txt",
+      "sha256": "2938653c1b490c1d6d1c3a32905d27fe31c6c1651887199d0354f7a09fd5e7ae"
+    },
+    "packages/judges/src/evidence.ts": {
+      "file": "evidence.ts.txt",
+      "sha256": "9ccc828ddb081b9bebd2052191c2271d98203d282ee1edb28fac4d250237db5f"
+    },
+    "packages/judges/src/transcript.ts": {
+      "file": "transcript.ts.txt",
+      "sha256": "5c709a63d0f000a6f531f8b4868aa334a6ff4fd1cdfcc79a66fb868c8a6c146d"
+    },
+    "packages/judges/src/fact-audit.ts": {
+      "file": "fact-audit.ts.txt",
+      "sha256": "0350f51e7c8764ea592d70efcae93952fcc2d9b15981b9c29eb893992c9958dc"
+    },
+    "packages/judges/src/legacy-prompt.ts": {
+      "file": "legacy-prompt.ts.txt",
+      "sha256": "54d4c5ef8a9a487d383c32896243ecadfe8422993db6a9effb240793c8dc683f"
+    },
+    "packages/judges/src/legacy-contract.ts": {
+      "file": "legacy-contract.ts.txt",
+      "sha256": "f6a53f8f5609b3c0c21ed707e6c97fcf7680af7b43dc4e7ec849be5219f59b43"
+    },
+    "packages/core/src/spec/hash.ts": {
+      "file": "hash.ts.txt",
+      "sha256": "08ef6c9e5965ad2d5e3e4680a26b281a0200e3e69c5ffd6accdc0223dd675f4d"
+    },
+    "comparisons/langfuse/hard/pr115.mts": {
+      "file": "pr115.mts.txt",
+      "sha256": "fc773ba4714763afd087a0c69eef29574c15b5f7dcf187011db8aab80c036682"
+    },
+    "comparisons/langfuse/hard/pr115-run.py": {
+      "file": "pr115-run.py.txt",
+      "sha256": "f8ba73906df14f22a69e85065c0a3d5985079ef4ecd48bc4898e1fb1e3d7d534"
+    }
+  }
+}

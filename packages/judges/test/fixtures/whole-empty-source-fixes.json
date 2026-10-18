@@ -1,0 +1,7 @@
+{
+  "bench-archived/hard-goal/haiku": ["goal.005", "goal.012", "goal.022", "goal.094"],
+  "bench-current/hard-goal/haiku": ["goal.005", "goal.012", "goal.022", "goal.080", "goal.094"],
+  "bench-current/hard-goal/gpt-6-luna": ["goal.005", "goal.012", "goal.022", "goal.080", "goal.094"],
+  "bench-current/heldout-goal/haiku": ["heldout-goal.015", "heldout-goal.038", "heldout-goal.048"],
+  "bench-current/heldout-goal/gpt-6-luna": ["heldout-goal.015", "heldout-goal.038", "heldout-goal.048"]
+}

@@ -1,0 +1,3 @@
+{"type":"assistant","message":{"id":"msg_ow_1","type":"message","role":"assistant","model":"fake-model","content":[{"type":"tool_use","id":"toolu_ow_01","name":"Write","input":{"file_path":"{{home}}/.claude/settings.json","content":"{ \"verbose\": true }\n"}}],"usage":{"input_tokens":140,"output_tokens":30}},"parent_tool_use_id":null}
+{"fake":"write_abs","path":"{{home}}/.claude/settings.json","content":"{ \"verbose\": true }\n","tool_use_id":"toolu_ow_01"}
+{"type":"assistant","message":{"id":"msg_ow_2","type":"message","role":"assistant","model":"fake-model","content":[{"type":"text","text":"I tried to turn on verbose mode in your user settings."}],"usage":{"input_tokens":160,"output_tokens":20}},"parent_tool_use_id":null}

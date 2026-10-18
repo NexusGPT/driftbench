@@ -1,6 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import type { Message, WorldState } from '@driftbench/core';
+import type { Message, WorldState } from '@agent-nexus/driftbench-core';
 import { type AcmeStore, createAcmeAgent, createStore } from '../../../../../examples/acme/src/index';
 import type { ChatMessage } from '../../../src/http/index';
 

@@ -1,6 +1,14 @@
-import type { RunMode, RunResult, Spec } from '@driftbench/core';
-import { quantile, repeatsForFloor, sampleVariance, Z95 } from '@driftbench/stats';
-import { blocksWithSpec, type CampaignData, groupBy, lineKey, runPassed, specOfRun } from './data';
+import { blockStatus, isScored, type RunMode, type RunResult, type Spec } from '@agent-nexus/driftbench-core';
+import { quantile, repeatsForFloor, sampleVariance, Z95 } from '@agent-nexus/driftbench-stats';
+import {
+  blocksWithSpec,
+  type CampaignData,
+  groupBy,
+  lineKey,
+  runPassed,
+  scoredRuns,
+  specOfRun,
+} from './data';
 import { clustered, type Estimate, type Rate, rate } from './estimate';
 
 export type SpreadOptions = {
@@ -62,6 +70,8 @@ export type Spread = {
   source: 'pilot' | 'generated' | 'spec';
   by: string[];
   margin: number;
+  /** Runs of the mode left out as no measurement (a block not run or blocked, no failure). Absent when 0. */
+  unscored?: number;
   cells: CellSpread[];
   /** Quantiles of the cell rates. */
   quantiles?: { min: number; p10: number; p25: number; p50: number; p75: number; p90: number; max: number };
@@ -109,7 +119,9 @@ function record(value: unknown): Record<string, unknown> | undefined {
 export function spread(data: CampaignData, options: SpreadOptions): Spread {
   const modes = [...new Set(data.runs.map((run) => run.mode))];
   const mode = options.mode ?? (modes.includes('F') ? 'F' : (modes[0] ?? 'F'));
-  const runs = data.runs.filter((run) => run.mode === mode);
+  // A run neither passed nor failed (a block not run or blocked) is no measurement: it is left out.
+  const runs = scoredRuns(data.runs).filter((run) => run.mode === mode);
+  const unscored = data.runs.filter((run) => run.mode === mode).length - runs.length;
   const threshold = options.wordingThreshold ?? 0.2;
   const factors = new Map(runs.map((run) => [run, factorsOf(specOfRun(data, run), run.specId, options.by)]));
   const sources = new Set([...factors.values()].map((entry) => entry.source));
@@ -121,7 +133,7 @@ export function spread(data: CampaignData, options: SpreadOptions): Spread {
 
   const reference = new Map<string, number>();
   if (options.baseline) {
-    const baselineRuns = options.baseline.runs.filter((run) => run.mode === mode);
+    const baselineRuns = scoredRuns(options.baseline.runs).filter((run) => run.mode === mode);
     const byCell = groupBy(
       baselineRuns,
       (run) => factorsOf(specOfRun(options.baseline as CampaignData, run), run.specId, options.by).cell,
@@ -169,6 +181,7 @@ export function spread(data: CampaignData, options: SpreadOptions): Spread {
   const noise = noiseOf(data, runs);
   return {
     mode,
+    ...(unscored > 0 ? { unscored } : {}),
     source,
     by: source === 'generated' ? byOf(data, runs, options.by) : [],
     margin: options.margin,
@@ -271,9 +284,9 @@ function noiseOf(data: CampaignData, runs: readonly RunResult[]): NoiseFloor | u
     const byBlock = new Map<number, Set<boolean>>();
     for (const run of group) {
       for (const { result, specBlock } of blocksWithSpec(run, specOfRun(data, run))) {
-        if (specBlock === undefined) continue;
+        if (specBlock === undefined || !isScored(result)) continue;
         const seen = byBlock.get(specBlock) ?? new Set<boolean>();
-        seen.add(result.pass);
+        seen.add(blockStatus(result) === 'pass');
         byBlock.set(specBlock, seen);
       }
     }

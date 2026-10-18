@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { loadCassette, requestKey } from '@driftbench/judges';
+import { loadCassette, requestKey } from '@agent-nexus/driftbench-judges';
 import { describe, expect, it } from 'vitest';
 import { cassetteFile, cassetteText, PERSONAS, recordCassettes, requestsToRecord } from './record';
 
@@ -37,6 +37,6 @@ describe('the scripted judge cassettes', () => {
 
   it('key every request by what the judge reads', async () => {
     const [first] = await requestsToRecord(ROOT);
-    expect(first && requestKey(first.request)).toBe(first?.key);
+    expect(first && requestKey(first.request, { cls: 'system1' })).toBe(first?.key);
   });
 });

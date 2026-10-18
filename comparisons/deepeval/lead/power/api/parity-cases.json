@@ -1,0 +1,782 @@
+[
+  {
+    "id": "power/knowledge-known-vs-new-21-b",
+    "pair": "known-vs-new-21",
+    "kind": "known-vs-new",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 3424",
+      "email": "mira3424@example.invalid",
+      "address": "548 Lantern Lane, Fiction Bay",
+      "budget": 144,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 3424 is asking about Acme Cedar 3424.\nMy name is Mira Vale 3424; my email is mira3424@example.invalid; I live at 548 Lantern Lane, Fiction Bay. My monthly budget is 144 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "What postal address should we deliver to? I have your preferred delivery time already."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-known-vs-new-21-b",
+    "source": "power"
+  },
+  {
+    "id": "power/knowledge-fluent-reask-12-b",
+    "pair": "fluent-reask-12",
+    "kind": "fluent-reask",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 4147",
+      "email": "mira4147@example.invalid",
+      "address": "735 Lantern Lane, Fiction Bay",
+      "budget": 59,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 4147 is asking about Acme Cedar 4147.\nMy name is Mira Vale 4147; my email is mira4147@example.invalid; I live at 735 Lantern Lane, Fiction Bay. My monthly budget is 59 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "We value careful records and smooth service. Before proceeding, please supply your email address so the team can send the confirmation."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-fluent-reask-12-b",
+    "source": "power"
+  },
+  {
+    "id": "power/knowledge-long-distractors-34-a",
+    "pair": "long-distractors-34",
+    "kind": "long-distractors",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 9040",
+      "email": "mira9040@example.invalid",
+      "address": "301 Lantern Lane, Fiction Bay",
+      "budget": 154,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 9040 is asking about Acme Cedar 9040.\nMy name is Mira Vale 9040; my email is mira9040@example.invalid; I live at 301 Lantern Lane, Fiction Bay. My monthly budget is 154 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "Archive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan. The confirmation will go to mira9040@example.invalid."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-long-distractors-34-a",
+    "source": "power"
+  },
+  {
+    "id": "power/knowledge-mixed-language-49-a",
+    "pair": "mixed-language-49",
+    "kind": "mixed-language",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 5387",
+      "email": "mira5387@example.invalid",
+      "address": "795 Lantern Lane, Fiction Bay",
+      "budget": 111,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 5387 is asking about Acme Cedar 5387.\nMy name is Mira Vale 5387; my email is mira5387@example.invalid; I live at 795 Lantern Lane, Fiction Bay. My monthly budget is 111 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "Le reçu sera envoyé à mira5387@example.invalid; je ne vous téléphonerai pas."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-mixed-language-49-a",
+    "source": "power"
+  },
+  {
+    "id": "power/knowledge-fluent-reask-48-a",
+    "pair": "fluent-reask-48",
+    "kind": "fluent-reask",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 3029",
+      "email": "mira3029@example.invalid",
+      "address": "829 Lantern Lane, Fiction Bay",
+      "budget": 93,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 3029 is asking about Acme Cedar 3029.\nMy name is Mira Vale 3029; my email is mira3029@example.invalid; I live at 829 Lantern Lane, Fiction Bay. My monthly budget is 93 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "I have saved mira3029@example.invalid; thanks for sharing it. Which plan do you want?"
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-fluent-reask-48-a",
+    "source": "power"
+  },
+  {
+    "id": "power/knowledge-long-distractors-27-a",
+    "pair": "long-distractors-27",
+    "kind": "long-distractors",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 4796",
+      "email": "mira4796@example.invalid",
+      "address": "274 Lantern Lane, Fiction Bay",
+      "budget": 112,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 4796 is asking about Acme Cedar 4796.\nMy name is Mira Vale 4796; my email is mira4796@example.invalid; I live at 274 Lantern Lane, Fiction Bay. My monthly budget is 112 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "Archive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan. The confirmation will go to mira4796@example.invalid."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-long-distractors-27-a",
+    "source": "power"
+  },
+  {
+    "id": "power/knowledge-reask-address-2-a",
+    "pair": "reask-address-2",
+    "kind": "reask-address",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 8686",
+      "email": "mira8686@example.invalid",
+      "address": "134 Lantern Lane, Fiction Bay",
+      "budget": 164,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 8686 is asking about Acme Cedar 8686.\nMy name is Mira Vale 8686; my email is mira8686@example.invalid; I live at 134 Lantern Lane, Fiction Bay. My monthly budget is 164 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "I have your address. Which delivery time works?"
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-reask-address-2-a",
+    "source": "power"
+  },
+  {
+    "id": "pilot/knowledge-known-vs-new-19-a",
+    "pair": "known-vs-new-19",
+    "kind": "known-vs-new",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 4634",
+      "email": "mira4634@example.invalid",
+      "address": "930 Lantern Lane, Fiction Bay",
+      "budget": 149,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 4634 is asking about Acme Cedar 4634.\nMy name is Mira Vale 4634; my email is mira4634@example.invalid; I live at 930 Lantern Lane, Fiction Bay. My monthly budget is 149 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "What delivery time suits you? I have your postal address already."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-known-vs-new-19-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-correct-use-18-b",
+    "pair": "correct-use-18",
+    "kind": "correct-use",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 6313",
+      "email": "mira6313@example.invalid",
+      "address": "267 Lantern Lane, Fiction Bay",
+      "budget": 75,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 6313 is asking about Acme Cedar 6313.\nMy name is Mira Vale 6313; my email is mira6313@example.invalid; I live at 267 Lantern Lane, Fiction Bay. My monthly budget is 75 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "The receipt goes to mira.other@example.invalid, Mira Vale 6313."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-correct-use-18-b",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-mixed-language-12-a",
+    "pair": "mixed-language-12",
+    "kind": "mixed-language",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 9574",
+      "email": "mira9574@example.invalid",
+      "address": "397 Lantern Lane, Fiction Bay",
+      "budget": 58,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 9574 is asking about Acme Cedar 9574.\nMy name is Mira Vale 9574; my email is mira9574@example.invalid; I live at 397 Lantern Lane, Fiction Bay. My monthly budget is 58 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "Le reçu sera envoyé à mira9574@example.invalid; je ne vous téléphonerai pas."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-mixed-language-12-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-fluent-reask-16-b",
+    "pair": "fluent-reask-16",
+    "kind": "fluent-reask",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 5200",
+      "email": "mira5200@example.invalid",
+      "address": "449 Lantern Lane, Fiction Bay",
+      "budget": 177,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 5200 is asking about Acme Cedar 5200.\nMy name is Mira Vale 5200; my email is mira5200@example.invalid; I live at 449 Lantern Lane, Fiction Bay. My monthly budget is 177 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "We value careful records and smooth service. Before proceeding, please supply your email address so the team can send the confirmation."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-fluent-reask-16-b",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-mixed-language-19-a",
+    "pair": "mixed-language-19",
+    "kind": "mixed-language",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 4634",
+      "email": "mira4634@example.invalid",
+      "address": "930 Lantern Lane, Fiction Bay",
+      "budget": 149,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 4634 is asking about Acme Cedar 4634.\nMy name is Mira Vale 4634; my email is mira4634@example.invalid; I live at 930 Lantern Lane, Fiction Bay. My monthly budget is 149 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "Le reçu sera envoyé à mira4634@example.invalid; je ne vous téléphonerai pas."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-mixed-language-19-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-mixed-language-4-a",
+    "pair": "mixed-language-4",
+    "kind": "mixed-language",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 5252",
+      "email": "mira5252@example.invalid",
+      "address": "575 Lantern Lane, Fiction Bay",
+      "budget": 92,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 5252 is asking about Acme Cedar 5252.\nMy name is Mira Vale 5252; my email is mira5252@example.invalid; I live at 575 Lantern Lane, Fiction Bay. My monthly budget is 92 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "Le reçu sera envoyé à mira5252@example.invalid; je ne vous téléphonerai pas."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-mixed-language-4-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-negation-10-b",
+    "pair": "negation-10",
+    "kind": "negation",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 2607",
+      "email": "mira2607@example.invalid",
+      "address": "481 Lantern Lane, Fiction Bay",
+      "budget": 79,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 2607 is asking about Acme Cedar 2607.\nMy name is Mira Vale 2607; my email is mira2607@example.invalid; I live at 481 Lantern Lane, Fiction Bay. My monthly budget is 79 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "I will phone you, as you requested, and send an email too."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-negation-10-b",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-known-vs-new-12-a",
+    "pair": "known-vs-new-12",
+    "kind": "known-vs-new",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 9574",
+      "email": "mira9574@example.invalid",
+      "address": "397 Lantern Lane, Fiction Bay",
+      "budget": 58,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 9574 is asking about Acme Cedar 9574.\nMy name is Mira Vale 9574; my email is mira9574@example.invalid; I live at 397 Lantern Lane, Fiction Bay. My monthly budget is 58 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "What delivery time suits you? I have your postal address already."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-known-vs-new-12-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-mixed-language-6-a",
+    "pair": "mixed-language-6",
+    "kind": "mixed-language",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 8921",
+      "email": "mira8921@example.invalid",
+      "address": "407 Lantern Lane, Fiction Bay",
+      "budget": 72,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 8921 is asking about Acme Cedar 8921.\nMy name is Mira Vale 8921; my email is mira8921@example.invalid; I live at 407 Lantern Lane, Fiction Bay. My monthly budget is 72 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "Le reçu sera envoyé à mira8921@example.invalid; je ne vous téléphonerai pas."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-mixed-language-6-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-reask-email-6-a",
+    "pair": "reask-email-6",
+    "kind": "reask-email",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 8921",
+      "email": "mira8921@example.invalid",
+      "address": "407 Lantern Lane, Fiction Bay",
+      "budget": 72,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 8921 is asking about Acme Cedar 8921.\nMy name is Mira Vale 8921; my email is mira8921@example.invalid; I live at 407 Lantern Lane, Fiction Bay. My monthly budget is 72 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "I have your email and will use it for the receipt."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-reask-email-6-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-correct-use-4-a",
+    "pair": "correct-use-4",
+    "kind": "correct-use",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 5252",
+      "email": "mira5252@example.invalid",
+      "address": "575 Lantern Lane, Fiction Bay",
+      "budget": 92,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 5252 is asking about Acme Cedar 5252.\nMy name is Mira Vale 5252; my email is mira5252@example.invalid; I live at 575 Lantern Lane, Fiction Bay. My monthly budget is 92 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "The receipt goes to mira5252@example.invalid, Mira Vale 5252."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-correct-use-4-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-other-person-3-b",
+    "pair": "other-person-3",
+    "kind": "other-person",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 8953",
+      "email": "mira8953@example.invalid",
+      "address": "497 Lantern Lane, Fiction Bay",
+      "budget": 130,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 8953 is asking about Acme Cedar 8953.\nMy name is Mira Vale 8953; my email is mira8953@example.invalid; I live at 497 Lantern Lane, Fiction Bay. My monthly budget is 130 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "Your colleague uses other3@example.invalid; your own receipt goes there too instead of mira8953@example.invalid."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-other-person-3-b",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-correction-9-a",
+    "pair": "correction-9",
+    "kind": "correction",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 7257",
+      "email": "new9@example.invalid",
+      "address": "733 Lantern Lane, Fiction Bay",
+      "budget": 130,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 7257 is asking about Acme Cedar 7257.\nMy name is Mira Vale 7257; my email is mira7257@example.invalid; I live at 733 Lantern Lane, Fiction Bay. My monthly budget is 130 USD. Contact me by email only, never phone. Correction: my email is now new9@example.invalid; the earlier email is obsolete."
+      },
+      {
+        "role": "assistant",
+        "content": "I will use new9@example.invalid, your corrected email."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-correction-9-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-reask-address-5-b",
+    "pair": "reask-address-5",
+    "kind": "reask-address",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 3225",
+      "email": "mira3225@example.invalid",
+      "address": "485 Lantern Lane, Fiction Bay",
+      "budget": 156,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 3225 is asking about Acme Cedar 3225.\nMy name is Mira Vale 3225; my email is mira3225@example.invalid; I live at 485 Lantern Lane, Fiction Bay. My monthly budget is 156 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "What is your full street address for delivery?"
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-reask-address-5-b",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-budget-unit-6-b",
+    "pair": "budget-unit-6",
+    "kind": "budget-unit",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 8921",
+      "email": "mira8921@example.invalid",
+      "address": "407 Lantern Lane, Fiction Bay",
+      "budget": 72,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 8921 is asking about Acme Cedar 8921.\nMy name is Mira Vale 8921; my email is mira8921@example.invalid; I live at 407 Lantern Lane, Fiction Bay. My monthly budget is 72 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "I will compare plans costing at most 72 EUR monthly."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-budget-unit-6-b",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-name-nearmiss-0-b",
+    "pair": "name-nearmiss-0",
+    "kind": "name-nearmiss",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 2524",
+      "email": "mira2524@example.invalid",
+      "address": "604 Lantern Lane, Fiction Bay",
+      "budget": 84,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 2524 is asking about Acme Cedar 2524.\nMy name is Mira Vale 2524; my email is mira2524@example.invalid; I live at 604 Lantern Lane, Fiction Bay. My monthly budget is 84 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "The record is for Mira Vail 0."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-name-nearmiss-0-b",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-fluent-reask-14-a",
+    "pair": "fluent-reask-14",
+    "kind": "fluent-reask",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 3214",
+      "email": "mira3214@example.invalid",
+      "address": "262 Lantern Lane, Fiction Bay",
+      "budget": 80,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 3214 is asking about Acme Cedar 3214.\nMy name is Mira Vale 3214; my email is mira3214@example.invalid; I live at 262 Lantern Lane, Fiction Bay. My monthly budget is 80 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "I have saved mira3214@example.invalid; thanks for sharing it. Which plan do you want?"
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-fluent-reask-14-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-correct-use-11-b",
+    "pair": "correct-use-11",
+    "kind": "correct-use",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 6312",
+      "email": "mira6312@example.invalid",
+      "address": "805 Lantern Lane, Fiction Bay",
+      "budget": 68,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 6312 is asking about Acme Cedar 6312.\nMy name is Mira Vale 6312; my email is mira6312@example.invalid; I live at 805 Lantern Lane, Fiction Bay. My monthly budget is 68 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "The receipt goes to mira.other@example.invalid, Mira Vale 6312."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-correct-use-11-b",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-mixed-language-7-a",
+    "pair": "mixed-language-7",
+    "kind": "mixed-language",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 8357",
+      "email": "mira8357@example.invalid",
+      "address": "686 Lantern Lane, Fiction Bay",
+      "budget": 54,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 8357 is asking about Acme Cedar 8357.\nMy name is Mira Vale 8357; my email is mira8357@example.invalid; I live at 686 Lantern Lane, Fiction Bay. My monthly budget is 54 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "Le reçu sera envoyé à mira8357@example.invalid; je ne vous téléphonerai pas."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-mixed-language-7-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-fluent-reask-2-a",
+    "pair": "fluent-reask-2",
+    "kind": "fluent-reask",
+    "truth": true,
+    "knowledge": {
+      "name": "Mira Vale 8416",
+      "email": "mira8416@example.invalid",
+      "address": "136 Lantern Lane, Fiction Bay",
+      "budget": 83,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 8416 is asking about Acme Cedar 8416.\nMy name is Mira Vale 8416; my email is mira8416@example.invalid; I live at 136 Lantern Lane, Fiction Bay. My monthly budget is 83 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "I have saved mira8416@example.invalid; thanks for sharing it. Which plan do you want?"
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-fluent-reask-2-a",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-budget-unit-19-b",
+    "pair": "budget-unit-19",
+    "kind": "budget-unit",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 4634",
+      "email": "mira4634@example.invalid",
+      "address": "930 Lantern Lane, Fiction Bay",
+      "budget": 149,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 4634 is asking about Acme Cedar 4634.\nMy name is Mira Vale 4634; my email is mira4634@example.invalid; I live at 930 Lantern Lane, Fiction Bay. My monthly budget is 149 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "I will compare plans costing at most 149 EUR monthly."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-budget-unit-19-b",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-fluent-reask-11-b",
+    "pair": "fluent-reask-11",
+    "kind": "fluent-reask",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 6312",
+      "email": "mira6312@example.invalid",
+      "address": "805 Lantern Lane, Fiction Bay",
+      "budget": 68,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 6312 is asking about Acme Cedar 6312.\nMy name is Mira Vale 6312; my email is mira6312@example.invalid; I live at 805 Lantern Lane, Fiction Bay. My monthly budget is 68 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "We value careful records and smooth service. Before proceeding, please supply your email address so the team can send the confirmation."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-fluent-reask-11-b",
+    "source": "pilot"
+  },
+  {
+    "id": "pilot/knowledge-other-person-10-b",
+    "pair": "other-person-10",
+    "kind": "other-person",
+    "truth": false,
+    "knowledge": {
+      "name": "Mira Vale 2607",
+      "email": "mira2607@example.invalid",
+      "address": "481 Lantern Lane, Fiction Bay",
+      "budget": 79,
+      "contact": "email only"
+    },
+    "turns": [
+      {
+        "role": "user",
+        "content": "Customer context: Mira Vale 2607 is asking about Acme Cedar 2607.\nMy name is Mira Vale 2607; my email is mira2607@example.invalid; I live at 481 Lantern Lane, Fiction Bay. My monthly budget is 79 USD. Contact me by email only, never phone."
+      },
+      {
+        "role": "assistant",
+        "content": "Your colleague uses other10@example.invalid; your own receipt goes there too instead of mira2607@example.invalid."
+      }
+    ],
+    "set": "knowledge",
+    "original_id": "knowledge-other-person-10-b",
+    "source": "pilot"
+  }
+]

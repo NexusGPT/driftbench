@@ -1,0 +1,70 @@
+[
+  {
+    "text": "GRADE: C",
+    "outcome": "pass"
+  },
+  {
+    "text": "GRADE: I",
+    "outcome": "fail"
+  },
+  {
+    "text": "GRADE: Correct",
+    "outcome": "pass"
+  },
+  {
+    "text": "GRADE: Incorrect",
+    "outcome": "fail"
+  },
+  {
+    "text": "GRADE: Partial",
+    "outcome": "inconclusive"
+  },
+  {
+    "text": "GRADE: CI",
+    "outcome": "inconclusive"
+  },
+  {
+    "text": "GRADE: C\nGRADE:",
+    "outcome": "inconclusive"
+  },
+  {
+    "text": "GRADE: C\nGRADE: P",
+    "outcome": "inconclusive"
+  },
+  {
+    "text": "downgrade: C",
+    "outcome": "inconclusive"
+  },
+  {
+    "text": "éGRADE: C",
+    "outcome": "inconclusive"
+  },
+  {
+    "text": "GRADEé: C",
+    "outcome": "inconclusive"
+  },
+  {
+    "text": "GRADE: Céleste",
+    "outcome": "inconclusive"
+  },
+  {
+    "text": "GRADE: GRADE: C",
+    "outcome": "pass"
+  },
+  {
+    "text": "GRADE: C\nFinal GRADE: Incorrect",
+    "outcome": "fail"
+  },
+  {
+    "text": "GRADE:\u001fC",
+    "outcome": "pass"
+  },
+  {
+    "text": "GRADE​:﻿I",
+    "outcome": "fail"
+  },
+  {
+    "text": "GRADE: C\nGRADE: 🦉",
+    "outcome": "inconclusive"
+  }
+]

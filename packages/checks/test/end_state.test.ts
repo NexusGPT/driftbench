@@ -1,4 +1,4 @@
-import type { Spec } from '@driftbench/core';
+import type { Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { endState } from '../src/checks/end_state';
 import { acme } from './support/acme';

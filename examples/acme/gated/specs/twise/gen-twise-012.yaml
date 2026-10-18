@@ -2,16 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-012
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 12 of 154: Path upgrade-most-data of upgrade: needs > identify > closing"
+title: "t-wise row 12 of 132: Path upgrade-most-data of upgrade: needs > identify > closing"
 channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - persona:existing-customer
-  - data:fiber
-  - task:existing-workbook
   - flow:upgrade
 covers:
   - B-002
@@ -27,6 +25,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-002
     rubric: Offer an existing customer only plans with more data than their current plan
@@ -39,7 +39,7 @@ criteria:
 blocks:
   - id: b1-needs-to-identify
     when:
-      user: I keep running out of data, can I get a bigger plan?
+      user: Hi, I already have an Acme plan and I need more data.
     expect:
       stage: identify
       tools:
@@ -61,6 +61,22 @@ blocks:
             category: mobile
             customer_email: morgan.diaz@example.com
       lang: EN
+perturbations:
+  - id: p1-D9_out_of_scope
+    class: D9_out_of_scope
+    inject_at: 0
+    user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: needs
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -71,14 +87,13 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: upgrade-most-data
     cell:
       behaviour: B-002
       channel: whatsapp
       user_type: existing-customer
-      coverage_result: fiber
-      workspace_start: existing-workbook
+      coverage_result: none
       flow: upgrade
       account_lookup: most-data
     blocks:

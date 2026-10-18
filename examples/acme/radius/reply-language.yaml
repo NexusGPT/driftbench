@@ -1,0 +1,7 @@
+# A change manifest for driftbench radius. Fictional data only.
+# The reply language rule changed. It holds on every block: the whole suite.
+from: acme-v1
+to: acme-v2
+changes:
+  - kind: rule
+    id: reply_language

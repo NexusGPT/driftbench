@@ -46,6 +46,37 @@ const jobs = [
   { name: 'perturbed', src: 'perturbed.html', out: 'perturbed-{theme}.png' },
   { name: 'council', src: 'council.html', out: 'council-{theme}.png' },
   { name: 'kinds', src: 'kinds.html', out: 'kinds-{theme}.png' },
+  { name: 'loop', src: 'loop.html', out: 'loop-{theme}.png' },
+  { name: 'blocks-diff', src: 'blocks-diff.html', out: 'blocks-diff-{theme}.png' },
+  { name: 'gen', src: 'gen.html', out: 'gen-{theme}.png' },
+  { name: 'innovations', src: 'innovations.html', out: 'innovations-{theme}.png' },
+  { name: 'moj', src: 'moj.html', out: 'moj-{theme}.png' },
+  { name: 'blast', src: 'blast.html', out: 'blast-{theme}.png' },
+  { name: 'block-sources', src: 'block-sources.html', out: 'block-sources-{theme}.png' },
+  { name: 'block-personas', src: 'block-personas.html', out: 'block-personas-{theme}.png' },
+  { name: 'block-parents', src: 'block-parents.html', out: 'block-parents-{theme}.png' },
+  { name: 'block-values', src: 'block-values.html', out: 'block-values-{theme}.png' },
+  { name: 'block-rules', src: 'block-rules.html', out: 'block-rules-{theme}.png' },
+  // The charts: one page, chart.html?c=<name>, reading chart-data.js (written by tools/readme-charts.mjs).
+  // The five public benchmark charts render into docs/assets, where the README and the docs site both read them.
+  { name: 'judge-leads', src: 'chart.html', query: 'c=judge-leads', out: 'judge-leads-{theme}.png' },
+  { name: 'judge-cost', src: 'chart.html', query: 'c=judge-cost', out: 'judge-cost-{theme}.png' },
+  { name: 'mm-eval-sealed-test', src: 'chart.html', query: 'c=mm-eval-sealed-test', out: 'mm-eval-sealed-test-{theme}.png' },
+  { name: 'capability-matrix', src: 'chart.html', query: 'c=capability-matrix', out: 'capability-matrix-{theme}.png' },
+  { name: 'hard-deepeval', src: 'chart.html', query: 'c=hard-deepeval', out: 'hard-deepeval-{theme}.png' },
+  { name: 'hard-promptfoo', src: 'chart.html', query: 'c=hard-promptfoo', out: 'hard-promptfoo-{theme}.png' },
+  { name: 'hard-langfuse', src: 'chart.html', query: 'c=hard-langfuse', out: 'hard-langfuse-{theme}.png' },
+  { name: 'summary', src: 'summary.html', out: '../../docs/assets/summary-{theme}.png' },
+  { name: 'bench-judgebench', src: 'chart.html', query: 'c=bench-judgebench', out: '../../docs/assets/bench-judgebench-{theme}.png' },
+  { name: 'bench-judgebench-models', src: 'chart.html', query: 'c=bench-judgebench-models', out: '../../docs/assets/bench-judgebench-models-{theme}.png' },
+  { name: 'bench-mm-eval', src: 'chart.html', query: 'c=bench-mm-eval', out: '../../docs/assets/bench-mm-eval-{theme}.png' },
+  { name: 'bench-mm-eval-models', src: 'chart.html', query: 'c=bench-mm-eval-models', out: '../../docs/assets/bench-mm-eval-models-{theme}.png' },
+  { name: 'bench-rubricbench', src: 'chart.html', query: 'c=bench-rubricbench', out: '../../docs/assets/bench-rubricbench-{theme}.png' },
+  { name: 'bench-rubricbench-models', src: 'chart.html', query: 'c=bench-rubricbench-models', out: '../../docs/assets/bench-rubricbench-models-{theme}.png' },
+  { name: 'bench-verify', src: 'chart.html', query: 'c=bench-verify', out: '../../docs/assets/bench-verify-{theme}.png' },
+  { name: 'bench-verify-models', src: 'chart.html', query: 'c=bench-verify-models', out: '../../docs/assets/bench-verify-models-{theme}.png' },
+  { name: 'bench-writing', src: 'chart.html', query: 'c=bench-writing', out: '../../docs/assets/bench-writing-{theme}.png' },
+  { name: 'bench-writing-models', src: 'chart.html', query: 'c=bench-writing-models', out: '../../docs/assets/bench-writing-models-{theme}.png' },
 ];
 
 const wanted = process.argv.slice(2);
@@ -84,7 +115,7 @@ try {
       const errors = [];
       page.on('pageerror', (e) => errors.push(String(e)));
       page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-      await page.goto(pathToFileURL(path.join(src, job.src)).href, { waitUntil: 'networkidle' });
+      await page.goto(pathToFileURL(path.join(src, job.src)).href + (job.query ? `?${job.query}` : ''), { waitUntil: 'networkidle' });
       await page.waitForFunction(() => window.__ready === true, null, { timeout: 60000 });
       // Each source lists the faces it uses in window.__fonts and loads them before it is ready.
       const missing = await page.evaluate(() => (window.__fonts || ['400 16px Inter'])

@@ -1,27 +1,28 @@
 {
   "family": "acme-price-sheet",
-  "family_sha256": "2222640acdfb55641addd960011d87570ed387a613886dc5143f075267b522da",
-  "oracle_sha256": "2d8692b70af5c67ee9b8214b953506fed776b201308675b1cb3c151fda0ec257",
-  "review": "pending",
+  "family_sha256": "1e37ebb12716364465b0bcc9b340c3231347e9cf9bcdcbb45b4bb406cc975847",
+  "oracle_sha256": "984c79bca3bd9204456a066b482560aa1d01b052b5e7dc0fff440349d5de667e",
+  "review": "signed",
   "seed": 1,
   "n": 20,
-  "specs": 86,
+  "specs": 88,
   "instances": [
     {
       "name": "i01",
       "seed": 1219026796,
       "knobs": {
         "categories": 3,
-        "column_order": "shuffled",
+        "column_order": "catalog",
         "language": "EN",
-        "line_endings": "crlf",
-        "plans": 15,
-        "planted": "without",
-        "readme_name": "readme.txt",
+        "line_endings": "lf",
+        "plans": 6,
+        "planted": "with",
+        "readme_name": "ABOUT.txt",
         "seed_format": "csv",
+        "start": "catalog-only",
         "summary": "without",
-        "wording": "a",
-        "workbook": "out/acme-prices.xlsx",
+        "wording": "b",
+        "workbook": "out/price-sheet.xlsx",
         "yearly": "value"
       },
       "corners": ["duplicate-line", "header-order", "unit-change"],
@@ -41,6 +42,10 @@
         {
           "id": "unit-change",
           "file": "i01/unit-change.yaml"
+        },
+        {
+          "id": "planted",
+          "file": "i01/planted.yaml"
         }
       ],
       "style_alternatives_checked": 6
@@ -49,18 +54,19 @@
       "name": "i02",
       "seed": 1269359653,
       "knobs": {
-        "categories": 4,
-        "column_order": "catalog",
+        "categories": 2,
+        "column_order": "shuffled",
         "language": "EN",
-        "line_endings": "lf",
-        "plans": 29,
+        "line_endings": "crlf",
+        "plans": 25,
         "planted": "without",
-        "readme_name": "readme.txt",
-        "seed_format": "json",
-        "summary": "with",
+        "readme_name": "ABOUT.txt",
+        "seed_format": "csv",
+        "start": "catalog-only",
+        "summary": "without",
         "wording": "b",
-        "workbook": "out/acme-prices.xlsx",
-        "yearly": "formula"
+        "workbook": "out/price-sheet.xlsx",
+        "yearly": "value"
       },
       "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
@@ -81,20 +87,21 @@
           "file": "i02/unit-change.yaml"
         }
       ],
-      "style_alternatives_checked": 5
+      "style_alternatives_checked": 6
     },
     {
       "name": "i03",
       "seed": 1252582034,
       "knobs": {
-        "categories": 2,
-        "column_order": "shuffled",
+        "categories": 4,
+        "column_order": "catalog",
         "language": "EN",
-        "line_endings": "crlf",
-        "plans": 24,
+        "line_endings": "lf",
+        "plans": 15,
         "planted": "without",
-        "readme_name": "README.txt",
-        "seed_format": "csv",
+        "readme_name": "readme.txt",
+        "seed_format": "json",
+        "start": "catalog-only",
         "summary": "without",
         "wording": "a",
         "workbook": "out/acme-prices.xlsx",
@@ -119,7 +126,7 @@
           "file": "i03/unit-change.yaml"
         }
       ],
-      "style_alternatives_checked": 6
+      "style_alternatives_checked": 5
     },
     {
       "name": "i04",
@@ -133,10 +140,11 @@
         "planted": "with",
         "readme_name": "readme.txt",
         "seed_format": "csv",
-        "summary": "with",
+        "start": "catalog-only",
+        "summary": "without",
         "wording": "c",
-        "workbook": "out/acme-prices.xlsx",
-        "yearly": "value"
+        "workbook": "out/price-sheet.xlsx",
+        "yearly": "formula"
       },
       "corners": ["empty-cell", "duplicate-line", "header-order"],
       "variants": [
@@ -175,10 +183,11 @@
         "planted": "without",
         "readme_name": "readme.txt",
         "seed_format": "csv",
-        "summary": "with",
+        "start": "catalog-only",
+        "summary": "without",
         "wording": "c",
-        "workbook": "out/acme-prices.xlsx",
-        "yearly": "value"
+        "workbook": "out/price-sheet.xlsx",
+        "yearly": "formula"
       },
       "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
@@ -213,10 +222,11 @@
         "planted": "without",
         "readme_name": "ABOUT.txt",
         "seed_format": "csv",
-        "summary": "without",
+        "start": "existing-workbook",
+        "summary": "with",
         "wording": "a",
-        "workbook": "out/acme-price-sheet.xlsx",
-        "yearly": "formula"
+        "workbook": "out/price-sheet.xlsx",
+        "yearly": "value"
       },
       "corners": ["empty-cell", "header-order", "unit-change"],
       "variants": [
@@ -244,16 +254,17 @@
       "seed": 1185471558,
       "knobs": {
         "categories": 4,
-        "column_order": "shuffled",
+        "column_order": "catalog",
         "language": "EN",
-        "line_endings": "crlf",
-        "plans": 18,
-        "planted": "without",
-        "readme_name": "readme.txt",
+        "line_endings": "lf",
+        "plans": 8,
+        "planted": "with",
+        "readme_name": "ABOUT.txt",
         "seed_format": "csv",
+        "start": "catalog-only",
         "summary": "without",
-        "wording": "c",
-        "workbook": "out/acme-price-sheet.xlsx",
+        "wording": "a",
+        "workbook": "out/acme-prices.xlsx",
         "yearly": "value"
       },
       "corners": ["empty-cell", "duplicate-line", "unit-change"],
@@ -273,6 +284,10 @@
         {
           "id": "unit-change",
           "file": "i07/unit-change.yaml"
+        },
+        {
+          "id": "planted",
+          "file": "i07/planted.yaml"
         }
       ],
       "style_alternatives_checked": 6
@@ -281,18 +296,19 @@
       "name": "i08",
       "seed": 1370025367,
       "knobs": {
-        "categories": 4,
-        "column_order": "shuffled",
+        "categories": 3,
+        "column_order": "catalog",
         "language": "EN",
         "line_endings": "lf",
-        "plans": 29,
-        "planted": "with",
-        "readme_name": "ABOUT.txt",
-        "seed_format": "json",
+        "plans": 16,
+        "planted": "without",
+        "readme_name": "README.txt",
+        "seed_format": "csv",
+        "start": "catalog-only",
         "summary": "without",
-        "wording": "c",
-        "workbook": "out/acme-price-sheet.xlsx",
-        "yearly": "value"
+        "wording": "a",
+        "workbook": "out/price-sheet.xlsx",
+        "yearly": "formula"
       },
       "corners": ["empty-cell", "duplicate-line", "unit-change"],
       "variants": [
@@ -311,13 +327,9 @@
         {
           "id": "unit-change",
           "file": "i08/unit-change.yaml"
-        },
-        {
-          "id": "planted",
-          "file": "i08/planted.yaml"
         }
       ],
-      "style_alternatives_checked": 5
+      "style_alternatives_checked": 6
     },
     {
       "name": "i09",
@@ -326,14 +338,15 @@
         "categories": 4,
         "column_order": "catalog",
         "language": "EN",
-        "line_endings": "crlf",
-        "plans": 17,
+        "line_endings": "lf",
+        "plans": 29,
         "planted": "without",
-        "readme_name": "ABOUT.txt",
-        "seed_format": "csv",
-        "summary": "without",
+        "readme_name": "README.txt",
+        "seed_format": "json",
+        "start": "catalog-only",
+        "summary": "with",
         "wording": "a",
-        "workbook": "out/price-sheet.xlsx",
+        "workbook": "out/acme-prices.xlsx",
         "yearly": "formula"
       },
       "corners": ["empty-cell", "duplicate-line", "unit-change"],
@@ -355,21 +368,22 @@
           "file": "i09/unit-change.yaml"
         }
       ],
-      "style_alternatives_checked": 6
+      "style_alternatives_checked": 5
     },
     {
       "name": "i10",
       "seed": 3185024468,
       "knobs": {
-        "categories": 3,
+        "categories": 4,
         "column_order": "catalog",
         "language": "EN",
         "line_endings": "lf",
-        "plans": 14,
-        "planted": "without",
-        "readme_name": "ABOUT.txt",
+        "plans": 28,
+        "planted": "with",
+        "readme_name": "README.txt",
         "seed_format": "csv",
-        "summary": "without",
+        "start": "catalog-only",
+        "summary": "with",
         "wording": "b",
         "workbook": "out/acme-prices.xlsx",
         "yearly": "value"
@@ -391,6 +405,10 @@
         {
           "id": "header-order",
           "file": "i10/header-order.yaml"
+        },
+        {
+          "id": "planted",
+          "file": "i10/planted.yaml"
         }
       ],
       "style_alternatives_checked": 6
@@ -407,10 +425,11 @@
         "planted": "without",
         "readme_name": "README.txt",
         "seed_format": "csv",
+        "start": "catalog-only",
         "summary": "with",
-        "wording": "b",
-        "workbook": "out/acme-price-sheet.xlsx",
-        "yearly": "formula"
+        "wording": "a",
+        "workbook": "out/price-sheet.xlsx",
+        "yearly": "value"
       },
       "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
@@ -437,18 +456,19 @@
       "name": "i12",
       "seed": 3218579706,
       "knobs": {
-        "categories": 4,
+        "categories": 2,
         "column_order": "catalog",
         "language": "EN",
-        "line_endings": "lf",
-        "plans": 20,
-        "planted": "with",
-        "readme_name": "ABOUT.txt",
-        "seed_format": "json",
-        "summary": "without",
-        "wording": "a",
+        "line_endings": "crlf",
+        "plans": 27,
+        "planted": "without",
+        "readme_name": "readme.txt",
+        "seed_format": "csv",
+        "start": "catalog-only",
+        "summary": "with",
+        "wording": "c",
         "workbook": "out/acme-price-sheet.xlsx",
-        "yearly": "formula"
+        "yearly": "value"
       },
       "corners": ["empty-cell", "duplicate-line", "unit-change"],
       "variants": [
@@ -467,13 +487,9 @@
         {
           "id": "unit-change",
           "file": "i12/unit-change.yaml"
-        },
-        {
-          "id": "planted",
-          "file": "i12/planted.yaml"
         }
       ],
-      "style_alternatives_checked": 5
+      "style_alternatives_checked": 6
     },
     {
       "name": "i13",
@@ -487,10 +503,11 @@
         "planted": "with",
         "readme_name": "readme.txt",
         "seed_format": "csv",
-        "summary": "with",
+        "start": "catalog-only",
+        "summary": "without",
         "wording": "c",
-        "workbook": "out/acme-prices.xlsx",
-        "yearly": "formula"
+        "workbook": "out/price-sheet.xlsx",
+        "yearly": "value"
       },
       "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
@@ -529,10 +546,11 @@
         "planted": "without",
         "readme_name": "ABOUT.txt",
         "seed_format": "csv",
+        "start": "catalog-only",
         "summary": "with",
         "wording": "a",
-        "workbook": "out/acme-price-sheet.xlsx",
-        "yearly": "value"
+        "workbook": "out/price-sheet.xlsx",
+        "yearly": "formula"
       },
       "corners": ["duplicate-line", "header-order", "unit-change"],
       "variants": [
@@ -559,17 +577,18 @@
       "name": "i15",
       "seed": 3134691611,
       "knobs": {
-        "categories": 3,
-        "column_order": "shuffled",
+        "categories": 4,
+        "column_order": "catalog",
         "language": "EN",
         "line_endings": "lf",
-        "plans": 15,
-        "planted": "without",
-        "readme_name": "README.txt",
-        "seed_format": "json",
+        "plans": 20,
+        "planted": "with",
+        "readme_name": "ABOUT.txt",
+        "seed_format": "csv",
+        "start": "catalog-only",
         "summary": "with",
         "wording": "a",
-        "workbook": "out/acme-price-sheet.xlsx",
+        "workbook": "out/price-sheet.xlsx",
         "yearly": "formula"
       },
       "corners": ["empty-cell", "duplicate-line", "header-order"],
@@ -589,9 +608,13 @@
         {
           "id": "header-order",
           "file": "i15/header-order.yaml"
+        },
+        {
+          "id": "planted",
+          "file": "i15/planted.yaml"
         }
       ],
-      "style_alternatives_checked": 5
+      "style_alternatives_checked": 6
     },
     {
       "name": "i16",
@@ -605,9 +628,10 @@
         "planted": "without",
         "readme_name": "README.txt",
         "seed_format": "json",
-        "summary": "with",
-        "wording": "c",
-        "workbook": "out/price-sheet.xlsx",
+        "start": "catalog-only",
+        "summary": "without",
+        "wording": "b",
+        "workbook": "out/acme-prices.xlsx",
         "yearly": "value"
       },
       "corners": ["empty-cell", "header-order", "unit-change"],
@@ -643,9 +667,10 @@
         "planted": "without",
         "readme_name": "README.txt",
         "seed_format": "csv",
+        "start": "catalog-only",
         "summary": "with",
-        "wording": "a",
-        "workbook": "out/price-sheet.xlsx",
+        "wording": "b",
+        "workbook": "out/acme-prices.xlsx",
         "yearly": "value"
       },
       "corners": ["duplicate-line", "header-order", "unit-change"],
@@ -673,18 +698,19 @@
       "name": "i18",
       "seed": 3050803516,
       "knobs": {
-        "categories": 3,
-        "column_order": "shuffled",
+        "categories": 4,
+        "column_order": "catalog",
         "language": "EN",
         "line_endings": "lf",
-        "plans": 15,
+        "plans": 14,
         "planted": "with",
-        "readme_name": "readme.txt",
+        "readme_name": "ABOUT.txt",
         "seed_format": "json",
+        "start": "catalog-only",
         "summary": "without",
         "wording": "c",
-        "workbook": "out/acme-price-sheet.xlsx",
-        "yearly": "value"
+        "workbook": "out/acme-prices.xlsx",
+        "yearly": "formula"
       },
       "corners": ["empty-cell", "duplicate-line", "unit-change"],
       "variants": [
@@ -723,10 +749,11 @@
         "planted": "with",
         "readme_name": "readme.txt",
         "seed_format": "csv",
-        "summary": "with",
-        "wording": "c",
-        "workbook": "out/price-sheet.xlsx",
-        "yearly": "formula"
+        "start": "catalog-only",
+        "summary": "without",
+        "wording": "b",
+        "workbook": "out/acme-price-sheet.xlsx",
+        "yearly": "value"
       },
       "corners": ["empty-cell", "header-order", "unit-change"],
       "variants": [
@@ -765,6 +792,7 @@
         "planted": "without",
         "readme_name": "ABOUT.txt",
         "seed_format": "csv",
+        "start": "catalog-only",
         "summary": "with",
         "wording": "a",
         "workbook": "out/acme-price-sheet.xlsx",
@@ -794,65 +822,71 @@
   ],
   "knob_counts": {
     "categories": {
-      "2": 2,
-      "3": 10,
-      "4": 8
+      "2": 3,
+      "3": 8,
+      "4": 9
     },
     "column_order": {
-      "shuffled": 11,
-      "catalog": 9
+      "catalog": 14,
+      "shuffled": 6
     },
     "language": {
       "EN": 20
     },
     "line_endings": {
-      "crlf": 7,
-      "lf": 13
+      "lf": 15,
+      "crlf": 5
     },
     "plans": {
+      "6": 1,
+      "8": 1,
       "12": 1,
       "14": 1,
-      "15": 3,
-      "17": 2,
-      "18": 1,
+      "15": 1,
+      "16": 1,
+      "17": 1,
       "20": 1,
       "21": 2,
       "22": 3,
-      "24": 1,
-      "25": 1,
-      "27": 1,
-      "29": 3
+      "25": 2,
+      "27": 2,
+      "28": 1,
+      "29": 2
     },
     "planted": {
-      "without": 14,
-      "with": 6
+      "with": 8,
+      "without": 12
     },
     "readme_name": {
-      "readme.txt": 8,
-      "README.txt": 5,
-      "ABOUT.txt": 7
+      "ABOUT.txt": 8,
+      "readme.txt": 6,
+      "README.txt": 6
     },
     "seed_format": {
-      "csv": 14,
-      "json": 6
+      "csv": 16,
+      "json": 4
+    },
+    "start": {
+      "catalog-only": 19,
+      "existing-workbook": 1
     },
     "summary": {
-      "without": 9,
-      "with": 11
+      "without": 11,
+      "with": 9
     },
     "wording": {
+      "b": 6,
       "a": 9,
-      "b": 3,
-      "c": 8
+      "c": 5
     },
     "workbook": {
+      "out/price-sheet.xlsx": 10,
       "out/acme-prices.xlsx": 7,
-      "out/acme-price-sheet.xlsx": 9,
-      "out/price-sheet.xlsx": 4
+      "out/acme-price-sheet.xlsx": 3
     },
     "yearly": {
-      "value": 11,
-      "formula": 9
+      "value": 12,
+      "formula": 8
     }
   },
   "corner_counts": {

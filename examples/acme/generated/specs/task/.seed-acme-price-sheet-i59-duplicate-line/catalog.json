@@ -1,0 +1,186 @@
+{
+  "plans": [
+    {
+      "plan_id": "mobile-1",
+      "name": "Acme Mobile 1",
+      "category": "mobile",
+      "allowance": "5 GB",
+      "monthly_usd": 39
+    },
+    {
+      "plan_id": "travel-1",
+      "name": "Acme Travel 1",
+      "category": "travel",
+      "allowance": "5 GB",
+      "monthly_usd": 10
+    },
+    {
+      "plan_id": "mobile-2",
+      "name": "Acme Mobile 2",
+      "category": "mobile",
+      "allowance": "20 GB",
+      "monthly_usd": 58
+    },
+    {
+      "plan_id": "travel-2",
+      "name": "Acme Travel 2",
+      "category": "travel",
+      "allowance": "1 GB",
+      "monthly_usd": 26
+    },
+    {
+      "plan_id": "office-1",
+      "name": "Acme Office 1",
+      "category": "office",
+      "allowance": "100 GB",
+      "monthly_usd": 25
+    },
+    {
+      "plan_id": "home-1",
+      "name": "Acme Home 1",
+      "category": "home",
+      "allowance": "100 Mbps",
+      "monthly_usd": 10
+    },
+    {
+      "plan_id": "mobile-3",
+      "name": "Acme Mobile 3",
+      "category": "mobile",
+      "allowance": "40 GB",
+      "monthly_usd": 72
+    },
+    {
+      "plan_id": "mobile-4",
+      "name": "Acme Mobile 4",
+      "category": "mobile",
+      "allowance": "20 GB",
+      "monthly_usd": 26
+    },
+    {
+      "plan_id": "travel-3",
+      "name": "Acme Travel 3",
+      "category": "travel",
+      "allowance": "3 GB",
+      "monthly_usd": 78
+    },
+    {
+      "plan_id": "home-2",
+      "name": "Acme Home 2",
+      "category": "home",
+      "allowance": "100 Mbps",
+      "monthly_usd": 5
+    },
+    {
+      "plan_id": "office-2",
+      "name": "Acme Office 2",
+      "category": "office",
+      "allowance": "50 GB",
+      "monthly_usd": 42
+    },
+    {
+      "plan_id": "home-3",
+      "name": "Acme Home 3",
+      "category": "home",
+      "allowance": "1000 Mbps",
+      "monthly_usd": 27
+    },
+    {
+      "plan_id": "office-3",
+      "name": "Acme Office 3",
+      "category": "office",
+      "allowance": "100 GB",
+      "monthly_usd": 72
+    },
+    {
+      "plan_id": "mobile-5",
+      "name": "Acme Mobile 5",
+      "category": "mobile",
+      "allowance": "5 GB",
+      "monthly_usd": 56
+    },
+    {
+      "plan_id": "mobile-6",
+      "name": "Acme Mobile 6",
+      "category": "mobile",
+      "allowance": "5 GB",
+      "monthly_usd": 22
+    },
+    {
+      "plan_id": "mobile-7",
+      "name": "Acme Mobile 7",
+      "category": "mobile",
+      "allowance": "20 GB",
+      "monthly_usd": 65
+    },
+    {
+      "plan_id": "travel-4",
+      "name": "Acme Travel 4",
+      "category": "travel",
+      "allowance": "3 GB",
+      "monthly_usd": 21
+    },
+    {
+      "plan_id": "home-4",
+      "name": "Acme Home 4",
+      "category": "home",
+      "allowance": "300 Mbps",
+      "monthly_usd": 86
+    },
+    {
+      "plan_id": "home-4",
+      "name": "Acme Home 4",
+      "category": "home",
+      "allowance": "300 Mbps",
+      "monthly_usd": 86
+    },
+    {
+      "plan_id": "travel-5",
+      "name": "Acme Travel 5",
+      "category": "travel",
+      "allowance": "10 GB",
+      "monthly_usd": 60
+    },
+    {
+      "plan_id": "office-4",
+      "name": "Acme Office 4",
+      "category": "office",
+      "allowance": "100 GB",
+      "monthly_usd": 82
+    },
+    {
+      "plan_id": "travel-6",
+      "name": "Acme Travel 6",
+      "category": "travel",
+      "allowance": "3 GB",
+      "monthly_usd": 77
+    },
+    {
+      "plan_id": "home-5",
+      "name": "Acme Home 5",
+      "category": "home",
+      "allowance": "1000 Mbps",
+      "monthly_usd": 18
+    },
+    {
+      "plan_id": "home-6",
+      "name": "Acme Home 6",
+      "category": "home",
+      "allowance": "100 Mbps",
+      "monthly_usd": 89
+    },
+    {
+      "plan_id": "office-5",
+      "name": "Acme Office 5",
+      "category": "office",
+      "allowance": "50 GB",
+      "monthly_usd": 54
+    },
+    {
+      "plan_id": "mobile-8",
+      "name": "Acme Mobile 8",
+      "category": "mobile",
+      "allowance": "5 GB",
+      "monthly_usd": 49
+    }
+  ]
+}

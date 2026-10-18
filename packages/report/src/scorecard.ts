@@ -1,25 +1,40 @@
 import {
+  type Blocked,
+  blockStatus,
   type CompoundingIndex,
   type Count,
   compoundingIndex,
   type DriftClass,
+  type HistoryNormalization,
+  isScored,
+  type NotRun,
+  type RunEvent,
   type RunMode,
   type RunResult,
+  runOutcome,
+  type Spec,
+  stimulusMessages,
   type Verdict,
-} from '@driftbench/core';
-import { bootstrapCI } from '@driftbench/stats';
+} from '@agent-nexus/driftbench-core';
+import { bootstrapCI } from '@agent-nexus/driftbench-stats';
+import { type AggregateCriterion, type AggregateResult, evaluateAggregates } from './aggregate';
+import { parentCauses } from './causes';
 import { type CompareResult, compareCampaigns } from './compare';
 import {
   blocksWithSpec,
   type CampaignData,
+  type CarriedSummary,
+  carriedSummary,
   deviationOf,
   groupBy,
+  lineKey,
+  measuredRecovery,
   runPassed,
   showTarget,
   specOfRun,
   stimulusText,
 } from './data';
-import { clustered, type Estimate, type Rate, rate } from './estimate';
+import { clustered, clusterRate, type Estimate, type Rate, rate } from './estimate';
 import type { PilotReport } from './pilot';
 import {
   type ModeReliability,
@@ -31,6 +46,7 @@ import {
   reliability,
   successionOf,
 } from './reliability';
+import { type CriterionRepeat, criterionRepeats, repeatReducersOf } from './repeats';
 import { type Spread, spread } from './spread';
 
 export type ScorecardOptions = {
@@ -38,6 +54,10 @@ export type ScorecardOptions = {
   baseline?: CampaignData;
   /** The non-inferiority margin, as a proportion. Default 0.02 (2 points). */
   margin?: number;
+  /** Passed to the compare diff: gating criteria on fewer goldens are underpowered. Default MIN_GOLDENS. */
+  minGoldens?: number;
+  /** Passed to the compare diff: underpowered criteria gate too. */
+  strict?: boolean;
   /** A pilot report to render beside the spread view. */
   pilot?: PilotReport;
   /** Dimensions of the generated cell that name a spread cell. */
@@ -46,26 +66,58 @@ export type ScorecardOptions = {
   spreadMode?: RunMode;
   /** Runs shown in the drilldown, failing runs first. Default 200. */
   maxRuns?: number;
+  /** Lines with incomplete runs: an interval covering both outcomes (default), or no value (withhold). */
+  incompletePolicy?: 'interval' | 'withhold';
+  /** Campaign-level criteria, each scored over every run together. Absent when not given. */
+  aggregates?: readonly AggregateCriterion[];
 };
 
 export type ToolCall = { label: string; input?: unknown; output?: unknown; error?: string };
 
 export type BlockDetail = {
+  blockId?: string;
+  parent?: string;
+  carried?: NonNullable<RunResult['blocks'][number]['carried']>;
+  rejudged?: NonNullable<RunResult['blocks'][number]['rejudged']>;
   index: number;
   /** The spec block this block stands for; absent for a block a driver injected. */
   specBlock?: number;
   injected: boolean;
   stimulus?: string;
+  /** Exact authored user text, without presentation labels; used to verify realized hashes. */
+  authoredText?: string;
+  /**
+   * Present when the driver sent other text than the spec wrote: its hash, and the text when the run stored
+   * it (`campaign run --record-realized-text`).
+   */
+  realized?: { hash: string; text?: string };
   expectedStage?: string;
   observedStage?: string;
   pass: boolean;
+  /** Set on a block not run or blocked, with why: neither a pass nor a fail. */
+  status?: 'not_run' | 'blocked';
+  notRun?: NotRun;
+  blocked?: Blocked;
+  /** The block's own latency, its cost in USD when the adapter reports one, and the retries it took. */
+  latencyMs: number;
+  costUsd?: number;
+  retries: number;
   drift: DriftClass[];
   text: string;
   toolCalls: ToolCall[];
+  /** Empty history turns omitted by the model wire, absent on unchanged histories and legacy runs. */
+  historyNormalizations?: HistoryNormalization[];
+  /** The runtime events the block recorded: a guard that ran and a skill that was loaded, by name. */
+  /** The key the block's record was cached under, when the run had a cache. */
+  cacheKey?: string;
+  /** The recorded timeline events of the block, each with the id a label can anchor to. */
+  timelineEvents?: { id: string; label: string }[];
+  runtimeEvents?: { kind: 'guard' | 'skill'; name: string; verdict?: string }[];
   verdicts: Verdict[];
 };
 
 export type RunDetail = {
+  causes?: ReturnType<typeof parentCauses>;
   runId: string;
   specId: string;
   title?: string;
@@ -77,11 +129,54 @@ export type RunDetail = {
   status: RunResult['status'];
   error?: string;
   pass: boolean;
+  /** Set when no block failed but a block was not run or blocked: the run is neither a pass nor a fail. */
+  outcome?: 'not_run' | 'blocked';
+  /** When the run started and finished, its total latency and cost, and whether the run replayed the cache. */
+  startedAt: string;
+  finishedAt: string;
+  latencyMs: number;
+  cost: number;
+  cacheHit: boolean;
+  /** Set on a run carried from an earlier campaign: where it comes from and its age. Absent on a fresh run. */
+  carried?: NonNullable<RunResult['carried']>;
   endState?: RunResult['endState'];
   succession: RunResult['succession'];
   recovery?: RunResult['recovery'];
   blocks: BlockDetail[];
+  /** The events the run reported, in order, when it recorded them. */
+  events?: RunEvent[];
+  /**
+   * A run a verdict ended before the spec's last block: the verdict, the block it stopped after, and the spec
+   * blocks it skipped. Absent when every block ran.
+   */
+  stopped?: StoppedRun;
 };
+
+export type StoppedRun = {
+  verdict: NonNullable<RunResult['endVerdict']>;
+  reason?: string;
+  /** The index of the last block that ran. */
+  after: number;
+  skipped: Array<{ index: number; id: string; stimulus?: string }>;
+};
+
+/** Where a verdict stopped a run and which spec blocks it skipped, read from the run and its spec. */
+function stoppedOf(run: RunResult, spec: Spec | undefined): StoppedRun | undefined {
+  if (run.endVerdict === undefined || spec === undefined) return undefined;
+  const skipped = spec.blocks.slice(run.blocks.length).map((block, offset) => {
+    const index = run.blocks.length + offset;
+    const stimulus = stimulusText(spec, index);
+    return { index, id: block.id ?? `b${index + 1}`, ...(stimulus === undefined ? {} : { stimulus }) };
+  });
+  if (skipped.length === 0) return undefined;
+  const reason = spec.end?.reason;
+  return {
+    verdict: run.endVerdict,
+    ...(reason === undefined ? {} : { reason }),
+    after: run.blocks.length - 1,
+    skipped,
+  };
+}
 
 export type ToolAccuracy = {
   /** Calls matched to an expected call (per label, the smaller of the two counts). */
@@ -105,6 +200,9 @@ export type Scorecard = {
     runs: number;
     passing: number;
     failing: number;
+    /** Runs with a block not run, or blocked, and no failure: neither passing nor failing. Absent when 0. */
+    notRun?: number;
+    blocked?: number;
     /** Runs that did not complete: failed or stopped. */
     broken: number;
   };
@@ -121,29 +219,67 @@ export type Scorecard = {
   /** Blocks carrying each drift class, over every run. */
   drift: Partial<Record<DriftClass, number>>;
   spread: Spread;
+  /** Criteria with a repeat reducer, reduced over the repeats of each line. Empty when no criterion names one. */
+  criterionRepeats: CriterionRepeat[];
   compare?: CompareResult;
+  /** Set when the campaign merges fresh runs with runs carried from earlier campaigns. Absent when all are fresh. */
+  carried?: CarriedSummary;
   pilot?: PilotReport;
+  /** Campaign-level criteria, when the options asked for them. */
+  aggregates?: AggregateResult[];
   drilldown: RunDetail[];
   /** Runs left out of the drilldown by maxRuns. */
   omittedRuns: number;
 };
 
+/**
+ * The share of compared runs whose end state matched. The runs of one golden are repeats, so over several
+ * goldens the interval is the one every pass rate over goldens gets (Wilson on the effective runs); one golden
+ * keeps the plain Wilson interval.
+ */
+function endStateRate(compared: readonly RunResult[]): Rate | undefined {
+  const matched = compared.filter((run) => run.endState?.match).length;
+  const grouped = clusterRate(
+    [...groupBy(compared, lineKey).values()].map((group) => ({
+      n: group.length,
+      k: group.filter((run) => run.endState?.match).length,
+    })),
+  );
+  return grouped ? { ...grouped, k: matched } : rate(matched, compared.length);
+}
+
+/** The runs whose outcome is this one, among those that completed; undefined when there is none. */
+function countWhenAny(runs: readonly RunResult[], outcome: 'not_run' | 'blocked'): number | undefined {
+  const n = runs.filter((run) => run.status === 'completed' && runOutcome(run) === outcome).length;
+  return n > 0 ? n : undefined;
+}
+
+/** `not_run` or `blocked` for a completed run that is neither a pass nor a fail; undefined otherwise. */
+function unscoredOutcome(run: RunResult): 'not_run' | 'blocked' | undefined {
+  const outcome = runOutcome(run);
+  return run.status === 'completed' && (outcome === 'not_run' || outcome === 'blocked') ? outcome : undefined;
+}
+
 /** P4.4: everything the scorecard shows, computed from the stored campaign. Deterministic: bootstraps are seeded. */
 export function buildScorecard(data: CampaignData, options: ScorecardOptions = {}): Scorecard {
   const margin = options.margin ?? 0.02;
-  const lines = reliability(data);
+  const lines = reliability(data, options.incompletePolicy ?? 'interval');
   const runs = data.runs;
   const compared = runs.filter((run) => run.endState !== undefined);
-  const endState = rate(compared.filter((run) => run.endState?.match).length, compared.length);
+  const endState = endStateRate(compared);
   const perturbed = runs.filter((run) => run.mode === 'P');
   const recovery = recoveryOf(perturbed);
   const byClass = groupBy(
-    perturbed.filter((run) => run.recovery),
+    perturbed.filter((run) => measuredRecovery(run)),
     (run) => deviationOf(specOfRun(data, run), run) ?? 'unknown',
   );
+  // A class whose every run left its injected block unsent measured no recovery: it has no row.
   const recoveryByClass = [...byClass.entries()]
     .sort(([a], [b]) => a.localeCompare(b, 'en', { numeric: true }))
-    .map(([deviation, group]) => ({ deviation, summary: recoveryOf(group) as RecoverySummary }));
+    .flatMap(([deviation, group]) => {
+      const summary = recoveryOf(group);
+      return summary === undefined ? [] : [{ deviation, summary }];
+    });
   const maxRuns = options.maxRuns ?? 200;
   const ordered = [...runs.filter((run) => !runPassed(run)), ...runs.filter(runPassed)];
   const shown = ordered.slice(0, maxRuns);
@@ -159,7 +295,9 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
       specs: data.campaign.specs.length,
       runs: runs.length,
       passing: runs.filter(runPassed).length,
-      failing: runs.filter((run) => run.status === 'completed' && !runPassed(run)).length,
+      failing: runs.filter((run) => run.status === 'completed' && runOutcome(run) === 'fail').length,
+      ...optional('notRun', countWhenAny(runs, 'not_run')),
+      ...optional('blocked', countWhenAny(runs, 'blocked')),
       broken: runs.filter((run) => run.status !== 'completed').length,
     },
     modes: modeReliability(data, lines),
@@ -173,14 +311,25 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
     ...optional('recovery', recovery),
     recoveryByClass,
     drift: successionOf(runs).classes,
+    criterionRepeats: criterionRepeats(runs, repeatReducersOf(data)),
     spread: spread(data, {
       margin,
       ...optional('mode', options.spreadMode),
       ...optional('by', options.by),
       ...optional('baseline', options.baseline),
     }),
-    ...(options.baseline ? { compare: compareCampaigns(options.baseline, data, { margin }) } : {}),
+    ...(options.baseline
+      ? {
+          compare: compareCampaigns(options.baseline, data, {
+            margin,
+            ...optional('minGoldens', options.minGoldens),
+            ...optional('strict', options.strict),
+          }),
+        }
+      : {}),
+    ...optional('carried', carriedSummary(runs)),
     ...optional('pilot', options.pilot),
+    ...(options.aggregates ? { aggregates: evaluateAggregates(data, options.aggregates) } : {}),
     drilldown: shown.map((run) => runDetailOf(data, run)),
     omittedRuns: runs.length - shown.length,
   };
@@ -193,6 +342,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
   const perturbation = spec?.perturbations?.find((entry) => entry.id === run.perturbationId);
   return {
     runId: run.runId,
+    ...(run.blocks.some((block) => block.parent !== undefined) ? { causes: parentCauses(run) } : {}),
     specId: run.specId,
     ...optional('title', spec?.title),
     target: showTarget(run.target),
@@ -203,38 +353,116 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     status: run.status,
     ...optional('error', run.error),
     pass: runPassed(run),
+    ...optional('outcome', unscoredOutcome(run)),
+    startedAt: run.startedAt,
+    finishedAt: run.finishedAt,
+    latencyMs: run.latencyMs,
+    cost: run.cost,
+    cacheHit: run.cacheHit,
+    ...optional('carried', run.carried),
     ...optional('endState', run.endState),
     succession: run.succession,
-    ...optional('recovery', run.recovery),
+    ...optional('recovery', measuredRecovery(run)),
+    ...optional('events', run.events),
+    ...optional('stopped', stoppedOf(run, spec)),
     blocks: blocksWithSpec(run, spec).map(({ result, specBlock }) => {
+      const timelineEvents = timelineEventsOf(run, result.index);
       const injectedText =
         specBlock === undefined && perturbation
           ? `[${perturbation.class}] ${perturbation.user ?? perturbation.burst?.join('\n') ?? '(world change)'}`
           : undefined;
       const stimulus = specBlock === undefined ? injectedText : stimulusText(spec, specBlock);
+      const when =
+        specBlock === undefined ? undefined : spec?.blocks[result.provenance?.specIndex ?? specBlock]?.when;
+      const authoredText =
+        specBlock === undefined
+          ? (perturbation?.user ?? perturbation?.burst?.join('\n'))
+          : when === undefined
+            ? undefined
+            : stimulusMessages(when)
+                .map((message) => message.content)
+                .join('\n');
       const expectedStage =
         specBlock === undefined ? perturbation?.expect?.stage : spec?.blocks[specBlock]?.expect?.stage;
       return {
         index: result.index,
+        ...(result.specIndex === undefined ? {} : optional('blockId', result.blockId)),
+        ...optional('parent', result.parent),
+        ...optional('carried', result.carried),
+        ...optional('rejudged', result.rejudged),
         ...optional('specBlock', specBlock),
         injected: result.injected === true,
         ...optional('stimulus', stimulus),
+        ...optional('authoredText', authoredText),
+        ...optional('realized', result.realized),
         ...optional('expectedStage', expectedStage),
         ...optional('observedStage', result.stageObserved),
-        pass: result.pass,
+        pass: blockStatus(result) === 'pass',
+        ...(isScored(result) ? {} : { status: blockStatus(result) as 'not_run' | 'blocked' }),
+        ...optional('notRun', result.notRun),
+        ...optional('blocked', result.blocked),
+        latencyMs: result.observed.latencyMs,
+        ...optional(
+          'costUsd',
+          result.rejudged?.judgeCostUsd ?? (result.carried ? undefined : result.observed.cost.usd),
+        ),
+        retries: result.observed.retries?.length ?? 0,
         drift: [...result.drift],
         text: result.observed.text,
+        ...optional('historyNormalizations', result.observed.historyNormalizations),
         toolCalls: result.observed.toolCalls.map((call) => ({
           label: call.label,
           ...(call.input === undefined ? {} : { input: call.input }),
           ...(call.output === undefined ? {} : { output: call.output }),
           ...optional('error', call.error),
         })),
+        ...(runtimeEventsOf(result.observed.runtime).length > 0
+          ? { runtimeEvents: runtimeEventsOf(result.observed.runtime) }
+          : {}),
+        ...optional('cacheKey', result.cacheKey),
+        ...(timelineEvents.length > 0 ? { timelineEvents } : {}),
         verdicts: result.verdicts,
       };
     }),
   };
 }
+
+/** The recorded events of a block. An event's id is its position in the run's events, which a label can name. */
+function timelineEventsOf(run: RunResult, index: number): { id: string; label: string }[] {
+  const events = run.events ?? [];
+  return events.flatMap((event, position) => {
+    if (!('index' in event) || event.index !== index) return [];
+    const label =
+      event.type === 'tool_call'
+        ? `tool ${event.label}`
+        : event.type === 'model_call'
+          ? 'model call'
+          : event.type === 'block_end'
+            ? `block end ${{ pass: 'pass', fail: 'fail', not_run: 'not run', blocked: 'blocked' }[blockStatus(event)]}`
+            : event.type;
+    // A call that carries its trace span id is anchored by that id, so the span anchor names the real span.
+    return [{ id: event.type === 'tool_call' && event.spanId ? event.spanId : `event:${position}`, label }];
+  });
+}
+
+/** The guards and skills a block's runtime trace recorded, in the order they ran. */
+function runtimeEventsOf(
+  runtime: RuntimeTraceLike | undefined,
+): { kind: 'guard' | 'skill'; name: string; verdict?: string }[] {
+  if (!runtime) return [];
+  const guards = (runtime.guards ?? []).map((guard) => ({
+    kind: 'guard' as const,
+    name: guard.name,
+    verdict: guard.verdict,
+  }));
+  const skills = (runtime.skills ?? []).map((skill) => ({ kind: 'skill' as const, name: skill.name }));
+  return [...guards, ...skills];
+}
+
+type RuntimeTraceLike = {
+  guards?: { name: string; verdict: string }[];
+  skills?: { name: string }[];
+};
 
 /** The expected number of calls for a tool expectation: the count, else its min, else 1. */
 function expectedCalls(count: Count | undefined): number {
@@ -256,7 +484,8 @@ export function toolAccuracy(data: CampaignData): ToolAccuracy {
     const sums = { matched: 0, expected: 0, observed: 0 };
     let counted = false;
     for (const { result, specBlock } of blocksWithSpec(run, spec)) {
-      if (specBlock === undefined) continue;
+      // A block not run or blocked made no call because it was never sent: it is no tool measurement.
+      if (specBlock === undefined || !isScored(result)) continue;
       const tools = spec?.blocks[specBlock]?.expect?.tools;
       if (!tools) continue;
       counted = true;
@@ -329,6 +558,13 @@ function costOf(runs: readonly RunResult[]): Scorecard['cost'] {
   runs.forEach((run, index) => {
     if (run.cacheHit) return;
     for (const block of run.blocks) {
+      if (run.rejudged) {
+        if (block.rejudged?.judgeCostUsd !== undefined) {
+          usd.push(block.rejudged.judgeCostUsd);
+          usdClusters.push(index);
+        }
+        continue;
+      }
       const observed = block.observed;
       const segmentUsd = observed.segments.flatMap((segment) =>
         segment.cost?.usd === undefined ? [] : [segment.cost.usd],
@@ -348,4 +584,9 @@ function costOf(runs: readonly RunResult[]): Scorecard['cost'] {
     ...optional('perBlockUsd', clustered(usd, usdClusters)),
     ...optional('latencyMsPerBlock', clustered(latency, latencyClusters)),
   };
+}
+
+/** What a page shows for sent text the run kept only as a hash. */
+export function notStored(hash: string): string {
+  return `(other text than the spec wrote; not stored, only its hash ${hash.slice(0, 12)}. campaign run --record-realized-text stores it)`;
 }

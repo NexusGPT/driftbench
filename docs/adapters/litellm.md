@@ -2,13 +2,23 @@
 
 Status: shipped, release phase. It passes the [contract suite](index.md#the-contract-suite) in chat mode, on a fake proxy that plays the Acme example agent, and on the real `openai` client (7.32.0) pointed at that fake proxy through its `fetch`. It has not run against a live LiteLLM proxy yet.
 
-The litellm adapter runs an agent whose model sits behind a [LiteLLM](https://docs.litellm.ai/) proxy, or any endpoint that speaks the OpenAI chat completions shape. You hand it a client: the `openai` package's client with its `baseURL` on the proxy, or any object with `chat.completions.create`. `openai` is an optional peer dependency of `@driftbench/adapters`; driftbench does not depend on it.
+The litellm adapter runs an agent whose model sits behind a [LiteLLM](https://docs.litellm.ai/) proxy, or any endpoint that speaks the OpenAI chat completions shape. You hand it a client: the `openai` package's client with its `baseURL` on the proxy, or any object with `chat.completions.create`. `openai` is an optional peer dependency of `@agent-nexus/driftbench-adapters`; driftbench does not depend on it.
+
+From the command line, a spec whose target is `litellm:<model>` with `options.base_url` reaches this adapter with no code, through a client built on `fetch`: see [targets from settings](../running.md#targets-from-settings).
+
+## CLI target credential handling
+
+::: warning Successful replies and sensitive stores
+A successful reply is stored as the agent sent it, except for the redactions described here. The CLI scans for literal keys, percent, base64, base64url and hex encodings, and all 16 ordered two-level compositions of those encodings, including `base64(percent(key))`. It also scans the encoded `Bearer <key>` forms. A key echoed in another form can remain in results. Keys split across fields are not detected; deeper or unlisted encodings are outside this protection. Use a test-scoped key and treat the results store and cache as sensitive.
+:::
+
+**CLI error-path guarantee:** with `target.options.debug_error_body` absent or false, upstream error bodies, headers and thrown transport details never enter output or storage. Diagnostics contain only fixed messages, status, request host and body length when known. `debug_error_body: true` is an explicitly unsafe opt-in to error-body disclosure. This guarantee belongs to the CLI target wrapper; directly constructing the library adapter does not install that wrapper.
 
 ## Options
 
 ```ts
 import OpenAI from 'openai';
-import { litellmAdapter } from '@driftbench/adapters';
+import { litellmAdapter } from '@agent-nexus/driftbench-adapters';
 import { salesPrompt, salesTools } from './agent'; // your prompt, and a function that returns SdkTool[]
 
 const adapter = litellmAdapter({
@@ -50,7 +60,7 @@ Text and tool calls in order, each tool call followed by its result. Tokens come
 
 | Error | Becomes |
 |---|---|
-| a 429 or a 5xx, or a connection or timeout error, after the policy's attempts | `AdapterTransportError`, marked exhausted |
+| a 408, a 429 or a 5xx, or a connection or timeout error, after the policy's attempts | `AdapterTransportError`, marked exhausted |
 | any other status, such as a 400 for a bad tool name or a 401 | `AgentFailure` |
 | a completion with no `choices[0].message`, or tool calls at the step cap | `AgentFailure` |
 

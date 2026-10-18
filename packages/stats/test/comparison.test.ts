@@ -118,6 +118,11 @@ describe('mde', () => {
   it('returns null when no drop below the baseline rate is detectable', () => {
     expect(mde({ n: 1, baselineRate: 0.05 }).effect).toBeNull();
   });
+  it('answers at a baseline where every run passes or every run fails', () => {
+    const allPass = mde({ n: 50, baselineRate: 1 }).effect as number;
+    expect(allPass).toBeCloseTo(0.142, 3);
+    expect(mde({ n: 50, baselineRate: 0 }).effect).toBeNull();
+  });
 });
 
 describe('pairedRateDifference', () => {

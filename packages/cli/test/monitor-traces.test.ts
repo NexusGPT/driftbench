@@ -1,7 +1,7 @@
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { Trace } from '@driftbench/adapters';
+import type { Trace } from '@agent-nexus/driftbench-adapters';
 import { afterAll, describe, expect, it } from 'vitest';
 import { type MonitorReport, monitor } from '../src/commands/monitor';
 import { conversationValue, parseWindow, traceSeries } from '../src/commands/monitor-traces';

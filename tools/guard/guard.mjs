@@ -17,9 +17,14 @@
  *             Denylisted terms are never printed, not even partly.
  * Allow:      a line containing "guard:allow" suppresses pattern findings on that line.
  *             It never suppresses a denylist finding.
- * Exit:       0 clean, 1 findings or a canary miss, 2 usage error.
+ * Exceptions: each tools/guard/fingerprints/*.json lists exact values a generator made up.
+ *             An entry is the kind plus the sha256 of the exact matched text; nothing else is excused.
+ *             It never suppresses a denylist finding.
+ * Size:       files above 10 MiB fail the guard with a named error; they are never skipped.
+ * Exit:       0 clean, 1 findings, scan errors or a canary miss, 2 usage error.
  */
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, extname, join, relative, resolve } from 'node:path';
@@ -136,6 +141,7 @@ const BINARY_EXTENSIONS = new Set(
 const SKIP_DIRS = new Set(['.git', 'node_modules']);
 const MAX_BYTES = 10 * 1024 * 1024;
 const ALLOW_MARKER = 'guard:allow';
+const EXCEPTIONS_DIR = join(fileURLToPath(new URL('.', import.meta.url)), 'fingerprints');
 
 /** Remainder of a long decimal string divided by 97. */
 export function mod97(digits) {
@@ -191,22 +197,48 @@ export function isAllowedEmail(address) {
 }
 
 const IBAN_CANDIDATE = /\b[A-Z]{2}\d{2}(?:[  ]?[A-Z0-9]){10,32}/g;
-const NATIONAL_CANDIDATE = /(?<![\d.])\d{2}\.?\d{2}\.?\d{2}[-. ]?\d{3}[-. ]?\d{2}(?![\d])/g;
-const INTERNATIONAL_PHONE = /(?<![\w+])\+[1-9][\d \-().]{6,22}\d/g;
-const BELGIAN_MOBILE = /(?<![\d+])(?:00 ?32 ?|0)4[5-9]\d(?:[ ./-]?\d{2}){3}(?!\d)/g;
+// Numeric PII must not start or end inside a hexadecimal digest.
+const NATIONAL_CANDIDATE = /(?<![\da-fA-F.])\d{2}\.?\d{2}\.?\d{2}[-. ]?\d{3}[-. ]?\d{2}(?![\da-fA-F])/g;
+const INTERNATIONAL_PHONE = /(?<![\w+])\+[1-9][\d \-().]{6,22}\d(?![\da-fA-F])/g;
+const BELGIAN_MOBILE = /(?<![\da-fA-F+])(?:00 ?32 ?|0)4[5-9]\d(?:[ ./-]?\d{2}){3}(?![\da-fA-F])/g;
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g;
 
 function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+export function fingerprint(kind, value) {
+  return `${kind}:${createHash('sha256').update(value).digest('hex')}`;
+}
+
+/** Reads the exact-fingerprint exceptions of every JSON file in the folder: a set of `kind:sha256` strings. */
+export function loadExceptions(dir = EXCEPTIONS_DIR) {
+  const set = new Set();
+  if (!existsSync(dir)) return set;
+  for (const name of readdirSync(dir)
+    .filter((entry) => entry.endsWith('.json'))
+    .sort()) {
+    for (const entry of JSON.parse(readFileSync(join(dir, name), 'utf8')).entries ?? []) {
+      if (
+        !['national-number', 'phone', 'iban', 'email'].includes(entry.kind) ||
+        !/^[0-9a-f]{64}$/.test(entry.sha256)
+      ) {
+        throw new Error(`bad fingerprint entry in ${name}`);
+      }
+      set.add(`${entry.kind}:${entry.sha256}`);
+    }
+  }
+  return set;
+}
+
 /**
  * Finds personal data and denylisted terms in one text.
  * Returns raw values so the caller decides how to redact them.
  */
-export function scanText(text, { denylist = [] } = {}) {
+export function scanText(text, { denylist = [], exceptions = new Set() } = {}) {
   const findings = [];
   let allowed = 0;
+  let excused = 0;
   const terms = denylist.map((term, index) => ({
     index: index + 1,
     pattern: new RegExp(`(?<![A-Za-z0-9])${escapeRegExp(term)}(?![A-Za-z0-9])`, 'gi'),
@@ -214,7 +246,7 @@ export function scanText(text, { denylist = [] } = {}) {
 
   text.split('\n').forEach((content, offset) => {
     const line = offset + 1;
-    const lineFindings = [];
+    let lineFindings = [];
 
     for (const match of content.matchAll(IBAN_CANDIDATE)) {
       const compact = match[0].replace(/[\s ]/g, '');
@@ -240,6 +272,13 @@ export function scanText(text, { denylist = [] } = {}) {
       if (!isAllowedEmail(match[0])) lineFindings.push({ line, kind: 'email', value: match[0] });
     }
 
+    if (exceptions.size > 0) {
+      const kept = lineFindings.filter(
+        (finding) => !exceptions.has(fingerprint(finding.kind, finding.value)),
+      );
+      excused += lineFindings.length - kept.length;
+      lineFindings = kept;
+    }
     if (content.includes(ALLOW_MARKER)) {
       allowed += lineFindings.length;
     } else {
@@ -253,7 +292,7 @@ export function scanText(text, { denylist = [] } = {}) {
     }
   });
 
-  return { findings, allowed };
+  return { findings, allowed, excused };
 }
 
 /** Masks a value for printing. Denylisted terms are masked entirely. */
@@ -336,31 +375,39 @@ function readText(file) {
     return { skip: 'missing' };
   }
   if (!info.isFile()) return { skip: 'not a file' };
-  if (info.size > MAX_BYTES) return { skip: 'too large' };
+  if (info.size > MAX_BYTES)
+    return { error: `size ${info.size} bytes exceeds scan limit ${MAX_BYTES} bytes` };
   const buffer = readFileSync(file);
   if (buffer.subarray(0, 8000).includes(0)) return { skip: 'binary' };
   return { text: buffer.toString('utf8') };
 }
 
-/** Scans files and returns every finding with its path relative to the root. */
-export function scanFiles(files, root, denylist) {
+/** Scans files and returns findings and scan errors with paths relative to the root. */
+export function scanFiles(files, root, denylist, exceptions = new Set()) {
   const findings = [];
   const skipped = [];
+  const errors = [];
   let scanned = 0;
   let allowed = 0;
+  let excused = 0;
   for (const file of files) {
     const read = readText(file);
     const shown = relative(root, file) || file;
+    if (read.error) {
+      errors.push({ file: shown, reason: read.error });
+      continue;
+    }
     if (read.skip) {
       skipped.push({ file: shown, reason: read.skip });
       continue;
     }
     scanned += 1;
-    const result = scanText(read.text, { denylist });
+    const result = scanText(read.text, { denylist, exceptions });
     allowed += result.allowed;
+    excused += result.excused;
     for (const finding of result.findings) findings.push({ file: shown, ...finding });
   }
-  return { findings, skipped, scanned, allowed };
+  return { findings, skipped, errors, scanned, allowed, excused };
 }
 
 class UsageError extends Error {}
@@ -447,7 +494,8 @@ function parseArgs(argv) {
 
 const HELP = `Usage: node tools/guard/guard.mjs [paths...] [--json] [--canary] [--require-denylist]
 Scans for IBANs, Belgian national register numbers, phone numbers, real email addresses
-and denylisted terms. Exit 0 clean, 1 findings, 2 usage error.
+and denylisted terms. Files above 10 MiB fail with a named error.
+Exit 0 clean, 1 findings or scan errors, 2 usage error.
 `;
 
 /** Runs the guard. Returns the exit code. */
@@ -510,35 +558,50 @@ export function main(argv, io) {
     io.err('driftbench guard: --require-denylist is set but no denylist terms were loaded.\n');
     return 1;
   }
-  const result = scanFiles(listing.files, listing.root, denylist);
+  const result = scanFiles(listing.files, listing.root, denylist, loadExceptions(io.exceptionsDir));
   const shown = result.findings.map(({ file, line, kind, value, entry }) => ({
     file,
     line,
     kind: kind === 'denylist' ? `denylist #${entry}` : kind,
     redacted: redact(value, kind),
   }));
+  const clean = shown.length === 0 && result.errors.length === 0;
 
   if (options.json) {
     io.out(
       `${JSON.stringify(
         {
-          clean: shown.length === 0,
+          clean,
           scanned: result.scanned,
           skipped: result.skipped.length,
           allowed: result.allowed,
+          excused: result.excused,
           denylistTerms: denylist.length,
           findings: shown,
+          errors: result.errors,
         },
         null,
         2,
       )}\n`,
     );
-    return shown.length === 0 ? 0 : 1;
+    return clean ? 0 : 1;
   }
 
-  const allowedNote = result.allowed > 0 ? ` ${result.allowed} allowed by ${ALLOW_MARKER} markers.` : '';
+  for (const error of result.errors) {
+    io.err(`driftbench guard: cannot scan ${error.file}: ${error.reason}.\n`);
+  }
+  const allowedNote =
+    (result.allowed > 0 ? ` ${result.allowed} allowed by ${ALLOW_MARKER} markers.` : '') +
+    (result.excused > 0 ? ` ${result.excused} excused by fingerprint.` : '');
   const scope = `${result.scanned} files scanned, ${result.skipped.length} skipped, ${denylist.length} denylist terms`;
   if (shown.length === 0) {
+    if (!clean) {
+      const errors = result.errors.length;
+      io.out(
+        `driftbench guard: FAILED (${scope}). ${errors} file${errors === 1 ? '' : 's'} could not be scanned.${allowedNote}\n`,
+      );
+      return 1;
+    }
     io.out(`driftbench guard: clean (${scope}).${allowedNote}\n`);
     return 0;
   }

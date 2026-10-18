@@ -7,7 +7,7 @@ import type { RetryEvent } from '../schema/run';
  * The one retry policy of every model-facing call: the adapters that call a model, the runner around every
  * adapter call, and the judge clients.
  *
- * Only a transient failure is retried: an HTTP 429, a 5xx (an overloaded 529 included), or a network error
+ * Only a transient failure is retried: an HTTP 408, a 429, a 5xx (an overloaded 529 included), or a network error
  * (refused, reset, unreachable, timed out). Waits grow exponentially from a base up to a cap, drawn at
  * random below the backoff (full jitter), and never shorter than the server's Retry-After. Every retry is
  * reported: to an `onRetry` callback, and to the innermost `collectRetries` scope, which is how the runner
@@ -88,9 +88,9 @@ const NETWORK_CODE = new Set([
   'UND_ERR_BODY_TIMEOUT',
 ]);
 
-/** True for a status worth trying again: 429, or any 5xx. */
+/** True for a status worth trying again: 408, 429, or any 5xx. */
 export function retryableStatus(status: number): boolean {
-  return status === 429 || (status >= 500 && status <= 599);
+  return status === 408 || status === 429 || (status >= 500 && status <= 599);
 }
 
 /**

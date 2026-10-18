@@ -4,10 +4,20 @@ Status: shipped, phase 1. It passes the [contract suite](index.md#the-contract-s
 
 The http adapter reaches an agent behind an HTTP endpoint that speaks JSON. Each block is one POST with the conversation so far in the OpenAI-compatible chat shape. The endpoint answers with an Observed, or with an OpenAI-compatible chat completion.
 
+From the command line, a spec whose target is `http:<agent>` with `options.url` reaches this adapter with no code: see [targets from settings](../running.md#targets-from-settings).
+
+## CLI target credential handling
+
+::: warning Successful replies and sensitive stores
+A successful reply is stored as the agent sent it, except for the redactions described here. The CLI scans for literal keys, percent, base64, base64url and hex encodings, and all 16 ordered two-level compositions of those encodings, including `base64(percent(key))`. It also scans the encoded `Bearer <key>` forms. A key echoed in another form can remain in results. Keys split across fields are not detected; deeper or unlisted encodings are outside this protection. Use a test-scoped key and treat the results store and cache as sensitive.
+:::
+
+**CLI error-path guarantee:** with `target.options.debug_error_body` absent or false, upstream error bodies, headers and thrown transport details never enter output or storage. Diagnostics contain only fixed messages, status, request host and body length when known. `debug_error_body: true` is an explicitly unsafe opt-in to error-body disclosure. This guarantee belongs to the CLI target wrapper; directly constructing the library adapter does not install that wrapper.
+
 ## Options
 
 ```ts
-import { httpAdapter } from '@driftbench/adapters';
+import { httpAdapter } from '@agent-nexus/driftbench-adapters';
 
 const adapter = httpAdapter({
   url: 'http://localhost:8080/turn',
@@ -120,8 +130,8 @@ A response with status 200 holds one of two shapes.
 
 | What happens | Error |
 |---|---|
-| no connection, a timeout, a body that breaks off, status 429 or any 5xx | `AdapterTransportError` with the status and the `Retry-After` wait: the runner retries under the [shared policy](../retries.md) |
-| any other failing status (408 included), a body that is not a JSON object, a body of neither shape | `AgentFailure`: the run fails |
+| no connection, a timeout, a body that breaks off, status 408, 429 or any 5xx | `AdapterTransportError` with the status and the `Retry-After` wait: the runner retries under the [shared policy](../retries.md) |
+| any other failing status, a body that is not a JSON object, a body of neither shape | `AgentFailure`: the run fails |
 
 ## End state and close
 
@@ -133,7 +143,7 @@ A response with status 200 holds one of two shapes.
 
 `seedPrefix` is on: the endpoint receives the whole history. `endState` is on when `endStateUrl` is set. `variants`, `toolStubs` and `deterministic` are as declared. `trace` and `sandbox` are off.
 
-The version is `0.1.0+` and a hash of `url`, so two endpoints never share a cache entry.
+The version is `<adapter version>+<hash of url>`, using the exported `HTTP_ADAPTER_VERSION` and the content hash of `url`. The same URL gives the same version; different URLs give different versions, so two endpoints never share a cache entry.
 
 ## Target
 

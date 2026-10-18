@@ -2,16 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-011
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 11 of 154: Path upgrade-unknown-email of upgrade: needs > identify > identify, D9_out_of_scope at identify"
+title: "t-wise row 11 of 132: Path upgrade-unknown-email of upgrade: needs > identify > identify, D9_out_of_scope at identify"
 channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:existing-customer
-  - data:no-service
-  - task:catalog-only
   - flow:upgrade
 covers:
   - B-001
@@ -27,6 +25,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-001
     rubric: Identify an existing customer by the email on the account before quoting their plan
@@ -90,14 +90,13 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: upgrade-unknown-email
     cell:
       behaviour: B-001
       channel: chat
       user_type: existing-customer
-      coverage_result: no-service
-      workspace_start: catalog-only
+      coverage_result: none
       flow: upgrade
       account_lookup: not-found
     blocks:

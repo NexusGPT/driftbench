@@ -1,0 +1,57 @@
+{
+  "row": "criteria-and-verdict",
+  "variant": "ours",
+  "set": "hard",
+  "model": "haiku",
+  "expected": 120,
+  "complete": false,
+  "freshUsd": 0.0038805,
+  "newCalls": 10,
+  "answers": [
+    {
+      "id": "judge-near_price-01",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": [
+        "43e79ae4a3383910564151f57317e3f8ff3099002958d659bbe5e866d5d227cc",
+        "6b6ec634ef53e61e0d5d9b613d927a40c22cd538706e028ebd8119146c0c4568"
+      ],
+      "costUsd": 0.0007745
+    },
+    {
+      "id": "judge-near_price-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": [
+        "395f7935007f8af3dfa6f7d60dbd77f5e3dd8540139216e1f41c0bf5b3d1f424",
+        "5b21b1839d7091741ea9cc3a3ed171591869c464fcf8252127dc94cd8fa792da"
+      ],
+      "costUsd": 0.0007341000000000001
+    },
+    {
+      "id": "judge-near_price-03",
+      "predictions": ["inconclusive", "fail"],
+      "request_sha256s": [
+        "36ef79fe443700386da2021569749d17253507d6fef90c0a31265a7526597ba2",
+        "eb2c637f4f919d0c244029169a3ccf5ed781ed1c722ff8e361498ad53c77cef3"
+      ],
+      "costUsd": 0.0009010000000000001
+    },
+    {
+      "id": "judge-near_price-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": [
+        "72ab142f700d66cedcb6b5e8e8cdeeeb2461228fdb799e9389c886890785ecfb",
+        "602e0cb9119afd5866f6727d70b17a579c702bd79acc8c03a337694e4599c398"
+      ],
+      "costUsd": 0.0007255
+    },
+    {
+      "id": "judge-near_price-05",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": [
+        "dc581312a16f844f069dc3746e74c418d66d275d26dd6b91ddcd0b506c6eab75",
+        "6e300c6ad725feec0623d32113504ff60d7762a27301e5abda9057cfa8f50f22"
+      ],
+      "costUsd": 0.0007454
+    }
+  ]
+}

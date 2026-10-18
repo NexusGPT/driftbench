@@ -4,6 +4,7 @@
     "noEmit": true
   },
   "include": [
+    "benchmarks/**/*.ts",
     "packages/*/src/**/*.ts",
     "packages/*/test/**/*.ts",
     "examples/*/src/**/*.ts",
@@ -11,5 +12,6 @@
     "tools/docs/**/*.ts",
     "tools/browser/**/*.ts",
     "vitest.config.ts"
-  ]
+  ],
+  "exclude": ["examples/judge-benchmarks"]
 }

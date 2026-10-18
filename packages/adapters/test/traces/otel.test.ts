@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { Observed } from '@driftbench/core';
+import { Observed } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { anyValue, parseOtlp, tracesFromOtel } from '../../src/traces';
 
@@ -47,6 +47,7 @@ describe('tracesFromOtel: the current GenAI semantic conventions', () => {
     expect(first?.observed.toolCalls).toEqual([
       {
         id: 'call_cov_1',
+        spanId: 'a100000000000003',
         label: 'coverage.check',
         input: { address: '3 Orchard Way, Acmeville' },
         output: { found: true, address_id: 'addr-102', fiber_mbps: 300, five_g: true },
@@ -155,11 +156,63 @@ describe('tracesFromOtel: edge cases', () => {
     );
     const [trace, other] = traces;
     expect(trace?.turns[0]?.observed.toolCalls).toEqual([
-      { label: 'lookup', input: {}, error: 'timeout', startedAt: '1970-01-01T00:00:10.500Z', latencyMs: 100 },
+      {
+        spanId: tool.spanId,
+        label: 'lookup',
+        input: null,
+        error: 'timeout',
+        startedAt: '1970-01-01T00:00:10.500Z',
+        latencyMs: 100,
+      },
     ]);
     expect(other).toBeUndefined();
     expect(trace?.issues).toEqual([]);
     expect(issues).toEqual(['t9: 1 span and no chat span, left out']);
     expect(tracesFromOtel([]).traces).toEqual([]);
+  });
+});
+
+describe('tracesFromOtel keeps the span tree as observations', () => {
+  it('keeps every span with its kind, its parent link and its times', async () => {
+    const [trace] = tracesFromOtel(parseOtlp(await read('otel-flat.jsonl')).spans).traces;
+    const observations = trace?.observations ?? [];
+    expect(observations).toHaveLength(6);
+    const ids = new Set(observations.map((entry) => entry.id));
+    expect(observations.every((entry) => entry.parentId === undefined || ids.has(entry.parentId))).toBe(true);
+    const root = observations.find((entry) => entry.id === 'b200000000000001');
+    expect(root).toMatchObject({ kind: 'other', name: 'acme.turn.workflow' });
+    expect(root?.parentId).toBeUndefined();
+    const tool = observations.find((entry) => entry.id === 'b200000000000003');
+    expect(tool).toMatchObject({ kind: 'tool', name: 'port.check.tool', parentId: 'b200000000000001' });
+    expect(tool?.start).toBe(new Date(1772450431050).toISOString());
+  });
+});
+
+describe('tracesFromOtel observations carry level, usage and cost', () => {
+  it('gives a chat span its tokens and its priced cost, and a span with an error status the error level', async () => {
+    const prices = { 'example-model-2': { input: 2, output: 8 } };
+    const [trace] = tracesFromOtel(parseOtlp(await read('otel-flat.jsonl')).spans, { prices }).traces;
+    const chat = trace?.observations?.find((entry) => entry.id === 'b200000000000002');
+    expect(chat).toMatchObject({
+      kind: 'chat',
+      level: 'default',
+      usage: { inputTokens: 340, outputTokens: 30 },
+    });
+    expect(chat?.usd).toBeCloseTo((340 * 2) / 1e6 + (30 * 8) / 1e6, 12);
+    const tool = trace?.observations?.find((entry) => entry.id === 'b200000000000003');
+    expect(tool?.usage).toBeUndefined();
+    expect(tool?.usd).toBeUndefined();
+    expect(tool?.level).toBe('default');
+  });
+});
+
+describe('tracesFromOtel observations carry their input and output', () => {
+  it('gives a tool observation its arguments and result, and a chat observation its reply text', async () => {
+    const [trace] = tracesFromOtel(parseOtlp(await read('otel-flat.jsonl')).spans).traces;
+    const tool = trace?.observations?.find((entry) => entry.id === 'b200000000000003');
+    expect(tool?.input).toEqual({ number: '+12025550165' });
+    expect(tool?.output).toEqual({ eligible: true });
+    const chat = trace?.observations?.find((entry) => entry.id === 'b200000000000004');
+    expect(chat?.output).toBe('Good news: +1 202 555 0165 can move to Acme. Which plan would you like?');
   });
 });

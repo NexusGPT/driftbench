@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-13T22:48:47.864161+00:00",
+  "scope": "Publication scanner only; no contestant, provider, scoring or sealed-data setting changes",
+  "finding": "Unanchored key-prefix regex matched inside provider encrypted reasoning content",
+  "receipt": "sol61/receipts/native/5e371baa-335f-4c0b-9d18-f334eea3172f.json",
+  "field": "output[0].encrypted_content",
+  "authorizedKeyPresentInReceipt": false,
+  "fix": "Require a token boundary for generic key-shaped strings and independently scan exact bytes of both authorized key files inside the publication command",
+  "checks": "Syntax and synthetic quoted, bare, Bearer and assignment key-shaped tokens detected; embedded base64 prefix excluded",
+  "providerCalls": 0,
+  "priorSourceSha256": "dce0b1963d5b3d14211eed90c3525c5925c703a9e66e758923963713c58a0d54",
+  "sourceSha256": "c08a1eb2f3d0763f07b1f11af438fa04c2c19b53d935f10c2f5400b389a1e44a"
+}

@@ -1,8 +1,8 @@
 import { mkdtemp, realpath, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { Message, Observed, ResolvedGiven, TargetPrompt, TargetRef } from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
+import type { Message, Observed, ResolvedGiven, TargetPrompt, TargetRef } from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { anthropicAdapter } from '../src/anthropic/index';
 import { functionAdapter } from '../src/function/index';

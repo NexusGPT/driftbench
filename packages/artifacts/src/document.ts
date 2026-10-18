@@ -4,7 +4,7 @@ import type {
   ArtifactDocument,
   ArtifactKind,
   ArtifactReader,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { CheckArgumentError, isRecord, Missing } from './args';
 
 /** What one check found. */

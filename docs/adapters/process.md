@@ -7,8 +7,8 @@ The process adapter runs a code-interpreter agent as a command in a sandbox, one
 ## Options
 
 ```ts
-import { processAdapter } from '@driftbench/adapters';
-import { localProvider } from '@driftbench/sandbox';
+import { processAdapter } from '@agent-nexus/driftbench-adapters';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 
 const adapter = processAdapter({
   command: process.execPath,
@@ -21,7 +21,7 @@ const adapter = processAdapter({
 |---|---|
 | `command` | the agent command: a binary on the sandbox's `PATH`, or a path to one |
 | `args` | its arguments |
-| `provider` | where sandboxes come from: `localProvider()` or `dockerProvider({ image })` of `@driftbench/sandbox` |
+| `provider` | where sandboxes come from: `localProvider()` or `dockerProvider({ image })` of `@agent-nexus/driftbench-sandbox` |
 | `keep` | leave each sandbox on disk after `close`, for inspection |
 | `image` | the docker image, when it differs from the provider's |
 | `stimulus` | how the instruction reaches the agent: `stdin` (the default) or `file` |
@@ -108,14 +108,42 @@ This is how a code-agent harness reports its runtime: its hooks as guards, its s
 | Provider | Isolation | What it is |
 |---|---|---|
 | `localProvider()` | weak | a fresh temporary folder on this machine. Commands run there through `/bin/sh` as the current user: the folder bounds what the run records, not what the agent can reach. |
-| `dockerProvider({ image })` | strong | one container per sandbox, from the image, with the workspace folder mounted at `/workspace`. The image needs a shell. The container runs as the current user, so every file the agent writes stays removable. |
+| `dockerProvider({ image })` | strong | one container per sandbox, from the image, with the workspace folder mounted at `/workspace`. The image needs a shell. The container runs as the current user, so every file the agent writes stays removable. The container has no network unless `network: 'bridge'` is given. |
+
+Docker resource and privilege defaults are configured on `dockerProvider`:
+
+| Option | Default | Docker flag | Override |
+|---|---|---|---|
+| `memory` | `'1g'` (1 GiB) | `--memory` | another Docker size string; `'0'` removes the limit |
+| `cpus` | `1` core | `--cpus` | a fractional or whole core count; `0` removes the quota |
+| `pidsLimit` | `256` processes | `--pids-limit` | another count; `-1` removes the limit |
+| `capDrop` | `['ALL']` | one `--cap-drop` per entry | another capability list; `[]` keeps Docker's default capabilities |
+| `noNewPrivileges` | `true` | `--security-opt no-new-privileges` | `false` omits this restriction |
+| `network` | `'none'` | `--network none` | `'bridge'` allows network access |
+
+For example, `dockerProvider({ image: 'node:22-alpine', memory: '2g', cpus: 2, pidsLimit: 512 })` raises the resource limits while keeping the default privilege restrictions and network denial. Workloads that exceed a resource limit can fail; raise only the limits they need.
+
+Exec environment values travel through `--env-file`, stored outside the mounted workspace in a private temporary folder (mode `0700`). The file is created with mode `0600`; the file and folder are removed after success, failure or timeout. Values appear in neither argv nor the Docker client's environment. Container variables such as `PATH`, `DOCKER_HOST`, `DOCKER_CONFIG`, `DOCKER_CONTEXT` and `HTTP_PROXY` cannot steer the client.
+
+Docker's [env-file parser](https://github.com/docker/cli/blob/master/pkg/kvfile/kvfile.go) reads literal `NAME=value` lines: spaces (including leading and trailing spaces), quotes, `=` and `#` inside values are preserved, with no quoting or escaping added. Empty values and stdin are preserved. Values containing LF or CR line breaks are rejected before Docker runs, with an error naming the variable; multiline values cannot be represented by this format. NUL values and names containing whitespace, `=` or NUL, or starting with `#`, are also rejected. Only explicitly named variables are forwarded to the container; the parent process environment is not changed.
+
+A sandbox folder that a run leaves open is removed when the process exits, including on SIGINT and SIGTERM, so an interrupted run leaves no workspace behind. A kept sandbox is not removed. A command still running at that point is killed with its process group. Only SIGKILL, which no process can catch, leaves them behind.
 
 Each provider reports whether it can run on this machine (`available()`); the adapter does not fall back from one to the other. The sandbox's isolation is on every Observed.
+
+An approval policy is opt-in. Wrap a provider with `withApprovalPolicy(provider, policy)` and each sandbox it makes checks its commands and reads against the policy. Without it, the sandbox runs as before and its records carry no approval field.
+
+* A rule matches a command (the whole command text) or a path. A path is a command's `cwd` or a file the harness reads through the sandbox. A `*` in a pattern matches any run of characters.
+* The first matching rule decides. `allow` and `deny` decide alone. `ask` calls the approver. With no approver, or one that throws, the answer is a denial.
+* No matching rule allows. A denied command does not run: its exit code is 126 and its record names the rule. A denied read throws `SandboxApprovalError`.
+* Every decision rides on the command's record as `approval`, and reads are kept in the sandbox's `approvals()` log.
+* Path rules do not read the paths a shell command names. A command that reaches a file by name is checked only by a command rule.
 
 Bounds, so a runaway agent cannot exhaust the run:
 
 * Standard output and standard error are each cut at 10 MiB, and the record says so.
 * A command is killed after its timeout, 10 minutes by default, with everything it started. Its exit code is then 124. A command killed by a signal exits with 128 plus the signal number.
+* A child that left the command's process group (it started its own session) is found by its working folder after the command ends. Linux reads this from `/proc` at once. macOS has no `/proc`: the sweep runs `ps` and `lsof` after the exit, so on a heavily loaded host a child that wakes within about half a second of the exit may run before it is ended.
 * A file read returns at most 100 MiB.
 * A snapshot stops past 20,000 files, 32 folder levels or 1 GiB hashed. It never enters `node_modules` or `.git`.
 
@@ -133,7 +161,7 @@ Bounds, so a runaway agent cannot exhaust the run:
 
 ## Capabilities
 
-`sandbox` is on, and so is `readArtifact`. `deterministic` is as declared. `variants`, `seedPrefix`, `toolStubs`, `trace` and `endState` are off: the adapter reads no end state, so a task checks its outcome through `artifacts`, `workspace` and `execution`. The version is `0.1.0`.
+`sandbox` is on, and so is `readArtifact`. `seedPrefix` is on: the agent receives the session history, the prefix included (and in mode T the canonical history), in `driftbench-history.json`. `deterministic` is as declared. `variants`, `toolStubs`, `trace` and `endState` are off: the adapter reads no end state, so a task checks its outcome through `artifacts`, `workspace` and `execution`. The version is `0.1.0`.
 
 ## Target
 
@@ -143,4 +171,4 @@ target:
   agent: office-agent
 ```
 
-The adapter reads no field of the target: the command and its arguments are set in code. The command line reaches one process target, `process:acme-ops`: the Acme ops agent (`examples/acme/ops/agent.mjs`), run by the CLI's own Node.js in a local sandbox, one temporary folder per run, declared deterministic. Any other process agent is used from code. See [running](../running.md#runspec).
+The adapter takes its command and arguments from its configuration. The CLI includes `process:acme-ops`: the Acme ops agent (`examples/acme/ops/agent.mjs`), run by the CLI's own Node.js in a local sandbox, one temporary folder per run, declared deterministic. For another process agent, pass `--target process:my-agent --process-command '["python3","/absolute/path/to/agent.py"]'` to `campaign run`, or set that process target in the spec. `campaign resume` and `ci` also accept `--process-command`. The command runs in the sandbox workspace, so use absolute script paths. The command does not override the built-in `process:acme-ops` target. See [running](../running.md#runspec).

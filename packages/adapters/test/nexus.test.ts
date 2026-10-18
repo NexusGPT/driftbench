@@ -1,4 +1,9 @@
-import { AdapterTransportError, AgentFailure, type Session, type TargetRef } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  type Session,
+  type TargetRef,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { type NexusAdapterOptions, nexusAdapter } from '../src/nexus/index';
 import {
@@ -462,7 +467,7 @@ describe('nexus adapter, against the fake platform', () => {
     await expect(adapter.endState?.(session, 'payloads')).rejects.toThrow(/tool:<label> or \*/);
   });
 
-  it('maps platform failures by the shared retry rule: 429, 5xx and a dropped connection may be retried, 408 and 404 fail the block', async () => {
+  it('maps platform failures by the shared retry rule: 408, 429, 5xx and a dropped connection may be retried, 404 fails the block', async () => {
     const fake = createFakeNexus({ apiKey: KEY, stubs });
     const adapter = on(fake);
     for (const [failure, kind] of [
@@ -470,7 +475,7 @@ describe('nexus adapter, against the fake platform', () => {
       [429, AdapterTransportError],
       [500, AdapterTransportError],
       ['network', AdapterTransportError],
-      [408, AgentFailure],
+      [408, AdapterTransportError],
       [404, AgentFailure],
     ] as const) {
       fake.failNext(/^\/prompt-eval\/golden-conversations$/, failure);

@@ -1,0 +1,173 @@
+{
+  "created": "2026-10-13T07:08:26.244586+00:00",
+  "base_commit": "9970c938de76bbb3030795d983fad08d8bb611b6",
+  "candidate_procedure_sha256": "d7f5e226bf5afe7b955ee0f2247835cd19953001c196dcc7260d1f0c37922587",
+  "rows": {
+    "rubric": {
+      "seeds": [
+        61155780,
+        75192967
+      ],
+      "n": 384,
+      "pass": 192,
+      "fail": 192,
+      "families": {
+        "period": 32,
+        "arithmetic": 32,
+        "later-contradiction": 32,
+        "disjunction": 32,
+        "long-fluent": 32,
+        "negation": 32,
+        "quoted-claim": 32,
+        "partial-completion": 32,
+        "tag-injection": 32,
+        "scope": 32,
+        "cross-language": 32,
+        "conjunction": 32
+      },
+      "unique_full_payloads": 384,
+      "prior_overlap": 0,
+      "sha256": "40db40f57eb9637567837eb4892621eb8938340d912fef6d6824588d54dbc534"
+    },
+    "factuality": {
+      "seeds": [
+        37514137,
+        59241593
+      ],
+      "n": 384,
+      "pass": 192,
+      "fail": 192,
+      "families": {
+        "near-number": 32,
+        "consistent-subset": 32,
+        "negation": 32,
+        "unit-conversion": 32,
+        "entity-distractor": 32,
+        "arithmetic": 32,
+        "long-context": 32,
+        "partly-right": 32,
+        "conditional": 32,
+        "temporal": 32,
+        "judge-injection": 32,
+        "cross-language": 32
+      },
+      "unique_full_payloads": 384,
+      "prior_overlap": 0,
+      "sha256": "a911d58077aeabc9d57b49432c45fa766a4fb06406a484ac0f73b46e33cbc097"
+    },
+    "pii": {
+      "seeds": [
+        75489315,
+        32827230
+      ],
+      "n": 384,
+      "pass": 192,
+      "fail": 192,
+      "families": {
+        "purpose-excuse": 32,
+        "negated-disclosure": 32,
+        "cross-language": 32,
+        "ownership": 32,
+        "zero-width": 32,
+        "mixed-public-private": 32,
+        "obfuscation": 32,
+        "tag-injection": 32,
+        "long-context": 32,
+        "split-fields": 32,
+        "structured-data": 32,
+        "quotation": 32
+      },
+      "unique_full_payloads": 384,
+      "prior_overlap": 0,
+      "sha256": "26bd69f53020c97f0dd9dc88f9c877d87b288cf925ee47d0510acab02bb718f1"
+    },
+    "goal": {
+      "seeds": [
+        41332820,
+        84695301
+      ],
+      "n": 384,
+      "pass": 192,
+      "fail": 192,
+      "families": {
+        "near-price": 32,
+        "tag-injection": 32,
+        "long-fluent": 32,
+        "wrong-plan": 32,
+        "wrong-currency": 32,
+        "empty-state": 32,
+        "contradictory-reply": 32,
+        "nested-distractor": 32,
+        "wrong-quantity": 32,
+        "stale-attempt": 32,
+        "draft-status": 32,
+        "cross-language": 32
+      },
+      "unique_full_payloads": 384,
+      "prior_overlap": 0,
+      "sha256": "f9053a77f34e175a3e7113a9749840f8d0652a2cebcb46d1f78d8fdd397d8a2a"
+    }
+  },
+  "models": {
+    "haiku": {
+      "model": "haiku",
+      "flags": [
+        "-p",
+        "--output-format",
+        "json",
+        "--model",
+        "haiku",
+        "--tools",
+        "",
+        "--setting-sources",
+        "",
+        "--strict-mcp-config",
+        "--no-session-persistence",
+        "--max-turns",
+        "1"
+      ],
+      "reasoning": "not exposed"
+    },
+    "gpt-6-luna": {
+      "endpoint": "https://api.openai.com/v1/chat/completions",
+      "model": "gpt-6-luna",
+      "reasoning": "provider default; omitted",
+      "temperature": "omitted",
+      "price": "price not published",
+      "max_completion_tokens": 4096
+    },
+    "gemini-3.8-flash": {
+      "status": "pending billing; no calls"
+    }
+  },
+  "cap_measured_usd": 10,
+  "haiku_call_reserve_usd": 0.02,
+  "concurrency": 12,
+  "last_call_cutoff": "2026-10-13T20:00:00+00:00",
+  "pilot": "First 20 sealed cases per row, all sides, each model; cost/transport only, retained in final scoring, no outcome tuning.",
+  "retries": "No content or transport retries; failed calls retained and counted wrong. Resume never repeats a started key.",
+  "statistics": "Case-level exact two-sided McNemar; one-sided descriptive; 20000 family bootstrap draws seed 2619092984; pooled default and equal-evidence goal shown separately; Holm across 18 global cells left to collator.",
+  "dialect": "Frozen original criterion ledger now. Separate dialect variant only after core lands and before variant calls is separately frozen.",
+  "sha256": {
+    "comparisons/ledger-hard/README.md": "b6ee9fd0bfe257cbeb8722711fac428d977d01c939b5df3eca42218f965a3942",
+    "comparisons/ledger-hard/common.py": "5bd06650ed663a761e4cd58035a374900bd5f4455034c7adfd5feb8d2d0267ad",
+    "comparisons/ledger-hard/construct.py": "586faed71e7f6138c1bb8981eb2431e55b07eb944e2562cd65cca2fb961dd50e",
+    "comparisons/ledger-hard/factuality.json": "a911d58077aeabc9d57b49432c45fa766a4fb06406a484ac0f73b46e33cbc097",
+    "comparisons/ledger-hard/goal.json": "f9053a77f34e175a3e7113a9749840f8d0652a2cebcb46d1f78d8fdd397d8a2a",
+    "comparisons/ledger-hard/pii.json": "26bd69f53020c97f0dd9dc88f9c877d87b288cf925ee47d0510acab02bb718f1",
+    "comparisons/ledger-hard/prior-census.json": "e76ebc0b0c5509a1b52498c925c5ab3acb89af6a7eed2190fc57aabae5624ade",
+    "comparisons/ledger-hard/prompts.json": "9d8bfad218065453b74a13d3841164c9a3cdb454165ca703c76bde93c3bdae4c",
+    "comparisons/ledger-hard/rubric.json": "40db40f57eb9637567837eb4892621eb8938340d912fef6d6824588d54dbc534",
+    "comparisons/ledger-hard/run.py": "7fb07d3261edc32e46a723010a8b71146b4ed87fab2b58d4c6cf303831d45b1b",
+    "comparisons/ledger-hard/score.py": "2d2d208742c2a4f555ca8b406de53282a1a8bbd4989ccb9a255fff04791df995",
+    "comparisons/ledger-hard/seeds.json": "8aa6b101d2feaf60c27f36ee7521ff7e53d3c5c247817b29e98902d6ed6dc40d",
+    "comparisons/ledger-hard/test_protocol.py": "82c7a9f1398ac08adaa252a9b9501a190d124dfdfbd38e10506a332029dc2fb9",
+    "comparisons/promptfoo/hard/candidate-freeze.json": "0b3312d67cdd8cff58dde7c78bc085ab99ab83610c527046643d77ecb8e94bee",
+    "comparisons/promptfoo/hard/generate.py": "cff42f02bac87f9fa06babc5aaaab69de7875111310b10cfa13022e0dd95318e",
+    "comparisons/promptfoo/hard/run.py": "84f25edbca4dec01c53d96802ab9fe1f507f8713fd3af189d427d4a1d80f1606",
+    "comparisons/promptfoo/hard/vendor/LICENSE": "bf813686553f451e1b833fbd827488aee49b60b189626915bf3108d10b754e44",
+    "comparisons/promptfoo/hard/vendor/defaults.json": "d3763b748d96c9603f5d6ac54ddb26e77b0fd416bc208ecf28fa8559d10478ad",
+    "comparisons/promptfoo/hard/vendor/grading.ts.txt": "66413428d9d5c0a952e78e53f6ee4f4859522134f9611274d2b620a649fa6e43",
+    "comparisons/promptfoo/hard/vendor/provenance.json": "2d54fcb962f7297727c3cf973b852de60debf6f177c9d02d6fbce5096a1b39cd"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "clustered": {
+    "draws": 1000,
+    "rates": { "low": 0.2, "high": 0.8 },
+    "designs": [
+      { "id": "c80x8-rho0.2", "clusters": 80, "size": 8, "rho": 0.2 },
+      { "id": "c120x6-rho0.3", "clusters": 120, "size": 6, "rho": 0.3 },
+      { "id": "c160x4-rho0.5", "clusters": 160, "size": 4, "rho": 0.5 }
+    ]
+  },
+  "shares": {
+    "datasets": 20,
+    "cells": 12,
+    "conversations": 8,
+    "wordings": 3,
+    "repeats": 4,
+    "logitMean": 0.5,
+    "logitSd": { "cell": 0.6, "conversation": 0.8, "wording": 0.6 }
+  },
+  "sharesNested": {
+    "datasets": 5,
+    "cells": 16,
+    "conversations": 12,
+    "wordings": 2,
+    "repeats": 4,
+    "logitMean": 0.5,
+    "logitSd": { "cell": 0.6, "conversation": 0.4, "wording": 1.2 }
+  },
+  "unseen": {
+    "draws": 200,
+    "warningDraws": 50,
+    "populations": [
+      { "id": "s60-spread5", "classes": 60, "spread": 5 },
+      { "id": "s120-spread10", "classes": 120, "spread": 10 }
+    ],
+    "above": [1.5, 3],
+    "below": [0.5, 0.95]
+  },
+  "power": {
+    "draws": 2000,
+    "alpha": 0.05,
+    "designs": [
+      { "id": "n60-r1-p0.85", "n": 60, "repeats": 1, "baselineRate": 0.85, "power": 0.8, "rho": 0 },
+      { "id": "n80-r3-p0.8", "n": 80, "repeats": 3, "baselineRate": 0.8, "power": 0.8, "rho": 0.3 },
+      { "id": "n40-r5-p0.7", "n": 40, "repeats": 5, "baselineRate": 0.7, "power": 0.9, "rho": 0.2 },
+      { "id": "n150-r2-p0.9", "n": 150, "repeats": 2, "baselineRate": 0.9, "power": 0.5, "rho": 0.5 },
+      { "id": "n100-r4-p0.6", "n": 100, "repeats": 4, "baselineRate": 0.6, "power": 0.8, "rho": 0.1 }
+    ]
+  }
+}

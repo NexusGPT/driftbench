@@ -107,10 +107,20 @@ function resultOf(record: Record<string, unknown>): StreamResult {
 const OVERLOADED = /overloaded|\b529\b|rate[ _-]?limit|\b429\b/i;
 
 /**
- * True when a run ended on the provider's overload or rate limit rather than on the agent: the result
- * record is an error whose text names it, or the run failed with no result and its error output names it.
+ * True when a run ended on the provider's overload or rate limit, or on an API it could not reach, rather
+ * than on the agent: the result record is an error whose text names it, or its text is an `API Error:` that
+ * names one, or the run failed with no result and its error output names it.
  */
+const UNREACHABLE =
+  /can't reach the API|ENOTFOUND|ECONNRESET|ECONNREFUSED|ETIMEDOUT|fetch failed|connection error/i;
+
 export function isOverloaded(parsed: ParsedStream, exitCode: number, stderr: string): boolean {
+  // An API the runtime could not reach ends the run with subtype success and the error as the text (seen on
+  // the Cue bench in a network outage): the turn never reached the agent.
+  const text = parsed.result?.text ?? '';
+  if (/^API Error:/.test(text) && (UNREACHABLE.test(text) || OVERLOADED.test(text))) return true;
+  // A subscription limit ends the run the same way: the notice is the text (seen on the Cue bench).
+  if (/^you've hit your (session|usage|weekly|daily) limit/i.test(text)) return true;
   if (parsed.result?.isError)
     return OVERLOADED.test(`${parsed.result.text ?? ''} ${parsed.result.subtype ?? ''}`);
   if (parsed.result === undefined && exitCode !== 0) return OVERLOADED.test(stderr);
@@ -195,7 +205,16 @@ function count(value: unknown): number {
 }
 
 /** One guard row, in the shape of a decision-log row. */
-export type HookRow = { at: string; event: string; check: string; verdict: string };
+export type HookRow = {
+  at: string;
+  event: string;
+  check: string;
+  verdict: string;
+  stdout?: string;
+  stderr?: string;
+  exitCode?: number;
+  outcome?: string;
+};
 
 /**
  * Guard rows from the stream itself, seen in the first real run with `--include-hook-events`:
@@ -203,12 +222,14 @@ export type HookRow = { at: string; event: string; check: string; verdict: strin
  *   gives a row; the verdict is the `permissionDecision` or `decision` a JSON stdout names, else deny for
  *   exit code 2, allow for 0 and error otherwise;
  * - a `permission_denied` system record gives `permission:<tool>` with verdict deny.
- * The record names no command, so the row is named by the script of the one hook the estate's settings put
- * under that event and matcher (`block-force-push.sh`), and by `<event>:<matcher>` when the settings hold
- * none or several. Hook records carry no time; every row takes the turn's start, so it falls in the turn.
+ * The record names no command, so the row is named by the script of the hook the estate's settings put under
+ * that event and matcher (`block-force-push.sh`); several commands under one matcher name the responses in
+ * turn; `<event>:<matcher>` names it when the settings hold none. Hook records carry no time; every row takes the turn's start, so it falls in the turn.
  */
 export function hookDecisions(parsed: ParsedStream, settings: unknown, at: string): HookRow[] {
   const rows: HookRow[] = [];
+  const started = new Map<string, Record<string, unknown>>();
+  const seen = new Map<string, number>();
   for (const entry of parsed.lines) {
     if (!entry.ok || !isRecord(entry.value)) continue;
     const record = entry.value;
@@ -219,14 +240,58 @@ export function hookDecisions(parsed: ParsedStream, settings: unknown, at: strin
       rows.push({ at, event: 'PermissionRequest', check: `permission:${tool}`, verdict: 'deny' });
       continue;
     }
+    if (subtype === 'hook_started') {
+      const id = stringField(record, 'hook_id');
+      if (id !== undefined) started.set(id, record);
+      continue;
+    }
     if (subtype !== 'hook_response') continue;
-    const name = stringField(record, 'hook_name') ?? stringField(record, 'hook_event') ?? 'hook';
-    const event = stringField(record, 'hook_event') ?? name.split(':')[0] ?? name;
-    const matcher = name.includes(':') ? name.slice(name.indexOf(':') + 1) : undefined;
-    rows.push({ at, event, check: scriptOf(settings, event, matcher) ?? name, verdict: verdictOf(record) });
+    const id = stringField(record, 'hook_id');
+    if (id !== undefined) started.delete(id);
+    const { event, check } = named(record, settings, seen);
+    const stdout = stringField(record, 'stdout');
+    const stderr = stringField(record, 'stderr');
+    const outcome = stringField(record, 'outcome');
+    rows.push({
+      at,
+      event,
+      check,
+      verdict: verdictOf(record),
+      ...(stdout === undefined ? {} : { stdout }),
+      ...(stderr === undefined ? {} : { stderr }),
+      ...(typeof record.exit_code === 'number' ? { exitCode: record.exit_code } : {}),
+      ...(outcome === undefined ? {} : { outcome }),
+    });
+  }
+  // A hook that started and never answered: it ran past its time or was stopped.
+  for (const record of started.values()) {
+    const { event, check } = named(record, settings, seen);
+    rows.push({ at, event, check, verdict: 'error', outcome: 'no_response' });
   }
   return rows;
 }
+
+/** The event of a hook record and the guard it names: the script of the one hook the settings put there. */
+function named(
+  record: Record<string, unknown>,
+  settings: unknown,
+  seen: Map<string, number>,
+): { event: string; check: string } {
+  const name = stringField(record, 'hook_name') ?? stringField(record, 'hook_event') ?? 'hook';
+  const event = stringField(record, 'hook_event') ?? name.split(':')[0] ?? name;
+  const matcher = name.includes(':') ? name.slice(name.indexOf(':') + 1) : undefined;
+  const scripts = scriptsOf(settings, event, matcher);
+  // A matcher holding several commands: the responses take the commands in turn. Each command of the group
+  // runs once per event, so the counts per command hold; which verdict belongs to which command is as good
+  // as the order the responses arrive in.
+  const turn = seen.get(name) ?? 0;
+  seen.set(name, turn + 1);
+  return { event, check: scripts.length === 0 ? name : (scripts[turn % scripts.length] ?? name) };
+}
+
+/** Whether a hook output carries `additionalContext` as text with something in it. */
+const hasContext = (output: Record<string, unknown>): boolean =>
+  (stringField(output, 'additionalContext') ?? '').trim() !== '';
 
 function verdictOf(record: Record<string, unknown>): string {
   const stdout = stringField(record, 'stdout') ?? '';
@@ -237,6 +302,8 @@ function verdictOf(record: Record<string, unknown>): string {
         const specific = isRecord(output.hookSpecificOutput) ? output.hookSpecificOutput : {};
         const decision = stringField(specific, 'permissionDecision') ?? stringField(output, 'decision');
         if (decision !== undefined) return decision === 'block' ? 'deny' : decision;
+        // No decision, exit 0, and context handed back to the agent: the guard spoke without stopping the act.
+        if (record.exit_code === 0 && [specific, output].some(hasContext)) return 'nudge';
       }
     } catch {
       // Not JSON after all: the exit code decides.
@@ -263,11 +330,11 @@ function matches(own: string | undefined, suffix: string | undefined): boolean {
   }
 }
 
-/** The script name of the one command hook the settings put under the event and matcher. */
-function scriptOf(settings: unknown, event: string, matcher: string | undefined): string | undefined {
+/** The script names of the command hooks the settings put under the event and matcher, in order. */
+function scriptsOf(settings: unknown, event: string, matcher: string | undefined): string[] {
   const hooks = isRecord(settings) && isRecord(settings.hooks) ? settings.hooks : undefined;
   const groups = hooks?.[event];
-  if (!Array.isArray(groups)) return undefined;
+  if (!Array.isArray(groups)) return [];
   const commands: string[] = [];
   for (const group of groups) {
     if (!isRecord(group)) continue;
@@ -277,8 +344,9 @@ function scriptOf(settings: unknown, event: string, matcher: string | undefined)
       if (isRecord(hook) && typeof hook.command === 'string') commands.push(hook.command);
     }
   }
-  if (commands.length !== 1) return undefined;
-  const words = (commands[0] ?? '').split(/\s+/).map((word) => word.replace(/["']/g, ''));
-  const script = [...words].reverse().find((word) => /\.[A-Za-z0-9]+$/.test(word)) ?? words.at(-1);
-  return script?.split('/').at(-1);
+  return commands.map((command) => {
+    const words = command.split(/\s+/).map((word) => word.replace(/["']/g, ''));
+    const script = [...words].reverse().find((word) => /\.[A-Za-z0-9]+$/.test(word)) ?? words.at(-1);
+    return script?.split('/').at(-1) ?? command;
+  });
 }

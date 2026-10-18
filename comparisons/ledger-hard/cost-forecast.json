@@ -1,0 +1,550 @@
+{
+  "stamp": "2026-10-13T11:03:38.693456+00:00",
+  "method": "Current measured mean cost within experiment/model/row/side, multiplied by remaining unique requests; no correctness or outcome conditioning. This is a forecast, not a cap guarantee.",
+  "measured_usd": 8.73369269,
+  "projected_full_measured_usd": 9.59842426811483,
+  "lost_reserve_usd": 0.4,
+  "projected_plus_reserve_usd": 9.99842426811483,
+  "groups": [
+    {
+      "experiment": "primary",
+      "group": [
+        "haiku",
+        "rubric",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.16368267,
+      "projected_usd": 0.16368267
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "gpt-6-luna",
+        "rubric",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.058005600000000004,
+      "projected_usd": 0.05800560000000001
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "haiku",
+        "rubric",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.11850245000000001,
+      "projected_usd": 0.11850245
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "gpt-6-luna",
+        "rubric",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.028609500000000003,
+      "projected_usd": 0.0286095
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "haiku",
+        "factuality",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.16964537000000002,
+      "projected_usd": 0.16964537000000002
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "gpt-6-luna",
+        "factuality",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.0573324,
+      "projected_usd": 0.0573324
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "haiku",
+        "factuality",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.13694266000000002,
+      "projected_usd": 0.13694266000000002
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "gpt-6-luna",
+        "factuality",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.0400478,
+      "projected_usd": 0.0400478
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "haiku",
+        "pii",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.17640931,
+      "projected_usd": 0.17640931
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "gpt-6-luna",
+        "pii",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.075549,
+      "projected_usd": 0.075549
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "haiku",
+        "pii",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.13748557,
+      "projected_usd": 0.13748557
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "gpt-6-luna",
+        "pii",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.0293208,
+      "projected_usd": 0.029320799999999998
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "haiku",
+        "goal",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.19282806,
+      "projected_usd": 0.19282806
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "gpt-6-luna",
+        "goal",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.06379800000000001,
+      "projected_usd": 0.06379800000000001
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "haiku",
+        "goal",
+        "peer"
+      ],
+      "completed": 208,
+      "planned": 208,
+      "measured_usd": 0.09795340000000001,
+      "projected_usd": 0.0979534
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "gpt-6-luna",
+        "goal",
+        "peer"
+      ],
+      "completed": 208,
+      "planned": 208,
+      "measured_usd": 0.0607256,
+      "projected_usd": 0.0607256
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "haiku",
+        "goal",
+        "peer-full-state"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.18775740000000002,
+      "projected_usd": 0.18775740000000005
+    },
+    {
+      "experiment": "primary",
+      "group": [
+        "gpt-6-luna",
+        "goal",
+        "peer-full-state"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.044345100000000005,
+      "projected_usd": 0.044345100000000005
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "haiku",
+        "rubric",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.20449036,
+      "projected_usd": 0.20449036
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gpt-6-luna",
+        "rubric",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.0585571,
+      "projected_usd": 0.0585571
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gemini-3.8-flash",
+        "rubric",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.6888645,
+      "projected_usd": 0.6888644999999999
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "haiku",
+        "rubric",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.11263847,
+      "projected_usd": 0.11263847
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gpt-6-luna",
+        "rubric",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.028379,
+      "projected_usd": 0.028379
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gemini-3.8-flash",
+        "rubric",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.50946675,
+      "projected_usd": 0.50946675
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "haiku",
+        "factuality",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.20720776,
+      "projected_usd": 0.20720776
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gpt-6-luna",
+        "factuality",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.0580719,
+      "projected_usd": 0.0580719
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gemini-3.8-flash",
+        "factuality",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.559953,
+      "projected_usd": 0.559953
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "haiku",
+        "factuality",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.13437284,
+      "projected_usd": 0.13437284
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gpt-6-luna",
+        "factuality",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.0401778,
+      "projected_usd": 0.0401778
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gemini-3.8-flash",
+        "factuality",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.6168645,
+      "projected_usd": 0.6168645
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "haiku",
+        "pii",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.20662296,
+      "projected_usd": 0.20662296
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gpt-6-luna",
+        "pii",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.0544025,
+      "projected_usd": 0.0544025
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gemini-3.8-flash",
+        "pii",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.57026025,
+      "projected_usd": 0.57026025
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "haiku",
+        "pii",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.1211473,
+      "projected_usd": 0.1211473
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gpt-6-luna",
+        "pii",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.030726800000000002,
+      "projected_usd": 0.030726800000000002
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gemini-3.8-flash",
+        "pii",
+        "peer"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.56054025,
+      "projected_usd": 0.56054025
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "haiku",
+        "goal",
+        "audit"
+      ],
+      "completed": 340,
+      "planned": 384,
+      "measured_usd": 0.2025387,
+      "projected_usd": 0.2287495905882353
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gpt-6-luna",
+        "goal",
+        "audit"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.063259,
+      "projected_usd": 0.063259
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gemini-3.8-flash",
+        "goal",
+        "audit"
+      ],
+      "completed": 239,
+      "planned": 384,
+      "measured_usd": 0.49184925,
+      "projected_usd": 0.7902515146443515
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "haiku",
+        "goal",
+        "peer"
+      ],
+      "completed": 197,
+      "planned": 208,
+      "measured_usd": 0.08924932000000001,
+      "projected_usd": 0.09423278456852792
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gpt-6-luna",
+        "goal",
+        "peer"
+      ],
+      "completed": 208,
+      "planned": 208,
+      "measured_usd": 0.0610636,
+      "projected_usd": 0.0610636
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gemini-3.8-flash",
+        "goal",
+        "peer"
+      ],
+      "completed": 146,
+      "planned": 208,
+      "measured_usd": 0.5874345,
+      "projected_usd": 0.8368929863013699
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "haiku",
+        "goal",
+        "peer-full-state"
+      ],
+      "completed": 339,
+      "planned": 384,
+      "measured_usd": 0.16152574,
+      "projected_usd": 0.18296720991150445
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gpt-6-luna",
+        "goal",
+        "peer-full-state"
+      ],
+      "completed": 384,
+      "planned": 384,
+      "measured_usd": 0.0443486,
+      "projected_usd": 0.044348599999999995
+    },
+    {
+      "experiment": "dialect",
+      "group": [
+        "gemini-3.8-flash",
+        "goal",
+        "peer-full-state"
+      ],
+      "completed": 238,
+      "planned": 384,
+      "measured_usd": 0.43073925,
+      "projected_usd": 0.6949742521008404
+    }
+  ]
+}

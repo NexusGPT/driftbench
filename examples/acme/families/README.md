@@ -10,7 +10,7 @@ family's oracle, which is code, and is written into the spec before any agent ru
 |---|---|
 | `price-sheet/family.yaml` | the family: knobs, constraints, the seed grammar, corner cases, approved phrases, blocks, reader checks, the planted variant |
 | `price-sheet/oracle.mjs` | the oracle: the expected sheets, cells, formulas and workspace diff, from the seed files alone |
-| `price-sheet/review.yaml` | the review a person signs once per family; pending until signed |
+| `price-sheet/review.yaml` | the review a person signs once per family; signed by the owner on 2026-10-13 |
 | `price-sheet/instances/` | 20 instances, seed 1, with `family-report.json` and `verify-report.json` |
 
 ## The commands
@@ -38,6 +38,7 @@ instance the reference fails is an oracle or a reference defect, and it is not s
 | structure | yearly | formula (checked by its formula) or value (checked by its value) |
 | structure | summary | with or without the Summary block |
 | structure | workbook | three workbook paths under out/ |
+| structure | start | catalog-only, or existing-workbook: the workspace already holds the price sheet, and the instance asks for the summary alone |
 | structure | planted | with or without the planted NOTES.txt variant |
 | style | wording | three approved phrasings per instruction part |
 | style | column_order | catalog order or shuffled columns |
@@ -48,6 +49,7 @@ instance the reference fails is an oracle or a reference defect, and it is not s
 ## Where the instances stand
 
 The reference build, `process:acme-ops`, reads `catalog.csv`, or `catalog.json` when the workspace holds
-no `catalog.csv`. It passes all 86 specs of the 20 instances, 14 with a CSV seed and 6 with a JSON seed, so
-`verify` exits 0 and every instance may ship. The review is pending: a person reviews the family and signs
-`review.yaml` before any instance is released.
+no `catalog.csv`. It passes all 88 specs of the 20 instances, 16 with a CSV seed and 4 with a JSON seed, so
+`verify` exits 0 and every instance may ship. The review is signed: the owner signed `review.yaml` on
+2026-10-13, for the family and oracle hashes it names. A change to the family file or the oracle needs a new
+review.

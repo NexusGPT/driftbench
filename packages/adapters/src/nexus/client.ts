@@ -1,4 +1,9 @@
-import { AdapterTransportError, AgentFailure, isPlainObject, retryableStatus } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  isPlainObject,
+  retryableStatus,
+} from '@agent-nexus/driftbench-core';
 import { excerpt, type FetchLike, type HttpReply, sendRequest } from '../shared';
 
 /**

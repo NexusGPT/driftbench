@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, readdir, readFile, realpath, rm, symlink, writeFile } f
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Message, Spec } from '@driftbench/core';
+import type { Message, Spec } from '@agent-nexus/driftbench-core';
 import ExcelJS from 'exceljs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { loadAcmeSpecs } from './support/specs';
@@ -142,7 +142,7 @@ function sha256(bytes: Uint8Array): string {
 
 async function readBook(dir: string): Promise<ExcelJS.Workbook> {
   const book = new ExcelJS.Workbook();
-  // exceljs takes an ArrayBuffer: a copy of the bytes, as the xlsx reader of @driftbench/artifacts makes.
+  // exceljs takes an ArrayBuffer: a copy of the bytes, as the xlsx reader of @agent-nexus/driftbench-artifacts makes.
   await book.xlsx.load(new Uint8Array(await readFile(join(dir, WORKBOOK))).buffer);
   return book;
 }

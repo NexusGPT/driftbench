@@ -1,6 +1,11 @@
 import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import type { ExecOptions, ExecutionRecord, SandboxOptions, SandboxProvider } from '@driftbench/core';
+import type {
+  ExecOptions,
+  ExecutionRecord,
+  SandboxOptions,
+  SandboxProvider,
+} from '@agent-nexus/driftbench-core';
 import { FolderSandbox, makeWorkspaceFolder } from './folder';
 import {
   DEFAULT_EXEC_TIMEOUT_MS,

@@ -7,7 +7,7 @@ import {
   IssueCodes,
   type LoadResult,
   parseSpecText,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { DOCS, markdownFiles } from './check-links';
 
@@ -123,6 +123,15 @@ describe('docs content', () => {
     expect(checked).toBeGreaterThanOrEqual(12);
   });
 
+  it('uses the committed scripted cassette judge IDs in the judge guide', async () => {
+    const text = await readFile(join(DOCS, 'concepts', 'judges.md'), 'utf8');
+    const cassette = JSON.parse(
+      await readFile(join(DOCS, '..', 'examples/acme/criteria/council.cassette.json'), 'utf8'),
+    ) as { judges: Array<{ id: string }> };
+    expect(cassette.judges).toHaveLength(6);
+    for (const judge of cassette.judges) expect(text).toContain(`\`${judge.id}\``);
+  });
+
   it('shows one conversation spec and one task spec on the block page', async () => {
     const text = await readFile(join(DOCS, 'concepts', 'block.md'), 'utf8');
     const kinds = fences(text, 'yaml')
@@ -135,12 +144,14 @@ describe('docs content', () => {
     const all = await pages();
     const concepts = all.filter((page) => page.path.startsWith('concepts'));
     expect(concepts.map((page) => basename(page.path)).sort()).toEqual([
+      'blast-radius.md',
       'block.md',
       'drift.md',
       'given-when-then.md',
       'judges.md',
       'recovery.md',
       'run-modes.md',
+      'script.md',
       'statistics.md',
     ]);
     for (const page of concepts) {

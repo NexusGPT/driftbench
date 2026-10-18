@@ -1,5 +1,5 @@
 import type { RetryPolicy } from '../retry';
-import type { Message, TargetRef } from '../schema/common';
+import type { Message, TargetRef, WorldState } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
 import type { Stimulus } from '../schema/spec';
 
@@ -35,7 +35,11 @@ export type AdapterCapabilities = {
  *
  * The runner owns `history`: it appends the stimulus's user message(s) before `send` and the
  * assistant reply (text plus tool calls with their output or error) after it. At send time the
- * history ends with the current user turn. An adapter never appends to it.
+ * history ends with the current user turn. Each message must be plain JSON data, validated and deeply
+ * frozen once before entering history. Accessors and non-plain values are rejected with a property path.
+ * Proxies are unsupported; the boundary validates data shape.
+ * Adapters share these read-only messages in fresh arrays and must copy a message before changing it.
+ * An adapter never appends to the runner's history. Adapter boundaries freeze direct callers' messages too.
  */
 export type Session = {
   readonly id: string;
@@ -69,6 +73,8 @@ export interface AgentAdapter {
   readonly id: string;
   /** The adapter version, part of the cache key. */
   readonly version: string;
+  /** Optional configuration fingerprint used only in cache keys, separate from the reported version. */
+  readonly cacheIdentity?: string;
   capabilities(): AdapterCapabilities;
   /** Opens a session from a resolved Given. The prefix is seeded when `seedPrefix` is true, replayed otherwise. */
   open(given: ResolvedGiven): Promise<Session>;
@@ -84,6 +90,11 @@ export interface AgentAdapter {
   endState?(session: Session, source: string): Promise<unknown>;
   /** Reads a file the agent left in its workspace, bounded; the runner hands it to the artifact checks. */
   readArtifact?(session: Session, path: string): Promise<Uint8Array>;
+  /** Export mutable world/variables after a block so parent branches can seed the recorded end state.
+   * The value must be JSON data. Sandboxes must export their workspace too. Without this hook only
+   * the runner-managed Given and recorded history can be inherited.
+   */
+  snapshotGiven?(session: Session): Promise<{ world: WorldState; vars: Record<string, unknown> }>;
   /** Releases what the session holds. Always called, also after a failure. */
   close(session: Session): Promise<void>;
 }

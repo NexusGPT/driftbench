@@ -1,0 +1,83 @@
+{
+  "modelAlias": "haiku",
+  "transport": "claude -p",
+  "concurrency": 1,
+  "newTaskBudgetUsd": 8,
+  "reservationPerCallUsd": 0.03,
+  "settingsSources": [],
+  "tools": [],
+  "sessionPersistence": false,
+  "plainMaxTurns": 1,
+  "structuredMaxTurns": 2,
+  "tuningPopulation": "the reported constructed sets",
+  "heldOutClaim": true,
+  "nativeExceptionsAuthorized": [
+    "Presidio native default with en_core_web_lg",
+    "Azure Content Safety not measured; native adapters only; no proxy"
+  ],
+  "casePopulations": {
+    "hard": {
+      "judges": 120,
+      "simulator": 120,
+      "pii": 120,
+      "injection": 120,
+      "pairwise": 120
+    },
+    "heldout": {
+      "judges": 60,
+      "simulator": 60,
+      "pii": 60,
+      "injection": 60,
+      "pairwise": 60
+    }
+  },
+  "judgeRowsShareSet": true,
+  "productionFilesEdited": false,
+  "heldOutSeed": 20261013,
+  "candidateLabel": "not yet the shipped default",
+  "heldOutTuning": false,
+  "structuredRecoveryMaxTurns": 6,
+  "unrecoveredNativeTransport": "unscored",
+  "judgeSetVersion": 4,
+  "additionalStudies": {
+    "PR115default": {
+      "sourceCommit": "8195902dd20c84267f85feba268c17868e00dfbe",
+      "hard": 120,
+      "frozenFresh": 60,
+      "priority": "first",
+      "rows": ["pairwise", "criterion primary", "criterion vector"]
+    },
+    "conformance": {
+      "seed": 20261018,
+      "hard": 120,
+      "newFresh": 60,
+      "proceduresFresh": ["ours", "compliance", "theirs"],
+      "status": "superseded, no calls; frozen procedure evaluated on trusted-event v2 new seeds only"
+    },
+    "longtrace": {
+      "seed": 20261014,
+      "cases": 120,
+      "criteria": 240,
+      "procedures": ["ours", "audit", "theirs", "compliance", "pr115"],
+      "committedBeforeCalls": true,
+      "status": "superseded, no calls; new trusted-event v2 seed20261020"
+    },
+    "injectionAttemptV2": {
+      "seed": 20261017,
+      "hard": 120,
+      "newFresh": 60,
+      "native": "unmeasured Azure, no proxy"
+    },
+    "adapterV2": {
+      "shortSeed": 20261019,
+      "longSeed": 20261020,
+      "casesEach": 120,
+      "criteriaEach": 240,
+      "procedures": ["ours", "audit", "theirs", "compliance", "pr115"],
+      "oldScoresUnchanged": true,
+      "committedBeforeCalls": true,
+      "roles": "trusted construction-time events only; no bracket parsing",
+      "postFreshDesign": true
+    }
+  }
+}

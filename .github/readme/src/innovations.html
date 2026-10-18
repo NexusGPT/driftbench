@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: more that ships</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* Six more things driftbench does, one card each, in plain words. No measured number on the figure: the
+     numbers and their sources are on docs/comparison/methods.md. */
+  #frame { width: 640px; height: 356px; }
+  .nx-ill__glass { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 12px; padding: 14px; height: auto; }
+  .c { position: relative; padding: 12px; border-radius: 14px; background: var(--nx-card); border: 1px solid var(--nx-ill-panel-border); box-shadow: var(--nx-ill-panel-shadow); }
+  .c .top { display: flex; align-items: center; gap: 7px; }
+  .c .nx-node__ico { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; background: var(--tile); color: var(--tile-ink); }
+  .c .nx-node__ico svg { width: 14px; height: 14px; }
+  .c .k { font: 500 10px/1 var(--nx-mono); letter-spacing: .6px; text-transform: uppercase; color: var(--kind); white-space: nowrap; }
+  .c .t { margin-top: 9px; font: 600 13px/1.25 var(--nx-sans); color: var(--nx-ink); }
+  .c .n { margin-top: 10px; font: 400 23px/1 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: var(--nx-ink); white-space: nowrap; }
+  .c .l { margin-top: 8px; font: 400 12px/1.4 var(--nx-sans); color: var(--detail); }
+  .opt { display: inline-flex; margin-left: auto; height: 18px; align-items: center; padding: 0 7px; border-radius: 999px; background: var(--miss-bg); color: var(--miss-ink); font: 600 9.5px/1 var(--nx-sans); }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <div class="c">
+      <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span class="k">Judge</span><span class="opt">opt-in</span></div>
+      <div class="t">A judge that shows its work</div>
+      <div class="l">It lists the evidence for each requirement; code decides pass or fail.</div>
+    </div>
+    <div class="c">
+      <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16c3-8 6-8 8-4s5 4 8-4"/></svg></span><span class="k">Recovery</span></div>
+      <div class="t">A surprise mid-conversation</div>
+      <div class="l">See how many steps the agent needs to get back on track.</div>
+    </div>
+    <div class="c">
+      <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span><span class="k">Statistics</span></div>
+      <div class="t">Know when to trust a score</div>
+      <div class="l">Every rate has a range, and it says when you have too few tests.</div>
+    </div>
+    <div class="c">
+      <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h5"/></svg></span><span class="k">Code agents</span></div>
+      <div class="t">Agents that write files, tested too</div>
+      <div class="l">It opens the spreadsheets and documents the agent leaves behind.</div>
+    </div>
+    <div class="c">
+      <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span><span class="k">Attacker</span></div>
+      <div class="t">A user that pushes back</div>
+      <div class="l">Each next move is picked from the agent's last reply.</div>
+    </div>
+    <div class="c">
+      <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v4h4"/></svg></span><span class="k">Replay</span></div>
+      <div class="t">Rerun recorded tests for free</div>
+      <div class="l">A recorded run replays with no model call, so CI costs nothing.</div>
+    </div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 23px "Libre Caslon Display"', '400 11px Geist', '600 13px Geist', '500 10px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

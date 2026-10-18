@@ -2,16 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-053
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 53 of 154: Path home-callback of new-home: needs > address > offer > callback > handover, D10_return at callback"
-channel: whatsapp
+title: "t-wise row 53 of 132: Path home-address-not-found of new-home: needs > address > address, D10_return at address"
+channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:fiber
-  - task:existing-workbook
+  - data:not-in-map
   - flow:new-home
 covers:
   - B-005
@@ -27,6 +26,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-005
     rubric: Book a sales callback with a phone number when the customer asks or a check cannot be done
@@ -43,87 +44,41 @@ criteria:
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Hello, I'm looking for home internet.
+      user: Do you have home internet where I live?
     expect:
       stage: address
       tools:
         - label: coverage.check
           count: 0
-        - label: catalog.search
-          count: 0
-        - label: notify_sales
-          count: 0
       lang: EN
       criteria:
         - behaviour.B-005
         - flow.new-home
-  - id: b2-address-to-offer
-    when:
-      user: The address is 14 Harbor Road, Acmeville.
-    expect:
-      stage: offer
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 14 Harbor Road, Acmeville
-        - label: catalog.search
-          count: 1
-          input:
-            category: home
-            address_id: addr-101
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b3-offer-to-callback
-    when:
-      user: Can someone just call me back?
-    expect:
-      stage: callback
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b4-D10_return
+  - id: b2-D10_return
     when:
       injection:
         class: D10_return
         user: ok, let's continue with the order.
     expect:
-      stage: callback
+      stage: address
       tools:
         - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: notify_sales
           count: 0
       must:
         - We were|pick up where we left off
       lang: EN
       criteria:
         - deviation.D10_return
-  - id: b5-callback-to-handover
+  - id: b3-address-to-address
     when:
-      user: You can reach me on +1 202 555 0131.
+      user: The address is 21 Willow Court, Acmeville.
     expect:
-      stage: handover
+      stage: address
       tools:
-        - label: notify_sales
+        - label: coverage.check
           count: 1
           input:
-            reason: callback
-            customer:
-              subset:
-                phone: "+12025550131"
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
+            address: 21 Willow Court, Acmeville
       lang: EN
 metadata:
   generated:
@@ -135,17 +90,14 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: home-callback
+      hash: 6d29ed7a7539
+    path: home-address-not-found
     cell:
       behaviour: B-005
-      channel: whatsapp
+      channel: chat
       user_type: new-customer
-      coverage_result: fiber
-      workspace_start: existing-workbook
+      coverage_result: not-in-map
       flow: new-home
-      plan_choice: asks-for-callback
-      callback_phone: given
     blocks:
       - block: b1-needs-to-address
         seeder: twise
@@ -156,46 +108,25 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-offer
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: address-to-offer
-          coverage_result: fiber
-          stage: offer
-        phrase:
-          dimension: stage_transition
-          value: address-to-offer
-      - block: b3-offer-to-callback
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: offer-to-callback
-          stage: callback
-        phrase:
-          dimension: stage_transition
-          value: offer-to-callback
-      - block: b4-D10_return
+      - block: b2-D10_return
         seeder: twise
         cell:
           spec: metadata.generated.cell
           deviation: D10_return
-          stage: callback
+          stage: address
         phrase:
           dimension: deviation
           value: D10_return
-      - block: b5-callback-to-handover
+      - block: b3-address-to-address
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: callback-to-handover
-          callback_phone: given
-          coverage_result: fiber
-          plan_choice: asks-for-callback
-          stage: handover
+          stage_transition: address-to-address
+          coverage_result: not-in-map
+          stage: address
         phrase:
           dimension: stage_transition
-          value: callback-to-handover
+          value: address-to-address
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -204,31 +135,17 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-address-to-offer
+      - block: b2-D10_return
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b3-address-to-address
         status: accepted
         pass_k: 1
         pass_probability: 0.615
-      - block: b3-offer-to-callback
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b4-D10_return
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b5-callback-to-handover
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
 rules:
   forbidden_tools:
+    - catalog.search
     - port.check
     - order.create
-end_state:
-  source: tool:notify_sales
-  mode: subset
-  expect:
-    reason: callback
-    customer:
-      subset:
-        phone: "+12025550131"
+    - notify_sales

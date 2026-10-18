@@ -1,4 +1,4 @@
-import { defaultChecks } from '@driftbench/checks';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type Check,
   type CheckContext,
@@ -6,10 +6,10 @@ import {
   type Message,
   RunResult,
   type UserDriver,
-} from '@driftbench/core';
-import { bootstrapCI } from '@driftbench/stats';
-import { openMemoryStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { bootstrapCI } from '@agent-nexus/driftbench-stats';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import type { AcmeAgent } from '../../../../examples/acme/src/index';
 import {
@@ -348,6 +348,19 @@ describe('the compounding index', () => {
     expect(overall.interval.lower).toBeGreaterThan(0);
     expect(overall.interval.lower).toBeLessThanOrEqual(overall.index);
     expect(overall.interval.upper).toBeGreaterThanOrEqual(overall.index);
+  });
+
+  it('gives one spec no overall interval, whatever its targets: one spec is one cluster', async () => {
+    const all = await runs(driftsAfterBlock2);
+    const one = all.filter((run) => run.specId === all[0]?.specId);
+    const twoTargets = [
+      ...one,
+      ...one.map((run) => ({ ...run, target: { ...run.target, label: 'second-target' } })),
+    ];
+    const index = compoundingIndex(twoTargets, { interval });
+    expect(index.specs).toHaveLength(2);
+    expect(index.overall).toBeDefined();
+    expect(index.overall?.interval).toBeUndefined();
   });
 
   it('pairs blocks by their index in the spec, ignores P runs and needs both modes', async () => {

@@ -1,12 +1,12 @@
-import type { Observed } from '@driftbench/core';
+import type { Observed } from '@agent-nexus/driftbench-core';
 import { isMap, isScalar, parseDocument, stringify as stringifyYaml } from 'yaml';
 import { detectPass1, detectPass2, Redactor } from '../intake/privacy';
 
 /**
  * Draft specs from production traces. Each trace becomes one spec: each observed user turn becomes a block
  * whose When is that message and whose Given is what production observed before it (the earlier user
- * messages, the agent's replies and its tool calls with their results, as the block's prefix). So every block
- * starts from a real state, teacher-forced.
+ * messages, the agent's replies and its tool calls with their results, as the block's prefix, with
+ * `origin: recorded`). So every block starts from a real state, teacher-forced.
  *
  * No block gets an expectation. An expectation copied from the observed reply would pass by construction,
  * the self-affirming test the design forbids: a person writes each Then from the agent's spec. What
@@ -22,7 +22,7 @@ export type DraftTrace = {
   source: string;
   startedAt?: string;
   model?: string;
-  turns: ReadonlyArray<{ user: string; startedAt?: string; observed: Observed }>;
+  turns: ReadonlyArray<{ user: string; startedAt?: string; observationId?: string; observed: Observed }>;
 };
 
 export type TraceDraft = {
@@ -82,7 +82,10 @@ export function draftSpec(trace: DraftTrace, options: DraftOptions): TraceDraft 
     const user = clean(turn.user);
     const reply = clean(turn.observed.text);
     const block: Record<string, unknown> = { user };
-    if (prefix.length > 0) block.given = { prefix: prefix.map((message) => structuredClone(message)) };
+    // The prefix is what production did, its tool calls with their real results: a recorded history.
+    if (prefix.length > 0) {
+      block.given = { prefix: prefix.map((message) => structuredClone(message)), origin: 'recorded' };
+    }
     blocks.push(block);
     const counts = new Map<string, number>();
     for (const call of turn.observed.toolCalls) counts.set(call.label, (counts.get(call.label) ?? 0) + 1);
@@ -93,6 +96,7 @@ export function draftSpec(trace: DraftTrace, options: DraftOptions): TraceDraft 
       cost: turn.observed.cost,
       latency_ms: turn.observed.latencyMs,
       ...(turn.startedAt ? { started_at: turn.startedAt } : {}),
+      ...(turn.observationId ? { observation_id: turn.observationId } : {}),
     });
     prefix.push({ role: 'user', content: user });
     const calls = turn.observed.toolCalls.map((call) => ({

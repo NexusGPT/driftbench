@@ -1,0 +1,3468 @@
+{
+  "format": "driftbench-bench-record-v1",
+  "report": {
+    "format": "driftbench-bench-v1",
+    "slice": "planted-verify",
+    "datasetVersion": 1,
+    "datasetHash": "efec1377d0426f175bb9a6461e8432f91cedfb4d1b61f27f737209f307fbe8fc",
+    "judge": "gpt-6-luna",
+    "model": "gpt-6-luna",
+    "settings": "{\"client\":\"openai-chat\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"temperatureRetry\":\"drop on a 400 that names it\",\"responseFormat\":\"json_schema\",\"reasoning\":\"medium\",\"reasoningTokens\":{\"low\":512,\"medium\":1024,\"high\":2048}}",
+    "fingerprint": "b55396660b27",
+    "head": "f1e520bbd4bc12582cc0ce1b966fd7e3dd504f97",
+    "startedAt": "2026-10-15T16:09:08.679Z",
+    "finishedAt": "2026-10-15T16:11:49.282Z",
+    "n": 190,
+    "correct": 189,
+    "wilson": {
+      "estimate": 0.9947368421052631,
+      "lower": 0.9707944418897304,
+      "upper": 0.9990703184343362
+    },
+    "familyBootstrap": {
+      "estimate": 0.9947368421052631,
+      "lower": 0.9838709677419355,
+      "upper": 1,
+      "iterations": 2000,
+      "clusters": 10,
+      "method": "percentile",
+      "seed": 1
+    },
+    "zeroFailure": {
+      "requiredCleanCases": 59,
+      "independentCasesRequired": true,
+      "observedClean": false
+    },
+    "results": [
+      {
+        "id": "verify-bank-000/clean",
+        "family": "0",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-000/defect",
+        "family": "0",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-001/clean",
+        "family": "1",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-001/defect",
+        "family": "1",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-002/clean",
+        "family": "2",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-002/defect",
+        "family": "2",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-003/clean",
+        "family": "3",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-003/defect",
+        "family": "3",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-004/clean",
+        "family": "4",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-004/defect",
+        "family": "4",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-005/clean",
+        "family": "5",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-005/defect",
+        "family": "5",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-006/clean",
+        "family": "6",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-006/defect",
+        "family": "6",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-007/clean",
+        "family": "7",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-007/defect",
+        "family": "7",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-008/clean",
+        "family": "8",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-008/defect",
+        "family": "8",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-009/clean",
+        "family": "9",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-009/defect",
+        "family": "9",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-010/clean",
+        "family": "0",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-010/defect",
+        "family": "0",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-011/clean",
+        "family": "1",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-011/defect",
+        "family": "1",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-012/clean",
+        "family": "2",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-012/defect",
+        "family": "2",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-013/clean",
+        "family": "3",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-013/defect",
+        "family": "3",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-014/clean",
+        "family": "4",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-014/defect",
+        "family": "4",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-015/clean",
+        "family": "5",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-015/defect",
+        "family": "5",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-016/clean",
+        "family": "6",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-016/defect",
+        "family": "6",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-017/clean",
+        "family": "7",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-017/defect",
+        "family": "7",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-018/clean",
+        "family": "8",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-018/defect",
+        "family": "8",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-019/clean",
+        "family": "9",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-019/defect",
+        "family": "9",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-020/clean",
+        "family": "0",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-020/defect",
+        "family": "0",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-021/clean",
+        "family": "1",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-021/defect",
+        "family": "1",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-022/clean",
+        "family": "2",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-022/defect",
+        "family": "2",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-023/clean",
+        "family": "3",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-023/defect",
+        "family": "3",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-024/clean",
+        "family": "4",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-024/defect",
+        "family": "4",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-025/clean",
+        "family": "5",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-025/defect",
+        "family": "5",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-026/clean",
+        "family": "6",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-026/defect",
+        "family": "6",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-027/clean",
+        "family": "7",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-027/defect",
+        "family": "7",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-028/clean",
+        "family": "8",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-028/defect",
+        "family": "8",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-029/clean",
+        "family": "9",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-029/defect",
+        "family": "9",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-030/clean",
+        "family": "0",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-030/defect",
+        "family": "0",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-031/clean",
+        "family": "1",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-031/defect",
+        "family": "1",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-032/clean",
+        "family": "2",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-032/defect",
+        "family": "2",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-033/clean",
+        "family": "3",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-033/defect",
+        "family": "3",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-034/clean",
+        "family": "4",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-034/defect",
+        "family": "4",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-035/clean",
+        "family": "5",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-035/defect",
+        "family": "5",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-036/clean",
+        "family": "6",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-036/defect",
+        "family": "6",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-037/clean",
+        "family": "7",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-037/defect",
+        "family": "7",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-038/clean",
+        "family": "8",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-038/defect",
+        "family": "8",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-039/clean",
+        "family": "9",
+        "expected": "pass",
+        "outcome": "fail",
+        "correct": false
+      },
+      {
+        "id": "verify-bank-039/defect",
+        "family": "9",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-040/clean",
+        "family": "0",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-040/defect",
+        "family": "0",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-041/clean",
+        "family": "1",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-041/defect",
+        "family": "1",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-042/clean",
+        "family": "2",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-042/defect",
+        "family": "2",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-043/clean",
+        "family": "3",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-043/defect",
+        "family": "3",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-044/clean",
+        "family": "4",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-044/defect",
+        "family": "4",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-045/clean",
+        "family": "5",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-045/defect",
+        "family": "5",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-046/clean",
+        "family": "6",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-046/defect",
+        "family": "6",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-047/clean",
+        "family": "7",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-047/defect",
+        "family": "7",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-048/clean",
+        "family": "8",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-048/defect",
+        "family": "8",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-049/clean",
+        "family": "9",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-049/defect",
+        "family": "9",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-050/clean",
+        "family": "0",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-050/defect",
+        "family": "0",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-051/clean",
+        "family": "1",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-051/defect",
+        "family": "1",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-052/clean",
+        "family": "2",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-052/defect",
+        "family": "2",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-053/clean",
+        "family": "3",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-053/defect",
+        "family": "3",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-054/clean",
+        "family": "4",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-054/defect",
+        "family": "4",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-055/clean",
+        "family": "5",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-055/defect",
+        "family": "5",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-056/clean",
+        "family": "6",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-056/defect",
+        "family": "6",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-057/clean",
+        "family": "7",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-057/defect",
+        "family": "7",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-058/clean",
+        "family": "8",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-058/defect",
+        "family": "8",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-059/clean",
+        "family": "9",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-059/defect",
+        "family": "9",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-060/clean",
+        "family": "0",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-060/defect",
+        "family": "0",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-061/clean",
+        "family": "1",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-061/defect",
+        "family": "1",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-062/clean",
+        "family": "2",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-062/defect",
+        "family": "2",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-063/clean",
+        "family": "3",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-063/defect",
+        "family": "3",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-064/clean",
+        "family": "4",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-064/defect",
+        "family": "4",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-065/clean",
+        "family": "5",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-065/defect",
+        "family": "5",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-066/clean",
+        "family": "6",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-066/defect",
+        "family": "6",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-067/clean",
+        "family": "7",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-067/defect",
+        "family": "7",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-068/clean",
+        "family": "8",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-068/defect",
+        "family": "8",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-069/clean",
+        "family": "9",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-069/defect",
+        "family": "9",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-070/clean",
+        "family": "0",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-070/defect",
+        "family": "0",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-071/clean",
+        "family": "1",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-071/defect",
+        "family": "1",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-072/clean",
+        "family": "2",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-072/defect",
+        "family": "2",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-073/clean",
+        "family": "3",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-073/defect",
+        "family": "3",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-074/clean",
+        "family": "4",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-074/defect",
+        "family": "4",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-075/clean",
+        "family": "5",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-075/defect",
+        "family": "5",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-076/clean",
+        "family": "6",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-076/defect",
+        "family": "6",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-077/clean",
+        "family": "7",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-077/defect",
+        "family": "7",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-078/clean",
+        "family": "8",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-078/defect",
+        "family": "8",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-079/clean",
+        "family": "9",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-079/defect",
+        "family": "9",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-080/clean",
+        "family": "0",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-080/defect",
+        "family": "0",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-081/clean",
+        "family": "1",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-081/defect",
+        "family": "1",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-082/clean",
+        "family": "2",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-082/defect",
+        "family": "2",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-083/clean",
+        "family": "3",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-083/defect",
+        "family": "3",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-084/clean",
+        "family": "4",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-084/defect",
+        "family": "4",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-085/clean",
+        "family": "5",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-085/defect",
+        "family": "5",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-086/clean",
+        "family": "6",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-086/defect",
+        "family": "6",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-087/clean",
+        "family": "7",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-087/defect",
+        "family": "7",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-088/clean",
+        "family": "8",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-088/defect",
+        "family": "8",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-089/clean",
+        "family": "9",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-089/defect",
+        "family": "9",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-090/clean",
+        "family": "0",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-090/defect",
+        "family": "0",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-091/clean",
+        "family": "1",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-091/defect",
+        "family": "1",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-092/clean",
+        "family": "2",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-092/defect",
+        "family": "2",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-093/clean",
+        "family": "3",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-093/defect",
+        "family": "3",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-094/clean",
+        "family": "4",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "verify-bank-094/defect",
+        "family": "4",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      }
+    ]
+  },
+  "cassetteSha256": "9e668b1b05f907a334df4a0a7f58615d1ac00afde704ebba49919213a0e83793",
+  "resolvedModels": [
+    "gpt-6-luna"
+  ],
+  "costUsd": 0.041191300000000014,
+  "chargedUsd": 0.041191300000000014,
+  "calls": 190,
+  "spend": [
+    {
+      "at": "2026-10-15T16:09:13.295Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001817,
+      "chargedUsd": 0.0001817,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1007,
+      "outputTokens": 162
+    },
+    {
+      "at": "2026-10-15T16:09:15.781Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001962,
+      "chargedUsd": 0.0001962,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 189
+    },
+    {
+      "at": "2026-10-15T16:09:16.305Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001862,
+      "chargedUsd": 0.0001862,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1007,
+      "outputTokens": 171
+    },
+    {
+      "at": "2026-10-15T16:09:16.420Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019569999999999999,
+      "chargedUsd": 0.00019569999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1007,
+      "outputTokens": 190
+    },
+    {
+      "at": "2026-10-15T16:09:16.623Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019769999999999998,
+      "chargedUsd": 0.00019769999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 192
+    },
+    {
+      "at": "2026-10-15T16:09:19.209Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002082,
+      "chargedUsd": 0.0002082,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1007,
+      "outputTokens": 215
+    },
+    {
+      "at": "2026-10-15T16:09:19.268Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002205,
+      "chargedUsd": 0.0002205,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 238
+    },
+    {
+      "at": "2026-10-15T16:09:19.379Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002102,
+      "chargedUsd": 0.0002102,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 217
+    },
+    {
+      "at": "2026-10-15T16:09:19.771Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019160000000000002,
+      "chargedUsd": 0.00019160000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1031,
+      "outputTokens": 177
+    },
+    {
+      "at": "2026-10-15T16:09:22.245Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00021710000000000002,
+      "chargedUsd": 0.00021710000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1031,
+      "outputTokens": 228
+    },
+    {
+      "at": "2026-10-15T16:09:22.247Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001972,
+      "chargedUsd": 0.0001972,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 191
+    },
+    {
+      "at": "2026-10-15T16:09:22.779Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00021960000000000003,
+      "chargedUsd": 0.00021960000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1016,
+      "outputTokens": 236
+    },
+    {
+      "at": "2026-10-15T16:09:23.530Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00022860000000000003,
+      "chargedUsd": 0.00022860000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1016,
+      "outputTokens": 254
+    },
+    {
+      "at": "2026-10-15T16:09:25.241Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002135,
+      "chargedUsd": 0.0002135,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 224
+    },
+    {
+      "at": "2026-10-15T16:09:25.349Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002002,
+      "chargedUsd": 0.0002002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 197
+    },
+    {
+      "at": "2026-10-15T16:09:25.923Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000219,
+      "chargedUsd": 0.000219,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 235
+    },
+    {
+      "at": "2026-10-15T16:09:26.242Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001765,
+      "chargedUsd": 0.0001765,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1020,
+      "outputTokens": 149
+    },
+    {
+      "at": "2026-10-15T16:09:28.493Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001954,
+      "chargedUsd": 0.0001954,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 187
+    },
+    {
+      "at": "2026-10-15T16:09:29.051Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001884,
+      "chargedUsd": 0.0001884,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1009,
+      "outputTokens": 175
+    },
+    {
+      "at": "2026-10-15T16:09:29.063Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00023019999999999998,
+      "chargedUsd": 0.00023019999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 252
+    },
+    {
+      "at": "2026-10-15T16:09:30.383Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002537,
+      "chargedUsd": 0.0002537,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 299
+    },
+    {
+      "at": "2026-10-15T16:09:31.707Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001937,
+      "chargedUsd": 0.0001937,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 184
+    },
+    {
+      "at": "2026-10-15T16:09:31.938Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002079,
+      "chargedUsd": 0.0002079,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1009,
+      "outputTokens": 214
+    },
+    {
+      "at": "2026-10-15T16:09:32.380Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001927,
+      "chargedUsd": 0.0001927,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 182
+    },
+    {
+      "at": "2026-10-15T16:09:33.529Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000199,
+      "chargedUsd": 0.000199,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1010,
+      "outputTokens": 196
+    },
+    {
+      "at": "2026-10-15T16:09:34.447Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001945,
+      "chargedUsd": 0.0001945,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1010,
+      "outputTokens": 187
+    },
+    {
+      "at": "2026-10-15T16:09:35.631Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000231,
+      "chargedUsd": 0.000231,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 259
+    },
+    {
+      "at": "2026-10-15T16:09:36.742Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002247,
+      "chargedUsd": 0.0002247,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 246
+    },
+    {
+      "at": "2026-10-15T16:09:37.283Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002282,
+      "chargedUsd": 0.0002282,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 250
+    },
+    {
+      "at": "2026-10-15T16:09:37.437Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002127,
+      "chargedUsd": 0.0002127,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 219
+    },
+    {
+      "at": "2026-10-15T16:09:39.350Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00022360000000000001,
+      "chargedUsd": 0.00022360000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1016,
+      "outputTokens": 244
+    },
+    {
+      "at": "2026-10-15T16:09:39.756Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00024010000000000004,
+      "chargedUsd": 0.00024010000000000004,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1016,
+      "outputTokens": 277
+    },
+    {
+      "at": "2026-10-15T16:09:39.916Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020869999999999998,
+      "chargedUsd": 0.00020869999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 214
+    },
+    {
+      "at": "2026-10-15T16:09:40.853Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002017,
+      "chargedUsd": 0.0002017,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 200
+    },
+    {
+      "at": "2026-10-15T16:09:42.264Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002185,
+      "chargedUsd": 0.0002185,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 234
+    },
+    {
+      "at": "2026-10-15T16:09:42.852Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000232,
+      "chargedUsd": 0.000232,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 261
+    },
+    {
+      "at": "2026-10-15T16:09:42.995Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000187,
+      "chargedUsd": 0.000187,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1020,
+      "outputTokens": 170
+    },
+    {
+      "at": "2026-10-15T16:09:43.026Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001889,
+      "chargedUsd": 0.0001889,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 174
+    },
+    {
+      "at": "2026-10-15T16:09:45.726Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002407,
+      "chargedUsd": 0.0002407,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 273
+    },
+    {
+      "at": "2026-10-15T16:09:45.881Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00024219999999999998,
+      "chargedUsd": 0.00024219999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 276
+    },
+    {
+      "at": "2026-10-15T16:09:46.629Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00021710000000000002,
+      "chargedUsd": 0.00021710000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1011,
+      "outputTokens": 232
+    },
+    {
+      "at": "2026-10-15T16:09:47.504Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002456,
+      "chargedUsd": 0.0002456,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1011,
+      "outputTokens": 289
+    },
+    {
+      "at": "2026-10-15T16:09:48.543Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002007,
+      "chargedUsd": 0.0002007,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 198
+    },
+    {
+      "at": "2026-10-15T16:09:48.575Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001937,
+      "chargedUsd": 0.0001937,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 184
+    },
+    {
+      "at": "2026-10-15T16:09:49.874Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002108,
+      "chargedUsd": 0.0002108,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1013,
+      "outputTokens": 219
+    },
+    {
+      "at": "2026-10-15T16:09:51.082Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020580000000000002,
+      "chargedUsd": 0.00020580000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1013,
+      "outputTokens": 209
+    },
+    {
+      "at": "2026-10-15T16:09:51.595Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000219,
+      "chargedUsd": 0.000219,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 235
+    },
+    {
+      "at": "2026-10-15T16:09:51.998Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002437,
+      "chargedUsd": 0.0002437,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 284
+    },
+    {
+      "at": "2026-10-15T16:09:52.706Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00018810000000000002,
+      "chargedUsd": 0.00018810000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1031,
+      "outputTokens": 170
+    },
+    {
+      "at": "2026-10-15T16:09:54.021Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00022660000000000003,
+      "chargedUsd": 0.00022660000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1031,
+      "outputTokens": 247
+    },
+    {
+      "at": "2026-10-15T16:09:55.173Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00023160000000000002,
+      "chargedUsd": 0.00023160000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1016,
+      "outputTokens": 260
+    },
+    {
+      "at": "2026-10-15T16:09:55.265Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00022310000000000003,
+      "chargedUsd": 0.00022310000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1016,
+      "outputTokens": 243
+    },
+    {
+      "at": "2026-10-15T16:09:55.799Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019769999999999998,
+      "chargedUsd": 0.00019769999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 192
+    },
+    {
+      "at": "2026-10-15T16:09:57.995Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002025,
+      "chargedUsd": 0.0002025,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 202
+    },
+    {
+      "at": "2026-10-15T16:09:58.408Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001995,
+      "chargedUsd": 0.0001995,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1020,
+      "outputTokens": 195
+    },
+    {
+      "at": "2026-10-15T16:09:58.485Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000231,
+      "chargedUsd": 0.000231,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 259
+    },
+    {
+      "at": "2026-10-15T16:09:59.146Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002037,
+      "chargedUsd": 0.0002037,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 204
+    },
+    {
+      "at": "2026-10-15T16:10:00.673Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001999,
+      "chargedUsd": 0.0001999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 196
+    },
+    {
+      "at": "2026-10-15T16:10:02.071Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00022569999999999998,
+      "chargedUsd": 0.00022569999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 243
+    },
+    {
+      "at": "2026-10-15T16:10:02.177Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002337,
+      "chargedUsd": 0.0002337,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 259
+    },
+    {
+      "at": "2026-10-15T16:10:02.328Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002188,
+      "chargedUsd": 0.0002188,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1013,
+      "outputTokens": 235
+    },
+    {
+      "at": "2026-10-15T16:10:04.609Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00017319999999999998,
+      "chargedUsd": 0.00017319999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 143
+    },
+    {
+      "at": "2026-10-15T16:10:04.724Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019319999999999998,
+      "chargedUsd": 0.00019319999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 183
+    },
+    {
+      "at": "2026-10-15T16:10:04.904Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019360000000000002,
+      "chargedUsd": 0.00019360000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1006,
+      "outputTokens": 186
+    },
+    {
+      "at": "2026-10-15T16:10:05.830Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00025330000000000003,
+      "chargedUsd": 0.00025330000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1013,
+      "outputTokens": 304
+    },
+    {
+      "at": "2026-10-15T16:10:07.330Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020660000000000003,
+      "chargedUsd": 0.00020660000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1006,
+      "outputTokens": 212
+    },
+    {
+      "at": "2026-10-15T16:10:08.898Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002352,
+      "chargedUsd": 0.0002352,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 267
+    },
+    {
+      "at": "2026-10-15T16:10:09.415Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019969999999999998,
+      "chargedUsd": 0.00019969999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 193
+    },
+    {
+      "at": "2026-10-15T16:10:09.417Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00029319999999999997,
+      "chargedUsd": 0.00029319999999999997,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 383
+    },
+    {
+      "at": "2026-10-15T16:10:10.611Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00024119999999999998,
+      "chargedUsd": 0.00024119999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 276
+    },
+    {
+      "at": "2026-10-15T16:10:11.744Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020119999999999998,
+      "chargedUsd": 0.00020119999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 199
+    },
+    {
+      "at": "2026-10-15T16:10:12.266Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00021610000000000002,
+      "chargedUsd": 0.00021610000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1016,
+      "outputTokens": 229
+    },
+    {
+      "at": "2026-10-15T16:10:12.913Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00022960000000000002,
+      "chargedUsd": 0.00022960000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1016,
+      "outputTokens": 256
+    },
+    {
+      "at": "2026-10-15T16:10:13.837Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002037,
+      "chargedUsd": 0.0002037,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 204
+    },
+    {
+      "at": "2026-10-15T16:10:14.254Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002145,
+      "chargedUsd": 0.0002145,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 226
+    },
+    {
+      "at": "2026-10-15T16:10:15.615Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000187,
+      "chargedUsd": 0.000187,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1020,
+      "outputTokens": 170
+    },
+    {
+      "at": "2026-10-15T16:10:15.709Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002265,
+      "chargedUsd": 0.0002265,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 250
+    },
+    {
+      "at": "2026-10-15T16:10:17.121Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001904,
+      "chargedUsd": 0.0001904,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 177
+    },
+    {
+      "at": "2026-10-15T16:10:18.665Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000227,
+      "chargedUsd": 0.000227,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1040,
+      "outputTokens": 246
+    },
+    {
+      "at": "2026-10-15T16:10:19.097Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000224,
+      "chargedUsd": 0.000224,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 245
+    },
+    {
+      "at": "2026-10-15T16:10:19.106Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0003245,
+      "chargedUsd": 0.0003245,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1040,
+      "outputTokens": 441
+    },
+    {
+      "at": "2026-10-15T16:10:20.129Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000211,
+      "chargedUsd": 0.000211,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 219
+    },
+    {
+      "at": "2026-10-15T16:10:22.096Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001872,
+      "chargedUsd": 0.0001872,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 171
+    },
+    {
+      "at": "2026-10-15T16:10:22.345Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002005,
+      "chargedUsd": 0.0002005,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1010,
+      "outputTokens": 199
+    },
+    {
+      "at": "2026-10-15T16:10:22.369Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001927,
+      "chargedUsd": 0.0001927,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 182
+    },
+    {
+      "at": "2026-10-15T16:10:22.616Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000197,
+      "chargedUsd": 0.000197,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1010,
+      "outputTokens": 192
+    },
+    {
+      "at": "2026-10-15T16:10:24.915Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000229,
+      "chargedUsd": 0.000229,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 255
+    },
+    {
+      "at": "2026-10-15T16:10:25.354Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00022219999999999998,
+      "chargedUsd": 0.00022219999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 241
+    },
+    {
+      "at": "2026-10-15T16:10:25.902Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002097,
+      "chargedUsd": 0.0002097,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 213
+    },
+    {
+      "at": "2026-10-15T16:10:27.644Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002382,
+      "chargedUsd": 0.0002382,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 270
+    },
+    {
+      "at": "2026-10-15T16:10:27.898Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002297,
+      "chargedUsd": 0.0002297,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 256
+    },
+    {
+      "at": "2026-10-15T16:10:29.209Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002407,
+      "chargedUsd": 0.0002407,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 278
+    },
+    {
+      "at": "2026-10-15T16:10:30.386Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002147,
+      "chargedUsd": 0.0002147,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 226
+    },
+    {
+      "at": "2026-10-15T16:10:31.808Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000241,
+      "chargedUsd": 0.000241,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 279
+    },
+    {
+      "at": "2026-10-15T16:10:32.112Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002285,
+      "chargedUsd": 0.0002285,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 254
+    },
+    {
+      "at": "2026-10-15T16:10:32.508Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019969999999999998,
+      "chargedUsd": 0.00019969999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 196
+    },
+    {
+      "at": "2026-10-15T16:10:33.041Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000184,
+      "chargedUsd": 0.000184,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1020,
+      "outputTokens": 164
+    },
+    {
+      "at": "2026-10-15T16:10:34.723Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002227,
+      "chargedUsd": 0.0002227,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 237
+    },
+    {
+      "at": "2026-10-15T16:10:34.730Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001789,
+      "chargedUsd": 0.0001789,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 154
+    },
+    {
+      "at": "2026-10-15T16:10:36.277Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00025069999999999997,
+      "chargedUsd": 0.00025069999999999997,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 293
+    },
+    {
+      "at": "2026-10-15T16:10:36.748Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002172,
+      "chargedUsd": 0.0002172,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 231
+    },
+    {
+      "at": "2026-10-15T16:10:37.252Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001982,
+      "chargedUsd": 0.0001982,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 193
+    },
+    {
+      "at": "2026-10-15T16:10:38.831Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001808,
+      "chargedUsd": 0.0001808,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1013,
+      "outputTokens": 159
+    },
+    {
+      "at": "2026-10-15T16:10:39.090Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020119999999999998,
+      "chargedUsd": 0.00020119999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 199
+    },
+    {
+      "at": "2026-10-15T16:10:40.535Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0003012,
+      "chargedUsd": 0.0003012,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 399
+    },
+    {
+      "at": "2026-10-15T16:10:40.570Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002108,
+      "chargedUsd": 0.0002108,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1013,
+      "outputTokens": 219
+    },
+    {
+      "at": "2026-10-15T16:10:42.773Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001923,
+      "chargedUsd": 0.0001923,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1028,
+      "outputTokens": 179
+    },
+    {
+      "at": "2026-10-15T16:10:42.997Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002521,
+      "chargedUsd": 0.0002521,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1016,
+      "outputTokens": 301
+    },
+    {
+      "at": "2026-10-15T16:10:43.678Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001933,
+      "chargedUsd": 0.0001933,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1028,
+      "outputTokens": 181
+    },
+    {
+      "at": "2026-10-15T16:10:43.695Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00029769999999999997,
+      "chargedUsd": 0.00029769999999999997,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 392
+    },
+    {
+      "at": "2026-10-15T16:10:45.919Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002384,
+      "chargedUsd": 0.0002384,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 273
+    },
+    {
+      "at": "2026-10-15T16:10:46.123Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002027,
+      "chargedUsd": 0.0002027,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 202
+    },
+    {
+      "at": "2026-10-15T16:10:47.174Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002107,
+      "chargedUsd": 0.0002107,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 218
+    },
+    {
+      "at": "2026-10-15T16:10:47.232Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002243,
+      "chargedUsd": 0.0002243,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1018,
+      "outputTokens": 245
+    },
+    {
+      "at": "2026-10-15T16:10:49.067Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002255,
+      "chargedUsd": 0.0002255,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 248
+    },
+    {
+      "at": "2026-10-15T16:10:49.300Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002225,
+      "chargedUsd": 0.0002225,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 242
+    },
+    {
+      "at": "2026-10-15T16:10:49.661Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001904,
+      "chargedUsd": 0.0001904,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 177
+    },
+    {
+      "at": "2026-10-15T16:10:50.018Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001945,
+      "chargedUsd": 0.0001945,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1020,
+      "outputTokens": 185
+    },
+    {
+      "at": "2026-10-15T16:10:52.498Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002197,
+      "chargedUsd": 0.0002197,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 231
+    },
+    {
+      "at": "2026-10-15T16:10:52.794Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002289,
+      "chargedUsd": 0.0002289,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 254
+    },
+    {
+      "at": "2026-10-15T16:10:53.050Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002237,
+      "chargedUsd": 0.0002237,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 239
+    },
+    {
+      "at": "2026-10-15T16:10:54.395Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002959,
+      "chargedUsd": 0.0002959,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 388
+    },
+    {
+      "at": "2026-10-15T16:10:55.593Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001956,
+      "chargedUsd": 0.0001956,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1006,
+      "outputTokens": 190
+    },
+    {
+      "at": "2026-10-15T16:10:55.722Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019769999999999998,
+      "chargedUsd": 0.00019769999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 192
+    },
+    {
+      "at": "2026-10-15T16:10:55.826Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019219999999999998,
+      "chargedUsd": 0.00019219999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 181
+    },
+    {
+      "at": "2026-10-15T16:10:56.706Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00018710000000000002,
+      "chargedUsd": 0.00018710000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1006,
+      "outputTokens": 173
+    },
+    {
+      "at": "2026-10-15T16:10:58.820Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002245,
+      "chargedUsd": 0.0002245,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 246
+    },
+    {
+      "at": "2026-10-15T16:10:59.545Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00023110000000000003,
+      "chargedUsd": 0.00023110000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1031,
+      "outputTokens": 256
+    },
+    {
+      "at": "2026-10-15T16:10:59.658Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002517,
+      "chargedUsd": 0.0002517,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 300
+    },
+    {
+      "at": "2026-10-15T16:11:00.628Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00023060000000000002,
+      "chargedUsd": 0.00023060000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1031,
+      "outputTokens": 255
+    },
+    {
+      "at": "2026-10-15T16:11:01.346Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00022140000000000001,
+      "chargedUsd": 0.00022140000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 239
+    },
+    {
+      "at": "2026-10-15T16:11:02.635Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001937,
+      "chargedUsd": 0.0001937,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 184
+    },
+    {
+      "at": "2026-10-15T16:11:02.792Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002364,
+      "chargedUsd": 0.0002364,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 269
+    },
+    {
+      "at": "2026-10-15T16:11:03.443Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020669999999999998,
+      "chargedUsd": 0.00020669999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 210
+    },
+    {
+      "at": "2026-10-15T16:11:05.212Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000191,
+      "chargedUsd": 0.000191,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1020,
+      "outputTokens": 178
+    },
+    {
+      "at": "2026-10-15T16:11:05.576Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002245,
+      "chargedUsd": 0.0002245,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 246
+    },
+    {
+      "at": "2026-10-15T16:11:05.587Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000223,
+      "chargedUsd": 0.000223,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 243
+    },
+    {
+      "at": "2026-10-15T16:11:06.593Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001849,
+      "chargedUsd": 0.0001849,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 166
+    },
+    {
+      "at": "2026-10-15T16:11:07.638Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00021569999999999998,
+      "chargedUsd": 0.00021569999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 223
+    },
+    {
+      "at": "2026-10-15T16:11:08.487Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00022560000000000004,
+      "chargedUsd": 0.00022560000000000004,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1021,
+      "outputTokens": 247
+    },
+    {
+      "at": "2026-10-15T16:11:09.296Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002337,
+      "chargedUsd": 0.0002337,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 259
+    },
+    {
+      "at": "2026-10-15T16:11:09.733Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00023310000000000003,
+      "chargedUsd": 0.00023310000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1021,
+      "outputTokens": 262
+    },
+    {
+      "at": "2026-10-15T16:11:10.031Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00020319999999999998,
+      "chargedUsd": 0.00020319999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 203
+    },
+    {
+      "at": "2026-10-15T16:11:11.352Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019119999999999999,
+      "chargedUsd": 0.00019119999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 179
+    },
+    {
+      "at": "2026-10-15T16:11:11.906Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002075,
+      "chargedUsd": 0.0002075,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1010,
+      "outputTokens": 213
+    },
+    {
+      "at": "2026-10-15T16:11:12.533Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000213,
+      "chargedUsd": 0.000213,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1010,
+      "outputTokens": 224
+    },
+    {
+      "at": "2026-10-15T16:11:13.440Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000228,
+      "chargedUsd": 0.000228,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 253
+    },
+    {
+      "at": "2026-10-15T16:11:15.532Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002227,
+      "chargedUsd": 0.0002227,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 239
+    },
+    {
+      "at": "2026-10-15T16:11:15.682Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002612,
+      "chargedUsd": 0.0002612,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 319
+    },
+    {
+      "at": "2026-10-15T16:11:16.378Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002264,
+      "chargedUsd": 0.0002264,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 249
+    },
+    {
+      "at": "2026-10-15T16:11:16.908Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002387,
+      "chargedUsd": 0.0002387,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 271
+    },
+    {
+      "at": "2026-10-15T16:11:18.271Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00018669999999999998,
+      "chargedUsd": 0.00018669999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 170
+    },
+    {
+      "at": "2026-10-15T16:11:19.488Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00018319999999999998,
+      "chargedUsd": 0.00018319999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 163
+    },
+    {
+      "at": "2026-10-15T16:11:19.769Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002534,
+      "chargedUsd": 0.0002534,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 303
+    },
+    {
+      "at": "2026-10-15T16:11:21.027Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000217,
+      "chargedUsd": 0.000217,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 231
+    },
+    {
+      "at": "2026-10-15T16:11:21.399Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000218,
+      "chargedUsd": 0.000218,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 233
+    },
+    {
+      "at": "2026-10-15T16:11:22.525Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019140000000000002,
+      "chargedUsd": 0.00019140000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 179
+    },
+    {
+      "at": "2026-10-15T16:11:23.725Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002292,
+      "chargedUsd": 0.0002292,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 250
+    },
+    {
+      "at": "2026-10-15T16:11:23.756Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001795,
+      "chargedUsd": 0.0001795,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1020,
+      "outputTokens": 155
+    },
+    {
+      "at": "2026-10-15T16:11:24.560Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002317,
+      "chargedUsd": 0.0002317,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 255
+    },
+    {
+      "at": "2026-10-15T16:11:25.862Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002463,
+      "chargedUsd": 0.0002463,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1023,
+      "outputTokens": 288
+    },
+    {
+      "at": "2026-10-15T16:11:27.037Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001937,
+      "chargedUsd": 0.0001937,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 184
+    },
+    {
+      "at": "2026-10-15T16:11:27.327Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00018419999999999998,
+      "chargedUsd": 0.00018419999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 165
+    },
+    {
+      "at": "2026-10-15T16:11:29.012Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0003163,
+      "chargedUsd": 0.0003163,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1023,
+      "outputTokens": 428
+    },
+    {
+      "at": "2026-10-15T16:11:29.807Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002258,
+      "chargedUsd": 0.0002258,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1013,
+      "outputTokens": 249
+    },
+    {
+      "at": "2026-10-15T16:11:29.901Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002043,
+      "chargedUsd": 0.0002043,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1013,
+      "outputTokens": 206
+    },
+    {
+      "at": "2026-10-15T16:11:30.371Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000217,
+      "chargedUsd": 0.000217,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 231
+    },
+    {
+      "at": "2026-10-15T16:11:32.538Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002292,
+      "chargedUsd": 0.0002292,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 255
+    },
+    {
+      "at": "2026-10-15T16:11:33.521Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002047,
+      "chargedUsd": 0.0002047,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 203
+    },
+    {
+      "at": "2026-10-15T16:11:33.731Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00023319999999999998,
+      "chargedUsd": 0.00023319999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 260
+    },
+    {
+      "at": "2026-10-15T16:11:33.868Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002229,
+      "chargedUsd": 0.0002229,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 242
+    },
+    {
+      "at": "2026-10-15T16:11:35.960Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002534,
+      "chargedUsd": 0.0002534,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 303
+    },
+    {
+      "at": "2026-10-15T16:11:35.999Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019869999999999998,
+      "chargedUsd": 0.00019869999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 194
+    },
+    {
+      "at": "2026-10-15T16:11:36.137Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002072,
+      "chargedUsd": 0.0002072,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 211
+    },
+    {
+      "at": "2026-10-15T16:11:36.496Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002135,
+      "chargedUsd": 0.0002135,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 224
+    },
+    {
+      "at": "2026-10-15T16:11:38.495Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0001839,
+      "chargedUsd": 0.0001839,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1019,
+      "outputTokens": 164
+    },
+    {
+      "at": "2026-10-15T16:11:38.838Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000177,
+      "chargedUsd": 0.000177,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1020,
+      "outputTokens": 150
+    },
+    {
+      "at": "2026-10-15T16:11:39.465Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00023,
+      "chargedUsd": 0.00023,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1015,
+      "outputTokens": 257
+    },
+    {
+      "at": "2026-10-15T16:11:39.613Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002192,
+      "chargedUsd": 0.0002192,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 230
+    },
+    {
+      "at": "2026-10-15T16:11:42.378Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002635,
+      "chargedUsd": 0.0002635,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1025,
+      "outputTokens": 322
+    },
+    {
+      "at": "2026-10-15T16:11:42.617Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019569999999999999,
+      "chargedUsd": 0.00019569999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 188
+    },
+    {
+      "at": "2026-10-15T16:11:42.670Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002237,
+      "chargedUsd": 0.0002237,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1042,
+      "outputTokens": 239
+    },
+    {
+      "at": "2026-10-15T16:11:43.634Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.000277,
+      "chargedUsd": 0.000277,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1025,
+      "outputTokens": 349
+    },
+    {
+      "at": "2026-10-15T16:11:45.039Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00017669999999999999,
+      "chargedUsd": 0.00017669999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 150
+    },
+    {
+      "at": "2026-10-15T16:11:45.538Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00021319999999999998,
+      "chargedUsd": 0.00021319999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1007,
+      "outputTokens": 225
+    },
+    {
+      "at": "2026-10-15T16:11:45.947Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00019869999999999998,
+      "chargedUsd": 0.00019869999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1007,
+      "outputTokens": 196
+    },
+    {
+      "at": "2026-10-15T16:11:48.654Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00025969999999999997,
+      "chargedUsd": 0.00025969999999999997,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 316
+    },
+    {
+      "at": "2026-10-15T16:11:48.777Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00021669999999999998,
+      "chargedUsd": 0.00021669999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 227
+    },
+    {
+      "at": "2026-10-15T16:11:49.212Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.0002577,
+      "chargedUsd": 0.0002577,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1017,
+      "outputTokens": 312
+    },
+    {
+      "at": "2026-10-15T16:11:49.279Z",
+      "model": "gpt-6-luna",
+      "resolvedModel": "gpt-6-luna",
+      "costUsd": 0.00021869999999999998,
+      "chargedUsd": 0.00021869999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1032,
+      "outputTokens": 231
+    }
+  ]
+}

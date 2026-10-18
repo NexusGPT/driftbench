@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/checks",
+  "name": "@agent-nexus/driftbench-checks",
   "version": "0.1.0",
   "description": "Machine checks for driftbench blocks: tool calls, text, language, personal data, stage, skills, guards, workspace, artifacts, schemas and budget, each verdict with evidence.",
   "keywords": [
@@ -21,10 +21,10 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/checks"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -35,13 +35,15 @@
     }
   },
   "files": [
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
     "dist"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
+    "@agent-nexus/driftbench-core": "workspace:*",
     "franc-min": "^6.2.0"
   },
   "publishConfig": {

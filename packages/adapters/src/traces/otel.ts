@@ -1,6 +1,6 @@
-import type { Cost, Segment, ToolCall } from '@driftbench/core';
-import { joinText, parseObserved } from '../shared';
-import { type PriceTable, priced, type Trace, type TraceTurn } from './types';
+import type { Cost, Segment, ToolCall } from '@agent-nexus/driftbench-core';
+import { isRecord, joinText, parseArguments, parseObserved } from '../shared';
+import { type PriceTable, priced, type Trace, type TraceObservation, type TraceTurn } from './types';
 
 /**
  * OpenTelemetry traces of an LLM application, read from OTLP JSON (the file exporter's format, or a
@@ -221,7 +221,7 @@ function outputOf(span: OtelSpan): Message {
       calls.push({
         ...(typeof id === 'string' ? { id } : {}),
         name: String(span.attributes[`${prefix}.name`]),
-        input: parsed(stringOf(span.attributes[`${prefix}.arguments`])) ?? {},
+        input: parseArguments(span.attributes[`${prefix}.arguments`]),
       });
     }
     return {
@@ -241,7 +241,7 @@ function outputOf(span: OtelSpan): Message {
               {
                 ...(typeof call.id === 'string' ? { id: call.id } : {}),
                 name: call.function.name,
-                input: parsed(stringOf(call.function.arguments)) ?? {},
+                input: parseArguments(call.function.arguments),
               },
             ]
           : [],
@@ -267,7 +267,7 @@ function messageOfParts(raw: unknown): Message[] {
       message.calls.push({
         ...(typeof part.id === 'string' ? { id: part.id } : {}),
         name: part.name,
-        input: typeof part.arguments === 'string' ? (parsed(part.arguments) ?? {}) : (part.arguments ?? {}),
+        input: parseArguments(part.arguments),
       });
     }
     if (part.type === 'tool_call_response') {
@@ -343,8 +343,43 @@ export function tracesFromOtel(
         candidates[0];
       owner?.others.push(span);
     }
-    const trace = traceOf(key, turns, options.prices);
-    traces.push(trace);
+    const observations = ordered.map((span): TraceObservation => {
+      const chat = isChat(span);
+      const inputTokens = chat
+        ? (numberAttr(span, 'gen_ai.usage.input_tokens') ?? numberAttr(span, 'gen_ai.usage.prompt_tokens'))
+        : undefined;
+      const outputTokens = chat
+        ? (numberAttr(span, 'gen_ai.usage.output_tokens') ??
+          numberAttr(span, 'gen_ai.usage.completion_tokens'))
+        : undefined;
+      const model = stringAttr(span, 'gen_ai.response.model') ?? stringAttr(span, 'gen_ai.request.model');
+      const usd = chat
+        ? (numberAttr(span, 'gen_ai.usage.cost') ??
+          (inputTokens === undefined
+            ? undefined
+            : priced(options.prices, model, inputTokens, outputTokens ?? 0)))
+        : undefined;
+      return {
+        id: span.spanId,
+        ...(span.parentSpanId === undefined ? {} : { parentId: span.parentSpanId }),
+        kind: chat ? 'chat' : isTool(span) ? 'tool' : 'other',
+        name: span.name,
+        start: new Date(span.start).toISOString(),
+        end: new Date(span.end).toISOString(),
+        level: span.status?.code === 2 ? 'error' : 'default',
+        ...(inputTokens === undefined && outputTokens === undefined
+          ? {}
+          : {
+              usage: {
+                ...(inputTokens === undefined ? {} : { inputTokens }),
+                ...(outputTokens === undefined ? {} : { outputTokens }),
+              },
+            }),
+        ...(usd === undefined ? {} : { usd }),
+        ...ioOf(span, chat),
+      };
+    });
+    traces.push({ ...traceOf(key, turns, options.prices), observations });
   }
   traces.sort((a, b) => (a.startedAt ?? '').localeCompare(b.startedAt ?? '') || a.id.localeCompare(b.id));
   return { traces, issues };
@@ -416,7 +451,7 @@ function traceOf(id: string, turns: Turn[], prices: PriceTable | undefined): Tra
     for (const span of toolSpans) {
       if (claimed.has(span)) continue;
       const name = toolName(span) ?? span.name;
-      const record = toolRecord(name, parsed(stringOf(toolArguments(span))) ?? {}, span, toolCallId(span));
+      const record = toolRecord(name, parseArguments(toolArguments(span)), span, toolCallId(span));
       events.push({
         at: span.start,
         segments: [
@@ -461,6 +496,7 @@ function traceOf(id: string, turns: Turn[], prices: PriceTable | undefined): Tra
     return {
       user: turn.user,
       startedAt: iso(start),
+      ...(turn.chats[0] ? { observationId: turn.chats[0].spanId } : {}),
       observed: parseObserved(
         {
           segments,
@@ -489,7 +525,12 @@ function toolRecord(
   span: OtelSpan | undefined,
   id: string | undefined,
 ): ToolCall {
-  const record: ToolCall = { ...(id !== undefined ? { id } : {}), label: name, input };
+  const record: ToolCall = {
+    ...(id !== undefined ? { id } : {}),
+    ...(span === undefined ? {} : { spanId: span.spanId }),
+    label: name,
+    input,
+  };
   if (span === undefined) return record;
   if (span.status?.code === 2)
     record.error = span.status.message || stringOf(span.attributes['error.type']) || 'error';
@@ -563,6 +604,20 @@ function round(ms: number): number {
   return Math.round(ms * 1000) / 1000;
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
+/** A tool span's arguments and result, or a chat span's reply text, as the source wrote them. */
+function ioOf(span: OtelSpan, chat: boolean): { input?: unknown; output?: unknown } {
+  if (chat) {
+    const text = outputOf(span).text;
+    return text === '' ? {} : { output: text };
+  }
+  if (!isTool(span)) return {};
+  const input = span.attributes['gen_ai.tool.call.arguments'] ?? span.attributes['traceloop.entity.input'];
+  const result =
+    span.status?.code === 2
+      ? undefined
+      : (span.attributes['gen_ai.tool.call.result'] ?? span.attributes['traceloop.entity.output']);
+  return {
+    ...(input === undefined ? {} : { input: typeof input === 'string' ? parsed(input) : input }),
+    ...(result === undefined ? {} : { output: typeof result === 'string' ? parsed(result) : result }),
+  };
 }

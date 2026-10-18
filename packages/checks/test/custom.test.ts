@@ -1,4 +1,4 @@
-import { machineVerdict, type Spec } from '@driftbench/core';
+import { machineVerdict, type Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { CheckRegistry, createCustomCheck } from '../src/checks/custom';
 import { defaultChecks } from '../src/defaults';

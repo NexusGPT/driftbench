@@ -2,16 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-115
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 115 of 154: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D4_loose_confirmation at recap"
-channel: whatsapp
+title: "t-wise row 115 of 132: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D4_loose_confirmation at recap"
+channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:fiber
-  - task:existing-workbook
+  - data:5g-only
   - flow:new-home
 covers:
   - B-011
@@ -27,6 +26,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-011
     rubric: Answer an off-topic question in one line and resume the pending step
@@ -43,7 +44,7 @@ criteria:
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Hello, I'm looking for home internet.
+      user: Do you have home internet where I live?
     expect:
       stage: address
       tools:
@@ -59,25 +60,27 @@ blocks:
         - flow.new-home
   - id: b2-address-to-offer
     when:
-      user: The address is 14 Harbor Road, Acmeville.
+      user: The address is 88 Summit Avenue, Acmeville.
     expect:
       stage: offer
       tools:
         - label: coverage.check
           count: 1
           input:
-            address: 14 Harbor Road, Acmeville
+            address: 88 Summit Avenue, Acmeville
         - label: catalog.search
           count: 1
           input:
             category: home
-            address_id: addr-101
+            address_id: addr-103
         - label: order.create
           count: 0
+      must:
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
   - id: b3-offer-to-details
     when:
-      user: I'll take Acme Fiber 1000.
+      user: I'll take Acme Air 5G.
     expect:
       stage: details
       tools:
@@ -90,7 +93,7 @@ blocks:
       lang: EN
   - id: b4-details-to-recap
     when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+      user: Jo Okafor, jo.okafor@example.com
     expect:
       stage: recap
       tools:
@@ -105,7 +108,7 @@ blocks:
     when:
       injection:
         class: D4_loose_confirmation
-        user: yeah sounds good
+        user: ok perfect
     expect:
       stage: recap
       tools:
@@ -123,7 +126,7 @@ blocks:
           verdict: block
   - id: b6-recap-to-order_placed
     when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
@@ -131,8 +134,8 @@ blocks:
           count: 1
           input:
             type: new
-            plan_id: fiber-1000
-            address_id: addr-101
+            plan_id: air-5g
+            address_id: addr-103
             customer:
               subset:
                 name: Jo Okafor
@@ -152,14 +155,13 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: home-order
     cell:
       behaviour: B-011
-      channel: whatsapp
+      channel: chat
       user_type: new-customer
-      coverage_result: fiber
-      workspace_start: existing-workbook
+      coverage_result: 5g-only
       flow: new-home
       plan_choice: names-one
       customer_details: name-and-email
@@ -178,7 +180,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: address-to-offer
-          coverage_result: fiber
+          coverage_result: 5g-only
           stage: offer
         phrase:
           dimension: stage_transition
@@ -216,7 +218,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: recap-to-order_placed
-          coverage_result: fiber
+          coverage_result: 5g-only
           customer_details: name-and-email
           stage: order_placed
         phrase:
@@ -233,7 +235,7 @@ metadata:
       - block: b2-address-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.615
+        pass_probability: 0.538
       - block: b3-offer-to-details
         status: accepted
         pass_k: 1
@@ -259,8 +261,8 @@ end_state:
   mode: subset
   expect:
     type: new
-    plan_id: fiber-1000
-    address_id: addr-101
+    plan_id: air-5g
+    address_id: addr-103
     customer:
       subset:
         name: Jo Okafor

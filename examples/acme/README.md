@@ -56,9 +56,15 @@ examples/acme/
   src/tools.ts                    catalog.search, coverage.check, port.check, order.create, notify_sales
   src/store.ts                    plans, addresses, customers, transfer records, and the payload log
   src/parse.ts                    how the agent reads a message: fixed patterns, no model
+  src/package.ts                  what the command line loads: the two agents, the store, the ops agent's path
+  package.json                    the example as a private workspace package, @agent-nexus/driftbench-example-acme
   ops/agent.mjs                   the Acme ops agent, the code agent of the task spec
   test/                           the tests, and test/support/drive.ts, the light runner they use
 ```
+
+## How the command line finds it
+
+The example is a private workspace package, `@agent-nexus/driftbench-example-acme`. The command line holds no copy of it: it imports the package by name when a run names `function:acme-sales`, `function:acme`, `process:acme-ops` or the pilot's `function:acme-random`. In a checkout of this repository the package is linked at the root, so every command on this page works from source (`pnpm driftbench`) and from the build (`pnpm build`, which also builds the example into `examples/acme/dist`). The published command is installed without the example; there, these targets have no adapter.
 
 ## The agent
 
@@ -71,7 +77,17 @@ examples/acme/
   one `text` segment. `toolCalls` lists the calls with input, output or error, and latency. `runtime.stages`
   names the flow stage the turn ends in. `cost` is `{ usd: 0 }`.
 * Guardrails. `runtime.guards` lists the ones that fired in the turn: `explicit_confirmation` passes on
-  CONFIRM and blocks a loose yes; `instruction_in_data` blocks an instruction hidden in a message.
+  CONFIRM and blocks a loose yes; `instruction_in_data` blocks an instruction in anything the agent reads,
+  once per turn.
+* Data stays data. The agent reads the customer's message, the files of `world.workspace` (the folder
+  `from`, then `files` over it) at every turn, and every tool answer and error. An instruction in the
+  message refuses the turn. An instruction in a file or a tool answer is dropped each time it is read,
+  before the agent reads the answer, and `instruction_in_data` reports a block: it reaches no reply and no
+  payload, and the turn is answered from the clean data as it would be without it. A file stays in the
+  workspace, so refusing on it would block every later turn. Only the poisoned value goes: a plan it
+  leaves unreadable is left out of the catalog and the other plans are still offered; with no readable
+  plan left, the answer is unreadable. The tool call is still observed as the tool answered. Only the
+  agent's own text is trusted: the system message, its replies and its tool inputs are never read as data.
 * World. `world.tools.<label>.error` makes the tool fail, and the agent says so without inventing its
   answer. `world.tools.<label>.result` replaces the answer. `latency_ms` is reported as the call's
   latency. `world.store` seeds records over the store, such as a transfer record for one spec.
@@ -150,7 +166,7 @@ Between them the specs use `ledger_seed`, `given` on the spec and on blocks, too
 stimuli, and perturbations by `user`, `burst` and `world`, each with a recovery.
 
 The task spec reads the same catalog the assistant sells from: a test fails if `catalog.csv` or the
-expected cells drift from `src/store.ts`. The xlsx reader of `@driftbench/artifacts` answers its artifact
+expected cells drift from `src/store.ts`. The xlsx reader of `@agent-nexus/driftbench-artifacts` answers its artifact
 checks (`sheets`, `header`, `rows`, `cells`, `formula`, `no_error_cells`).
 
 ## The inventory

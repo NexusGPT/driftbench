@@ -5,10 +5,11 @@ import {
   AgentFailure,
   canonicalJson,
   contentHash,
+  copyHistory,
   isPlainObject,
   type Session,
   type TargetRef,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { type FetchLike, readSource, stimulusMessages, type ToolPayload } from '../shared';
 import { type Answer, createClient, DEFAULT_BASE_URL, type NexusClient } from './client';
 import {
@@ -223,6 +224,7 @@ export function nexusAdapter(options: NexusAdapterOptions = {}): AgentAdapter {
     capabilities: () => ({ ...capabilities }),
 
     async open(given) {
+      const history = copyHistory(given.prefix);
       const target = given.target;
       if (target.prompt !== undefined) {
         // The platform runs its own prompt variants; this adapter never uploads prompt text.
@@ -258,12 +260,13 @@ export function nexusAdapter(options: NexusAdapterOptions = {}): AgentAdapter {
         adapter: id,
         target,
         given,
-        history: structuredClone(given.prefix),
+        history,
         state,
       };
     },
 
     async send(session, turn) {
+      copyHistory(session.history);
       const state = own(session);
       const path = conversationPath(state);
       const messages = stimulusMessages(turn.stimulus);

@@ -1,0 +1,73 @@
+{
+  "created": "2026-10-13T14:56:26.557200+00:00",
+  "source_sha256": "efbc92b5754f7626d51f99788ea5d818a636f122a9fb5e81927480e9e332a10a",
+  "model": "gpt-6-luna",
+  "experiment": "primary",
+  "transport_missing": 6,
+  "records_modified": false,
+  "status": "Official closed result stays exactly as recorded, with six inconclusive transport rows. Owner permits post-close missing-only recovery after Sonnet and Sol, reported only as a labelled addendum.",
+  "keys": [
+    {
+      "request_sha256": "a7432b41f84947105477acd4841aba5c0eb067f6950ad210ceb5d8722e8245bd",
+      "id": "ledger-hard-rubric-g1-033",
+      "row": "rubric",
+      "side": "audit",
+      "error": {
+        "type": "RemoteDisconnected",
+        "message": "Remote end closed connection without response"
+      }
+    },
+    {
+      "request_sha256": "ad2f78abcb29ec06ebb9b34a7c83d33736ae127fb067d1b8d4db9bdcf25e20f9",
+      "id": "ledger-hard-goal-g1-033",
+      "row": "goal",
+      "side": "audit",
+      "error": {
+        "type": "RemoteDisconnected",
+        "message": "Remote end closed connection without response"
+      }
+    },
+    {
+      "request_sha256": "2f65495fc682009b1fd9e76cc34494b78ade19236a5b3d73558ea03c3c426ce1",
+      "id": "ledger-hard-rubric-g1-034",
+      "row": "rubric",
+      "side": "peer",
+      "error": {
+        "type": "URLError",
+        "message": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      }
+    },
+    {
+      "request_sha256": "672638a759414efea63abb3ac35a52412bff155ce414f65802f398e4e04f74f9",
+      "id": "ledger-hard-factuality-g1-034",
+      "row": "factuality",
+      "side": "audit",
+      "error": {
+        "type": "URLError",
+        "message": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      }
+    },
+    {
+      "request_sha256": "51bb5b64bd18ccf75ac0e8393b3d32d70d9489cd6c876621054d453014392856",
+      "id": "ledger-hard-rubric-g1-034",
+      "row": "rubric",
+      "side": "audit",
+      "error": {
+        "type": "RemoteDisconnected",
+        "message": "Remote end closed connection without response"
+      }
+    },
+    {
+      "request_sha256": "cea3ae6ea3a3dfeab33532fef166b2b02621f60aaa3b7eaf53b54c92587a7341",
+      "id": "ledger-hard-factuality-g1-034",
+      "row": "factuality",
+      "side": "peer",
+      "error": {
+        "type": "URLError",
+        "message": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      }
+    }
+  ],
+  "official_result_preserved": true,
+  "owner_clarified": "2026-10-13T14:58:10.552234+00:00"
+}

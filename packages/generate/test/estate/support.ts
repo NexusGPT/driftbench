@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { loadEstateMap, Plan } from '@driftbench/estate';
+import { loadEstateMap, Plan } from '@agent-nexus/driftbench-estate';
 import { readEstateYaml } from '../../src/estate/files';
 import type { EstateGenerateInput } from '../../src/estate/generate';
 import { PhraseBank, SessionIndex } from '../../src/estate/inputs';

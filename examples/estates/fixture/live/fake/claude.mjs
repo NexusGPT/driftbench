@@ -3,12 +3,12 @@
 /**
  * A FAKE headless runtime for the live runner's tests and proofs. It speaks the stream the live runner reads
  * (`-p <ask> --output-format stream-json --verbose [--resume <id>]`, or the ask on the input with
- * `--input-format stream-json`) and plays a recorded stream chosen by the ask. It calls no model and costs
- * nothing. Everything it plays is written by hand and fictional.
+ * `--input-format stream-json`). By default it derives its actions from the estate in its working folder.
+ * It calls no model and costs nothing. Fixture data is fictional.
  *
- * - `manifest.json` beside this file (or `FAKE_MANIFEST`) maps an ask to a stream file. An entry may name
- *   `unless` cases: when the estate copy no longer holds a quote in a file, the case's stream plays instead.
- *   That is how an estate mutant changes what the stand-in does: it obeys the rules it can read.
+ * - `FAKE_MANIFEST` explicitly opts into recorded playback for protocol tests. Its paths are relative to
+ *   the manifest. The legacy protocol manifest retains two quote-based alternatives for its CLI proof;
+ *   they are unreachable without explicit recording opt-in.
  * - A stream file holds stream records (`{{cwd}}` and `{{session_id}}` are filled in) and directives the fake
  *   performs instead of printing: `{"fake":"decision", event, check, verdict}` appends a guard row to
  *   `HOOK_DECISION_LOG`, `{"fake":"step", step}` a step row to `STEP_FEED`, `{"fake":"write", path, content}`
@@ -31,9 +31,8 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { planStream } from './agent.mjs';
 
-const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const cwd = process.cwd();
 const env = process.env;
@@ -106,10 +105,12 @@ if (resume !== undefined) {
 }
 
 const helpers = readHelpers();
-const manifest = JSON.parse(readFileSync(env.FAKE_MANIFEST ?? join(here, 'manifest.json'), 'utf8'));
-const entry = manifest.asks.find((candidate) => candidate.ask === ask);
-let streamFile = entry?.stream ?? manifest.default;
-let played = entry ? 'recorded' : 'default';
+const manifestPath = env.FAKE_MANIFEST;
+const manifest = manifestPath ? JSON.parse(readFileSync(manifestPath, 'utf8')) : undefined;
+const entry = manifest?.asks.find((candidate) => candidate.ask === ask);
+let streamFile = entry?.stream ?? manifest?.default;
+let played = manifest ? (entry ? 'recorded' : 'default') : 'estate';
+// Legacy protocol cases only. Default estate execution never reads a manifest or selects a recording.
 for (const rule of entry?.unless ?? []) {
   const text = readText(join(cwd, rule.file));
   if (text === undefined || !text.includes(rule.quote)) {
@@ -139,7 +140,14 @@ log({
 const base = Date.now();
 let tick = 0;
 const stamp = () => new Date(base + 10 * tick++).toISOString();
-const fill = (text) => text.split('{{cwd}}').join(cwd).split('{{session_id}}').join(sessionId);
+const fill = (text) =>
+  text
+    .split('{{cwd}}')
+    .join(cwd)
+    .split('{{session_id}}')
+    .join(sessionId)
+    .split('{{home}}')
+    .join(env.HOME ?? '');
 
 print({
   type: 'system',
@@ -156,11 +164,13 @@ const written = [
 let lastText = '';
 let turns = 0;
 const usage = { input_tokens: 0, output_tokens: 0 };
-const lines = readFileSync(resolve(here, streamFile), 'utf8')
-  .split('\n')
-  .filter((line) => line.trim() !== '');
-for (const line of lines) {
-  const record = JSON.parse(fill(line));
+const records = manifestPath
+  ? readFileSync(resolve(dirname(manifestPath), streamFile), 'utf8')
+      .split('\n')
+      .filter((line) => line.trim() !== '')
+      .map((line) => JSON.parse(fill(line)))
+  : planStream({ ask, cwd, sessionId, env }).records;
+for (const record of records) {
   if (record.fake === 'decision') {
     if (env.HOOK_DECISION_LOG) {
       const { event, check, verdict } = record;
@@ -184,6 +194,34 @@ for (const line of lines) {
   if (record.fake === 'move') {
     mkdirSync(dirname(join(cwd, record.to)), { recursive: true });
     renameSync(join(cwd, record.from), join(cwd, record.to));
+    continue;
+  }
+  if (record.fake === 'write_abs') {
+    // A write outside the project, as the runtime's Write tool would make it; its result is what happened.
+    let result;
+    try {
+      writeFileSync(record.path, record.content);
+      result = {
+        type: 'tool_result',
+        tool_use_id: record.tool_use_id,
+        content: `File written: ${record.path}`,
+      };
+    } catch (error) {
+      result = {
+        type: 'tool_result',
+        tool_use_id: record.tool_use_id,
+        is_error: true,
+        content: `${error.code}: ${error.message}`,
+      };
+    }
+    const out = {
+      type: 'user',
+      message: { role: 'user', content: [result] },
+      parent_tool_use_id: null,
+      session_id: sessionId,
+      timestamp: stamp(),
+    };
+    print(out);
     continue;
   }
   if (record.fake === 'edit') {

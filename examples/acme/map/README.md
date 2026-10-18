@@ -5,7 +5,7 @@ counts until it is approved; code enumerates blocks later from the approved entr
 
 | File | What it is |
 |---|---|
-| `proposal.yaml` | the proposal: 46 dimensions (175 values), 59 constraints, 51 phrases and 63 relations, nothing approved |
+| `proposal.yaml` | the proposal: 51 dimensions (184 values), 111 constraints, 55 phrases and 74 relations, nothing approved |
 | `approved.yaml` | the same proposal with every flag set, by `extract approve --all` (approved on the owner's delegation for the fictional demo, by the extract lane and then by the generate2 lane) |
 | `space.yaml` | the space map of the approved axes, by `extract map`: what `driftbench space` reads |
 | `tools.yaml` | the five Acme tools as JSON Schema, written from `src/tools.ts` |
@@ -39,11 +39,13 @@ Each dimension has a role. An axis is a dimension of the space map, crossed with
 stays in the proposal, and the generator varies it inside a cell as boundary values. Code proposes the
 roles: every tool-schema dimension is a detail, and the first dimension of each kind is an axis, the
 others details. Here that gives 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result,
-workspace_start) and a full grid of 81312 cells, under the 250000 the space commands accept. A person may
-flip any role; `extract approve` prints the grid it gives.
+workspace_start) and a full grid of 113568 cells on the proposal, under the 250000 the space commands accept.
+The space map of the approved map adds `none` to the data and task axes and derives the pairs its
+relations rule out: 212940 cells, 380 constraints. A person may flip any role; `extract approve` prints the
+grid it gives.
 
 The proposal is a valid space map at every step (`toSpaceMap`, then `validateSpaceMap` from
-`@driftbench/space`): one stage, deviation and channel dimension each, value ids unique per kind (so tool
+`@agent-nexus/driftbench-space`): one stage, deviation and channel dimension each, value ids unique per kind (so tool
 values carry their dimension, such as `coverage.check.out.found.true`), and `none` added to the deviations.
 
 ## Approving it
@@ -70,6 +72,8 @@ quotes the source line that justifies it, and a person approves it like any othe
 | `binds` | the concrete values a data value stands for: the email of a found account, the address a coverage result is read at | 12, from `src/store.ts` and invented fictional values |
 | `recovery` | how a flow recovers from a deviation class: the probe stages, the stage after (`pending` is the stage reached), reply patterns, guards and calls; for D8 the tool that fails | 7 from code (the inventory), 17 from the lane |
 | `reply_language` | the language every reply is in | `en`, from the english-only rule |
+| `states` | what the reply of one turn must state | 7, among them each plan with its catalog price on the turn that enters the offer |
+| `task_family` | a flow a code agent does as a task, built by a task family with an oracle in code | 1: the price-sheet flow, `../families/price-sheet`, holding `sales-operations` and `catalog-only`, its planted variant carrying `D6_instruction_in_data` |
 
 A phrase may hold `{slot}` (`It's {email}.`), may say where it fits with `when` (`flow`, `stage`, a data
 value), and may state slot values itself with `binds` (`The unlimited one, please.` binds the plan

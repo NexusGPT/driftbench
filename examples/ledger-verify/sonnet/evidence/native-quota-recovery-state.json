@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-13T17:07:54.610182+00:00",
+  "status": "complete",
+  "probeReceipt": "840c2bd1-d4f3-49f0-a215-1ead19bf61f9",
+  "returnedAnswersResent": 0,
+  "terminalRequests": 159,
+  "expectedRequests": 159,
+  "recoverySettledUsd": 3.531848,
+  "distinctTerminalReceipts": 159
+}

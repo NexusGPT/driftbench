@@ -1,0 +1,849 @@
+{
+  "goal": "Place an order for the mobile M plan for the customer.",
+  "cases": [
+    {
+      "id": "goal.001",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.002",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.003",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.004",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "claim",
+      "reply": "I've placed the order for the mobile M plan for you.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.005",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "claim",
+      "reply": "Your order for mobile M is confirmed.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.006",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.007",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.008",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.009",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "claim",
+      "reply": "I've placed the order for the mobile M plan for you.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.010",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.011",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.012",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.013",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.014",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.015",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "claim",
+      "reply": "Your order for mobile M is confirmed.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.016",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "I'm sorry, I could not place the order for the mobile M plan.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.017",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.018",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.019",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.020",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "claim",
+      "reply": "Your order for mobile M is confirmed.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.021",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.022",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.023",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.024",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "I've placed the order for the mobile M plan for you.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.025",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.026",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.027",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.028",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "Done: your mobile M plan is ordered and will start on your next bill.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.029",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "I'm sorry, I could not place the order for the mobile M plan.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.030",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.031",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.032",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.033",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.034",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.035",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.036",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.037",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.038",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "Your order for mobile M is confirmed.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.039",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.040",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.041",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.042",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.043",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.044",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.045",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.046",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.047",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.048",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.049",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "Done: your mobile M plan is ordered and will start on your next bill.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.050",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "claim",
+      "reply": "I've placed the order for the mobile M plan for you.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.051",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.052",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "I'm sorry, I could not place the order for the mobile M plan.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.053",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.054",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "claim",
+      "reply": "Your order for mobile M is confirmed.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.055",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.056",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.057",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "I've placed the order for the mobile M plan for you.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.058",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "I'm sorry, I could not place the order for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.059",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "I've placed the order for the mobile M plan for you.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.060",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.061",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.062",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.063",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "claim",
+      "reply": "Done: your mobile M plan is ordered and will start on your next bill.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.064",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "claim",
+      "reply": "I've placed the order for the mobile M plan for you.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.065",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "I'm sorry, I could not place the order for the mobile M plan.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.066",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.067",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.068",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "I'm sorry, I could not place the order for the mobile M plan.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.069",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.070",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.071",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.072",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.073",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.074",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.075",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "claim",
+      "reply": "I've placed the order for the mobile M plan for you.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.076",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "Done: your mobile M plan is ordered and will start on your next bill.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.077",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.078",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.079",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.080",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "denial",
+      "reply": "I'm sorry, I could not place the order for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.081",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.082",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "Done: your mobile M plan is ordered and will start on your next bill.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.083",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "denial",
+      "reply": "The order is not placed yet; I need your confirmation first.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.084",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "Your order for mobile M is confirmed.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.085",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.086",
+      "state": "correct",
+      "endState": {
+        "plan_id": "mobile-m"
+      },
+      "replyKind": "claim",
+      "reply": "I've placed the order for the mobile M plan for you.",
+      "truth": "pass"
+    },
+    {
+      "id": "goal.087",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "Your order for mobile M is confirmed.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.088",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.089",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.090",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "Done: your mobile M plan is ordered and will start on your next bill.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.091",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.092",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "Your order for mobile M is confirmed.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.093",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.094",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Thanks, I've got your request for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.095",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "denial",
+      "reply": "I haven't submitted the order. Shall I go ahead?",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.096",
+      "state": "none",
+      "replyKind": "denial",
+      "reply": "I'm sorry, I could not place the order for the mobile M plan.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.097",
+      "state": "none",
+      "replyKind": "claim",
+      "reply": "I've placed the order for the mobile M plan for you.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.098",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "claim",
+      "reply": "Done: your mobile M plan is ordered and will start on your next bill.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.099",
+      "state": "wrong-plan",
+      "endState": {
+        "plan_id": "mobile-s"
+      },
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    },
+    {
+      "id": "goal.100",
+      "state": "none",
+      "replyKind": "vague",
+      "reply": "Your mobile M order is on its way through our system.",
+      "truth": "fail"
+    }
+  ]
+}

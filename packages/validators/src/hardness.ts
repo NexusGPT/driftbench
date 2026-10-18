@@ -65,6 +65,14 @@ export type Hardness = {
   /** Reported, not gating: a builder pilot more than 1.5 times slower than the blind one. */
   flags: string[];
   gate: { holds: boolean; reasons: string[] };
+  /** The score ceiling after the pilot: HARDNESS_MAX_SCORE, or the lowered bar of validators/<component>/GATE.md. */
+  maxScore: number;
+  /** The forecast floor: HARDNESS_MIN_FORECAST, or the lowered bar of GATE.md. */
+  minForecast: number;
+  /** The distinct failing causes floor: HARDNESS_MIN_CAUSES, or the lowered bar of GATE.md. */
+  minCauses: number;
+  /** True when GATE.md lowered at least one term for this validator. */
+  lowered: boolean;
   bankMinimum: { holds: boolean; problems: string[] };
   /** The four verdicts of `audit.md`, or null when the file is absent. */
   audit: AuditVerdict[] | null;
@@ -112,7 +120,33 @@ function measurePilot(
  * builder pilot more than 1.5 times slower is flagged. `audit` is the text of `audit.md`, when present. Throws
  * when the journal has no builder iteration 0 row.
  */
-export function measureHardness(rows: readonly JournalRow[], options: { audit?: string } = {}): Hardness {
+/** The terms a validator's GATE.md can lower; null where it sets none. */
+export type GateBar = { maxScore: number | null; minForecast: number | null; minCauses: number | null };
+
+/**
+ * The lowered bar of a validator, from its GATE.md, one line per term, optionally as a list item:
+ * `Max score after the pilot: <n>` (taken when above HARDNESS_MAX_SCORE and under 1),
+ * `Min forecast: <n>` (when above 0 and under HARDNESS_MIN_FORECAST) and
+ * `Min distinct failing causes: <n>` (when above 0 and under HARDNESS_MIN_CAUSES). A bar only lowers a term;
+ * any other value is ignored.
+ */
+export function parseGate(text: string): GateBar {
+  const read = (label: string, keep: (value: number) => boolean): number | null => {
+    const match = new RegExp(`^\\s*(?:[-*]\\s+)?${label}:\\s*(-?[0-9.]+)\\s*$`, 'im').exec(text);
+    const value = match ? Number(match[1]) : Number.NaN;
+    return Number.isFinite(value) && keep(value) ? value : null;
+  };
+  return {
+    maxScore: read('max score after the pilot', (v) => v > HARDNESS_MAX_SCORE && v < 1),
+    minForecast: read('min forecast', (v) => v > 0 && v < HARDNESS_MIN_FORECAST),
+    minCauses: read('min distinct failing causes', (v) => v > 0 && v < HARDNESS_MIN_CAUSES),
+  };
+}
+
+export function measureHardness(
+  rows: readonly JournalRow[],
+  options: { audit?: string; gate?: string } = {},
+): Hardness {
   const zero = rows.find((row) => executorOf(row) === 'builder' && row.iteration === 0);
   const latest = rows.at(-1);
   if (!zero || !latest)
@@ -133,20 +167,30 @@ export function measureHardness(rows: readonly JournalRow[], options: { audit?: 
   if (fixedPerIteration !== null && fixedPerIteration <= 0) {
     reasons.push(`${label} fixed nothing: the items are miswritten or the component lacks a foundation`);
   }
-  if (forecast !== null && forecast < HARDNESS_MIN_FORECAST) {
-    reasons.push(`the forecast ${round(forecast)} is under ${HARDNESS_MIN_FORECAST}: extend the bank (12.2)`);
+  const bar: GateBar =
+    options.gate === undefined
+      ? { maxScore: null, minForecast: null, minCauses: null }
+      : parseGate(options.gate);
+  const note = (lowered: number | null) => (lowered === null ? '' : ' (the bar GATE.md lowers)');
+  const minForecast = bar.minForecast ?? HARDNESS_MIN_FORECAST;
+  const minCauses = bar.minCauses ?? HARDNESS_MIN_CAUSES;
+  if (forecast !== null && forecast < minForecast) {
+    reasons.push(
+      `the forecast ${round(forecast)} is under ${minForecast}${note(bar.minForecast)}: extend the bank (12.2)`,
+    );
   }
-  if (end && end.score > HARDNESS_MAX_SCORE) {
-    reasons.push(`the score after ${label} ${round(end.score)} is above ${HARDNESS_MAX_SCORE}`);
+  const maxScore = bar.maxScore ?? HARDNESS_MAX_SCORE;
+  if (end && end.score > maxScore) {
+    reasons.push(`the score after ${label} ${round(end.score)} is above ${maxScore}${note(bar.maxScore)}`);
   }
   const causes =
     endRow?.failingCauses !== undefined
       ? { distinct: endRow.failingCauses, withoutCause: endRow.failingWithoutCause ?? null }
       : null;
   if (endRow && !causes) reasons.push(`the last row of ${label} records no failingCauses`);
-  if (causes && causes.distinct < HARDNESS_MIN_CAUSES) {
+  if (causes && causes.distinct < minCauses) {
     reasons.push(
-      `${causes.distinct} distinct failing causes after ${label}, under ${HARDNESS_MIN_CAUSES}: extend the bank (12.2)`,
+      `${causes.distinct} distinct failing causes after ${label}, under ${minCauses}${note(bar.minCauses)}: extend the bank (12.2)`,
     );
   }
   if (!end) reasons.push('no pilot row yet');
@@ -183,6 +227,10 @@ export function measureHardness(rows: readonly JournalRow[], options: { audit?: 
     causes,
     flags,
     gate: { holds: reasons.length === 0, reasons },
+    maxScore,
+    minForecast,
+    minCauses,
+    lowered: bar.maxScore !== null || bar.minForecast !== null || bar.minCauses !== null,
     bankMinimum: bankMinimum(latest),
     audit,
   };
@@ -307,7 +355,7 @@ export function formatHardness(component: string, h: Hardness): string {
           : ` (${h.causes.withoutCause} failing items name no cause and count as their own)`
       }.\n`;
   text += h.gate.holds
-    ? `Gate: HOLDS (forecast at least ${HARDNESS_MIN_FORECAST}, score after the pilot at most ${HARDNESS_MAX_SCORE}, at least ${HARDNESS_MIN_CAUSES} distinct failing causes, all four audit checks pass).\n`
+    ? `Gate: HOLDS (forecast at least ${h.minForecast}, score after the pilot at most ${h.maxScore}, at least ${h.minCauses} distinct failing causes${h.lowered ? ', as GATE.md lowers them' : ''}, all four audit checks pass).\n`
     : `Gate: NOT MET: ${h.gate.reasons.join('; ')}.\n`;
   text += h.bankMinimum.holds
     ? 'Bank minimum at merge (12.1): holds.\n'

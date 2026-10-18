@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-10-13T00:16:27.832Z",
+  "label": "not yet the shipped default",
+  "seed": 20261018,
+  "cases": 60,
+  "designData": "Only hard original audit/shipped failures; no fresh predictions used to design",
+  "promptSha256": "61d42dc8ca698ed447a8d37d4155922acd285f3d3fcf12882b623a1e8d078772",
+  "decoderSha256": "512c28512c7ad3bae12b5f758a93495251251e33ec94d855dca9a7a7934d0c1b",
+  "userBuilderSha256": "d2e67535bdc5600c12ac8c2ea9bf59e95b54911bbe152eebb8021a33174b067b",
+  "fixtureSha256": "7ea9f96d67603e7b302fdfc91644af9f0ff85664dd33bd1cd92d802a50310370",
+  "hardFixtureSha256": "07cd3452b7fdce4e78f2f7f16879fca4eaec82685838cf6971107ed16ec41a93",
+  "sourceHashes": {
+    "compliance.mts": "34c97b96d6dd26ba82c8e4179fabbbfdf5182c61687be7698c301572b66d28ea",
+    "fresh-judges.mts": "ba7369270d32e3b2327e5790856f6de96cd129ab750a8241673c0325140660ae",
+    "generate-judges.py": "66a7fcd757020823154e54cad695f979abeacabc147a800ab2b80d4c965c4be2"
+  },
+  "zeroCompleteInputOverlap": true
+}

@@ -1,6 +1,6 @@
 import { copyFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
-import { type Inventory, type LoadedSpec, loadInventory, loadSpecs } from '@driftbench/core';
+import { type Inventory, type LoadedSpec, loadInventory, loadSpecs } from '@agent-nexus/driftbench-core';
 import {
   AUDIT_FILE,
   coverElements,
@@ -17,10 +17,21 @@ import {
   type Selection,
   sealFromJson,
   selectGolden,
-} from '@driftbench/generate';
-import { coverage, DEFAULT_MAX_CELLS, gridSize, loadSpaceMap, type SpaceCoverage } from '@driftbench/space';
+} from '@agent-nexus/driftbench-generate';
+import { textTable as table } from '@agent-nexus/driftbench-report';
+import {
+  coverage,
+  DEFAULT_MAX_CELLS,
+  gridSize,
+  loadSpaceMap,
+  type SpaceCoverage,
+} from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
+import { exists } from '../files';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
+
+export { exists };
 
 export const GOLDEN_FILE = 'golden.json';
 export const GOLDEN_SPECS_DIR = 'specs';
@@ -474,18 +485,7 @@ function goldenPaths(chosen: readonly LoadedSpec[], base: string): Map<string, s
   );
 }
 
-/** Rows as aligned columns; the last column is not padded. */
-export function table(rows: readonly string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
-}
+export { table };
 
 async function walk(dir: string): Promise<string[]> {
   const out: string[] = [];
@@ -506,10 +506,6 @@ async function readJson(file: string): Promise<unknown> {
   }
 }
 
-export async function exists(path: string): Promise<boolean> {
-  return (await stat(path).catch(() => undefined)) !== undefined;
-}
-
 /** True when `path` is `folder` or inside it. */
 function inside(path: string, folder: string): boolean {
   const rel = relative(folder, path);
@@ -523,7 +519,7 @@ export function whole(
   fallback: number,
 ): number | string {
   if (text === undefined) return fallback;
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!/^\d+$/.test(text.trim()) || !Number.isSafeInteger(value) || value < minimum) {
     return `--${name} must be a whole number of at least ${minimum}, got "${text}".`;
   }

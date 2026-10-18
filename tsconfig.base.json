@@ -14,7 +14,10 @@
     "skipLibCheck": true,
     "types": ["node"],
     "paths": {
-      "@driftbench/*": ["./packages/*/src/index.ts"]
+      "@agent-nexus/driftbench": ["./packages/cli/src/index.ts"],
+      "@agent-nexus/driftbench-example-acme": ["./examples/acme/src/package.ts"],
+      "@agent-nexus/driftbench-adapters/contract": ["./packages/adapters/src/contract.ts"],
+      "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"]
     },
     "ignoreDeprecations": "6.0"
   }

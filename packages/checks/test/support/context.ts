@@ -8,7 +8,7 @@ import type {
   Spec,
   ToolCall,
   Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 
 /** A tool call as a test writes it; ids default to call-1, call-2 in order. */
 export type Call = { label: string; input?: unknown; output?: unknown; error?: string; id?: string };

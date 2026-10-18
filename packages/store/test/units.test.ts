@@ -1,4 +1,4 @@
-import type { CostUnit } from '@driftbench/core';
+import type { CostUnit } from '@agent-nexus/driftbench-core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { measuredUnits, openMemoryStore, projectCost, type SqliteStore } from '../src/index';
 import { block, observed, run, SUPPORT, storeError } from './fixtures';

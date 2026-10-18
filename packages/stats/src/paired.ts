@@ -3,9 +3,9 @@
  * test, the paired difference of two pass rates with its interval, and the parity verdict.
  */
 
-import { assertCount, assertProbability, assertSameLength } from './basics';
-import { wilson } from './intervals';
-import { binomialCdf, chiSquareSf, normalQuantile, normalSf } from './special';
+import { assertCount, assertFiniteValues, assertProbability, assertSameLength } from './basics';
+import { wilson, zFor } from './intervals';
+import { binomialCdf, chiSquareSf, incompleteBeta, normalSf } from './special';
 
 export interface McNemarResult {
   /** The exact test reports min(b, c); the chi-square test reports the corrected chi-square. */
@@ -27,8 +27,8 @@ export interface McNemarOptions {
  * freedom otherwise.
  */
 export function mcnemar(b: number, c: number, options: McNemarOptions = {}): McNemarResult {
-  assertCount('b', b);
-  assertCount('c', c);
+  assertCount('mcnemar', 'b', b);
+  assertCount('mcnemar', 'c', c);
   const n = b + c;
   const exact = options.exact ?? n < 25;
   if (n === 0) return { statistic: 0, pValue: 1, method: exact ? 'exact' : 'chi-square', b, c };
@@ -125,9 +125,11 @@ export function wilcoxonSignedRank(
   y: readonly number[],
   options: WilcoxonOptions = {},
 ): WilcoxonResult {
-  assertSameLength(x, y, 'wilcoxonSignedRank');
+  assertSameLength(x, y, 'wilcoxonSignedRank', ['x', 'y']);
+  assertFiniteValues('wilcoxonSignedRank', 'x', x);
+  assertFiniteValues('wilcoxonSignedRank', 'y', y);
   const total = x.length;
-  if (total === 0) throw new RangeError('wilcoxonSignedRank: no pairs');
+  if (total === 0) throw new RangeError('wilcoxonSignedRank: x must not be empty');
   const diffs = x.map((v, i) => v - (y[i] as number));
   const nonzero = diffs.filter((d) => d !== 0);
   const zeros = total - nonzero.length;
@@ -207,24 +209,28 @@ export interface PairedDifference {
 /**
  * The difference between two paired pass rates (baseline minus candidate), with Newcombe's hybrid
  * score interval for paired data (Newcombe 1998, method 10: Wilson limits for each rate combined
- * with the phi correlation of the 2 x 2 table, no continuity correction).
+ * with Newcombe's corrected phi correlation of the 2 x 2 table). The Wilson limits themselves
+ * have no continuity correction. Positive covariance is reduced by n / 2, stopping at zero;
+ * negative covariance is unchanged, and a zero marginal count gives phi = 0.
  */
 export function pairedRateDifference(table: PairedTable, alpha = 0.05): PairedDifference {
   const { bothPass: a, regressed: b, improved: c, bothFail: d } = table;
-  assertCount('bothPass', a);
-  assertCount('regressed', b);
-  assertCount('improved', c);
-  assertCount('bothFail', d);
-  assertProbability('alpha', alpha, true);
+  assertCount('pairedRateDifference', 'bothPass', a);
+  assertCount('pairedRateDifference', 'regressed', b);
+  assertCount('pairedRateDifference', 'improved', c);
+  assertCount('pairedRateDifference', 'bothFail', d);
+  assertProbability('pairedRateDifference', 'alpha', alpha, true);
   const n = a + b + c + d;
-  if (n === 0) throw new RangeError('pairedRateDifference: no pairs');
-  const z = normalQuantile(1 - alpha / 2);
+  if (n === 0) throw new RangeError('pairedRateDifference: table has no pairs');
+  const z = zFor(alpha);
   const p1 = (a + b) / n;
   const p2 = (a + c) / n;
   const w1 = wilson(a + b, n, z);
   const w2 = wilson(a + c, n, z);
   const product = (a + b) * (c + d) * (a + c) * (b + d);
-  const phi = product === 0 ? 0 : (a * d - b * c) / Math.sqrt(product);
+  const covariance = a * d - b * c;
+  const corrected = covariance > 0 ? Math.max(0, covariance - n / 2) : covariance;
+  const phi = product === 0 ? 0 : corrected / Math.sqrt(product);
   const dl1 = p1 - w1.lower;
   const du1 = w1.upper - p1;
   const dl2 = p2 - w2.lower;
@@ -270,7 +276,8 @@ export interface NonInferiorityResult {
  */
 export function nonInferiority(input: NonInferiorityInput): NonInferiorityResult {
   const { baseline, candidate, margin } = input;
-  assertSameLength(baseline, candidate, 'nonInferiority');
+  assertSameLength(baseline, candidate, 'nonInferiority', ['baseline', 'candidate']);
+  if (baseline.length === 0) throw new RangeError('nonInferiority: baseline and candidate must not be empty');
   if (!(margin > 0 && margin < 1))
     throw new RangeError(`nonInferiority: margin must lie in (0, 1), got ${margin}`);
   const names = input.pairs ?? baseline.map((_, i) => String(i));
@@ -315,4 +322,51 @@ export function nonInferiority(input: NonInferiorityInput): NonInferiorityResult
     newFlags,
     reason,
   };
+}
+
+export interface OneWayAnovaResult {
+  /** F = MSB / MSW. Infinity when the groups differ and the within-group variance is zero. */
+  readonly statistic: number;
+  /** Groups less one. */
+  readonly df1: number;
+  /** Values less groups. */
+  readonly df2: number;
+  /** The upper tail of the F distribution at the statistic. */
+  readonly pValue: number;
+}
+
+/**
+ * The one-way ANOVA F test of equal means (scipy.stats.f_oneway): F = MSB / MSW with k - 1 and N - k degrees of
+ * freedom. Throws a RangeError on fewer than two groups, an empty group, a value that is not finite, no
+ * within-group degrees of freedom (every group a single value), or all values equal (0 / 0).
+ */
+export function oneWayAnova(groups: readonly (readonly number[])[]): OneWayAnovaResult {
+  const k = groups.length;
+  if (k < 2) throw new RangeError(`oneWayAnova needs at least two groups, got ${k}`);
+  let n = 0;
+  let total = 0;
+  groups.forEach((group, g) => {
+    if (group.length === 0) throw new RangeError(`oneWayAnova: group ${g} is empty`);
+    group.forEach((v, i) => {
+      if (!Number.isFinite(v))
+        throw new RangeError(`oneWayAnova: groups[${g}][${i}] must be finite, got ${v}`);
+      total += v;
+    });
+    n += group.length;
+  });
+  if (n === k) throw new RangeError('oneWayAnova needs at least one group with two values');
+  const grand = total / n;
+  let ssb = 0;
+  let ssw = 0;
+  for (const group of groups) {
+    const m = group.reduce((a, b) => a + b, 0) / group.length;
+    ssb += group.length * (m - grand) ** 2;
+    for (const v of group) ssw += (v - m) ** 2;
+  }
+  const df1 = k - 1;
+  const df2 = n - k;
+  if (ssb === 0 && ssw === 0) throw new RangeError('oneWayAnova: all values are equal, so F is undefined');
+  if (ssw === 0) return { statistic: Number.POSITIVE_INFINITY, df1, df2, pValue: 0 };
+  const statistic = ssb / df1 / (ssw / df2);
+  return { statistic, df1, df2, pValue: incompleteBeta(df2 / (df2 + df1 * statistic), df2 / 2, df1 / 2) };
 }

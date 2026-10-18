@@ -4,6 +4,7 @@ import { gramCosine, gramTfidf } from './grams';
 /**
  * The default embedder: character n-grams of 3 to 5, TF-IDF fitted on the two texts, cosine. In code, with
  * no network and no key, so the same two texts always score the same.
+ * It is lexical, not semantic: two texts that mean the same thing in different words score low.
  */
 export const localEmbedder: Embedder = {
   id: 'char-ngram-tfidf',

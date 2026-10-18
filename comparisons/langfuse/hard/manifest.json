@@ -1,0 +1,20 @@
+{
+  "case_count": 120,
+  "pass_count": 60,
+  "fail_count": 60,
+  "sha256": {
+    "hard.json": "09692a365e373e2b35a41f933dbe3e4999b248e3e65b22c238a96dc3f49e8b46",
+    "vendor/correctness.txt": "751db9764547df50db7fc019d5aa6b90d55fc971f0e74fab0b6a64bd5752367b",
+    "audit.txt": "5ab527bec76758641fcfd13ebe7c576486ae145fb2cce183a25d9b2838621ca8",
+    "heldout-cases.json": "e536c6314c1609fa8f396823705ce877320202819c5a71a5e071918decbc05de"
+  },
+  "heldout": {
+    "seed": 7291,
+    "cases": 120,
+    "pass": 60,
+    "fail": 60,
+    "profile_offset": 48,
+    "frozen_before_run": true,
+    "frozen_at_file_mtime_utc": "2026-10-12T21:36:18.634840+00:00"
+  }
+}

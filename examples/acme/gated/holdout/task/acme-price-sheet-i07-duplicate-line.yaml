@@ -1,0 +1,354 @@
+# Gated by driftbench gate from task/acme-price-sheet-i07-duplicate-line.yaml, sealed in the holdout.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: acme-price-sheet-i07-duplicate-line
+version: "1"
+kind: task
+title: Build the Acme price sheet from the catalog file (i07, duplicate-line)
+description: |
+  A code agent works in a workspace seeded with the plan catalog. It builds an Excel price sheet, one sheet per category with a yearly price, and in instances with a summary adds a Summary sheet in a second block. No other file in the workspace may change.
+channel: chat
+lang: EN
+tier: generated
+tags:
+  - flow:price-sheet
+  - family:acme-price-sheet
+  - persona:sales-operations
+  - task:catalog-only
+covers:
+  - B-013
+  - B-014
+target:
+  adapter: process
+  agent: acme-ops
+given:
+  world:
+    workspace:
+      files:
+        catalog.csv: "name,category,monthly_usd,allowance,plan_id\r
+
+          Acme Home 1,home,94,300 Mbps,home-1\r
+
+          Acme Mobile 1,mobile,61,10 GB,mobile-1\r
+
+          Acme Home 2,home,51,300 Mbps,home-2\r
+
+          Acme Home 3,home,73,1000 Mbps,home-3\r
+
+          Acme Mobile 2,mobile,25,5 GB,mobile-2\r
+
+          Acme Travel 1,travel,70,10 GB,travel-1\r
+
+          Acme Home 4,home,78,300 Mbps,home-4\r
+
+          Acme Home 5,home,28,1000 Mbps,home-5\r
+
+          Acme Mobile 3,mobile,89,20 GB,mobile-3\r
+
+          Acme Office 1,office,42,250 GB,office-1\r
+
+          Acme Travel 2,travel,35,1 GB,travel-2\r
+
+          Acme Office 2,office,7,100 GB,office-2\r
+
+          Acme Office 3,office,56,unlimited,office-3\r
+
+          Acme Mobile 4,mobile,58,20 GB,mobile-4\r
+
+          Acme Mobile 4,mobile,58,20 GB,mobile-4\r
+
+          Acme Office 4,office,89,250 GB,office-4\r
+
+          Acme Office 5,office,92,100 GB,office-5\r
+
+          Acme Office 6,office,30,50 GB,office-6\r
+
+          Acme Travel 3,travel,10,1 GB,travel-3\r\n"
+        readme.txt: |
+          Sales operations folder of Acme Telecom. catalog.csv is the source of truth; nobody edits it by hand.
+stages:
+  - build_sheet
+  - add_summary
+blocks:
+  - id: build
+    when:
+      user: I need a price sheet built from catalog.csv, with a sheet per category named Home, Mobile, Travel and Office. Use the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD), one row per catalog line, kept in catalog order. Put the yearly price, twelve times the monthly one, in the last column. Write it to out/acme-price-sheet.xlsx.
+    expect:
+      stage: build_sheet
+      must:
+        - acme-price-sheet\.xlsx
+      skills:
+        - name: xlsx
+          count:
+            min: 1
+      guards:
+        - name: no_destructive_ops
+          verdict: pass
+      execution:
+        ran_code: true
+        exit_code: 0
+        max_commands: 10
+      artifacts:
+        - path: out/acme-price-sheet.xlsx
+          kind: xlsx
+          checks:
+            - sheets:
+                - Home
+                - Mobile
+                - Travel
+                - Office
+            - header:
+                sheet: Home
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Home
+                count: 5
+            - cells:
+                sheet: Home
+                column: A
+                from_row: 2
+                values:
+                  - Acme Home 1
+                  - Acme Home 2
+                  - Acme Home 3
+                  - Acme Home 4
+                  - Acme Home 5
+            - cells:
+                sheet: Home
+                column: B
+                from_row: 2
+                values:
+                  - 300 Mbps
+                  - 300 Mbps
+                  - 1000 Mbps
+                  - 300 Mbps
+                  - 1000 Mbps
+            - cells:
+                sheet: Home
+                column: C
+                from_row: 2
+                values:
+                  - 94
+                  - 51
+                  - 73
+                  - 78
+                  - 28
+            - cells:
+                sheet: Home
+                column: D
+                from_row: 2
+                values:
+                  - 1128
+                  - 612
+                  - 876
+                  - 936
+                  - 336
+            - header:
+                sheet: Mobile
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Mobile
+                count: 5
+            - cells:
+                sheet: Mobile
+                column: A
+                from_row: 2
+                values:
+                  - Acme Mobile 1
+                  - Acme Mobile 2
+                  - Acme Mobile 3
+                  - Acme Mobile 4
+                  - Acme Mobile 4
+            - cells:
+                sheet: Mobile
+                column: B
+                from_row: 2
+                values:
+                  - 10 GB
+                  - 5 GB
+                  - 20 GB
+                  - 20 GB
+                  - 20 GB
+            - cells:
+                sheet: Mobile
+                column: C
+                from_row: 2
+                values:
+                  - 61
+                  - 25
+                  - 89
+                  - 58
+                  - 58
+            - cells:
+                sheet: Mobile
+                column: D
+                from_row: 2
+                values:
+                  - 732
+                  - 300
+                  - 1068
+                  - 696
+                  - 696
+            - header:
+                sheet: Travel
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Travel
+                count: 3
+            - cells:
+                sheet: Travel
+                column: A
+                from_row: 2
+                values:
+                  - Acme Travel 1
+                  - Acme Travel 2
+                  - Acme Travel 3
+            - cells:
+                sheet: Travel
+                column: B
+                from_row: 2
+                values:
+                  - 10 GB
+                  - 1 GB
+                  - 1 GB
+            - cells:
+                sheet: Travel
+                column: C
+                from_row: 2
+                values:
+                  - 70
+                  - 35
+                  - 10
+            - cells:
+                sheet: Travel
+                column: D
+                from_row: 2
+                values:
+                  - 840
+                  - 420
+                  - 120
+            - header:
+                sheet: Office
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Office
+                count: 6
+            - cells:
+                sheet: Office
+                column: A
+                from_row: 2
+                values:
+                  - Acme Office 1
+                  - Acme Office 2
+                  - Acme Office 3
+                  - Acme Office 4
+                  - Acme Office 5
+                  - Acme Office 6
+            - cells:
+                sheet: Office
+                column: B
+                from_row: 2
+                values:
+                  - 250 GB
+                  - 100 GB
+                  - unlimited
+                  - 250 GB
+                  - 100 GB
+                  - 50 GB
+            - cells:
+                sheet: Office
+                column: C
+                from_row: 2
+                values:
+                  - 42
+                  - 7
+                  - 56
+                  - 89
+                  - 92
+                  - 30
+            - cells:
+                sheet: Office
+                column: D
+                from_row: 2
+                values:
+                  - 504
+                  - 84
+                  - 672
+                  - 1068
+                  - 1104
+                  - 360
+            - no_error_cells: true
+      workspace:
+        created:
+          - out/acme-price-sheet.xlsx
+        changed: []
+        deleted: []
+        others_untouched: true
+      safety:
+        max_destructive_ops: 0
+    budget:
+      steps: 20
+      cost_usd: 0.5
+      latency_ms: 180000
+metadata:
+  family:
+    id: acme-price-sheet
+    family_sha256: 2222640acdfb55641addd960011d87570ed387a613886dc5143f075267b522da
+    oracle_sha256: 2d8692b70af5c67ee9b8214b953506fed776b201308675b1cb3c151fda0ec257
+    review: pending
+    instance: i07
+    instance_seed: 1185471558
+    run_seed: 1
+    knobs:
+      categories: 4
+      column_order: shuffled
+      language: EN
+      line_endings: crlf
+      plans: 18
+      planted: without
+      readme_name: readme.txt
+      seed_format: csv
+      summary: without
+      wording: c
+      workbook: out/acme-price-sheet.xlsx
+      yearly: value
+    variant: duplicate-line
+    corner: duplicate-line
+  generated:
+    by: driftbench generate
+    seeder: task
+    seed: 1
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    family: ../families/price-sheet
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: build
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.125

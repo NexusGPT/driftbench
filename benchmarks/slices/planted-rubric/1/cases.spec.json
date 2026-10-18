@@ -1,0 +1,2774 @@
+{
+  "id": "planted-rubric",
+  "version": "1",
+  "kind": "conversation",
+  "blocks": [
+    {
+      "user": "Benchmark cases are in metadata.bench."
+    }
+  ],
+  "metadata": {
+    "bench": [
+      {
+        "id": "rb-bank-000/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([0, 0, 1]) == {0: 2, 1: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-000/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([0, 0, 1]) == {0: 2, 1: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-001/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((0, 10, 20, 30)) == {0: 10, 20: 30}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-001/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((0, 10, 20, 30)) == {0: 10, 20: 30}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-002/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([2, -3, 0]) == [8, -27, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-002/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([2, -3, 0]) == [8, -27, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-003/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(1, 2), (3,)]) == 6"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-003/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(1, 2), (3,)]) == 6"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-004/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer0. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER0 LIGHTS THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-004/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer0. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER0 Lights THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-005/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer0. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer0 carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-005/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer0. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer0 Carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-006/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer0. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer0 wakes then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-006/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer0. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer0 wakes, then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-007/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 1 bells, 2 keys, 3 maps and 4 lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-007/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 1 bells, 2 keys, 3 maps and several lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-008/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer0. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer0 opens the gate.\n\nit reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-008/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer0. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer0 opens the gate.\n\nThat reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-009/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 1 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 1\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-009/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 1 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 1\n"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-010/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([1, 1, 2]) == {1: 2, 2: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-010/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([1, 1, 2]) == {1: 2, 2: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-011/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((1, 11, 21, 31)) == {1: 11, 21: 31}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-011/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((1, 11, 21, 31)) == {1: 11, 21: 31}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-012/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([3, -4, 0]) == [27, -64, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-012/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([3, -4, 0]) == [27, -64, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-013/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(2, 3), (4,)]) == 9"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-013/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(2, 3), (4,)]) == 9"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-014/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer1. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER1 LIGHTS THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-014/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer1. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER1 Lights THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-015/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer1. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer1 carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-015/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer1. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer1 Carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-016/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer1. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer1 wakes then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-016/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer1. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer1 wakes, then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-017/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 2 bells, 3 keys, 4 maps and 5 lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-017/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 2 bells, 3 keys, 4 maps and several lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-018/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer1. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer1 opens the gate.\n\nit reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-018/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer1. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer1 opens the gate.\n\nThat reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-019/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 2 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 2\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-019/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 2 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 2\n"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-020/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([2, 2, 3]) == {2: 2, 3: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-020/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([2, 2, 3]) == {2: 2, 3: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-021/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((2, 12, 22, 32)) == {2: 12, 22: 32}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-021/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((2, 12, 22, 32)) == {2: 12, 22: 32}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-022/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([4, -5, 0]) == [64, -125, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-022/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([4, -5, 0]) == [64, -125, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-023/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(3, 4), (5,)]) == 12"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-023/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(3, 4), (5,)]) == 12"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-024/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer2. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER2 LIGHTS THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-024/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer2. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER2 Lights THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-025/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer2. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer2 carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-025/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer2. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer2 Carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-026/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer2. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer2 wakes then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-026/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer2. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer2 wakes, then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-027/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 3 bells, 4 keys, 5 maps and 6 lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-027/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 3 bells, 4 keys, 5 maps and several lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-028/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer2. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer2 opens the gate.\n\nit reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-028/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer2. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer2 opens the gate.\n\nThat reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-029/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 3 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 3\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-029/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 3 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 3\n"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-030/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([3, 3, 4]) == {3: 2, 4: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-030/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([3, 3, 4]) == {3: 2, 4: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-031/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((3, 13, 23, 33)) == {3: 13, 23: 33}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-031/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((3, 13, 23, 33)) == {3: 13, 23: 33}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-032/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([5, -6, 0]) == [125, -216, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-032/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([5, -6, 0]) == [125, -216, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-033/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(4, 5), (6,)]) == 15"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-033/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(4, 5), (6,)]) == 15"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-034/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer3. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER3 LIGHTS THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-034/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer3. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER3 Lights THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-035/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer3. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer3 carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-035/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer3. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer3 Carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-036/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer3. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer3 wakes then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-036/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer3. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer3 wakes, then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-037/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 4 bells, 5 keys, 6 maps and 7 lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-037/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 4 bells, 5 keys, 6 maps and several lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-038/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer3. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer3 opens the gate.\n\nit reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-038/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer3. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer3 opens the gate.\n\nThat reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-039/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 4 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 4\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-039/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 4 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 4\n"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-040/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([4, 4, 5]) == {4: 2, 5: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-040/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([4, 4, 5]) == {4: 2, 5: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-041/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((4, 14, 24, 34)) == {4: 14, 24: 34}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-041/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((4, 14, 24, 34)) == {4: 14, 24: 34}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-042/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([6, -7, 0]) == [216, -343, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-042/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([6, -7, 0]) == [216, -343, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-043/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(5, 6), (7,)]) == 18"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-043/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(5, 6), (7,)]) == 18"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-044/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer4. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER4 LIGHTS THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-044/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer4. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER4 Lights THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-045/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer4. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer4 carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-045/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer4. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer4 Carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-046/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer4. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer4 wakes then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-046/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer4. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer4 wakes, then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-047/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 5 bells, 6 keys, 7 maps and 8 lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-047/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 5 bells, 6 keys, 7 maps and several lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-048/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer4. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer4 opens the gate.\n\nit reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-048/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer4. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer4 opens the gate.\n\nThat reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-049/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 5 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 5\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-049/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 5 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 5\n"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-050/clean",
+        "family": "0",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([5, 5, 6]) == {5: 2, 6: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-050/defect",
+        "family": "0",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([5, 5, 6]) == {5: 2, 6: 1}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-051/clean",
+        "family": "1",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((5, 15, 25, 35)) == {5: 15, 25: 35}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-051/defect",
+        "family": "1",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((5, 15, 25, 35)) == {5: 15, 25: 35}"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-052/clean",
+        "family": "2",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([7, -8, 0]) == [343, -512, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-052/defect",
+        "family": "2",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([7, -8, 0]) == [343, -512, 0]"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-053/clean",
+        "family": "3",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(6, 7), (8,)]) == 21"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-053/defect",
+        "family": "3",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(6, 7), (8,)]) == 21"
+            },
+            {
+              "role": "agent",
+              "text": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-054/clean",
+        "family": "4",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer5. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER5 LIGHTS THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-054/defect",
+        "family": "4",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional chant about glimmer5. All words must use capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "GLIMMER5 Lights THE NIGHT"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-055/clean",
+        "family": "5",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer5. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer5 carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-055/defect",
+        "family": "5",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer5. Do not use any capital letters."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer5 Carries a tiny lantern."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-056/clean",
+        "family": "6",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer5. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer5 wakes then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-056/defect",
+        "family": "6",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write one fictional sentence about glimmer5. Do not use commas."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer5 wakes, then opens the silver gate."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-057/clean",
+        "family": "7",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 6 bells, 7 keys, 8 maps and 9 lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-057/defect",
+        "family": "7",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer stores 6 bells, 7 keys, 8 maps and several lamps."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-058/clean",
+        "family": "8",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer5. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer5 opens the gate.\n\nit reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-058/defect",
+        "family": "8",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Write two fictional paragraphs about glimmer5. The second paragraph must start with the word it."
+            },
+            {
+              "role": "agent",
+              "text": "glimmer5 opens the gate.\n\nThat reveals a quiet garden."
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-059/clean",
+        "family": "9",
+        "expected": "pass",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 6 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 6\n```"
+            }
+          ],
+          "inputs": []
+        }
+      },
+      {
+        "id": "rb-bank-059/defect",
+        "family": "9",
+        "expected": "fail",
+        "request": {
+          "criterion": {
+            "name": "planted-rubric",
+            "rubric": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+            "scope": "block"
+          },
+          "transcript": [
+            {
+              "role": "user",
+              "text": "Give Python assigning 6 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block."
+            },
+            {
+              "role": "agent",
+              "text": "```python\nglimmer = 6\n"
+            }
+          ],
+          "inputs": []
+        }
+      }
+    ]
+  }
+}

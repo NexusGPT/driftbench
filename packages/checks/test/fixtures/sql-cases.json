@@ -1,0 +1,77 @@
+{
+  "golden": "SELECT quarter, COUNT(*) AS n FROM chargebacks WHERE merchant = 'ACME Travel' GROUP BY quarter",
+  "cases": [
+    {
+      "id": "c01",
+      "agent": "select quarter, count(*) as n from chargebacks where merchant = 'ACME Travel' group by quarter",
+      "label": "equivalent",
+      "note": "keyword case and spacing"
+    },
+    {
+      "id": "c02",
+      "agent": "SELECT quarter, COUNT(1) AS n FROM chargebacks WHERE merchant = 'ACME Travel' GROUP BY quarter",
+      "label": "equivalent",
+      "note": "COUNT(1) for COUNT(*)"
+    },
+    {
+      "id": "c03",
+      "agent": "SELECT quarter, COUNT(*) AS n FROM chargebacks WHERE merchant = 'ACME Travel' GROUP BY quarter ORDER BY quarter",
+      "label": "equivalent",
+      "note": "adds an ORDER BY the golden lacks"
+    },
+    {
+      "id": "c04",
+      "agent": "SELECT quarter, COUNT(*) AS n FROM chargebacks WHERE merchant IN ('ACME Travel','Other') GROUP BY quarter",
+      "label": "not_equivalent",
+      "note": "adds a second merchant"
+    },
+    {
+      "id": "c05",
+      "agent": "SELECT quarter, COUNT(*) AS n FROM chargebacks GROUP BY quarter",
+      "label": "not_equivalent",
+      "note": "drops the merchant filter"
+    },
+    {
+      "id": "c06",
+      "agent": "SELECT merchant, quarter, COUNT(*) AS n FROM chargebacks WHERE merchant = 'ACME Travel' GROUP BY merchant, quarter",
+      "label": "not_equivalent",
+      "note": "adds a merchant column"
+    },
+    {
+      "id": "c07",
+      "agent": "SELECT quarter, SUM(LENGTH(id)) AS n FROM chargebacks WHERE merchant = 'ACME Travel' GROUP BY quarter",
+      "label": "not_equivalent",
+      "note": "sums a different value"
+    },
+    {
+      "id": "c08",
+      "agent": "SELECT quarter, COUNT(*) AS n FROM (SELECT * FROM chargebacks WHERE merchant = 'ACME Travel') GROUP BY quarter",
+      "label": "equivalent",
+      "note": "the same filter in a subquery"
+    },
+    {
+      "id": "c09",
+      "agent": "SELECT quarter, COUNT(*) AS n FROM chargebacks WHERE merchant = 'ACME Travel' GROUP BY quarter HAVING COUNT(*) > 0",
+      "label": "equivalent",
+      "note": "a HAVING that every group passes"
+    },
+    {
+      "id": "c10",
+      "agent": "SELECT quarter, COUNT(*) AS n FROM chargebacks WHERE merchant = 'ACME Travel' GROUP BY quarter HAVING COUNT(*) > 1",
+      "label": "not_equivalent",
+      "note": "a HAVING that drops Q2"
+    },
+    {
+      "id": "c11",
+      "agent": "SELECT quarter, COUNT(*) AS n FROM chargebacks WHERE merchant LIKE 'ACME%' GROUP BY quarter",
+      "label": "equivalent",
+      "note": "a LIKE that matches only ACME Travel in the data"
+    },
+    {
+      "id": "c12",
+      "agent": "SELECT quarter, COUNT(*) AS n FROM chargeback WHERE merchant = 'ACME Travel' GROUP BY quarter",
+      "label": "not_equivalent",
+      "note": "names a table that does not exist"
+    }
+  ]
+}

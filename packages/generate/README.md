@@ -1,4 +1,4 @@
-# @driftbench/generate
+# @agent-nexus/driftbench-generate
 
 Generate driftbench tests from a map of situations: extraction proposal, the deterministic block generator, the validity gate, reference sets and holdout.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install @driftbench/generate
+npm install @agent-nexus/driftbench-generate
 ```
 
 Node.js 22.13 or newer. ESM only, with TypeScript types.
@@ -28,4 +28,4 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## License
 
-Apache-2.0
+MIT

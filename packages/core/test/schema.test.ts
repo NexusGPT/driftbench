@@ -3,6 +3,7 @@ import {
   BlockResult,
   BlockSpec,
   Campaign,
+  Expect,
   Given,
   GivenOverride,
   Observed,
@@ -10,8 +11,9 @@ import {
   PerturbationSpec,
   RunResult,
   Segment,
+  ToolExpect,
   Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 const observed = {
@@ -134,6 +136,18 @@ describe('run records', () => {
 });
 
 describe('spec schema names', () => {
+  it('accepts optional input closure and stage reporting without changing old expectations', () => {
+    const tool = { label: 'lookup', input: { kind: 'green' } };
+    expect(ToolExpect.parse(tool)).toEqual(tool);
+    expect(Expect.parse({ stage: 'check' })).toEqual({ stage: 'check' });
+    for (const enabled of [true, false]) {
+      expect(ToolExpect.parse({ ...tool, input_closed: enabled }).input_closed).toBe(enabled);
+      expect(Expect.parse({ stage_reported: enabled }).stage_reported).toBe(enabled);
+    }
+    expect(ToolExpect.safeParse({ ...tool, input_closed: 'true' }).success).toBe(false);
+    expect(Expect.safeParse({ stage_reported: 1 }).success).toBe(false);
+  });
+
   it('exposes Block, Given and Perturbation as the documented short names', () => {
     expect(Block).toBe(BlockSpec);
     expect(Given).toBe(GivenOverride);

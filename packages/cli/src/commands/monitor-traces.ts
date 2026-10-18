@@ -1,5 +1,5 @@
-import type { Trace } from '@driftbench/adapters';
-import { mean, sampleVariance } from '@driftbench/stats';
+import type { Trace } from '@agent-nexus/driftbench-adapters';
+import { mean, sampleVariance } from '@agent-nexus/driftbench-stats';
 import type { SeriesPoint } from './monitor';
 
 /**

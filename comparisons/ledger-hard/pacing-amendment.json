@@ -1,0 +1,20 @@
+{
+  "stamp": "2026-10-13T09:28:13.095837+00:00",
+  "authorization": "Owner: Pacing amendment, runtime only, log it in the freeze record: per-model limits, all three models side by side. gpt-6-luna 8 calls at a time (plain HTTP), Gemini 2 with the 429 waits, Haiku 2. Sealed order, cap and contract unchanged.",
+  "per_model_limits": {
+    "gpt-6-luna": 8,
+    "gemini-3.8-flash": 2,
+    "haiku": 2
+  },
+  "scope": "Limits shared across primary and dialect experiments; supersedes earlier combined four-call cap and adaptive pacing only.",
+  "transport": "Existing plain HTTP Luna route, no temperature change or reasoning change.",
+  "quota_backoff_seconds": [
+    60,
+    120,
+    240
+  ],
+  "drained_previous_workers_at": "2026-10-13T09:26:00.530351+00:00",
+  "sha256": {
+    "comparisons/ledger-hard/resume.py": "6796f33290a457a76a6e35cc2460c0f5284006c265df09f229a8007cd78a6971"
+  }
+}

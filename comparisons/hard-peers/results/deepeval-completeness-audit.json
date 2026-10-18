@@ -1,0 +1,1648 @@
+{
+  "competitor": "deepeval",
+  "row": "completeness",
+  "contestant": "audit",
+  "model": "haiku",
+  "items": 126,
+  "complete": 126,
+  "results": [
+    {
+      "id": "deepeval.completeness.001",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2726aa2ab638cea0eb0fb910c832db4602a77ebfb415bdf001bcbeb1d35e70bc"
+      ],
+      "costUsd": 0.0006379000000000001
+    },
+    {
+      "id": "deepeval.completeness.002",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9076e067a7afc7704b722f1db2a47935a826f224ec3f3a3c1e1b7b05610edad3"
+      ],
+      "costUsd": 0.00045870000000000004
+    },
+    {
+      "id": "deepeval.completeness.003",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "44f4fa38123bfdfc126521da7023f7c783ef3f1260a34ab619b90cee8cf96bee"
+      ],
+      "costUsd": 0.0005225
+    },
+    {
+      "id": "deepeval.completeness.004",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e057439ff56683a83d9db2d2332fce9c48d494dde81d938420ca899e5d3bc222"
+      ],
+      "costUsd": 0.0005771
+    },
+    {
+      "id": "deepeval.completeness.005",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "985b1edae4e2b7ba679880695e3fb4e6994a50924994d2c04afa009fadfd134b"
+      ],
+      "costUsd": 0.0004665
+    },
+    {
+      "id": "deepeval.completeness.006",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b4de31a6317d12c63fc5d70fc10462bd6cb9d17409549db922ce8f98e33b75e9"
+      ],
+      "costUsd": 0.0004622
+    },
+    {
+      "id": "deepeval.completeness.007",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "43eefac025a6ee964e9fffbbbd1c28ae48376bc1227ce6af1a152a43a566fb2c"
+      ],
+      "costUsd": 0.000455
+    },
+    {
+      "id": "deepeval.completeness.008",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4e7359964c2d777e9583130cacc92b1c36021144dbf791768298d2adecb048d7"
+      ],
+      "costUsd": 0.0005021
+    },
+    {
+      "id": "deepeval.completeness.009",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9f74d43c539dc965694cc0354592f1ae1997aa8c44bb7e7e4a3235ce39b239d6"
+      ],
+      "costUsd": 0.0004850000000000001
+    },
+    {
+      "id": "deepeval.completeness.010",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1c400a8e8f5611943689444175373197ab75f5031e2148f14dbd2754f09c5b95"
+      ],
+      "costUsd": 0.0005794999999999999
+    },
+    {
+      "id": "deepeval.completeness.011",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "601309f398d6c25a21ae0b78dad004de821072be546cc17edfebba0a90a2c593"
+      ],
+      "costUsd": 0.0004349
+    },
+    {
+      "id": "deepeval.completeness.012",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "52830ce4ea4db97424d80e52d61b5540ab63946a65f43d2f6db2313e63e8e5a4"
+      ],
+      "costUsd": 0.0004938
+    },
+    {
+      "id": "deepeval.completeness.013",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "62be18295ef4f0f58fa82c49906f06dfc984efe36afc42b8b53fe33ab4fa40c8"
+      ],
+      "costUsd": 0.00043420000000000004
+    },
+    {
+      "id": "deepeval.completeness.014",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6427c18df2d7a249e8a67c1ffcb78fdf3c1603dd499cd97b14b40897ed785f6b"
+      ],
+      "costUsd": 0.0004312
+    },
+    {
+      "id": "deepeval.completeness.015",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "27c9765f29836eb04a44a3c27f426c5aaf7e3c58282d9bca801768ec50a1d3d4"
+      ],
+      "costUsd": 0.00048110000000000004
+    },
+    {
+      "id": "deepeval.completeness.016",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6c3ddab09f858c5a7f2242b4ead84402462572ad774381fcaec5a61226fe1626"
+      ],
+      "costUsd": 0.0005740000000000001
+    },
+    {
+      "id": "deepeval.completeness.017",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f72a71f38095bd9fc266c60e444f7ccdcbf7b7a31bed9a697b6381d20bb7c488"
+      ],
+      "costUsd": 0.00047329999999999996
+    },
+    {
+      "id": "deepeval.completeness.018",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e0b232d0c03421cabbe6fdc9c1af0c22ed781e4725f7e657fc57345580815108"
+      ],
+      "costUsd": 0.0005029
+    },
+    {
+      "id": "deepeval.completeness.019",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "cc1f5a3a4f7500bf7e89d0173aaa6295e5a80ee1ec4cf39ae62324d65f8cbb77"
+      ],
+      "costUsd": 0.00040270000000000003
+    },
+    {
+      "id": "deepeval.completeness.020",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6576dd3ebd87fdada94f6e53618b0ac94551d569e5ac51f6c3b45130104cf849"
+      ],
+      "costUsd": 0.00047290000000000006
+    },
+    {
+      "id": "deepeval.completeness.021",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "16cdf74dec3aa6534c354813da2eaa48de0f2321beb027ab6a2142a99457be15"
+      ],
+      "costUsd": 0.0004711
+    },
+    {
+      "id": "deepeval.completeness.022",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "45ae43bff16d4e448857ca48e41a61efc3b4f0703b6dce7231a837821e13e3a5"
+      ],
+      "costUsd": 0.0004492000000000001
+    },
+    {
+      "id": "deepeval.completeness.023",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b0d79ad7c09e63b40e122b5c80d82c67e56801d59c6861eecf98b8d42d792b3d"
+      ],
+      "costUsd": 0.0005696
+    },
+    {
+      "id": "deepeval.completeness.024",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f74b4fac5ef873b35f2a01c90874f4409e99a43ea350b02bfb9912a694fcd3e8"
+      ],
+      "costUsd": 0.0004763
+    },
+    {
+      "id": "deepeval.completeness.025",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7d5934cf90586368c240c4006a30d4c595b6c32f72ec39514169378e2c312388"
+      ],
+      "costUsd": 0.00045700000000000005
+    },
+    {
+      "id": "deepeval.completeness.026",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "be6690defdc793c373da32bd506452833b1bf9f1a212d7a6c202e023e428bd54"
+      ],
+      "costUsd": 0.0005367
+    },
+    {
+      "id": "deepeval.completeness.027",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "cbb245d323d004056f6f20f3f48c451a6bbbfe463990636b918d6457c776ad2e"
+      ],
+      "costUsd": 0.0005343
+    },
+    {
+      "id": "deepeval.completeness.028",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "67ff8b6200170a07c0971ce943a325092d6e6e1a271b26cd94501d24a08435ad"
+      ],
+      "costUsd": 0.00047860000000000003
+    },
+    {
+      "id": "deepeval.completeness.029",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e18fa14d18e503b251a876e26acc22644250b6354ff547f8c11f429406826593"
+      ],
+      "costUsd": 0.0005359
+    },
+    {
+      "id": "deepeval.completeness.030",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1884afcb2076e2445d884368c97e7375a69e03c0f373725e90ab9b267e224a6f"
+      ],
+      "costUsd": 0.0005819
+    },
+    {
+      "id": "deepeval.completeness.031",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ec48d41fa297909d7f901d43932b408736fd2d5f4de5dc6233eb6acda57f0d19"
+      ],
+      "costUsd": 0.0004892
+    },
+    {
+      "id": "deepeval.completeness.032",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ed91af7d8dc8ec8905fcabfedd0d12a7c1dab46ba8ae84221d05884b1cac42a2"
+      ],
+      "costUsd": 0.0005582
+    },
+    {
+      "id": "deepeval.completeness.033",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "97ff7433a6758cb4607669833c6f6e4074992a34f844bce98aff270fee339eeb"
+      ],
+      "costUsd": 0.0005
+    },
+    {
+      "id": "deepeval.completeness.034",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bae3677bd73d9be1967654fc8eb4ca6e04757085ba49cf865ceab93f1a54ab30"
+      ],
+      "costUsd": 0.00043020000000000005
+    },
+    {
+      "id": "deepeval.completeness.035",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "54b6547eee7433e54f924139e3137f5e433d98bbd94496c9e7e721ea6475728d"
+      ],
+      "costUsd": 0.0004515
+    },
+    {
+      "id": "deepeval.completeness.036",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3684d47e408b23b3cbaf3309120d3cf1d8787d32ca772facc77e7f69529e812d"
+      ],
+      "costUsd": 0.0005038
+    },
+    {
+      "id": "deepeval.completeness.037",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "77758cc5545f26763157d9d9ecddb4f1ccb08916278444aeb39d3ecfddd34bf2"
+      ],
+      "costUsd": 0.00046120000000000004
+    },
+    {
+      "id": "deepeval.completeness.038",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ebe3133938e5562890aa8871a4927b226be1884fe1d08bdc66d3a350821fcdff"
+      ],
+      "costUsd": 0.0004907
+    },
+    {
+      "id": "deepeval.completeness.039",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3ff3bd39322a532d2c1dbfaf23ad9d7d4e63c8084d54304fff48e6bb1055a8db"
+      ],
+      "costUsd": 0.0005138
+    },
+    {
+      "id": "deepeval.completeness.040",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "03853626590d75dd99223dece40ec11a7c1646d0566008b4c50eccff6f82ce58"
+      ],
+      "costUsd": 0.0004843
+    },
+    {
+      "id": "deepeval.completeness.041",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "83f374a855ad77e06f9fe1ac0bb69f660fa3f3d78e9272f5f4b0e9892d92d14c"
+      ],
+      "costUsd": 0.000553
+    },
+    {
+      "id": "deepeval.completeness.042",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "89bb16a5c683f42c71ed58a527ad5915fe1410ba741adabb58a63c0434c6382b"
+      ],
+      "costUsd": 0.0005436999999999999
+    },
+    {
+      "id": "deepeval.completeness.043",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5a8f1120522c02733c5fa92674887b47baf85db120ffc528d8f6b16e37f6f826"
+      ],
+      "costUsd": 0.0005696
+    },
+    {
+      "id": "deepeval.completeness.044",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8349f989fb11170ca62676e6b83d4275baee25949e97085a466b94edba8f169a"
+      ],
+      "costUsd": 0.00044070000000000003
+    },
+    {
+      "id": "deepeval.completeness.045",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a507333917ca27cd5a41fb027233bf8eb087809d15f890d403a735b3556a9b36"
+      ],
+      "costUsd": 0.0005316
+    },
+    {
+      "id": "deepeval.completeness.046",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "70a4daa542b09f4ed2a57f93798770ef29570f7e12dc003322aa031f41f28688"
+      ],
+      "costUsd": 0.0004909000000000001
+    },
+    {
+      "id": "deepeval.completeness.047",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1137992c2eb7210307ed0b53574f1c5c281046c5b64a6cf88550cc6eda19008c"
+      ],
+      "costUsd": 0.00047670000000000004
+    },
+    {
+      "id": "deepeval.completeness.048",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "97aee43556c02a6eafcc7979491144c519c4990dc9cfb94888878d26661c587d"
+      ],
+      "costUsd": 0.00044320000000000004
+    },
+    {
+      "id": "deepeval.completeness.049",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "051ca2c5390bfb2225bc647eebff9f2bec96c4efc4d40e8e84a47d9b8d887f52"
+      ],
+      "costUsd": 0.000477
+    },
+    {
+      "id": "deepeval.completeness.050",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0b1db9000231ba5b4d45fdb07e9a4fab8ca37b605d51cb831acab553357b4565"
+      ],
+      "costUsd": 0.0004748
+    },
+    {
+      "id": "deepeval.completeness.051",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e004ac6bb0b27fa12c39138ee6cb6142229499bcc143a781ad8ae74ada9dd83d"
+      ],
+      "costUsd": 0.0005157
+    },
+    {
+      "id": "deepeval.completeness.052",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d08922da99ee478251c488879c14e1cfd3b8dab167e1c0eaafe129862071c272"
+      ],
+      "costUsd": 0.0004605
+    },
+    {
+      "id": "deepeval.completeness.053",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8e85b75b8194d6ad2221476bc25f3b36ad7e4d3d52f6ad857b107c879d0532e4"
+      ],
+      "costUsd": 0.0004567
+    },
+    {
+      "id": "deepeval.completeness.054",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6a1e20fd44b52ca6641c0e4a9997c1a0e60744550df3b2ad5206f3b30602f446"
+      ],
+      "costUsd": 0.0005776
+    },
+    {
+      "id": "deepeval.completeness.055",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "372da3649c5752762c4df0c8708c754129550b186e24223246064f24ae6f9bd2"
+      ],
+      "costUsd": 0.00047900000000000004
+    },
+    {
+      "id": "deepeval.completeness.056",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a5f4f592bbc73324e655cd187bd612e159dfe2a16b8290973c64738f3ebfdb5a"
+      ],
+      "costUsd": 0.000537
+    },
+    {
+      "id": "deepeval.completeness.057",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b6ffb9ebd9e34ba77e61b1b5ce46b76a874a10fcebccbf07ea028bae066e2284"
+      ],
+      "costUsd": 0.0005606
+    },
+    {
+      "id": "deepeval.completeness.058",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4faaf2061ea219b077c9d2ed26b666e1c0ecaeb88e243aa1eb52bf1ef1ee87f9"
+      ],
+      "costUsd": 0.0004687
+    },
+    {
+      "id": "deepeval.completeness.059",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "676a4e2a89b5d4a17e3ef5ff3afab213bb45ba4beff159edb3f7af5eb8458195"
+      ],
+      "costUsd": 0.0006576
+    },
+    {
+      "id": "deepeval.completeness.060",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c95933da3ea911ab866624314f664c1ce30d64392bdfc786c9b5d6a496891280"
+      ],
+      "costUsd": 0.0004362
+    },
+    {
+      "id": "deepeval.completeness.061",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "df6ea6b1b17d740fa39126eab52beaaf073a9453f149d24351c43b49bea6805b"
+      ],
+      "costUsd": 0.0004613
+    },
+    {
+      "id": "deepeval.completeness.062",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f9f221df5602f7b7e2f1280ce58257ad12d6ba6856d636be59eb7f1a129919d3"
+      ],
+      "costUsd": 0.0005093
+    },
+    {
+      "id": "deepeval.completeness.063",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0c9168b93c67e6eb49dbd91b91158028e3ddaf5d5daa04e737c08ae9bc1d7154"
+      ],
+      "costUsd": 0.0004795
+    },
+    {
+      "id": "deepeval.completeness.064",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "afb73dae4fbd31b86b5289f85d779ff305c90ce03015732d35c39d744cfd3a41"
+      ],
+      "costUsd": 0.0004767
+    },
+    {
+      "id": "deepeval.completeness.065",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "88b4e2bb1bf4df3987caa7bd373fd64e2a92563b8dbb7f4d39cc553639475912"
+      ],
+      "costUsd": 0.0006099
+    },
+    {
+      "id": "deepeval.completeness.066",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bba8a636543120d762a2b19612d5526408f9de789f025a7cb65c3d1ed6563b32"
+      ],
+      "costUsd": 0.0004787
+    },
+    {
+      "id": "deepeval.completeness.067",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e722fd37b8bfac1c9e7f3e0966272b20c0b7f0a7be43bfddabba5d0f1be4e661"
+      ],
+      "costUsd": 0.0005154000000000001
+    },
+    {
+      "id": "deepeval.completeness.068",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "aa3e15aa0d8f4d0062e895c0a2c7f7b0f1b67f51869077733e95854ade063641"
+      ],
+      "costUsd": 0.0005521
+    },
+    {
+      "id": "deepeval.completeness.069",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7308d1984fc9d7747c23c01ce5b27e659fb89f27d7cb61542fb5b23170a4d0bf"
+      ],
+      "costUsd": 0.000469
+    },
+    {
+      "id": "deepeval.completeness.070",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8d61a381115b06dea475ecc6feb12e3d762571d9ec3d1911be71dd6a3899bf52"
+      ],
+      "costUsd": 0.0004942
+    },
+    {
+      "id": "deepeval.completeness.071",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "655ebeb4893d63af0fa346ea4764cc8d4fb2732f800a28cd8c284ffb0c09bbe4"
+      ],
+      "costUsd": 0.0004785
+    },
+    {
+      "id": "deepeval.completeness.072",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "554d22f841a6268b66e55bb13c423e1167ba2057604c6998eb8219944209818f"
+      ],
+      "costUsd": 0.0005185
+    },
+    {
+      "id": "deepeval.completeness.073",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6b75fee21458a43abdf2f66580da3c6fff92ed3bb3fb8f6120848cd18bbe8506"
+      ],
+      "costUsd": 0.00043979999999999996
+    },
+    {
+      "id": "deepeval.completeness.074",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "308ce43a3214c9fcc79ef671d3236551f92cf1c6a08a365d7f438c1378588238"
+      ],
+      "costUsd": 0.0004864
+    },
+    {
+      "id": "deepeval.completeness.075",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "02aca9028413abed9c33860f4f4416b79223a3ce6b4e28ba08b5b7bc1102ba94"
+      ],
+      "costUsd": 0.0005062
+    },
+    {
+      "id": "deepeval.completeness.076",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4fa954204a3ff3bd57a0aa6e41591d3d0ff5dc5189446164cd4062132e0e4889"
+      ],
+      "costUsd": 0.00042390000000000006
+    },
+    {
+      "id": "deepeval.completeness.077",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "86a852a736ebe630e6750df0ad751847a4a490c67d0d71d968fd3ef06c514379"
+      ],
+      "costUsd": 0.00045220000000000004
+    },
+    {
+      "id": "deepeval.completeness.078",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ccd6ca414dbabd29116b57b0e505e96ec11311ca0fadeefe018e912b7a709cfc"
+      ],
+      "costUsd": 0.00041470000000000005
+    },
+    {
+      "id": "deepeval.completeness.079",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e82046a266ff09b91ded8e4d12c94878bfb8ac83c3d0c0a7681c4a61151dde7e"
+      ],
+      "costUsd": 0.00047220000000000004
+    },
+    {
+      "id": "deepeval.completeness.080",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "165a537d1b194c1cbde5dee7d04badb9c3fc2c119032bd701a7774592bdd6755"
+      ],
+      "costUsd": 0.00043270000000000006
+    },
+    {
+      "id": "deepeval.completeness.081",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "57ff0ce5e3ca873d81dcd6c43690eee8d531824e207e7bc569694b15ee84068d"
+      ],
+      "costUsd": 0.00046370000000000005
+    },
+    {
+      "id": "deepeval.completeness.082",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b3f8cd83ce72dec3361bd03d9ae99112b9ae2ec50ab5b1f6037d116b7387c9a"
+      ],
+      "costUsd": 0.0005204000000000001
+    },
+    {
+      "id": "deepeval.completeness.083",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "bfc1cc9dd30bf3828b659db7b39d5d5e039a9c44c95860f598bd94a286cd317e"
+      ],
+      "costUsd": 0.000591
+    },
+    {
+      "id": "deepeval.completeness.084",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2896bf2966cfbfd3c1f7772ca5f11fee578735b9a40c76902a5c9ff8d57df981"
+      ],
+      "costUsd": 0.00044300000000000003
+    },
+    {
+      "id": "deepeval.completeness.085",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fdbc930942cbc67b8f0918741b196e2bea83944a714f80dda354e369292180c9"
+      ],
+      "costUsd": 0.0005424
+    },
+    {
+      "id": "deepeval.completeness.086",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2685c999564d14a97f9db929db6f85ed5efae97ad956fc5c32bc15b1e1c89fda"
+      ],
+      "costUsd": 0.0005681
+    },
+    {
+      "id": "deepeval.completeness.087",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c6e40d5a34e110dba5599fcab6410c42fbf2d66be85fb68afd6199e51f2172a3"
+      ],
+      "costUsd": 0.0005264
+    },
+    {
+      "id": "deepeval.completeness.088",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "99d43560570603af2cd9966c59a3402b28403b01702dbf3b770e29b046a7717b"
+      ],
+      "costUsd": 0.0004447
+    },
+    {
+      "id": "deepeval.completeness.089",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5ea5ac686342f26fcd23d2f2358bd52816337f19a6e27347b59004abb7972331"
+      ],
+      "costUsd": 0.0004837
+    },
+    {
+      "id": "deepeval.completeness.090",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "89c375fbae477435faa6db654253be9690998707b03fea1022a2d64b14d96d6d"
+      ],
+      "costUsd": 0.0004552
+    },
+    {
+      "id": "deepeval.completeness.091",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d25d2ef2e397b6ede7af3d63908169b7024e2fe1b6ec0ae19f5bc3a0c766e7e2"
+      ],
+      "costUsd": 0.0006529
+    },
+    {
+      "id": "deepeval.completeness.092",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0b45f48f9aebf6200dff4210dbde30d0e888172775d8881c12f6fd9ee2b55167"
+      ],
+      "costUsd": 0.0004912
+    },
+    {
+      "id": "deepeval.completeness.093",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0f127cb74dcc4d6eb0b3fce6660ab2a524e9d22456fcbfc011f7db600077835c"
+      ],
+      "costUsd": 0.0004758
+    },
+    {
+      "id": "deepeval.completeness.094",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "03f04731824b71175a3f726c59dc645d290a0aa921ea10138775fccd21732886"
+      ],
+      "costUsd": 0.00046300000000000003
+    },
+    {
+      "id": "deepeval.completeness.095",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b32a5ff1993c499c9bdcb06887f30b6770fab663e9fb3bb55996a140bed1076f"
+      ],
+      "costUsd": 0.0005576
+    },
+    {
+      "id": "deepeval.completeness.096",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f4e14d276a6a7adbfe68d1d046f8babb75a9c091214e07fd3ca14acd5326c9f1"
+      ],
+      "costUsd": 0.0005601
+    },
+    {
+      "id": "deepeval.completeness.097",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9aab9782734c569d7a84f06586796477f3b5065220348b079c2b49a639d3de24"
+      ],
+      "costUsd": 0.0005446
+    },
+    {
+      "id": "deepeval.completeness.098",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7f6f9a279cb720dacbd8609068718d71bbc236c2d9151c9cc2f7d000f4517af2"
+      ],
+      "costUsd": 0.00047620000000000003
+    },
+    {
+      "id": "deepeval.completeness.099",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "510c73df5372d645affe0d4e74a245223917b41a81e604e6c759288e2f7b67f6"
+      ],
+      "costUsd": 0.0005188
+    },
+    {
+      "id": "deepeval.completeness.100",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c7728293c4b7d706946e3452b6d3350d4d532e30a3f4ea73a6fe0242ea3dd3ec"
+      ],
+      "costUsd": 0.000505
+    },
+    {
+      "id": "deepeval.completeness.101",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "82967f5e1367760128245777e9491521a3ebd5bf21d09bac35da97d7a7ead5c6"
+      ],
+      "costUsd": 0.000456
+    },
+    {
+      "id": "deepeval.completeness.102",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "843eb5576cfc60ac8b7b776b567ae9e106ea7adde8fad28827c10c7cb69a10b5"
+      ],
+      "costUsd": 0.000481
+    },
+    {
+      "id": "deepeval.completeness.103",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "698ae888dcbb61c47ae5b3e6e7f7ece1102d15c1c6a642b282091b7cc04bc01f"
+      ],
+      "costUsd": 0.000459
+    },
+    {
+      "id": "deepeval.completeness.104",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6ff889300c89178047396a244afe11758f3119d30bb3baa96f6378b1f6524e82"
+      ],
+      "costUsd": 0.0005001999999999999
+    },
+    {
+      "id": "deepeval.completeness.105",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c1420ea9a0706eda1a37864864777243e9afc8e44823c168cb42a75d1adb8462"
+      ],
+      "costUsd": 0.000492
+    },
+    {
+      "id": "deepeval.completeness.106",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "12a177534f7a78f05b474b900cead9122375089262f40496191b4d05e4c09291"
+      ],
+      "costUsd": 0.0005575
+    },
+    {
+      "id": "deepeval.completeness.107",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "748bf1e90550872a93d76203cfd8051b5b5d88fd991dda9c5fc57abda3467543"
+      ],
+      "costUsd": 0.00045420000000000004
+    },
+    {
+      "id": "deepeval.completeness.108",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5d6ddaf601f2414043ba55876c70e417823fd7144d774b83ebdf6b060982c45e"
+      ],
+      "costUsd": 0.0005609
+    },
+    {
+      "id": "deepeval.completeness.109",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8358ab7eb8b1ed3558f060d3669b448ce349feaf0ec8fa9c3f0c3a288421dd19"
+      ],
+      "costUsd": 0.0004447
+    },
+    {
+      "id": "deepeval.completeness.110",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e13fc92e873776ec680ac7907373b6118e1e32d1041a59fb2a144076502af5ab"
+      ],
+      "costUsd": 0.00047250000000000005
+    },
+    {
+      "id": "deepeval.completeness.111",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "04a552159d4c4cc1f023b6ca61a344b85e3f5153e47a8c21f1a4f769cee2ef11"
+      ],
+      "costUsd": 0.0005096
+    },
+    {
+      "id": "deepeval.completeness.112",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f830ae21554b2ad1e1f466898b50e745a850f57535a110e9274a1ef1871fa88b"
+      ],
+      "costUsd": 0.0005309
+    },
+    {
+      "id": "deepeval.completeness.113",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8765bb64ad04387a8d1ad8c5e36220849763dca0a2329587fdf6867d6158ff9b"
+      ],
+      "costUsd": 0.0005941
+    },
+    {
+      "id": "deepeval.completeness.114",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ca222f98d2b0812a18503c129a9ba7bc19603245916e89b0ffb34a206e14b464"
+      ],
+      "costUsd": 0.00043620000000000003
+    },
+    {
+      "id": "deepeval.completeness.115",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5287a328790db2b167b39b1201106e3b4b94b7de1b37d0a9424302ce39943d0b"
+      ],
+      "costUsd": 0.000532
+    },
+    {
+      "id": "deepeval.completeness.116",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5b9a62178fc5f5b6d993474a94d110683ad4dde144a10c44ea97c9e1fd65386c"
+      ],
+      "costUsd": 0.0004994999999999999
+    },
+    {
+      "id": "deepeval.completeness.117",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9d3039e7b63814f2b9e29476913544aa8b8c254f1e89f4f03437521372ba14da"
+      ],
+      "costUsd": 0.0004842
+    },
+    {
+      "id": "deepeval.completeness.118",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4913f08dc94fec57ad878cac490de76d58eb2623b45caa9a39e54bb0d72052df"
+      ],
+      "costUsd": 0.0004799
+    },
+    {
+      "id": "deepeval.completeness.119",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5b8b16a070724bfb8fbad670ceec47b497790243f27bb9ca7403f3bf4edfe92b"
+      ],
+      "costUsd": 0.0004378
+    },
+    {
+      "id": "deepeval.completeness.120",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "df3f9764a3f22a70128b084b26f3fb5c0eded03e2858e078f408bf1ef4b53465"
+      ],
+      "costUsd": 0.0004247000000000001
+    },
+    {
+      "id": "deepeval.completeness.121",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "000aca226e54c470988c0aa64982fe936d5eaff895eb6ddb1bf805590c5608c7"
+      ],
+      "costUsd": 0.00045620000000000003
+    },
+    {
+      "id": "deepeval.completeness.122",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8d33c29b99500d1fbe02023cea67ae2997bd8367401d9da3d35bacfe60f0b002"
+      ],
+      "costUsd": 0.0004938
+    },
+    {
+      "id": "deepeval.completeness.123",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "946fa0b84f73365bb4aa4ffd28a8613166cad2bbe85564e9bb11a037b4510952"
+      ],
+      "costUsd": 0.0004950999999999999
+    },
+    {
+      "id": "deepeval.completeness.124",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a757fcde78a566c57fc25a8b95b9fb2241ae0d388d9864b3cba3a94d772d3e54"
+      ],
+      "costUsd": 0.0005507
+    },
+    {
+      "id": "deepeval.completeness.125",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "277157cfd5528d2655b53b9b621ff590e2e95e6a87f11a04b42d3b3f143e9e66"
+      ],
+      "costUsd": 0.0005627
+    },
+    {
+      "id": "deepeval.completeness.126",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "12b59ddc50809be87a0d1a827563cae7127903d7a0e0a0cd133c5aec1ceef283"
+      ],
+      "costUsd": 0.0004937
+    }
+  ]
+}

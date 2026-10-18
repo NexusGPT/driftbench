@@ -5,7 +5,7 @@ version: "1"
 kind: task
 title: Build the Acme price sheet from the catalog file (i12, empty-cell)
 description: |
-  A code agent works in a workspace seeded with the plan catalog. It builds an Excel price sheet, one sheet per category with a yearly price, and in instances with a summary adds a Summary sheet in a second block. No other file in the workspace may change.
+  A code agent works in a workspace seeded with the plan catalog. It builds an Excel price sheet, one sheet per category with a yearly price, and in instances with a summary adds a Summary sheet in a second block. In instances that start from an existing workbook, the price sheet is already there and the agent only adds the Summary sheet. No other file in the workspace may change.
 channel: chat
 lang: EN
 tier: generated
@@ -20,159 +20,69 @@ target:
   agent: acme-ops
 workspace_seed:
   files:
-    catalog.json: |
-      {
-        "plans": [
-          {
-            "plan_id": "home-1",
-            "name": "Acme Home 1",
-            "category": "home",
-            "allowance": "500 Mbps",
-            "monthly_usd": 35
-          },
-          {
-            "plan_id": "home-2",
-            "name": "Acme Home 2",
-            "category": "home",
-            "allowance": "1000 Mbps",
-            "monthly_usd": 68
-          },
-          {
-            "plan_id": "travel-1",
-            "name": "Acme Travel 1",
-            "category": "travel",
-            "allowance": "3 GB",
-            "monthly_usd": 72
-          },
-          {
-            "plan_id": "mobile-1",
-            "name": "Acme Mobile 1",
-            "category": "mobile",
-            "allowance": "40 GB",
-            "monthly_usd": 17
-          },
-          {
-            "plan_id": "mobile-2",
-            "name": "Acme Mobile 2",
-            "category": "mobile",
-            "allowance": "20 GB",
-            "monthly_usd": 21
-          },
-          {
-            "plan_id": "mobile-3",
-            "name": "Acme Mobile 3",
-            "category": "mobile",
-            "allowance": "",
-            "monthly_usd": 22
-          },
-          {
-            "plan_id": "office-1",
-            "name": "Acme Office 1",
-            "category": "office",
-            "allowance": "unlimited",
-            "monthly_usd": 27
-          },
-          {
-            "plan_id": "office-2",
-            "name": "Acme Office 2",
-            "category": "office",
-            "allowance": "100 GB",
-            "monthly_usd": 61
-          },
-          {
-            "plan_id": "home-3",
-            "name": "Acme Home 3",
-            "category": "home",
-            "allowance": "300 Mbps",
-            "monthly_usd": 69
-          },
-          {
-            "plan_id": "office-3",
-            "name": "Acme Office 3",
-            "category": "office",
-            "allowance": "50 GB",
-            "monthly_usd": 33
-          },
-          {
-            "plan_id": "office-4",
-            "name": "Acme Office 4",
-            "category": "office",
-            "allowance": "100 GB",
-            "monthly_usd": 11
-          },
-          {
-            "plan_id": "office-5",
-            "name": "Acme Office 5",
-            "category": "office",
-            "allowance": "50 GB",
-            "monthly_usd": 58
-          },
-          {
-            "plan_id": "home-4",
-            "name": "Acme Home 4",
-            "category": "home",
-            "allowance": "500 Mbps",
-            "monthly_usd": 45
-          },
-          {
-            "plan_id": "office-6",
-            "name": "Acme Office 6",
-            "category": "office",
-            "allowance": "50 GB",
-            "monthly_usd": 38
-          },
-          {
-            "plan_id": "home-5",
-            "name": "Acme Home 5",
-            "category": "home",
-            "allowance": "500 Mbps",
-            "monthly_usd": 64
-          },
-          {
-            "plan_id": "travel-2",
-            "name": "Acme Travel 2",
-            "category": "travel",
-            "allowance": "1 GB",
-            "monthly_usd": 24
-          },
-          {
-            "plan_id": "mobile-4",
-            "name": "Acme Mobile 4",
-            "category": "mobile",
-            "allowance": "20 GB",
-            "monthly_usd": 54
-          },
-          {
-            "plan_id": "home-6",
-            "name": "Acme Home 6",
-            "category": "home",
-            "allowance": "100 Mbps",
-            "monthly_usd": 22
-          },
-          {
-            "plan_id": "home-7",
-            "name": "Acme Home 7",
-            "category": "home",
-            "allowance": "100 Mbps",
-            "monthly_usd": 17
-          },
-          {
-            "plan_id": "home-8",
-            "name": "Acme Home 8",
-            "category": "home",
-            "allowance": "300 Mbps",
-            "monthly_usd": 56
-          }
-        ]
-      }
-    ABOUT.txt: |
-      Sales operations folder of Acme Telecom. catalog.json is the source of truth; nobody edits it by hand.
+    catalog.csv: "plan_id,name,category,allowance,monthly_usd\r
+
+      office-1,Acme Office 1,office,250 GB,35\r
+
+      home-1,Acme Home 1,home,1000 Mbps,68\r
+
+      office-2,Acme Office 2,office,100 GB,72\r
+
+      office-3,Acme Office 3,office,250 GB,17\r
+
+      office-4,Acme Office 4,office,250 GB,21\r
+
+      home-2,Acme Home 2,home,500 Mbps,22\r
+
+      office-5,Acme Office 5,office,unlimited,27\r
+
+      office-6,Acme Office 6,office,,61\r
+
+      office-7,Acme Office 7,office,100 GB,69\r
+
+      office-8,Acme Office 8,office,50 GB,33\r
+
+      office-9,Acme Office 9,office,100 GB,11\r
+
+      office-10,Acme Office 10,office,50 GB,58\r
+
+      home-3,Acme Home 3,home,500 Mbps,45\r
+
+      office-11,Acme Office 11,office,50 GB,38\r
+
+      home-4,Acme Home 4,home,500 Mbps,64\r
+
+      office-12,Acme Office 12,office,50 GB,24\r
+
+      home-5,Acme Home 5,home,300 Mbps,54\r
+
+      office-13,Acme Office 13,office,50 GB,22\r
+
+      home-6,Acme Home 6,home,100 Mbps,17\r
+
+      home-7,Acme Home 7,home,300 Mbps,56\r
+
+      office-14,Acme Office 14,office,50 GB,27\r
+
+      home-8,Acme Home 8,home,100 Mbps,19\r
+
+      office-15,Acme Office 15,office,50 GB,84\r
+
+      office-16,Acme Office 16,office,100 GB,57\r
+
+      office-17,Acme Office 17,office,unlimited,36\r
+
+      home-9,Acme Home 9,home,300 Mbps,29\r
+
+      office-18,Acme Office 18,office,unlimited,34\r\n"
+    readme.txt: |
+      Sales operations folder of Acme Telecom. catalog.csv is the source of truth; nobody edits it by hand.
 stages:
   - build_sheet
   - add_summary
 blocks:
   - id: build
-    user: Build a price sheet from catalog.json. Make one sheet per category, named Home, Travel, Mobile and Office, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD), and one row per line of the catalog, in catalog order. The yearly price must be a formula. Save it as out/acme-price-sheet.xlsx.
+    user: I need a price sheet built from catalog.csv, with a sheet per category named Office and Home. Use the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD), one row per catalog line, kept in catalog order. Put the yearly price, twelve times the monthly one, in the last column. Write it to out/acme-price-sheet.xlsx.
     expect:
       stage: build_sheet
       skills:
@@ -193,10 +103,111 @@ blocks:
           kind: xlsx
           checks:
             - sheets:
-                - Home
-                - Travel
-                - Mobile
                 - Office
+                - Home
+            - header:
+                sheet: Office
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Office
+                count: 18
+            - cells:
+                sheet: Office
+                column: A
+                from_row: 2
+                values:
+                  - Acme Office 1
+                  - Acme Office 2
+                  - Acme Office 3
+                  - Acme Office 4
+                  - Acme Office 5
+                  - Acme Office 6
+                  - Acme Office 7
+                  - Acme Office 8
+                  - Acme Office 9
+                  - Acme Office 10
+                  - Acme Office 11
+                  - Acme Office 12
+                  - Acme Office 13
+                  - Acme Office 14
+                  - Acme Office 15
+                  - Acme Office 16
+                  - Acme Office 17
+                  - Acme Office 18
+            - cells:
+                sheet: Office
+                column: B
+                from_row: 2
+                values:
+                  - 250 GB
+                  - 100 GB
+                  - 250 GB
+                  - 250 GB
+                  - unlimited
+                  - ""
+                  - 100 GB
+                  - 50 GB
+                  - 100 GB
+                  - 50 GB
+                  - 50 GB
+                  - 50 GB
+                  - 50 GB
+                  - 50 GB
+                  - 50 GB
+                  - 100 GB
+                  - unlimited
+                  - unlimited
+            - cells:
+                sheet: Office
+                column: C
+                from_row: 2
+                values:
+                  - 35
+                  - 72
+                  - 17
+                  - 21
+                  - 27
+                  - 61
+                  - 69
+                  - 33
+                  - 11
+                  - 58
+                  - 38
+                  - 24
+                  - 22
+                  - 27
+                  - 84
+                  - 57
+                  - 36
+                  - 34
+            - cells:
+                sheet: Office
+                column: D
+                from_row: 2
+                values:
+                  - 420
+                  - 864
+                  - 204
+                  - 252
+                  - 324
+                  - 732
+                  - 828
+                  - 396
+                  - 132
+                  - 696
+                  - 456
+                  - 288
+                  - 264
+                  - 324
+                  - 1008
+                  - 684
+                  - 432
+                  - 408
             - header:
                 sheet: Home
                 row: 1
@@ -207,7 +218,7 @@ blocks:
                   - Yearly price (USD)
             - rows:
                 sheet: Home
-                count: 8
+                count: 9
             - cells:
                 sheet: Home
                 column: A
@@ -221,17 +232,19 @@ blocks:
                   - Acme Home 6
                   - Acme Home 7
                   - Acme Home 8
+                  - Acme Home 9
             - cells:
                 sheet: Home
                 column: B
                 from_row: 2
                 values:
-                  - 500 Mbps
                   - 1000 Mbps
+                  - 500 Mbps
+                  - 500 Mbps
+                  - 500 Mbps
                   - 300 Mbps
-                  - 500 Mbps
-                  - 500 Mbps
                   - 100 Mbps
+                  - 300 Mbps
                   - 100 Mbps
                   - 300 Mbps
             - cells:
@@ -239,208 +252,29 @@ blocks:
                 column: C
                 from_row: 2
                 values:
-                  - 35
                   - 68
-                  - 69
+                  - 22
                   - 45
                   - 64
-                  - 22
+                  - 54
                   - 17
                   - 56
-            - formula:
+                  - 19
+                  - 29
+            - cells:
                 sheet: Home
-                cell: D2
-                regex: ^=C2\s*\*\s*12$
-            - formula:
-                sheet: Home
-                cell: D3
-                regex: ^=C3\s*\*\s*12$
-            - formula:
-                sheet: Home
-                cell: D4
-                regex: ^=C4\s*\*\s*12$
-            - formula:
-                sheet: Home
-                cell: D5
-                regex: ^=C5\s*\*\s*12$
-            - formula:
-                sheet: Home
-                cell: D6
-                regex: ^=C6\s*\*\s*12$
-            - formula:
-                sheet: Home
-                cell: D7
-                regex: ^=C7\s*\*\s*12$
-            - formula:
-                sheet: Home
-                cell: D8
-                regex: ^=C8\s*\*\s*12$
-            - formula:
-                sheet: Home
-                cell: D9
-                regex: ^=C9\s*\*\s*12$
-            - header:
-                sheet: Travel
-                row: 1
-                values:
-                  - Plan
-                  - Allowance
-                  - Monthly price (USD)
-                  - Yearly price (USD)
-            - rows:
-                sheet: Travel
-                count: 2
-            - cells:
-                sheet: Travel
-                column: A
+                column: D
                 from_row: 2
                 values:
-                  - Acme Travel 1
-                  - Acme Travel 2
-            - cells:
-                sheet: Travel
-                column: B
-                from_row: 2
-                values:
-                  - 3 GB
-                  - 1 GB
-            - cells:
-                sheet: Travel
-                column: C
-                from_row: 2
-                values:
-                  - 72
-                  - 24
-            - formula:
-                sheet: Travel
-                cell: D2
-                regex: ^=C2\s*\*\s*12$
-            - formula:
-                sheet: Travel
-                cell: D3
-                regex: ^=C3\s*\*\s*12$
-            - header:
-                sheet: Mobile
-                row: 1
-                values:
-                  - Plan
-                  - Allowance
-                  - Monthly price (USD)
-                  - Yearly price (USD)
-            - rows:
-                sheet: Mobile
-                count: 4
-            - cells:
-                sheet: Mobile
-                column: A
-                from_row: 2
-                values:
-                  - Acme Mobile 1
-                  - Acme Mobile 2
-                  - Acme Mobile 3
-                  - Acme Mobile 4
-            - cells:
-                sheet: Mobile
-                column: B
-                from_row: 2
-                values:
-                  - 40 GB
-                  - 20 GB
-                  - ""
-                  - 20 GB
-            - cells:
-                sheet: Mobile
-                column: C
-                from_row: 2
-                values:
-                  - 17
-                  - 21
-                  - 22
-                  - 54
-            - formula:
-                sheet: Mobile
-                cell: D2
-                regex: ^=C2\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D3
-                regex: ^=C3\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D4
-                regex: ^=C4\s*\*\s*12$
-            - formula:
-                sheet: Mobile
-                cell: D5
-                regex: ^=C5\s*\*\s*12$
-            - header:
-                sheet: Office
-                row: 1
-                values:
-                  - Plan
-                  - Allowance
-                  - Monthly price (USD)
-                  - Yearly price (USD)
-            - rows:
-                sheet: Office
-                count: 6
-            - cells:
-                sheet: Office
-                column: A
-                from_row: 2
-                values:
-                  - Acme Office 1
-                  - Acme Office 2
-                  - Acme Office 3
-                  - Acme Office 4
-                  - Acme Office 5
-                  - Acme Office 6
-            - cells:
-                sheet: Office
-                column: B
-                from_row: 2
-                values:
-                  - unlimited
-                  - 100 GB
-                  - 50 GB
-                  - 100 GB
-                  - 50 GB
-                  - 50 GB
-            - cells:
-                sheet: Office
-                column: C
-                from_row: 2
-                values:
-                  - 27
-                  - 61
-                  - 33
-                  - 11
-                  - 58
-                  - 38
-            - formula:
-                sheet: Office
-                cell: D2
-                regex: ^=C2\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D3
-                regex: ^=C3\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D4
-                regex: ^=C4\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D5
-                regex: ^=C5\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D6
-                regex: ^=C6\s*\*\s*12$
-            - formula:
-                sheet: Office
-                cell: D7
-                regex: ^=C7\s*\*\s*12$
+                  - 816
+                  - 264
+                  - 540
+                  - 768
+                  - 648
+                  - 204
+                  - 672
+                  - 228
+                  - 348
             - no_error_cells: true
       workspace:
         created:
@@ -454,27 +288,269 @@ blocks:
       steps: 20
       cost_usd: 0.5
       latency_ms: 180000
+  - id: summary
+    user: In out/acme-price-sheet.xlsx, add a sheet called Summary that names the cheapest plan per category, with the columns Category, Plan and Monthly price (USD), one row per category in the order the categories first appear in the catalog and each category written as its sheet is named. When two plans cost the same, keep the one listed first. Change nothing else.
+    expect:
+      stage: add_summary
+      skills:
+        - name: xlsx
+          count:
+            min: 1
+      guards:
+        - name: no_destructive_ops
+          verdict: pass
+      execution:
+        ran_code: true
+        exit_code: 0
+      safety:
+        max_destructive_ops: 0
+        confirm_before:
+          - delete
+          - overwrite
+      artifacts:
+        - path: out/acme-price-sheet.xlsx
+          kind: xlsx
+          checks:
+            - sheets:
+                - Office
+                - Home
+                - Summary
+            - header:
+                sheet: Office
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Office
+                count: 18
+            - cells:
+                sheet: Office
+                column: A
+                from_row: 2
+                values:
+                  - Acme Office 1
+                  - Acme Office 2
+                  - Acme Office 3
+                  - Acme Office 4
+                  - Acme Office 5
+                  - Acme Office 6
+                  - Acme Office 7
+                  - Acme Office 8
+                  - Acme Office 9
+                  - Acme Office 10
+                  - Acme Office 11
+                  - Acme Office 12
+                  - Acme Office 13
+                  - Acme Office 14
+                  - Acme Office 15
+                  - Acme Office 16
+                  - Acme Office 17
+                  - Acme Office 18
+            - cells:
+                sheet: Office
+                column: B
+                from_row: 2
+                values:
+                  - 250 GB
+                  - 100 GB
+                  - 250 GB
+                  - 250 GB
+                  - unlimited
+                  - ""
+                  - 100 GB
+                  - 50 GB
+                  - 100 GB
+                  - 50 GB
+                  - 50 GB
+                  - 50 GB
+                  - 50 GB
+                  - 50 GB
+                  - 50 GB
+                  - 100 GB
+                  - unlimited
+                  - unlimited
+            - cells:
+                sheet: Office
+                column: C
+                from_row: 2
+                values:
+                  - 35
+                  - 72
+                  - 17
+                  - 21
+                  - 27
+                  - 61
+                  - 69
+                  - 33
+                  - 11
+                  - 58
+                  - 38
+                  - 24
+                  - 22
+                  - 27
+                  - 84
+                  - 57
+                  - 36
+                  - 34
+            - cells:
+                sheet: Office
+                column: D
+                from_row: 2
+                values:
+                  - 420
+                  - 864
+                  - 204
+                  - 252
+                  - 324
+                  - 732
+                  - 828
+                  - 396
+                  - 132
+                  - 696
+                  - 456
+                  - 288
+                  - 264
+                  - 324
+                  - 1008
+                  - 684
+                  - 432
+                  - 408
+            - header:
+                sheet: Home
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Home
+                count: 9
+            - cells:
+                sheet: Home
+                column: A
+                from_row: 2
+                values:
+                  - Acme Home 1
+                  - Acme Home 2
+                  - Acme Home 3
+                  - Acme Home 4
+                  - Acme Home 5
+                  - Acme Home 6
+                  - Acme Home 7
+                  - Acme Home 8
+                  - Acme Home 9
+            - cells:
+                sheet: Home
+                column: B
+                from_row: 2
+                values:
+                  - 1000 Mbps
+                  - 500 Mbps
+                  - 500 Mbps
+                  - 500 Mbps
+                  - 300 Mbps
+                  - 100 Mbps
+                  - 300 Mbps
+                  - 100 Mbps
+                  - 300 Mbps
+            - cells:
+                sheet: Home
+                column: C
+                from_row: 2
+                values:
+                  - 68
+                  - 22
+                  - 45
+                  - 64
+                  - 54
+                  - 17
+                  - 56
+                  - 19
+                  - 29
+            - cells:
+                sheet: Home
+                column: D
+                from_row: 2
+                values:
+                  - 816
+                  - 264
+                  - 540
+                  - 768
+                  - 648
+                  - 204
+                  - 672
+                  - 228
+                  - 348
+            - header:
+                sheet: Summary
+                row: 1
+                values:
+                  - Category
+                  - Plan
+                  - Monthly price (USD)
+            - rows:
+                sheet: Summary
+                count: 2
+            - cells:
+                sheet: Summary
+                column: A
+                from_row: 2
+                values:
+                  - Office
+                  - Home
+            - cells:
+                sheet: Summary
+                column: B
+                from_row: 2
+                values:
+                  - Acme Office 9
+                  - Acme Home 6
+            - cells:
+                sheet: Summary
+                column: C
+                from_row: 2
+                values:
+                  - 11
+                  - 17
+            - no_error_cells: true
+      workspace:
+        created: []
+        changed:
+          - out/acme-price-sheet.xlsx
+        deleted: []
+        others_untouched: true
+      must:
+        - acme-price-sheet\.xlsx
+    budget:
+      steps: 15
+      cost_usd: 0.5
+      latency_ms: 180000
 metadata:
   family:
     id: acme-price-sheet
-    family_sha256: 2222640acdfb55641addd960011d87570ed387a613886dc5143f075267b522da
-    oracle_sha256: 2d8692b70af5c67ee9b8214b953506fed776b201308675b1cb3c151fda0ec257
-    review: pending
+    family_sha256: 1e37ebb12716364465b0bcc9b340c3231347e9cf9bcdcbb45b4bb406cc975847
+    oracle_sha256: 984c79bca3bd9204456a066b482560aa1d01b052b5e7dc0fff440349d5de667e
+    review: signed
     instance: i12
     instance_seed: 3218579706
     run_seed: 1
     knobs:
-      categories: 4
+      categories: 2
       column_order: catalog
       language: EN
-      line_endings: lf
-      plans: 20
-      planted: with
-      readme_name: ABOUT.txt
-      seed_format: json
-      summary: without
-      wording: a
+      line_endings: crlf
+      plans: 27
+      planted: without
+      readme_name: readme.txt
+      seed_format: csv
+      start: catalog-only
+      summary: with
+      wording: c
       workbook: out/acme-price-sheet.xlsx
-      yearly: formula
+      yearly: value
     variant: empty-cell
     corner: empty-cell

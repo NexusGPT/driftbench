@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   abundances,
+  betaQuantile,
   chaoCoverage,
   designEffect,
   goodTuring,
@@ -93,7 +94,7 @@ describe('icc and the measured design effect', () => {
 });
 
 describe('neymanAllocation', () => {
-  it('allocates in proportion to N_h S_h with largest-remainder rounding', () => {
+  it('allocates the whole numbers that minimise the stratified variance, matching the reference', () => {
     for (const c of fixtures.neyman) {
       const r = neymanAllocation(c);
       r.exact.forEach((x, i) => {
@@ -145,5 +146,137 @@ describe('goodTuring, chaoCoverage and hillNumbers', () => {
   });
   it('counts abundances from labels', () => {
     expect(abundances(['a', 'b', 'a', 'c', 'a']).sort()).toEqual([1, 1, 3]);
+  });
+});
+
+describe('varianceComponents is stable under a common offset', () => {
+  it('adding 1e9 to every value leaves the estimates unchanged', () => {
+    let state = 12345;
+    const draw = (): number => {
+      state = (state * 1664525 + 1013904223) % 4294967296;
+      return state / 4294967296;
+    };
+    const obs = Array.from({ length: 120 }, (_, i) => ({
+      value: draw() + (i % 4),
+      path: [String(i % 4), String(i % 12), String(i % 2)],
+    }));
+    const a = varianceComponents(obs).components.map((c) => c.estimate);
+    const b = varianceComponents(obs.map((o) => ({ ...o, value: o.value + 1e9 }))).components.map(
+      (c) => c.estimate,
+    );
+    a.forEach((x, i) => {
+      expect(Math.abs((b[i] as number) - x)).toBeLessThan(1e-5 * Math.max(1, Math.abs(x)));
+    });
+  });
+});
+
+describe('hillNumber near q = 1', () => {
+  it('is continuous in q', () => {
+    const c = [40, 12, 7, 3, 3, 2, 2, 1, 1, 1];
+    const q1 = hillNumber(c, 1);
+    for (const q of [1 + 1e-12, 1 - 1e-12, 1 + 1e-7]) {
+      expect(Math.abs(hillNumber(c, q) - q1) / q1).toBeLessThan(1e-6);
+    }
+  });
+  it('still gives the closed form at q = 2', () => {
+    expect(hillNumber([1, 1], 2)).toBeCloseTo(2, 12);
+    expect(hillNumber([3, 1], 2)).toBeCloseTo(1 / (0.75 ** 2 + 0.25 ** 2), 12);
+  });
+});
+
+describe('betaQuantile in the lower tail of a U-shaped beta', () => {
+  it('keeps its relative accuracy', () => {
+    const got = betaQuantile(1e-6, 0.5, 0.5);
+    expect(Math.abs(got - 2.46740110027031e-12) / 2.46740110027031e-12).toBeLessThan(1e-6);
+  });
+});
+
+describe('neymanAllocation at scale', () => {
+  const strataOf = (count: number) => {
+    const sizes = Array.from({ length: count }, (_, i) => 1 + (i % 100));
+    const sds = sizes.map((_, i) => ((i * 7919) % 1000) / 1000 + 0.001);
+    return { sizes, sds };
+  };
+
+  it('allocates 1e6 units over 1e5 strata and sums to the total', () => {
+    const r = neymanAllocation({ ...strataOf(100_000), total: 1_000_000 });
+    expect(r.allocated.reduce((a, b) => a + b, 0)).toBe(1_000_000);
+  });
+
+  /**
+   * Counts the element reads and writes of every array the allocation derives from its sizes. An array
+   * method such as map builds its result through the species constructor of its source, so sizes that
+   * name a counting constructor hand it on to the weights, the allocation and the heap.
+   */
+  function elementAccesses(strata: number): number {
+    let accesses = 0;
+    const isIndex = (key: string | symbol) => typeof key === 'string' && /^\d+$/.test(key);
+    const handler: ProxyHandler<unknown[]> = {
+      get(target, key, receiver) {
+        if (isIndex(key)) accesses += 1;
+        return Reflect.get(target, key, receiver);
+      },
+      set(target, key, value, receiver) {
+        if (isIndex(key)) accesses += 1;
+        return Reflect.set(target, key, value, receiver);
+      },
+    };
+    const species = { [Symbol.species]: Counted };
+    const mark = <T>(list: T[]): T[] => Object.defineProperty(list, 'constructor', { value: species });
+    function Counted(length: number): unknown[] {
+      return new Proxy(mark(new Array(length)), handler);
+    }
+    const { sizes, sds } = strataOf(strata);
+    const total = strata * 10;
+    const r = neymanAllocation({ sizes: mark(sizes), sds, total });
+    expect(r.allocated.reduce((a, b) => a + b, 0)).toBe(total);
+    // The counter is live: each unit past the first of a stratum costs at least one counted write.
+    expect(accesses).toBeGreaterThan(total);
+    return accesses;
+  }
+
+  it('does work that grows near linearly with the problem, not with units times strata', () => {
+    // Four times the strata and four times the units. One heap step per unit grows the count by a little
+    // over four; a scan of every stratum per unit grows it by sixteen.
+    const growth = elementAccesses(2000) / elementAccesses(500);
+    expect(growth).toBeGreaterThan(3);
+    expect(growth).toBeLessThan(8);
+  });
+});
+
+describe('varianceComponents on constant and binary data', () => {
+  const rowsOf = (values: boolean[]) =>
+    values.map((value, i) => ({ value, path: [String(i % 2), String(i % 4), String(i % 8)] }));
+  it('gives exactly 0 for every component when all values are equal', () => {
+    for (const v of [true, false]) {
+      const r = varianceComponents(rowsOf(Array.from({ length: 24 }, () => v)));
+      for (const c of r.components) expect(c.estimate).toBe(0);
+    }
+  });
+  it('gives exactly 0 for the repeat component when the repeats of each wording agree', () => {
+    const grid = [
+      [
+        [true, true, true],
+        [true, true, true],
+        [true, true, true],
+      ],
+      [
+        [false, false, false],
+        [true, false, true],
+        [true, true, true],
+      ],
+    ];
+    const obs = grid.flatMap((cell, c) =>
+      cell.flatMap((conv, v) =>
+        conv.flatMap((pass, w) =>
+          [0, 1, 2, 3, 4].map(() => ({ value: pass, path: [`cell-${c}`, `conv-${c}-${v}`, String(w)] })),
+        ),
+      ),
+    );
+    const r = varianceComponents(obs);
+    for (const c of r.components.slice(-1)) {
+      expect(c.estimate).toBe(0);
+      expect(c.variance).toBe(0);
+    }
   });
 });

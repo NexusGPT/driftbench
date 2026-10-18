@@ -1,6 +1,11 @@
 import { fileURLToPath } from 'node:url';
-import { defaultReaders } from '@driftbench/artifacts';
-import { type ArtifactExpect, type ArtifactReaderRegistry, loadSpecFile, type Spec } from '@driftbench/core';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import {
+  type ArtifactExpect,
+  type ArtifactReaderRegistry,
+  loadSpecFile,
+  type Spec,
+} from '@agent-nexus/driftbench-core';
 import type ExcelJS from 'exceljs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { parseCsv } from '../src/csv';

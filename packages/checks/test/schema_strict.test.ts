@@ -1,4 +1,4 @@
-import type { Spec } from '@driftbench/core';
+import type { Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { schemaStrict } from '../src/checks/schema_strict';
 import { validateStrict } from '../src/support/schema';

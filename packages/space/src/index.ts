@@ -1,5 +1,5 @@
 /**
- * @driftbench/space: the declared map of situations an agent can face (dimensions, values, constraints, a prior),
+ * @agent-nexus/driftbench-space: the declared map of situations an agent can face (dimensions, values, constraints, a prior),
  * coverage counted per cell from specs, t-wise coverage and the completeness line. Phase G.
  */
 export {
@@ -81,5 +81,33 @@ export {
   SpaceValue,
 } from './schema';
 export { DEVIATION_TITLES, formatSpaceMap, fromInventory, type SeedOptions } from './seed';
+export {
+  spaceMapToVariables,
+  type VariablesToSpaceMapOptions,
+  variablesToSpaceMap,
+} from './variables/convert';
+export {
+  loadVariableStore,
+  parseVariableStoreText,
+  type VariableStoreIssue,
+  type VariableStoreIssueCode,
+  VariableStoreIssueCodes,
+  type VariableStoreResult,
+  validateVariableStore,
+} from './variables/load';
+export { type ProvenanceEntry, variableProvenance } from './variables/provenance';
+export {
+  ConversationsProvenance,
+  LedgerId,
+  OwnerProvenance,
+  QuoteProvenance,
+  Variable,
+  VariableBoundary,
+  VariableConstraint,
+  VariablePrior,
+  VariableProvenance,
+  VariableStore,
+  VariableValue,
+} from './variables/schema';
 
-export const packageName = '@driftbench/space';
+export const packageName = '@agent-nexus/driftbench-space';

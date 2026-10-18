@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-10-14T10:29:42.647273+00:00",
+  "authorized_by": "Owner instruction received during main pass, after 2 of 1272 cases completed",
+  "instruction": "After the main pass, retry each timed-out call once with the same frozen settings, on both sides, at concurrency 3. Report counts before and after. A timeout is a missing answer, not a verdict.",
+  "supersedes": {
+    "manifest": "power-freeze.json",
+    "rules": [
+      "retries=0 for timeouts only",
+      "failures=count incorrect for timeouts"
+    ]
+  },
+  "concurrency": 3,
+  "max_attempts_per_timedout_request": 2,
+  "total_cap_usd_including_main_and_retries": 10,
+  "preserved": "All judge settings, prompts, sources, model and corpus remain frozen",
+  "successful_stages": "Replay unchanged",
+  "previously_unreached_stages": "Execute once only when an authorized timeout retry enables them",
+  "non_timeout_errors": "No retry",
+  "paired_analysis": "Exclude any case missing a valid verdict on either side; report excluded count and per-side missing separately",
+  "retry_runner_sha256": "306a02a3036211b6bda3637e22b1897035a1b33c547abf8c29a7605111b6eba3"
+}

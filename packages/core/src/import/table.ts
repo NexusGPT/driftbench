@@ -50,7 +50,8 @@ export type ImportResult = { specs: ImportedSpec[]; errors: ImportError[] };
 const MAPPING_KEYS = new Set(['sheet', 'header_row', 'group_by', 'spec', 'block']);
 const DIRECTIVE_KEYS = new Set(['$column', '$split', '$list', '$as']);
 const CONVERSIONS = new Set(['text', 'number', 'boolean', 'json']);
-const PLACEHOLDER = /\{(\{|[^{}]+)\}/g;
+/** `{{` (two opening braces in a row, written as one) or `{column}`. */
+const PLACEHOLDER = /\{\{|\{([^{}]+)\}/g;
 const ROW = 'row';
 
 /** Parses and checks a mapping file. Never throws on bad input. */
@@ -218,8 +219,8 @@ function interpolate(template: string, read: (name: string) => TableCell | numbe
     return value === null || value === '' ? OMIT : value;
   }
   let empty = false;
-  const text = template.replace(PLACEHOLDER, (_match, name: string) => {
-    if (name === '{') return '{';
+  const text = template.replace(PLACEHOLDER, (match: string, name: string | undefined) => {
+    if (match === '{{' || name === undefined) return '{';
     const value = read(name.trim());
     if (value === null || value === '') empty = true;
     return cellText(value);
@@ -294,8 +295,8 @@ function checkDirectives(template: unknown, path: string, errors: string[]): voi
 function columnsOf(template: unknown): string[] {
   if (typeof template === 'string') {
     return [...template.matchAll(PLACEHOLDER)]
-      .map((match) => (match[1] ?? '').trim())
-      .filter((name) => name !== '{');
+      .filter((match) => match[1] !== undefined)
+      .map((match) => (match[1] ?? '').trim());
   }
   if (Array.isArray(template)) return template.flatMap(columnsOf);
   if (isDirective(template)) return [String(template.$column)];

@@ -1,0 +1,227 @@
+{
+  "counts": {
+    "gemini-3.5-flash-lite": {
+      "driftbench-verify-uncertainty-cascade": {
+        "all": {
+          "answerEnvelopes": 5,
+          "affectedItems": 5,
+          "items": [
+            {
+              "phase": "test",
+              "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911"
+            },
+            {
+              "phase": "test",
+              "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875"
+            },
+            {
+              "phase": "test",
+              "id": "7fd9d80b188fd0e511568ce4eaf9823b_907c854eb1ea880801b52abe25e62acf"
+            },
+            {
+              "phase": "test",
+              "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804"
+            },
+            {
+              "phase": "test",
+              "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442"
+            }
+          ]
+        },
+        "test": {
+          "answerEnvelopes": 5,
+          "affectedItems": 5,
+          "items": [
+            {
+              "phase": "test",
+              "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911"
+            },
+            {
+              "phase": "test",
+              "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875"
+            },
+            {
+              "phase": "test",
+              "id": "7fd9d80b188fd0e511568ce4eaf9823b_907c854eb1ea880801b52abe25e62acf"
+            },
+            {
+              "phase": "test",
+              "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804"
+            },
+            {
+              "phase": "test",
+              "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442"
+            }
+          ]
+        }
+      },
+      "promptfoo": {
+        "all": {
+          "answerEnvelopes": 2,
+          "affectedItems": 2,
+          "items": [
+            {
+              "phase": "noise-0",
+              "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec"
+            },
+            {
+              "phase": "noise-2",
+              "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec"
+            }
+          ]
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      }
+    }
+  },
+  "limits": [
+    {
+      "receipt": "cf9a40cb-6ebc-43f3-b288-75a018c90127",
+      "model": "gemini-3.5-flash-lite",
+      "phase": "noise-0",
+      "reason": "MAX_TOKENS",
+      "at": "2026-10-13T12:46:21.984Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "gemini-3.5-flash-lite",
+          "key": "a15b39eed90343afc877",
+          "fingerprint": "729474bb982819c1740f2d89d1a4fd887522212f2bcbcf1f356896f318663058",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "69c4bd31-065e-4404-84de-04c1f091a20d",
+      "model": "gemini-3.5-flash-lite",
+      "phase": "noise-2",
+      "reason": "MAX_TOKENS",
+      "at": "2026-10-13T12:53:18.251Z",
+      "consumers": [
+        {
+          "phase": "noise-2",
+          "model": "gemini-3.5-flash-lite",
+          "key": "a15b39eed90343afc877",
+          "fingerprint": "729474bb982819c1740f2d89d1a4fd887522212f2bcbcf1f356896f318663058",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "ca131b9e-4b16-4818-a5ac-0c7b73c16e44",
+      "model": "gemini-3.5-flash-lite",
+      "phase": "test",
+      "reason": "MAX_TOKENS",
+      "at": "2026-10-13T12:54:35.206Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "gemini-3.5-flash-lite",
+          "key": "d1e8cc69ccaedf09b89e",
+          "fingerprint": "51a239e4660dc7830db082a88983c626c850d6d3d75cee0d0517c302e70631ca",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "8c7b73d2-a9ce-44ba-9ebc-3fb8fc5748dc",
+      "model": "gemini-3.5-flash-lite",
+      "phase": "test",
+      "reason": "MAX_TOKENS",
+      "at": "2026-10-13T12:55:04.346Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "gemini-3.5-flash-lite",
+          "key": "b93a5932bd8b7ed3bbc6",
+          "fingerprint": "d6fc91394c63b3201ff4c3cf3531dfd6c58c6fdcbbc03cf05cfbd2817e7d2309",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "e9a8b518-82e8-4352-b52d-ed3689659eb6",
+      "model": "gemini-3.5-flash-lite",
+      "phase": "test",
+      "reason": "MAX_TOKENS",
+      "at": "2026-10-13T12:56:12.268Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "gemini-3.5-flash-lite",
+          "key": "2bad09cf44c7cd034d31",
+          "fingerprint": "03c1389ad3e547ddc9d893b75e808926867215381b88e399bd3124693a09b5be",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "ec72de4f-9691-4d7f-bd92-8ba4d8644b54",
+      "model": "gemini-3.5-flash-lite",
+      "phase": "test",
+      "reason": "MAX_TOKENS",
+      "at": "2026-10-13T12:58:32.697Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "gemini-3.5-flash-lite",
+          "key": "297921387a5c9a8aa4d6",
+          "fingerprint": "44b9cad5738faaa7193bcfeeecb13a9a9c99388f0d1e069e24e6744862aa4890",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "bcc130ba-27a9-427e-9d71-fd0591b47f3c",
+      "model": "gemini-3.5-flash-lite",
+      "phase": "test",
+      "reason": "MAX_TOKENS",
+      "at": "2026-10-13T13:00:44.123Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "gemini-3.5-flash-lite",
+          "key": "3a9df2c42655bdb0da96",
+          "fingerprint": "ca4b2341f9bfc42c39c590d7337e630762882a97d813897500dfc9f3b521bd6d",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "7fd9d80b188fd0e511568ce4eaf9823b_907c854eb1ea880801b52abe25e62acf",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    }
+  ],
+  "unmappedLimits": [],
+  "unclassifiedHistoricalNativeErrors": [],
+  "rule": "Strict is primary; any confirmed output limit makes every consuming contestant/item an error. Product-final preserves the original verdict, including fallback.",
+  "source": "evidence/scoring-freeze.json; evidence/request-attribution.json; receipts/calls.jsonl; receipts/errors.jsonl; receipts/native/*.json"
+}

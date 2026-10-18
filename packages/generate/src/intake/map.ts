@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { loadSpaceMap } from '@driftbench/space';
+import { loadSpaceMap } from '@agent-nexus/driftbench-space';
 import { parse as parseYaml } from 'yaml';
 import { loadProposal, valueApproved } from '../extract/proposal';
 
@@ -7,7 +7,7 @@ import { loadProposal, valueApproved } from '../extract/proposal';
  * The map as intake reads it: the approved dimensions, values, constraints and phrases. A map is either a
  * proposal from `driftbench extract` (only its approved entries count, the owner's rule: nothing counts
  * until a person approves it; a value inherits its dimension's flag unless it sets its own) or a
- * hand-written space map from `@driftbench/space` (all of it counts, every dimension an axis).
+ * hand-written space map from `@agent-nexus/driftbench-space` (all of it counts, every dimension an axis).
  */
 
 export type IntakeValue = { id: string; title: string };

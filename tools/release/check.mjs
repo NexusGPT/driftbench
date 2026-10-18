@@ -10,8 +10,8 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SCOPE = '@driftbench/';
-const LICENSE = 'Apache-2.0';
+const SCOPE = '@agent-nexus/driftbench';
+const LICENSE = 'MIT';
 const REPO_URL = 'git+https://github.com/achammah/driftbench.git';
 
 const JUNK = [
@@ -41,7 +41,7 @@ export function checkManifest(dir, manifest, { readme }) {
   const problems = [];
   const where = `${dir}/package.json`;
   const short = dir.split('/').pop();
-  const expectedName = short === 'cli' ? `${SCOPE}cli` : `${SCOPE}${short}`;
+  const expectedName = short === 'cli' ? SCOPE : `${SCOPE}-${short}`;
   if (manifest.name !== expectedName)
     problems.push(`${where}: name is ${manifest.name}, expected ${expectedName}`);
   if (manifest.private) problems.push(`${where}: private is set, so it cannot be published`);

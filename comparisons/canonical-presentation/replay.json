@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "replaySpendUsd": 0,
+  "modelCalls": 0,
+  "currentApi": {
+    "importedFrom": "@agent-nexus/driftbench-judges",
+    "tsxResolution": "tsconfig source alias to packages/judges/src/index.ts",
+    "pairwiseSourceSha256": "6f97ca6871a149330bd6d74c09eedcbc0f322362919c435a68ba666cb82df1cf",
+    "syntheticPrimaryCallProbe": {
+      "canonical": 1,
+      "defaultBothOrders": 2,
+      "includesRetries": false
+    }
+  },
+  "candidateExecutions": 0,
+  "source": {
+    "revision": "8c1d1ca707d6505028a4e0db80c937dd6cfaef71",
+    "originalRef": "origin/codex/rb-judge",
+    "filesSha256": {
+      "examples/judge-benchmarks/src/rubric-atomic.ts": "0009d0ba79ad509898ada626e7e09d8b6734ba4ae615a8c1d8c9ba462ac97ea3",
+      "examples/judge-benchmarks/src/data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
+      "examples/judge-benchmarks/src/code-evidence.ts": "7552ea80f292ca33c292142910b2556094a19cf44d7d85942a2de98f92bc0929",
+      "examples/judge-benchmarks/src/json.ts": "c90d969e2b454052187f451c83f1a3f640b720a29a6d71c181a4a81a32d3e395",
+      "examples/judge-benchmarks/src/rubric-items.ts": "b23fcd163c36d9d01e2ddbb669f0b746eca70f22d1cfc7cfcfde744db9aefe6a",
+      "examples/judge-benchmarks/recordings/rubricbench/haiku-000.jsonl": "dea06188635cb8fe19700a15b007f6ea5a3f9b251d8928b3188e7a730850520d",
+      "examples/judge-benchmarks/recordings/rubricbench/haiku-001.jsonl": "f941f957c9c9261aa11e24b3c539671d54011bfd36ce92015094957041400db6",
+      "examples/judge-benchmarks/recordings/rubricbench/haiku-002.jsonl": "38bb3aa6cf68a152152729f10921ae25ae688fd10b1924872bb4fc1b2cbec21d",
+      "examples/judge-benchmarks/recordings/rubricbench/haiku-003.jsonl": "17abd2731fab7ff51524d09f90deaf7079800086604c41dbb2eee75d2b963203",
+      "examples/judge-benchmarks/recordings/rubricbench/haiku-004.jsonl": "0a2e604f3c56b2d1e3b1ec45a9125572df4946ce2217ab8cc720ab7fdc559bed",
+      "examples/judge-benchmarks/experiments/rb/execution.jsonl": "ccbb975daa39c007a3538f05b48af3cc0f44dd95e6da4ec6e5e1b1022e140496",
+      "packages/judges/src/contract.ts": "c8e95fa05cd96c675dbdf51c36eac097062c229ca3798ceca52cad963025d8d2",
+      "examples/judge-benchmarks/experiments/rb/audit.json": "51e3bebaa9b15bdd2168d9dfe6202d6d9c03ce588e77a38089598b63c2b179fc",
+      "examples/judge-benchmarks/experiments/rb/atomic-executed-dev.json": "fef8c02c5eebca9fa5c59a054a048bd2312f31cabafd580d38b0958e5759a69f",
+      "examples/judge-benchmarks/experiments/rb/baselines.json": "b65696f9526c16c585983e084b10a17bf5ef0936eae4e467f99391c3f8266e4c"
+    }
+  },
+  "dataset": {
+    "url": "https://datasets-server.huggingface.co/rows?dataset=DonJoey/rubricbench&config=default&split=train",
+    "totalRows": 1147,
+    "devItems": 357,
+    "split": "SHA256('split:rubricbench:' + id)[0] < 77",
+    "sortedDevIdsSha256": "8f421eadc26f082406fb7e58fb6e6e688c97b6731af42e961242768aefadc323",
+    "normalizedDevSha256": "f472f9d91180680397a063166b9c02920948356092fdcf1639b957bebc64b66d",
+    "cache": ".cache/canonical-replay/rows-*.json",
+    "redistribution": "Dataset rows are not committed; license not established by this replay."
+  },
+  "canonicalAtomicExecuted": {
+    "items": 357,
+    "reusedIdentityMappings": 357,
+    "nonTieReusedJudgements": 344,
+    "ties": 13,
+    "correct": 294,
+    "accuracy": 0.8235294117647058,
+    "invalidParse": 3,
+    "countMismatch": 3,
+    "apiInvocations": 714,
+    "adapterCalls": 714,
+    "uniqueHistoricalCalls": 357,
+    "historicalCostUsd": 0.59679915
+  },
+  "historicalAdaptiveBothOrders": {
+    "items": 357,
+    "decisiveConsistent": 328,
+    "identityConsistentIncludingTies": 328,
+    "bothTies": 0,
+    "correctGames": 580,
+    "totalGames": 714,
+    "invalidSamples": 31,
+    "routeCalls": 357,
+    "referenceCalls": 87,
+    "sampleCalls": 2142,
+    "uniqueHistoricalCalls": 2586,
+    "historicalCostUsd": 2.34737535,
+    "validation": "Metadata-selected dev item, model, contestant and order; exact historical prompt keys not reconstructed."
+  },
+  "crossProcedureCostRatio": 0.25424103989163893,
+  "controlledAtomicCoverage": {
+    "procedure": "Atomic binary, no execution evidence, both raw candidate orders",
+    "completePairs": 8,
+    "population": 357,
+    "fullPopulationComparison": false,
+    "replay": {
+      "selection": "Opportunistic complete-recording subset; no population inference.",
+      "sortedIdsSha256": "6763a5327bb57e80feda9e1705d10cf7c57e821220fa69acc5b3d5d391856973",
+      "defaultBothOrders": {
+        "apiInvocations": 8,
+        "adapterCalls": 16,
+        "consistent": 7,
+        "positionBias": 1,
+        "ties": 1,
+        "uniqueHistoricalCalls": 16,
+        "historicalCostUsd": 0.02840305,
+        "invalidRawParses": 0
+      },
+      "canonical": {
+        "apiInvocations": 16,
+        "adapterCalls": 16,
+        "reusedIdentityMappings": 8,
+        "nonTieReusedJudgements": 8,
+        "ties": 0,
+        "uniqueHistoricalCalls": 8,
+        "historicalCostUsd": 0.01384448,
+        "invalidRawParses": 0,
+        "rubricCountMismatches": 0
+      }
+    }
+  },
+  "limitations": [
+    "The adapter translates new public API requests into historical atomic prompts. It verifies ordering and identity mapping, not current prompt quality.",
+    "Canonical reversed callers reuse one judgement. Their mapped identity is a replay check, with no consistency measurement.",
+    "The canonical 96.36 percent figure counts 344 non-tie reused judgements out of 357; it does not measure consistency.",
+    "The cost ratio compares different procedures: atomic plus recorded execution evidence versus routing, optional reference and three samples per order. It is not a canonical-only saving.",
+    "Dev data was used to tune the historical judges. These are not held-out generalization results.",
+    "Recorded execution evidence is reused verbatim. No candidate is run, and these observations are not a proof of correctness.",
+    "Adaptive samples are matched by metadata, not reconstructed exact prompt keys.",
+    "Only 8 of 357 dev pairs have both raw orders of the same atomic prompt recorded. No full-population controlled comparison is available.",
+    "Historical malformed outputs and rubric-count mismatches remain in the historical score and are counted explicitly."
+  ]
+}

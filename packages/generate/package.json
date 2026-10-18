@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/generate",
+  "name": "@agent-nexus/driftbench-generate",
   "version": "0.1.0",
   "description": "Generate driftbench tests from a map of situations: extraction proposal, the deterministic block generator, the validity gate, reference sets and holdout.",
   "keywords": [
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/generate"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22.13"
@@ -35,23 +35,29 @@
     }
   },
   "files": [
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
     "dist"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
-    "zod": "^4.6.5",
+    "@agent-nexus/driftbench-adapters": "workspace:*",
+    "@agent-nexus/driftbench-artifacts": "workspace:*",
+    "@agent-nexus/driftbench-core": "workspace:*",
+    "@agent-nexus/driftbench-space": "workspace:*",
+    "@agent-nexus/driftbench-stats": "workspace:*",
+    "@agent-nexus/driftbench-users": "workspace:*",
+    "smol-toml": "1.3.1",
+    "tsx": "^4.23.15",
     "yaml": "^2.9.1",
-    "@driftbench/space": "workspace:*",
-    "@driftbench/stats": "workspace:*",
-    "@driftbench/checks": "workspace:*",
-    "@driftbench/adapters": "workspace:*",
-    "@driftbench/artifacts": "workspace:*",
-    "@driftbench/sandbox": "workspace:*",
-    "@driftbench/store": "workspace:*",
-    "@driftbench/users": "workspace:*"
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@agent-nexus/driftbench-checks": "workspace:*",
+    "@agent-nexus/driftbench-sandbox": "workspace:*",
+    "@agent-nexus/driftbench-store": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

@@ -2,13 +2,13 @@
 
 Status: shipped, release phase. It passes the [contract suite](index.md#the-contract-suite) in chat mode twice, on a fake graph compiled with a checkpointer and without one, and on a real LangGraph `StateGraph` with a real `ToolNode`. It has not run against a live model yet.
 
-The langgraph adapter runs an agent built as a LangGraph graph: a compiled `StateGraph(MessagesAnnotation)`, or a prebuilt `createReactAgent`, whose state holds a `messages` list. LangGraph is not a dependency of driftbench: the adapter takes your compiled graph and types it with a local interface. `@langchain/langgraph` is an optional peer dependency of `@driftbench/adapters`; the shapes match version 1.4.21 with `@langchain/core` 1.2.17.
+The langgraph adapter runs an agent built as a LangGraph graph: a compiled `StateGraph(MessagesAnnotation)`, or a prebuilt `createReactAgent`, whose state holds a `messages` list. LangGraph is not a dependency of driftbench: the adapter takes your compiled graph and types it with a local interface. `@langchain/langgraph` is an optional peer dependency of `@agent-nexus/driftbench-adapters`; the shapes match version 1.4.21 with `@langchain/core` 1.2.17.
 
 ## Options
 
 ```ts
 import { MemorySaver } from '@langchain/langgraph';
-import { langgraphAdapter } from '@driftbench/adapters';
+import { langgraphAdapter } from '@agent-nexus/driftbench-adapters';
 import { workflow } from './agent'; // your StateGraph(MessagesAnnotation), with its tool node
 
 const graph = workflow.compile({ checkpointer: new MemorySaver() });
@@ -54,7 +54,7 @@ The block's turn is what the returned `messages` hold after the last user messag
 
 ## Capabilities
 
-`seedPrefix` is on. `toolStubs` is off: the graph runs its own tool node, so a forced result in `world.tools` does not reach it. `endState` is on when `sideEffects` is given or the graph has a checkpointer. `deterministic` is as declared. `variants`, `trace` and `sandbox` are off.
+`seedPrefix` is on. `toolStubs` is off: the graph runs its own tool node, so a block with a forced result in `world.tools` is `not_run`. `endState` is on when `sideEffects` is given or the graph has a checkpointer. `deterministic` is as declared. `variants`, `trace` and `sandbox` are off.
 
 A block's `budget.steps` is not mapped: a super-step is not a model call. `recursionLimit` is the graph's own cap.
 
@@ -71,7 +71,7 @@ In a checkpointed session, the thread, not the runner's history, is what the age
 
 | Error | Becomes |
 |---|---|
-| a 429 or any 5xx status, or a network error (refused, reset, timed out, `fetch failed`), in the error or its causes | `AdapterTransportError`: the runner retries the block under the [shared policy](../retries.md) |
+| a 408, 429 or any 5xx status, or a network error (refused, reset, timed out, `fetch failed`), in the error or its causes | `AdapterTransportError`: the runner retries the block under the [shared policy](../retries.md) |
 | `GraphRecursionError`, any other error | `AgentFailure` |
 | a state with no `messages` list | `AgentFailure` |
 

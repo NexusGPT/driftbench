@@ -144,6 +144,10 @@ describe('the check registry, any column set', () => {
       ['W5', 'claim-window.py', 'observe'],
       ['HANDBACK', 'claim-window.py', 'observe'],
       ['STOP-WAKE', 'claim-window.py', 'observe'],
+      ['W6', 'claim-window.py', 'observe'],
+      ['W7', 'block-force-push.sh', 'enforce'],
+      ['W8', 'claim-window.py', 'observe'],
+      ['W9', 'claim-window.py', 'observe'],
     ]);
     expect(raw.registry.find((row) => row.id === 'W2')?.enforces).toEqual([
       { quote: 'Never run `git push --force` on any branch' },
@@ -176,6 +180,46 @@ describe('the check registry, any column set', () => {
       ['G2', 'shell.py', 5],
       ['G3', 'shell.py', 5],
       ['Reply length', 'reply.py', 6],
+    ]);
+  });
+
+  it('maps an adapter short name to the one guard whose file name ends with it, and reads backticked ids among words', async () => {
+    const root = await estate({
+      'CLAUDE.md': '# Rules\n',
+      '.claude/settings.json': JSON.stringify({
+        hooks: {
+          PreToolUse: [
+            {
+              hooks: [
+                { type: 'command', command: '"$CLAUDE_PROJECT_DIR"/.claude/hooks/nexus-fs-firewall.py' },
+              ],
+            },
+            {
+              hooks: [{ type: 'command', command: '"$CLAUDE_PROJECT_DIR"/.claude/hooks/nexus-awareness.py' }],
+            },
+            { hooks: [{ type: 'command', command: '"$CLAUDE_PROJECT_DIR"/.claude/hooks/old-awareness.py' }] },
+          ],
+        },
+      }),
+      '.claude/hooks/nexus-fs-firewall.py': 'pass\n',
+      '.claude/hooks/nexus-awareness.py': 'pass\n',
+      '.claude/hooks/old-awareness.py': 'pass\n',
+      '.claude/hooks/CHECK-REGISTRY.md': [
+        '| id | adapter | event | fires when | rollout |',
+        '|---|---|---|---|---|',
+        '| F1 | fs-firewall | PreToolUse | a write lands outside the root | enforce |',
+        '| A1 | awareness | PreToolUse | a turn starts | observe |',
+        '| `HANDBACK` / `STOP-WAKE` hold | fs-firewall | Stop | a hand back | observe |',
+        '',
+      ].join('\n'),
+    });
+    const raw = await new ClaudeCodeReader().read(root);
+    expect(raw.registry.map((row) => [row.id, row.guard])).toEqual([
+      ['F1', 'nexus-fs-firewall.py'],
+      // Two guards end with -awareness: the short name names neither.
+      ['A1', 'awareness'],
+      ['HANDBACK', 'nexus-fs-firewall.py'],
+      ['STOP-WAKE', 'nexus-fs-firewall.py'],
     ]);
   });
 });

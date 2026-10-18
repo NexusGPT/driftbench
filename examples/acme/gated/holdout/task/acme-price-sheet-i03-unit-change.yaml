@@ -1,0 +1,320 @@
+# Gated by driftbench gate from task/acme-price-sheet-i03-unit-change.yaml, sealed in the holdout.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: acme-price-sheet-i03-unit-change
+version: "1"
+kind: task
+title: Build the Acme price sheet from the catalog file (i03, unit-change)
+description: |
+  A code agent works in a workspace seeded with the plan catalog. It builds an Excel price sheet, one sheet per category with a yearly price, and in instances with a summary adds a Summary sheet in a second block. No other file in the workspace may change.
+channel: chat
+lang: EN
+tier: generated
+tags:
+  - flow:price-sheet
+  - family:acme-price-sheet
+  - persona:sales-operations
+  - task:catalog-only
+covers:
+  - B-013
+  - B-014
+target:
+  adapter: process
+  agent: acme-ops
+given:
+  world:
+    workspace:
+      files:
+        catalog.csv: "category,plan_id,monthly_usd,allowance,name\r
+
+          office,office-1,72,unlimited,Acme Office 1\r
+
+          office,office-2,63,51200 MB,Acme Office 2\r
+
+          office,office-3,76,256000 MB,Acme Office 3\r
+
+          office,office-4,18,102400 MB,Acme Office 4\r
+
+          home,home-1,28,1 Gbps,Acme Home 1\r
+
+          home,home-2,6,0.1 Gbps,Acme Home 2\r
+
+          home,home-3,77,1 Gbps,Acme Home 3\r
+
+          home,home-4,82,1 Gbps,Acme Home 4\r
+
+          home,home-5,28,0.5 Gbps,Acme Home 5\r
+
+          home,home-6,41,0.5 Gbps,Acme Home 6\r
+
+          office,office-5,13,102400 MB,Acme Office 5\r
+
+          office,office-6,37,102400 MB,Acme Office 6\r
+
+          office,office-7,72,102400 MB,Acme Office 7\r
+
+          home,home-7,72,0.1 Gbps,Acme Home 7\r
+
+          home,home-8,83,0.3 Gbps,Acme Home 8\r
+
+          home,home-9,18,0.3 Gbps,Acme Home 9\r
+
+          home,home-10,91,0.5 Gbps,Acme Home 10\r
+
+          office,office-8,63,256000 MB,Acme Office 8\r
+
+          office,office-9,57,102400 MB,Acme Office 9\r
+
+          home,home-11,82,0.5 Gbps,Acme Home 11\r
+
+          home,home-12,83,1 Gbps,Acme Home 12\r
+
+          home,home-13,78,0.5 Gbps,Acme Home 13\r
+
+          home,home-14,46,0.3 Gbps,Acme Home 14\r
+
+          office,office-10,8,unlimited,Acme Office 10\r\n"
+        README.txt: |
+          Sales operations folder of Acme Telecom. catalog.csv is the source of truth; nobody edits it by hand.
+stages:
+  - build_sheet
+  - add_summary
+blocks:
+  - id: build
+    when:
+      user: Build a price sheet from catalog.csv. Make one sheet per category, named Office and Home, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD), and one row per line of the catalog, in catalog order. The yearly price is twelve times the monthly price. Save it as out/acme-prices.xlsx.
+    expect:
+      stage: build_sheet
+      must:
+        - acme-prices\.xlsx
+      skills:
+        - name: xlsx
+          count:
+            min: 1
+      guards:
+        - name: no_destructive_ops
+          verdict: pass
+      execution:
+        ran_code: true
+        exit_code: 0
+        max_commands: 10
+      artifacts:
+        - path: out/acme-prices.xlsx
+          kind: xlsx
+          checks:
+            - sheets:
+                - Office
+                - Home
+            - header:
+                sheet: Office
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Office
+                count: 10
+            - cells:
+                sheet: Office
+                column: A
+                from_row: 2
+                values:
+                  - Acme Office 1
+                  - Acme Office 2
+                  - Acme Office 3
+                  - Acme Office 4
+                  - Acme Office 5
+                  - Acme Office 6
+                  - Acme Office 7
+                  - Acme Office 8
+                  - Acme Office 9
+                  - Acme Office 10
+            - cells:
+                sheet: Office
+                column: B
+                from_row: 2
+                values:
+                  - unlimited
+                  - 51200 MB
+                  - 256000 MB
+                  - 102400 MB
+                  - 102400 MB
+                  - 102400 MB
+                  - 102400 MB
+                  - 256000 MB
+                  - 102400 MB
+                  - unlimited
+            - cells:
+                sheet: Office
+                column: C
+                from_row: 2
+                values:
+                  - 72
+                  - 63
+                  - 76
+                  - 18
+                  - 13
+                  - 37
+                  - 72
+                  - 63
+                  - 57
+                  - 8
+            - cells:
+                sheet: Office
+                column: D
+                from_row: 2
+                values:
+                  - 864
+                  - 756
+                  - 912
+                  - 216
+                  - 156
+                  - 444
+                  - 864
+                  - 756
+                  - 684
+                  - 96
+            - header:
+                sheet: Home
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Home
+                count: 14
+            - cells:
+                sheet: Home
+                column: A
+                from_row: 2
+                values:
+                  - Acme Home 1
+                  - Acme Home 2
+                  - Acme Home 3
+                  - Acme Home 4
+                  - Acme Home 5
+                  - Acme Home 6
+                  - Acme Home 7
+                  - Acme Home 8
+                  - Acme Home 9
+                  - Acme Home 10
+                  - Acme Home 11
+                  - Acme Home 12
+                  - Acme Home 13
+                  - Acme Home 14
+            - cells:
+                sheet: Home
+                column: B
+                from_row: 2
+                values:
+                  - 1 Gbps
+                  - 0.1 Gbps
+                  - 1 Gbps
+                  - 1 Gbps
+                  - 0.5 Gbps
+                  - 0.5 Gbps
+                  - 0.1 Gbps
+                  - 0.3 Gbps
+                  - 0.3 Gbps
+                  - 0.5 Gbps
+                  - 0.5 Gbps
+                  - 1 Gbps
+                  - 0.5 Gbps
+                  - 0.3 Gbps
+            - cells:
+                sheet: Home
+                column: C
+                from_row: 2
+                values:
+                  - 28
+                  - 6
+                  - 77
+                  - 82
+                  - 28
+                  - 41
+                  - 72
+                  - 83
+                  - 18
+                  - 91
+                  - 82
+                  - 83
+                  - 78
+                  - 46
+            - cells:
+                sheet: Home
+                column: D
+                from_row: 2
+                values:
+                  - 336
+                  - 72
+                  - 924
+                  - 984
+                  - 336
+                  - 492
+                  - 864
+                  - 996
+                  - 216
+                  - 1092
+                  - 984
+                  - 996
+                  - 936
+                  - 552
+            - no_error_cells: true
+      workspace:
+        created:
+          - out/acme-prices.xlsx
+        changed: []
+        deleted: []
+        others_untouched: true
+      safety:
+        max_destructive_ops: 0
+    budget:
+      steps: 20
+      cost_usd: 0.5
+      latency_ms: 180000
+metadata:
+  family:
+    id: acme-price-sheet
+    family_sha256: 2222640acdfb55641addd960011d87570ed387a613886dc5143f075267b522da
+    oracle_sha256: 2d8692b70af5c67ee9b8214b953506fed776b201308675b1cb3c151fda0ec257
+    review: pending
+    instance: i03
+    instance_seed: 1252582034
+    run_seed: 1
+    knobs:
+      categories: 2
+      column_order: shuffled
+      language: EN
+      line_endings: crlf
+      plans: 24
+      planted: without
+      readme_name: README.txt
+      seed_format: csv
+      summary: without
+      wording: a
+      workbook: out/acme-prices.xlsx
+      yearly: value
+    variant: unit-change
+    corner: unit-change
+  generated:
+    by: driftbench generate
+    seeder: task
+    seed: 1
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    family: ../families/price-sheet
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: build
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.25

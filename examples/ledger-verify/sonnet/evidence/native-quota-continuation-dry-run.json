@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-13T16:45:35.051Z",
+  "status": "offline original replay identical",
+  "phases": [
+    {
+      "phase": "noise-0",
+      "restored": 0,
+      "supplemental": 0,
+      "firstFinalsPreserved": 60,
+      "newCalls": 0
+    },
+    {
+      "phase": "noise-1",
+      "restored": 0,
+      "supplemental": 0,
+      "firstFinalsPreserved": 60,
+      "newCalls": 0
+    }
+  ]
+}

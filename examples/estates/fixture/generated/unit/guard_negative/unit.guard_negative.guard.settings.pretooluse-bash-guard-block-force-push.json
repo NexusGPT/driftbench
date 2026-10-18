@@ -1,0 +1,28 @@
+{
+  "id": "unit.guard_negative.guard.settings.pretooluse-bash-guard-block-force-push",
+  "planRow": "guard_negative.guard.settings.pretooluse-bash-guard-block-force-push",
+  "testType": "guard_negative",
+  "atom": "guard.settings.pretooluse-bash-guard-block-force-push",
+  "title": "PreToolUse Bash guard block-force-push.sh",
+  "mapHash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10",
+  "target": {
+    "kind": "guard",
+    "name": "block-force-push.sh",
+    "event": "PreToolUse",
+    "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/guards/block-force-push.sh",
+    "matcher": "Bash"
+  },
+  "cases": [
+    {
+      "id": "case-01",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "ls",
+          "description": "unit test"
+        }
+      },
+      "material": "ls"
+    }
+  ]
+}

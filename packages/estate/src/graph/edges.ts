@@ -1,4 +1,4 @@
-import { guardName, registryRowOf, toolBase } from '../scan/code';
+import { chunkLines, guardName, positiveMention, registryRowOf, toolBase } from '../scan/code';
 import type { EstateFile, RawEstate } from '../scan/reader';
 import { labelOfLine, linesOf, plain } from '../scan/text';
 import type { Atom, Edge } from '../schema';
@@ -20,7 +20,8 @@ import type { Atom, Edge } from '../schema';
  * How `enforces` is decided, by code, in this order (the method is recorded on the guard atom):
  *   1. registry: a check registry row names the guard's script and lists rule labels (R5) or quoted
  *      passages; a rule is enforced when its line carries the label or its quote holds the passage.
- *   2. id: the guard's own source says `Enforces: R3, R5` (or `enforces R3`); same label match.
+ *   2. id: the guard's own source says `Enforces: R3, R5` (or `enforces R3`), or cites a rule as `R#3`
+ *      anywhere in its text; same label match (a rule labelled `R#3` has the label R3).
  *   3. quote: a string in the guard's source of at least 16 characters equals a rule's quote, or one holds
  *      the other, compared without markup, case or final punctuation.
  * Only instruction, gate and register atoms are enforced. `enforcement` on each rule lists its guards.
@@ -80,9 +81,13 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
   for (const chunk of raw.prose) {
     const unit = unitOfFile.get(chunk.file);
     if (!unit) continue;
+    const visible = chunkLines(chunk, files.get(chunk.file))
+      .map((line) => line.text)
+      .join('\n');
     for (const helper of helpers) {
       const name = String(helper.fields?.name ?? '');
-      if (name !== '' && chunk.text.includes(`\`${name}\``)) add(unit.id, helper.id, 'dispatch');
+      if (name !== '' && positiveMention(visible, `\`${name}\``, ['dispatch', 'call', 'delegate', 'invoke']))
+        add(unit.id, helper.id, 'dispatch');
     }
   }
 
@@ -119,8 +124,8 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
   const withLabel = (label: string) => rules.filter((rule) => labels.get(rule.id) === label);
   for (const rule of rules) {
     const own = labels.get(rule.id);
-    for (const match of rule.provenance.quote.matchAll(/\b([A-Z]{1,3}\d{1,3})\b/g)) {
-      const label = match[1] ?? '';
+    for (const match of rule.provenance.quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
+      const label = `${match[1]}${match[2]}`;
       if (label === own) continue;
       for (const cited of withLabel(label)) add(rule.id, cited.id, 'cites');
     }
@@ -141,7 +146,9 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     }
     const script = typeof guard.fields?.script === 'string' ? files.get(guard.fields.script) : undefined;
     if (script) {
-      for (const label of declaredLabels(script.text)) for (const rule of withLabel(label)) take(rule, 'id');
+      for (const label of [...declaredLabels(script.text), ...citedLabels(script.text)]) {
+        for (const rule of withLabel(label)) take(rule, 'id');
+      }
       for (const literal of literals(script.text)) {
         for (const rule of rules) if (holds(rule.provenance.quote, literal)) take(rule, 'quote');
       }
@@ -172,6 +179,13 @@ export function declaredLabels(text: string): string[] {
     for (const label of match[1].matchAll(/[A-Z]{1,3}\d{1,3}/g)) found.push(label[0]);
   }
   return found;
+}
+
+/** Rule ids a guard source cites in the `R#23` form, anywhere in its text, as labels (`R23`). */
+export function citedLabels(text: string): string[] {
+  return [
+    ...new Set([...text.matchAll(/\b([A-Z]{1,3})#(\d{1,3})\b/g)].map((match) => `${match[1]}${match[2]}`)),
+  ];
 }
 
 /** String literals of a source, at least 16 characters long. */

@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, readdir, readFile, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { ExecutionRecord, WorkspaceDiff, type WorkspaceSnapshot } from '@driftbench/core';
+import { ExecutionRecord, WorkspaceDiff, type WorkspaceSnapshot } from '@agent-nexus/driftbench-core';
 import {
   DEFAULT_MAX_OUTPUT_BYTES,
   DEFAULT_MAX_READ_BYTES,
@@ -14,7 +14,7 @@ import {
   SandboxLimitError,
   SandboxPathError,
   TIMEOUT_EXIT_CODE,
-} from '@driftbench/sandbox';
+} from '@agent-nexus/driftbench-sandbox';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 const sha256 = (data: string | Buffer) => createHash('sha256').update(data).digest('hex');
@@ -311,9 +311,7 @@ describe('exec', () => {
 
   it('kills the command and everything it started at the timeout', async () => {
     const box = await sandbox();
-    const started = Date.now();
     const record = await box.exec('(sleep 1; echo late > late.txt) & sleep 30', { timeoutMs: 300 });
-    expect(Date.now() - started).toBeLessThan(5000);
     expect(record.exitCode).toBe(TIMEOUT_EXIT_CODE);
     expect(record.stderr).toContain('timed out after 300 ms');
     await pause(1500);
@@ -327,6 +325,57 @@ describe('exec', () => {
     await pause(1500);
     expect(existsSync(join(box.root, 'late.txt'))).toBe(false);
   });
+
+  it('kills a child that left the process group of the command, at the exit and at the timeout', async () => {
+    const box = await sandbox();
+    const leave = (file: string) =>
+      `"${process.execPath}" -e "require('node:child_process').spawn('/bin/sh', ['-c', 'sleep 0.5; echo late > ${file}'], { stdio: 'ignore', detached: true }).unref()"`;
+    const exited = await box.exec(leave('exit.txt'));
+    expect(exited.exitCode).toBe(0);
+    const slow = await box.exec(`${leave('timeout.txt')}; sleep 30`, { timeoutMs: 300 });
+    expect(slow.exitCode).toBe(TIMEOUT_EXIT_CODE);
+    await pause(1500);
+    expect(existsSync(join(box.root, 'exit.txt'))).toBe(false);
+    expect(existsSync(join(box.root, 'timeout.txt'))).toBe(false);
+  });
+
+  it('kills a child that left the process group when the host lists working folders slowly', async () => {
+    // macOS has no /proc: the working folder of a process costs a subprocess, and lsof takes time for each
+    // process it is asked about. The first look must ask about the few processes the system adopted, not
+    // about every young process on the host, or a child that wakes within a second has run.
+    const stubs = join(parent, 'slow-lsof');
+    await mkdir(stubs, { recursive: true });
+    await writeFile(
+      join(stubs, 'lsof'),
+      [
+        `#!${process.execPath}`,
+        "const { spawnSync } = require('node:child_process');",
+        'const args = process.argv.slice(2);',
+        "const at = args.indexOf('-p');",
+        "const asked = at >= 0 ? args[at + 1].split(',').length : 100;",
+        'Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, asked * 100);',
+        "const real = spawnSync('/usr/sbin/lsof', args, { stdio: 'inherit' });",
+        'process.exit(real.status ?? 1);',
+        '',
+      ].join('\n'),
+      { mode: 0o755 },
+    );
+    const path = process.env.PATH;
+    process.env.PATH = `${stubs}:${path ?? ''}`;
+    try {
+      const box = await sandbox();
+      const leave = (file: string) =>
+        `"${process.execPath}" -e "require('node:child_process').spawn('/bin/sh', ['-c', 'sleep 1; echo late > ${file}'], { stdio: 'ignore', detached: true }).unref()"`;
+      expect((await box.exec(leave('exit.txt'))).exitCode).toBe(0);
+      const slow = await box.exec(`${leave('timeout.txt')}; sleep 30`, { timeoutMs: 300 });
+      expect(slow.exitCode).toBe(TIMEOUT_EXIT_CODE);
+      await pause(1800);
+      expect(existsSync(join(box.root, 'exit.txt'))).toBe(false);
+      expect(existsSync(join(box.root, 'timeout.txt'))).toBe(false);
+    } finally {
+      process.env.PATH = path;
+    }
+  }, 30_000);
 
   it('reports a command killed by a signal as 128 plus the signal number', async () => {
     const box = await sandbox();

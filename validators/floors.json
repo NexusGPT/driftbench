@@ -1,15 +1,55 @@
 {
   "version": 2,
   "ladderVersion": {
-    "judges": 1,
-    "stats": 1
+    "judges": 2,
+    "map": 2,
+    "stats": 2,
+    "system": 5
   },
   "floors": {
-    "judges": 7,
-    "stats": 1
+    "judges": 20,
+    "map": 8,
+    "stats": 7,
+    "system": 9
   },
   "evidence": {
     "judges": {
+      "level": 20,
+      "seeds": ["1", "2", "3", "hidden"],
+      "hiddenSeed": 336760492,
+      "head": "14034c6caf7b46117fea61cf00688380dc5ad8d6",
+      "ladderVersion": 2
+    },
+    "map": {
+      "level": 8,
+      "seeds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "hidden"
+      ],
+      "hiddenSeed": 856524023,
+      "head": "32fe42b7ee3092f194d4538cdd81bcbac74060e8",
+      "ladderVersion": 2
+    },
+    "stats": {
       "level": 7,
       "seeds": [
         "1",
@@ -34,12 +74,12 @@
         "20",
         "hidden"
       ],
-      "hiddenSeed": 163857621,
-      "head": "454fcc95eabc0404150acb4f74f9c35113f89788",
-      "ladderVersion": 1
+      "hiddenSeed": 268931216,
+      "head": "c2c8ac50127402309e1bd7548186280dd9f63622",
+      "ladderVersion": 2
     },
-    "stats": {
-      "level": 2,
+    "system": {
+      "level": 9,
       "seeds": [
         "1",
         "2",
@@ -63,9 +103,81 @@
         "20",
         "hidden"
       ],
-      "hiddenSeed": 707151630,
-      "head": "2a1704ce6f752251b12985a23e109056de8c6953",
-      "ladderVersion": 1
+      "hiddenSeed": 88145333,
+      "head": "0531bb75852c4089d0261b58ebd46457bf863d16",
+      "ladderVersion": 5
     }
+  },
+  "history": {
+    "judges": [
+      {
+        "ladderVersion": 1,
+        "floor": 7,
+        "evidence": {
+          "level": 7,
+          "seeds": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "hidden"
+          ],
+          "hiddenSeed": 163857621,
+          "head": "454fcc95eabc0404150acb4f74f9c35113f89788",
+          "ladderVersion": 1
+        }
+      }
+    ],
+    "stats": [
+      {
+        "ladderVersion": 1,
+        "floor": 1,
+        "evidence": {
+          "level": 2,
+          "seeds": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "hidden"
+          ],
+          "hiddenSeed": 707151630,
+          "head": "2a1704ce6f752251b12985a23e109056de8c6953",
+          "ladderVersion": 1
+        }
+      }
+    ]
   }
 }

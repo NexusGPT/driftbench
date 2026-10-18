@@ -3,15 +3,18 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   canonicalJson,
+  checkSpec,
   contentHash,
   findSpecFiles,
   type LoadResult,
+  loadSpecFile,
   loadSpecs,
   parseCriterionRef,
   parseSpecText,
-} from '@driftbench/core';
+  validateSpec,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { stringify } from 'yaml';
+import { parse, stringify } from 'yaml';
 
 const VALID = `
 id: acme-upgrade
@@ -349,4 +352,66 @@ describe('files and folders', () => {
     const [result] = await loadSpecs(['/definitely/not/here.yaml']);
     expect(result && codes(result)).toEqual(['SPEC_PARSE']);
   });
+});
+
+describe('a relative workspace folder', () => {
+  const SPEC = [
+    'id: seeded-task',
+    'version: "1"',
+    'kind: task',
+    'title: A task that starts from a folder beside it',
+    'tier: handwritten',
+    'target: { adapter: process, agent: ops }',
+    'workspace_seed: { from: ./.seed-seeded-task }',
+    'blocks:',
+    '  - id: b',
+    '    user: Do the task.',
+    '    expect: { execution: { ran_code: true } }',
+    '',
+  ].join('\n');
+
+  it('is read from the folder of the spec file when written ./<path>, wherever the file sits', async () => {
+    for (const name of ['one', 'two']) {
+      const dir = join(await mkdtemp(join(tmpdir(), 'driftbench-seed-')), name);
+      await mkdir(dir);
+      await writeFile(join(dir, 'task.yaml'), SPEC);
+      const loaded = await loadSpecFile(join(dir, 'task.yaml'));
+      if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+      expect(loaded.spec.given?.world?.workspace?.from).toBe(join(dir, '.seed-seeded-task'));
+      // The hash is the one of the spec as resolved, which the store checks.
+      expect(loaded.hash).toBe(contentHash(loaded.spec));
+    }
+  });
+
+  it('leaves any other relative path as written: it is read from the folder the run starts in', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-seed-'));
+    await writeFile(join(dir, 'task.yaml'), SPEC.replace('./.seed-seeded-task', 'examples/seeds/task'));
+    const loaded = await loadSpecFile(join(dir, 'task.yaml'));
+    if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+    expect(loaded.spec.given?.world?.workspace?.from).toBe('examples/seeds/task');
+  });
+
+  it('stays as written when the text is parsed with no file', () => {
+    const parsed = parseSpecText(SPEC, 'yaml');
+    if (!parsed.ok) throw new Error('invalid');
+    expect(parsed.spec.given?.world?.workspace?.from).toBe('./.seed-seeded-task');
+  });
+});
+
+it('offers the same normalization, errors and warnings when the caller does not need a hash', () => {
+  for (const raw of [
+    parse(VALID),
+    null,
+    { id: 'invalid', blocks: [] },
+    { id: 'semantic', stages: ['start'], blocks: [{ user: 'hi', expect: { stage: 'other' } }] },
+    { id: 'warning', blocks: [{ user: 'hi', expect: { criteria: ['not-defined'] } }] },
+  ]) {
+    const loaded = validateSpec(raw, 'same.yaml');
+    const checked = checkSpec(raw, 'same.yaml');
+    if (loaded.ok) {
+      const { hash, ...withoutHash } = loaded;
+      expect(checked).toEqual(withoutHash);
+      expect(hash).toBe(contentHash(loaded.spec));
+    } else expect(checked).toEqual(loaded);
+  }
 });

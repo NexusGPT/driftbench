@@ -1,0 +1,12 @@
+{
+  "id": "estate.invariant.invariant.settings.every-guard-finds-its-script-from",
+  "planRow": "invariant.invariant.settings.every-guard-finds-its-script-from",
+  "testType": "invariant",
+  "atom": "invariant.settings.every-guard-finds-its-script-from",
+  "title": "Every guard finds its script from an anchor",
+  "check": {
+    "kind": "invariant",
+    "check": "guard_paths_anchored"
+  },
+  "mapHash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10"
+}

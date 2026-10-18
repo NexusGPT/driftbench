@@ -5,8 +5,8 @@ import {
   kindForPath,
   READERS,
   textReader,
-} from '@driftbench/artifacts';
-import type { ArtifactKind, ArtifactReader } from '@driftbench/core';
+} from '@agent-nexus/driftbench-artifacts';
+import type { ArtifactKind, ArtifactReader } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 const KINDS: ArtifactKind[] = ['xlsx', 'docx', 'pptx', 'pdf', 'csv', 'json', 'text', 'code'];

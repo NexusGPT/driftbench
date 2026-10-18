@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "models": [
+    {
+      "id": "haiku",
+      "model": "claude-haiku-5-5",
+      "status": "active"
+    },
+    {
+      "id": "gpt-6-luna",
+      "model": "gpt-6-luna",
+      "status": "active"
+    },
+    {
+      "id": "gemini-3.5-flash-lite",
+      "model": "gemini-3.5-flash-lite",
+      "status": "active"
+    },
+    {
+      "id": "gemini-3.8-flash",
+      "model": "gemini-3.8-flash",
+      "status": "skipped",
+      "reason": "dropped by the owner"
+    }
+  ],
+  "slices": [
+    {
+      "name": "fresh-rubric",
+      "version": 1,
+      "hash": "eeae156e1b585603c02680ff23750c00a122e06554fcfe0cbf8fb7367976d911",
+      "path": "benchmarks/slices/fresh-rubric/1",
+      "n": 192,
+      "sourceCommit": "89425c88b12e5fd7516ed9cdbf6d37b9b0261595"
+    },
+    {
+      "name": "fresh-reference",
+      "version": 1,
+      "hash": "3f79852079615641ceb17b1e8ef925ff59f91e58ce2715f6cebe5ee4aab3d6e6",
+      "path": "benchmarks/slices/fresh-reference/1",
+      "n": 192,
+      "sourceCommit": "89425c88b12e5fd7516ed9cdbf6d37b9b0261595"
+    },
+    {
+      "name": "map-rubric",
+      "version": 1,
+      "hash": "0e05965cf66acf8f10e0a00bdb2ff8978232cf65608f9a3f513fc7d9bcd7ef93",
+      "path": "benchmarks/slices/map-rubric/1",
+      "n": 156,
+      "sourceCommit": "89425c88b12e5fd7516ed9cdbf6d37b9b0261595"
+    },
+    {
+      "name": "map-reference",
+      "version": 1,
+      "hash": "4d9df2b08771a18df90ad03d3d9ba2a31d920f5f06ba1bf827e9c83fee6fa1d7",
+      "path": "benchmarks/slices/map-reference/1",
+      "n": 180,
+      "sourceCommit": "89425c88b12e5fd7516ed9cdbf6d37b9b0261595"
+    },
+    {
+      "name": "hard-rubric",
+      "version": 1,
+      "hash": "5dd1569d2fbcb1f2830c5be7e33262f13f3aaaff0dbee6f6787c231c5146af5e",
+      "path": "benchmarks/slices/hard-rubric/1",
+      "n": 120,
+      "sourceCommit": "82cc403c01aa2992b109a24d739e2febe4bd33f5"
+    },
+    {
+      "name": "hard-factuality",
+      "version": 1,
+      "hash": "a525a221c79b3602738e1e557d17f1caa26f0b7b67c6aa32831c6d3b536ffb00",
+      "path": "benchmarks/slices/hard-factuality/1",
+      "n": 120,
+      "sourceCommit": "82cc403c01aa2992b109a24d739e2febe4bd33f5"
+    },
+    {
+      "name": "hard-pii",
+      "version": 1,
+      "hash": "d1320fb4e950bb3fb6676545e0fa8e9731d6e991b29c2ab63cebee3f3bd70187",
+      "path": "benchmarks/slices/hard-pii/1",
+      "n": 120,
+      "sourceCommit": "82cc403c01aa2992b109a24d739e2febe4bd33f5"
+    },
+    {
+      "name": "hard-goal",
+      "version": 1,
+      "hash": "241a06a4e210d4fd1789b4970352d29a6099878b3df4c151c27d75b8237c59b4",
+      "path": "benchmarks/slices/hard-goal/1",
+      "n": 120,
+      "sourceCommit": "82cc403c01aa2992b109a24d739e2febe4bd33f5"
+    },
+    {
+      "name": "heldout-rubric",
+      "version": 1,
+      "hash": "4945358cf23be5efe35954fb71dc2e7d3d3825656e434fe4f6748e132ef89fbb",
+      "path": "benchmarks/slices/heldout-rubric/1",
+      "n": 72,
+      "sourceCommit": "82cc403c01aa2992b109a24d739e2febe4bd33f5"
+    },
+    {
+      "name": "heldout-factuality",
+      "version": 1,
+      "hash": "1f0bb9da2d2fc84bae2512d043572ed7cf3a782db6cd25812c765b153ac890b1",
+      "path": "benchmarks/slices/heldout-factuality/1",
+      "n": 72,
+      "sourceCommit": "82cc403c01aa2992b109a24d739e2febe4bd33f5"
+    },
+    {
+      "name": "heldout-pii",
+      "version": 1,
+      "hash": "0930cb64ccaf6ac79760fe63eae901f6ab918a02ce4e6d0391a55272a5b72092",
+      "path": "benchmarks/slices/heldout-pii/1",
+      "n": 72,
+      "sourceCommit": "82cc403c01aa2992b109a24d739e2febe4bd33f5"
+    },
+    {
+      "name": "heldout-goal",
+      "version": 1,
+      "hash": "0af9b36c5eaf4a461000c75f2254281e74b353e46d67e0bb74407c4e7157934c",
+      "path": "benchmarks/slices/heldout-goal/1",
+      "n": 72,
+      "sourceCommit": "82cc403c01aa2992b109a24d739e2febe4bd33f5"
+    },
+    {
+      "name": "planted-verify",
+      "version": 1,
+      "hash": "efec1377d0426f175bb9a6461e8432f91cedfb4d1b61f27f737209f307fbe8fc",
+      "path": "benchmarks/slices/planted-verify/1",
+      "n": 190,
+      "sourceCommit": "d88113cb33cef242b068e630b176651b97a7e743"
+    },
+    {
+      "name": "planted-rubric",
+      "version": 1,
+      "hash": "d69d4ab672ef729755f3553fe4fbcbea217b9a52cf6b13e1077064301466753b",
+      "path": "benchmarks/slices/planted-rubric/1",
+      "n": 120,
+      "sourceCommit": "d88113cb33cef242b068e630b176651b97a7e743"
+    }
+  ]
+}

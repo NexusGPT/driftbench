@@ -1,0 +1,1396 @@
+{
+  "competitor": "langwatch",
+  "row": "knowledge",
+  "contestant": "theirs",
+  "model": "haiku",
+  "items": 126,
+  "complete": 126,
+  "results": [
+    {
+      "id": "langwatch.knowledge.001",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "1f5c8992872eb0793a2912507ab77b0b67e92da22e6772c15143fca9bdcc3fc9"
+      ],
+      "costUsd": 0.0006541
+    },
+    {
+      "id": "langwatch.knowledge.002",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "ac0d6c0afa5be75c4dabf52917c8422b0ca9827e1fcf0895f2ecbbf7f58a64b1"
+      ],
+      "costUsd": 0.0005905000000000001
+    },
+    {
+      "id": "langwatch.knowledge.003",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "6ee0ed9e2c5d5cbb0c9eb785ae4aa320d61467dd649f9ca992c60069081fd1f7"
+      ],
+      "costUsd": 0.0006224
+    },
+    {
+      "id": "langwatch.knowledge.004",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "defe3e13777af54fcee2001ca5d925166825712b38a3b76eaf890005950e7362"
+      ],
+      "costUsd": 0.0007038999999999999
+    },
+    {
+      "id": "langwatch.knowledge.005",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "fb5c8072b7e8a57f46f7dc7665dd679dcccffb31c5691014d67b800beb710c5b"
+      ],
+      "costUsd": 0.000629
+    },
+    {
+      "id": "langwatch.knowledge.006",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "4851b1f2b06cc2e6e2741e1cf6aa92bdfe78aee4b38283b472fb47eed3698725"
+      ],
+      "costUsd": 0.0006613999999999999
+    },
+    {
+      "id": "langwatch.knowledge.007",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "8c70f5eb353358cdd246db6839a32d1d67017f7c91e5a991d1e0c49e12042db4"
+      ],
+      "costUsd": 0.0005858
+    },
+    {
+      "id": "langwatch.knowledge.008",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "6dc812eb7bbb8f5b80f92ea64b46424c78d01a3fb7302f421d6fa7ead4bc5671"
+      ],
+      "costUsd": 0.0006954
+    },
+    {
+      "id": "langwatch.knowledge.009",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "d76cf08526b9cd616a6b8baafaafe105c381c6e44ac67bfc0d6e714e784ecfd5"
+      ],
+      "costUsd": 0.0006231
+    },
+    {
+      "id": "langwatch.knowledge.010",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "e6e9a49d98c04bbe275e4d2c02f8efecb3a2558ad91eaa6025d255ae3c17626d"
+      ],
+      "costUsd": 0.0006564
+    },
+    {
+      "id": "langwatch.knowledge.011",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "65b52b36860e700bc4cc22d8db7180ba7b4b3bfbd5ff49052fbf5f2264f5c3f9"
+      ],
+      "costUsd": 0.0006294
+    },
+    {
+      "id": "langwatch.knowledge.012",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "789a72f1c8e0649904bf74a0826c944bdd2f3bd25bc427109514e92ad91c35b7"
+      ],
+      "costUsd": 0.001208
+    },
+    {
+      "id": "langwatch.knowledge.013",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "22f76d142b18f817bf0a24c10e9a68120737f9ff68e82762383196a2ddec4d61"
+      ],
+      "costUsd": 0.0007455000000000001
+    },
+    {
+      "id": "langwatch.knowledge.014",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "c702a6542bcd56e8612d06d724819ea5b34691cf412829a38c0889312857b60f"
+      ],
+      "costUsd": 0.0006551
+    },
+    {
+      "id": "langwatch.knowledge.015",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "800ae95f114af6eb9db9c1d8a1d19ba0a0f3d29666504f0b2c83cd38b4715314"
+      ],
+      "costUsd": 0.0006644999999999999
+    },
+    {
+      "id": "langwatch.knowledge.016",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "a0fde1bab24986f83adc3cadf40338b64b03a54c44c88c07da7de38ce7f8fe27"
+      ],
+      "costUsd": 0.0006979
+    },
+    {
+      "id": "langwatch.knowledge.017",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "ec5e2399eda4585b6e0f610a70f79674ff8947b31f5c2595461f285bc0a88d80"
+      ],
+      "costUsd": 0.0019428
+    },
+    {
+      "id": "langwatch.knowledge.018",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "5be1be716a8e344b7f6a52edaa1b6bd4b4413acf5c3d664c457c14bf98dc112e"
+      ],
+      "costUsd": 0.0006981000000000001
+    },
+    {
+      "id": "langwatch.knowledge.019",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "4c6f7272e42660783c9454adca001d710131280b57f932700f5b9ac0feb47d61"
+      ],
+      "costUsd": 0.0007210000000000001
+    },
+    {
+      "id": "langwatch.knowledge.020",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "2850149600e173c6a0a24f04a96fcdb7f3bffcc935c7167fca5a49721762a8f7"
+      ],
+      "costUsd": 0.000658
+    },
+    {
+      "id": "langwatch.knowledge.021",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f4d1101e5c4a5da893241c88609d00465bbc5de01d439140ded6a5eb699173a8"
+      ],
+      "costUsd": 0.0007444999999999999
+    },
+    {
+      "id": "langwatch.knowledge.022",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "6203e1487278cd04a2c95783777b96692915474e6a63c6906303ec25b109985a"
+      ],
+      "costUsd": 0.0005794
+    },
+    {
+      "id": "langwatch.knowledge.023",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "81bd9f9c902233524d67a52bf139e58baab5131b7527d7d716431f414c1b0b04"
+      ],
+      "costUsd": 0.0007571
+    },
+    {
+      "id": "langwatch.knowledge.024",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "43b37b610d1d69f897ba56346ab8fbec5bc6044133d22ba63f974fde80dfc02e"
+      ],
+      "costUsd": 0.0007055
+    },
+    {
+      "id": "langwatch.knowledge.025",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "c60b1ec49fa1e7049a0ed3304debf90ec6cf10dd45162b7c037d4b842c16838c"
+      ],
+      "costUsd": 0.0006100000000000001
+    },
+    {
+      "id": "langwatch.knowledge.026",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "13e6209229bea9c8166d7372cfcb3df7ffbe8dd1a09c4c2320f398063ffba3d8"
+      ],
+      "costUsd": 0.0006726
+    },
+    {
+      "id": "langwatch.knowledge.027",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "57a8ea8d9e42d5eddd5ab9964ef55285ddbbc8ecb013ff300e065ec3eef1b9a1"
+      ],
+      "costUsd": 0.0006249000000000001
+    },
+    {
+      "id": "langwatch.knowledge.028",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "01b73f08758092481dc4fcc185465230be9eee65c34ae508ab10b13e9ced2e34"
+      ],
+      "costUsd": 0.0006656
+    },
+    {
+      "id": "langwatch.knowledge.029",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "82e5c879ccc2a659be55b0fb3e6b9e1358006f828f933293849f0e5d6833c976"
+      ],
+      "costUsd": 0.0005839
+    },
+    {
+      "id": "langwatch.knowledge.030",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "2ea42955005ad33ef6a280a6acf937d56144dbe551c5dbb5fb06879e51e451c7"
+      ],
+      "costUsd": 0.000722
+    },
+    {
+      "id": "langwatch.knowledge.031",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "1c932db0dfdf2f3588392f40825ead46ca3d30a5c0f70233ae94f1d3e1d7f5b3"
+      ],
+      "costUsd": 0.0006201
+    },
+    {
+      "id": "langwatch.knowledge.032",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "9389a8c8ef425caeb50de9da2bdac93e5d05fee7537086c7dda796be109f30f9"
+      ],
+      "costUsd": 0.0006319
+    },
+    {
+      "id": "langwatch.knowledge.033",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "0f3399fe92377737382b8f80a4e1da89066ac27014d06e3b3baf5afdd60918b3"
+      ],
+      "costUsd": 0.0006449
+    },
+    {
+      "id": "langwatch.knowledge.034",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "e60e557fdaecd82cc53b5de57bc084a3e0c15c9c152487129c8e974cde145188"
+      ],
+      "costUsd": 0.000643
+    },
+    {
+      "id": "langwatch.knowledge.035",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "2a8295081456f2226db9aae5138e99b10c67df0b5ecff82ab9f5a4fc3b117a09"
+      ],
+      "costUsd": 0.0006519
+    },
+    {
+      "id": "langwatch.knowledge.036",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "ebf6559ea48c07cd114e5b6db52b4fbe3f206bfcc8bac4b15a7248a4ee25330d"
+      ],
+      "costUsd": 0.0006722
+    },
+    {
+      "id": "langwatch.knowledge.037",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e403fe36303c53ffc8e3e569ccb139d4a5d82fc3acc0f55f62604f5e4f142b03"
+      ],
+      "costUsd": 0.0006404
+    },
+    {
+      "id": "langwatch.knowledge.038",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "adf0e5dd6439f57c185a25cbb78e47c03f02006e48eba192f22031f0990ebb67"
+      ],
+      "costUsd": 0.0012159
+    },
+    {
+      "id": "langwatch.knowledge.039",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e030f73a61192f546bc20a8847aaabe15d20ba68f7c616cd08ea066ecda64316"
+      ],
+      "costUsd": 0.0006364000000000001
+    },
+    {
+      "id": "langwatch.knowledge.040",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "cb8231b6d75275c2973aea0caec89af0ebf20142e1f2e146d3fc9f7ef3ac7d32"
+      ],
+      "costUsd": 0.0006098
+    },
+    {
+      "id": "langwatch.knowledge.041",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "70a7a8a74c2d440c4c77cfa1cd2ade14772a7f27a66fa9bd6ba28996702a24ec"
+      ],
+      "costUsd": 0.0006914
+    },
+    {
+      "id": "langwatch.knowledge.042",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "38153699c8be1d923ab9d5a024924731b3ec2b437244d58693513dd38560305c"
+      ],
+      "costUsd": 0.0006739000000000001
+    },
+    {
+      "id": "langwatch.knowledge.043",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "edd76a2fdc2c812b60328601c8ede9701fa783ae80d0dfe355041ae152c0b9e8"
+      ],
+      "costUsd": 0.0006663
+    },
+    {
+      "id": "langwatch.knowledge.044",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "952c3ef379214e5367b75301e77df0d64cd564d527ab66b5daf7483a46901037"
+      ],
+      "costUsd": 0.0019270000000000001
+    },
+    {
+      "id": "langwatch.knowledge.045",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "5da720bd245434758f315beeeadac3b97cd113abd2b0f6ce4200731b537c3c37"
+      ],
+      "costUsd": 0.0006665
+    },
+    {
+      "id": "langwatch.knowledge.046",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "8df758a938aa28718cf885f1e713bc9e23f6d78523ab90c169d157e525377419"
+      ],
+      "costUsd": 0.0006759
+    },
+    {
+      "id": "langwatch.knowledge.047",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "c875fde25569199c9d217428277570e2451e21440f14cfafb3b2657e0a3dedb6"
+      ],
+      "costUsd": 0.0006529
+    },
+    {
+      "id": "langwatch.knowledge.048",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "36fab9c9d105323a20a83832bd103638f70eecd0ffc4a2ca7051b714090b210c"
+      ],
+      "costUsd": 0.0006479
+    },
+    {
+      "id": "langwatch.knowledge.049",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f18360aa2b3ebe346f1b6422ea82b29e37c1ae77ace988a12237854282b0875a"
+      ],
+      "costUsd": 0.0006961000000000001
+    },
+    {
+      "id": "langwatch.knowledge.050",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "8d73bbc46e7622f671d0c8b0731b847b12b63d7cd62bec475ad6ad8e8fe80ebb"
+      ],
+      "costUsd": 0.0006826
+    },
+    {
+      "id": "langwatch.knowledge.051",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "87cf32ddf43e72e9e387caf9271af03ec91bc58589ee618550fc11da428d450b"
+      ],
+      "costUsd": 0.0007166
+    },
+    {
+      "id": "langwatch.knowledge.052",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "87b44f1506a53d7fa4e6e3de5dbb267e0d7bdebe0bb23ad81afef602e4583e58"
+      ],
+      "costUsd": 0.0006306
+    },
+    {
+      "id": "langwatch.knowledge.053",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "6f54bd1a87ca746e537046a3ccf191efe7ce921d3c61ddca4982369d575997da"
+      ],
+      "costUsd": 0.0007175
+    },
+    {
+      "id": "langwatch.knowledge.054",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "d322976489e11a642abae1df9a45f20663c75f804ecca1eb9501f30230ae4f08"
+      ],
+      "costUsd": 0.0006639
+    },
+    {
+      "id": "langwatch.knowledge.055",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "393f57eaab33172882221677a18671ccebfc3d14c945f18fb8cd349300747a6e"
+      ],
+      "costUsd": 0.0005881
+    },
+    {
+      "id": "langwatch.knowledge.056",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "a7acdb1de3212b2293c9f19dec38b2f16c029ee790504ce6293fa3d78d8253b7"
+      ],
+      "costUsd": 0.0018790999999999999
+    },
+    {
+      "id": "langwatch.knowledge.057",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "74463ffe3a8afe02d6e52249158c19f4d1d3a771f76d88d92d193a20b4835b6e"
+      ],
+      "costUsd": 0.0006126
+    },
+    {
+      "id": "langwatch.knowledge.058",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "3172c7479cda7f9e9fb8baa96f36ff75ced7d908b9445d95a4369046fea64561"
+      ],
+      "costUsd": 0.0005974
+    },
+    {
+      "id": "langwatch.knowledge.059",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "63bdf791044b1d973005dba690c0ff3d75929f766518c3ca8fb769cc44d4798d"
+      ],
+      "costUsd": 0.0006694
+    },
+    {
+      "id": "langwatch.knowledge.060",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e3c963124ff91cdd91e52f67bda6a1a352202c928320b62b9c90eb0398979028"
+      ],
+      "costUsd": 0.0006839999999999999
+    },
+    {
+      "id": "langwatch.knowledge.061",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "feac3c8953b5982c2c69572c65e418f3318d15806a1ef2bf554e8d9676c3be58"
+      ],
+      "costUsd": 0.0006852
+    },
+    {
+      "id": "langwatch.knowledge.062",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "8f6f42a16c338eb75f38bb029f8ca0a5d4c92cb4c8374b9bf9ae35a6573e0abe"
+      ],
+      "costUsd": 0.0012645
+    },
+    {
+      "id": "langwatch.knowledge.063",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "a49a2cd46ba8744dd41aebacc0d676d2e7fa8af3ad041968cecc7a891de706a1"
+      ],
+      "costUsd": 0.0006793999999999999
+    },
+    {
+      "id": "langwatch.knowledge.064",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "cd96876d5c6182713dcaecbd163c3e14c430fa4fd4c9cf97a5f2cba53c434fd7"
+      ],
+      "costUsd": 0.0006279
+    },
+    {
+      "id": "langwatch.knowledge.065",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "0c3581ab5aadcb7d6f7fd3857ccba85fbe144c50b13db118a6ca68a317d31612"
+      ],
+      "costUsd": 0.0006634
+    },
+    {
+      "id": "langwatch.knowledge.066",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e9a6d3c926977c2cdd4894a9ca35fa887567d81e5cbc82ded8e1aaddac5ac6d3"
+      ],
+      "costUsd": 0.0006294
+    },
+    {
+      "id": "langwatch.knowledge.067",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f98df2cbfd30a75aaf0f46bd9de1252c4a99a740dc986dc06fcc8bf5869ecd45"
+      ],
+      "costUsd": 0.000675
+    },
+    {
+      "id": "langwatch.knowledge.068",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "4172f334f5b69063138ed3fb294ff742eda196a1e96549d639154afa658a62fb"
+      ],
+      "costUsd": 0.0006599
+    },
+    {
+      "id": "langwatch.knowledge.069",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "128ed5e4a06338efc04fee47f41c1a82c21f149ab53ffa7d24bbd23c801793a0"
+      ],
+      "costUsd": 0.0006379000000000001
+    },
+    {
+      "id": "langwatch.knowledge.070",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "6ba3f508d8a2e7437a54ac3fbb1970fefc1ad3457416a8b68a61f7d02b1f7dd7"
+      ],
+      "costUsd": 0.0006436
+    },
+    {
+      "id": "langwatch.knowledge.071",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "7779ba13ee2b1ed76b02946c5205597cb0428409bcb7726af88c80f8570ebb42"
+      ],
+      "costUsd": 0.0006064
+    },
+    {
+      "id": "langwatch.knowledge.072",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "00fba64cd54723d3e3edd10cdacdfac898761bfbec329a8400b58c048e16abd6"
+      ],
+      "costUsd": 0.0006364000000000001
+    },
+    {
+      "id": "langwatch.knowledge.073",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f7d3583c4be4233ddf1292a9c93f941a74b895fa4a0f9d670acc11f91ff3cedf"
+      ],
+      "costUsd": 0.0006679
+    },
+    {
+      "id": "langwatch.knowledge.074",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "0afc56b8646dc835baafab643a5c9ad78513109dc62e1dc1f4d2accbd5c89f00"
+      ],
+      "costUsd": 0.0007059
+    },
+    {
+      "id": "langwatch.knowledge.075",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f7a462421c9734d891fbc02bb5d3ebfadbaf83f39d115240132ea6900605659b"
+      ],
+      "costUsd": 0.0006878
+    },
+    {
+      "id": "langwatch.knowledge.076",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "4cdf323e375d759c9bfd854f32e314fc278b06aa6c12a50a8ea34b4f3ab8ce50"
+      ],
+      "costUsd": 0.0006154000000000001
+    },
+    {
+      "id": "langwatch.knowledge.077",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "abf7c44822672ced7a6790ebfb906e4b8e9289632dc4704e6d580ddc5085d346"
+      ],
+      "costUsd": 0.0006716000000000001
+    },
+    {
+      "id": "langwatch.knowledge.078",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "468b3f37cfe0355c706e61030c82548d996275bccb34741b1a28dd78fcc38fa2"
+      ],
+      "costUsd": 0.0006019
+    },
+    {
+      "id": "langwatch.knowledge.079",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "ceda30b7485082583d7a1241a7e11db19431b301e67a18e5dd65fc710b6db0a0"
+      ],
+      "costUsd": 0.0005834
+    },
+    {
+      "id": "langwatch.knowledge.080",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "400f42c87540b532f85b3112f9cfa98035df9808ac78b84e80f107fec7d5e3f3"
+      ],
+      "costUsd": 0.0006136
+    },
+    {
+      "id": "langwatch.knowledge.081",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "aa91a099c9ead2a88d739478622d380d4a3572bd3931435c3dbe39998fa7a058"
+      ],
+      "costUsd": 0.0006041
+    },
+    {
+      "id": "langwatch.knowledge.082",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "727c72cc4e3c6392e87970eec62513375e2a338976beed3e1fbf94fe0a8e555c"
+      ],
+      "costUsd": 0.0007044
+    },
+    {
+      "id": "langwatch.knowledge.083",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "9dbd5ff042be6a309e61bac7fbd85bfd2d1a8eef07a4d4687c4d59c867fd1af4"
+      ],
+      "costUsd": 0.0006276000000000001
+    },
+    {
+      "id": "langwatch.knowledge.084",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "de7801457d0cc8e162bf6f27f1b4c4c8c6586e9beaf0e70078325d3bde7677bf"
+      ],
+      "costUsd": 0.0006707
+    },
+    {
+      "id": "langwatch.knowledge.085",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "1740ae4ceaf41e9c64bd6a07bb4a5744e25cc77ad7269763f568ba9e48c9c843"
+      ],
+      "costUsd": 0.0007144
+    },
+    {
+      "id": "langwatch.knowledge.086",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "76ad7add83862272be6d8ccb0a4a3b9cbffc8b2d35291f54a8f70730dac9d82a"
+      ],
+      "costUsd": 0.0006764
+    },
+    {
+      "id": "langwatch.knowledge.087",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "7d39f27dc2016444f727d25bc3ed18afa106188a70315619db769b444ab90d08"
+      ],
+      "costUsd": 0.0007363000000000001
+    },
+    {
+      "id": "langwatch.knowledge.088",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "8578699709f7abcc4212f3d894653b469cfa7be6bf5750bef782140b12bbd223"
+      ],
+      "costUsd": 0.0005988
+    },
+    {
+      "id": "langwatch.knowledge.089",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "7b78b30307b3518ad2507fec091c2cfff2b44f1305047a3e4d3081f169118d35"
+      ],
+      "costUsd": 0.0006552999999999999
+    },
+    {
+      "id": "langwatch.knowledge.090",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "40cbb1a63c8d7b9b016bf40ca60e6467595386b9b6c9f5f1424f5d53551cb707"
+      ],
+      "costUsd": 0.0006649
+    },
+    {
+      "id": "langwatch.knowledge.091",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "993bd01eede92f3ec2b478f81c878708ffe53c2cfa82450149a069c36c43abc7"
+      ],
+      "costUsd": 0.0017766000000000001
+    },
+    {
+      "id": "langwatch.knowledge.092",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "2472a8544d5c3d31b0b6d83d94ef6e55701837ca05cb56346f065c8f368abc94"
+      ],
+      "costUsd": 0.0005618999999999999
+    },
+    {
+      "id": "langwatch.knowledge.093",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "d89949c915037c1092771261fbf6b5f710517b48d00e2b7789f7b62d59c9f85d"
+      ],
+      "costUsd": 0.0006756
+    },
+    {
+      "id": "langwatch.knowledge.094",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "cf20864a1c56a4cb7030e827504885688c6468272b96692fec80266dbe4008b9"
+      ],
+      "costUsd": 0.0006811
+    },
+    {
+      "id": "langwatch.knowledge.095",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "6e67963183d2b929f6323cd7a6bb0d1a83015e96f4156c8758f04e234f292fbb"
+      ],
+      "costUsd": 0.0006714
+    },
+    {
+      "id": "langwatch.knowledge.096",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "9f0c5c8e8e5739fdd6a3e7d369ed9075f6e64a073ff7d4ffb1c0ba7d9cfb2f63"
+      ],
+      "costUsd": 0.0006073000000000001
+    },
+    {
+      "id": "langwatch.knowledge.097",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "467e9018687bc31cbd276c6fdf60bfbaf347679119d7c77e1cc6686d85e5038b"
+      ],
+      "costUsd": 0.0006544000000000001
+    },
+    {
+      "id": "langwatch.knowledge.098",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "7d4c7815657b58f60b8cbfc8be547dafb692380a14bae7cfeae42baa5ca4c86e"
+      ],
+      "costUsd": 0.0006112
+    },
+    {
+      "id": "langwatch.knowledge.099",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f856bf9a5b2081d32259f89d36186806eb4aeba2709a328247b1ecff0fe8a246"
+      ],
+      "costUsd": 0.000713
+    },
+    {
+      "id": "langwatch.knowledge.100",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "872ef2c5f2a8e32c9fb4b070f5f1f1db632d45bdb90b61a2cc658f73f61d0211"
+      ],
+      "costUsd": 0.0007074
+    },
+    {
+      "id": "langwatch.knowledge.101",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "e92f38ef81a20fc406afb6335250f048fbe4114a321432ea9765cf233770ec5b"
+      ],
+      "costUsd": 0.0006306
+    },
+    {
+      "id": "langwatch.knowledge.102",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "06049367ff63effb6cc06b57189704dbf6cd9d0f0c2321f61c82220b9dab3701"
+      ],
+      "costUsd": 0.0006724
+    },
+    {
+      "id": "langwatch.knowledge.103",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "ee9e89ba5c413511a1867600b2f5a55d0af633e390c25af7371828ef30c56eb5"
+      ],
+      "costUsd": 0.0006579
+    },
+    {
+      "id": "langwatch.knowledge.104",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "b222e1866f2c16fa74d15b74849db2f94002144c9cc679cef07e4e736e26ca02"
+      ],
+      "costUsd": 0.0006664
+    },
+    {
+      "id": "langwatch.knowledge.105",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "8c3b961110c6e6b1b7a7295954673f89d5d597b78ea8038d3b917e147c294091"
+      ],
+      "costUsd": 0.0006083
+    },
+    {
+      "id": "langwatch.knowledge.106",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "46bb1368cc7566071215a232622f424591d6a4cda8f51a931f9954fe7b82dcd4"
+      ],
+      "costUsd": 0.0006186
+    },
+    {
+      "id": "langwatch.knowledge.107",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "262280abc55e21ed0de2e444160bfeb96dee7d930b27b5370f8ef095ef4a2387"
+      ],
+      "costUsd": 0.0006855
+    },
+    {
+      "id": "langwatch.knowledge.108",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "ad1e06c578f7a0dcd05371c444304a7e40063d0169268453e7fc267f3c12c7f4"
+      ],
+      "costUsd": 0.0006418999999999999
+    },
+    {
+      "id": "langwatch.knowledge.109",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "f7c39b01158d905d571bbf1bd9dea9a7c541256d77674db864d0304fd008d874"
+      ],
+      "costUsd": 0.000642
+    },
+    {
+      "id": "langwatch.knowledge.110",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "fab7bc7ca626b0ad0c8116c50bb57570d38893eacfd8742563eabb699c9007fd"
+      ],
+      "costUsd": 0.0006546
+    },
+    {
+      "id": "langwatch.knowledge.111",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "9c13ae7378a44db103de2459a08cae69b2e1573f1a45d61d038af13e2aa72f51"
+      ],
+      "costUsd": 0.0006029
+    },
+    {
+      "id": "langwatch.knowledge.112",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "29860ba44550e495b710415e362defed83c19f9f0bc152e54f28daedacca65d1"
+      ],
+      "costUsd": 0.0006288999999999999
+    },
+    {
+      "id": "langwatch.knowledge.113",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "e5c6ca9bb284e19a37b5d670fe0a0dfe7bb28384312f85d9e1b75c450ac7ece3"
+      ],
+      "costUsd": 0.0006274
+    },
+    {
+      "id": "langwatch.knowledge.114",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "01f9ea61ea43f473b6c7974b57a14ebccf750f0381c6cf755b711daa032001c4"
+      ],
+      "costUsd": 0.0006163
+    },
+    {
+      "id": "langwatch.knowledge.115",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "29c26a98752cddaad12cc2cd3a2c77363a892074ce79d84d0fcf66bf5d5d4691"
+      ],
+      "costUsd": 0.0006624000000000001
+    },
+    {
+      "id": "langwatch.knowledge.116",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "87bb27ab7ac596bfb8ee9a2ff5dc26f98bdcfc7709e142a7ec98be21ab94bf86"
+      ],
+      "costUsd": 0.0006264
+    },
+    {
+      "id": "langwatch.knowledge.117",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "8f1871249c9b634b3dc29baba7c53c0e1233b00e6064dd3b18259e2af773b4ac"
+      ],
+      "costUsd": 0.000694
+    },
+    {
+      "id": "langwatch.knowledge.118",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "e2d286d519df6afbb2713efefe8d4eff06df1e6c153c2977f73d0bd5dbea9796"
+      ],
+      "costUsd": 0.0005895
+    },
+    {
+      "id": "langwatch.knowledge.119",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "5edcc47dd889a1ab9385c114c077ca94f406009ea2c4104e230b7a0be5b76577"
+      ],
+      "costUsd": 0.0006736000000000001
+    },
+    {
+      "id": "langwatch.knowledge.120",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "3c42e1335bed48f6a780b550e8090cd03a22e7eee4e52eebb94db44d00396ce1"
+      ],
+      "costUsd": 0.0007825
+    },
+    {
+      "id": "langwatch.knowledge.121",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "57ac4eb467d881e00cf990491ee2ed98ba14a2b9a0de29f6281e28297c2c7379"
+      ],
+      "costUsd": 0.0006371
+    },
+    {
+      "id": "langwatch.knowledge.122",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "8f99c0fd71a5a3d29ff454d9e38e45104920aa5e13048f82dce4d2d7cec4b286"
+      ],
+      "costUsd": 0.0018629
+    },
+    {
+      "id": "langwatch.knowledge.123",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "90830cabc76bc0eee2762f180af532f438c6476e6bc49b372f7c641810558f27"
+      ],
+      "costUsd": 0.0006536000000000001
+    },
+    {
+      "id": "langwatch.knowledge.124",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "321aa45b8f01ab5fb088a15b2e9b0e995622d390dbd6c16a264c57b93486e33e"
+      ],
+      "costUsd": 0.0006526
+    },
+    {
+      "id": "langwatch.knowledge.125",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "af789945e31bb6aaf501d7b561e7059b7397ed0b600f0d03ad3f32be74f76406"
+      ],
+      "costUsd": 0.0006914
+    },
+    {
+      "id": "langwatch.knowledge.126",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "0b1f284900c0426114e43e8400dc20d13cef8ed954e564f37da6b32074a03895"
+      ],
+      "costUsd": 0.0012875999999999999
+    }
+  ]
+}

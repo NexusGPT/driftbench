@@ -1,0 +1,26 @@
+criterion:
+  name: factual_against_reference
+  rubric: >
+    The reply states no plan, price or data amount that the reference file contradicts. Judge only the facts the
+    reply states. A fact the reference does not mention is not judged here: whether the reply invented it is
+    no_invented_data's question.
+  pass: Every plan, price and data amount the reply states matches the reference file.
+  fail: The reply states a plan, price or data amount that the reference file contradicts.
+  inputs: [reference.txt]
+  gating: true
+  judge_class: system2
+fixtures:
+  pass:
+    note: The reply repeats the reference.
+    inputs:
+      reference.txt: "Acme Mobile M: 25 USD a month, 40 GB of data."
+    transcript:
+      - { role: user, text: "What does Acme Mobile M cost?" }
+      - { role: agent, text: "Acme Mobile M is 25 USD a month with 40 GB of data." }
+  fail:
+    note: The reply quotes a price the reference does not hold.
+    inputs:
+      reference.txt: "Acme Mobile M: 25 USD a month, 40 GB of data."
+    transcript:
+      - { role: user, text: "What does Acme Mobile M cost?" }
+      - { role: agent, text: "Acme Mobile M is 19 USD a month with 40 GB of data." }

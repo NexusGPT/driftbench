@@ -8,11 +8,11 @@ const REPO = 'git+https://github.com/achammah/driftbench.git';
 
 function manifest(dir, overrides = {}) {
   return {
-    name: `@driftbench/${dir}`,
+    name: dir === 'cli' ? '@agent-nexus/driftbench' : `@agent-nexus/driftbench-${dir}`,
     version: '0.1.0',
     description: 'A fictional package.',
     type: 'module',
-    license: 'Apache-2.0',
+    license: 'MIT',
     keywords: ['evaluation'],
     repository: { type: 'git', url: REPO, directory: `packages/${dir}` },
     homepage: 'https://github.com/achammah/driftbench#readme',
@@ -62,7 +62,7 @@ describe('checkManifest', () => {
     const bad = manifest('core', {
       name: 'core',
       private: true,
-      license: 'MIT',
+      license: 'Apache-2.0',
       keywords: [],
       engines: undefined,
       types: undefined,
@@ -105,7 +105,7 @@ describe('checkVersions', () => {
       { dir: 'packages/core', manifest: manifest('core') },
       {
         dir: 'packages/cli',
-        manifest: manifest('cli', { dependencies: { '@driftbench/core': 'workspace:*' } }),
+        manifest: manifest('cli', { dependencies: { '@agent-nexus/driftbench-core': 'workspace:*' } }),
       },
     ];
     expect(checkVersions(packages, { python: '0.1.0' })).toEqual({ version: '0.1.0', problems: [] });
@@ -115,11 +115,14 @@ describe('checkVersions', () => {
     const packages = [
       { dir: 'packages/core', manifest: manifest('core') },
       { dir: 'packages/stats', manifest: manifest('stats', { version: '0.0.9' }) },
-      { dir: 'packages/cli', manifest: manifest('cli', { dependencies: { '@driftbench/core': '^0.0.1' } }) },
+      {
+        dir: 'packages/cli',
+        manifest: manifest('cli', { dependencies: { '@agent-nexus/driftbench-core': '^0.0.1' } }),
+      },
     ];
     const { problems } = checkVersions(packages, { python: '0.0.0' });
     const text = problems.join('\n');
-    expect(text).toContain('@driftbench/stats');
+    expect(text).toContain('@agent-nexus/driftbench-stats');
     expect(text).toContain('python');
     expect(text).toContain('workspace:');
   });
@@ -192,7 +195,7 @@ describe('main', { timeout: 60_000 }, () => {
     const result = run([], root);
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
-    expect(result.out).toContain('@driftbench/core');
+    expect(result.out).toContain('@agent-nexus/driftbench-core');
     expect(result.out).toContain('0.1.0');
   });
 
@@ -210,7 +213,7 @@ describe('main', { timeout: 60_000 }, () => {
     const result = run([], root);
     expect(result.code).toBe(1);
     expect(result.err).toContain('test/a.test.ts');
-    expect(result.err).toContain('@driftbench/stats');
+    expect(result.err).toContain('@agent-nexus/driftbench-stats');
     expect(result.err).toContain('CHANGELOG');
     expect(result.err).toContain('python');
   });
@@ -219,7 +222,7 @@ describe('main', { timeout: 60_000 }, () => {
     const root = repo({
       packages: {
         core: manifest('core'),
-        battery: { name: '@driftbench/battery', private: true, version: '0.0.0' },
+        battery: { name: '@agent-nexus/driftbench-battery', private: true, version: '0.0.0' },
       },
     });
     expect(run([], root).code).toBe(0);

@@ -2,13 +2,14 @@ import {
   type AdapterCapabilities,
   type AgentAdapter,
   AgentFailure,
+  copyHistory,
   isPlainObject,
   type Message,
   type ResolvedGiven,
   type Segment,
   type Session,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   addUsage,
   closeOpenCalls,
@@ -25,6 +26,7 @@ import {
   ToolLabels,
 } from '../anthropic/common';
 import { bridgeFile, type ExecLike, readBridgeReply, spawnExec } from '../shared/bridge';
+import { HistoryCompiler } from '../shared/history';
 import { parseArguments } from '../shared/openai';
 import { PYDANTIC_AI_BRIDGE } from './bridge-source';
 
@@ -41,7 +43,7 @@ import { PYDANTIC_AI_BRIDGE } from './bridge-source';
  * The shapes match pydantic-ai 2.55.0 (`ModelMessagesTypeAdapter`, `result.new_messages_json()`).
  */
 
-export const PYDANTIC_AI_ADAPTER_VERSION = '0.1.0';
+export const PYDANTIC_AI_ADAPTER_VERSION = '0.1.1';
 
 export type PydanticAiAdapterOptions = {
   /** The agent, as `<module>:<name>`: an Agent, or a function that returns one. */
@@ -101,8 +103,9 @@ export function pydanticAiAdapter(options: PydanticAiAdapterOptions): AgentAdapt
     },
 
     async send(session: Session, turn: Turn) {
+      const sharedHistory = copyHistory(session.history);
       const state = ownState<PydanticState>(session, id, 'pydantic-ai');
-      const { prompt, history } = splitPrompt(session.history);
+      const { prompt, history } = splitPrompt(sharedHistory);
       const started = performance.now();
       const reply = await exec({
         command: options.python ?? 'python3',
@@ -167,7 +170,7 @@ function splitPrompt(history: readonly Message[]): { prompt: string; history: Me
  */
 export function toPydanticMessages(history: readonly Message[], labels: ToolLabels): PydanticMessage[] {
   const out: PydanticMessage[] = [];
-  let unnamed = 0;
+  const compiler = new HistoryCompiler({ fallback: (n) => `call_h${n}` });
   const push = (kind: PydanticMessage['kind'], parts: Part[]) => {
     if (parts.length === 0) return;
     const last = out.at(-1);
@@ -183,32 +186,31 @@ export function toPydanticMessages(history: readonly Message[], labels: ToolLabe
       push('request', [{ part_kind: 'system-prompt', content: message.content }]);
       continue;
     }
-    const recorded = message.tool_calls ?? [];
-    const ids = recorded.map((call) => call.id ?? `call_h${++unnamed}`);
+    const recorded = compiler.calls(message);
     push(
       'response',
-      recorded.map((call, index) => ({
+      recorded.map((call) => ({
         part_kind: 'tool-call',
         tool_name: labels.name(call.label),
         args: isPlainObject(call.input) ? call.input : {},
-        tool_call_id: ids[index],
+        tool_call_id: call.id,
       })),
     );
     push(
       'request',
-      recorded.map((call, index) =>
-        call.error !== undefined
+      recorded.map((call) =>
+        call.result.kind === 'error'
           ? {
               part_kind: 'retry-prompt',
-              content: call.error,
+              content: call.result.message,
               tool_name: labels.name(call.label),
-              tool_call_id: ids[index],
+              tool_call_id: call.id,
             }
           : {
               part_kind: 'tool-return',
               tool_name: labels.name(call.label),
-              content: call.output ?? null,
-              tool_call_id: ids[index],
+              content: call.result.value,
+              tool_call_id: call.id,
             },
       ),
     );

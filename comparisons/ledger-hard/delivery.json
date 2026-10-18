@@ -1,0 +1,45 @@
+{
+  "created": "2026-10-14T03:20:49.826979+00:00",
+  "dossier": "/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/dossier-ledger-hard.md",
+  "dossier_sha256": "8448953225879ba0b68917f2452bd28954413a62c98a4b8237b6ead60a4c174a",
+  "local_final_sha256": "8448953225879ba0b68917f2452bd28954413a62c98a4b8237b6ead60a4c174a",
+  "full_coverage": true,
+  "original_frozen_matrix_complete": false,
+  "available_models_complete": true,
+  "dropped_models": [
+    {
+      "model": "gemini-3.8-flash",
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "pending_requests": 0,
+      "archival_unrun_requests": 262,
+      "report_score": false
+    }
+  ],
+  "pending_requests_by_model": {
+    "claude-sonnet-5-5": 0,
+    "gpt-6.1-sol": 0
+  },
+  "measured_usd": 63.3552102,
+  "lost_attempt_reserve_usd": 4.9,
+  "unique_recorded_requests": 35818,
+  "flash_lite_complete": true,
+  "added_models": {
+    "sonnet-5-5": {
+      "model": "claude-sonnet-5-5",
+      "complete": true,
+      "unique_calls": 6560,
+      "measured_usd": 33.726765,
+      "lost_unique_requests": 60,
+      "token_limited_entries": 0
+    },
+    "gpt-6.1-sol": {
+      "model": "gpt-6.1-sol",
+      "complete": true,
+      "unique_calls": 6560,
+      "measured_usd": 12.446968,
+      "lost_unique_requests": 3,
+      "token_limited_entries": 3
+    }
+  },
+  "overall_cap_usd": 91
+}

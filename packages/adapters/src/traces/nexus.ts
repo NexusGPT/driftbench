@@ -1,4 +1,5 @@
 import { type Generation, observedFromGenerations } from '../nexus/turn';
+import { isRecord } from '../shared/records';
 import type { Trace, TraceTurn } from './types';
 
 /**
@@ -105,8 +106,4 @@ function userOf(messages: unknown): string {
     if (texts.length > 0) return texts.join('\n');
   }
   return '';
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
 }

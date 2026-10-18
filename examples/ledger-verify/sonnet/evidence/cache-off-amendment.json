@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-13T15:59:22.994828+00:00",
+  "status": "frozen before cache-disabled calls",
+  "authorization": "Owner: remeasure five next unanswered DEV calls with DISABLE_PROMPT_CACHING=1 for both contestants. At most 45 USD projected activates cap 45 including holds; otherwise owner budget decision before pilot.",
+  "initialCacheCreation1hTokens": 18259,
+  "initialProjectionUsd": 57.413792,
+  "selectionSha256": "cb4dfb0b06dd180ffa0941973fb2e4ff8a9f017e1d6b82b160a2edda5cafe246",
+  "runtimeSha256": "92043b938cf0fc5b20e22a61e9c9c9c7e5ea3859ed31a00f3ce263c3341ac17e",
+  "settingsUnchanged": [
+    "medium",
+    "model sonnet",
+    "lean empty directory",
+    "16384 total output tokens",
+    "300 second attempts",
+    "sealed order",
+    "all contestant prompts"
+  ],
+  "answerResubmission": false
+}

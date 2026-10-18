@@ -1,4 +1,4 @@
-# @driftbench/validators
+# @agent-nexus/driftbench-validators
 
 Validators that prove driftbench works: each plants a known truth, runs one part of the framework and scores a ladder of levels.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install @driftbench/validators
+npm install @agent-nexus/driftbench-validators
 ```
 
 Node.js 22.13 or newer. ESM only, with TypeScript types.
@@ -27,4 +27,4 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## License
 
-Apache-2.0
+MIT

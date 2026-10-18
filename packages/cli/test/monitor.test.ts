@@ -2,9 +2,9 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Campaign, RunResult } from '@driftbench/core';
-import { mulberry32 } from '@driftbench/stats';
-import { openStore } from '@driftbench/store';
+import type { Campaign, RunResult } from '@agent-nexus/driftbench-core';
+import { mulberry32 } from '@agent-nexus/driftbench-stats';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { afterAll, describe, expect, it } from 'vitest';
 import { type MonitorReport, monitor, type SeriesPoint } from '../src/commands/monitor';
 import { type Io, main } from '../src/index';
@@ -400,6 +400,25 @@ describe('driftbench monitor input', () => {
       const fits = await cli(['monitor', '--store', path, '--metric', 'cost', '--window', '5']);
       expect(fits.err).toBe('');
       expect(fits.code).toBe(0);
+    },
+    SLOW,
+  );
+
+  it(
+    'says what to do when the store is too small for the window: a window that fits, or how many campaigns to gather',
+    async () => {
+      const fifteen = await plantedStore({ pass: [0.9, 0.9], at: 60, seed: 1, campaigns: 15 });
+      const short = await cli(['monitor', '--store', fifteen, '--metric', 'pass_rate']);
+      expect(short.code).toBe(2);
+      expect(short.err).toBe(
+        'The store holds 15 campaigns with runs; --window 20 needs at least 40. Nothing is wrong with the store: the monitor cannot decide on so few points. Run more campaigns into it, or pass a window that fits: --window 7 at most.\n',
+      );
+      const three = await plantedStore({ pass: [0.9, 0.9], at: 60, seed: 1, campaigns: 3 });
+      const tiny = await cli(['monitor', '--store', three, '--metric', 'pass_rate']);
+      expect(tiny.code).toBe(2);
+      expect(tiny.err).toBe(
+        'The store holds 3 campaigns with runs; --window 20 needs at least 40. Nothing is wrong with the store: the monitor cannot decide on so few points. Run more campaigns into it: the smallest window, --window 2, needs 4.\n',
+      );
     },
     SLOW,
   );

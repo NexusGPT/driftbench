@@ -11,6 +11,7 @@ const LANCZOS = [
 
 /** Natural log of the gamma function, Lanczos approximation (g = 7, n = 9). */
 export function logGamma(x: number): number {
+  if (x <= 0 && Number.isInteger(x)) return Number.POSITIVE_INFINITY;
   if (x < 0.5) {
     // Reflection formula.
     return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * x))) - logGamma(1 - x);
@@ -65,6 +66,7 @@ function betaContinuedFraction(a: number, b: number, x: number): number {
 
 /** Regularized incomplete beta function I_x(a, b). */
 export function incompleteBeta(x: number, a: number, b: number): number {
+  if (x < 0 || x > 1) return Number.NaN;
   if (x <= 0) return 0;
   if (x >= 1) return 1;
   const front = Math.exp(logGamma(a + b) - logGamma(a) - logGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
@@ -74,6 +76,7 @@ export function incompleteBeta(x: number, a: number, b: number): number {
 
 /** Quantile of the Beta(a, b) distribution, by bisection on the regularized incomplete beta. */
 export function betaQuantile(p: number, a: number, b: number): number {
+  if (Number.isNaN(p)) throw new RangeError('betaQuantile: p must not be NaN');
   if (p <= 0) return 0;
   if (p >= 1) return 1;
   let lo = 0;
@@ -82,7 +85,7 @@ export function betaQuantile(p: number, a: number, b: number): number {
     const mid = (lo + hi) / 2;
     if (incompleteBeta(mid, a, b) < p) lo = mid;
     else hi = mid;
-    if (hi - lo < 1e-16) break;
+    if (hi - lo <= 1e-15 * hi) break;
   }
   return (lo + hi) / 2;
 }
@@ -138,6 +141,8 @@ export function erfc(x: number): number {
 
 /** Standard normal cumulative distribution function. */
 export function normalCdf(z: number): number {
+  if (z === Number.POSITIVE_INFINITY) return 1;
+  if (z === Number.NEGATIVE_INFINITY) return 0;
   return 0.5 * erfc(-z / Math.SQRT2);
 }
 
@@ -165,6 +170,20 @@ function poly(coefs: readonly number[], x: number): number {
   return r;
 }
 
+/** Below this p the normal quantile refines in scaled form (see normalQuantile). */
+const DEEP_TAIL = 1e-300;
+
+/**
+ * The Mills ratio (1 - cdf(t)) / pdf(t) for t of about 30 and above, from Laplace's continued fraction
+ * 1 / (t + 1 / (t + 2 / (t + 3 / (t + ...)))) evaluated from the 80th term backwards. It does not form
+ * exp(-t^2 / 2), so it holds where the density itself underflows.
+ */
+function millsRatio(t: number): number {
+  let r = t;
+  for (let k = 80; k >= 1; k -= 1) r = t + k / r;
+  return 1 / r;
+}
+
 /** Quantile of the standard normal distribution: Acklam's approximation with one Halley refinement. */
 export function normalQuantile(p: number): number {
   if (!(p > 0 && p < 1)) {
@@ -185,8 +204,19 @@ export function normalQuantile(p: number): number {
     const q = Math.sqrt(-2 * Math.log(1 - p));
     x = -poly(ACKLAM_C, q) / (poly(ACKLAM_D, q) * q + 1);
   }
+  if (p < DEEP_TAIL) {
+    // exp(x^2 / 2) overflows once |x| passes 37.68 (p about 1e-311), and cdf(x) is subnormal there. Scale the Halley
+    // step by the density instead: u = (cdf(x) - p) / pdf(x) = millsRatio(-x) - p sqrt(2 pi) exp(log p + x^2 / 2).
+    for (let i = 0; i < 2; i += 1) {
+      const u = millsRatio(-x) - Math.sqrt(2 * Math.PI) * Math.exp(Math.log(p) + (x * x) / 2);
+      x -= u / (1 + (x * u) / 2);
+    }
+    return x;
+  }
   for (let i = 0; i < 2; i += 1) {
-    const e = normalCdf(x) - p;
+    // Above one half, cdf(x) - p is computed as (1 - p) - sf(x): 1 - p is exact there, and the difference of two
+    // numbers near 1 would keep only the digits that p has left of the gap to 1.
+    const e = p > 0.5 ? 1 - p - normalSf(x) : normalCdf(x) - p;
     const u = e * Math.sqrt(2 * Math.PI) * Math.exp((x * x) / 2);
     x -= u / (1 + (x * u) / 2);
   }
@@ -195,6 +225,8 @@ export function normalQuantile(p: number): number {
 
 /** Survival function of the chi-square distribution with df degrees of freedom. */
 export function chiSquareSf(x: number, df: number): number {
+  if (!(df > 0)) throw new RangeError(`chiSquareSf: df must be above 0, got ${df}`);
+  if (x === Number.POSITIVE_INFINITY) return 0;
   if (x <= 0) return 1;
   return upperIncompleteGamma(df / 2, x / 2);
 }

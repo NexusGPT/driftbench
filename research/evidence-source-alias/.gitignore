@@ -1,0 +1,3 @@
+*.log
+generated/
+pr-body.md

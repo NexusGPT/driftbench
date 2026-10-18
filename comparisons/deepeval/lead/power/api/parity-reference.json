@@ -1,0 +1,1408 @@
+[
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "power/knowledge-known-vs-new-21-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied a residence address, \\\"I live at 548 Lantern Lane, Fiction Bay.\\\" The last assistant reply asks for a postal address for delivery without saying the delivery address differs from the residence. Because the user gave no separate delivery address or purpose, this asks the user to supply a known postal address again, which is a re-ask. The reply's claim that it already has a delivery time is not a contradiction of any user fact, but the address re-ask violates the criterion regardless of the rest of the reply. The reply does not contradict the email-only contact restriction or the budget.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"I live at 548 Lantern Lane, Fiction Bay.\"},{\"source\":\"transcript.1\",\"quote\":\"What postal address should we deliver to?\"}],\"met\":false}]}",
+      "request_sha256s": [
+        "66a6a21121452c00a8f38d1d49ce7a5b42c538c142546fb5817e43eca53ae593"
+      ],
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied a residence address, \\\"I live at 548 Lantern Lane, Fiction Bay.\\\" The last assistant reply asks for a postal address for delivery without saying the delivery address differs from the residence. Because the user gave no separate delivery address or purpose, this asks the user to supply a known postal address again, which is a re-ask. The reply's claim that it already has a delivery time is not a contradiction of any user fact, but the address re-ask violates the criterion regardless of the rest of the reply. The reply does not contradict the email-only contact restriction or the budget.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"I live at 548 Lantern Lane, Fiction Bay.\"},{\"source\":\"transcript.1\",\"quote\":\"What postal address should we deliver to?\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The user supplied a residence address, \"I live at 548 Lantern Lane, Fiction Bay.\" The last assistant reply asks for a postal address for delivery without saying the delivery address differs from the residence. Because the user gave no separate delivery address or purpose, this asks the user to supply a known postal address again, which is a re-ask. The reply's claim that it already has a delivery time is not a contradiction of any user fact, but the address re-ask violates the criterion regardless of the rest of the reply. The reply does not contradict the email-only contact restriction or the budget.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "I live at 548 Lantern Lane, Fiction Bay."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "What postal address should we deliver to?"
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The user supplied a residence address, \"I live at 548 Lantern Lane, Fiction Bay.\" The last assistant reply asks for a postal address for delivery without saying the delivery address differs from the residence. Because the user gave no separate delivery address or purpose, this asks the user to supply a known postal address again, which is a re-ask. The reply's claim that it already has a delivery time is not a contradiction of any user fact, but the address re-ask violates the criterion regardless of the rest of the reply. The reply does not contradict the email-only contact restriction or the budget.",
+          "evidence": "I live at 548 Lantern Lane, Fiction Bay."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "8959bed9b923112e67df1e4d25eeb2c95858dd4dd59e779fd6b8755108387846",
+        "19d93076fc42274909c0d9824d700ababc03a661e253e6feecb06869d117135a"
+      ]
+    },
+    "source": "power"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "power/knowledge-fluent-reask-12-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied their email address in entry 0 ('my email is mira4147@example.invalid'). The last assistant reply in entry 1 asks the user to supply their email address again, which is a re-ask of a known fact. The rest of the reply does not contradict other current facts, but the re-ask alone violates the criterion.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira4147@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"please supply your email address so the team can send the confirmation\"}],\"met\":false}]}",
+      "request_sha256s": [
+        "c10133a5215b98fd21df01f4ca93f5a87edf766dc24a0bc38141ee7b8eaeee15"
+      ],
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied their email address in entry 0 ('my email is mira4147@example.invalid'). The last assistant reply in entry 1 asks the user to supply their email address again, which is a re-ask of a known fact. The rest of the reply does not contradict other current facts, but the re-ask alone violates the criterion.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira4147@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"please supply your email address so the team can send the confirmation\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The user supplied their email address in entry 0 ('my email is mira4147@example.invalid'). The last assistant reply in entry 1 asks the user to supply their email address again, which is a re-ask of a known fact. The rest of the reply does not contradict other current facts, but the re-ask alone violates the criterion.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira4147@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "please supply your email address so the team can send the confirmation"
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The user supplied their email address in entry 0 ('my email is mira4147@example.invalid'). The last assistant reply in entry 1 asks the user to supply their email address again, which is a re-ask of a known fact. The rest of the reply does not contradict other current facts, but the re-ask alone violates the criterion.",
+          "evidence": "my email is mira4147@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "d7cf46d586bb18939c9814b488180a046dc418e0dd3eff53dd4dd39bf45d5574",
+        "461258d09a760aa99efe0a200fe3a0e865ca2dec0b119aab569a2b4f42f71792"
+      ]
+    },
+    "source": "power"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "power/knowledge-long-distractors-34-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) does not re-ask any supplied fact. Its only user-fact reference is the email address, which it confirms as the destination for the confirmation, and confirming a supplied value is allowed. It does not ask for the name, address, budget, or contact preference again. It contradicts no current fact: the email matches the user's supplied address, and the reply does not mention phone contact, so the email-only restriction is preserved. The repeated 'Archive note' lines are odd but do not re-ask or contradict any user fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The confirmation will go to mira9040@example.invalid.\"},{\"source\":\"transcript.0\",\"quote\":\"my email is mira9040@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"}],\"met\":true}]}",
+      "request_sha256s": [
+        "0797fce25ee60aa499e5f5b808fbd671c5c1b32c3429280adf0a0d20923a5487"
+      ],
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) does not re-ask any supplied fact. Its only user-fact reference is the email address, which it confirms as the destination for the confirmation, and confirming a supplied value is allowed. It does not ask for the name, address, budget, or contact preference again. It contradicts no current fact: the email matches the user's supplied address, and the reply does not mention phone contact, so the email-only restriction is preserved. The repeated 'Archive note' lines are odd but do not re-ask or contradict any user fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The confirmation will go to mira9040@example.invalid.\"},{\"source\":\"transcript.0\",\"quote\":\"my email is mira9040@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The last assistant reply (entry 1) does not re-ask any supplied fact. Its only user-fact reference is the email address, which it confirms as the destination for the confirmation, and confirming a supplied value is allowed. It does not ask for the name, address, budget, or contact preference again. It contradicts no current fact: the email matches the user's supplied address, and the reply does not mention phone contact, so the email-only restriction is preserved. The repeated 'Archive note' lines are odd but do not re-ask or contradict any user fact.",
+            "evidence": [
+              {
+                "source": "transcript.1",
+                "quote": "The confirmation will go to mira9040@example.invalid."
+              },
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira9040@example.invalid"
+              },
+              {
+                "source": "transcript.0",
+                "quote": "Contact me by email only, never phone."
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The last assistant reply (entry 1) does not re-ask any supplied fact. Its only user-fact reference is the email address, which it confirms as the destination for the confirmation, and confirming a supplied value is allowed. It does not ask for the name, address, budget, or contact preference again. It contradicts no current fact: the email matches the user's supplied address, and the reply does not mention phone contact, so the email-only restriction is preserved. The repeated 'Archive note' lines are odd but do not re-ask or contradict any user fact.",
+          "evidence": "The confirmation will go to mira9040@example.invalid."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "ed04b42e11814bc48c99c5c948e077e977a29aa7dc9c0819a075a415ed5127fd",
+        "41748a8b88845b5194ecb4a04d22d38945b1a041e621441dac8cb5c75dda6de0"
+      ]
+    },
+    "source": "power"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "power/knowledge-mixed-language-49-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single French sentence. It reuses the supplied email address exactly, so it does not re-ask for it or alter it. It also keeps the contact restriction from entry 0 ('Contact me by email only, never phone'): the reply says it will not phone the user. It does not re-ask for the name, address, or budget, and it does not contradict any current user fact. Unmentioned facts such as the address and budget need not be repeated.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira5387@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"je ne vous téléphonerai pas.\"}],\"met\":true}]}",
+      "request_sha256s": [
+        "75016844f49072ef82317a6c37809d5e74e68afb6525e0b159812ba80373a822"
+      ],
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single French sentence. It reuses the supplied email address exactly, so it does not re-ask for it or alter it. It also keeps the contact restriction from entry 0 ('Contact me by email only, never phone'): the reply says it will not phone the user. It does not re-ask for the name, address, or budget, and it does not contradict any current user fact. Unmentioned facts such as the address and budget need not be repeated.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira5387@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"je ne vous téléphonerai pas.\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The last assistant reply (entry 1) is a single French sentence. It reuses the supplied email address exactly, so it does not re-ask for it or alter it. It also keeps the contact restriction from entry 0 ('Contact me by email only, never phone'): the reply says it will not phone the user. It does not re-ask for the name, address, or budget, and it does not contradict any current user fact. Unmentioned facts such as the address and budget need not be repeated.",
+            "evidence": [
+              {
+                "source": "transcript.1",
+                "quote": "Le reçu sera envoyé à mira5387@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "je ne vous téléphonerai pas."
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The last assistant reply (entry 1) is a single French sentence. It reuses the supplied email address exactly, so it does not re-ask for it or alter it. It also keeps the contact restriction from entry 0 ('Contact me by email only, never phone'): the reply says it will not phone the user. It does not re-ask for the name, address, or budget, and it does not contradict any current user fact. Unmentioned facts such as the address and budget need not be repeated.",
+          "evidence": "Le reçu sera envoyé à mira5387@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "4b8072e9783a6547984de5db93da3db2a5bc723b416cd64b51f8e00bebca1097",
+        "23cf9ca85af1d1db55e8132d12880457556c65affa331acc42f0dba655532a05"
+      ]
+    },
+    "source": "power"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "power/knowledge-fluent-reask-48-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The only assistant reply is entry 1, which comes after the user's only message (entry 0). The user supplied the owner's name (Mira Vale 3029), email (mira3029@example.invalid), address (829 Lantern Lane, Fiction Bay), monthly budget (93 USD), and a contact restriction (email only, never phone). The reply confirms the supplied email with the same value and does not restate it as a question. It asks which plan the user wants, and no plan was supplied earlier, so this is new information rather than a re-ask. The reply does not re-ask the name, address, or budget, does not contradict any supplied value, and does not propose phone contact, so the contact restriction is preserved.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira3029@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"I have saved mira3029@example.invalid; thanks for sharing it.\"},{\"source\":\"transcript.1\",\"quote\":\"Which plan do you want?\"}],\"met\":true}]}",
+      "request_sha256s": [
+        "73e4d87b5a62eee2ac6c0d2d7fc78e4c5e57f054268bed86b2780e7da58dbb73"
+      ],
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The only assistant reply is entry 1, which comes after the user's only message (entry 0). The user supplied the owner's name (Mira Vale 3029), email (mira3029@example.invalid), address (829 Lantern Lane, Fiction Bay), monthly budget (93 USD), and a contact restriction (email only, never phone). The reply confirms the supplied email with the same value and does not restate it as a question. It asks which plan the user wants, and no plan was supplied earlier, so this is new information rather than a re-ask. The reply does not re-ask the name, address, or budget, does not contradict any supplied value, and does not propose phone contact, so the contact restriction is preserved.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira3029@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"I have saved mira3029@example.invalid; thanks for sharing it.\"},{\"source\":\"transcript.1\",\"quote\":\"Which plan do you want?\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The only assistant reply is entry 1, which comes after the user's only message (entry 0). The user supplied the owner's name (Mira Vale 3029), email (mira3029@example.invalid), address (829 Lantern Lane, Fiction Bay), monthly budget (93 USD), and a contact restriction (email only, never phone). The reply confirms the supplied email with the same value and does not restate it as a question. It asks which plan the user wants, and no plan was supplied earlier, so this is new information rather than a re-ask. The reply does not re-ask the name, address, or budget, does not contradict any supplied value, and does not propose phone contact, so the contact restriction is preserved.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira3029@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "I have saved mira3029@example.invalid; thanks for sharing it."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "Which plan do you want?"
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The only assistant reply is entry 1, which comes after the user's only message (entry 0). The user supplied the owner's name (Mira Vale 3029), email (mira3029@example.invalid), address (829 Lantern Lane, Fiction Bay), monthly budget (93 USD), and a contact restriction (email only, never phone). The reply confirms the supplied email with the same value and does not restate it as a question. It asks which plan the user wants, and no plan was supplied earlier, so this is new information rather than a re-ask. The reply does not re-ask the name, address, or budget, does not contradict any supplied value, and does not propose phone contact, so the contact restriction is preserved.",
+          "evidence": "my email is mira3029@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": null,
+      "error": "Command '['claude', '-p', '--output-format', 'json', '--model', 'haiku', '--system-prompt', 'You answer with one JSON object and nothing else.', '--tools', '', '--setting-sources', '', '--strict-mcp-config', '--no-session-persistence', '--max-turns', '1', '--max-budget-usd', '0.05']' timed out after 180 seconds",
+      "request_sha256s": [
+        "595de5f46c07f1be6cba1c2e532651efb2f1fa4ba9523e676f46ef1944c2e2a8",
+        "7b5d3c449e4d7d5fc72b8fadc8164c2a3b4ebf7982f2d13c6767de2d340fd8e2"
+      ]
+    },
+    "source": "power"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "power/knowledge-long-distractors-27-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The only user message is entry 0, and the last assistant reply is entry 1. Entry 1 does not ask for any fact the user already gave, such as name, address, budget, or contact details. Its one user-fact reference is the confirmation email, which matches the email the user supplied and does not conflict with it. The user's restriction to email-only contact is not violated, since the reply proposes no phone contact. The repeated archive-note lines add noise but do not contradict any current user fact.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira4796@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"},{\"source\":\"transcript.1\",\"quote\":\"The confirmation will go to mira4796@example.invalid.\"}],\"met\":true}]}",
+      "request_sha256s": [
+        "3decbefac8e709a48847a03e230e54e2ca5f8963919e086a969f48491bef1867"
+      ],
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The only user message is entry 0, and the last assistant reply is entry 1. Entry 1 does not ask for any fact the user already gave, such as name, address, budget, or contact details. Its one user-fact reference is the confirmation email, which matches the email the user supplied and does not conflict with it. The user's restriction to email-only contact is not violated, since the reply proposes no phone contact. The repeated archive-note lines add noise but do not contradict any current user fact.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira4796@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"},{\"source\":\"transcript.1\",\"quote\":\"The confirmation will go to mira4796@example.invalid.\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The only user message is entry 0, and the last assistant reply is entry 1. Entry 1 does not ask for any fact the user already gave, such as name, address, budget, or contact details. Its one user-fact reference is the confirmation email, which matches the email the user supplied and does not conflict with it. The user's restriction to email-only contact is not violated, since the reply proposes no phone contact. The repeated archive-note lines add noise but do not contradict any current user fact.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira4796@example.invalid"
+              },
+              {
+                "source": "transcript.0",
+                "quote": "Contact me by email only, never phone."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "The confirmation will go to mira4796@example.invalid."
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The only user message is entry 0, and the last assistant reply is entry 1. Entry 1 does not ask for any fact the user already gave, such as name, address, budget, or contact details. Its one user-fact reference is the confirmation email, which matches the email the user supplied and does not conflict with it. The user's restriction to email-only contact is not violated, since the reply proposes no phone contact. The repeated archive-note lines add noise but do not contradict any current user fact.",
+          "evidence": "my email is mira4796@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": null,
+      "error": "Command '['claude', '-p', '--output-format', 'json', '--model', 'haiku', '--system-prompt', 'You answer with one JSON object and nothing else.', '--tools', '', '--setting-sources', '', '--strict-mcp-config', '--no-session-persistence', '--max-turns', '1', '--max-budget-usd', '0.05']' timed out after 180 seconds",
+      "request_sha256s": [
+        "460818a6495165d0c86cc45aca15a805cee94f9c4c81e99818704b9583753f8c"
+      ]
+    },
+    "source": "power"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "power/knowledge-reask-address-2-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single short message. It acknowledges that the assistant has the user's address, which matches the supplied address (134 Lantern Lane, Fiction Bay), and it does not ask for the address, email, budget, or name again. It asks only about delivery time, which the user never supplied, so this is permitted new information. It does not mention phone contact or any other channel, so the email-only restriction is not violated. No supplied fact is contradicted.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"I have your address.\"},{\"source\":\"transcript.1\",\"quote\":\"Which delivery time works?\"}],\"met\":true}]}",
+      "request_sha256s": [
+        "e46cbb23a9bff619c3bd6f97a14b7e1b2f6a0d70173f980e2bcb3dc3aa857d0a"
+      ],
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single short message. It acknowledges that the assistant has the user's address, which matches the supplied address (134 Lantern Lane, Fiction Bay), and it does not ask for the address, email, budget, or name again. It asks only about delivery time, which the user never supplied, so this is permitted new information. It does not mention phone contact or any other channel, so the email-only restriction is not violated. No supplied fact is contradicted.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"I have your address.\"},{\"source\":\"transcript.1\",\"quote\":\"Which delivery time works?\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The last assistant reply (entry 1) is a single short message. It acknowledges that the assistant has the user's address, which matches the supplied address (134 Lantern Lane, Fiction Bay), and it does not ask for the address, email, budget, or name again. It asks only about delivery time, which the user never supplied, so this is permitted new information. It does not mention phone contact or any other channel, so the email-only restriction is not violated. No supplied fact is contradicted.",
+            "evidence": [
+              {
+                "source": "transcript.1",
+                "quote": "I have your address."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "Which delivery time works?"
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The last assistant reply (entry 1) is a single short message. It acknowledges that the assistant has the user's address, which matches the supplied address (134 Lantern Lane, Fiction Bay), and it does not ask for the address, email, budget, or name again. It asks only about delivery time, which the user never supplied, so this is permitted new information. It does not mention phone contact or any other channel, so the email-only restriction is not violated. No supplied fact is contradicted.",
+          "evidence": "I have your address."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": null,
+      "error": "Command '['claude', '-p', '--output-format', 'json', '--model', 'haiku', '--system-prompt', 'You answer with one JSON object and nothing else.', '--tools', '', '--setting-sources', '', '--strict-mcp-config', '--no-session-persistence', '--max-turns', '1', '--max-budget-usd', '0.05']' timed out after 180 seconds",
+      "request_sha256s": [
+        "a89fed17d992bb09cb91971782df02ea648f5ca78203385dbeade8b9385759d5"
+      ]
+    },
+    "source": "power"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-known-vs-new-19-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The only assistant reply after the latest user message is entry 1. It asks for a delivery time, which is new information the user has not supplied, so it does not re-ask any supplied fact. It acknowledges that the postal address is already known, which confirms the supplied address rather than asking for it again. The reply does not state any value that conflicts with the user's supplied facts (name, email, address, budget of 149 USD) and does not mention phone contact, so the contact restriction (email only, never phone) is not violated.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"What delivery time suits you?\"},{\"source\":\"transcript.1\",\"quote\":\"I have your postal address already.\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"}],\"met\":true}]}",
+      "request_sha256": "a8bb5bb88d9580efd8199ad888b131b33e08b2e8fda468770072b15465ccd1c3",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The only assistant reply after the latest user message is entry 1. It asks for a delivery time, which is new information the user has not supplied, so it does not re-ask any supplied fact. It acknowledges that the postal address is already known, which confirms the supplied address rather than asking for it again. The reply does not state any value that conflicts with the user's supplied facts (name, email, address, budget of 149 USD) and does not mention phone contact, so the contact restriction (email only, never phone) is not violated.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"What delivery time suits you?\"},{\"source\":\"transcript.1\",\"quote\":\"I have your postal address already.\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The only assistant reply after the latest user message is entry 1. It asks for a delivery time, which is new information the user has not supplied, so it does not re-ask any supplied fact. It acknowledges that the postal address is already known, which confirms the supplied address rather than asking for it again. The reply does not state any value that conflicts with the user's supplied facts (name, email, address, budget of 149 USD) and does not mention phone contact, so the contact restriction (email only, never phone) is not violated.",
+            "evidence": [
+              {
+                "source": "transcript.1",
+                "quote": "What delivery time suits you?"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "I have your postal address already."
+              },
+              {
+                "source": "transcript.0",
+                "quote": "Contact me by email only, never phone."
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The only assistant reply after the latest user message is entry 1. It asks for a delivery time, which is new information the user has not supplied, so it does not re-ask any supplied fact. It acknowledges that the postal address is already known, which confirms the supplied address rather than asking for it again. The reply does not state any value that conflicts with the user's supplied facts (name, email, address, budget of 149 USD) and does not mention phone contact, so the contact restriction (email only, never phone) is not violated.",
+          "evidence": "What delivery time suits you?"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "247265708e95acac10ec0369c00d411bf6d48c4996753279e842830bfb609058",
+        "c59a633686980bcae2c0e2e31020c89d8334409e64207cea6aa47d0bdb33dc77"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-correct-use-18-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied Mira Vale 6313's email as mira6313@example.invalid and stated that contact should be by email only. The last assistant reply gives a different email for the same owner, mira.other@example.invalid, and presents it as where the receipt goes. The user did not state a separate receipt purpose or a different owner, so this is a conflicting value for the same owner and attribute rather than an explicitly different purpose. The reply therefore contradicts a current user fact.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira6313@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"The receipt goes to mira.other@example.invalid, Mira Vale 6313.\"}],\"met\":false}]}",
+      "request_sha256": "123a7ea41e57090e46c309f3b6f452404c53b8e8992ee20ffc9dc6e9a0934056",
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied Mira Vale 6313's email as mira6313@example.invalid and stated that contact should be by email only. The last assistant reply gives a different email for the same owner, mira.other@example.invalid, and presents it as where the receipt goes. The user did not state a separate receipt purpose or a different owner, so this is a conflicting value for the same owner and attribute rather than an explicitly different purpose. The reply therefore contradicts a current user fact.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira6313@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"The receipt goes to mira.other@example.invalid, Mira Vale 6313.\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The user supplied Mira Vale 6313's email as mira6313@example.invalid and stated that contact should be by email only. The last assistant reply gives a different email for the same owner, mira.other@example.invalid, and presents it as where the receipt goes. The user did not state a separate receipt purpose or a different owner, so this is a conflicting value for the same owner and attribute rather than an explicitly different purpose. The reply therefore contradicts a current user fact.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira6313@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "The receipt goes to mira.other@example.invalid, Mira Vale 6313."
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The user supplied Mira Vale 6313's email as mira6313@example.invalid and stated that contact should be by email only. The last assistant reply gives a different email for the same owner, mira.other@example.invalid, and presents it as where the receipt goes. The user did not state a separate receipt purpose or a different owner, so this is a conflicting value for the same owner and attribute rather than an explicitly different purpose. The reply therefore contradicts a current user fact.",
+          "evidence": "my email is mira6313@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "f9f9d09c0e3a60c915e8cff124dab715b407f0b2edaae39e181821e9e5b6401f",
+        "5d0a750586bd66742dd57fd234c43186cbc7ebb758017e4ec43268bafd7a3bc7"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-mixed-language-12-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The only assistant reply after the latest user message is entry 1. It reuses the supplied email address exactly and does not ask the user to provide any fact again. Its phone statement keeps the user's contact restriction: the user said to contact by email only and never by phone, and the reply says it will not call. The reply leaves the address and budget unmentioned, which the criterion allows. No current user fact is contradicted.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"},{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira9574@example.invalid; je ne vous téléphonerai pas.\"}],\"met\":true}]}",
+      "request_sha256": "060722a778b9447bda2783837697f5cddb099014e3803068a8b5ce4144597f6e",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The only assistant reply after the latest user message is entry 1. It reuses the supplied email address exactly and does not ask the user to provide any fact again. Its phone statement keeps the user's contact restriction: the user said to contact by email only and never by phone, and the reply says it will not call. The reply leaves the address and budget unmentioned, which the criterion allows. No current user fact is contradicted.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"},{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira9574@example.invalid; je ne vous téléphonerai pas.\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The only assistant reply after the latest user message is entry 1. It reuses the supplied email address exactly and does not ask the user to provide any fact again. Its phone statement keeps the user's contact restriction: the user said to contact by email only and never by phone, and the reply says it will not call. The reply leaves the address and budget unmentioned, which the criterion allows. No current user fact is contradicted.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "Contact me by email only, never phone."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "Le reçu sera envoyé à mira9574@example.invalid; je ne vous téléphonerai pas."
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The only assistant reply after the latest user message is entry 1. It reuses the supplied email address exactly and does not ask the user to provide any fact again. Its phone statement keeps the user's contact restriction: the user said to contact by email only and never by phone, and the reply says it will not call. The reply leaves the address and budget unmentioned, which the criterion allows. No current user fact is contradicted.",
+          "evidence": "Contact me by email only, never phone."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "7b3bb9e7c714497052319c044f2e49725d4aeeccb2b9a2aae55436126632da39",
+        "770b8b8d0d4657fb4f88b24ba769899b7cde55a7b875639e4480d236eb034423"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-fluent-reask-16-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user's current fact is Mira Vale 5200's email address, which the user stated as mira5200@example.invalid. The last assistant reply asks the user to supply their email address again, even though it was already given. That is a re-ask of a supplied fact, which violates the criterion. The reply does not contradict other current facts, but the re-ask alone fails the check.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira5200@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"please supply your email address so the team can send the confirmation\"}],\"met\":false}]}",
+      "request_sha256": "a4c5984073e9dc64fe35ae3e4bc1ed856b50cc4727de0d87f9c0c4e0f8b7c11b",
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user's current fact is Mira Vale 5200's email address, which the user stated as mira5200@example.invalid. The last assistant reply asks the user to supply their email address again, even though it was already given. That is a re-ask of a supplied fact, which violates the criterion. The reply does not contradict other current facts, but the re-ask alone fails the check.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira5200@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"please supply your email address so the team can send the confirmation\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The user's current fact is Mira Vale 5200's email address, which the user stated as mira5200@example.invalid. The last assistant reply asks the user to supply their email address again, even though it was already given. That is a re-ask of a supplied fact, which violates the criterion. The reply does not contradict other current facts, but the re-ask alone fails the check.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira5200@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "please supply your email address so the team can send the confirmation"
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The user's current fact is Mira Vale 5200's email address, which the user stated as mira5200@example.invalid. The last assistant reply asks the user to supply their email address again, even though it was already given. That is a re-ask of a supplied fact, which violates the criterion. The reply does not contradict other current facts, but the re-ask alone fails the check.",
+          "evidence": "my email is mira5200@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "863cee3e4874da41dbb13c017bf3e6f99a9e9d1ad02ad9ce7f909602b81518e5",
+        "81eafcc807ebaffb80d62741b0acb052ed230cfe66b3a2a18ddb7adaee4fe4d3"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-mixed-language-19-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message (entry 0) supplies the owner Mira Vale 4634's email as mira4634@example.invalid and restricts contact to email only, never phone. The only assistant reply (entry 1) reuses the same email address and states that the assistant will not phone, which keeps the contact restriction intact. It does not re-ask any supplied fact and does not assign a conflicting value to the same owner and attribute. Only the email and contact-restriction facts are relevant to this reply, and both are preserved.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"},{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira4634@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"je ne vous téléphonerai pas\"}],\"met\":true}]}",
+      "request_sha256": "b3b55703cb5c361eb89c789c040c81905c3f26e9cd8a6f3e7813dae9508e6816",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message (entry 0) supplies the owner Mira Vale 4634's email as mira4634@example.invalid and restricts contact to email only, never phone. The only assistant reply (entry 1) reuses the same email address and states that the assistant will not phone, which keeps the contact restriction intact. It does not re-ask any supplied fact and does not assign a conflicting value to the same owner and attribute. Only the email and contact-restriction facts are relevant to this reply, and both are preserved.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"},{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira4634@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"je ne vous téléphonerai pas\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The latest user message (entry 0) supplies the owner Mira Vale 4634's email as mira4634@example.invalid and restricts contact to email only, never phone. The only assistant reply (entry 1) reuses the same email address and states that the assistant will not phone, which keeps the contact restriction intact. It does not re-ask any supplied fact and does not assign a conflicting value to the same owner and attribute. Only the email and contact-restriction facts are relevant to this reply, and both are preserved.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "Contact me by email only, never phone."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "Le reçu sera envoyé à mira4634@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "je ne vous téléphonerai pas"
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The latest user message (entry 0) supplies the owner Mira Vale 4634's email as mira4634@example.invalid and restricts contact to email only, never phone. The only assistant reply (entry 1) reuses the same email address and states that the assistant will not phone, which keeps the contact restriction intact. It does not re-ask any supplied fact and does not assign a conflicting value to the same owner and attribute. Only the email and contact-restriction facts are relevant to this reply, and both are preserved.",
+          "evidence": "Contact me by email only, never phone."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "247265708e95acac10ec0369c00d411bf6d48c4996753279e842830bfb609058",
+        "0a157974dd6cc4efe511fc4a8339d337d98609b3b753ab42495d1b61eebf35af"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-mixed-language-4-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single French sentence. It sends the receipt to the email the user supplied, mira5252@example.invalid, which matches the user's stated email for the same owner. It also states that the assistant will not phone, which honors the user's restriction to contact by email only and never by phone. The reply does not ask the user to repeat any supplied fact. It does not use the address or the budget, but the criterion does not require using unmentioned facts. No contradicting value appears for any current user fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira5252@example.invalid; je ne vous téléphonerai pas.\"},{\"source\":\"transcript.0\",\"quote\":\"my email is mira5252@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"}],\"met\":true}]}",
+      "request_sha256": "39a0faaa13d2f2ccec6e4de1370753c7679fe910fbb209e02c8caad2bbc6a323",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single French sentence. It sends the receipt to the email the user supplied, mira5252@example.invalid, which matches the user's stated email for the same owner. It also states that the assistant will not phone, which honors the user's restriction to contact by email only and never by phone. The reply does not ask the user to repeat any supplied fact. It does not use the address or the budget, but the criterion does not require using unmentioned facts. No contradicting value appears for any current user fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira5252@example.invalid; je ne vous téléphonerai pas.\"},{\"source\":\"transcript.0\",\"quote\":\"my email is mira5252@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The last assistant reply (entry 1) is a single French sentence. It sends the receipt to the email the user supplied, mira5252@example.invalid, which matches the user's stated email for the same owner. It also states that the assistant will not phone, which honors the user's restriction to contact by email only and never by phone. The reply does not ask the user to repeat any supplied fact. It does not use the address or the budget, but the criterion does not require using unmentioned facts. No contradicting value appears for any current user fact.",
+            "evidence": [
+              {
+                "source": "transcript.1",
+                "quote": "Le reçu sera envoyé à mira5252@example.invalid; je ne vous téléphonerai pas."
+              },
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira5252@example.invalid"
+              },
+              {
+                "source": "transcript.0",
+                "quote": "Contact me by email only, never phone."
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The last assistant reply (entry 1) is a single French sentence. It sends the receipt to the email the user supplied, mira5252@example.invalid, which matches the user's stated email for the same owner. It also states that the assistant will not phone, which honors the user's restriction to contact by email only and never by phone. The reply does not ask the user to repeat any supplied fact. It does not use the address or the budget, but the criterion does not require using unmentioned facts. No contradicting value appears for any current user fact.",
+          "evidence": "Le reçu sera envoyé à mira5252@example.invalid; je ne vous téléphonerai pas."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "72163b279589beecb2fe943ad50773d8a7b6fb1cd6f2136a9b15cef36589d659",
+        "38d2e706e0f66925b46e29050cfc8bb30ae681ab74c20d4fa69275b2367f27c1"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-negation-10-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply is a single message that says it will phone the user and also send an email. The user stated a contact restriction: email only, never phone. The reply schedules a phone call, which contradicts that restriction, so the criterion is violated. The reply does not re-ask any supplied fact, but the restriction violation alone fails the requirement.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"},{\"source\":\"transcript.1\",\"quote\":\"I will phone you, as you requested, and send an email too.\"}],\"met\":false}]}",
+      "request_sha256": "1b5cb48f9e4d9e4305bce3df90ea6619e4af79dec139b81f3ef4d8d41e89e6c0",
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply is a single message that says it will phone the user and also send an email. The user stated a contact restriction: email only, never phone. The reply schedules a phone call, which contradicts that restriction, so the criterion is violated. The reply does not re-ask any supplied fact, but the restriction violation alone fails the requirement.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"},{\"source\":\"transcript.1\",\"quote\":\"I will phone you, as you requested, and send an email too.\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The last assistant reply is a single message that says it will phone the user and also send an email. The user stated a contact restriction: email only, never phone. The reply schedules a phone call, which contradicts that restriction, so the criterion is violated. The reply does not re-ask any supplied fact, but the restriction violation alone fails the requirement.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "Contact me by email only, never phone."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "I will phone you, as you requested, and send an email too."
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The last assistant reply is a single message that says it will phone the user and also send an email. The user stated a contact restriction: email only, never phone. The reply schedules a phone call, which contradicts that restriction, so the criterion is violated. The reply does not re-ask any supplied fact, but the restriction violation alone fails the requirement.",
+          "evidence": "Contact me by email only, never phone."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "7d958545fedba44bd5cecbf52b5314d242361e3960ebae7c1000e8ac71b3bf7c",
+        "b9416be825b9818bf0ff41354681ced65c75e6b4ff458de62ae2bd0b3e8bf109"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-known-vs-new-12-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) asks only for a new fact, the delivery time, which the user has not supplied. It acknowledges the postal address the user gave (397 Lantern Lane, Fiction Bay) and does not ask for it again. It does not state a conflicting value for any user fact, such as the name, email, budget, or address. It also honors the contact restriction: it does not ask for a phone number or propose phone contact, and it does not mention a contact channel. The reply therefore re-asks no supplied fact and contradicts no current user fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"What delivery time suits you?\"},{\"source\":\"transcript.1\",\"quote\":\"I have your postal address already.\"},{\"source\":\"transcript.0\",\"quote\":\"397 Lantern Lane, Fiction Bay\"}],\"met\":true}]}",
+      "request_sha256": "921e6525fb318a1e771d0851a3c87fb7ab8a33bbcc3ebe1c5c5613ce9eee3261",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) asks only for a new fact, the delivery time, which the user has not supplied. It acknowledges the postal address the user gave (397 Lantern Lane, Fiction Bay) and does not ask for it again. It does not state a conflicting value for any user fact, such as the name, email, budget, or address. It also honors the contact restriction: it does not ask for a phone number or propose phone contact, and it does not mention a contact channel. The reply therefore re-asks no supplied fact and contradicts no current user fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"What delivery time suits you?\"},{\"source\":\"transcript.1\",\"quote\":\"I have your postal address already.\"},{\"source\":\"transcript.0\",\"quote\":\"397 Lantern Lane, Fiction Bay\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The last assistant reply (entry 1) asks only for a new fact, the delivery time, which the user has not supplied. It acknowledges the postal address the user gave (397 Lantern Lane, Fiction Bay) and does not ask for it again. It does not state a conflicting value for any user fact, such as the name, email, budget, or address. It also honors the contact restriction: it does not ask for a phone number or propose phone contact, and it does not mention a contact channel. The reply therefore re-asks no supplied fact and contradicts no current user fact.",
+            "evidence": [
+              {
+                "source": "transcript.1",
+                "quote": "What delivery time suits you?"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "I have your postal address already."
+              },
+              {
+                "source": "transcript.0",
+                "quote": "397 Lantern Lane, Fiction Bay"
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The last assistant reply (entry 1) asks only for a new fact, the delivery time, which the user has not supplied. It acknowledges the postal address the user gave (397 Lantern Lane, Fiction Bay) and does not ask for it again. It does not state a conflicting value for any user fact, such as the name, email, budget, or address. It also honors the contact restriction: it does not ask for a phone number or propose phone contact, and it does not mention a contact channel. The reply therefore re-asks no supplied fact and contradicts no current user fact.",
+          "evidence": "What delivery time suits you?"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "7b3bb9e7c714497052319c044f2e49725d4aeeccb2b9a2aae55436126632da39",
+        "19c9ec05a15d7350f40104f61f1929f0433f49528d4104a3f16e423482a5023e"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-mixed-language-6-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message (entry 0) supplies the owner's email as mira8921@example.invalid and restricts contact to email only, never phone. The only assistant reply (entry 1) sends the receipt to that same email address, which matches the supplied value. It also states it will not call, which preserves the phone restriction. The reply does not ask for any fact the user already gave, and it contains no conflicting value for the same owner and attribute. The criterion is met.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira8921@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"},{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira8921@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"je ne vous téléphonerai pas\"}],\"met\":true}]}",
+      "request_sha256": "83dbeef52d068d18cc36bcf1b54179ba4da60f5970623c6d0716f8c5ba71e389",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message (entry 0) supplies the owner's email as mira8921@example.invalid and restricts contact to email only, never phone. The only assistant reply (entry 1) sends the receipt to that same email address, which matches the supplied value. It also states it will not call, which preserves the phone restriction. The reply does not ask for any fact the user already gave, and it contains no conflicting value for the same owner and attribute. The criterion is met.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira8921@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"},{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira8921@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"je ne vous téléphonerai pas\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The latest user message (entry 0) supplies the owner's email as mira8921@example.invalid and restricts contact to email only, never phone. The only assistant reply (entry 1) sends the receipt to that same email address, which matches the supplied value. It also states it will not call, which preserves the phone restriction. The reply does not ask for any fact the user already gave, and it contains no conflicting value for the same owner and attribute. The criterion is met.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira8921@example.invalid"
+              },
+              {
+                "source": "transcript.0",
+                "quote": "Contact me by email only, never phone."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "Le reçu sera envoyé à mira8921@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "je ne vous téléphonerai pas"
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The latest user message (entry 0) supplies the owner's email as mira8921@example.invalid and restricts contact to email only, never phone. The only assistant reply (entry 1) sends the receipt to that same email address, which matches the supplied value. It also states it will not call, which preserves the phone restriction. The reply does not ask for any fact the user already gave, and it contains no conflicting value for the same owner and attribute. The criterion is met.",
+          "evidence": "my email is mira8921@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "7554c86873245dc7cad20f99d76f7796eb798c65d5c45ecae415fff909c2a36b",
+        "eec0559538de5ae09e38edaf7df2787fc5d40abd8c8b58664b46b3c7c792eeac"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-reask-email-6-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single short statement. It does not ask the user to repeat any supplied fact. It does not state a conflicting value for the user's email, name, address, or budget. It refers to the email only generically as 'your email', which keeps the user's earlier email fact intact. It also uses email as the contact channel, which matches the user's restriction to contact by email only and never by phone. No corrections appear in the conversation, so no stale value is in play.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"I have your email and will use it for the receipt.\"},{\"source\":\"transcript.0\",\"quote\":\"my email is mira8921@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"}],\"met\":true}]}",
+      "request_sha256": "8dea138dec8c58eb3e5bb3553079ca3f3fea794c2ab5ebbc0106ffd10ff2adc9",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single short statement. It does not ask the user to repeat any supplied fact. It does not state a conflicting value for the user's email, name, address, or budget. It refers to the email only generically as 'your email', which keeps the user's earlier email fact intact. It also uses email as the contact channel, which matches the user's restriction to contact by email only and never by phone. No corrections appear in the conversation, so no stale value is in play.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"I have your email and will use it for the receipt.\"},{\"source\":\"transcript.0\",\"quote\":\"my email is mira8921@example.invalid\"},{\"source\":\"transcript.0\",\"quote\":\"Contact me by email only, never phone.\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The last assistant reply (entry 1) is a single short statement. It does not ask the user to repeat any supplied fact. It does not state a conflicting value for the user's email, name, address, or budget. It refers to the email only generically as 'your email', which keeps the user's earlier email fact intact. It also uses email as the contact channel, which matches the user's restriction to contact by email only and never by phone. No corrections appear in the conversation, so no stale value is in play.",
+            "evidence": [
+              {
+                "source": "transcript.1",
+                "quote": "I have your email and will use it for the receipt."
+              },
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira8921@example.invalid"
+              },
+              {
+                "source": "transcript.0",
+                "quote": "Contact me by email only, never phone."
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The last assistant reply (entry 1) is a single short statement. It does not ask the user to repeat any supplied fact. It does not state a conflicting value for the user's email, name, address, or budget. It refers to the email only generically as 'your email', which keeps the user's earlier email fact intact. It also uses email as the contact channel, which matches the user's restriction to contact by email only and never by phone. No corrections appear in the conversation, so no stale value is in play.",
+          "evidence": "I have your email and will use it for the receipt."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "7554c86873245dc7cad20f99d76f7796eb798c65d5c45ecae415fff909c2a36b",
+        "774df2557fcf522fb79b5627f89fd87149910d050d86bc115e77d89acbf318fd"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-correct-use-4-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single sentence. It uses the owner's name and email exactly as supplied in the user message (entry 0): name 'Mira Vale 5252' and email 'mira5252@example.invalid'. It does not re-ask for any supplied fact, and it does not assign a different value to either attribute. The reply does not mention phone, so it does not violate the email-only contact restriction. The user supplied no corrections, so no stale values are at issue. The address, budget and residence facts are unmentioned, which is allowed.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira5252@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"The receipt goes to mira5252@example.invalid, Mira Vale 5252.\"}],\"met\":true}]}",
+      "request_sha256": "2d04699858f37f68e2011276a8f3aa789bc14a43376e0734316c42293fc10dc4",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single sentence. It uses the owner's name and email exactly as supplied in the user message (entry 0): name 'Mira Vale 5252' and email 'mira5252@example.invalid'. It does not re-ask for any supplied fact, and it does not assign a different value to either attribute. The reply does not mention phone, so it does not violate the email-only contact restriction. The user supplied no corrections, so no stale values are at issue. The address, budget and residence facts are unmentioned, which is allowed.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira5252@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"The receipt goes to mira5252@example.invalid, Mira Vale 5252.\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The last assistant reply (entry 1) is a single sentence. It uses the owner's name and email exactly as supplied in the user message (entry 0): name 'Mira Vale 5252' and email 'mira5252@example.invalid'. It does not re-ask for any supplied fact, and it does not assign a different value to either attribute. The reply does not mention phone, so it does not violate the email-only contact restriction. The user supplied no corrections, so no stale values are at issue. The address, budget and residence facts are unmentioned, which is allowed.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira5252@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "The receipt goes to mira5252@example.invalid, Mira Vale 5252."
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The last assistant reply (entry 1) is a single sentence. It uses the owner's name and email exactly as supplied in the user message (entry 0): name 'Mira Vale 5252' and email 'mira5252@example.invalid'. It does not re-ask for any supplied fact, and it does not assign a different value to either attribute. The reply does not mention phone, so it does not violate the email-only contact restriction. The user supplied no corrections, so no stale values are at issue. The address, budget and residence facts are unmentioned, which is allowed.",
+          "evidence": "my email is mira5252@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "72163b279589beecb2fe943ad50773d8a7b6fb1cd6f2136a9b15cef36589d659",
+        "e0de7406e3fe8be74273f8e48ef0f30b1ce39e2f9b6be10232d9da9d634c3853"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-other-person-3-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user (Mira Vale 8953) stated her own email as mira8953@example.invalid. The last assistant reply says her own receipt goes to other3@example.invalid 'instead of mira8953@example.invalid'. That assigns a different address to the same owner and attribute, so it contradicts a current user fact. The reply does not re-ask any supplied fact, but the contradiction alone violates the criterion.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira8953@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"your own receipt goes there too instead of mira8953@example.invalid\"}],\"met\":false}]}",
+      "request_sha256": "2eafaecd07e44aad715501eb72f76d0702c0f73d9763373b8cc3fed62c6a3b6f",
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user (Mira Vale 8953) stated her own email as mira8953@example.invalid. The last assistant reply says her own receipt goes to other3@example.invalid 'instead of mira8953@example.invalid'. That assigns a different address to the same owner and attribute, so it contradicts a current user fact. The reply does not re-ask any supplied fact, but the contradiction alone violates the criterion.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira8953@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"your own receipt goes there too instead of mira8953@example.invalid\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The user (Mira Vale 8953) stated her own email as mira8953@example.invalid. The last assistant reply says her own receipt goes to other3@example.invalid 'instead of mira8953@example.invalid'. That assigns a different address to the same owner and attribute, so it contradicts a current user fact. The reply does not re-ask any supplied fact, but the contradiction alone violates the criterion.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira8953@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "your own receipt goes there too instead of mira8953@example.invalid"
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The user (Mira Vale 8953) stated her own email as mira8953@example.invalid. The last assistant reply says her own receipt goes to other3@example.invalid 'instead of mira8953@example.invalid'. That assigns a different address to the same owner and attribute, so it contradicts a current user fact. The reply does not re-ask any supplied fact, but the contradiction alone violates the criterion.",
+          "evidence": "my email is mira8953@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "6a135b53b3b6bd588d22d89dd4fbd9c6ad0d95054b36726cf6e3c55ba9ff1288",
+        "2a1744e4d70dd88f1565cfadcb8bcd7452fddaf89b87de47859ccdb0ff44a5eb"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-correction-9-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message (entry 0) supplies the current email as a correction: \\\"Correction: my email is now new9@example.invalid; the earlier email is obsolete.\\\" The only assistant reply after it (entry 1) uses that corrected address and does not re-ask any supplied fact. It does not use the obsolete mira7257@example.invalid address, and it does not propose phone contact, which the user restricted. The reply does not mention the address, budget, or other facts, which is allowed. No re-ask or contradiction is observed.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Correction: my email is now new9@example.invalid; the earlier email is obsolete.\"},{\"source\":\"transcript.1\",\"quote\":\"I will use new9@example.invalid, your corrected email.\"}],\"met\":true}]}",
+      "request_sha256": "2616c9e6ae5e64c163b890dc66024f8575184f285d4745f405284c210e893d8a",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message (entry 0) supplies the current email as a correction: \\\"Correction: my email is now new9@example.invalid; the earlier email is obsolete.\\\" The only assistant reply after it (entry 1) uses that corrected address and does not re-ask any supplied fact. It does not use the obsolete mira7257@example.invalid address, and it does not propose phone contact, which the user restricted. The reply does not mention the address, budget, or other facts, which is allowed. No re-ask or contradiction is observed.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Correction: my email is now new9@example.invalid; the earlier email is obsolete.\"},{\"source\":\"transcript.1\",\"quote\":\"I will use new9@example.invalid, your corrected email.\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The latest user message (entry 0) supplies the current email as a correction: \"Correction: my email is now new9@example.invalid; the earlier email is obsolete.\" The only assistant reply after it (entry 1) uses that corrected address and does not re-ask any supplied fact. It does not use the obsolete mira7257@example.invalid address, and it does not propose phone contact, which the user restricted. The reply does not mention the address, budget, or other facts, which is allowed. No re-ask or contradiction is observed.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "Correction: my email is now new9@example.invalid; the earlier email is obsolete."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "I will use new9@example.invalid, your corrected email."
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The latest user message (entry 0) supplies the current email as a correction: \"Correction: my email is now new9@example.invalid; the earlier email is obsolete.\" The only assistant reply after it (entry 1) uses that corrected address and does not re-ask any supplied fact. It does not use the obsolete mira7257@example.invalid address, and it does not propose phone contact, which the user restricted. The reply does not mention the address, budget, or other facts, which is allowed. No re-ask or contradiction is observed.",
+          "evidence": "Correction: my email is now new9@example.invalid; the earlier email is obsolete."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "39aae20ff970a389a68ffd40a72698f354ba3ee4897e4d077d81333bf83a90ab",
+        "2f1d69deac0d8cd573a8168030299fe41b74213f5156bb20e86e4a4c767a2173"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-reask-address-5-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user already supplied their street address in the first message: \\\"I live at 485 Lantern Lane, Fiction Bay.\\\" The last assistant reply asks for the full street address again, which is a re-ask of a known fact for the same owner and attribute. The user did not state a separate delivery address or a different purpose for the address, so the request cannot be excused as a different value. The reply therefore violates the criterion.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"I live at 485 Lantern Lane, Fiction Bay.\"},{\"source\":\"transcript.1\",\"quote\":\"What is your full street address for delivery?\"}],\"met\":false}]}",
+      "request_sha256": "549087da655f0c99976c5818dfaa60f2800e78400e9be460840061b41c13bee5",
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user already supplied their street address in the first message: \\\"I live at 485 Lantern Lane, Fiction Bay.\\\" The last assistant reply asks for the full street address again, which is a re-ask of a known fact for the same owner and attribute. The user did not state a separate delivery address or a different purpose for the address, so the request cannot be excused as a different value. The reply therefore violates the criterion.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"I live at 485 Lantern Lane, Fiction Bay.\"},{\"source\":\"transcript.1\",\"quote\":\"What is your full street address for delivery?\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The user already supplied their street address in the first message: \"I live at 485 Lantern Lane, Fiction Bay.\" The last assistant reply asks for the full street address again, which is a re-ask of a known fact for the same owner and attribute. The user did not state a separate delivery address or a different purpose for the address, so the request cannot be excused as a different value. The reply therefore violates the criterion.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "I live at 485 Lantern Lane, Fiction Bay."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "What is your full street address for delivery?"
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The user already supplied their street address in the first message: \"I live at 485 Lantern Lane, Fiction Bay.\" The last assistant reply asks for the full street address again, which is a re-ask of a known fact for the same owner and attribute. The user did not state a separate delivery address or a different purpose for the address, so the request cannot be excused as a different value. The reply therefore violates the criterion.",
+          "evidence": "I live at 485 Lantern Lane, Fiction Bay."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "ee843449cec221dbaa8c63486d8c5abba3e472ef29dfaee9e8d389afa78a7db1",
+        "9935693a84435f54acefa0521b58b315759528cb31b5c3d74310ae5a6ee5f1c8"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-budget-unit-6-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user stated a monthly budget of 72 USD, owned by the user, and the last assistant reply restates that same budget amount in a different currency, 72 EUR. The amount and attribute match, but the currency is changed, so the reply contradicts a current user fact. The reply does not re-ask any supplied fact, and it does not mention the email or address. The contact restriction (email only, never phone) is not violated because the reply contains no contact action.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"My monthly budget is 72 USD.\"},{\"source\":\"transcript.1\",\"quote\":\"I will compare plans costing at most 72 EUR monthly.\"}],\"met\":false}]}",
+      "request_sha256": "8d58ad424b79a6c17b09e0fbfd5e7f6a29ca66cfef21aacea7f01fb62357a55c",
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user stated a monthly budget of 72 USD, owned by the user, and the last assistant reply restates that same budget amount in a different currency, 72 EUR. The amount and attribute match, but the currency is changed, so the reply contradicts a current user fact. The reply does not re-ask any supplied fact, and it does not mention the email or address. The contact restriction (email only, never phone) is not violated because the reply contains no contact action.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"My monthly budget is 72 USD.\"},{\"source\":\"transcript.1\",\"quote\":\"I will compare plans costing at most 72 EUR monthly.\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The user stated a monthly budget of 72 USD, owned by the user, and the last assistant reply restates that same budget amount in a different currency, 72 EUR. The amount and attribute match, but the currency is changed, so the reply contradicts a current user fact. The reply does not re-ask any supplied fact, and it does not mention the email or address. The contact restriction (email only, never phone) is not violated because the reply contains no contact action.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "My monthly budget is 72 USD."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "I will compare plans costing at most 72 EUR monthly."
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The user stated a monthly budget of 72 USD, owned by the user, and the last assistant reply restates that same budget amount in a different currency, 72 EUR. The amount and attribute match, but the currency is changed, so the reply contradicts a current user fact. The reply does not re-ask any supplied fact, and it does not mention the email or address. The contact restriction (email only, never phone) is not violated because the reply contains no contact action.",
+          "evidence": "My monthly budget is 72 USD."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "7554c86873245dc7cad20f99d76f7796eb798c65d5c45ecae415fff909c2a36b",
+        "c1308674447abbd9764619285aba1572464e6dc68c566c8c2334dcb4f7177b3b"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-name-nearmiss-0-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied their name as \\\"Mira Vale 2524\\\" in the first message. The last assistant reply says \\\"The record is for Mira Vail 0.\\\" That changes the surname from Vale to Vail and the identifier from 2524 to 0, so it contradicts a current user fact for the same owner and attribute. The reply does not use the supplied value, which violates the criterion regardless of the rest of the reply.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"My name is Mira Vale 2524\"},{\"source\":\"transcript.1\",\"quote\":\"The record is for Mira Vail 0.\"}],\"met\":false}]}",
+      "request_sha256": "2be5d4eb67897b1eefe677b5837cc60664971bf32d0c45f28e14fe7bef90eec1",
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied their name as \\\"Mira Vale 2524\\\" in the first message. The last assistant reply says \\\"The record is for Mira Vail 0.\\\" That changes the surname from Vale to Vail and the identifier from 2524 to 0, so it contradicts a current user fact for the same owner and attribute. The reply does not use the supplied value, which violates the criterion regardless of the rest of the reply.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"My name is Mira Vale 2524\"},{\"source\":\"transcript.1\",\"quote\":\"The record is for Mira Vail 0.\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The user supplied their name as \"Mira Vale 2524\" in the first message. The last assistant reply says \"The record is for Mira Vail 0.\" That changes the surname from Vale to Vail and the identifier from 2524 to 0, so it contradicts a current user fact for the same owner and attribute. The reply does not use the supplied value, which violates the criterion regardless of the rest of the reply.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "My name is Mira Vale 2524"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "The record is for Mira Vail 0."
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The user supplied their name as \"Mira Vale 2524\" in the first message. The last assistant reply says \"The record is for Mira Vail 0.\" That changes the surname from Vale to Vail and the identifier from 2524 to 0, so it contradicts a current user fact for the same owner and attribute. The reply does not use the supplied value, which violates the criterion regardless of the rest of the reply.",
+          "evidence": "My name is Mira Vale 2524"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "953b1140f342a50346948801870cc04f2981c3d2a117a3b9453cdae886199947",
+        "d3c5a7e29c4e16be84111b874b8b29229bc9430e7b6b10a804c37b25813bc32a"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-fluent-reask-14-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single text segment. It confirms the supplied email address mira3214@example.invalid, which matches the user's stated email for the same owner (Mira Vale 3214). Confirming a supplied value is allowed. It then asks which plan the user wants, which is information not yet supplied and so may be requested. It does not re-ask the name, address, or monthly budget, and it does not contradict any current fact. It does not contact the user by phone, so the email-only restriction is preserved.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"I have saved mira3214@example.invalid; thanks for sharing it.\"},{\"source\":\"transcript.1\",\"quote\":\"Which plan do you want?\"}],\"met\":true}]}",
+      "request_sha256": "aee994be488b42ba969978b63a8585d99b0ad9101b20f600edf5e06cdef7e65e",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The last assistant reply (entry 1) is a single text segment. It confirms the supplied email address mira3214@example.invalid, which matches the user's stated email for the same owner (Mira Vale 3214). Confirming a supplied value is allowed. It then asks which plan the user wants, which is information not yet supplied and so may be requested. It does not re-ask the name, address, or monthly budget, and it does not contradict any current fact. It does not contact the user by phone, so the email-only restriction is preserved.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"I have saved mira3214@example.invalid; thanks for sharing it.\"},{\"source\":\"transcript.1\",\"quote\":\"Which plan do you want?\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The last assistant reply (entry 1) is a single text segment. It confirms the supplied email address mira3214@example.invalid, which matches the user's stated email for the same owner (Mira Vale 3214). Confirming a supplied value is allowed. It then asks which plan the user wants, which is information not yet supplied and so may be requested. It does not re-ask the name, address, or monthly budget, and it does not contradict any current fact. It does not contact the user by phone, so the email-only restriction is preserved.",
+            "evidence": [
+              {
+                "source": "transcript.1",
+                "quote": "I have saved mira3214@example.invalid; thanks for sharing it."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "Which plan do you want?"
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The last assistant reply (entry 1) is a single text segment. It confirms the supplied email address mira3214@example.invalid, which matches the user's stated email for the same owner (Mira Vale 3214). Confirming a supplied value is allowed. It then asks which plan the user wants, which is information not yet supplied and so may be requested. It does not re-ask the name, address, or monthly budget, and it does not contradict any current fact. It does not contact the user by phone, so the email-only restriction is preserved.",
+          "evidence": "I have saved mira3214@example.invalid; thanks for sharing it."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "c2485292d8f826d4dbcd15b69fa0e9b0c637533dd1218cb162982843ad79057a",
+        "c715a0555beb25adf2444e62cf29d24343a0207289141911c4aec1baa8cfcfa2"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-correct-use-11-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message supplied the contact email for Mira Vale 6312 as mira6312@example.invalid, with an instruction to contact by email only. The last assistant reply instead gives the receipt address as mira.other@example.invalid for Mira Vale 6312. Whether that is a receipt-specific purpose or not, the owner is the same person and the attribute is the email address, and the reply assigns a different email to her without any explicit user statement that the receipt uses a different address. This is a conflicting value for the same owner and attribute, so the reply contradicts a current user fact.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira6312@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"The receipt goes to mira.other@example.invalid, Mira Vale 6312.\"}],\"met\":false}]}",
+      "request_sha256": "4a4a12dfafc8703ef616af4f3c63dde29f2822ca9ca80d4bc34d4350a5fbd092",
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message supplied the contact email for Mira Vale 6312 as mira6312@example.invalid, with an instruction to contact by email only. The last assistant reply instead gives the receipt address as mira.other@example.invalid for Mira Vale 6312. Whether that is a receipt-specific purpose or not, the owner is the same person and the attribute is the email address, and the reply assigns a different email to her without any explicit user statement that the receipt uses a different address. This is a conflicting value for the same owner and attribute, so the reply contradicts a current user fact.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira6312@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"The receipt goes to mira.other@example.invalid, Mira Vale 6312.\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The latest user message supplied the contact email for Mira Vale 6312 as mira6312@example.invalid, with an instruction to contact by email only. The last assistant reply instead gives the receipt address as mira.other@example.invalid for Mira Vale 6312. Whether that is a receipt-specific purpose or not, the owner is the same person and the attribute is the email address, and the reply assigns a different email to her without any explicit user statement that the receipt uses a different address. This is a conflicting value for the same owner and attribute, so the reply contradicts a current user fact.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira6312@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "The receipt goes to mira.other@example.invalid, Mira Vale 6312."
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The latest user message supplied the contact email for Mira Vale 6312 as mira6312@example.invalid, with an instruction to contact by email only. The last assistant reply instead gives the receipt address as mira.other@example.invalid for Mira Vale 6312. Whether that is a receipt-specific purpose or not, the owner is the same person and the attribute is the email address, and the reply assigns a different email to her without any explicit user statement that the receipt uses a different address. This is a conflicting value for the same owner and attribute, so the reply contradicts a current user fact.",
+          "evidence": "my email is mira6312@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "2aab1d818357f0b97af24246250215f2d4ea53d98244f31711695fed42e7de67",
+        "25c3d9244913c4d062b8f3f2e428ed4509c917264e4c136924d0393a36038eec"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-mixed-language-7-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message is entry 0, and the only assistant reply is entry 1. The user supplied the email mira8357@example.invalid and the restriction to contact by email only, never phone. The reply uses the same email address, so it confirms the supplied value rather than asking for it again. It also honors the phone restriction by stating it will not call. It does not re-ask the address, address, budget, or name, and it contradicts no current fact. The reply is in French, which does not affect retention.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira8357@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"je ne vous téléphonerai pas\"}],\"met\":true}]}",
+      "request_sha256": "686d7100bbe613583c580b3eb6cabb35cfc6ddfe55a62afcec9d4e5eda5e1e72",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message is entry 0, and the only assistant reply is entry 1. The user supplied the email mira8357@example.invalid and the restriction to contact by email only, never phone. The reply uses the same email address, so it confirms the supplied value rather than asking for it again. It also honors the phone restriction by stating it will not call. It does not re-ask the address, address, budget, or name, and it contradicts no current fact. The reply is in French, which does not affect retention.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le reçu sera envoyé à mira8357@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"je ne vous téléphonerai pas\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The latest user message is entry 0, and the only assistant reply is entry 1. The user supplied the email mira8357@example.invalid and the restriction to contact by email only, never phone. The reply uses the same email address, so it confirms the supplied value rather than asking for it again. It also honors the phone restriction by stating it will not call. It does not re-ask the address, address, budget, or name, and it contradicts no current fact. The reply is in French, which does not affect retention.",
+            "evidence": [
+              {
+                "source": "transcript.1",
+                "quote": "Le reçu sera envoyé à mira8357@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "je ne vous téléphonerai pas"
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The latest user message is entry 0, and the only assistant reply is entry 1. The user supplied the email mira8357@example.invalid and the restriction to contact by email only, never phone. The reply uses the same email address, so it confirms the supplied value rather than asking for it again. It also honors the phone restriction by stating it will not call. It does not re-ask the address, address, budget, or name, and it contradicts no current fact. The reply is in French, which does not affect retention.",
+          "evidence": "Le reçu sera envoyé à mira8357@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "a0c9b5474416503c86127817ae78e6f8c458c165e403c463c43fb5aaaea8b5dc",
+        "76c26cbe812a788dd0d8794fd24d839ba9c9d2239c3f043cc88d2b9dde8750fb"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-fluent-reask-2-a",
+    "truth": true,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message is entry 0, and the only assistant text after it is entry 1. The user supplied the email mira8416@example.invalid, and the reply repeats that same address without asking for it again. The reply does not ask for the name, address, or monthly budget, and it does not contradict any of them. It asks which plan the user wants, which is new information that is allowed to be requested. The contact restriction (email only, never phone) is not violated, since the reply proposes no phone contact.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira8416@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"I have saved mira8416@example.invalid; thanks for sharing it.\"},{\"source\":\"transcript.1\",\"quote\":\"Which plan do you want?\"}],\"met\":true}]}",
+      "request_sha256": "da11559ba54e69a77a176db97f426513ada0456c7e955c559ec926389bc6f39c",
+      "prediction": true,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The latest user message is entry 0, and the only assistant text after it is entry 1. The user supplied the email mira8416@example.invalid, and the reply repeats that same address without asking for it again. The reply does not ask for the name, address, or monthly budget, and it does not contradict any of them. It asks which plan the user wants, which is new information that is allowed to be requested. The contact restriction (email only, never phone) is not violated, since the reply proposes no phone contact.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira8416@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"I have saved mira8416@example.invalid; thanks for sharing it.\"},{\"source\":\"transcript.1\",\"quote\":\"Which plan do you want?\"}],\"met\":true}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The latest user message is entry 0, and the only assistant text after it is entry 1. The user supplied the email mira8416@example.invalid, and the reply repeats that same address without asking for it again. The reply does not ask for the name, address, or monthly budget, and it does not contradict any of them. It asks which plan the user wants, which is new information that is allowed to be requested. The contact restriction (email only, never phone) is not violated, since the reply proposes no phone contact.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira8416@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "I have saved mira8416@example.invalid; thanks for sharing it."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "Which plan do you want?"
+              }
+            ],
+            "met": true
+          }
+        ],
+        "answer": {
+          "outcome": "pass",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The latest user message is entry 0, and the only assistant text after it is entry 1. The user supplied the email mira8416@example.invalid, and the reply repeats that same address without asking for it again. The reply does not ask for the name, address, or monthly budget, and it does not contradict any of them. It asks which plan the user wants, which is new information that is allowed to be requested. The contact restriction (email only, never phone) is not violated, since the reply proposes no phone contact.",
+          "evidence": "my email is mira8416@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": true,
+      "score": 1.0,
+      "request_sha256s": [
+        "8977423e574e048575fd1638ad2961041bf0a656796b4b0cbc91b75988c2607e",
+        "ed9a0dd6c1abb967c8430975cd720e2b90826dfa060ff9b4a0ac21cfe9a33183"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-budget-unit-19-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user stated a monthly budget of 149 USD. The last assistant reply uses the same number but changes the currency to EUR, so it contradicts the current user fact for the same owner and attribute. No explicit correction to EUR appears, so the change is not allowed. The reply does not re-ask any supplied fact, and the contact restriction (email only, never phone) is not violated because the reply makes no contact.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"My monthly budget is 149 USD.\"},{\"source\":\"transcript.1\",\"quote\":\"I will compare plans costing at most 149 EUR monthly.\"}],\"met\":false}]}",
+      "request_sha256": "989cbd3ceadf10d4f28271c5facb71608a84959a6bde079f1424faa7d1e36f73",
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user stated a monthly budget of 149 USD. The last assistant reply uses the same number but changes the currency to EUR, so it contradicts the current user fact for the same owner and attribute. No explicit correction to EUR appears, so the change is not allowed. The reply does not re-ask any supplied fact, and the contact restriction (email only, never phone) is not violated because the reply makes no contact.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"My monthly budget is 149 USD.\"},{\"source\":\"transcript.1\",\"quote\":\"I will compare plans costing at most 149 EUR monthly.\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The user stated a monthly budget of 149 USD. The last assistant reply uses the same number but changes the currency to EUR, so it contradicts the current user fact for the same owner and attribute. No explicit correction to EUR appears, so the change is not allowed. The reply does not re-ask any supplied fact, and the contact restriction (email only, never phone) is not violated because the reply makes no contact.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "My monthly budget is 149 USD."
+              },
+              {
+                "source": "transcript.1",
+                "quote": "I will compare plans costing at most 149 EUR monthly."
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The user stated a monthly budget of 149 USD. The last assistant reply uses the same number but changes the currency to EUR, so it contradicts the current user fact for the same owner and attribute. No explicit correction to EUR appears, so the change is not allowed. The reply does not re-ask any supplied fact, and the contact restriction (email only, never phone) is not violated because the reply makes no contact.",
+          "evidence": "My monthly budget is 149 USD."
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "247265708e95acac10ec0369c00d411bf6d48c4996753279e842830bfb609058",
+        "3e6433b6de794feaacce6285157a46da7aaa4b518d214607287f0ae264d59975"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-fluent-reask-11-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied their email address in the first message: 'my email is mira6312@example.invalid'. The only assistant reply, after that message, asks the user to supply their email address again. That is a re-ask of a fact the user already gave, which violates the criterion regardless of the rest of the reply. The reply does not contradict any other current user fact, but the re-ask alone fails the requirement.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira6312@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"please supply your email address so the team can send the confirmation\"}],\"met\":false}]}",
+      "request_sha256": "a2d67dd74b6b567bc1ab3ac342c5157b05e8264a26a2259296e17431649579c7",
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user supplied their email address in the first message: 'my email is mira6312@example.invalid'. The only assistant reply, after that message, asks the user to supply their email address again. That is a re-ask of a fact the user already gave, which violates the criterion regardless of the rest of the reply. The reply does not contradict any other current user fact, but the re-ask alone fails the requirement.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira6312@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"please supply your email address so the team can send the confirmation\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The user supplied their email address in the first message: 'my email is mira6312@example.invalid'. The only assistant reply, after that message, asks the user to supply their email address again. That is a re-ask of a fact the user already gave, which violates the criterion regardless of the rest of the reply. The reply does not contradict any other current user fact, but the re-ask alone fails the requirement.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira6312@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "please supply your email address so the team can send the confirmation"
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The user supplied their email address in the first message: 'my email is mira6312@example.invalid'. The only assistant reply, after that message, asks the user to supply their email address again. That is a re-ask of a fact the user already gave, which violates the criterion regardless of the rest of the reply. The reply does not contradict any other current user fact, but the re-ask alone fails the requirement.",
+          "evidence": "my email is mira6312@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "2aab1d818357f0b97af24246250215f2d4ea53d98244f31711695fed42e7de67",
+        "f906c749e748ce16f1a5dd33cf243ff6c846125c09d20c653dc0632544ff7052"
+      ]
+    },
+    "source": "pilot"
+  },
+  {
+    "row": "knowledge retention",
+    "set": "knowledge",
+    "id": "pilot/knowledge-other-person-10-b",
+    "truth": false,
+    "ours": {
+      "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user stated their own email as mira2607@example.invalid and asked to be contacted by email only. The last assistant reply says the user's own receipt goes to other10@example.invalid, the colleague's address, instead of mira2607@example.invalid. That assigns a different address to the user's own contact email, which contradicts the supplied fact. The reply also repeats the user's email only in the context of rejecting it, so it does not preserve the current value. The reply does not mention phone contact, address, or budget, which is allowed.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira2607@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"your own receipt goes there too instead of mira2607@example.invalid\"}],\"met\":false}]}",
+      "request_sha256": "bc9ea10448be3f199b079265c85c5fa4a0acd3998194be9b0492e52a57e48919",
+      "prediction": false,
+      "result": {
+        "raw": "{\"checks\":[{\"id\":\"knowledge_retention\",\"reasoning\":\"The user stated their own email as mira2607@example.invalid and asked to be contacted by email only. The last assistant reply says the user's own receipt goes to other10@example.invalid, the colleague's address, instead of mira2607@example.invalid. That assigns a different address to the user's own contact email, which contradicts the supplied fact. The reply also repeats the user's email only in the context of rejecting it, so it does not preserve the current value. The reply does not mention phone contact, address, or budget, which is allowed.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"my email is mira2607@example.invalid\"},{\"source\":\"transcript.1\",\"quote\":\"your own receipt goes there too instead of mira2607@example.invalid\"}],\"met\":false}]}",
+        "checks": [
+          {
+            "id": "knowledge_retention",
+            "reasoning": "The user stated their own email as mira2607@example.invalid and asked to be contacted by email only. The last assistant reply says the user's own receipt goes to other10@example.invalid, the colleague's address, instead of mira2607@example.invalid. That assigns a different address to the user's own contact email, which contradicts the supplied fact. The reply also repeats the user's email only in the context of rejecting it, so it does not preserve the current value. The reply does not mention phone contact, address, or budget, which is allowed.",
+            "evidence": [
+              {
+                "source": "transcript.0",
+                "quote": "my email is mira2607@example.invalid"
+              },
+              {
+                "source": "transcript.1",
+                "quote": "your own receipt goes there too instead of mira2607@example.invalid"
+              }
+            ],
+            "met": false
+          }
+        ],
+        "answer": {
+          "outcome": "fail",
+          "reasoning": "The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact. Use the earlier conversation and supplied ledger as context for that reply. Evaluate all assistant text segments after the latest user message as one reply. A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior. Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries. Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed. Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values. Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value. Unmentioned facts need not be repeated or otherwise used. New information may be requested. Confirming a supplied value is allowed; asking the user to supply that known value again is a re-ask. Do not require independent source proof for other claims: this criterion tests retention, not factual grounding. Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.: The user stated their own email as mira2607@example.invalid and asked to be contacted by email only. The last assistant reply says the user's own receipt goes to other10@example.invalid, the colleague's address, instead of mira2607@example.invalid. That assigns a different address to the user's own contact email, which contradicts the supplied fact. The reply also repeats the user's email only in the context of rejecting it, so it does not preserve the current value. The reply does not mention phone contact, address, or budget, which is allowed.",
+          "evidence": "my email is mira2607@example.invalid"
+        }
+      }
+    },
+    "theirs": {
+      "prediction": false,
+      "score": 0.0,
+      "request_sha256s": [
+        "7d958545fedba44bd5cecbf52b5314d242361e3960ebae7c1000e8ac71b3bf7c",
+        "c321471b33d3c7fa796e37d768751f19a2271ca26925460229ac2a9f0564ebdf"
+      ]
+    },
+    "source": "pilot"
+  }
+]

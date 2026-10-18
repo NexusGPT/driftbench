@@ -1,0 +1,1476 @@
+{
+  "counts": {
+    "claude-sonnet-5-5": {
+      "driftbench-verify-uncertainty-cascade": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      },
+      "promptfoo": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      }
+    }
+  },
+  "limits": [],
+  "unmappedLimits": [],
+  "unclassifiedHistoricalNativeErrors": [],
+  "refusals": [
+    {
+      "receipt": "a1eee2a3-ace2-41bd-9ce3-fa7301f7cc44",
+      "model": "claude-sonnet-5-5",
+      "phase": "pilot",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:13:43.445Z",
+      "consumers": [
+        {
+          "phase": "pilot",
+          "model": "claude-sonnet-5-5",
+          "key": "7e8cb3d950178d87e29f",
+          "fingerprint": "d8f7ff824f57e8703a325711079998f3bb311c659c923bc28cbeb46634d9a21d",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "15d7e22f-9289-4c88-86a3-402c81e1c8f1",
+      "model": "claude-sonnet-5-5",
+      "phase": "pilot",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:13:47.679Z",
+      "consumers": [
+        {
+          "phase": "pilot",
+          "model": "claude-sonnet-5-5",
+          "key": "d3323825806059e8be78",
+          "fingerprint": "2568fc9d8de1a3a0c4153c2628452a77f473af4e0572ee104e15347b7d635fa8",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "cd02deac-1e18-4f42-a4bb-1b0f6068612b",
+      "model": "claude-sonnet-5-5",
+      "phase": "pilot",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:14:09.863Z",
+      "consumers": [
+        {
+          "phase": "pilot",
+          "model": "claude-sonnet-5-5",
+          "key": "8f2d0b8bb79c506e6e7e",
+          "fingerprint": "dbb9332fe77cdfe272979c667dae84a8ac86bc749de45aa799495e3094a83436",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "a882a226-19bc-46b5-872e-f4e0ab899a4e",
+      "model": "claude-sonnet-5-5",
+      "phase": "pilot",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:14:11.119Z",
+      "consumers": [
+        {
+          "phase": "pilot",
+          "model": "claude-sonnet-5-5",
+          "key": "490271048331d7548e3e",
+          "fingerprint": "2e200136e0b12032896a12f4315f098c6284001716fde815b69250d0485802e1",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "506e72bc-f32e-4687-9c45-b1147fd9afeb",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:50:59.151Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "7e8cb3d950178d87e29f",
+          "fingerprint": "d8f7ff824f57e8703a325711079998f3bb311c659c923bc28cbeb46634d9a21d",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "b199f007-5acc-404e-a961-2b5c612017f3",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:52:00.747Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "d3323825806059e8be78",
+          "fingerprint": "2568fc9d8de1a3a0c4153c2628452a77f473af4e0572ee104e15347b7d635fa8",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "d3207ad1-86f9-4958-9dab-8558895e43ca",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:55:15.460Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "8f2d0b8bb79c506e6e7e",
+          "fingerprint": "dbb9332fe77cdfe272979c667dae84a8ac86bc749de45aa799495e3094a83436",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "e9d2435c-ed4f-42ed-87b9-5b7320f3426c",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:55:39.065Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "490271048331d7548e3e",
+          "fingerprint": "2e200136e0b12032896a12f4315f098c6284001716fde815b69250d0485802e1",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "46756a49-d041-4981-a956-8c64e17a7470",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:59:14.031Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "69d6698f2e829e61b791",
+          "fingerprint": "52a63188b4c377d75f18f2bb6654dc68cb3850d352d061b9c493d51ca6579724",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "93e5720f-33d8-4191-9625-b272d8e83fed",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:01:10.603Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "f7079dd8942318cac98c",
+          "fingerprint": "6fe49bac4528d87106a6b316d4d6621353ae0a0f988a23e5ffbedca1cb5906c2",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "2f497b43-3144-4961-9db4-51715e831ef9",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:05:51.580Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "da3dc3a24ef32c249750",
+          "fingerprint": "0bc49e5db2d27ce50b98892f8f2f539fe8fff79ae604fd4030ee0825ff63efc7",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "548ba569-d23b-43ba-8fb8-f8ddb5760289",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:06:26.012Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "411f829e819f1a3fa400",
+          "fingerprint": "5ade518f7606f29bb68185abca9ee4218a346a8a9bf1631d998a354517024c5a",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "042000e7-f17d-4c31-a2e7-7222d2b098d4",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-1",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:26:37.310Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "claude-sonnet-5-5",
+          "key": "7e8cb3d950178d87e29f",
+          "fingerprint": "d8f7ff824f57e8703a325711079998f3bb311c659c923bc28cbeb46634d9a21d",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "9cf4c6ce-043d-4653-b283-295c61926b35",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-1",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:26:41.099Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "claude-sonnet-5-5",
+          "key": "d3323825806059e8be78",
+          "fingerprint": "2568fc9d8de1a3a0c4153c2628452a77f473af4e0572ee104e15347b7d635fa8",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "39f2d1c4-bee5-445e-8372-1412afd7eed7",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-1",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:27:02.602Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "claude-sonnet-5-5",
+          "key": "8f2d0b8bb79c506e6e7e",
+          "fingerprint": "dbb9332fe77cdfe272979c667dae84a8ac86bc749de45aa799495e3094a83436",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "f1abba46-fd7c-4f3f-a9f4-4fa6bbb28ae3",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-1",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:27:06.298Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "claude-sonnet-5-5",
+          "key": "490271048331d7548e3e",
+          "fingerprint": "2e200136e0b12032896a12f4315f098c6284001716fde815b69250d0485802e1",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "aeaeeebd-34ee-43f0-a93a-52a32ab9cd02",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-1",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:27:41.113Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "claude-sonnet-5-5",
+          "key": "69d6698f2e829e61b791",
+          "fingerprint": "52a63188b4c377d75f18f2bb6654dc68cb3850d352d061b9c493d51ca6579724",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "b9ebc8c7-873c-44f2-9c9e-2d05b013de00",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-1",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:28:08.804Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "claude-sonnet-5-5",
+          "key": "f7079dd8942318cac98c",
+          "fingerprint": "6fe49bac4528d87106a6b316d4d6621353ae0a0f988a23e5ffbedca1cb5906c2",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "065e7342-258d-4d3d-aa2a-26d81af26691",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-1",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:28:32.669Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "claude-sonnet-5-5",
+          "key": "da3dc3a24ef32c249750",
+          "fingerprint": "0bc49e5db2d27ce50b98892f8f2f539fe8fff79ae604fd4030ee0825ff63efc7",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "bcfca68e-7a96-45cb-b566-5dba67cf16a6",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-1",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:28:36.701Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "claude-sonnet-5-5",
+          "key": "411f829e819f1a3fa400",
+          "fingerprint": "5ade518f7606f29bb68185abca9ee4218a346a8a9bf1631d998a354517024c5a",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "4553f4a3-0077-48cc-9029-3e61f929c004",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-2",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:45:17.523Z",
+      "consumers": [
+        {
+          "phase": "noise-2",
+          "model": "claude-sonnet-5-5",
+          "key": "7e8cb3d950178d87e29f",
+          "fingerprint": "d8f7ff824f57e8703a325711079998f3bb311c659c923bc28cbeb46634d9a21d",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "ddf9e6ab-0017-4463-a79c-49908d1885a2",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-2",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:45:21.883Z",
+      "consumers": [
+        {
+          "phase": "noise-2",
+          "model": "claude-sonnet-5-5",
+          "key": "d3323825806059e8be78",
+          "fingerprint": "2568fc9d8de1a3a0c4153c2628452a77f473af4e0572ee104e15347b7d635fa8",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "0786fb7a-f56b-4bbd-a031-33f846d9af45",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-2",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:45:45.328Z",
+      "consumers": [
+        {
+          "phase": "noise-2",
+          "model": "claude-sonnet-5-5",
+          "key": "8f2d0b8bb79c506e6e7e",
+          "fingerprint": "dbb9332fe77cdfe272979c667dae84a8ac86bc749de45aa799495e3094a83436",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "8013e26c-652b-4c23-9a46-29a0a65da5b4",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-2",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:45:46.210Z",
+      "consumers": [
+        {
+          "phase": "noise-2",
+          "model": "claude-sonnet-5-5",
+          "key": "490271048331d7548e3e",
+          "fingerprint": "2e200136e0b12032896a12f4315f098c6284001716fde815b69250d0485802e1",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "ab973d39-b554-4817-b508-51106d69ace1",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-2",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:46:25.895Z",
+      "consumers": [
+        {
+          "phase": "noise-2",
+          "model": "claude-sonnet-5-5",
+          "key": "f7079dd8942318cac98c",
+          "fingerprint": "6fe49bac4528d87106a6b316d4d6621353ae0a0f988a23e5ffbedca1cb5906c2",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "e2fe3364-4ba3-43bf-b151-67b40f8506fd",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-2",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:46:57.139Z",
+      "consumers": [
+        {
+          "phase": "noise-2",
+          "model": "claude-sonnet-5-5",
+          "key": "da3dc3a24ef32c249750",
+          "fingerprint": "0bc49e5db2d27ce50b98892f8f2f539fe8fff79ae604fd4030ee0825ff63efc7",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "4c14b7b9-4f2a-4af8-a1b7-8c9d87b50a69",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:20:24.868Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "cddfc60d15d0bb027789",
+          "fingerprint": "b96d5f3bae2e8718587f099a389fc3541a554ec4d3a91d4db7447a57c3793a2e",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "979fe3662e6300afbcdf50c73cbb9fa3_715cf112f0842667b81ec3cef4a1ae3d",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "846b3379-6cfe-4745-97c5-f51ae2a1264b",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:21:51.701Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "8efe228a9daaf5431bc2",
+          "fingerprint": "b413338a5271213683bcaf72907c3d7d57fba23468c1bd9a78f536be93737be0",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "abb63589d40c54505066d21fad69b411_04d6e8c43b837396d1da3a9c795fe494",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "eaa40283-987c-4944-a485-2ca3fa9da775",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:22:37.409Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "aad5d711c60caa7f2b88",
+          "fingerprint": "cd5d9ff79631f31c1d376bda9031005d85a21fb06f4d04f914cabfddc89a4191",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "600b2a52c4bada1645ea967aa15e342b_150c121fc0c6df113525e7fa9c3fca25",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "f4085f1c-8812-4a26-a3b3-b5bc3fa07185",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:22:56.244Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "32f572f643b80259940b",
+          "fingerprint": "fbe0ac6b525fc47cd8fec889da6eb5f397d629ef0f4dc0bbb1dcd72158b6dbc3",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "287bcd3d36c6958aec6c36b1f1075d90_916fc50c5bc8ada6e961c86e70ca5dcf",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "0f3837f4-2b43-48ed-bd5e-eb1a2e04e070",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:23:16.925Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "abf5474610cd66ed00ee",
+          "fingerprint": "e7baf9aa613265339f459614a53072f8ad767ca1da3115eeafc7a01374ce06b6",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "ca2979cb4b51aa090d1ea89c3866296b_2843ccdb6ec40e7f40ddc028139cbb72",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "c4e395ec-bf12-4d4d-a815-1a57e57999f1",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:23:51.014Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "0f6384d2b03d60ad682e",
+          "fingerprint": "87d594b0e26267ba5efcaf72ca383f4e0953226e65736a2a95c33e914abbd957",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "ee2b019b748e79e6ca19ce7e98f08570_daef883c97da521206a756e4934403de",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "feae1a90-8c7f-44b6-94cb-a652f3d5759c",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:24:02.242Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "f971d6ea4ca5992ba7a5",
+          "fingerprint": "40533e6655da3f5a4c38eb7bb681f0d4b2114cc55eb30e8928d0593aedbbd64c",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "81a79415e371594cf9f043a48136f044_1f0ec0885c6ce6c4302916d5ce4d24f0",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "a025ada5-c060-43a1-ad25-4621f1bcf0b0",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:24:07.359Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "0777e20cedccb6c4b200",
+          "fingerprint": "f3c78f26d3fd433d4dcc1be7aff83f633e0ea3bee7a0a4c7d11f7390f86ee9aa",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "4e21cbb12bc4b04b9c5c11b3130930d2_1f93e0b2fc4155023de1a373f3893141",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "a528a364-487c-4140-9d99-543ab47f4e2d",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:24:17.416Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "007c8f6fe342a78cd205",
+          "fingerprint": "b3f69fbbf67fa891e2ec103cbdfe3a4798b747fa6742f356d050944d980f9711",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "7c7b03126509e19f57695d4c13a05e60_54131bb736b6100dd111748baf677290",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "75a08251-5e92-4fc6-8ccf-94223c637ee9",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:24:18.147Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "2c78cbcd451a0e2b8f68",
+          "fingerprint": "deada4bfbb604d76006c6a164d75729ec591de81360ad5457218c9e5683ed765",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "b671a914-fc60-48a0-bac6-0efc5a9b300a",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:24:37.362Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "6c6fced61267ea49e316",
+          "fingerprint": "3cb104a40ccf455e254f2f700a8064876d6f633004b8e1b160f8a2ce0f280e51",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "c90403884913aa2db3af49249ad355bd_c8bee784983a268e8a0d04768234641c",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "1307a00f-b42d-4691-8c91-ec52f4335d82",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:25:56.102Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "4e18106f509a2e62fa9c",
+          "fingerprint": "f8d7d70f2d99632ac1660ecd24bd9a1701263b74da8a94d6a0da6c51a0ca9cf6",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "8b0978cf784337023aea05c2618312f3_31f8ae96db2157f9744f6c8cca1357aa",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "2bd08946-1915-48c6-a117-d75c4bf6e14d",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:25:56.303Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "50242e03cbca1a31f1db",
+          "fingerprint": "e2719bd9f3af4a56a6ed5c4019a92ad4a5a0e65441d4baef76bb9ad90ff427aa",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "8cc9ba80404c18e7f7ffcf1d2f1ef4c1_861159dcb9d4cf60054fc3d92c577e8f",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "65adcb62-17a5-4a7e-af73-3d8dee74f3f0",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:26:21.699Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "2b8f0f790ff6282301e8",
+          "fingerprint": "debd55751ab704c3188a48ad8641841374a33e0206ee9c9c7fdac12af8dfc3d8",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "3ba6a140-7187-4122-95a3-b518b947c6c0",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:26:56.597Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "14f7d491b0cf3b340e88",
+          "fingerprint": "3ff232f29c5f1c1199563883eba007af2b80fd881df92e16505e89c2ee451869",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "0b6412f8-7610-4a78-9c64-ab03db4e73e2",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:27:11.595Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "4edbeb0746e0e4c3a37e",
+          "fingerprint": "39bd169eb0dad9bec89afdb248c55c4eecd970894050d743c4f9c6a0426f43da",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "38139644-2c2d-42f7-9343-80077b128898",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:28:43.398Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "0a05c6704694b637c902",
+          "fingerprint": "36966409fdbac9f5ce723a34dfe9f2cf8885708a5f19a40cdd33e3669430f74c",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "a138b53260ab9a16a1bc86a4cc7a82ab_3384d0cc46433f6a4ff30d8ea3838a39",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "d3b0b681-58ee-4e0d-8bb1-d8a753d49cce",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:28:47.828Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "55fcd8f26571695babe7",
+          "fingerprint": "8ce7af27e43e2c40e8130aabdd6e07ef7f4eac383be7a47c416891c6cabcbaec",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "8549f4ef6a78c00928955dbc7c7f1fa7_94f53e1c1dc62f94b0e69b6134b6f0ab",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "dbcd7c46-5bcd-48dc-831c-f77075847771",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:29:27.602Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "42eb21261700800205d5",
+          "fingerprint": "a8186241c4e5132bf5be2d6f581fe27d61cc556037fc532da71f409ab8ddab10",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "d7888d0d-18f1-413e-b3cc-d431b51b2c92",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:30:05.965Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "89c5031aec9cdb7dcb20",
+          "fingerprint": "cb0e6689f52954fc1c59c387d4ebc70fb0ec53811265bbf390ebb45cb16ad313",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0612a03d51144ae540ecb39ad33140f4_304928c772c1f3d037cb8eb47ccd3508",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "8c082389-65d8-4296-aa72-005e9e23d2fc",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:30:57.519Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "c9766adb88a41ab8f009",
+          "fingerprint": "2a916a43a915fde8088de1122278f75f00fb35ba0da255874fb456a7fc099345",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "c383c667ed79dc1f679e457d62110278_ccf56c2bb6526e7e53f2c228f43441dc",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "75e92038-d3c3-4e12-bccd-d7211cb6714e",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:31:59.184Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "b0a5e148dab23f2d294b",
+          "fingerprint": "42963b87cf61da2f1f12fe55a523ad1776746e6d7619ac00c4f3dbe4b1050aa4",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "1c835b08565c96fd050e8d03fcaaa2fe_828481bc71c07b032a217144bfd826c6",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "64934d31-9893-4524-88a1-38874a8eed8b",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:32:32.862Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "45a6a43f43f1dc014a3c",
+          "fingerprint": "6e8a2c3e6859a4c15be86dbfa6d4e559ec824d86068c4aa514079b6dc850e2e8",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "69e6f53f-f7c1-4958-a71a-e3ac7444fb5b",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:32:54.156Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "57ad96151fcdf457b4af",
+          "fingerprint": "0941276ec309dc7c6d1a5d152c5d7fbee3348a82680b969331efc4b10610a5db",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "c9f42ba7-db6a-48ab-afd1-71a566135859",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:33:02.205Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "3be07b076d4ff7899515",
+          "fingerprint": "a428ee3d81b7fc4d14282916fa99004d48b7df0c5d5143a33ca6c12c67cffd5e",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "18505267e05c58f3a305e54904fd34b2_1451931fd30649952c2c0089f11102a1",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "c027b63f-34a8-41af-b39f-42c05ed29a35",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:33:11.175Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "3dad84787515346729e7",
+          "fingerprint": "cbd1f517f3f636de141fe55eeb4fb2d478f9ad524223ffa3de188b57509440a8",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "1a0f5c1eb06fc3ba0a21ad7ddf65ae37_1788d536a2e32efa5857a4de8215f3ba",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "aaa16337-7790-476e-a16c-0ba3a3fadd56",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:33:30.382Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "ec944cf1734f28d61bcb",
+          "fingerprint": "1538c04f0d50fb2293ddd832cbb95e56df39f8979c6949fa475ea807e4b1b877",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "83d530f576c40265eca17ed0cc22f944_a5695b562ca1662f09f05988a63a9aa7",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "41c46801-e979-48f8-b271-4f0c9103a458",
+      "model": "claude-sonnet-5-5",
+      "phase": "test",
+      "reason": "native refusal",
+      "at": "2026-10-13T19:34:07.990Z",
+      "consumers": [
+        {
+          "phase": "test",
+          "model": "claude-sonnet-5-5",
+          "key": "c08ad4c6eb08a3beb82b",
+          "fingerprint": "c4af4ee80994d7d8aa16ec395e5f3cb776e75f8245109d2a3ab59f8903fa9429",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    }
+  ],
+  "refusalCounts": {
+    "claude-sonnet-5-5": {
+      "driftbench-verify-uncertainty-cascade": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      },
+      "promptfoo": {
+        "all": {
+          "answerEnvelopes": 54,
+          "affectedItems": 54,
+          "items": [
+            {
+              "phase": "noise-0",
+              "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+            },
+            {
+              "phase": "noise-0",
+              "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1"
+            },
+            {
+              "phase": "noise-0",
+              "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d"
+            },
+            {
+              "phase": "noise-0",
+              "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+            },
+            {
+              "phase": "noise-0",
+              "id": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6"
+            },
+            {
+              "phase": "noise-0",
+              "id": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e"
+            },
+            {
+              "phase": "noise-0",
+              "id": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2"
+            },
+            {
+              "phase": "noise-0",
+              "id": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf"
+            },
+            {
+              "phase": "noise-1",
+              "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+            },
+            {
+              "phase": "noise-1",
+              "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1"
+            },
+            {
+              "phase": "noise-1",
+              "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d"
+            },
+            {
+              "phase": "noise-1",
+              "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+            },
+            {
+              "phase": "noise-1",
+              "id": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6"
+            },
+            {
+              "phase": "noise-1",
+              "id": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e"
+            },
+            {
+              "phase": "noise-1",
+              "id": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2"
+            },
+            {
+              "phase": "noise-1",
+              "id": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf"
+            },
+            {
+              "phase": "noise-2",
+              "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+            },
+            {
+              "phase": "noise-2",
+              "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1"
+            },
+            {
+              "phase": "noise-2",
+              "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d"
+            },
+            {
+              "phase": "noise-2",
+              "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+            },
+            {
+              "phase": "noise-2",
+              "id": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e"
+            },
+            {
+              "phase": "noise-2",
+              "id": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2"
+            },
+            {
+              "phase": "pilot",
+              "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+            },
+            {
+              "phase": "pilot",
+              "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1"
+            },
+            {
+              "phase": "pilot",
+              "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d"
+            },
+            {
+              "phase": "pilot",
+              "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+            },
+            {
+              "phase": "test",
+              "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216"
+            },
+            {
+              "phase": "test",
+              "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7"
+            },
+            {
+              "phase": "test",
+              "id": "0612a03d51144ae540ecb39ad33140f4_304928c772c1f3d037cb8eb47ccd3508"
+            },
+            {
+              "phase": "test",
+              "id": "18505267e05c58f3a305e54904fd34b2_1451931fd30649952c2c0089f11102a1"
+            },
+            {
+              "phase": "test",
+              "id": "1a0f5c1eb06fc3ba0a21ad7ddf65ae37_1788d536a2e32efa5857a4de8215f3ba"
+            },
+            {
+              "phase": "test",
+              "id": "1c835b08565c96fd050e8d03fcaaa2fe_828481bc71c07b032a217144bfd826c6"
+            },
+            {
+              "phase": "test",
+              "id": "287bcd3d36c6958aec6c36b1f1075d90_916fc50c5bc8ada6e961c86e70ca5dcf"
+            },
+            {
+              "phase": "test",
+              "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591"
+            },
+            {
+              "phase": "test",
+              "id": "4e21cbb12bc4b04b9c5c11b3130930d2_1f93e0b2fc4155023de1a373f3893141"
+            },
+            {
+              "phase": "test",
+              "id": "600b2a52c4bada1645ea967aa15e342b_150c121fc0c6df113525e7fa9c3fca25"
+            },
+            {
+              "phase": "test",
+              "id": "7c7b03126509e19f57695d4c13a05e60_54131bb736b6100dd111748baf677290"
+            },
+            {
+              "phase": "test",
+              "id": "81a79415e371594cf9f043a48136f044_1f0ec0885c6ce6c4302916d5ce4d24f0"
+            },
+            {
+              "phase": "test",
+              "id": "83d530f576c40265eca17ed0cc22f944_a5695b562ca1662f09f05988a63a9aa7"
+            },
+            {
+              "phase": "test",
+              "id": "8549f4ef6a78c00928955dbc7c7f1fa7_94f53e1c1dc62f94b0e69b6134b6f0ab"
+            },
+            {
+              "phase": "test",
+              "id": "8b0978cf784337023aea05c2618312f3_31f8ae96db2157f9744f6c8cca1357aa"
+            },
+            {
+              "phase": "test",
+              "id": "8cc9ba80404c18e7f7ffcf1d2f1ef4c1_861159dcb9d4cf60054fc3d92c577e8f"
+            },
+            {
+              "phase": "test",
+              "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9"
+            },
+            {
+              "phase": "test",
+              "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70"
+            },
+            {
+              "phase": "test",
+              "id": "979fe3662e6300afbcdf50c73cbb9fa3_715cf112f0842667b81ec3cef4a1ae3d"
+            },
+            {
+              "phase": "test",
+              "id": "a138b53260ab9a16a1bc86a4cc7a82ab_3384d0cc46433f6a4ff30d8ea3838a39"
+            },
+            {
+              "phase": "test",
+              "id": "abb63589d40c54505066d21fad69b411_04d6e8c43b837396d1da3a9c795fe494"
+            },
+            {
+              "phase": "test",
+              "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e"
+            },
+            {
+              "phase": "test",
+              "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1"
+            },
+            {
+              "phase": "test",
+              "id": "c383c667ed79dc1f679e457d62110278_ccf56c2bb6526e7e53f2c228f43441dc"
+            },
+            {
+              "phase": "test",
+              "id": "c90403884913aa2db3af49249ad355bd_c8bee784983a268e8a0d04768234641c"
+            },
+            {
+              "phase": "test",
+              "id": "ca2979cb4b51aa090d1ea89c3866296b_2843ccdb6ec40e7f40ddc028139cbb72"
+            },
+            {
+              "phase": "test",
+              "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678"
+            },
+            {
+              "phase": "test",
+              "id": "ee2b019b748e79e6ca19ce7e98f08570_daef883c97da521206a756e4934403de"
+            }
+          ]
+        },
+        "test": {
+          "answerEnvelopes": 28,
+          "affectedItems": 28,
+          "items": [
+            {
+              "phase": "test",
+              "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216"
+            },
+            {
+              "phase": "test",
+              "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7"
+            },
+            {
+              "phase": "test",
+              "id": "0612a03d51144ae540ecb39ad33140f4_304928c772c1f3d037cb8eb47ccd3508"
+            },
+            {
+              "phase": "test",
+              "id": "18505267e05c58f3a305e54904fd34b2_1451931fd30649952c2c0089f11102a1"
+            },
+            {
+              "phase": "test",
+              "id": "1a0f5c1eb06fc3ba0a21ad7ddf65ae37_1788d536a2e32efa5857a4de8215f3ba"
+            },
+            {
+              "phase": "test",
+              "id": "1c835b08565c96fd050e8d03fcaaa2fe_828481bc71c07b032a217144bfd826c6"
+            },
+            {
+              "phase": "test",
+              "id": "287bcd3d36c6958aec6c36b1f1075d90_916fc50c5bc8ada6e961c86e70ca5dcf"
+            },
+            {
+              "phase": "test",
+              "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591"
+            },
+            {
+              "phase": "test",
+              "id": "4e21cbb12bc4b04b9c5c11b3130930d2_1f93e0b2fc4155023de1a373f3893141"
+            },
+            {
+              "phase": "test",
+              "id": "600b2a52c4bada1645ea967aa15e342b_150c121fc0c6df113525e7fa9c3fca25"
+            },
+            {
+              "phase": "test",
+              "id": "7c7b03126509e19f57695d4c13a05e60_54131bb736b6100dd111748baf677290"
+            },
+            {
+              "phase": "test",
+              "id": "81a79415e371594cf9f043a48136f044_1f0ec0885c6ce6c4302916d5ce4d24f0"
+            },
+            {
+              "phase": "test",
+              "id": "83d530f576c40265eca17ed0cc22f944_a5695b562ca1662f09f05988a63a9aa7"
+            },
+            {
+              "phase": "test",
+              "id": "8549f4ef6a78c00928955dbc7c7f1fa7_94f53e1c1dc62f94b0e69b6134b6f0ab"
+            },
+            {
+              "phase": "test",
+              "id": "8b0978cf784337023aea05c2618312f3_31f8ae96db2157f9744f6c8cca1357aa"
+            },
+            {
+              "phase": "test",
+              "id": "8cc9ba80404c18e7f7ffcf1d2f1ef4c1_861159dcb9d4cf60054fc3d92c577e8f"
+            },
+            {
+              "phase": "test",
+              "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9"
+            },
+            {
+              "phase": "test",
+              "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70"
+            },
+            {
+              "phase": "test",
+              "id": "979fe3662e6300afbcdf50c73cbb9fa3_715cf112f0842667b81ec3cef4a1ae3d"
+            },
+            {
+              "phase": "test",
+              "id": "a138b53260ab9a16a1bc86a4cc7a82ab_3384d0cc46433f6a4ff30d8ea3838a39"
+            },
+            {
+              "phase": "test",
+              "id": "abb63589d40c54505066d21fad69b411_04d6e8c43b837396d1da3a9c795fe494"
+            },
+            {
+              "phase": "test",
+              "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e"
+            },
+            {
+              "phase": "test",
+              "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1"
+            },
+            {
+              "phase": "test",
+              "id": "c383c667ed79dc1f679e457d62110278_ccf56c2bb6526e7e53f2c228f43441dc"
+            },
+            {
+              "phase": "test",
+              "id": "c90403884913aa2db3af49249ad355bd_c8bee784983a268e8a0d04768234641c"
+            },
+            {
+              "phase": "test",
+              "id": "ca2979cb4b51aa090d1ea89c3866296b_2843ccdb6ec40e7f40ddc028139cbb72"
+            },
+            {
+              "phase": "test",
+              "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678"
+            },
+            {
+              "phase": "test",
+              "id": "ee2b019b748e79e6ca19ce7e98f08570_daef883c97da521206a756e4934403de"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "unmappedRefusals": [],
+  "rule": "Strict is primary; any confirmed output limit makes every consuming contestant/item an error. Product-final preserves the original verdict, including fallback.",
+  "source": "evidence/scoring-freeze.json; evidence/request-attribution.json; receipts/calls.jsonl; receipts/errors.jsonl; receipts/native/*.json"
+}

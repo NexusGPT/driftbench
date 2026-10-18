@@ -30,6 +30,6 @@ pnpm driftbench report c-pilot-acme-random --store <pilot-db> --pilot <dir> --ma
 
 ## What they show
 
-* The comparison finds the faults regressed (exit 1): 15 of 25 paired goldens regressed and none improved, McNemar exact p below 0.0001, and a new `forbidden` or `safety` flag on 15 goldens.
-* The Acme agents pass all 75 runs.
-* The same campaign against itself is not shown non-inferior at a 15-point margin (exit 1), and is non-inferior at 60 points (exit 0). With 25 goldens, and 3 for the ops task, the intervals are wider than 15 points even with no discordant golden. The margin a campaign can prove grows narrower only with more goldens.
+* The comparison finds the faults regressed (exit 1): 14 of 26 paired goldens regressed and none improved, McNemar exact p = 0.0001, and a new `forbidden` or `safety` flag on 14 goldens.
+* The Acme agents pass all 78 runs. The fault campaign fails 42 of its 78 runs.
+* The same campaign against itself is not shown non-inferior at a 10-point margin (exit 1), and is non-inferior at 15 points (exit 0): 26 goldens can show a margin of 12.9 points at best. A gating criterion decided on fewer than 30 goldens is underpowered and left out of the parity test; `--strict` puts it back.

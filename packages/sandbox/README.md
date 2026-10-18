@@ -1,4 +1,4 @@
-# @driftbench/sandbox
+# @agent-nexus/driftbench-sandbox
 
 The workspace a code agent works in for one driftbench run: a local folder or a docker container, with snapshots, diffs and bounded commands.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install @driftbench/sandbox
+npm install @agent-nexus/driftbench-sandbox
 ```
 
 Node.js 22 or newer. ESM only, with TypeScript types.
@@ -28,4 +28,4 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## License
 
-Apache-2.0
+MIT

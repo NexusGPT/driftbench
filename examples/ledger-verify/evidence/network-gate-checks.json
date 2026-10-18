@@ -1,0 +1,9 @@
+{
+  "focusedChecks": 5,
+  "providerCalls": 0,
+  "closedGateStops": true,
+  "otherCellStops": true,
+  "twoCallLimit": true,
+  "answeredErrorNeverRetried": true,
+  "noAnswerRecovery": true
+}

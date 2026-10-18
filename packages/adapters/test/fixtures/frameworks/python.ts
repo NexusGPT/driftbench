@@ -1,4 +1,4 @@
-import type { Message } from '@driftbench/core';
+import type { Message } from '@agent-nexus/driftbench-core';
 import type { ExecLike, ExecRequest } from '../../../src/shared/bridge';
 import { labelOf, sdkName, tokens } from '../sdk/acme-model';
 import { type AcmeStore, createStore, runTurn, turnsOfMessages } from './acme-loop';

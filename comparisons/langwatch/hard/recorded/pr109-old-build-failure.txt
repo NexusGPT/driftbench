@@ -1,0 +1,1107 @@
+build (node 22)	UNKNOWN STEP	﻿2026-10-12T20:51:00.7118330Z Current runner version: '2.337.0'
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7145913Z ##[group]Runner Image Provisioner
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7146813Z Hosted Compute Agent
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7147516Z Version: 20261002.596
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7148204Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7148970Z Build Date: 2026-10-02T22:28:27Z
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7149721Z Worker ID: {3d36855b-3c6a-4ad7-bb3b-343a87501768}
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7150444Z Region: westus
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7151105Z Cloud: Azure
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7151649Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7153637Z ##[group]Operating System
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7154450Z Ubuntu
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7154989Z 24.04.5
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7155536Z LTS
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7156114Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7156665Z ##[group]Runner Image
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7157326Z Image: ubuntu-24.04
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7157903Z Version: 20261004.327.1
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7159766Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7161476Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7163109Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7164310Z ##[group]GITHUB_TOKEN Permissions
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7166389Z Contents: read
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7167065Z Metadata: read
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7167709Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7169922Z Secret source: Actions
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7170879Z Cache mode: write
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7172062Z Prepare workflow directory
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7795913Z Prepare all required actions
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:00.7845831Z Getting action download info
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:01.1504018Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:01.5489939Z Download action repository 'pnpm/action-setup@v6' (SHA:0977fd99725f1db4007ccb2928dbb4e90d06cc86)
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:01.8869997Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.4938032Z Complete job name: build (node 22)
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6002147Z ##[group]Run actions/checkout@v7
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6003673Z with:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6004568Z   repository: achammah/driftbench
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6014834Z   token: ***
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6015756Z   ssh-strict: true
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6016649Z   ssh-user: git
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6017554Z   persist-credentials: true
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6018543Z   clean: true
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6019449Z   sparse-checkout-cone-mode: true
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6020512Z   fetch-depth: 1
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6021379Z   fetch-tags: false
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6022434Z   show-progress: true
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6023338Z   lfs: false
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6024185Z   submodules: false
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6025111Z   set-safe-directory: true
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6026143Z   allow-unsafe-pr-checkout: false
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.6027546Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7084162Z Syncing repository: achammah/driftbench
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7088596Z ##[group]Getting Git version info
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7091004Z Working directory is '/home/runner/work/driftbench/driftbench'
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7094613Z [command]/usr/bin/git version
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7169633Z git version 2.55.0
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7204378Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7217946Z Temporarily overriding HOME='/home/runner/work/_temp/2dadf379-ef13-49ec-8824-1ee864afe233' before making global git config changes
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7222487Z Adding repository directory to the temporary git global config as a safe directory
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7226334Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/driftbench/driftbench
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7280941Z Deleting the contents of '/home/runner/work/driftbench/driftbench'
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7285486Z ##[group]Determining repository object format
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7288566Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7290604Z ##[group]Initializing the repository
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7292761Z [command]/usr/bin/git init /home/runner/work/driftbench/driftbench
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7419834Z hint: Using 'master' as the name for the initial branch. This default branch name
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7424047Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7430440Z hint: to use in all of your new repositories, which will suppress this warning,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7433807Z hint: call:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7435824Z hint:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7438137Z hint: 	git config --global init.defaultBranch <name>
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7440858Z hint:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7443544Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7447410Z hint: 'development'. The just-created branch can be renamed via this command:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7450414Z hint:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7452520Z hint: 	git branch -m <name>
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7454215Z hint:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7456495Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7460844Z Initialized empty Git repository in /home/runner/work/driftbench/driftbench/.git/
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7467088Z [command]/usr/bin/git remote add origin https://github.com/achammah/driftbench
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7509270Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7512223Z ##[group]Disabling automatic garbage collection
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7514473Z [command]/usr/bin/git config --local gc.auto 0
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7564720Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7566755Z ##[group]Setting up auth
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7567847Z Removing SSH command configuration
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7572089Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.7614347Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8068162Z Removing HTTP extra header
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8075802Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8120812Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8398419Z Removing includeIf entries pointing to credentials config files
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8400584Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8428551Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8668936Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-f09e743b-fe90-4891-9df3-5976f4f6d10a.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8713270Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/driftbench/driftbench/.git.path /home/runner/work/_temp/git-credentials-f09e743b-fe90-4891-9df3-5976f4f6d10a.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8751024Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/driftbench/driftbench/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-f09e743b-fe90-4891-9df3-5976f4f6d10a.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8793633Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-f09e743b-fe90-4891-9df3-5976f4f6d10a.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8833642Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-f09e743b-fe90-4891-9df3-5976f4f6d10a.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8866795Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8868668Z ##[group]Fetching the repository
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:02.8874032Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +ac95ab29208889a543aee88b30b348127a49adc0:refs/remotes/pull/109/merge
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:04.8438917Z From https://github.com/achammah/driftbench
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:04.8442449Z  * [new ref]         ac95ab29208889a543aee88b30b348127a49adc0 -> pull/109/merge
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:04.8450998Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:04.8452205Z ##[group]Determining the checkout info
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:04.8453262Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:04.8453896Z [command]/usr/bin/git sparse-checkout disable
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:04.8508179Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:04.8544533Z ##[group]Checking out the ref
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:04.8549649Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/109/merge
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1139557Z Note: switching to 'refs/remotes/pull/109/merge'.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1140431Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1140979Z You are in 'detached HEAD' state. You can look around, make experimental
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1142563Z changes and commit them, and you can discard any commits you make in this
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1143843Z state without impacting any branches by switching back to a branch.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1144660Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1145151Z If you want to create a new branch to retain commits you create, you may
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1145884Z do so (now or later) by using -c with the switch command. Example:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1146274Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1146464Z   git switch -c <new-branch-name>
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1146747Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1146946Z Or undo this operation with:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1147215Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1147386Z   git switch -
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1147623Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1147997Z Turn off this advice by setting config variable advice.detachedHead to false
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1148562Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1149051Z HEAD is now at ac95ab2 Merge 2bca4a64f98042d284b095ea3c6ebc0b480d7488 into e9b7666d00ba86f7f68dbd6bdd8befd7533974b5
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1158817Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1207618Z [command]/usr/bin/git log -1 --format=%H
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1238908Z ac95ab29208889a543aee88b30b348127a49adc0
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1497144Z ##[group]Run pnpm/action-setup@v6
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1497549Z with:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1497836Z   dest: ~/setup-pnpm
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1498136Z   run_install: null
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1498415Z   cache: false
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1498717Z   cache_dependency_path: pnpm-lock.yaml
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1499101Z   package_json_file: package.json
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1499472Z   standalone: false
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.1499752Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:05.3066698Z ##[group]Running self-installer...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:07.3020036Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:07.3020605Z added 1 package, and audited 2 packages in 2s
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:07.3021075Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:07.3021355Z 1 package is looking for funding
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:07.3022223Z   run `npm fund` for details
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:07.3031915Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:07.3032156Z found 0 vulnerabilities
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:07.9491645Z Checking for updates...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:08.2941194Z Switching pnpm from v11.19.0 to v10.30.2...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:08.7463752Z .../v11/92d-1a131e22caf-d032fb4552601683 | Progress: resolved 1, reused 0, downloaded 0, added 0
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:08.7488768Z .../v11/92d-1a131e22caf-d032fb4552601683 |   +1 +
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.0100311Z .../v11/92d-1a131e22caf-d032fb4552601683 | Progress: resolved 1, reused 0, downloaded 1, added 1, done
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4188232Z [WARN] Detected a pnpm v10 installation layout at PNPM_HOME. The pnpm shims at PNPM_HOME have been refreshed so the new version is active, but pnpm v11 expects bins in PNPM_HOME/bin. Run "pnpm setup" to migrate your PATH to the v11 layout.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4218045Z Successfully updated pnpm to v10.30.2
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4520771Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4521154Z Installation Completed!
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4729228Z ##[group]Run actions/setup-node@v7
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4729520Z with:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4729723Z   node-version: 22
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4729927Z   cache: pnpm
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4730127Z   check-latest: false
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4733092Z   token: ***
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4733546Z   package-manager-cache: true
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4733795Z env:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4734038Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.4734353Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.6022548Z Found in cache @ /opt/hostedtoolcache/node/22.23.3/x64
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:09.6863187Z ##[group]Environment details
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:10.0170495Z node: v22.23.3
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:10.0170978Z npm: 10.9.9
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:10.0171291Z yarn: 1.22.22
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:10.0172714Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:10.0195017Z [command]/home/runner/setup-pnpm/node_modules/.bin/bin/pnpm store path --silent
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:10.3327200Z /home/runner/setup-pnpm/node_modules/.bin/store/v10
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:10.6115745Z Cache hit for: node-cache-Linux-x64-pnpm-1feba3d1eb11b92f682e2156736fa67382db485180d5e662504526eea07a5831
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:11.9099605Z Received 0 of 156178428 (0.0%), 0.0 MBs/sec
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:12.9152482Z Received 104857600 of 156178428 (67.1%), 50.0 MBs/sec
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:13.5223297Z Received 156178428 of 156178428 (100.0%), 57.1 MBs/sec
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:13.5224149Z Cache Size: ~149 MB (156178428 B)
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:13.5306361Z [command]/usr/bin/tar -xf /home/runner/work/_temp/c8c1d9b8-5974-4648-96ee-429e4f1d0435/cache.tzst -P -C /home/runner/work/driftbench/driftbench --use-compress-program unzstd
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.2915740Z Cache restored successfully
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.3024071Z Cache restored from key: node-cache-Linux-x64-pnpm-1feba3d1eb11b92f682e2156736fa67382db485180d5e662504526eea07a5831
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.3180914Z ##[group]Run pnpm install --frozen-lockfile
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.3181358Z [36;1mpnpm install --frozen-lockfile[0m
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.3450446Z shell: /usr/bin/bash -e {0}
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.3450759Z env:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.3451044Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.3451394Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.6693460Z Scope: all 18 workspace projects
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.7416560Z Lockfile is up to date, resolution step is skipped
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.7898811Z Progress: resolved 1, reused 0, downloaded 0, added 0
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.8753445Z Packages: +489
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:15.8783028Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:16.7904164Z Progress: resolved 489, reused 486, downloaded 0, added 305
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.2035535Z Progress: resolved 489, reused 486, downloaded 0, added 489, done
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.3910605Z .../esbuild@0.27.7/node_modules/esbuild postinstall$ node install.js
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.3923084Z .../esbuild@0.28.2/node_modules/esbuild postinstall$ node install.js
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.3931602Z .../esbuild@0.21.5/node_modules/esbuild postinstall$ node install.js
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.4683349Z .../esbuild@0.21.5/node_modules/esbuild postinstall: Done
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.4693555Z .../esbuild@0.28.2/node_modules/esbuild postinstall: Done
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.4711583Z .../esbuild@0.27.7/node_modules/esbuild postinstall: Done
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6316011Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6316860Z devDependencies:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6317413Z + @biomejs/biome 2.5.15
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6317997Z + @types/node 26.6.5
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6318532Z + exceljs 4.4.0
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6319151Z + playwright-core 1.63.0
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6320458Z + tsup 8.5.1
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6321105Z + tsx 4.23.15
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6321569Z + typescript 6.0.3
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6322306Z + vitepress 1.6.4
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6322744Z + vitest 5.0.3
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6322990Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6676181Z ╭ Warning ─────────────────────────────────────────────────────────────────────╮
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6676901Z │                                                                              │
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6677601Z │   Ignored build scripts: @google/genai@2.28.0, protobufjs@7.6.6.             │
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6678757Z │   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6679811Z │   to run scripts.                                                            │
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6681120Z │                                                                              │
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6682417Z ╰──────────────────────────────────────────────────────────────────────────────╯
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.6856340Z Done in 2.3s using pnpm v10.30.2
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.7087782Z ##[group]Run pnpm lint
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.7088112Z [36;1mpnpm lint[0m
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.7159882Z shell: /usr/bin/bash -e {0}
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.7160149Z env:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.7160425Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:17.7160748Z ##[endgroup]
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:18.0224723Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:18.0233532Z > driftbench-monorepo@ lint /home/runner/work/driftbench/driftbench
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:18.0234331Z > biome check .
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:18.0234586Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3093128Z comparisons/deepeval/judge/render.mts:15:60 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3093919Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3094500Z   i Template literals are preferred over string concatenation.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3095163Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3095812Z     13 │ const crit = (f: string, dir = 'examples/criteria') =>
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3096771Z     14 │   yaml.parse(readFileSync(join(root, dir, f), 'utf8')).criterion;
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3097970Z   > 15 │ const ds = (n: string) => JSON.parse(readFileSync(join(DS, n + '.json'), 'utf8'));
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3098958Z        │                                                            ^^^^^^^^^^^
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3099773Z     16 │ const ASK = 'Hello, what can you help me with?';
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3100520Z     17 │ const CONTEXTS = [
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3101098Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3101676Z   i Unsafe fix: Use a template literal.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3102579Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3103445Z      13  13 │   const crit = (f: string, dir = 'examples/criteria') =>
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3104820Z      14  14 │     yaml.parse(readFileSync(join(root, dir, f), 'utf8')).criterion;
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3106282Z      15     │ - const·ds·=·(n:·string)·=>·JSON.parse(readFileSync(join(DS,·n·+·'.json'),·'utf8'));
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3107591Z          15 │ + const·ds·=·(n:·string)·=>·JSON.parse(readFileSync(join(DS,·`${n}.json`),·'utf8'));
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3108606Z      16  16 │   const ASK = 'Hello, what can you help me with?';
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3109285Z      17  17 │   const CONTEXTS = [
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3109706Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3109869Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3110584Z comparisons/deepeval/judge/render.mts:42:27 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3110995Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3111213Z   i Template literals are preferred over string concatenation.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3111563Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3112391Z     40 │ const cV = crit('relevancy-vague.yaml', 'comparisons/deepeval/criteria');
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3113180Z     41 │ for (const r of ds('relevancy-hard2'))
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3134750Z   > 42 │   push('relevancy-hard2', 'p2-' + r.id, cR, [
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3135198Z        │                           ^^^^^^^^^^^^
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3135614Z     43 │     { role: 'user', text: r.ask },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3135991Z     44 │     { role: 'agent', text: r.reply },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3136279Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3136527Z   i Unsafe fix: Use a template literal.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3136794Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3137267Z      40  40 │   const cV = crit('relevancy-vague.yaml', 'comparisons/deepeval/criteria');
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3137799Z      41  41 │   for (const r of ds('relevancy-hard2'))
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3138343Z      42     │ - ··push('relevancy-hard2',·'p2-'·+·r.id,·cR,·[
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3138822Z          42 │ + ··push('relevancy-hard2',·`p2-${r.id}`,·cR,·[
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3139233Z      43  43 │       { role: 'user', text: r.ask },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3139648Z      44  44 │       { role: 'agent', text: r.reply },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3139948Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3140055Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3140573Z comparisons/deepeval/judge/render.mts:47:33 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3141328Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3141545Z   i Template literals are preferred over string concatenation.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3142191Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3142435Z     45 │   ]);
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3143002Z     46 │ for (const r of ds('relevancy-hard2'))
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3143499Z   > 47 │   push('relevancy-hard2-vague', 'vague-' + r.id, cV, [
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3143956Z        │                                 ^^^^^^^^^^^^^^^
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3144362Z     48 │     { role: 'user', text: r.ask },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3144742Z     49 │     { role: 'agent', text: r.reply },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3145017Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3145262Z   i Unsafe fix: Use a template literal.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3145526Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3145750Z      45  45 │     ]);
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3146087Z      46  46 │   for (const r of ds('relevancy-hard2'))
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3146585Z      47     │ - ··push('relevancy-hard2-vague',·'vague-'·+·r.id,·cV,·[
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3147134Z          47 │ + ··push('relevancy-hard2-vague',·`vague-${r.id}`,·cV,·[
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3147578Z      48  48 │       { role: 'user', text: r.ask },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3149202Z      49  49 │       { role: 'agent', text: r.reply },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3149660Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3149897Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3150528Z comparisons/deepeval/judge/ours-prompts.json check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3151047Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3151502Z   ! The size of the file is 2.0 MiB, which exceeds the configured maximum of 1.0 MiB for this project.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3152918Z     Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3153655Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3153888Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3154575Z comparisons/deepeval/judge/render.mts:11:105 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3155154Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3155488Z   ! Unexpected any. Specify a different type.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3156043Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3156711Z      9 │ const here = dirname(fileURLToPath(import.meta.url));
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3157538Z     10 │ const root = resolve(here, '../../..');
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3158805Z   > 11 │ const yaml = createRequire(join(root, 'packages/core/package.json'))('yaml') as { parse: (s: string) => any };
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3160123Z        │                                                                                                         ^^^
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3160923Z     12 │ const DS = join(here, '..', 'datasets');
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3161681Z     13 │ const crit = (f: string, dir = 'examples/criteria') =>
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3162479Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3163068Z   i any disables many type checking rules. Its use should be avoided.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3163670Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3163839Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3164729Z comparisons/deepeval/judge/render.mts:25:51 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3165440Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3165689Z   ! Unexpected any. Specify a different type.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3166160Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3166493Z     23 │ ];
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3167231Z     24 │ const out: { id: string; set: string; system: string; user: string }[] = [];
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3168468Z   > 25 │ const push = (set: string, id: string, criterion: any, transcript: any[], extra: any = {}) => {
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3169437Z        │                                                   ^^^
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3170339Z     26 │   const p = buildPrompt({ criterion, transcript, ...extra } as never);
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3171296Z     27 │   out.push({ id, set, system: p.system, user: p.user });
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3172075Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3172626Z   i any disables many type checking rules. Its use should be avoided.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3173228Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3173384Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3174275Z comparisons/deepeval/judge/render.mts:25:68 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3175249Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3175499Z   ! Unexpected any. Specify a different type.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3175974Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3176307Z     23 │ ];
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3177228Z     24 │ const out: { id: string; set: string; system: string; user: string }[] = [];
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3178471Z   > 25 │ const push = (set: string, id: string, criterion: any, transcript: any[], extra: any = {}) => {
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3179539Z        │                                                                    ^^^
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3180447Z     26 │   const p = buildPrompt({ criterion, transcript, ...extra } as never);
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3181361Z     27 │   out.push({ id, set, system: p.system, user: p.user });
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3182146Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3182699Z   i any disables many type checking rules. Its use should be avoided.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3183290Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3183455Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3184334Z comparisons/deepeval/judge/render.mts:25:82 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3185045Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3185298Z   ! Unexpected any. Specify a different type.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3185764Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3186093Z     23 │ ];
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3186829Z     24 │ const out: { id: string; set: string; system: string; user: string }[] = [];
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3188055Z   > 25 │ const push = (set: string, id: string, criterion: any, transcript: any[], extra: any = {}) => {
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3189133Z        │                                                                                  ^^^
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3190075Z     26 │   const p = buildPrompt({ criterion, transcript, ...extra } as never);
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3190987Z     27 │   out.push({ id, set, system: p.system, user: p.user });
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3191520Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3192260Z   i any disables many type checking rules. Its use should be avoided.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3192853Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3193009Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3193904Z comparisons/deepeval/judge/render.mts:63:25 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3194591Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3194857Z   ! Unexpected any. Specify a different type.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3195348Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3195751Z     61 │     r.id,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3196167Z     62 │     cC,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3196738Z   > 63 │     r.turns.flatMap((x: any) => [
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3197330Z        │                         ^^^
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3197931Z     64 │       { role: 'user', text: x.ask },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3198603Z     65 │       { role: 'agent', text: x.reply },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3199095Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3199652Z   i any disables many type checking rules. Its use should be avoided.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3200273Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3200454Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3201399Z comparisons/deepeval/judge/render.mts:74:25 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3202350Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3202601Z   ! Unexpected any. Specify a different type.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3203297Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3203668Z     72 │     r.id,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3204048Z     73 │     cD,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3204522Z   > 74 │     r.turns.flatMap((x: any) => [
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3205105Z        │                         ^^^
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3205670Z     75 │       { role: 'user', text: x.ask },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3206302Z     76 │       { role: 'agent', text: x.reply },
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3206752Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3207276Z   i any disables many type checking rules. Its use should be avoided.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3207873Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3208031Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3208895Z comparisons/deepeval/tools/tools_ours.mts:5:25 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3209592Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3209805Z   ! Several of these imports are unused.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3210252Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3210828Z     3 │ // Writes comparisons/deepeval/results/tools-ours.json.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3211677Z     4 │ import { readFileSync, writeFileSync } from 'node:fs';
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3212727Z   > 5 │ import { dirname, join, resolve } from 'node:path';
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3213379Z       │                         ^^^^^^^
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3214171Z     6 │ import { fileURLToPath } from 'node:url';
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3215104Z     7 │ import { forbidden } from '../../../packages/checks/src/checks/forbidden.ts';
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3215771Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3216311Z   i Unused imports might be the result of an incomplete refactoring.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3216911Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3217291Z   i Unsafe fix: Remove the unused imports.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3217740Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3218352Z     5 │ import·{·dirname,·join,·resolve·}·from·'node:path';
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3219113Z       │                         --------                   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3219458Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3220307Z examples/acme/gated/gate-report.json check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3220972Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3221549Z   ! The size of the file is 3.0 MiB, which exceeds the configured maximum of 1.0 MiB for this project.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3223269Z     Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3224220Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3224388Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3225260Z packages/store/test/file.test.ts:122:16 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3225937Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3226141Z   ! This variable error is unused.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3226551Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3226893Z     120 │       try {
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3227798Z     121 │         writer.prepare('UPDATE runs SET cost = cost + 1 WHERE run_id = ?').run(stored.runId);
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3228663Z   > 122 │       } catch (error) {
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3229165Z         │                ^^^^^
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3229688Z     123 │         writerRefused = true;
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3230277Z     124 │       }
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3230592Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3231333Z   i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3232307Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3232880Z   i Unsafe fix: If this is intentional, prepend error with an underscore.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3233496Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3233863Z     120 120 │         try {
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3234840Z     121 121 │           writer.prepare('UPDATE runs SET cost = cost + 1 WHERE run_id = ?').run(stored.runId);
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3235779Z     122     │ - ······}·catch·(error)·{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3236369Z         122 │ + ······}·catch·(_error)·{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3236965Z     123 123 │           writerRefused = true;
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3237486Z     124 124 │         }
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3237834Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3237991Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3238903Z comparisons/langwatch/pairwise/recorded/ours-audit-checked-haiku-hard.json format ━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3239864Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3610947Z   × Formatter would have printed the following content:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.3611534Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4054315Z        1    1 │   {
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4055062Z        2      │ - ·"system":·"ours-audit-checked",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4055816Z        3      │ - ·"model":·"haiku",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4056419Z        4      │ - ·"set":·"hard.json",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4057038Z        5      │ - ·"expectedItems":·120,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4057653Z        6      │ - ·"complete":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4058742Z        7      │ - ·"promptSha256":·"3af0b400ba654e4ea1315249d30aa2f857fee3116dfe24ff97a3cf732dfbc4b2",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4060290Z        8      │ - ·"fallbackPromptSha256":·"cab22b30959c623ad4bccce8c06fdf3b2086e3e5d8f730b92b8056d1895b3c25",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4061368Z        9      │ - ·"spentUsd":·0.09582425000000004,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4063873Z       10      │ - ·"freshSpendUsd":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4064478Z       11      │ - ·"newCalls":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4065122Z       12      │ - ·"replayedCalls":·242,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4065716Z       13      │ - ·"unanswered":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4066294Z       14      │ - ·"answers":·[
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4066774Z       15      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4067736Z       16      │ - ···"id":·"h001",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4068350Z       17      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4068978Z       18      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4069571Z       19      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4070160Z       20      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4070766Z       21      │ - ···"costUsd":·0.000937,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4072036Z       22      │ - ···"orderedKey":·"37cc21f4b338541c6a43ea6b68a80b148e00c5a0da95833a7677f4e0671b501b",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4073557Z       23      │ - ···"swappedKey":·"b4f31dd0dea232570369c12cf0377dd3cad29123d5ea5880bb25962bbf912f93",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4075143Z       24      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Molenweg...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4076825Z       25      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Molenweg...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4077803Z       26      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4078257Z       27      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4078752Z       28      │ - ···"id":·"h002",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4079325Z       29      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4079919Z       30      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4080517Z       31      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4081163Z       32      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4081962Z       33      │ - ···"costUsd":·0.00055072,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4083050Z       34      │ - ···"orderedKey":·"59211817cfa4e4d66f08f1e4955a98057f918a65e97a7303b47efa1a6025346d",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4084444Z       35      │ - ···"swappedKey":·"718dabb4c5da046f62d4a154f53b74373a1120fb3238978e7b1c2e034e76d4e3",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4085979Z       36      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Zeelaan·...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4087642Z       37      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Zeelaan·...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4088646Z       38      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4089087Z       39      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4089576Z       40      │ - ···"id":·"h003",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4090152Z       41      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4090742Z       42      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4091327Z       43      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4092121Z       44      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4092740Z       45      │ - ···"costUsd":·0.00076632,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4093786Z       46      │ - ···"orderedKey":·"873fe1c229de6d45e59419f47cb59e92ce03f8696c417caaa21cf20e94b684ce",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4095206Z       47      │ - ···"swappedKey":·"4b9630e87588fc8a7befcbe7259ef8ae01f7b9f67b8b0a4bc9b6a318503b5a65",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4097009Z       48      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·39·USD·a·month;·(2)·data·allowance,·60·GB;·(3)·a...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4098813Z       49      │ - ···"swappedReasoning":·"Requested·facts:·price·(39·USD/month),·data·(60·GB),·and·availability·at·Kas...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4099806Z       50      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4100236Z       51      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4100731Z       52      │ - ···"id":·"h004",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4101326Z       53      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4102129Z       54      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4102740Z       55      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4103343Z       56      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4104004Z       57      │ - ···"costUsd":·0.0006301200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4105115Z       58      │ - ···"orderedKey":·"8f876b3ce98005148b7780c9d438b0944e109508a4fb4af5ee99a70eadc72a41",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4106473Z       59      │ - ···"swappedKey":·"7f1e7b080b86e08478f15f473e9e310d38c4a5983824153a7903199ead508dcf",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4108076Z       60      │ - ···"orderedReasoning":·"The·requested·facts·are·the·price,·the·data·allowance,·and·availability·at·Z...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4109803Z       61      │ - ···"swappedReasoning":·"The·task·requests·three·facts:·the·price,·the·data·allowance,·and·availabili...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4110787Z       62      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4111216Z       63      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4111710Z       64      │ - ···"id":·"h005",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4112489Z       65      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4113086Z       66      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4113682Z       67      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4114287Z       68      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4114959Z       69      │ - ···"costUsd":·0.0006602200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4116052Z       70      │ - ···"orderedKey":·"3d9e9b36c4a3352072bf97c0849370b81b754e3cc93164b083667fd75d62ce05",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4117448Z       71      │ - ···"swappedKey":·"85a2ffb05c76e63f2313319525c3d8afeba37c31f23429c190c91ee0065fdbd7",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4119021Z       72      │ - ···"orderedReasoning":·"The·task·requests·three·facts:·the·monthly·price,·the·data·allowance,·and·wh...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4120675Z       73      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Molenweg...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4121637Z       74      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4122256Z       75      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4122754Z       76      │ - ···"id":·"h006",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4123320Z       77      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4123906Z       78      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4124492Z       79      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4125081Z       80      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4125725Z       81      │ - ···"costUsd":·0.0005279200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4126840Z       82      │ - ···"orderedKey":·"4db632bc21b0845ffa91176573ccfee4f4174c8f1c28acec937b8af2c8631ab8",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4128243Z       83      │ - ···"swappedKey":·"5604f84ca8b3cb69a560fb7fe0d11a4d9a6af7b7d3149b05c31fe78e9f608418",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4129808Z       84      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Kastanje...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4131544Z       85      │ - ···"swappedReasoning":·"Requested·facts:·price,·data·allowance,·and·availability·at·Kastanjelaan·4.·...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4132751Z       86      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4133184Z       87      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4133676Z       88      │ - ···"id":·"h007",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4134253Z       89      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4134852Z       90      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4135442Z       91      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4136033Z       92      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4136696Z       93      │ - ···"costUsd":·0.0008485200000000002,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4138043Z       94      │ - ···"orderedKey":·"ddf21ec8af409a9a9482e47e9cfe1f39ab93547b7518d2e974150ebe5e123c38",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4139600Z       95      │ - ···"swappedKey":·"bf6d3aa8704ddeb75a334b1db70963452504b8545688403c0e1056f1b5145791",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4141152Z       96      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·reference·57·USD/month;·(2)·data,·reference·10·G...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4142977Z       97      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Lindenst...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4143909Z       98      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4144329Z       99      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4144804Z      100      │ - ···"id":·"h008",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4145363Z      101      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4145945Z      102      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4146514Z      103      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4147090Z      104      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4147719Z      105      │ - ···"costUsd":·0.00062702,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4148771Z      106      │ - ···"orderedKey":·"c19819fb1003268d97b7f9b25fff69ac13b4bbe46b29abf5ca9016dc19167a72",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4150168Z      107      │ - ···"swappedKey":·"50a7127d2ab99ca69bd5001dcb1b0f32da63200322df56c635bb623a61774ea1",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4151902Z      108      │ - ···"orderedReasoning":·"The·requested·facts·are·the·price,·the·data·allowance,·and·availability·at·Z...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4153604Z      109      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Zeelaan·...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4154555Z      110      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4154975Z      111      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4155451Z      112      │ - ···"id":·"h009",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4156013Z      113      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4156600Z      114      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4157175Z      115      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4157780Z      116      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4158424Z      117      │ - ···"costUsd":·0.0005179200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4159508Z      118      │ - ···"orderedKey":·"7a77a0254498b837330406dc193594b528142dbb61fcafd8d6681dbf50a43839",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4160879Z      119      │ - ···"swappedKey":·"d38bf0f0b0701582c20a0c7f0540a4fd89958c390bd6cda14f74d00be9f38100",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4162588Z      120      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Kastanje...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4164226Z      121      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Kastanje...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4165174Z      122      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4165594Z      123      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4166062Z      124      │ - ···"id":·"h010",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4166611Z      125      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4167189Z      126      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4168009Z      127      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4168642Z      128      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4169291Z      129      │ - ···"costUsd":·0.0005694200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4170399Z      130      │ - ···"orderedKey":·"f91af436be42c05cc86fe132f3756314e5da2fc8210a6e447e0712a462acfc0b",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4171946Z      131      │ - ···"swappedKey":·"97f6d6168f04b53f4985d3b96565abd63e6556890a1b400bbdf2f91c1a5b595c",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4173538Z      132      │ - ···"orderedReasoning":·"The·task·requests·three·facts:·the·price,·the·data·allowance,·and·availabili...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4175198Z      133      │ - ···"swappedReasoning":·"Requested·facts:·price·(32·USD/month),·data·(20·GB),·availability·at·Lindens...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4176160Z      134      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4176566Z      135      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4177034Z      136      │ - ···"id":·"h011",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4177586Z      137      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4178195Z      138      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4178762Z      139      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4179334Z      140      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4180177Z      141      │ - ···"costUsd":·0.00063082,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4181235Z      142      │ - ···"orderedKey":·"430865eedbee8324f88b52d60b3cd6ccfa50f58684f5ee646781b8bd85db764f",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4182800Z      143      │ - ···"swappedKey":·"6e291764e6b13dae133552519cb9fe2ca8dcba3307c9893e3ddca3e725eadadf",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4184324Z      144      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Kastanje...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4185982Z      145      │ - ···"swappedReasoning":·"The·task·requests·three·facts:·price,·data·allowance,·and·availability·at·Ka...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4186985Z      146      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4187396Z      147      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4187873Z      148      │ - ···"id":·"h012",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4188462Z      149      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4189035Z      150      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4189493Z   2785 more lines truncated
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4189876Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4190041Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4190988Z comparisons/langwatch/pairwise/recorded/ours-audit-checked-haiku.json format ━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4191914Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4580799Z   × Formatter would have printed the following content:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.4581409Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5023912Z        1    1 │   {
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5024737Z        2      │ - ·"system":·"ours-audit-checked",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5025405Z        3      │ - ·"model":·"haiku",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5025998Z        4      │ - ·"set":·"set.json",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5026605Z        5      │ - ·"expectedItems":·120,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5027201Z        6      │ - ·"complete":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5028293Z        7      │ - ·"promptSha256":·"3af0b400ba654e4ea1315249d30aa2f857fee3116dfe24ff97a3cf732dfbc4b2",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5029885Z        8      │ - ·"fallbackPromptSha256":·"cab22b30959c623ad4bccce8c06fdf3b2086e3e5d8f730b92b8056d1895b3c25",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5030969Z        9      │ - ·"spentUsd":·0.07808660000000002,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5031638Z       10      │ - ·"freshSpendUsd":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5032540Z       11      │ - ·"newCalls":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5033123Z       12      │ - ·"replayedCalls":·260,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5033746Z       13      │ - ·"unanswered":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5034297Z       14      │ - ·"answers":·[
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5034765Z       15      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5035271Z       16      │ - ···"id":·"q001",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5035848Z       17      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5036441Z       18      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5037039Z       19      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5037633Z       20      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5038916Z       21      │ - ···"costUsd":·0.00062042,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5039989Z       22      │ - ···"orderedKey":·"12df2256d19c232852492f58d0daa63456b0fe0191a7715c66e0b9378141131c",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5041558Z       23      │ - ···"swappedKey":·"a786af411c2d0baf65a09c44d02084854f0ae2a6c418e1c64c61f6ef567180c3",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5043438Z       24      │ - ···"orderedReasoning":·"The·requested·fact·is·whether·Acme·Fibre·100·is·available·at·Kastanjelaan·4....
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5045202Z       25      │ - ···"swappedReasoning":·"The·task·requests·one·fact:·whether·Acme·Fibre·100·is·available·at·Kastanjel...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5046225Z       26      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5046667Z       27      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5047156Z       28      │ - ···"id":·"q002",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5047719Z       29      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5048315Z       30      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5048899Z       31      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5049494Z       32      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5050143Z       33      │ - ···"costUsd":·0.00057022,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5051217Z       34      │ - ···"orderedKey":·"52a19df37ea4f26651d65fb0dc5486813a74083d790dafbfa9cc892ec5fdecd4",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5053142Z       35      │ - ···"swappedKey":·"727fac6a2be83556fd7bcfca6e2132de17c2ddd5e4bcb012770a3d0636d24038",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5054745Z       36      │ - ···"orderedReasoning":·"The·requested·fact·is·whether·Acme·Fibre·100·is·available·at·Zeelaan·20.·The...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5056419Z       37      │ - ···"swappedReasoning":·"The·requested·fact·is·whether·Acme·Fibre·100·is·available·at·Zeelaan·20.·The...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5057410Z       38      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5057843Z       39      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5058334Z       40      │ - ···"id":·"q003",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5058918Z       41      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5059514Z       42      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5060093Z       43      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5060708Z       44      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5061371Z       45      │ - ···"costUsd":·0.0006141200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5062697Z       46      │ - ···"orderedKey":·"a492714eb47e68c9823cc9763fa7416144626cb8bc2b9f799fae8ae20dfc96e8",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5064105Z       47      │ - ···"swappedKey":·"a60214eb8d24da3e2214cd0fd62c0bf010f6056ac16c4ab1030b430b2f40f6fa",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5065681Z       48      │ - ···"orderedReasoning":·"Requested·fact:·whether·Acme·Fibre·100·is·available·at·Lindenstraat·12.·Refe...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5067355Z       49      │ - ···"swappedReasoning":·"Requested·fact:·whether·Acme·Fibre·100·is·available·at·Lindenstraat·12.·Refe...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5068330Z       50      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5068759Z       51      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5069248Z       52      │ - ···"id":·"q004",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5069811Z       53      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5070403Z       54      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5071014Z       55      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5071601Z       56      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5072469Z       57      │ - ···"costUsd":·0.0005788200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5073582Z       58      │ - ···"orderedKey":·"7d8f65732ebfd3b240560d5fb2c5e8794b0efb83c7bc84b1755ac6560a736a74",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5074971Z       59      │ - ···"swappedKey":·"f7a74cfd4f56287d628f14d954dd017d844fde3ccda430dfb0e53ad040c924c4",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5076569Z       60      │ - ···"orderedReasoning":·"The·requested·fact·is·whether·Acme·Fibre·100·is·available·at·Lindenstraat·12...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5078268Z       61      │ - ···"swappedReasoning":·"The·task·asks·whether·Acme·Fibre·100·is·available·at·Lindenstraat·12.·The·re...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5079252Z       62      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5079669Z       63      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5080154Z       64      │ - ···"id":·"q005",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5080715Z       65      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5081584Z       66      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5082404Z       67      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5083014Z       68      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5083910Z       69      │ - ···"costUsd":·0.00057032,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5085028Z       70      │ - ···"orderedKey":·"fb2db06d619bde9cd8551d1608209e43c7db3a486a03373285874f8c5cf123a5",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5086446Z       71      │ - ···"swappedKey":·"7c55e6d7bea003a6d56fbf0182c7ca900d1dee174608f7d082ee3b55a219a67b",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5088013Z       72      │ - ···"orderedReasoning":·"Requested·fact:·whether·Acme·Fibre·300·is·available·at·Zeelaan·20.·Reference...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5089708Z       73      │ - ···"swappedReasoning":·"The·task·asks·one·requested·fact:·whether·Acme·Fibre·300·is·available·at·Zee...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5090700Z       74      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5091132Z       75      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5091627Z       76      │ - ···"id":·"q006",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5092482Z       77      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5093077Z       78      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5093668Z       79      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5094298Z       80      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5094965Z       81      │ - ···"costUsd":·0.0005411200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5096046Z       82      │ - ···"orderedKey":·"60943b36a9f86e2aa23a724cc1874c937fa936031f1ec5e338ddece599599035",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5097445Z       83      │ - ···"swappedKey":·"dafa75650e0c789536e0d5153ecec71bf0eb0ccd92ef910b2a405e088206bec9",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5101205Z       84      │ - ···"orderedReasoning":·"The·task·requests·one·fact:·the·amount·of·data·included·in·Acme·Fibre·100.·The·reference·says·40·GB.·Candidate·A·states·40·GB,·matching·the·reference·exactly.·Candidate·B·states·20·GB,·a·wrong·value.·Candidate·A·has·zero·wrong·or·missing·requested·facts;·Candidate·B·has·one.·Neither·adds·unsupported·claims.·Candidate·A·wins.",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5107434Z       85      │ - ···"swappedReasoning":·"Requested·fact:·the·amount·of·data·included·in·Acme·Fibre·100.·Reference:·40·GB.·Candidate·A·states·20·GB,·which·is·a·nearby·but·wrong·value,·so·one·requested·fact·is·wrong.·Candidate·B·states·40·GB,·matching·the·reference·with·the·same·unit,·so·it·has·zero·wrong·or·missing·facts.·Neither·candidate·adds·unsupported·extra·claims.·Candidate·B·wins·on·requested-fact·coverage."
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5110373Z       86      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5110816Z       87      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5111303Z       88      │ - ···"id":·"q007",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5112142Z       89      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5112762Z       90      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5113355Z       91      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5113957Z       92      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5114584Z       93      │ - ···"costUsd":·0.00148482,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5115739Z       94      │ - ···"orderedKey":·"a69cb453f5587f1d82c12b570d097eb11b4e01143f3bb9f2ebb85a3ee4dc2beb",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5117438Z       95      │ - ···"swappedKey":·"6055eb55b7e03bcb7723f71111204d73798c609be5108492c57b65c1f9fe472a",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5119927Z       96      │ - ···"orderedReasoning":·"{\"facts\":[{\"fact\":\"Amount·of·data·included·with·Acme·Fibre·300\",\"reference\":\"Acme·Fibre·300·includes·5·GB·of·data.\",\"a\":\"wrong\",\"b\":\"match\"}],\"unsupported_a\":[],\"unsupported_b\":[]}",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5123688Z       97      │ - ···"swappedReasoning":·"{\"facts\":[{\"fact\":\"Amount·of·data·included·with·Acme·Fibre·300\",\"reference\":\"Acme·Fibre·300·includes·5·GB·of·data.\",\"a\":\"match\",\"b\":\"wrong\"}],\"unsupported_a\":[],\"unsupported_b\":[\"Acme·Fibre·300·includes·40·GB·of·data.\"]}",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5125622Z       98      │ - ···"recovery":·{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5126185Z       99      │ - ····"primary":·{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5126753Z      100      │ - ·····"choice":·"tie",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5127392Z      101      │ - ·····"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5127998Z      102      │ - ·····"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5128593Z      103      │ - ·····"consistent":·false
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5129120Z      104      │ - ····},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5130455Z      105      │ - ····"orderedReasoning":·"Requested·fact:·how·much·data·Acme·Fibre·300·includes.·Reference:·5·GB.·Can...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5132282Z      106      │ - ····"swappedReasoning":·"The·requested·fact·is·the·amount·of·data·included·in·Acme·Fibre·300.·The·re...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5133847Z      107      │ - ····"orderedKey":·"d4bffc94b546727ca10ab1bb238b4a50dc14564880e5ea4c6e6d76d4a965011d",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5135233Z      108      │ - ····"swappedKey":·"077b075bfd85993d86d2aeb5b0078e473b5d2faa88d7cc137ceca0eedbb96e6e"
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5136084Z      109      │ - ···}
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5136496Z      110      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5136896Z      111      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5137361Z      112      │ - ···"id":·"q008",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5137951Z      113      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5138515Z      114      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5139092Z      115      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5139724Z      116      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5140361Z      117      │ - ···"costUsd":·0.0005968200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5141401Z      118      │ - ···"orderedKey":·"95d6c3810f79c0fd078769722604d982059780539619253b180c7a1622e34e8c",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5142973Z      119      │ - ···"swappedKey":·"52634c882c566a85196a6c5b9d3de433913fd4f70602e409357c3007e47666de",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5146901Z      120      │ - ···"orderedReasoning":·"The·requested·fact·is·the·amount·of·data·included·in·Acme·Mobile·L.·The·reference·says·40·GB.·Candidate·A·says·40·GB,·which·matches·the·reference·value·and·unit,·so·it·has·zero·wrong·or·missing·requested·facts·and·no·extra·claims.·Candidate·B·says·20·GB,·a·different·value·from·the·reference,·so·it·has·one·wrong·requested·fact.·Candidate·A·is·better.",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5153123Z      121      │ - ···"swappedReasoning":·"The·task·asks·one·requested·fact:·how·much·data·Acme·Mobile·L·includes.·The·reference·says·40·GB.·Candidate·A·says·20·GB,·which·is·a·wrong·value,·so·that·requested·fact·is·wrong·(1·error).·Candidate·B·says·40·GB,·which·matches·the·reference·exactly·(0·errors).·Neither·candidate·adds·unsupported·claims.·Candidate·B·has·fewer·wrong·or·missing·requested·facts,·so·it·wins."
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5155984Z      122      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5156408Z      123      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5156879Z      124      │ - ···"id":·"q009",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5157432Z      125      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5158014Z      126      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5158586Z      127      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5159186Z      128      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5159779Z      129      │ - ···"costUsd":·0.00055692,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5161110Z      130      │ - ···"orderedKey":·"12edef54b718226e7df48e80e9a0f9ad6fe36d88a6a4f9f021198ddc884d61b9",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5162693Z      131      │ - ···"swappedKey":·"f16724cb5fad9146f7f3574e081f2cc242a6c24eb7c1af3848459e86335ec87b",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5164424Z      132      │ - ···"orderedReasoning":·"Requested·fact:·the·price·of·Acme·Fibre·100.·Reference:·28·USD·per·month.·Ca...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5168552Z      133      │ - ···"swappedReasoning":·"Requested·fact:·price·of·Acme·Fibre·100.·Reference:·28·USD·per·month.·Candidate·A·says·28·USD·per·month,·which·matches·exactly·in·value,·unit,·and·period.·Candidate·B·says·47·dollars·a·month,·which·is·a·different·value,·so·the·price·is·wrong.·Candidate·A·has·0·wrong·or·missing·requested·facts;·Candidate·B·has·1.·Neither·adds·unsupported·claims.·Candidate·A·wins."
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5171345Z      134      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5171960Z      135      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5172452Z      136      │ - ···"id":·"q010",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5173046Z      137      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5173615Z      138      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5174176Z      139      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5174748Z      140      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5175361Z      141      │ - ···"costUsd":·0.00059482,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5176401Z      142      │ - ···"orderedKey":·"d7d85efea462e86b84c410b6794714662c3e4e2cec6399adaff255c4f1280326",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5177786Z      143      │ - ···"swappedKey":·"ad92919bfc780bb3bfd0ef47fa646226e020a7bb4966abf86ffe835f85cc9279",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5182101Z      144      │ - ···"orderedReasoning":·"The·requested·fact·is·the·data·amount·included·in·Acme·Fibre·100.·The·reference·says·10·GB.·Candidate·A·says·10·GB,·which·matches·the·reference,·so·it·has·zero·wrong·or·missing·requested·facts.·Candidate·B·says·5·GB,·which·is·a·wrong·value,·so·it·has·one·wrong·requested·fact.·Neither·candidate·adds·unsupported·extra·claims.·Candidate·A·wins·on·the·requested-fact·count.",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5188319Z      145      │ - ···"swappedReasoning":·"The·requested·fact·is·the·data·allowance·for·Acme·Fibre·100.·The·reference·says·10·GB.·Candidate·A·says·5·GB,·which·is·a·different·value,·so·the·requested·fact·is·wrong·(1·wrong·fact).·Candidate·B·says·10·GB,·which·matches·the·reference·(0·wrong·or·missing·facts).·Neither·candidate·adds·unsupported·claims.·Candidate·B·has·fewer·wrong·or·missing·requested·facts,·so·it·wins."
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5191214Z      146      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5191620Z      147      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5192287Z      148      │ - ···"id":·"q011",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5192842Z      149      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5193424Z      150      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5193877Z   3001 more lines truncated
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5194251Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5194417Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5195331Z comparisons/langwatch/pairwise/recorded/ours-audit-haiku-hard.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5196089Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5570621Z   × Formatter would have printed the following content:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.5571225Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6008555Z        1    1 │   {
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6009231Z        2      │ - ·"system":·"ours-audit",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6009916Z        3      │ - ·"model":·"haiku",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6010505Z        4      │ - ·"set":·"hard.json",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6011114Z        5      │ - ·"expectedItems":·120,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6011940Z        6      │ - ·"complete":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6013067Z        7      │ - ·"promptSha256":·"3af0b400ba654e4ea1315249d30aa2f857fee3116dfe24ff97a3cf732dfbc4b2",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6014094Z        8      │ - ·"spentUsd":·0.09456625000000003,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6014737Z        9      │ - ·"freshSpendUsd":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6015311Z       10      │ - ·"newCalls":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6015898Z       11      │ - ·"replayedCalls":·240,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6016480Z       12      │ - ·"unanswered":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6017454Z       13      │ - ·"answers":·[
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6017932Z       14      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6018427Z       15      │ - ···"id":·"h001",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6019004Z       16      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6019802Z       17      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6020414Z       18      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6021009Z       19      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6021619Z       20      │ - ···"costUsd":·0.000937,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6022890Z       21      │ - ···"orderedKey":·"37cc21f4b338541c6a43ea6b68a80b148e00c5a0da95833a7677f4e0671b501b",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6024341Z       22      │ - ···"swappedKey":·"b4f31dd0dea232570369c12cf0377dd3cad29123d5ea5880bb25962bbf912f93",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6025903Z       23      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Molenweg...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6027559Z       24      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Molenweg...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6028578Z       25      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6029009Z       26      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6029493Z       27      │ - ···"id":·"h002",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6030087Z       28      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6030688Z       29      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6031282Z       30      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6032079Z       31      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6032723Z       32      │ - ···"costUsd":·0.00055072,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6033811Z       33      │ - ···"orderedKey":·"59211817cfa4e4d66f08f1e4955a98057f918a65e97a7303b47efa1a6025346d",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6035212Z       34      │ - ···"swappedKey":·"718dabb4c5da046f62d4a154f53b74373a1120fb3238978e7b1c2e034e76d4e3",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6036752Z       35      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Zeelaan·...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6038374Z       36      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Zeelaan·...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6039364Z       37      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6039786Z       38      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6040267Z       39      │ - ···"id":·"h003",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6040859Z       40      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6041448Z       41      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6042264Z       42      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6042856Z       43      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6043465Z       44      │ - ···"costUsd":·0.00076632,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6044529Z       45      │ - ···"orderedKey":·"873fe1c229de6d45e59419f47cb59e92ce03f8696c417caaa21cf20e94b684ce",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6045947Z       46      │ - ···"swappedKey":·"4b9630e87588fc8a7befcbe7259ef8ae01f7b9f67b8b0a4bc9b6a318503b5a65",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6047481Z       47      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·39·USD·a·month;·(2)·data·allowance,·60·GB;·(3)·a...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6049351Z       48      │ - ···"swappedReasoning":·"Requested·facts:·price·(39·USD/month),·data·(60·GB),·and·availability·at·Kas...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6050312Z       49      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6050732Z       50      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6051239Z       51      │ - ···"id":·"h004",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6052035Z       52      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6052648Z       53      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6053225Z       54      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6053814Z       55      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6054461Z       56      │ - ···"costUsd":·0.0006301200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6055530Z       57      │ - ···"orderedKey":·"8f876b3ce98005148b7780c9d438b0944e109508a4fb4af5ee99a70eadc72a41",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6056884Z       58      │ - ···"swappedKey":·"7f1e7b080b86e08478f15f473e9e310d38c4a5983824153a7903199ead508dcf",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6058419Z       59      │ - ···"orderedReasoning":·"The·requested·facts·are·the·price,·the·data·allowance,·and·availability·at·Z...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6060129Z       60      │ - ···"swappedReasoning":·"The·task·requests·three·facts:·the·price,·the·data·allowance,·and·availabili...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6061338Z       61      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6061963Z       62      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6062488Z       63      │ - ···"id":·"h005",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6063066Z       64      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6063649Z       65      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6064230Z       66      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6064830Z       67      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6067061Z       68      │ - ···"costUsd":·0.0006602200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6068214Z       69      │ - ···"orderedKey":·"3d9e9b36c4a3352072bf97c0849370b81b754e3cc93164b083667fd75d62ce05",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6069598Z       70      │ - ···"swappedKey":·"85a2ffb05c76e63f2313319525c3d8afeba37c31f23429c190c91ee0065fdbd7",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6071217Z       71      │ - ···"orderedReasoning":·"The·task·requests·three·facts:·the·monthly·price,·the·data·allowance,·and·wh...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6073142Z       72      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Molenweg...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6074112Z       73      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6074548Z       74      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6075040Z       75      │ - ···"id":·"h006",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6075604Z       76      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6076191Z       77      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6076777Z       78      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6077364Z       79      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6078016Z       80      │ - ···"costUsd":·0.0005279200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6079106Z       81      │ - ···"orderedKey":·"4db632bc21b0845ffa91176573ccfee4f4174c8f1c28acec937b8af2c8631ab8",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6080472Z       82      │ - ···"swappedKey":·"5604f84ca8b3cb69a560fb7fe0d11a4d9a6af7b7d3149b05c31fe78e9f608418",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6082196Z       83      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Kastanje...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6083886Z       84      │ - ···"swappedReasoning":·"Requested·facts:·price,·data·allowance,·and·availability·at·Kastanjelaan·4.·...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6084865Z       85      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6085300Z       86      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6085819Z       87      │ - ···"id":·"h007",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6086392Z       88      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6086985Z       89      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6087566Z       90      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6088160Z       91      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6088811Z       92      │ - ···"costUsd":·0.0008485200000000002,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6089895Z       93      │ - ···"orderedKey":·"ddf21ec8af409a9a9482e47e9cfe1f39ab93547b7518d2e974150ebe5e123c38",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6091563Z       94      │ - ···"swappedKey":·"bf6d3aa8704ddeb75a334b1db70963452504b8545688403c0e1056f1b5145791",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6093562Z       95      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·reference·57·USD/month;·(2)·data,·reference·10·G...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6095264Z       96      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Lindenst...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6096215Z       97      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6096489Z       98      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6096778Z       99      │ - ···"id":·"h008",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6097109Z      100      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6097455Z      101      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6097786Z      102      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6098120Z      103      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6098473Z      104      │ - ···"costUsd":·0.00062702,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6099078Z      105      │ - ···"orderedKey":·"c19819fb1003268d97b7f9b25fff69ac13b4bbe46b29abf5ca9016dc19167a72",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6099866Z      106      │ - ···"swappedKey":·"50a7127d2ab99ca69bd5001dcb1b0f32da63200322df56c635bb623a61774ea1",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6100751Z      107      │ - ···"orderedReasoning":·"The·requested·facts·are·the·price,·the·data·allowance,·and·availability·at·Z...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6101659Z      108      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Zeelaan·...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6102392Z      109      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6102649Z      110      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6102933Z      111      │ - ···"id":·"h009",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6103257Z      112      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6103591Z      113      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6103915Z      114      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6104249Z      115      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6104624Z      116      │ - ···"costUsd":·0.0005179200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6105410Z      117      │ - ···"orderedKey":·"7a77a0254498b837330406dc193594b528142dbb61fcafd8d6681dbf50a43839",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6106311Z      118      │ - ···"swappedKey":·"d38bf0f0b0701582c20a0c7f0540a4fd89958c390bd6cda14f74d00be9f38100",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6107532Z      119      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Kastanje...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6108540Z      120      │ - ···"swappedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Kastanje...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6109163Z      121      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6109625Z      122      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6110017Z      123      │ - ···"id":·"h010",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6110528Z      124      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6111001Z      125      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6111470Z      126      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6112386Z      127      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6112954Z      128      │ - ···"costUsd":·0.0005694200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6113809Z      129      │ - ···"orderedKey":·"f91af436be42c05cc86fe132f3756314e5da2fc8210a6e447e0712a462acfc0b",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6114734Z      130      │ - ···"swappedKey":·"97f6d6168f04b53f4985d3b96565abd63e6556890a1b400bbdf2f91c1a5b595c",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6115781Z      131      │ - ···"orderedReasoning":·"The·task·requests·three·facts:·the·price,·the·data·allowance,·and·availabili...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6128185Z      132      │ - ···"swappedReasoning":·"Requested·facts:·price·(32·USD/month),·data·(20·GB),·availability·at·Lindens...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6128770Z      133      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6129035Z      134      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6129357Z      135      │ - ···"id":·"h011",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6129705Z      136      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6130050Z      137      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6130402Z      138      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6131001Z      139      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6131360Z      140      │ - ···"costUsd":·0.00063082,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6132183Z      141      │ - ···"orderedKey":·"430865eedbee8324f88b52d60b3cd6ccfa50f58684f5ee646781b8bd85db764f",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6133130Z      142      │ - ···"swappedKey":·"6e291764e6b13dae133552519cb9fe2ca8dcba3307c9893e3ddca3e725eadadf",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6134010Z      143      │ - ···"orderedReasoning":·"Requested·facts:·(1)·price,·(2)·data·allowance,·(3)·availability·at·Kastanje...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6134960Z      144      │ - ···"swappedReasoning":·"The·task·requests·three·facts:·price,·data·allowance,·and·availability·at·Ka...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6135525Z      145      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6135790Z      146      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6136075Z      147      │ - ···"id":·"h012",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6136408Z      148      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6136751Z      149      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6137113Z      150      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6137388Z   2759 more lines truncated
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6137621Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6137733Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6138263Z comparisons/langwatch/pairwise/recorded/ours-audit-haiku.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6138674Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6470878Z   × Formatter would have printed the following content:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6471575Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6863850Z        1    1 │   {
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6864714Z        2      │ - ·"system":·"ours-audit",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6865541Z        3      │ - ·"model":·"haiku",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6866339Z        4      │ - ·"set":·"set.json",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6867126Z        5      │ - ·"expectedItems":·120,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6867909Z        6      │ - ·"complete":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6869310Z        7      │ - ·"promptSha256":·"3af0b400ba654e4ea1315249d30aa2f857fee3116dfe24ff97a3cf732dfbc4b2",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6870561Z        8      │ - ·"spentUsd":·0.0701397,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6871420Z        9      │ - ·"freshSpendUsd":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6872471Z       10      │ - ·"newCalls":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6873191Z       11      │ - ·"replayedCalls":·240,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6873876Z       12      │ - ·"unanswered":·0,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6874468Z       13      │ - ·"answers":·[
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6874967Z       14      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6875479Z       15      │ - ···"id":·"q001",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6876072Z       16      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6876797Z       17      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6877397Z       18      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6877990Z       19      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6878560Z       20      │ - ···"costUsd":·0.00062042,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6879583Z       21      │ - ···"orderedKey":·"12df2256d19c232852492f58d0daa63456b0fe0191a7715c66e0b9378141131c",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6880945Z       22      │ - ···"swappedKey":·"a786af411c2d0baf65a09c44d02084854f0ae2a6c418e1c64c61f6ef567180c3",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6883613Z       23      │ - ···"orderedReasoning":·"The·requested·fact·is·whether·Acme·Fibre·100·is·available·at·Kastanjelaan·4....
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6885469Z       24      │ - ···"swappedReasoning":·"The·task·requests·one·fact:·whether·Acme·Fibre·100·is·available·at·Kastanjel...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6886513Z       25      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6886963Z       26      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6887525Z       27      │ - ···"id":·"q002",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6888104Z       28      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6888746Z       29      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6889376Z       30      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6890019Z       31      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6890658Z       32      │ - ···"costUsd":·0.00057022,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6891918Z       33      │ - ···"orderedKey":·"52a19df37ea4f26651d65fb0dc5486813a74083d790dafbfa9cc892ec5fdecd4",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6893473Z       34      │ - ···"swappedKey":·"727fac6a2be83556fd7bcfca6e2132de17c2ddd5e4bcb012770a3d0636d24038",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6895131Z       35      │ - ···"orderedReasoning":·"The·requested·fact·is·whether·Acme·Fibre·100·is·available·at·Zeelaan·20.·The...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6897195Z       36      │ - ···"swappedReasoning":·"The·requested·fact·is·whether·Acme·Fibre·100·is·available·at·Zeelaan·20.·The...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6898309Z       37      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6898785Z       38      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6899296Z       39      │ - ···"id":·"q003",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6899880Z       40      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6900550Z       41      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6901168Z       42      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6901963Z       43      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6902694Z       44      │ - ···"costUsd":·0.0006141200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6903854Z       45      │ - ···"orderedKey":·"a492714eb47e68c9823cc9763fa7416144626cb8bc2b9f799fae8ae20dfc96e8",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6905399Z       46      │ - ···"swappedKey":·"a60214eb8d24da3e2214cd0fd62c0bf010f6056ac16c4ab1030b430b2f40f6fa",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6907069Z       47      │ - ···"orderedReasoning":·"Requested·fact:·whether·Acme·Fibre·100·is·available·at·Lindenstraat·12.·Refe...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6908766Z       48      │ - ···"swappedReasoning":·"Requested·fact:·whether·Acme·Fibre·100·is·available·at·Lindenstraat·12.·Refe...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6909787Z       49      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6910220Z       50      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6910742Z       51      │ - ···"id":·"q004",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6911314Z       52      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6912119Z       53      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6912736Z       54      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6913395Z       55      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6914185Z       56      │ - ···"costUsd":·0.0005788200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6915384Z       57      │ - ···"orderedKey":·"7d8f65732ebfd3b240560d5fb2c5e8794b0efb83c7bc84b1755ac6560a736a74",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6916844Z       58      │ - ···"swappedKey":·"f7a74cfd4f56287d628f14d954dd017d844fde3ccda430dfb0e53ad040c924c4",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6918540Z       59      │ - ···"orderedReasoning":·"The·requested·fact·is·whether·Acme·Fibre·100·is·available·at·Lindenstraat·12...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6920346Z       60      │ - ···"swappedReasoning":·"The·task·asks·whether·Acme·Fibre·100·is·available·at·Lindenstraat·12.·The·re...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6921390Z       61      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6922033Z       62      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6922554Z       63      │ - ···"id":·"q005",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6923166Z       64      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6923786Z       65      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6924406Z       66      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6925017Z       67      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6925903Z       68      │ - ···"costUsd":·0.00057032,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6926969Z       69      │ - ···"orderedKey":·"fb2db06d619bde9cd8551d1608209e43c7db3a486a03373285874f8c5cf123a5",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6928628Z       70      │ - ···"swappedKey":·"7c55e6d7bea003a6d56fbf0182c7ca900d1dee174608f7d082ee3b55a219a67b",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6930259Z       71      │ - ···"orderedReasoning":·"Requested·fact:·whether·Acme·Fibre·300·is·available·at·Zeelaan·20.·Reference...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6932217Z       72      │ - ···"swappedReasoning":·"The·task·asks·one·requested·fact:·whether·Acme·Fibre·300·is·available·at·Zee...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6933280Z       73      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6933753Z       74      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6934245Z       75      │ - ···"id":·"q006",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6934861Z       76      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6935477Z       77      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6936074Z       78      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6936714Z       79      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6937425Z       80      │ - ···"costUsd":·0.0005411200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6938537Z       81      │ - ···"orderedKey":·"60943b36a9f86e2aa23a724cc1874c937fa936031f1ec5e338ddece599599035",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6939964Z       82      │ - ···"swappedKey":·"dafa75650e0c789536e0d5153ecec71bf0eb0ccd92ef910b2a405e088206bec9",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6944038Z       83      │ - ···"orderedReasoning":·"The·task·requests·one·fact:·the·amount·of·data·included·in·Acme·Fibre·100.·The·reference·says·40·GB.·Candidate·A·states·40·GB,·matching·the·reference·exactly.·Candidate·B·states·20·GB,·a·wrong·value.·Candidate·A·has·zero·wrong·or·missing·requested·facts;·Candidate·B·has·one.·Neither·adds·unsupported·claims.·Candidate·A·wins.",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6950138Z       84      │ - ···"swappedReasoning":·"Requested·fact:·the·amount·of·data·included·in·Acme·Fibre·100.·Reference:·40·GB.·Candidate·A·states·20·GB,·which·is·a·nearby·but·wrong·value,·so·one·requested·fact·is·wrong.·Candidate·B·states·40·GB,·matching·the·reference·with·the·same·unit,·so·it·has·zero·wrong·or·missing·facts.·Neither·candidate·adds·unsupported·extra·claims.·Candidate·B·wins·on·requested-fact·coverage."
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6953383Z       85      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6953898Z       86      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6954426Z       87      │ - ···"id":·"q007",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6955002Z       88      │ - ···"choice":·"tie",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6955646Z       89      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6956241Z       90      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6956857Z       91      │ - ···"consistent":·false,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6957561Z       92      │ - ···"costUsd":·0.00056512,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6958680Z       93      │ - ···"orderedKey":·"a69cb453f5587f1d82c12b570d097eb11b4e01143f3bb9f2ebb85a3ee4dc2beb",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6960162Z       94      │ - ···"swappedKey":·"6055eb55b7e03bcb7723f71111204d73798c609be5108492c57b65c1f9fe472a",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6961050Z       95      │ - ···"orderedReasoning":·"Requested·fact:·how·much·data·Acme·Fibre·300·includes.·Reference:·5·GB.·Cand...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6962534Z       96      │ - ···"swappedReasoning":·"The·requested·fact·is·the·amount·of·data·included·in·Acme·Fibre·300.·The·ref...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6963182Z       97      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6963612Z       98      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6963903Z       99      │ - ···"id":·"q008",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6964238Z      100      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6964571Z      101      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6964898Z      102      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6965299Z      103      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6965681Z      104      │ - ···"costUsd":·0.0005968200000000001,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6966281Z      105      │ - ···"orderedKey":·"95d6c3810f79c0fd078769722604d982059780539619253b180c7a1622e34e8c",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6967148Z      106      │ - ···"swappedKey":·"52634c882c566a85196a6c5b9d3de433913fd4f70602e409357c3007e47666de",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6969867Z      107      │ - ···"orderedReasoning":·"The·requested·fact·is·the·amount·of·data·included·in·Acme·Mobile·L.·The·reference·says·40·GB.·Candidate·A·says·40·GB,·which·matches·the·reference·value·and·unit,·so·it·has·zero·wrong·or·missing·requested·facts·and·no·extra·claims.·Candidate·B·says·20·GB,·a·different·value·from·the·reference,·so·it·has·one·wrong·requested·fact.·Candidate·A·is·better.",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6973512Z      108      │ - ···"swappedReasoning":·"The·task·asks·one·requested·fact:·how·much·data·Acme·Mobile·L·includes.·The·reference·says·40·GB.·Candidate·A·says·20·GB,·which·is·a·wrong·value,·so·that·requested·fact·is·wrong·(1·error).·Candidate·B·says·40·GB,·which·matches·the·reference·exactly·(0·errors).·Neither·candidate·adds·unsupported·claims.·Candidate·B·has·fewer·wrong·or·missing·requested·facts,·so·it·wins."
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6975112Z      109      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6975380Z      110      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6975705Z      111      │ - ···"id":·"q009",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6976038Z      112      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6976382Z      113      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6976715Z      114      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6977073Z      115      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6977429Z      116      │ - ···"costUsd":·0.00055692,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6978031Z      117      │ - ···"orderedKey":·"12edef54b718226e7df48e80e9a0f9ad6fe36d88a6a4f9f021198ddc884d61b9",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6978803Z      118      │ - ···"swappedKey":·"f16724cb5fad9146f7f3574e081f2cc242a6c24eb7c1af3848459e86335ec87b",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6979670Z      119      │ - ···"orderedReasoning":·"Requested·fact:·the·price·of·Acme·Fibre·100.·Reference:·28·USD·per·month.·Ca...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6982038Z      120      │ - ···"swappedReasoning":·"Requested·fact:·price·of·Acme·Fibre·100.·Reference:·28·USD·per·month.·Candidate·A·says·28·USD·per·month,·which·matches·exactly·in·value,·unit,·and·period.·Candidate·B·says·47·dollars·a·month,·which·is·a·different·value,·so·the·price·is·wrong.·Candidate·A·has·0·wrong·or·missing·requested·facts;·Candidate·B·has·1.·Neither·adds·unsupported·claims.·Candidate·A·wins."
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6983599Z      121      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6983869Z      122      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6984155Z      123      │ - ···"id":·"q010",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6984484Z      124      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6984818Z      125      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6985145Z      126      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6985480Z      127      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6985824Z      128      │ - ···"costUsd":·0.00059482,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6986417Z      129      │ - ···"orderedKey":·"d7d85efea462e86b84c410b6794714662c3e4e2cec6399adaff255c4f1280326",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6987205Z      130      │ - ···"swappedKey":·"ad92919bfc780bb3bfd0ef47fa646226e020a7bb4966abf86ffe835f85cc9279",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6989644Z      131      │ - ···"orderedReasoning":·"The·requested·fact·is·the·data·amount·included·in·Acme·Fibre·100.·The·reference·says·10·GB.·Candidate·A·says·10·GB,·which·matches·the·reference,·so·it·has·zero·wrong·or·missing·requested·facts.·Candidate·B·says·5·GB,·which·is·a·wrong·value,·so·it·has·one·wrong·requested·fact.·Neither·candidate·adds·unsupported·extra·claims.·Candidate·A·wins·on·the·requested-fact·count.",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6993086Z      132      │ - ···"swappedReasoning":·"The·requested·fact·is·the·data·allowance·for·Acme·Fibre·100.·The·reference·says·10·GB.·Candidate·A·says·5·GB,·which·is·a·different·value,·so·the·requested·fact·is·wrong·(1·wrong·fact).·Candidate·B·says·10·GB,·which·matches·the·reference·(0·wrong·or·missing·facts).·Neither·candidate·adds·unsupported·claims.·Candidate·B·has·fewer·wrong·or·missing·requested·facts,·so·it·wins."
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6994635Z      133      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6994888Z      134      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6995166Z      135      │ - ···"id":·"q011",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6995520Z      136      │ - ···"choice":·"second",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6995862Z      137      │ - ···"ordered":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6996192Z      138      │ - ···"swapped":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6996672Z      139      │ - ···"consistent":·true,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6997034Z      140      │ - ···"costUsd":·0.00056682,
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6997621Z      141      │ - ···"orderedKey":·"6a7cfebef027f39779389a6b7396d1be7805e169c9e8380c8cdfdc1999b037e2",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6998385Z      142      │ - ···"swappedKey":·"f053e7e0ebf2a0b22ea6fd57f91cf958116796213aa9585d997135f57dcbe6cc",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.6999240Z      143      │ - ···"orderedReasoning":·"The·requested·fact·is·the·price·of·Acme·Mobile·S.·The·reference·says·27·USD·...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7000155Z      144      │ - ···"swappedReasoning":·"Requested·fact:·the·price·of·Acme·Mobile·S.·Reference:·27·USD·per·month.·Can...
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7000696Z      145      │ - ··},
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7000948Z      146      │ - ··{
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7001240Z      147      │ - ···"id":·"q012",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7001560Z      148      │ - ···"choice":·"first",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7002051Z      149      │ - ···"ordered":·"pass",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7002396Z      150      │ - ···"swapped":·"fail",
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7002673Z   2759 more lines truncated
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7002919Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7003027Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7003232Z Checked 1280 files in 3s. No fixes applied.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7003572Z Found 4 errors.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7003801Z Found 10 warnings.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7004026Z Found 3 infos.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7967917Z check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7968476Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7968768Z   × Some errors were emitted while running checks.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7969152Z   
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.7969275Z 
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.8178813Z  ELIFECYCLE  Command failed with exit code 1.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.8987559Z ##[error]Process completed with exit code 1.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:21.9112248Z Post job cleanup.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.0713186Z Pruning is unnecessary.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.1951087Z Post job cleanup.
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.2877199Z [command]/usr/bin/git version
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.2924240Z git version 2.55.0
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.2966314Z Temporarily overriding HOME='/home/runner/work/_temp/8c70301b-f95a-47c9-9229-180fb9d7109a' before making global git config changes
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.2967858Z Adding repository directory to the temporary git global config as a safe directory
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.2972724Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/driftbench/driftbench
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3009605Z Removing SSH command configuration
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3017460Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3059819Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3319422Z Removing HTTP extra header
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3325811Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3373878Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3657651Z Removing includeIf entries pointing to credentials config files
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3665136Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3963681Z includeif.gitdir:/home/runner/work/driftbench/driftbench/.git.path
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3964869Z includeif.gitdir:/home/runner/work/driftbench/driftbench/.git/worktrees/*.path
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3965819Z includeif.gitdir:/github/workspace/.git.path
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3966578Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.3976908Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/driftbench/driftbench/.git.path
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.4012423Z /home/runner/work/_temp/git-credentials-f09e743b-fe90-4891-9df3-5976f4f6d10a.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.4023820Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/driftbench/driftbench/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-f09e743b\-fe90\-4891\-9df3\-5976f4f6d10a\.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.4949999Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/driftbench/driftbench/.git/worktrees/*.path
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.4986146Z /home/runner/work/_temp/git-credentials-f09e743b-fe90-4891-9df3-5976f4f6d10a.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.4996076Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/driftbench/driftbench/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-f09e743b\-fe90\-4891\-9df3\-5976f4f6d10a\.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.5425555Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.5455712Z /github/runner_temp/git-credentials-f09e743b-fe90-4891-9df3-5976f4f6d10a.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.5463409Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-f09e743b\-fe90\-4891\-9df3\-5976f4f6d10a\.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.5871613Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.5902133Z /github/runner_temp/git-credentials-f09e743b-fe90-4891-9df3-5976f4f6d10a.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.5912587Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-f09e743b\-fe90\-4891\-9df3\-5976f4f6d10a\.config
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.5951604Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.6213656Z Removing credentials config '/home/runner/work/_temp/git-credentials-f09e743b-fe90-4891-9df3-5976f4f6d10a.config'
+build (node 22)	UNKNOWN STEP	2026-10-12T20:51:22.6378212Z Cleaning up orphan processes

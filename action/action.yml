@@ -1,7 +1,7 @@
 name: driftbench ci
 description: >-
   Runs a driftbench spec suite on a candidate target, compares it golden by golden with a baseline campaign
-  and fails the job on a regression beyond the margin or on a new gating flag.
+  and fails the job unless it shows parity, by the rule of driftbench compare.
 
 inputs:
   specs:
@@ -18,9 +18,17 @@ inputs:
     required: false
     default: .driftbench/ci.db
   margin:
-    description: The largest drop in pass rate tolerated, in percentage points.
+    description: The largest drop in pass rate tolerated, in percentage points, or auto (the smallest margin the suite can show for the baseline compared with itself).
     required: false
-    default: '2'
+    default: auto
+  min-goldens:
+    description: A gating criterion decided on fewer goldens is underpowered and left out of the parity test.
+    required: false
+    default: '30'
+  strict:
+    description: Set to true to make underpowered criteria gate too.
+    required: false
+    default: 'false'
   repeats:
     description: Runs per spec and mode.
     required: false
@@ -35,6 +43,34 @@ inputs:
     default: ''
   faults:
     description: A fault set whose faults the target can name as fault:<id>. Empty means none.
+    required: false
+    default: ''
+  route:
+    description: Specs a tag marks that run on another target, one tag=target per line, such as flow:price-sheet=process:acme-ops. Empty means none.
+    required: false
+    default: ''
+  process-command:
+    description: The agent command for a process target other than process:acme-ops, as a JSON list such as ["python3","/path/to/agent.py"] or words split on spaces. It runs in the sandbox workspace, so name the agent by an absolute path, such as one under github.workspace. Empty means none.
+    required: false
+    default: ''
+  change:
+    description: A change manifest. The candidate runs only the blast radius of the change and carries the other cells from the baseline, which must then be a campaign id held in the store input. Empty means the whole suite runs.
+    required: false
+    default: ''
+  agent-version:
+    description: The version of the candidate agent, such as the commit sha. A radius run needs it, and it must be the manifest's to. Empty means none.
+    required: false
+    default: ''
+  audit:
+    description: With change, how many of the cells about to be carried run fresh and are compared with their stored run. One miss fails the job with verdict radius-miss. Empty means no audit.
+    required: false
+    default: ''
+  max-not-run:
+    description: The largest share of a spec's blocks that may be not run (a Given the target cannot apply) before the job fails with verdict not-run and exit 3, from 0 to 1. Empty means 0, so any block not run fails it.
+    required: false
+    default: ''
+  aggregate:
+    description: Campaign-level criteria, one name:op threshold per line, such as pass-rate:>=0.8. A failing one fails the job with verdict aggregate-failed. Empty means none.
     required: false
     default: ''
   report-path:
@@ -52,7 +88,7 @@ inputs:
 
 outputs:
   verdict:
-    description: parity, regression, gating, incomplete, or input-error when the CLI refused its input.
+    description: parity, regression, not-shown-non-inferior, incomplete, aggregate-failed, radius-miss, not-run, or input-error when the CLI refused its input.
     value: ${{ steps.ci.outputs.verdict }}
   report-path:
     description: The JSON summary the CLI wrote.
@@ -70,10 +106,19 @@ runs:
         INPUT_BASELINE: ${{ inputs.baseline }}
         INPUT_STORE: ${{ inputs.store }}
         INPUT_MARGIN: ${{ inputs.margin }}
+        INPUT_MIN_GOLDENS: ${{ inputs.min-goldens }}
+        INPUT_STRICT: ${{ inputs.strict }}
         INPUT_REPEATS: ${{ inputs.repeats }}
         INPUT_MODE: ${{ inputs.mode }}
         INPUT_BUDGET_USD: ${{ inputs.budget-usd }}
         INPUT_FAULTS: ${{ inputs.faults }}
+        INPUT_AGGREGATE: ${{ inputs.aggregate }}
+        INPUT_CHANGE: ${{ inputs.change }}
+        INPUT_AGENT_VERSION: ${{ inputs.agent-version }}
+        INPUT_AUDIT: ${{ inputs.audit }}
+        INPUT_MAX_NOT_RUN: ${{ inputs.max-not-run }}
+        INPUT_ROUTE: ${{ inputs.route }}
+        INPUT_PROCESS_COMMAND: ${{ inputs.process-command }}
         INPUT_REPORT_PATH: ${{ inputs.report-path }}
         INPUT_DRIFTBENCH: ${{ inputs.driftbench }}
       run: bash "$GITHUB_ACTION_PATH/run.sh"

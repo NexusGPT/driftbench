@@ -1,4 +1,4 @@
-import type { FaultDef } from '@driftbench/generate';
+import type { FaultDef } from '@agent-nexus/driftbench-generate';
 import { opsFaults } from './ops';
 import { salesFaults } from './sales';
 

@@ -1,29 +1,50 @@
-import { deepEqual } from '@driftbench/core';
+import { deepEqual, unsupportedSchemaKeywords } from '@agent-nexus/driftbench-core';
 import { isRecord, show } from './values';
+
+export { parameterSchema } from '@agent-nexus/driftbench-core';
 
 /**
  * A strict JSON Schema reader for tool inputs. It understands type (one or a list), enum, const,
  * properties, required, additionalProperties, items, minItems, maxItems, minLength, maxLength, pattern,
  * minimum, maximum, exclusiveMinimum, exclusiveMaximum, nullable, anyOf, oneOf and allOf; other keywords
- * are ignored. Strict means an object schema that declares `properties` refuses any other key unless
- * `additionalProperties` allows it: a key the schema does not declare is an invented parameter.
+ * are rejected before inspecting the value, except harmless annotations. Strict means an object schema
+ * that declares `properties` refuses any other key unless `additionalProperties` allows it: a key the
+ * schema does not declare is an invented parameter.
  */
 
-export type SchemaIssue = { path: string; message: string; invented: boolean };
+export type SchemaIssue = {
+  path: string;
+  message: string;
+  invented: boolean;
+  schemaError?: boolean;
+};
 
 export function validateStrict(value: unknown, schema: unknown, path = 'input'): SchemaIssue[] {
+  const unsupported = unsupportedSchemaKeywords(schema);
+  if (unsupported.length > 0) {
+    return unsupported.map((entry) => ({
+      path: ['schema', ...entry.path].join('.'),
+      message: entry.message,
+      invented: false,
+      schemaError: true,
+    }));
+  }
+  return validateValue(value, schema, path);
+}
+
+function validateValue(value: unknown, schema: unknown, path: string): SchemaIssue[] {
   if (schema === true || schema === undefined) return [];
   if (schema === false) return [issue(path, 'is not allowed by the schema')];
   if (!isRecord(schema)) return [];
   const issues: SchemaIssue[] = [];
 
   if (Array.isArray(schema.allOf)) {
-    for (const part of schema.allOf) issues.push(...validateStrict(value, part, path));
+    for (const part of schema.allOf) issues.push(...validateValue(value, part, path));
   }
   for (const keyword of ['anyOf', 'oneOf'] as const) {
     const options = schema[keyword];
     if (!Array.isArray(options) || options.length === 0) continue;
-    const results = options.map((option) => validateStrict(value, option, path));
+    const results = options.map((option) => validateValue(value, option, path));
     const passing = results.filter((result) => result.length === 0).length;
     if (keyword === 'oneOf' && passing > 1) {
       issues.push(issue(path, `matches ${passing} of the oneOf alternatives, expected exactly one`));
@@ -64,11 +85,11 @@ function objectIssues(value: Record<string, unknown>, schema: Record<string, unk
     if (item === undefined) continue;
     const declared = properties?.[key];
     if (declared !== undefined) {
-      issues.push(...validateStrict(item, declared, `${path}.${key}`));
+      issues.push(...validateValue(item, declared, `${path}.${key}`));
     } else if (properties !== undefined || schema.additionalProperties !== undefined) {
       const extra = schema.additionalProperties;
       if (extra === true || isRecord(extra)) {
-        issues.push(...validateStrict(item, extra, `${path}.${key}`));
+        issues.push(...validateValue(item, extra, `${path}.${key}`));
       } else {
         issues.push({
           path: `${path}.${key}`,
@@ -125,7 +146,7 @@ function arrayIssues(value: unknown[], schema: Record<string, unknown>, path: st
   }
   if (schema.items !== undefined && !Array.isArray(schema.items)) {
     value.forEach((item, index) => {
-      issues.push(...validateStrict(item, schema.items, `${path}[${index}]`));
+      issues.push(...validateValue(item, schema.items, `${path}[${index}]`));
     });
   }
   return issues;
@@ -167,16 +188,4 @@ function kindOf(value: unknown): string {
 
 function issue(path: string, message: string): SchemaIssue {
   return { path, message, invented: false };
-}
-
-/**
- * The parameter schema inside a tool definition: a JSON Schema as is, or the `parameters` of an
- * OpenAI-style function, or the `input_schema` of an Anthropic-style tool.
- */
-export function parameterSchema(definition: unknown): unknown {
-  if (!isRecord(definition)) return definition;
-  if ('type' in definition || 'properties' in definition) return definition;
-  if (isRecord(definition.parameters)) return definition.parameters;
-  if (isRecord(definition.input_schema)) return definition.input_schema;
-  return definition;
 }

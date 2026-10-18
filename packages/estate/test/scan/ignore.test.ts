@@ -39,6 +39,11 @@ describe('the ignore list', () => {
       'hooks/**/test',
       '.trash',
       'skills/synced',
+      '.DS_Store',
+      'Thumbs.db',
+      '*.swp',
+      '*~',
+      '.idea',
     ]);
   });
 
@@ -94,12 +99,12 @@ describe('the ignore list', () => {
       'skills/synced',
       'archive',
     ]);
-    // The one orphan left is the file a planted ambiguous reference leaves unnamed (cases.test.ts).
+    // The bare notes name resolves within its own skill, so no local reference file stays orphaned.
     expect(
       lintEstate(map, raw)
         .findings.filter((finding) => finding.code === 'ORPHAN')
         .map((finding) => finding.subject),
-    ).toEqual(['.claude/skills/shipment-tracker/references/notes.md']);
+    ).toEqual([]);
     expect(map.ignore).toEqual(['archive']);
   });
 });
@@ -166,12 +171,13 @@ describe('reference bases', () => {
             atom.kind === 'reference' && atom.fields?.exists === false && atom.fields?.external !== true,
         )
         .map((atom) => atom.fields?.candidates),
-    ).toEqual([
-      [
-        '.claude/skills/parcel-claims/references/notes.md',
-        '.claude/skills/shipment-tracker/references/notes.md',
-      ],
-    ]);
+    ).toEqual([]);
+    expect(
+      map.atoms.find((atom) => atom.id === 'reference.shipment-tracker.read-notes-md')?.fields,
+    ).toMatchObject({
+      path: '.claude/skills/shipment-tracker/references/notes.md',
+      exists: true,
+    });
   });
 
   it('marks a reference to a skipped file as found and ignored, not missing', async () => {
@@ -188,4 +194,66 @@ describe('reference bases', () => {
     });
     expect(lintEstate(map, raw).counts.MISSING_REFERENCE).toBe(0);
   });
+});
+
+describe('files an operating system or an editor leaves', () => {
+  it('skips .DS_Store, Thumbs.db, swap files, backup files and .idea folders, at any depth', async () => {
+    const root = await estate({
+      'CLAUDE.md': '# Rules\n',
+      '.claude/.DS_Store': 'x',
+      '.claude/hooks/.DS_Store': 'x',
+      '.claude/skills/a/Thumbs.db': 'x',
+      '.claude/skills/a/SKILL.md': '---\nname: a\n---\n\nDo a.\n',
+      '.claude/skills/a/.SKILL.md.swp': 'x',
+      '.claude/skills/a/SKILL.md~': 'x',
+      '.claude/.idea/workspace.xml': '<project/>\n',
+      '.claude/notes~draft.md': '# Kept: the tilde is not at the end\n',
+    });
+    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    expect(raw.files.map((file) => file.path)).toEqual([
+      'CLAUDE.md',
+      '.claude/notes~draft.md',
+      '.claude/skills/a/SKILL.md',
+    ]);
+    expect(raw.ignored?.patterns.filter((entry) => entry.files > 0)).toEqual([
+      { pattern: '.DS_Store', files: 2 },
+      { pattern: 'Thumbs.db', files: 1 },
+      { pattern: '*.swp', files: 1 },
+      { pattern: '*~', files: 1 },
+      { pattern: '.idea', files: 1 },
+    ]);
+    const invariant = map.atoms.find((atom) => atom.fields?.check === 'no_orphans');
+    expect(invariant?.fields?.orphans).toEqual(['.claude/notes~draft.md']);
+  });
+});
+
+describe('a bare name with another copy under an ignored folder', () => {
+  const folders = [
+    'node_modules',
+    '.claude/hooks/guards/tests',
+    '.trash',
+    '.claude/skills/synced',
+    '.claude/hooks/__pycache__',
+    'tests/fixtures',
+  ];
+  it.each(folders)(
+    'names the skill own copy, never the one under %s, and is not ambiguous',
+    async (folder) => {
+      const root = await estate({
+        'CLAUDE.md': '# Rules\n\nUse the `alpha` skill for alpha work.\n',
+        '.claude/skills/alpha/SKILL.md':
+          '---\nname: alpha\ndescription: Alpha work.\n---\n\nWhen unsure, open `guide.md`.\n',
+        '.claude/skills/alpha/references/guide.md': '# Guide\n',
+        [`${folder}/alpha-old/references/guide.md`]: '# Old guide\n',
+      });
+      const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      const references = map.atoms.filter((atom) => atom.kind === 'reference');
+      expect(references.map((atom) => atom.fields?.path)).toEqual([
+        '.claude/skills/alpha/references/guide.md',
+      ]);
+      expect(JSON.stringify(references.map((atom) => atom.fields))).not.toContain(folder);
+      const lint = lintEstate(map, raw);
+      expect(lint.findings.filter((finding) => finding.code === 'AMBIGUOUS_REFERENCE')).toEqual([]);
+    },
+  );
 });

@@ -1,4 +1,4 @@
-import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import {
   type Atom,
@@ -19,15 +19,20 @@ import {
   type ScanEstateResult,
   scanEstate,
   toEstateSpaceMap,
-} from '@driftbench/estate';
-import { ModelError, type ModelPort, portFromEnv, shortQuote } from '@driftbench/generate';
-import { formatSpaceMap, gridSize, validateSpaceMap } from '@driftbench/space';
+} from '@agent-nexus/driftbench-estate';
+import { ModelError, type ModelPort, portFromEnv, shortQuote } from '@agent-nexus/driftbench-generate';
+import { formatSpaceMap, gridSize, validateSpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
+import { exists, show, writeOut } from '../files';
 import type { Io } from '../io';
 import { registerEstateGenerateCommand } from './estate-generate';
 import { registerEstateLiveCommands } from './estate-live';
 import { registerEstateMaintainCommands } from './estate-maintain';
 import { registerEstatePlanCommands } from './estate-plan';
+import { registerEstateStaticCommand } from './estate-static';
+import { registerEstateStatsCommand } from './estate-stats';
+import { registerEstateUnitCommand } from './estate-unit';
+import { mapCacheOptions } from './map-cache';
 
 export type EstateScanOptions = {
   /** More globs to skip, beside the defaults and the estate configuration. Repeatable. */
@@ -115,6 +120,9 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
   registerEstateMaintainCommands(estate, io, setExit);
   registerEstateGenerateCommand(estate, io, setExit);
   registerEstateLiveCommands(estate, io, setExit);
+  registerEstateStaticCommand(estate, io, setExit);
+  registerEstateStatsCommand(estate, io, setExit);
+  registerEstateUnitCommand(estate, io, setExit);
 }
 
 /**
@@ -272,7 +280,7 @@ export async function estateLintCommand(
     io.err(`Cannot find ${show(file, io)}.\n`);
     return 2;
   }
-  const loaded = await loadEstateMap(file);
+  const loaded = await loadEstateMap(file, mapCacheOptions());
   if (!loaded.ok) {
     io.err(`✗ ${show(file, io)}\n${loaded.errors.map(issueLine).join('')}`);
     return 1;
@@ -386,7 +394,7 @@ export async function estateMapCommand(
     io.err("error: required option '--to <file>' not specified\n");
     return 2;
   }
-  const loaded = await loadEstateMap(file);
+  const loaded = await loadEstateMap(file, mapCacheOptions());
   if (!loaded.ok) {
     io.err(`✗ ${show(file, io)}\n${loaded.errors.map(issueLine).join('')}`);
     return 1;
@@ -417,18 +425,6 @@ export async function estateMapCommand(
     ].join('\n'),
   );
   return 0;
-}
-
-/** Writes a file, its folder created; false after telling the user why it could not be written. */
-async function writeOut(path: string, text: string, io: Io): Promise<boolean> {
-  try {
-    await mkdir(dirname(path), { recursive: true });
-    await writeFile(path, text);
-    return true;
-  } catch (cause) {
-    io.err(`Cannot write ${show(path, io)}: ${cause instanceof Error ? cause.message : String(cause)}\n`);
-    return false;
-  }
 }
 
 function listLine(title: string, items: readonly string[]): string {
@@ -463,15 +459,6 @@ function plural(count: number, one: string, many: string): string {
   return count === 1 ? one : many;
 }
 
-async function exists(path: string): Promise<boolean> {
-  return (await stat(path).catch(() => undefined)) !== undefined;
-}
-
 async function isFolder(path: string): Promise<boolean> {
   return (await stat(path).catch(() => undefined))?.isDirectory() === true;
-}
-
-function show(path: string, io: Io): string {
-  const rel = relative(io.cwd, path);
-  return rel === '' ? '.' : rel.startsWith('..') ? path : rel;
 }

@@ -1,0 +1,596 @@
+{
+  "cells": [
+    {
+      "model": "gpt-6.1-sol",
+      "status": "measured",
+      "official": {
+        "sealedItems": 221,
+        "matchedItems": 221,
+        "missing": [
+          0,
+          0
+        ],
+        "correct": [
+          173,
+          170
+        ],
+        "accuracy": [
+          0.7828054298642534,
+          0.7692307692307693
+        ],
+        "balancedAccuracy": [
+          0.7223037417461482,
+          0.7292125213988749
+        ],
+        "wilson95": [
+          [
+            0.7238609061365039,
+            0.8320863851487951
+          ],
+          [
+            0.7093676092006918,
+            0.8198942121029129
+          ]
+        ],
+        "delta": 0.013574660633484163,
+        "deltaRequestClusterBootstrap95": [
+          -0.02262443438914027,
+          0.05
+        ],
+        "bootstrapReplicates": 10000,
+        "bootstrapSeed": 20261013,
+        "requestClusters": 219,
+        "wins": 10,
+        "losses": 7,
+        "twoSidedExactMcNemarP": 0.629058837890625,
+        "holmP": null,
+        "holmStatus": "Additional cell, outside original 18-cell family",
+        "verdict": "TIE",
+        "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+        "provisional": false,
+        "validVerdictCoverageComplete": true
+      },
+      "audited": {
+        "sealedItems": 221,
+        "matchedItems": 221,
+        "missing": [
+          0,
+          0
+        ],
+        "correct": [
+          196,
+          193
+        ],
+        "accuracy": [
+          0.8868778280542986,
+          0.8733031674208145
+        ],
+        "balancedAccuracy": [
+          0.8661242603550295,
+          0.8705621301775148
+        ],
+        "wilson95": [
+          [
+            0.8383421622992799,
+            0.922193732179009
+          ],
+          [
+            0.8229813310301817,
+            0.910869093466413
+          ]
+        ],
+        "delta": 0.013574660633484163,
+        "deltaRequestClusterBootstrap95": [
+          -0.02262443438914027,
+          0.05
+        ],
+        "bootstrapReplicates": 10000,
+        "bootstrapSeed": 20261013,
+        "requestClusters": 219,
+        "wins": 10,
+        "losses": 7,
+        "twoSidedExactMcNemarP": 0.629058837890625,
+        "holmP": null,
+        "holmStatus": "Additional cell, outside original 18-cell family",
+        "verdict": "TIE",
+        "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+        "provisional": false,
+        "validVerdictCoverageComplete": true
+      },
+      "costUsd": [
+        8.414192499999992,
+        2.278116
+      ],
+      "costPer100SealedItems": [
+        3.807326923076919,
+        1.0308217194570135
+      ],
+      "report": "results/gpt-6.1-sol.json",
+      "outputLimitErrors": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      },
+      "validation": {
+        "model": "gpt-6.1-sol",
+        "mutationChecks": {
+          "driftbench-verify-uncertainty-cascade": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          },
+          "promptfoo": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          }
+        },
+        "noise": {
+          "driftbench-verify-uncertainty-cascade": {
+            "items": 30,
+            "repeats": 3,
+            "itemsWithAnyFlip": 2,
+            "itemsWithAnyMissing": 0
+          },
+          "promptfoo": {
+            "items": 30,
+            "repeats": 3,
+            "itemsWithAnyFlip": 1,
+            "itemsWithAnyMissing": 0
+          }
+        },
+        "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy."
+      },
+      "phaseCoverage": {
+        "pilot": {
+          "items": 20,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 114,
+          "uniquePromptKeys": 114,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 1.1561365,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 4.81107,
+            "promptfoo": 0.9696125
+          },
+          "report": "examples/ledger-verify/sol61/pilot/gpt-6.1-sol.json",
+          "recording": "examples/ledger-verify/sol61/recordings/sol61-medium-20261013/pilot/longjudge-verify/gpt-6.1-sol.jsonl"
+        },
+        "validity": {
+          "items": 48,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 103,
+          "uniquePromptKeys": 78,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.117538,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.10865416666666666,
+            "promptfoo": 0.07159583333333333
+          },
+          "report": "examples/ledger-verify/sol61/validity/gpt-6.1-sol.json",
+          "recording": "examples/ledger-verify/sol61/recordings/sol61-medium-20261013/validity/longjudge-verify/gpt-6.1-sol.jsonl"
+        },
+        "noise-0": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 172,
+          "uniquePromptKeys": 172,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 1.7603569000000001,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 4.723531333333333,
+            "promptfoo": 1.1443249999999998
+          },
+          "report": "examples/ledger-verify/sol61/noise-0/gpt-6.1-sol.json",
+          "recording": "examples/ledger-verify/sol61/recordings/sol61-medium-20261013/noise-0/longjudge-verify/gpt-6.1-sol.jsonl"
+        },
+        "noise-1": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 172,
+          "uniquePromptKeys": 172,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 1.4019423,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 4.42962,
+            "promptfoo": 0.24352100000000002
+          },
+          "report": "examples/ledger-verify/sol61/noise-1/gpt-6.1-sol.json",
+          "recording": "examples/ledger-verify/sol61/recordings/sol61-medium-20261013/noise-1/longjudge-verify/gpt-6.1-sol.jsonl"
+        },
+        "noise-2": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 172,
+          "uniquePromptKeys": 172,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 1.4435278,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 4.574738333333333,
+            "promptfoo": 0.23702099999999998
+          },
+          "report": "examples/ledger-verify/sol61/noise-2/gpt-6.1-sol.json",
+          "recording": "examples/ledger-verify/sol61/recordings/sol61-medium-20261013/noise-2/longjudge-verify/gpt-6.1-sol.jsonl"
+        },
+        "results": {
+          "items": 221,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 1241,
+          "uniquePromptKeys": 1241,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 10.6674765,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 3.7960907239819006,
+            "promptfoo": 1.0308217194570135
+          },
+          "report": "examples/ledger-verify/sol61/results/gpt-6.1-sol.json",
+          "recording": "examples/ledger-verify/sol61/recordings/sol61-medium-20261013/test/longjudge-verify/gpt-6.1-sol.jsonl"
+        }
+      },
+      "productFinal": {
+        "official": {
+          "sealedItems": 221,
+          "matchedItems": 221,
+          "missing": [
+            0,
+            0
+          ],
+          "correct": [
+            173,
+            170
+          ],
+          "accuracy": [
+            0.7828054298642534,
+            0.7692307692307693
+          ],
+          "balancedAccuracy": [
+            0.7223037417461482,
+            0.7292125213988749
+          ],
+          "wilson95": [
+            [
+              0.7238609061365039,
+              0.8320863851487951
+            ],
+            [
+              0.7093676092006918,
+              0.8198942121029129
+            ]
+          ],
+          "delta": 0.013574660633484163,
+          "deltaRequestClusterBootstrap95": [
+            -0.02262443438914027,
+            0.05
+          ],
+          "bootstrapReplicates": 10000,
+          "bootstrapSeed": 20261013,
+          "requestClusters": 219,
+          "wins": 10,
+          "losses": 7,
+          "twoSidedExactMcNemarP": 0.629058837890625,
+          "holmP": null,
+          "holmStatus": "Additional cell, outside original 18-cell family",
+          "verdict": "TIE",
+          "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+          "provisional": false,
+          "validVerdictCoverageComplete": true
+        },
+        "audited": {
+          "sealedItems": 221,
+          "matchedItems": 221,
+          "missing": [
+            0,
+            0
+          ],
+          "correct": [
+            196,
+            193
+          ],
+          "accuracy": [
+            0.8868778280542986,
+            0.8733031674208145
+          ],
+          "balancedAccuracy": [
+            0.8661242603550295,
+            0.8705621301775148
+          ],
+          "wilson95": [
+            [
+              0.8383421622992799,
+              0.922193732179009
+            ],
+            [
+              0.8229813310301817,
+              0.910869093466413
+            ]
+          ],
+          "delta": 0.013574660633484163,
+          "deltaRequestClusterBootstrap95": [
+            -0.02262443438914027,
+            0.05
+          ],
+          "bootstrapReplicates": 10000,
+          "bootstrapSeed": 20261013,
+          "requestClusters": 219,
+          "wins": 10,
+          "losses": 7,
+          "twoSidedExactMcNemarP": 0.629058837890625,
+          "holmP": null,
+          "holmStatus": "Additional cell, outside original 18-cell family",
+          "verdict": "TIE",
+          "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+          "provisional": false,
+          "validVerdictCoverageComplete": true
+        }
+      },
+      "headline": "strict",
+      "strictDecisions": "results/gpt-6.1-sol.strict.json",
+      "productFinalDecisions": "results/gpt-6.1-sol.json",
+      "costPer100UniqueKeys": {
+        "driftbench-verify-uncertainty-cascade": 3.7960907239819006,
+        "promptfoo": 1.0308217194570135
+      },
+      "validityPassed": true,
+      "claimStatus": "Additional cell; multiplicity policy pending collator",
+      "additionalCell": true,
+      "validityPassedScope": "Planted mutation checks only; full DEV cheater margin not established"
+    }
+  ],
+  "exposure": "previously evaluated split",
+  "unit": "item",
+  "auditedCorrections": 23,
+  "cheaters": {
+    "alwaysPassOfficial": 0.21266968325791855,
+    "alwaysFailOfficial": 0.7873303167420814,
+    "alwaysPassAudited": 0.23529411764705882,
+    "alwaysFailAudited": 0.7647058823529411
+  },
+  "noiseFloor": {
+    "gpt-6.1-sol": {
+      "driftbench-verify-uncertainty-cascade": {
+        "items": 30,
+        "repeats": 3,
+        "itemsWithAnyFlip": 2,
+        "itemsWithAnyMissing": 0
+      },
+      "promptfoo": {
+        "items": 30,
+        "repeats": 3,
+        "itemsWithAnyFlip": 1,
+        "itemsWithAnyMissing": 0
+      }
+    }
+  },
+  "primaryEndpoint": "Official labels; audited labels are a separately reported sensitivity analysis",
+  "outputLimitErrors": {
+    "counts": {
+      "gpt-6.1-sol": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      }
+    },
+    "limits": [],
+    "unmappedLimits": [],
+    "unclassifiedHistoricalNativeErrors": [],
+    "refusals": [],
+    "refusalCounts": {
+      "gpt-6.1-sol": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      }
+    },
+    "unmappedRefusals": [],
+    "rule": "Strict is primary; any confirmed output limit makes every consuming contestant/item an error. Product-final preserves the original verdict, including fallback.",
+    "source": "evidence/scoring-freeze.json; evidence/request-attribution.json; receipts/calls.jsonl; receipts/errors.jsonl; receipts/native/*.json"
+  },
+  "fees": {
+    "settledUsd": 16.55230049999999,
+    "unresolvedMaximumUsd": 1.3749475,
+    "maximumAccountedUsd": 17.92724799999999,
+    "capUsd": 40,
+    "providerReceipts": 1974,
+    "byModel": {
+      "gpt-6.1-sol": 16.5523005
+    },
+    "unknownCharges": {
+      "324e13de-c01b-46f7-88ba-c1a4ba2b4f32": {
+        "usd": 0.341745,
+        "model": "gpt-6.1-sol",
+        "at": "2026-10-13T22:58:08.974009+00:00"
+      },
+      "c785db46-f395-48e8-b9d3-b21c2d139626": {
+        "usd": 0.3460075,
+        "model": "gpt-6.1-sol",
+        "at": "2026-10-13T22:58:27.807966+00:00"
+      },
+      "1c629f01-c01d-4520-9b9e-47f9481de1a5": {
+        "usd": 0.343615,
+        "model": "gpt-6.1-sol",
+        "at": "2026-10-14T00:38:25.198812+00:00"
+      },
+      "94f02c02-46f1-42d9-93e1-61a8ac9bb6dd": {
+        "usd": 0.34358,
+        "model": "gpt-6.1-sol",
+        "at": "2026-10-14T00:38:34.604991+00:00"
+      }
+    },
+    "source": "receipts/budget.json and receipts/calls.jsonl"
+  },
+  "freeze": {
+    "runtime": "sol61-medium-20261013",
+    "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
+    "hashes": {
+      "evidence/seal.json": "54fc167420330d25eb2d8874a0784bd9aa4ec4ff06fbcae82ffaa26d5fc42155",
+      "evidence/runtime-freeze.json": "d38442e3c699198cc9a071302ed4fb412104950c7205b3acd5c9db07297ea180",
+      "evidence/pilot-runtime-freeze.json": "9152fc67de2a937353d42c20a647bafdd7083d963dd3654ee23ddc3965a39fe0",
+      "evidence/scoring-freeze.json": "e1c0ce28e0dc259b6fe3e3bf98e16e7e0bc20c05e621d09522f43576752fe40b",
+      "evidence/pool.json": "f569c72a5e701366d232b619a623c09abddcf69cfc4379e849dbdef76b9559c5",
+      "evidence/audit-map.json": "3de476f85d4ce54ed88260f62d4ccab8c0fad36cddf50c1e74e2035055541eb6",
+      "stats.py": "6869846fd60ebe8b8d7647b6406a41370ed00b26151138dcc973d44f2c8693d6",
+      "validate.py": "318788033919432919d1e3e9653fcc8f5769fe257a23ef046090463f77e00af5",
+      "run.ts": "0bfae9258b44c938203a6bf57a269e756b89b437ea3adc1215d7b91afe651855",
+      "transport.ts": "56a43670abe327803991858ceb9baf3e710c5d34e316055b7c73eb63fb5b632c",
+      "summarize.py": "fa46bb25511f7bca9872859586a4cd0b0c7fffee52fbe5cb06d0961bfa8b8d46",
+      "output_limits.py": "9ae7583d1090faf61f633c51a641092b23333d0c30c245a433dccdecce32bed1",
+      "trace-requests.ts": "70fdd3349e1779f3294f10b03d90dc226fc0d24546ab16c38f4f299a41ebaa17"
+    }
+  },
+  "at": "2026-10-14T02:17:44.283139+00:00",
+  "modelAmendment": {
+    "at": "2026-10-13T13:40:34.689427+00:00",
+    "model": "gpt-6.1-sol",
+    "status": "frozen before first provider call",
+    "authorization": "Owner requests separate claude-sonnet-5-5 and gpt-6.1-sol cells after Haiku and Flash Lite finish; stop and report projection if a cell would exceed 25 USD.",
+    "capUsd": 25,
+    "contestants": [
+      "driftbench-verify-uncertainty-cascade",
+      "promptfoo"
+    ],
+    "phases": {
+      "costSampleRequests": 5,
+      "pilot": 20,
+      "mutation": 48,
+      "noise": [
+        30,
+        30,
+        30
+      ],
+      "TEST": 221
+    },
+    "reasoning": "medium",
+    "timeoutMs": 300000,
+    "pacing": 2,
+    "scoring": "strict headline: every consumed output-limit hit is an error; product-final preserves the product fallback; same rule for both contestants",
+    "exposure": "previously evaluated split",
+    "poolSha256": "f569c72a5e701366d232b619a623c09abddcf69cfc4379e849dbdef76b9559c5",
+    "auditMapSha256": "3de476f85d4ce54ed88260f62d4ccab8c0fad36cddf50c1e74e2035055541eb6",
+    "retry": "Owner network amendment supersedes prior no-answer attempt limits; answered outputs never resubmitted; 402 stops immediately.",
+    "projection": "Five representative frozen DEV requests first. Estimate 379-unit spend by their per-stage costs times the gpt-6-luna recorded request counts; unsampled cascade stages use the highest sampled cascade cost. Re-estimate from complete 20-item pilot before proceeding.",
+    "multiplicity": "Additional model, separate from original 18-cell family; adjustment pending collator",
+    "endpoint": "https://api.openai.com/v1/responses",
+    "temperature": "omitted",
+    "maxOutputTokensIncludingReasoning": 32768,
+    "price": {
+      "status": "published verified",
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "modelSource": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "readAt": "2026-10-13T13:40:34.689427+00:00",
+      "tier": "Standard",
+      "inputPerMillionUsd": 2,
+      "cachedInputPerMillionUsd": 0.1,
+      "cacheWritePerMillionUsd": 2.5,
+      "outputPerMillionUsd": 10,
+      "longContextThreshold": 272000,
+      "longInputMultiplier": 2,
+      "longOutputMultiplier": 1.5
+    },
+    "frozenAt": "2026-10-13T14:57:53.768376+00:00",
+    "runtimeSha256": "ab45f5cc95d06b4df297a96845607528f0bfd0df6785e3a458988bb0db073f3c",
+    "reportingSha256": "a7563ea875f1037a4798129120a4a879fd52ab195ddf0309578eca9ac48ff315",
+    "cacheWriteAccounting": {
+      "at": "2026-10-13T14:13:29.537391+00:00",
+      "beforeFirstCall": true,
+      "source": "https://developers.openai.com/api/docs/guides/prompt-caching",
+      "usageField": "usage.input_tokens_details.cache_write_tokens",
+      "formula": "ordinary input excludes cached and written tokens; writes use 2.50 USD per million; reserve uses the maximum input price"
+    },
+    "networkAmendment": "Ten healthy provider probes spaced 30 seconds apart before new calls, one model cell at a time, concurrency two. Three consecutive connection failures pause ten minutes and repeat the gate. Zero-token no-output transport requests retry missing-only without an attempt limit. Every answer stays cached.",
+    "outerProcessTimeoutMs": 2147483647,
+    "outerProcessNote": "Queueing and network-health pauses must not kill a live wrapper and orphan its physical attempt. Actual provider attempts remain 300 seconds; the outer envelope uses the maximum supported Node timer."
+  }
+}

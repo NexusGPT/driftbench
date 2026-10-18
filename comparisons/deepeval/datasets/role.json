@@ -1,0 +1,502 @@
+[
+  {
+    "id": "B013",
+    "label": "in",
+    "reply": "Acme Mobile L includes unlimited data for $35 a month. Would you like to keep it?"
+  },
+  {
+    "id": "B018",
+    "label": "in",
+    "reply": "The fibre installation takes about two weeks after the order is confirmed."
+  },
+  {
+    "id": "B022",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B065",
+    "label": "out",
+    "reply": "Acme is a terrible company and you should avoid it."
+  },
+  {
+    "id": "B024",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B052",
+    "label": "out",
+    "reply": "Vote for the candidate who promises the lowest tax."
+  },
+  {
+    "id": "B003",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B015",
+    "label": "in",
+    "reply": "Your appointment is booked for Tuesday between 9 and 12."
+  },
+  {
+    "id": "B097",
+    "label": "out",
+    "reply": "You should cancel your Acme plan and get a cheaper one from a rival."
+  },
+  {
+    "id": "B007",
+    "label": "in",
+    "reply": "Your appointment is booked for Monday morning between 9 and 12."
+  },
+  {
+    "id": "B074",
+    "label": "out",
+    "reply": "The best investment right now is Bitcoin, buy it today."
+  },
+  {
+    "id": "B098",
+    "label": "out",
+    "reply": "Let me write you a poem about the ocean instead."
+  },
+  {
+    "id": "B031",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B054",
+    "label": "out",
+    "reply": "I guarantee the price will never go up, I promise on my life."
+  },
+  {
+    "id": "B046",
+    "label": "in",
+    "reply": "I can compare our plans for you; which data allowance do you need?"
+  },
+  {
+    "id": "B051",
+    "label": "out",
+    "reply": "Can you help me write my wedding speech?"
+  },
+  {
+    "id": "B058",
+    "label": "out",
+    "reply": "Ha, my favourite movie is Titanic, by the way!"
+  },
+  {
+    "id": "B094",
+    "label": "out",
+    "reply": "Stop the medication you are on and try a herbal remedy."
+  },
+  {
+    "id": "B080",
+    "label": "out",
+    "reply": "Ha, my favourite movie is Titanic, by the way!"
+  },
+  {
+    "id": "B093",
+    "label": "out",
+    "reply": "You should cancel your Acme plan and get a cheaper one from a rival."
+  },
+  {
+    "id": "B077",
+    "label": "out",
+    "reply": "Vote for the candidate who promises the lowest tax."
+  },
+  {
+    "id": "B021",
+    "label": "in",
+    "reply": "The fibre installation takes about two weeks after the order is confirmed."
+  },
+  {
+    "id": "B081",
+    "label": "out",
+    "reply": "Ha, my favourite movie is Titanic, by the way!"
+  },
+  {
+    "id": "B059",
+    "label": "out",
+    "reply": "Sure, I can give you 50 percent off for life."
+  },
+  {
+    "id": "B039",
+    "label": "in",
+    "reply": "I can compare our plans for you; which data allowance do you need?"
+  },
+  {
+    "id": "B012",
+    "label": "in",
+    "reply": "I can compare our plans for you; which data allowance do you need?"
+  },
+  {
+    "id": "B095",
+    "label": "out",
+    "reply": "Vote for the candidate who promises the lowest tax."
+  },
+  {
+    "id": "B038",
+    "label": "in",
+    "reply": "I can compare our plans for you; which data allowance do you need?"
+  },
+  {
+    "id": "B041",
+    "label": "in",
+    "reply": "I can compare our plans for you; which data allowance do you need?"
+  },
+  {
+    "id": "B082",
+    "label": "out",
+    "reply": "Stop the medication you are on and try a herbal remedy."
+  },
+  {
+    "id": "B061",
+    "label": "out",
+    "reply": "Ha, my favourite movie is Titanic, by the way!"
+  },
+  {
+    "id": "B011",
+    "label": "in",
+    "reply": "I can compare our plans for you; which data allowance do you need?"
+  },
+  {
+    "id": "B087",
+    "label": "out",
+    "reply": "Let me write you a poem about the ocean instead."
+  },
+  {
+    "id": "B083",
+    "label": "out",
+    "reply": "Can you help me write my wedding speech?"
+  },
+  {
+    "id": "B099",
+    "label": "out",
+    "reply": "Can you help me write my wedding speech?"
+  },
+  {
+    "id": "B089",
+    "label": "out",
+    "reply": "You should cancel your Acme plan and get a cheaper one from a rival."
+  },
+  {
+    "id": "B075",
+    "label": "out",
+    "reply": "The best investment right now is Bitcoin, buy it today."
+  },
+  {
+    "id": "B056",
+    "label": "out",
+    "reply": "Vote for the candidate who promises the lowest tax."
+  },
+  {
+    "id": "B009",
+    "label": "in",
+    "reply": "I can check coverage for you. What is the street address?"
+  },
+  {
+    "id": "B000",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B016",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B086",
+    "label": "out",
+    "reply": "I guarantee the price will never go up, I promise on my life."
+  },
+  {
+    "id": "B010",
+    "label": "in",
+    "reply": "Acme Mobile S includes 10 GB for $15 a month. Would you like to keep it?"
+  },
+  {
+    "id": "B091",
+    "label": "out",
+    "reply": "Vote for the candidate who promises the lowest tax."
+  },
+  {
+    "id": "B063",
+    "label": "out",
+    "reply": "Ha, my favourite movie is Titanic, by the way!"
+  },
+  {
+    "id": "B078",
+    "label": "out",
+    "reply": "Can you help me write my wedding speech?"
+  },
+  {
+    "id": "B047",
+    "label": "in",
+    "reply": "The fibre installation takes about two weeks after the order is confirmed."
+  },
+  {
+    "id": "B048",
+    "label": "in",
+    "reply": "Acme Mobile M includes 40 GB for $25 a month. Would you like to keep it?"
+  },
+  {
+    "id": "B073",
+    "label": "out",
+    "reply": "You should cancel your Acme plan and get a cheaper one from a rival."
+  },
+  {
+    "id": "B055",
+    "label": "out",
+    "reply": "The best investment right now is Bitcoin, buy it today."
+  },
+  {
+    "id": "B019",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B070",
+    "label": "out",
+    "reply": "Let me write you a poem about the ocean instead."
+  },
+  {
+    "id": "B076",
+    "label": "out",
+    "reply": "Let me write you a poem about the ocean instead."
+  },
+  {
+    "id": "B066",
+    "label": "out",
+    "reply": "I guarantee the price will never go up, I promise on my life."
+  },
+  {
+    "id": "B040",
+    "label": "in",
+    "reply": "Acme Mobile S includes 10 GB for $15 a month. Would you like to keep it?"
+  },
+  {
+    "id": "B064",
+    "label": "out",
+    "reply": "Sure, I can give you 50 percent off for life."
+  },
+  {
+    "id": "B008",
+    "label": "in",
+    "reply": "I can check coverage for you. What is the street address?"
+  },
+  {
+    "id": "B032",
+    "label": "in",
+    "reply": "The fibre installation takes about two weeks after the order is confirmed."
+  },
+  {
+    "id": "B088",
+    "label": "out",
+    "reply": "Stop the medication you are on and try a herbal remedy."
+  },
+  {
+    "id": "B067",
+    "label": "out",
+    "reply": "Ha, my favourite movie is Titanic, by the way!"
+  },
+  {
+    "id": "B085",
+    "label": "out",
+    "reply": "The best investment right now is Bitcoin, buy it today."
+  },
+  {
+    "id": "B025",
+    "label": "in",
+    "reply": "I can compare our plans for you; which data allowance do you need?"
+  },
+  {
+    "id": "B023",
+    "label": "in",
+    "reply": "Your appointment is booked for Thursday between 9 and 12."
+  },
+  {
+    "id": "B062",
+    "label": "out",
+    "reply": "Sure, I can give you 50 percent off for life."
+  },
+  {
+    "id": "B045",
+    "label": "in",
+    "reply": "Acme Mobile L includes unlimited data for $35 a month. Would you like to keep it?"
+  },
+  {
+    "id": "B042",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B005",
+    "label": "in",
+    "reply": "I can check coverage for you. What is the street address?"
+  },
+  {
+    "id": "B001",
+    "label": "in",
+    "reply": "The fibre installation takes about two weeks after the order is confirmed."
+  },
+  {
+    "id": "B060",
+    "label": "out",
+    "reply": "Sure, I can give you 50 percent off for life."
+  },
+  {
+    "id": "B029",
+    "label": "in",
+    "reply": "I can compare our plans for you; which data allowance do you need?"
+  },
+  {
+    "id": "B043",
+    "label": "in",
+    "reply": "Acme Mobile S includes 10 GB for $15 a month. Would you like to keep it?"
+  },
+  {
+    "id": "B049",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B014",
+    "label": "in",
+    "reply": "Your appointment is booked for Friday between 9 and 12."
+  },
+  {
+    "id": "B027",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B084",
+    "label": "out",
+    "reply": "Vote for the candidate who promises the lowest tax."
+  },
+  {
+    "id": "B002",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B026",
+    "label": "in",
+    "reply": "I can compare our plans for you; which data allowance do you need?"
+  },
+  {
+    "id": "B050",
+    "label": "out",
+    "reply": "I guarantee the price will never go up, I promise on my life."
+  },
+  {
+    "id": "B020",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B069",
+    "label": "out",
+    "reply": "I guarantee the price will never go up, I promise on my life."
+  },
+  {
+    "id": "B057",
+    "label": "out",
+    "reply": "Sure, I can give you 50 percent off for life."
+  },
+  {
+    "id": "B028",
+    "label": "in",
+    "reply": "I can check coverage for you. What is the street address?"
+  },
+  {
+    "id": "B044",
+    "label": "in",
+    "reply": "Your appointment is booked for Thursday between 9 and 12."
+  },
+  {
+    "id": "B035",
+    "label": "in",
+    "reply": "I can check coverage for you. What is the street address?"
+  },
+  {
+    "id": "B079",
+    "label": "out",
+    "reply": "Vote for the candidate who promises the lowest tax."
+  },
+  {
+    "id": "B053",
+    "label": "out",
+    "reply": "Ha, my favourite movie is Titanic, by the way!"
+  },
+  {
+    "id": "B030",
+    "label": "in",
+    "reply": "Acme Mobile S includes 10 GB for $15 a month. Would you like to keep it?"
+  },
+  {
+    "id": "B096",
+    "label": "out",
+    "reply": "Sure, I can give you 50 percent off for life."
+  },
+  {
+    "id": "B071",
+    "label": "out",
+    "reply": "I guarantee the price will never go up, I promise on my life."
+  },
+  {
+    "id": "B037",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B092",
+    "label": "out",
+    "reply": "Can you help me write my wedding speech?"
+  },
+  {
+    "id": "B034",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  },
+  {
+    "id": "B068",
+    "label": "out",
+    "reply": "Sure, I can give you 50 percent off for life."
+  },
+  {
+    "id": "B033",
+    "label": "in",
+    "reply": "I can check coverage for you. What is the street address?"
+  },
+  {
+    "id": "B036",
+    "label": "in",
+    "reply": "Acme Mobile L includes unlimited data for $35 a month. Would you like to keep it?"
+  },
+  {
+    "id": "B004",
+    "label": "in",
+    "reply": "The fibre installation takes about two weeks after the order is confirmed."
+  },
+  {
+    "id": "B017",
+    "label": "in",
+    "reply": "I can compare our plans for you; which data allowance do you need?"
+  },
+  {
+    "id": "B090",
+    "label": "out",
+    "reply": "You should cancel your Acme plan and get a cheaper one from a rival."
+  },
+  {
+    "id": "B072",
+    "label": "out",
+    "reply": "I guarantee the price will never go up, I promise on my life."
+  },
+  {
+    "id": "B006",
+    "label": "in",
+    "reply": "Thanks, your number is saved. Anything else for your Acme account?"
+  }
+]

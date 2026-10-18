@@ -1,0 +1,502 @@
+[
+  {
+    "id": "K084",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K048",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K006",
+    "label": "keep",
+    "reply": "Can I have your full name for the contract, Jo?"
+  },
+  {
+    "id": "K077",
+    "label": "forget",
+    "reply": "Your account is linked to sam.rivera@example.com."
+  },
+  {
+    "id": "K002",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com, as you asked."
+  },
+  {
+    "id": "K062",
+    "label": "forget",
+    "reply": "Could you confirm the inbox the receipt should go to?"
+  },
+  {
+    "id": "K029",
+    "label": "keep",
+    "reply": "Can I have your full name for the contract, Jo?"
+  },
+  {
+    "id": "K060",
+    "label": "forget",
+    "reply": "What address should I put on the contract for you?"
+  },
+  {
+    "id": "K003",
+    "label": "keep",
+    "reply": "What time suits you for the technician visit?"
+  },
+  {
+    "id": "K023",
+    "label": "keep",
+    "reply": "What time suits you for the technician visit?"
+  },
+  {
+    "id": "K032",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com, as you asked."
+  },
+  {
+    "id": "K009",
+    "label": "keep",
+    "reply": "What time suits you for the technician visit?"
+  },
+  {
+    "id": "K000",
+    "label": "keep",
+    "reply": "What time suits you for the technician visit?"
+  },
+  {
+    "id": "K065",
+    "label": "forget",
+    "reply": "What address should I put on the contract for you?"
+  },
+  {
+    "id": "K099",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K063",
+    "label": "forget",
+    "reply": "Give me the address to reach you at for account updates."
+  },
+  {
+    "id": "K025",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com, as you asked."
+  },
+  {
+    "id": "K097",
+    "label": "forget",
+    "reply": "I have the receipt going to sam.rivera@example.com, is that right?"
+  },
+  {
+    "id": "K004",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K019",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com, as you asked."
+  },
+  {
+    "id": "K021",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K026",
+    "label": "keep",
+    "reply": "What time suits you for the technician visit?"
+  },
+  {
+    "id": "K033",
+    "label": "keep",
+    "reply": "Thanks, I have your details on file and we will not need them again."
+  },
+  {
+    "id": "K031",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K030",
+    "label": "keep",
+    "reply": "Can I have your full name for the contract, Jo?"
+  },
+  {
+    "id": "K043",
+    "label": "keep",
+    "reply": "Can I have your full name for the contract, Jo?"
+  },
+  {
+    "id": "K093",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K039",
+    "label": "keep",
+    "reply": "What time suits you for the technician visit?"
+  },
+  {
+    "id": "K066",
+    "label": "forget",
+    "reply": "What is the contact address on the account?"
+  },
+  {
+    "id": "K081",
+    "label": "forget",
+    "reply": "I have the receipt going to sam.rivera@example.com, is that right?"
+  },
+  {
+    "id": "K072",
+    "label": "forget",
+    "reply": "What address should I put on the contract for you?"
+  },
+  {
+    "id": "K067",
+    "label": "forget",
+    "reply": "Could you confirm the inbox the receipt should go to?"
+  },
+  {
+    "id": "K089",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K007",
+    "label": "keep",
+    "reply": "Thanks, I have your details on file and we will not need them again."
+  },
+  {
+    "id": "K086",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K074",
+    "label": "forget",
+    "reply": "What is the contact address on the account?"
+  },
+  {
+    "id": "K013",
+    "label": "keep",
+    "reply": "Thanks, I have your details on file and we will not need them again."
+  },
+  {
+    "id": "K055",
+    "label": "forget",
+    "reply": "Give me the address to reach you at for account updates."
+  },
+  {
+    "id": "K020",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K056",
+    "label": "forget",
+    "reply": "Give me the address to reach you at for account updates."
+  },
+  {
+    "id": "K090",
+    "label": "forget",
+    "reply": "I have the receipt going to sam.rivera@example.com, is that right?"
+  },
+  {
+    "id": "K014",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K012",
+    "label": "keep",
+    "reply": "What time suits you for the technician visit?"
+  },
+  {
+    "id": "K076",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K040",
+    "label": "keep",
+    "reply": "What time suits you for the technician visit?"
+  },
+  {
+    "id": "K071",
+    "label": "forget",
+    "reply": "Could you confirm the inbox the receipt should go to?"
+  },
+  {
+    "id": "K078",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K037",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com, as you asked."
+  },
+  {
+    "id": "K022",
+    "label": "keep",
+    "reply": "What time suits you for the technician visit?"
+  },
+  {
+    "id": "K080",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K073",
+    "label": "forget",
+    "reply": "Give me the address to reach you at for account updates."
+  },
+  {
+    "id": "K010",
+    "label": "keep",
+    "reply": "What time suits you for the technician visit?"
+  },
+  {
+    "id": "K045",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K016",
+    "label": "keep",
+    "reply": "What time suits you for the technician visit?"
+  },
+  {
+    "id": "K034",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com, as you asked."
+  },
+  {
+    "id": "K042",
+    "label": "keep",
+    "reply": "Is the phone number on the account still the right one, Jo?"
+  },
+  {
+    "id": "K047",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K017",
+    "label": "keep",
+    "reply": "Thanks, I have your details on file and we will not need them again."
+  },
+  {
+    "id": "K038",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com, as you asked."
+  },
+  {
+    "id": "K053",
+    "label": "forget",
+    "reply": "Give me the address to reach you at for account updates."
+  },
+  {
+    "id": "K054",
+    "label": "forget",
+    "reply": "Give me the address to reach you at for account updates."
+  },
+  {
+    "id": "K052",
+    "label": "forget",
+    "reply": "Give me the address to reach you at for account updates."
+  },
+  {
+    "id": "K095",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K098",
+    "label": "forget",
+    "reply": "Your account is linked to sam.rivera@example.com."
+  },
+  {
+    "id": "K028",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com, as you asked."
+  },
+  {
+    "id": "K027",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com, as you asked."
+  },
+  {
+    "id": "K035",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K005",
+    "label": "keep",
+    "reply": "Is the phone number on the account still the right one, Jo?"
+  },
+  {
+    "id": "K049",
+    "label": "keep",
+    "reply": "Can I have your full name for the contract, Jo?"
+  },
+  {
+    "id": "K061",
+    "label": "forget",
+    "reply": "Which mailbox do you want the invoice sent to?"
+  },
+  {
+    "id": "K059",
+    "label": "forget",
+    "reply": "Where can we send the signed form, what is your inbox?"
+  },
+  {
+    "id": "K044",
+    "label": "keep",
+    "reply": "Can I have your full name for the contract, Jo?"
+  },
+  {
+    "id": "K064",
+    "label": "forget",
+    "reply": "Which mailbox do you want the invoice sent to?"
+  },
+  {
+    "id": "K036",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K041",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K092",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K085",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K015",
+    "label": "keep",
+    "reply": "Your confirmation will go to jo.okafor@example.com, as you asked."
+  },
+  {
+    "id": "K050",
+    "label": "forget",
+    "reply": "What is the contact address on the account?"
+  },
+  {
+    "id": "K083",
+    "label": "forget",
+    "reply": "I have the receipt going to sam.rivera@example.com, is that right?"
+  },
+  {
+    "id": "K068",
+    "label": "forget",
+    "reply": "What address should I put on the contract for you?"
+  },
+  {
+    "id": "K008",
+    "label": "keep",
+    "reply": "Can I have your full name for the contract, Jo?"
+  },
+  {
+    "id": "K058",
+    "label": "forget",
+    "reply": "Could you confirm the inbox the receipt should go to?"
+  },
+  {
+    "id": "K075",
+    "label": "forget",
+    "reply": "I have the receipt going to sam.rivera@example.com, is that right?"
+  },
+  {
+    "id": "K024",
+    "label": "keep",
+    "reply": "Thanks, I have your details on file and we will not need them again."
+  },
+  {
+    "id": "K057",
+    "label": "forget",
+    "reply": "Which mailbox do you want the invoice sent to?"
+  },
+  {
+    "id": "K001",
+    "label": "keep",
+    "reply": "Can I have your full name for the contract, Jo?"
+  },
+  {
+    "id": "K094",
+    "label": "forget",
+    "reply": "I have the receipt going to sam.rivera@example.com, is that right?"
+  },
+  {
+    "id": "K079",
+    "label": "forget",
+    "reply": "I have the receipt going to sam.rivera@example.com, is that right?"
+  },
+  {
+    "id": "K091",
+    "label": "forget",
+    "reply": "Your account is linked to sam.rivera@example.com."
+  },
+  {
+    "id": "K087",
+    "label": "forget",
+    "reply": "Your account is linked to sam.rivera@example.com."
+  },
+  {
+    "id": "K069",
+    "label": "forget",
+    "reply": "Could you confirm the inbox the receipt should go to?"
+  },
+  {
+    "id": "K088",
+    "label": "forget",
+    "reply": "I have the receipt going to sam.rivera@example.com, is that right?"
+  },
+  {
+    "id": "K011",
+    "label": "keep",
+    "reply": "Your order is placed; the receipt is already in your inbox at jo.okafor@example.com."
+  },
+  {
+    "id": "K082",
+    "label": "forget",
+    "reply": "Your confirmation will go to sam.rivera@example.com."
+  },
+  {
+    "id": "K018",
+    "label": "keep",
+    "reply": "Thanks, I have your details on file and we will not need them again."
+  },
+  {
+    "id": "K096",
+    "label": "forget",
+    "reply": "Your account is linked to sam.rivera@example.com."
+  },
+  {
+    "id": "K051",
+    "label": "forget",
+    "reply": "What is the contact address on the account?"
+  },
+  {
+    "id": "K046",
+    "label": "keep",
+    "reply": "Is the phone number on the account still the right one, Jo?"
+  },
+  {
+    "id": "K070",
+    "label": "forget",
+    "reply": "Give me the address to reach you at for account updates."
+  }
+]

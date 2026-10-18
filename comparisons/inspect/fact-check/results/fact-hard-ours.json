@@ -1,0 +1,164 @@
+{
+  "variant": "ours",
+  "calls": 22,
+  "right": 22,
+  "wrong": 0,
+  "inconclusive": 0,
+  "costUsd": 0.004570090000000001,
+  "rows": [
+    {
+      "id": "h1",
+      "label": "pass",
+      "rep": 0,
+      "outcome": "pass",
+      "cost": 0.0003191
+    },
+    {
+      "id": "h1",
+      "label": "pass",
+      "rep": 1,
+      "outcome": "pass",
+      "cost": 0.00009962
+    },
+    {
+      "id": "h2",
+      "label": "pass",
+      "rep": 0,
+      "outcome": "pass",
+      "cost": 0.0003038
+    },
+    {
+      "id": "h2",
+      "label": "pass",
+      "rep": 1,
+      "outcome": "pass",
+      "cost": 0.00007763000000000001
+    },
+    {
+      "id": "h3",
+      "label": "pass",
+      "rep": 0,
+      "outcome": "pass",
+      "cost": 0.00030900000000000003
+    },
+    {
+      "id": "h3",
+      "label": "pass",
+      "rep": 1,
+      "outcome": "pass",
+      "cost": 0.00017004
+    },
+    {
+      "id": "h4",
+      "label": "pass",
+      "rep": 0,
+      "outcome": "pass",
+      "cost": 0.000301
+    },
+    {
+      "id": "h4",
+      "label": "pass",
+      "rep": 1,
+      "outcome": "pass",
+      "cost": 0.00007504
+    },
+    {
+      "id": "h5",
+      "label": "pass",
+      "rep": 0,
+      "outcome": "pass",
+      "cost": 0.0004016
+    },
+    {
+      "id": "h5",
+      "label": "pass",
+      "rep": 1,
+      "outcome": "pass",
+      "cost": 0.00017357
+    },
+    {
+      "id": "h6",
+      "label": "fail",
+      "rep": 0,
+      "outcome": "fail",
+      "cost": 0.000321
+    },
+    {
+      "id": "h6",
+      "label": "fail",
+      "rep": 1,
+      "outcome": "fail",
+      "cost": 0.00009169
+    },
+    {
+      "id": "h7",
+      "label": "fail",
+      "rep": 0,
+      "outcome": "fail",
+      "cost": 0.0003087
+    },
+    {
+      "id": "h7",
+      "label": "fail",
+      "rep": 1,
+      "outcome": "fail",
+      "cost": 0.00008265000000000002
+    },
+    {
+      "id": "h8",
+      "label": "fail",
+      "rep": 0,
+      "outcome": "fail",
+      "cost": 0.00030470000000000003
+    },
+    {
+      "id": "h8",
+      "label": "fail",
+      "rep": 1,
+      "outcome": "fail",
+      "cost": 0.00007910000000000001
+    },
+    {
+      "id": "h9",
+      "label": "fail",
+      "rep": 0,
+      "outcome": "fail",
+      "cost": 0.0003076
+    },
+    {
+      "id": "h9",
+      "label": "fail",
+      "rep": 1,
+      "outcome": "fail",
+      "cost": 0.00008211999999999999
+    },
+    {
+      "id": "h10",
+      "label": "fail",
+      "rep": 0,
+      "outcome": "fail",
+      "cost": 0.0002971
+    },
+    {
+      "id": "h10",
+      "label": "fail",
+      "rep": 1,
+      "outcome": "fail",
+      "cost": 0.00007352000000000001
+    },
+    {
+      "id": "h11",
+      "label": "fail",
+      "rep": 0,
+      "outcome": "fail",
+      "cost": 0.0003074
+    },
+    {
+      "id": "h11",
+      "label": "fail",
+      "rep": 1,
+      "outcome": "fail",
+      "cost": 0.00008411
+    }
+  ]
+}

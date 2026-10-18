@@ -1,0 +1,18 @@
+{
+  "variant": "audit",
+  "model": "haiku",
+  "package": "deepeval==4.2.8",
+  "corpus": "additional",
+  "sets_sha256": "e37d36694d38f4dc09ac7aaa194614497f5ed9f0cbac4d4c93894017fc73447f",
+  "evidence": "receipt",
+  "expected_cases": {
+    "task": 120
+  },
+  "procedure_sha256": "963111d4daa9ba667627e8caa7cfb0a8d2f265865abc0b32bb7a750e367a6839",
+  "deadline": "2026-10-13T06:30:00+02:00",
+  "rows": [],
+  "stopped": "Local deadline reached",
+  "fresh_calls": 0,
+  "fresh_usd": 0,
+  "replays": 0
+}

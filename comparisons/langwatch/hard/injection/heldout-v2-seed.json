@@ -1,0 +1,5 @@
+{
+  "seed": 20261017,
+  "cases": 60,
+  "selection": "first seed from 20261015 onward with zero input overlap against hard and first fresh; no model outcomes used"
+}

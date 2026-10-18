@@ -1,0 +1,25 @@
+{
+  "seed": 20261020,
+  "pairs_per_family": 5,
+  "label": "not yet the shipped default",
+  "timestamp": "2026-10-13T04:54:00.520348+02:00",
+  "labels_frozen_before_calls": true,
+  "generator": "generate.py build(seed=20261020, pairs_per_family=5)",
+  "original_candidate_unchanged": true,
+  "distinct_inputs": {
+    "task": 90,
+    "grounding": 75
+  },
+  "sha256": {
+    "additional/sets.json": "314b602c4675f5740e98e893330b8ddd6c9f7f037f87b03e92662a9fab6ce634",
+    "additional/sets-receipts.json": "e37d36694d38f4dc09ac7aaa194614497f5ed9f0cbac4d4c93894017fc73447f",
+    "additional/baseline-prompts.json": "48f5ee1cd5a9c73e050801920c13d459cf5b4f0f73be52ef805e3574c524b100",
+    "additional/baseline-prompts-receipts.json": "6b5c9d822c82bb4aface6baf82bb2e49c26ae696d5e22728c06f4fe9ea6fea4e",
+    "generate.py": "f46d1ffaf549abe7859199d2a2080f0d015530638ed9ca2fa2fb6b0e8df9e745",
+    "receipts.py": "d62d3d5c71d68a4522f774ffdb0c2216c1c78dda9c8174741f952a4d23b783c2",
+    "run-additional.py": "51147d9814cbd7fa2fa642c2f71e615528bf1664016142dbbd4b6806c51ca9e8",
+    "render-additional.mts": "15c952194d61e1d03862b08f3406c942bde66299f39d8fd863d4e2697f237add",
+    "candidate-freeze.json": "b00e012feb5afc29eadba64e76a8b5700837b45fc74fb40102f9fe59e782410a",
+    "audit.py": "963111d4daa9ba667627e8caa7cfb0a8d2f265865abc0b32bb7a750e367a6839"
+  }
+}

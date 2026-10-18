@@ -1,0 +1,2887 @@
+{
+  "sourceBranch": "research/astra-hard-fresh",
+  "sourceCommit": "89425c88b12e5fd7516ed9cdbf6d37b9b0261595",
+  "fixtureSha256": "7696b6c5660ac24290ae5bbee5891708aa3f67180404b046bd815f167c167d57",
+  "systemSha256": "5ab527bec76758641fcfd13ebe7c576486ae145fb2cce183a25d9b2838621ca8",
+  "defaultPromptFingerprint": "b55396660b27",
+  "liveCalls": 0,
+  "slices": [
+    {
+      "name": "fresh",
+      "sources": {
+        "comparisons/astra-hard/langfuse-reference-cases.json": "a09ae84d04bbe731990bd4d1831b8cdae213df5532b7794901951e7fd4cacdbf",
+        "comparisons/astra-hard/candidates/calls.jsonl": "7052711fe8e5665ed405ebe17563797d71b975fddfa1a32318ee11c9a76824a1"
+      },
+      "n": 192,
+      "semantic": {
+        "correct": 192,
+        "wrong": 0,
+        "inconclusive": 0
+      },
+      "strict": {
+        "correct": 74,
+        "wrong": 0,
+        "inconclusive": 118
+      },
+      "changed": 118,
+      "transitions": {
+        "pass->pass": 39,
+        "pass->inconclusive": 57,
+        "fail->inconclusive": 61,
+        "fail->fail": 35
+      },
+      "rows": [
+        {
+          "id": "fresh-reference-003",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-165",
+          "family": "long-distractors",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-111",
+          "family": "multilingual",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-005",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-034",
+          "family": "conditions",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-033",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-176",
+          "family": "entity-binding",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-183",
+          "family": "multilingual",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-098",
+          "family": "near-number",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-088",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-120",
+          "family": "instruction-data",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-058",
+          "family": "conditions",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-055",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-173",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-068",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-064",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-131",
+          "family": "quantifiers",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-125",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-019",
+          "family": "omission",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-001",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-133",
+          "family": "revision",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-047",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-142",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-054",
+          "family": "negation",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-031",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-093",
+          "family": "long-distractors",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-008",
+          "family": "entity-binding",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-182",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-053",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-115",
+          "family": "omission",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-012",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-020",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-082",
+          "family": "conditions",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-186",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-075",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-106",
+          "family": "conditions",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-025",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-045",
+          "family": "long-distractors",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-050",
+          "family": "near-number",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-169",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-078",
+          "family": "negation",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-153",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-157",
+          "family": "revision",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-151",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-149",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-184",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-109",
+          "family": "revision",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-148",
+          "family": "units",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-044",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-179",
+          "family": "quantifiers",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-060",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-030",
+          "family": "negation",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-043",
+          "family": "omission",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-172",
+          "family": "units",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-042",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-166",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-175",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-017",
+          "family": "fluent-extra",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-181",
+          "family": "revision",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-087",
+          "family": "multilingual",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-152",
+          "family": "entity-binding",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-123",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-015",
+          "family": "multilingual",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-113",
+          "family": "fluent-extra",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-027",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-102",
+          "family": "negation",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-066",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-164",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-155",
+          "family": "quantifiers",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-092",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-108",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-118",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-073",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-059",
+          "family": "quantifiers",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-136",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-090",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-032",
+          "family": "entity-binding",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-037",
+          "family": "revision",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-168",
+          "family": "instruction-data",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-156",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-038",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-056",
+          "family": "entity-binding",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-040",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-112",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-188",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-016",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-035",
+          "family": "quantifiers",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-041",
+          "family": "fluent-extra",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-039",
+          "family": "multilingual",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-134",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-069",
+          "family": "long-distractors",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-084",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-167",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-122",
+          "family": "near-number",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-051",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-178",
+          "family": "conditions",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-135",
+          "family": "multilingual",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-091",
+          "family": "omission",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-079",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-072",
+          "family": "instruction-data",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-105",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-006",
+          "family": "negation",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-023",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-170",
+          "family": "near-number",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-080",
+          "family": "entity-binding",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-150",
+          "family": "negation",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-107",
+          "family": "quantifiers",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-076",
+          "family": "units",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-146",
+          "family": "near-number",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-117",
+          "family": "long-distractors",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-162",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-057",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-154",
+          "family": "conditions",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-119",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-159",
+          "family": "multilingual",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-177",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-099",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-114",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-013",
+          "family": "revision",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-081",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-007",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a reply must quote an agent transcript entry"
+        },
+        {
+          "id": "fresh-reference-036",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-071",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-024",
+          "family": "instruction-data",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-086",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-174",
+          "family": "negation",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-067",
+          "family": "omission",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-128",
+          "family": "entity-binding",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-161",
+          "family": "fluent-extra",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-158",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-094",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-124",
+          "family": "units",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-140",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-121",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-141",
+          "family": "long-distractors",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-096",
+          "family": "instruction-data",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-010",
+          "family": "conditions",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-052",
+          "family": "units",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-187",
+          "family": "omission",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-104",
+          "family": "entity-binding",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-132",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-189",
+          "family": "long-distractors",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-126",
+          "family": "negation",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-110",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-144",
+          "family": "instruction-data",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-192",
+          "family": "instruction-data",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-021",
+          "family": "long-distractors",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-180",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-191",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-004",
+          "family": "units",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-139",
+          "family": "omission",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-137",
+          "family": "fluent-extra",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-103",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-022",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-077",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-160",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-185",
+          "family": "fluent-extra",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-143",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-026",
+          "family": "near-number",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-028",
+          "family": "units",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-062",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-171",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-089",
+          "family": "fluent-extra",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-049",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-063",
+          "family": "multilingual",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-147",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-163",
+          "family": "omission",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-048",
+          "family": "instruction-data",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-002",
+          "family": "near-number",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-065",
+          "family": "fluent-extra",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-029",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-190",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-116",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-061",
+          "family": "revision",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-127",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-138",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-070",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-130",
+          "family": "conditions",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-100",
+          "family": "units",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "fresh-reference-129",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-018",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-083",
+          "family": "quantifiers",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-046",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-011",
+          "family": "quantifiers",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-009",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-095",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-074",
+          "family": "near-number",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-101",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-097",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-145",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "fresh-reference-085",
+          "family": "revision",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "fresh-reference-014",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        }
+      ]
+    },
+    {
+      "name": "map",
+      "sources": {
+        "comparisons/astra-hard/map/langfuse-reference-cases.json": "822933cef03c2fd531921d49f045757bda228dab081503686e2d1878c4f41163",
+        "comparisons/astra-hard/map/calls.jsonl": "a88eed5fde3e6b73dd8cc1f833477701d30ef7c9cc6845f3e06a92b31af25bb7"
+      },
+      "n": 180,
+      "semantic": {
+        "correct": 178,
+        "wrong": 2,
+        "inconclusive": 0
+      },
+      "strict": {
+        "correct": 77,
+        "wrong": 2,
+        "inconclusive": 101
+      },
+      "changed": 101,
+      "transitions": {
+        "pass->inconclusive": 43,
+        "fail->fail": 34,
+        "fail->inconclusive": 58,
+        "pass->pass": 45
+      },
+      "rows": [
+        {
+          "id": "map-langfuse-reference-016",
+          "family": "omission",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-111",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-189",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-009",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-163",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-123",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-156",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-103",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-105",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-057",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-120",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-166",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-102",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-150",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-106",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-165",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-173",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-113",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-181",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-128",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-055",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-015",
+          "family": "conditions",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-179",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-127",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-097",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-145",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-041",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-186",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-035",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-047",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-126",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-159",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-002",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-157",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-110",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-168",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-161",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-170",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-033",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-052",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-070",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-108",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-100",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-026",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-078",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-183",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-077",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-043",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-075",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-008",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-185",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-146",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-141",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-118",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-063",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-006",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-005",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-068",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-049",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-093",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-066",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-125",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-160",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-007",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-135",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-182",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-175",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-151",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-089",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-142",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-020",
+          "family": "multilingual",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-147",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-073",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-040",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-177",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-019",
+          "family": "entity-binding",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-021",
+          "family": "fluent-extra",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-121",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-152",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-001",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-104",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-178",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-167",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-079",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-187",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-060",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-119",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-064",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-054",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-096",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-101",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-080",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-174",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-081",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-056",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-067",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-044",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-058",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-028",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-076",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-025",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-018",
+          "family": "quantifiers",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-051",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-099",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-086",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-092",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-148",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-132",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-012",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-153",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-094",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-065",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-022",
+          "family": "units",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-171",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-032",
+          "family": "units",
+          "label": "pass",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-023",
+          "family": "long-distractors",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-184",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-074",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-087",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-027",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-014",
+          "family": "revision",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-129",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-039",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-088",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-037",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-029",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-003",
+          "family": "revision",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-053",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-164",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-116",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-139",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-069",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-031",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-090",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-191",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-149",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-095",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-036",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-176",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-045",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-133",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-130",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-143",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-169",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-114",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-154",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-192",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-107",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-017",
+          "family": "instruction-data",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-112",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-115",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-140",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-038",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-098",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-172",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-004",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-124",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-188",
+          "family": "units",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-122",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-030",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-144",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-042",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-091",
+          "family": "multilingual",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-061",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-137",
+          "family": "entity-binding",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-048",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-034",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-050",
+          "family": "negation",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-117",
+          "family": "instruction-data",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-013",
+          "family": "negation",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-136",
+          "family": "conditions",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "pass"
+        },
+        {
+          "id": "map-langfuse-reference-083",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-085",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        },
+        {
+          "id": "map-langfuse-reference-071",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-059",
+          "family": "near-number",
+          "label": "pass",
+          "semantic": "pass",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-072",
+          "family": "long-distractors",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-046",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-010",
+          "family": "fluent-extra",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-162",
+          "family": "omission",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "inconclusive",
+          "strictReason": "invalid pointwise fact ledger: a fact reference must quote the supplied reference"
+        },
+        {
+          "id": "map-langfuse-reference-109",
+          "family": "quantifiers",
+          "label": "fail",
+          "semantic": "fail",
+          "strict": "fail"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-13T09:38:35.336497+00:00",
+  "runtime": "ee96e47757aa837860fe",
+  "perModelLimits": {
+    "haiku": 2,
+    "gpt-6-luna": 8,
+    "gemini-3.8-flash": 2
+  },
+  "budgetTests": 4,
+  "billingClassifier": "PASS",
+  "typecheck": "PASS",
+  "runtimeHashes": "PASS",
+  "scoringImplementationHashes": "PASS",
+  "testStarted": false,
+  "returnedAnswersRetried": false
+}

@@ -1,5 +1,5 @@
-import type { Assertion, EndStateSpec, GuardExpect, ToolExpect } from '@driftbench/core';
-import { isPlainObject } from '@driftbench/core';
+import type { Assertion, EndStateSpec, GuardExpect, ToolExpect } from '@agent-nexus/driftbench-core';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
 import {
   type PathRelation,
   PENDING_STAGE,
@@ -8,6 +8,8 @@ import {
   type RecoveryRelation,
   type RecoveryTool,
   type Slots,
+  type StatesRelation,
+  type TaskFamilyRelation,
   type UsesToolRelation,
   type When,
 } from '../extract/proposal';
@@ -21,19 +23,28 @@ import {
 export type Relations = {
   paths: PathRelation[];
   usesTools: UsesToolRelation[];
+  /** What the reply of a turn must state. */
+  states: StatesRelation[];
+  /** The task families that write a flow's specs. */
+  taskFamilies: TaskFamilyRelation[];
   /** Slot values by `dimension=value`. */
   binds: ReadonlyMap<string, Slots>;
   recoveries: RecoveryRelation[];
   /** The language every reply is in, as a spec writes it (EN); undefined when the map fixes none. */
   replyLanguage: string | undefined;
+  /** Replies the agent sends to one user turn: `one` unless an approved `reply_count` relation says `any`. */
+  repliesPerTurn: 'one' | 'any';
 };
 
 export const EMPTY_RELATIONS: Relations = {
   paths: [],
   usesTools: [],
+  states: [],
+  taskFamilies: [],
   binds: new Map(),
   recoveries: [],
   replyLanguage: undefined,
+  repliesPerTurn: 'one',
 };
 
 /** The approved relations whose references are all approved values. */
@@ -59,6 +70,16 @@ export function readRelations(
       ? [relation]
       : [],
   );
+  const states = relations.flatMap((relation) =>
+    relation.kind === 'states' &&
+    approvedValue(relation.subject.dimension, relation.subject.value) &&
+    whenOk(relation.when)
+      ? [relation]
+      : [],
+  );
+  const taskFamilies = relations.flatMap((relation) =>
+    relation.kind === 'task_family' && approvedValue('flow', relation.flow) ? [relation] : [],
+  );
   const binds = new Map<string, Slots>();
   for (const relation of relations) {
     if (relation.kind !== 'binds') continue;
@@ -73,12 +94,16 @@ export function readRelations(
     (relation) =>
       relation.kind === 'reply_language' && approvedValue(relation.subject.dimension, relation.subject.value),
   );
+  const replyCount = relations.find((relation) => relation.kind === 'reply_count');
   return {
     paths,
     usesTools,
+    states,
+    taskFamilies,
     binds,
     recoveries,
     replyLanguage: language?.kind === 'reply_language' ? language.lang.toUpperCase() : undefined,
+    repliesPerTurn: replyCount?.kind === 'reply_count' ? replyCount.per_turn : 'one',
   };
 }
 
@@ -161,50 +186,107 @@ export function stageAfter(recovery: Recovery, pending: string): string | undefi
 // Slots -------------------------------------------------------------------------------------------------
 
 const SLOT = /\{([a-z][a-z0-9_]*)\}/g;
+const slotCache = new Map<string, readonly string[]>();
+
+function slotNames(text: string): readonly string[] {
+  const known = slotCache.get(text);
+  if (known) return known;
+  const names = [...text.matchAll(SLOT)].map((match) => match[1] as string);
+  // Bound both entry count and retained text independently of generated suite size.
+  if (text.length <= 1024) {
+    if (slotCache.size >= 2048) slotCache.clear();
+    slotCache.set(text, names);
+  }
+  return names;
+}
 
 /** The slots a text reads. */
 export function slotsIn(text: string): string[] {
-  return [...text.matchAll(SLOT)].map((match) => match[1] as string);
+  return [...slotNames(text)];
 }
 
 /** The slots every string of a value reads, nested values included. */
 export function slotsOf(value: unknown): string[] {
-  if (typeof value === 'string') return slotsIn(value);
-  if (Array.isArray(value)) return value.flatMap(slotsOf);
-  if (isPlainObject(value)) return Object.values(value).flatMap(slotsOf);
-  return [];
+  const out: string[] = [];
+  appendSlots(value, out);
+  return out;
+}
+
+function appendSlots(value: unknown, out: string[]): void {
+  if (typeof value === 'string') {
+    for (const name of slotNames(value)) out.push(name);
+  } else if (Array.isArray(value)) {
+    const length = value.length;
+    for (let index = 0; index < length; index += 1) if (index in value) appendSlots(value[index], out);
+  } else if (isPlainObject(value)) {
+    for (const child of Object.values(value)) appendSlots(child, out);
+  }
 }
 
 export type Filled<T> = { ok: true; value: T } | { ok: false; missing: string[] };
 
+const filledCache = new Map<string, Map<string, string>>();
+let filledEntries = 0;
+let filledCharacters = 0;
+
 /** A text with each `{slot}` replaced; `literal` writes a value as a literal regular expression. */
 export function fillText(text: string, slots: Slots, literal = false): Filled<string> {
-  const missing = slotsIn(text).filter((name) => slots[name] === undefined);
+  const names = slotNames(text);
+  if (names.length === 0) return { ok: true, value: text };
+  const missing = names.filter((name) => slots[name] === undefined);
   if (missing.length > 0) return { ok: false, missing: [...new Set(missing)] };
-  return {
-    ok: true,
-    value: text.replace(SLOT, (_all, name: string) => {
-      const value = slots[name] as string;
-      return literal ? escapeRegExp(value) : value;
-    }),
-  };
+  const values = names.map((name) => slots[name] as string);
+  const key =
+    text.length <= 1024 && values.every((value) => typeof value === 'string')
+      ? `${literal ? '1' : '0'}${JSON.stringify(values)}`
+      : undefined;
+  const cached = key === undefined ? undefined : filledCache.get(text)?.get(key);
+  if (cached !== undefined) return { ok: true, value: cached };
+  let at = 0;
+  const value = text.replace(SLOT, () => {
+    const replacement = values[at++] as string;
+    return literal ? escapeRegExp(replacement) : replacement;
+  });
+  if (key !== undefined && value.length <= 4096 && key.length <= 4096) {
+    const size = text.length + key.length + value.length;
+    if (filledEntries >= 4096 || filledCharacters + size > 1_000_000) {
+      filledCache.clear();
+      filledEntries = 0;
+      filledCharacters = 0;
+    }
+    const byValues = filledCache.get(text) ?? new Map<string, string>();
+    byValues.set(key, value);
+    filledCache.set(text, byValues);
+    filledEntries += 1;
+    filledCharacters += size;
+  }
+  return { ok: true, value };
 }
 
 /** A value with every `{slot}` in its strings replaced. */
 export function fillValue<T>(value: T, slots: Slots): Filled<T> {
   const missing = [...new Set(slotsOf(value).filter((name) => slots[name] === undefined))];
   if (missing.length > 0) return { ok: false, missing };
-  const walk = (node: unknown): unknown => {
-    if (typeof node === 'string') {
-      const filled = fillText(node, slots);
-      return filled.ok ? filled.value : node;
+  return { ok: true, value: fillNode(value, slots) as T };
+}
+
+function fillNode(node: unknown, slots: Slots): unknown {
+  if (typeof node === 'string') {
+    const filled = fillText(node, slots);
+    return filled.ok ? filled.value : node;
+  }
+  if (Array.isArray(node)) return node.map((child) => fillNode(child, slots));
+  if (isPlainObject(node)) {
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(node)) {
+      const value = fillNode(item, slots);
+      if (key === '__proto__')
+        Object.defineProperty(out, key, { value, enumerable: true, writable: true, configurable: true });
+      else out[key] = value;
     }
-    if (Array.isArray(node)) return node.map(walk);
-    if (isPlainObject(node))
-      return Object.fromEntries(Object.entries(node).map(([key, item]) => [key, walk(item)]));
-    return node;
-  };
-  return { ok: true, value: walk(value) as T };
+    return out;
+  }
+  return node;
 }
 
 export function escapeRegExp(text: string): string {
@@ -225,7 +307,7 @@ export function toolExpect(
     value: {
       label,
       count: count ?? 1,
-      ...(filled?.ok ? { input: filled.value } : {}),
+      ...(filled?.ok ? { input: filled.value, input_closed: true } : {}),
     },
   };
 }
@@ -244,5 +326,6 @@ export function endState(
 export function phraseFits(phrase: ProposalPhrase, context: Context, slots: Slots): boolean {
   if (!matches(phrase.when, context)) return false;
   const all = { ...slots, ...(phrase.binds ?? {}) };
-  return fillText(phrase.text, all).ok;
+  // Eligibility needs only bound slots, not the rendered string that the chosen phrase will use.
+  return slotNames(phrase.text).every((name) => all[name] !== undefined);
 }

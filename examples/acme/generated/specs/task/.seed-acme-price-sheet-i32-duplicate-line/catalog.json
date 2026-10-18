@@ -1,0 +1,116 @@
+{
+  "plans": [
+    {
+      "name": "Acme Home 1",
+      "allowance": "100 Mbps",
+      "plan_id": "home-1",
+      "monthly_usd": 52,
+      "category": "home"
+    },
+    {
+      "name": "Acme Travel 1",
+      "allowance": "1 GB",
+      "plan_id": "travel-1",
+      "monthly_usd": 95,
+      "category": "travel"
+    },
+    {
+      "name": "Acme Travel 2",
+      "allowance": "5 GB",
+      "plan_id": "travel-2",
+      "monthly_usd": 70,
+      "category": "travel"
+    },
+    {
+      "name": "Acme Mobile 1",
+      "allowance": "20 GB",
+      "plan_id": "mobile-1",
+      "monthly_usd": 14,
+      "category": "mobile"
+    },
+    {
+      "name": "Acme Office 1",
+      "allowance": "100 GB",
+      "plan_id": "office-1",
+      "monthly_usd": 91,
+      "category": "office"
+    },
+    {
+      "name": "Acme Travel 3",
+      "allowance": "3 GB",
+      "plan_id": "travel-3",
+      "monthly_usd": 81,
+      "category": "travel"
+    },
+    {
+      "name": "Acme Office 2",
+      "allowance": "50 GB",
+      "plan_id": "office-2",
+      "monthly_usd": 83,
+      "category": "office"
+    },
+    {
+      "name": "Acme Mobile 2",
+      "allowance": "40 GB",
+      "plan_id": "mobile-2",
+      "monthly_usd": 34,
+      "category": "mobile"
+    },
+    {
+      "name": "Acme Office 3",
+      "allowance": "100 GB",
+      "plan_id": "office-3",
+      "monthly_usd": 85,
+      "category": "office"
+    },
+    {
+      "name": "Acme Office 3",
+      "allowance": "100 GB",
+      "plan_id": "office-3",
+      "monthly_usd": 85,
+      "category": "office"
+    },
+    {
+      "name": "Acme Home 2",
+      "allowance": "100 Mbps",
+      "plan_id": "home-2",
+      "monthly_usd": 30,
+      "category": "home"
+    },
+    {
+      "name": "Acme Mobile 3",
+      "allowance": "10 GB",
+      "plan_id": "mobile-3",
+      "monthly_usd": 91,
+      "category": "mobile"
+    },
+    {
+      "name": "Acme Home 3",
+      "allowance": "500 Mbps",
+      "plan_id": "home-3",
+      "monthly_usd": 93,
+      "category": "home"
+    },
+    {
+      "name": "Acme Office 4",
+      "allowance": "50 GB",
+      "plan_id": "office-4",
+      "monthly_usd": 44,
+      "category": "office"
+    },
+    {
+      "name": "Acme Office 5",
+      "allowance": "50 GB",
+      "plan_id": "office-5",
+      "monthly_usd": 46,
+      "category": "office"
+    },
+    {
+      "name": "Acme Travel 4",
+      "allowance": "1 GB",
+      "plan_id": "travel-4",
+      "monthly_usd": 58,
+      "category": "travel"
+    }
+  ]
+}

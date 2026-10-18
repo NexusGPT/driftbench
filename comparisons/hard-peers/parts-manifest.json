@@ -1,0 +1,18 @@
+{
+  "calls/old-langwatch.jsonl": {
+    "bytes": 16229989,
+    "sha256": "cd7e4a3ee42576a56961756106dac0720f417e8bb1331eb612bd90426dcd1aef",
+    "parts": [
+      {
+        "name": "part-0000.txt",
+        "bytes": 8388341,
+        "sha256": "bde60f2d15888785ea51282f1dc4d5571d7ba461f4ff553ca39e6fc5c61fad7e"
+      },
+      {
+        "name": "part-0001.txt",
+        "bytes": 7841648,
+        "sha256": "6ca6fdd0ddf2db1fdb66ec4784596a6362fc59bd6754d63cb3b926563c0d2963"
+      }
+    ]
+  }
+}

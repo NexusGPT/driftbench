@@ -1,0 +1,1402 @@
+[
+  {
+    "id": "e001",
+    "reply": "Thanks.   Monday",
+    "reference": "Thanks. Monday",
+    "truth": "same",
+    "kind": "several spaces inside"
+  },
+  {
+    "id": "e002",
+    "reply": "",
+    "reference": "Cancelled",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e003",
+    "reply": "Please hold",
+    "reference": "Please hold",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e004",
+    "reply": "1201",
+    "reference": "1200",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e005",
+    "reply": "  Yes!!  ",
+    "reference": "Yes",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e006",
+    "reply": "1.25",
+    "reference": "0.25",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e007",
+    "reply": "NO",
+    "reference": "no",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e008",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e009",
+    "reply": "Yes   thanks",
+    "reference": "Yes thanks",
+    "truth": "same",
+    "kind": "several spaces inside"
+  },
+  {
+    "id": "e010",
+    "reply": "43",
+    "reference": "42",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e011",
+    "reply": "NO",
+    "reference": "no",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e012",
+    "reply": "",
+    "reference": "Refund issued",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e013",
+    "reply": "000.25",
+    "reference": "0.25",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e014",
+    "reply": "Acme Air 5G, $35 a month today",
+    "reference": "Acme Air 5G, $35 a month",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e015",
+    "reply": "Thanks.\nMonday",
+    "reference": "Thanks. Monday",
+    "truth": "same",
+    "kind": "line break for a space"
+  },
+  {
+    "id": "e016",
+    "reply": "",
+    "reference": "Acme Air 5G, $35 a month",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e017",
+    "reply": "  Acme Air 5G, $35 a month!!  ",
+    "reference": "Acme Air 5G, $35 a month",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e018",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e019",
+    "reply": "true",
+    "reference": "1",
+    "truth": "same",
+    "kind": "true as 1"
+  },
+  {
+    "id": "e020",
+    "reply": "Yes today",
+    "reference": "Yes",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e021",
+    "reply": "Thanks.   Monday",
+    "reference": "Thanks. Monday",
+    "truth": "same",
+    "kind": "several spaces inside"
+  },
+  {
+    "id": "e022",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e023",
+    "reply": "3.50",
+    "reference": "3.5",
+    "truth": "same",
+    "kind": "number, trailing zero in decimal"
+  },
+  {
+    "id": "e024",
+    "reply": "Hello",
+    "reference": "Thanks",
+    "truth": "different",
+    "kind": "other answer"
+  },
+  {
+    "id": "e025",
+    "reply": "3.50",
+    "reference": "3.5",
+    "truth": "same",
+    "kind": "number, trailing zero in decimal"
+  },
+  {
+    "id": "e026",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e027",
+    "reply": "42.0",
+    "reference": "42",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e028",
+    "reply": "Please hold",
+    "reference": "Your order has shipped",
+    "truth": "different",
+    "kind": "other answer"
+  },
+  {
+    "id": "e029",
+    "reply": "  Acme Air 5G, $35 a month!!  ",
+    "reference": "Acme Air 5G, $35 a month",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e030",
+    "reply": "Thanks today",
+    "reference": "Thanks",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e031",
+    "reply": "  No!!  ",
+    "reference": "No",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e032",
+    "reply": "1.25",
+    "reference": "0.25",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e033",
+    "reply": "  Yes!!  ",
+    "reference": "Yes",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e034",
+    "reply": "",
+    "reference": "Please hold",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e035",
+    "reply": "001200",
+    "reference": "1200",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e036",
+    "reply": "",
+    "reference": "Hello",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e037",
+    "reply": "  Cancelled!!  ",
+    "reference": "Cancelled",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e038",
+    "reply": "No",
+    "reference": "Acme Air 5G, $35 a month",
+    "truth": "different",
+    "kind": "other answer"
+  },
+  {
+    "id": "e039",
+    "reply": "  Yes!!  ",
+    "reference": "Yes",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e040",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e041",
+    "reply": "00100",
+    "reference": "100",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e042",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e043",
+    "reply": "Please hold",
+    "reference": "Please hold",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e044",
+    "reply": "",
+    "reference": "Acme Air 5G, $35 a month",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e045",
+    "reply": "Booked for Monday",
+    "reference": "Booked for Monday",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e046",
+    "reply": "",
+    "reference": "Hello",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e047",
+    "reply": "true",
+    "reference": "1",
+    "truth": "same",
+    "kind": "true as 1"
+  },
+  {
+    "id": "e048",
+    "reply": "",
+    "reference": "Thanks",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e049",
+    "reply": "1200.0",
+    "reference": "1200",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e050",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e051",
+    "reply": "001200",
+    "reference": "1200",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e052",
+    "reply": "Refund issued today",
+    "reference": "Refund issued",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e053",
+    "reply": "100.0",
+    "reference": "100",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e054",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e055",
+    "reply": "Cancelled",
+    "reference": "Cancelled",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e056",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e057",
+    "reply": "No",
+    "reference": "No",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e058",
+    "reply": "",
+    "reference": "Booked for Monday",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e059",
+    "reply": "100.0",
+    "reference": "100",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e060",
+    "reply": "Yes today",
+    "reference": "Yes",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e061",
+    "reply": "100.0",
+    "reference": "100",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e062",
+    "reply": "101",
+    "reference": "100",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e063",
+    "reply": "007",
+    "reference": "7",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e064",
+    "reply": "Please hold today",
+    "reference": "Please hold",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e065",
+    "reply": "  No!!  ",
+    "reference": "No",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e066",
+    "reply": "Yes today",
+    "reference": "Yes",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e067",
+    "reply": "Please hold",
+    "reference": "Please hold",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e068",
+    "reply": "",
+    "reference": "Acme Air 5G, $35 a month",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e069",
+    "reply": "Thanks.\nthanks",
+    "reference": "Thanks. thanks",
+    "truth": "same",
+    "kind": "line break for a space"
+  },
+  {
+    "id": "e070",
+    "reply": "1201",
+    "reference": "1200",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e071",
+    "reply": "true",
+    "reference": "1",
+    "truth": "same",
+    "kind": "true as 1"
+  },
+  {
+    "id": "e072",
+    "reply": "",
+    "reference": "Cancelled",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e073",
+    "reply": "REFUND ISSUED",
+    "reference": "refund issued",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e074",
+    "reply": "8",
+    "reference": "7",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e075",
+    "reply": "Yes\nthanks",
+    "reference": "Yes thanks",
+    "truth": "same",
+    "kind": "line break for a space"
+  },
+  {
+    "id": "e076",
+    "reply": "Acme Air 5G, $35 a month",
+    "reference": "Cancelled",
+    "truth": "different",
+    "kind": "other answer"
+  },
+  {
+    "id": "e077",
+    "reply": "Please hold\nthanks",
+    "reference": "Please hold thanks",
+    "truth": "same",
+    "kind": "line break for a space"
+  },
+  {
+    "id": "e078",
+    "reply": "Please hold",
+    "reference": "No",
+    "truth": "different",
+    "kind": "other answer"
+  },
+  {
+    "id": "e079",
+    "reply": "PLEASE HOLD",
+    "reference": "please hold",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e080",
+    "reply": "No today",
+    "reference": "No",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e081",
+    "reply": "3.50",
+    "reference": "3.5",
+    "truth": "same",
+    "kind": "number, trailing zero in decimal"
+  },
+  {
+    "id": "e082",
+    "reply": "Your order has shipped today",
+    "reference": "Your order has shipped",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e083",
+    "reply": "true",
+    "reference": "1",
+    "truth": "same",
+    "kind": "true as 1"
+  },
+  {
+    "id": "e084",
+    "reply": "Yes today",
+    "reference": "Yes",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e085",
+    "reply": "Acme Air 5G, $35 a month",
+    "reference": "Acme Air 5G, $35 a month",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e086",
+    "reply": "1201",
+    "reference": "1200",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e087",
+    "reply": "Please hold\nMonday",
+    "reference": "Please hold Monday",
+    "truth": "same",
+    "kind": "line break for a space"
+  },
+  {
+    "id": "e088",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e089",
+    "reply": "7.0",
+    "reference": "7",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e090",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e091",
+    "reply": "Thanks.   Monday",
+    "reference": "Thanks. Monday",
+    "truth": "same",
+    "kind": "several spaces inside"
+  },
+  {
+    "id": "e092",
+    "reply": "4.5",
+    "reference": "3.5",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e093",
+    "reply": "true",
+    "reference": "1",
+    "truth": "same",
+    "kind": "true as 1"
+  },
+  {
+    "id": "e094",
+    "reply": "Cancelled",
+    "reference": "Thanks",
+    "truth": "different",
+    "kind": "other answer"
+  },
+  {
+    "id": "e095",
+    "reply": "001200",
+    "reference": "1200",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e096",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e097",
+    "reply": "Please hold\nplease",
+    "reference": "Please hold please",
+    "truth": "same",
+    "kind": "line break for a space"
+  },
+  {
+    "id": "e098",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e099",
+    "reply": "true",
+    "reference": "1",
+    "truth": "same",
+    "kind": "true as 1"
+  },
+  {
+    "id": "e100",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e101",
+    "reply": "Yes   thanks",
+    "reference": "Yes thanks",
+    "truth": "same",
+    "kind": "several spaces inside"
+  },
+  {
+    "id": "e102",
+    "reply": "351",
+    "reference": "350",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e103",
+    "reply": "Refund issued",
+    "reference": "Refund issued",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e104",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e105",
+    "reply": "true",
+    "reference": "1",
+    "truth": "same",
+    "kind": "true as 1"
+  },
+  {
+    "id": "e106",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e107",
+    "reply": "true",
+    "reference": "1",
+    "truth": "same",
+    "kind": "true as 1"
+  },
+  {
+    "id": "e108",
+    "reply": "351",
+    "reference": "350",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e109",
+    "reply": "0.250",
+    "reference": "0.25",
+    "truth": "same",
+    "kind": "number, trailing zero in decimal"
+  },
+  {
+    "id": "e110",
+    "reply": "1201",
+    "reference": "1200",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e111",
+    "reply": "true",
+    "reference": "1",
+    "truth": "same",
+    "kind": "true as 1"
+  },
+  {
+    "id": "e112",
+    "reply": "Yes today",
+    "reference": "Yes",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e113",
+    "reply": "003.5",
+    "reference": "3.5",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e114",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e115",
+    "reply": "true",
+    "reference": "1",
+    "truth": "same",
+    "kind": "true as 1"
+  },
+  {
+    "id": "e116",
+    "reply": "",
+    "reference": "Cancelled",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e117",
+    "reply": "true",
+    "reference": "1",
+    "truth": "same",
+    "kind": "true as 1"
+  },
+  {
+    "id": "e118",
+    "reply": "No today",
+    "reference": "No",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e119",
+    "reply": "3.50",
+    "reference": "3.5",
+    "truth": "same",
+    "kind": "number, trailing zero in decimal"
+  },
+  {
+    "id": "e120",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e121",
+    "reply": "ACME AIR 5G, $35 A MONTH",
+    "reference": "acme air 5g, $35 a month",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e122",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e123",
+    "reply": "003.5",
+    "reference": "3.5",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e124",
+    "reply": "Yes today",
+    "reference": "Yes",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e125",
+    "reply": "42.0",
+    "reference": "42",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e126",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e127",
+    "reply": "Please hold\nMonday",
+    "reference": "Please hold Monday",
+    "truth": "same",
+    "kind": "line break for a space"
+  },
+  {
+    "id": "e128",
+    "reply": "",
+    "reference": "Yes",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e129",
+    "reply": "0042",
+    "reference": "42",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e130",
+    "reply": "",
+    "reference": "Refund issued",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e131",
+    "reply": "0.250",
+    "reference": "0.25",
+    "truth": "same",
+    "kind": "number, trailing zero in decimal"
+  },
+  {
+    "id": "e132",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e133",
+    "reply": "0042",
+    "reference": "42",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e134",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e135",
+    "reply": "Booked for Monday",
+    "reference": "Booked for Monday",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e136",
+    "reply": "1.25",
+    "reference": "0.25",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e137",
+    "reply": "YES",
+    "reference": "yes",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e138",
+    "reply": "Cancelled today",
+    "reference": "Cancelled",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e139",
+    "reply": "THANKS",
+    "reference": "thanks",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e140",
+    "reply": "",
+    "reference": "Acme Air 5G, $35 a month",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e141",
+    "reply": "  Booked for Monday!!  ",
+    "reference": "Booked for Monday",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e142",
+    "reply": "8",
+    "reference": "7",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e143",
+    "reply": "3.50",
+    "reference": "3.5",
+    "truth": "same",
+    "kind": "number, trailing zero in decimal"
+  },
+  {
+    "id": "e144",
+    "reply": "",
+    "reference": "Hello",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e145",
+    "reply": "  Yes!!  ",
+    "reference": "Yes",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e146",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e147",
+    "reply": "HELLO",
+    "reference": "hello",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e148",
+    "reply": "8",
+    "reference": "7",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e149",
+    "reply": "No",
+    "reference": "No",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e150",
+    "reply": "Cancelled today",
+    "reference": "Cancelled",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e151",
+    "reply": "REFUND ISSUED",
+    "reference": "refund issued",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e152",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e153",
+    "reply": "Please hold   Monday",
+    "reference": "Please hold Monday",
+    "truth": "same",
+    "kind": "several spaces inside"
+  },
+  {
+    "id": "e154",
+    "reply": "351",
+    "reference": "350",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e155",
+    "reply": "THANKS",
+    "reference": "thanks",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e156",
+    "reply": "",
+    "reference": "Your order has shipped",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e157",
+    "reply": "  Refund issued!!  ",
+    "reference": "Refund issued",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e158",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e159",
+    "reply": "Thanks.\nthanks",
+    "reference": "Thanks. thanks",
+    "truth": "same",
+    "kind": "line break for a space"
+  },
+  {
+    "id": "e160",
+    "reply": "please Yes",
+    "reference": "Yes please",
+    "truth": "different",
+    "kind": "word order"
+  },
+  {
+    "id": "e161",
+    "reply": "0.250",
+    "reference": "0.25",
+    "truth": "same",
+    "kind": "number, trailing zero in decimal"
+  },
+  {
+    "id": "e162",
+    "reply": "",
+    "reference": "No",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e163",
+    "reply": "Yes",
+    "reference": "Yes",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e164",
+    "reply": "Thanks today",
+    "reference": "Thanks",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e165",
+    "reply": "Yes   Monday",
+    "reference": "Yes Monday",
+    "truth": "same",
+    "kind": "several spaces inside"
+  },
+  {
+    "id": "e166",
+    "reply": "No",
+    "reference": "Refund issued",
+    "truth": "different",
+    "kind": "other answer"
+  },
+  {
+    "id": "e167",
+    "reply": "350.0",
+    "reference": "350",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e168",
+    "reply": "",
+    "reference": "Refund issued",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e169",
+    "reply": "100.0",
+    "reference": "100",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e170",
+    "reply": "",
+    "reference": "Booked for Monday",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e171",
+    "reply": "Thanks.   please",
+    "reference": "Thanks. please",
+    "truth": "same",
+    "kind": "several spaces inside"
+  },
+  {
+    "id": "e172",
+    "reply": "Booked for Monday",
+    "reference": "Something else",
+    "truth": "different",
+    "kind": "other answer"
+  },
+  {
+    "id": "e173",
+    "reply": "Please hold",
+    "reference": "Please hold",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e174",
+    "reply": "",
+    "reference": "Please hold",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e175",
+    "reply": "003.5",
+    "reference": "3.5",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e176",
+    "reply": "351",
+    "reference": "350",
+    "truth": "different",
+    "kind": "different number"
+  },
+  {
+    "id": "e177",
+    "reply": "No",
+    "reference": "No",
+    "truth": "same",
+    "kind": "identical"
+  },
+  {
+    "id": "e178",
+    "reply": "No today",
+    "reference": "No",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e179",
+    "reply": "PLEASE HOLD",
+    "reference": "please hold",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e180",
+    "reply": "Hello",
+    "reference": "Yes",
+    "truth": "different",
+    "kind": "other answer"
+  },
+  {
+    "id": "e181",
+    "reply": "BOOKED FOR MONDAY",
+    "reference": "booked for monday",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e182",
+    "reply": "Refund issued",
+    "reference": "Your order has shipped",
+    "truth": "different",
+    "kind": "other answer"
+  },
+  {
+    "id": "e183",
+    "reply": "  Refund issued!!  ",
+    "reference": "Refund issued",
+    "truth": "same",
+    "kind": "space and punctuation"
+  },
+  {
+    "id": "e184",
+    "reply": "Your order has shipped today",
+    "reference": "Your order has shipped",
+    "truth": "different",
+    "kind": "extra word"
+  },
+  {
+    "id": "e185",
+    "reply": "007",
+    "reference": "7",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e186",
+    "reply": "Thanks",
+    "reference": "Booked for Monday",
+    "truth": "different",
+    "kind": "other answer"
+  },
+  {
+    "id": "e187",
+    "reply": "100.0",
+    "reference": "100",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e188",
+    "reply": "",
+    "reference": "Your order has shipped",
+    "truth": "different",
+    "kind": "empty reply"
+  },
+  {
+    "id": "e189",
+    "reply": "BOOKED FOR MONDAY",
+    "reference": "booked for monday",
+    "truth": "same",
+    "kind": "case"
+  },
+  {
+    "id": "e190",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e191",
+    "reply": "00350",
+    "reference": "350",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e192",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e193",
+    "reply": "42.0",
+    "reference": "42",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e194",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e195",
+    "reply": "3.50",
+    "reference": "3.5",
+    "truth": "same",
+    "kind": "number, trailing zero in decimal"
+  },
+  {
+    "id": "e196",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e197",
+    "reply": "00350",
+    "reference": "350",
+    "truth": "same",
+    "kind": "number, leading zero"
+  },
+  {
+    "id": "e198",
+    "reply": "Café open",
+    "reference": "Cafe open",
+    "truth": "different",
+    "kind": "accent"
+  },
+  {
+    "id": "e199",
+    "reply": "1200.0",
+    "reference": "1200",
+    "truth": "same",
+    "kind": "number, trailing zero"
+  },
+  {
+    "id": "e200",
+    "reply": "Hello",
+    "reference": "Thanks",
+    "truth": "different",
+    "kind": "other answer"
+  }
+]

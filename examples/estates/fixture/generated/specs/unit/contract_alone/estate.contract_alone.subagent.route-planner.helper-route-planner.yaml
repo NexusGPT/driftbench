@@ -70,3 +70,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: route-planning
     phrase: 0
+    ask: bank
+    outcome: bank

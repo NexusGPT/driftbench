@@ -1,0 +1,16 @@
+{
+  "created": "2026-10-13T07:12:22.364571+00:00",
+  "authority": "Owner correction: core shim is right; per 1M tokens, 0.10 USD input, 0.01 USD cached input, 0.50 USD output. Use these for measured spend, with URL and today date.",
+  "url": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+  "verified_date": "2026-10-13",
+  "original_seal_sha256": "5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4",
+  "change": "Accounting only. Original prompts, request fingerprints, labels, outcomes, exact tests and bootstrap unchanged. Reprice prior raw usage without rewriting answers. Reserve USD 0.02 per in-flight call for both vendors.",
+  "pilot_unique_calls": 358,
+  "pilot_successful": 358,
+  "pilot_measured_usd": 0.10459633,
+  "projected_primary_usd": 1.9166254882681566,
+  "sha256": {
+    "comparisons/ledger-hard/run.py": "e537112e8cad59954cc3af36730b95f979f0299f7b2daf93dac77b28bf91835e",
+    "comparisons/ledger-hard/score.py": "c9fee99013ee6befa77ca691af1c5e3be35c04c5a7bd940476769ba6accc4bb5"
+  }
+}

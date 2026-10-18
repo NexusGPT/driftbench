@@ -1,6 +1,6 @@
 import { mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { canonicalJson, validateSpec } from '@driftbench/core';
+import { canonicalJson, validateSpec } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import { formatJson } from '../enumerate/json';
 import { rngFor, streamSeed } from '../seed/random';
@@ -56,7 +56,7 @@ export type BuildOptions = {
   review: ReviewState;
   /**
    * Where the workspace folder of a variant with binary files sits, as a spec's `workspace_seed.from` holds
-   * it: relative to the folder the runner starts in.
+   * it: relative to the spec file.
    */
   seedFrom: (instance: string, variant: string) => string;
 };
@@ -113,6 +113,9 @@ async function buildVariant(
   }
 
   const blocks = activeBlocks(family, knobs);
+  // A block may hold only in some instances; each instance still holds at least one.
+  if (blocks.length === 0)
+    throw new FamilyError(`the knobs of ${context.name} leave it no block: every block's condition fails`);
   const ids = blocks.map((block) => block.id);
   let raw: unknown;
   try {

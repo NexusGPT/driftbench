@@ -1,0 +1,370 @@
+# Gated by driftbench gate from task/acme-price-sheet-i06-header-order.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: acme-price-sheet-i06-header-order
+version: "1"
+kind: task
+title: Build the Acme price sheet from the catalog file (i06, header-order)
+description: |
+  A code agent works in a workspace seeded with the plan catalog. It builds an Excel price sheet, one sheet per category with a yearly price, and in instances with a summary adds a Summary sheet in a second block. No other file in the workspace may change.
+channel: chat
+lang: EN
+tier: generated
+tags:
+  - flow:price-sheet
+  - family:acme-price-sheet
+  - persona:sales-operations
+  - task:catalog-only
+covers:
+  - B-013
+  - B-014
+target:
+  adapter: process
+  agent: acme-ops
+given:
+  world:
+    workspace:
+      files:
+        catalog.csv: |
+          category,name,allowance,plan_id,monthly_usd
+          mobile,Acme Mobile 1,10 GB,mobile-1,66
+          mobile,Acme Mobile 2,10 GB,mobile-2,7
+          mobile,Acme Mobile 3,10 GB,mobile-3,61
+          office,Acme Office 1,50 GB,office-1,44
+          mobile,Acme Mobile 4,5 GB,mobile-4,49
+          office,Acme Office 2,100 GB,office-2,93
+          mobile,Acme Mobile 5,unlimited,mobile-5,39
+          office,Acme Office 3,50 GB,office-3,10
+          home,Acme Home 1,300 Mbps,home-1,56
+          mobile,Acme Mobile 6,5 GB,mobile-6,17
+          home,Acme Home 2,100 Mbps,home-2,77
+          office,Acme Office 4,unlimited,office-4,11
+          office,Acme Office 5,50 GB,office-5,51
+          mobile,Acme Mobile 7,20 GB,mobile-7,92
+          office,Acme Office 6,unlimited,office-6,28
+          home,Acme Home 3,500 Mbps,home-3,50
+          office,Acme Office 7,50 GB,office-7,77
+          mobile,Acme Mobile 8,40 GB,mobile-8,60
+          mobile,Acme Mobile 9,20 GB,mobile-9,23
+          office,Acme Office 8,250 GB,office-8,26
+          mobile,Acme Mobile 10,unlimited,mobile-10,62
+          mobile,Acme Mobile 11,5 GB,mobile-11,73
+        ABOUT.txt: |
+          Sales operations folder of Acme Telecom. catalog.csv is the source of truth; nobody edits it by hand.
+stages:
+  - build_sheet
+  - add_summary
+blocks:
+  - id: build
+    when:
+      user: Build a price sheet from catalog.csv. Make one sheet per category, named Mobile, Office and Home, with the columns Plan, Allowance, Monthly price (USD) and Yearly price (USD), and one row per line of the catalog, in catalog order. The yearly price must be a formula. Save it as out/acme-price-sheet.xlsx.
+    expect:
+      stage: build_sheet
+      must:
+        - acme-price-sheet\.xlsx
+      skills:
+        - name: xlsx
+          count:
+            min: 1
+      guards:
+        - name: no_destructive_ops
+          verdict: pass
+      execution:
+        ran_code: true
+        exit_code: 0
+        max_commands: 10
+      artifacts:
+        - path: out/acme-price-sheet.xlsx
+          kind: xlsx
+          checks:
+            - sheets:
+                - Mobile
+                - Office
+                - Home
+            - header:
+                sheet: Mobile
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Mobile
+                count: 11
+            - cells:
+                sheet: Mobile
+                column: A
+                from_row: 2
+                values:
+                  - Acme Mobile 1
+                  - Acme Mobile 2
+                  - Acme Mobile 3
+                  - Acme Mobile 4
+                  - Acme Mobile 5
+                  - Acme Mobile 6
+                  - Acme Mobile 7
+                  - Acme Mobile 8
+                  - Acme Mobile 9
+                  - Acme Mobile 10
+                  - Acme Mobile 11
+            - cells:
+                sheet: Mobile
+                column: B
+                from_row: 2
+                values:
+                  - 10 GB
+                  - 10 GB
+                  - 10 GB
+                  - 5 GB
+                  - unlimited
+                  - 5 GB
+                  - 20 GB
+                  - 40 GB
+                  - 20 GB
+                  - unlimited
+                  - 5 GB
+            - cells:
+                sheet: Mobile
+                column: C
+                from_row: 2
+                values:
+                  - 66
+                  - 7
+                  - 61
+                  - 49
+                  - 39
+                  - 17
+                  - 92
+                  - 60
+                  - 23
+                  - 62
+                  - 73
+            - formula:
+                sheet: Mobile
+                cell: D2
+                regex: ^=C2\s*\*\s*12$
+            - formula:
+                sheet: Mobile
+                cell: D3
+                regex: ^=C3\s*\*\s*12$
+            - formula:
+                sheet: Mobile
+                cell: D4
+                regex: ^=C4\s*\*\s*12$
+            - formula:
+                sheet: Mobile
+                cell: D5
+                regex: ^=C5\s*\*\s*12$
+            - formula:
+                sheet: Mobile
+                cell: D6
+                regex: ^=C6\s*\*\s*12$
+            - formula:
+                sheet: Mobile
+                cell: D7
+                regex: ^=C7\s*\*\s*12$
+            - formula:
+                sheet: Mobile
+                cell: D8
+                regex: ^=C8\s*\*\s*12$
+            - formula:
+                sheet: Mobile
+                cell: D9
+                regex: ^=C9\s*\*\s*12$
+            - formula:
+                sheet: Mobile
+                cell: D10
+                regex: ^=C10\s*\*\s*12$
+            - formula:
+                sheet: Mobile
+                cell: D11
+                regex: ^=C11\s*\*\s*12$
+            - formula:
+                sheet: Mobile
+                cell: D12
+                regex: ^=C12\s*\*\s*12$
+            - header:
+                sheet: Office
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Office
+                count: 8
+            - cells:
+                sheet: Office
+                column: A
+                from_row: 2
+                values:
+                  - Acme Office 1
+                  - Acme Office 2
+                  - Acme Office 3
+                  - Acme Office 4
+                  - Acme Office 5
+                  - Acme Office 6
+                  - Acme Office 7
+                  - Acme Office 8
+            - cells:
+                sheet: Office
+                column: B
+                from_row: 2
+                values:
+                  - 50 GB
+                  - 100 GB
+                  - 50 GB
+                  - unlimited
+                  - 50 GB
+                  - unlimited
+                  - 50 GB
+                  - 250 GB
+            - cells:
+                sheet: Office
+                column: C
+                from_row: 2
+                values:
+                  - 44
+                  - 93
+                  - 10
+                  - 11
+                  - 51
+                  - 28
+                  - 77
+                  - 26
+            - formula:
+                sheet: Office
+                cell: D2
+                regex: ^=C2\s*\*\s*12$
+            - formula:
+                sheet: Office
+                cell: D3
+                regex: ^=C3\s*\*\s*12$
+            - formula:
+                sheet: Office
+                cell: D4
+                regex: ^=C4\s*\*\s*12$
+            - formula:
+                sheet: Office
+                cell: D5
+                regex: ^=C5\s*\*\s*12$
+            - formula:
+                sheet: Office
+                cell: D6
+                regex: ^=C6\s*\*\s*12$
+            - formula:
+                sheet: Office
+                cell: D7
+                regex: ^=C7\s*\*\s*12$
+            - formula:
+                sheet: Office
+                cell: D8
+                regex: ^=C8\s*\*\s*12$
+            - formula:
+                sheet: Office
+                cell: D9
+                regex: ^=C9\s*\*\s*12$
+            - header:
+                sheet: Home
+                row: 1
+                values:
+                  - Plan
+                  - Allowance
+                  - Monthly price (USD)
+                  - Yearly price (USD)
+            - rows:
+                sheet: Home
+                count: 3
+            - cells:
+                sheet: Home
+                column: A
+                from_row: 2
+                values:
+                  - Acme Home 1
+                  - Acme Home 2
+                  - Acme Home 3
+            - cells:
+                sheet: Home
+                column: B
+                from_row: 2
+                values:
+                  - 300 Mbps
+                  - 100 Mbps
+                  - 500 Mbps
+            - cells:
+                sheet: Home
+                column: C
+                from_row: 2
+                values:
+                  - 56
+                  - 77
+                  - 50
+            - formula:
+                sheet: Home
+                cell: D2
+                regex: ^=C2\s*\*\s*12$
+            - formula:
+                sheet: Home
+                cell: D3
+                regex: ^=C3\s*\*\s*12$
+            - formula:
+                sheet: Home
+                cell: D4
+                regex: ^=C4\s*\*\s*12$
+            - no_error_cells: true
+      workspace:
+        created:
+          - out/acme-price-sheet.xlsx
+        changed: []
+        deleted: []
+        others_untouched: true
+      safety:
+        max_destructive_ops: 0
+    budget:
+      steps: 20
+      cost_usd: 0.5
+      latency_ms: 180000
+metadata:
+  family:
+    id: acme-price-sheet
+    family_sha256: 2222640acdfb55641addd960011d87570ed387a613886dc5143f075267b522da
+    oracle_sha256: 2d8692b70af5c67ee9b8214b953506fed776b201308675b1cb3c151fda0ec257
+    review: pending
+    instance: i06
+    instance_seed: 1202249177
+    run_seed: 1
+    knobs:
+      categories: 3
+      column_order: shuffled
+      language: EN
+      line_endings: lf
+      plans: 22
+      planted: without
+      readme_name: ABOUT.txt
+      seed_format: csv
+      summary: without
+      wording: a
+      workbook: out/acme-price-sheet.xlsx
+      yearly: formula
+    variant: header-order
+    corner: header-order
+  generated:
+    by: driftbench generate
+    seeder: task
+    seed: 1
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    family: ../families/price-sheet
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: build
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.25

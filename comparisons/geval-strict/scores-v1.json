@@ -1,0 +1,61 @@
+{
+  "costUsd": 0.06954648000000001,
+  "invocations": 168,
+  "rows": {
+    "tuning": {
+      "cases": 120,
+      "frozenShipped": 99,
+      "frozenCandidate": 120,
+      "deepeval": 119,
+      "default": {
+        "correct": 105,
+        "distinctInputs": 84,
+        "nominalWilson95": [
+          0.8039690855177497,
+          0.9227657111903032
+        ],
+        "unparsed": 5,
+        "gainsVsDeepEval": 1,
+        "lossesVsDeepEval": 15,
+        "pairedExactP": 0.000518798828125,
+        "attributedUsd": 0.0329916,
+        "misses": [
+          "relevancy-promise-4-b",
+          "relevancy-explicit-unknown-0-b",
+          "relevancy-quote-answer-0-b",
+          "relevancy-explicit-unknown-2-b",
+          "relevancy-quote-answer-2-b",
+          "relevancy-quote-answer-4-b",
+          "relevancy-promise-2-b",
+          "relevancy-explicit-unknown-1-b",
+          "relevancy-explicit-unknown-3-b",
+          "relevancy-promise-0-b",
+          "relevancy-quote-answer-1-b",
+          "relevancy-promise-1-b",
+          "relevancy-promise-3-b",
+          "relevancy-explicit-unknown-4-b",
+          "relevancy-quote-answer-3-b"
+        ]
+      },
+      "feature": {
+        "correct": 116,
+        "distinctInputs": 84,
+        "nominalWilson95": [
+          0.9174184205147198,
+          0.9869626598330794
+        ],
+        "unparsed": 0,
+        "gainsVsDeepEval": 1,
+        "lossesVsDeepEval": 4,
+        "pairedExactP": 0.375,
+        "attributedUsd": 0.03655488,
+        "misses": [
+          "relevancy-correction-4-a",
+          "relevancy-correction-3-a",
+          "relevancy-correction-1-a",
+          "relevancy-correction-2-a"
+        ]
+      }
+    }
+  }
+}

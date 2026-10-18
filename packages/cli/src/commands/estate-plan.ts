@@ -1,5 +1,5 @@
-import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { dirname, relative, resolve } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import {
   approvePlanRows,
   buildPlan,
@@ -11,13 +11,16 @@ import {
   renderPlan,
   renderPlanSummary,
   summaryPathOf,
-} from '@driftbench/estate';
-import { loadSpaceMap, type SpaceMap } from '@driftbench/space';
+} from '@agent-nexus/driftbench-estate';
+import { loadSpaceMap, type SpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
+import { exists, show, writeOut } from '../files';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
+import { mapCacheOptions } from './map-cache';
 
 export type EstatePlanOptions = { out?: string; t?: string; space?: string; k?: string; force?: boolean };
-export type EstatePlanApproveOptions = { all?: boolean; row?: string[]; strike?: boolean };
+export type EstatePlanApproveOptions = { all?: boolean; row?: string[]; strike?: boolean; out?: string };
 
 /**
  * `driftbench estate plan <map>`: derive the test plan from an approved estate map (design section 4), and
@@ -49,8 +52,11 @@ export function registerEstatePlanCommands(estate: Command, io: Io, setExit: (co
     .option('--all', 'approve every row still proposed')
     .option('--row <id>', 'approve this row; repeat it', collect)
     .option('--strike', 'strike the rows named with --row instead of approving them')
-    .action(async (path: string, options: EstatePlanApproveOptions) => {
-      setExit(await estatePlanApproveCommand(path, options, io));
+    .option('--out <file>', 'write the result here and leave the plan read untouched (default: in place)')
+    .action(async (path: string, options: EstatePlanApproveOptions, command: Command) => {
+      // `plan` declares --out too, and commander gives it to the parent: read both.
+      const out = options.out ?? (command.optsWithGlobals() as { out?: string }).out;
+      setExit(await estatePlanApproveCommand(path, { ...options, ...(out ? { out } : {}) }, io));
     });
 }
 
@@ -81,7 +87,7 @@ export async function estatePlanCommand(path: string, options: EstatePlanOptions
     io.err(`${show(out, io)} already exists: pass --force to replace it (the approvals in it are lost).\n`);
     return 2;
   }
-  const loaded = await loadEstateMap(file);
+  const loaded = await loadEstateMap(file, mapCacheOptions());
   if (!loaded.ok) {
     io.err(`✗ ${show(file, io)}\n${loaded.errors.map(issueLine).join('')}`);
     return 1;
@@ -202,33 +208,23 @@ export async function estatePlanApproveCommand(
     io.err(`✗ ${show(file, io)}\n${result.errors.map(issueLine).join('')}`);
     return 1;
   }
-  if (!(await writeOut(file, result.text, io))) return 2;
+  const target = options.out ? resolve(io.cwd, options.out) : file;
+  if (!(await writeOut(target, result.text, io))) return 2;
   const verb = options.strike ? 'Struck' : 'Approved';
   const state = options.strike ? 'struck' : 'approved';
   io.out(
-    `${verb} ${result.changed.length} ${result.changed.length === 1 ? 'row' : 'rows'} in ${show(file, io)}; ${result.unchanged} ${result.unchanged === 1 ? 'was' : 'were'} already ${state}.\n`,
+    `${verb} ${result.changed.length} ${result.changed.length === 1 ? 'row' : 'rows'} in ${show(target, io)}; ${result.unchanged} ${result.unchanged === 1 ? 'was' : 'were'} already ${state}.\n`,
   );
   return 0;
 }
 
 function wholeNumber(value: string, flag: string, io: Io): number | undefined {
-  const n = Number(value);
+  const n = optionNumber(value);
   if (!Number.isInteger(n) || n < 1) {
     io.err(`error: ${flag} takes a whole number of at least 1, not "${value}"\n`);
     return undefined;
   }
   return n;
-}
-
-async function writeOut(path: string, text: string, io: Io): Promise<boolean> {
-  try {
-    await mkdir(dirname(path), { recursive: true });
-    await writeFile(path, text);
-    return true;
-  } catch (cause) {
-    io.err(`Cannot write ${show(path, io)}: ${cause instanceof Error ? cause.message : String(cause)}\n`);
-    return false;
-  }
 }
 
 function issueLine(issue: { code: string; path: string; message: string }): string {
@@ -237,13 +233,4 @@ function issueLine(issue: { code: string; path: string; message: string }): stri
 
 function collect(value: string, previous: string[] | undefined): string[] {
   return [...(previous ?? []), value];
-}
-
-async function exists(path: string): Promise<boolean> {
-  return (await stat(path).catch(() => undefined)) !== undefined;
-}
-
-function show(path: string, io: Io): string {
-  const rel = relative(io.cwd, path);
-  return rel === '' ? '.' : rel.startsWith('..') ? path : rel;
 }

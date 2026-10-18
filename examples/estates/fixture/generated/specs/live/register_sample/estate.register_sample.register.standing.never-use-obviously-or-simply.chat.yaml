@@ -74,3 +74,5 @@ metadata:
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: open-items
     phrase: 1
+    ask: bank
+    outcome: bank

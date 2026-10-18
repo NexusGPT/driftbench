@@ -1,0 +1,875 @@
+{
+  "competitor": "promptfoo",
+  "row": "rubric",
+  "contestant": "audit",
+  "model": "haiku",
+  "items": 72,
+  "complete": 72,
+  "results": [
+    {
+      "id": "heldout-rubric.001",
+      "kind": "negation",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "523e02c53c4775f19e14804fd4508fe39229bf1bdad76d3d15d135e7219a163c"
+      ],
+      "costUsd": 0.0004016
+    },
+    {
+      "id": "heldout-rubric.002",
+      "kind": "quoted-claim",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "cb1bea48869aa23b5bb60b4ca2bc5aefea0c630ab37b9abb87230088ab5fdff4"
+      ],
+      "costUsd": 0.0004928
+    },
+    {
+      "id": "heldout-rubric.003",
+      "kind": "scope",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "969d9afee0ea7a86b5ce1a8b21af3b39bf85aad20658cdbfb9012b4b43db6fc9"
+      ],
+      "costUsd": 0.00062
+    },
+    {
+      "id": "heldout-rubric.004",
+      "kind": "scope",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1af186d8f0c739c51cf8654bc9b701f871b3ce18b4cdd207e1c4296440bf6b90"
+      ],
+      "costUsd": 0.0005646
+    },
+    {
+      "id": "heldout-rubric.005",
+      "kind": "cross-language",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0752d8615a068a760650625460d85eef5ac882fce6fe9c515183ca836071898a"
+      ],
+      "costUsd": 0.0005365999999999999
+    },
+    {
+      "id": "heldout-rubric.006",
+      "kind": "scope",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "dc94b423bab8f724f4aadcd0803ce45ed8e37b405a13f3dd6adf0368670df430"
+      ],
+      "costUsd": 0.0005476
+    },
+    {
+      "id": "heldout-rubric.007",
+      "kind": "arithmetic",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "25c55eb18e659565ea02cc6e65d53f3c14b18454b3df6736907b3d1937e602b8"
+      ],
+      "costUsd": 0.0005038
+    },
+    {
+      "id": "heldout-rubric.008",
+      "kind": "quoted-claim",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b0b30913a2c958d0a380d71c1c500ed5905b755b7e196215d6002759930edeb5"
+      ],
+      "costUsd": 0.0004223
+    },
+    {
+      "id": "heldout-rubric.009",
+      "kind": "negation",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6be31b549e52672d58d2cfeecdaad4d59599cced9c1cc105f37804b0b2cf6c4b"
+      ],
+      "costUsd": 0.00042600000000000005
+    },
+    {
+      "id": "heldout-rubric.010",
+      "kind": "cross-language",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f87ca4ea9ffbfbf68051d6b65d625b06c42cd226bfb2c73b57ac960332e0f6db"
+      ],
+      "costUsd": 0.0005411
+    },
+    {
+      "id": "heldout-rubric.011",
+      "kind": "period",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9adda6997e7be676e808f019f9f4a2d839c4de8638640d4974d1f252ebb1709b"
+      ],
+      "costUsd": 0.000321
+    },
+    {
+      "id": "heldout-rubric.012",
+      "kind": "disjunction",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4d87705984dd2c44fff56d9236225b4808c5c1e41ff4f3a7e22ea6ca25cb3c4b"
+      ],
+      "costUsd": 0.00036550000000000005
+    },
+    {
+      "id": "heldout-rubric.013",
+      "kind": "partial-completion",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7be7836e510f0288b6e1f2984dda3619611a9eed0ca422440ba3fbeaf7238566"
+      ],
+      "costUsd": 0.0005625000000000001
+    },
+    {
+      "id": "heldout-rubric.014",
+      "kind": "tag-injection",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "005c3195bc2519b6f0f3c3cbaec52bb2a4b6723096b1be84fab2fd82c6d396fa"
+      ],
+      "costUsd": 0.0005787
+    },
+    {
+      "id": "heldout-rubric.015",
+      "kind": "period",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fdc732e5e30b1bbe89ecd5b39f109cc28f7f7ec317b69791a8a359878ab8d9a2"
+      ],
+      "costUsd": 0.000432
+    },
+    {
+      "id": "heldout-rubric.016",
+      "kind": "scope",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e4172d2bf6d8529806fef33bf91cfc0e9ec1f3707995e58348fd30d460b98bc0"
+      ],
+      "costUsd": 0.000772
+    },
+    {
+      "id": "heldout-rubric.017",
+      "kind": "quoted-claim",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c04a78e4a496872be0a24a04d0224f8d4a9fa84d9f0a88740da50184089fed7b"
+      ],
+      "costUsd": 0.0004563
+    },
+    {
+      "id": "heldout-rubric.018",
+      "kind": "partial-completion",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "660ffe746e683f2ec21d3425dc02350ab9f9348f4141639df4bb30c4e21f542b"
+      ],
+      "costUsd": 0.0005118
+    },
+    {
+      "id": "heldout-rubric.019",
+      "kind": "tag-injection",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ed64883700487deec24351fcdde4d358bf5a2a8a275902255e56a0e4e2356bea"
+      ],
+      "costUsd": 0.0006557000000000001
+    },
+    {
+      "id": "heldout-rubric.020",
+      "kind": "period",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "385b97aa249d6305eb3a1361983ec9f62c3e871404367682d304fcb594f4abfc"
+      ],
+      "costUsd": 0.0004535
+    },
+    {
+      "id": "heldout-rubric.021",
+      "kind": "arithmetic",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b24f1af58290674cfa2bf5dea3d35744ed47ce32484dcdc18bb094be6ba7a1c5"
+      ],
+      "costUsd": 0.0004778
+    },
+    {
+      "id": "heldout-rubric.022",
+      "kind": "cross-language",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2c469089a7da53456a91419693a3ddc8aee08c21b6a4b06d163c090d8d8c9982"
+      ],
+      "costUsd": 0.0005365999999999999
+    },
+    {
+      "id": "heldout-rubric.023",
+      "kind": "cross-language",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e2a91d29a194432faaa812c0f0cbb40671b437a9c1d02ee201794f24fd24ebae"
+      ],
+      "costUsd": 0.0005531
+    },
+    {
+      "id": "heldout-rubric.024",
+      "kind": "negation",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7693aad08dc89973d958ab5cf0cbf96f69d80a1c2e84f72b284b6d5a7b2c13e1"
+      ],
+      "costUsd": 0.0003141
+    },
+    {
+      "id": "heldout-rubric.025",
+      "kind": "quoted-claim",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "914ace1a797e7c6390eed79430df098cf3f27c4d994e54dbe9c1445a071cefa2"
+      ],
+      "costUsd": 0.00032680000000000003
+    },
+    {
+      "id": "heldout-rubric.026",
+      "kind": "conjunction",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9758b986ec6ef2762d9c0562a8123d2e3984bbb5418e935de44253497e351347"
+      ],
+      "costUsd": 0.0004449
+    },
+    {
+      "id": "heldout-rubric.027",
+      "kind": "scope",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "15bebb23771e627521a9ff4b34fc262025bdbc6d346bc5d607444d4c249ed524"
+      ],
+      "costUsd": 0.0005145
+    },
+    {
+      "id": "heldout-rubric.028",
+      "kind": "long-fluent",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "37dd2f065bc8670763872ebcfae9b3f6dea3d43e6380d92b638f9bed42011fd1"
+      ],
+      "costUsd": 0.0007015000000000001
+    },
+    {
+      "id": "heldout-rubric.029",
+      "kind": "conjunction",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d8d8ed8d6babda7960b3cf4f1d5a5b647e538e2bf99cd17a41816e9d93de11af"
+      ],
+      "costUsd": 0.0004434
+    },
+    {
+      "id": "heldout-rubric.030",
+      "kind": "long-fluent",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7d1d9de85c6cc3a1d2fe6b06b4eb895607b9cfe63665eec3379d5e3679b18b13"
+      ],
+      "costUsd": 0.0007065000000000001
+    },
+    {
+      "id": "heldout-rubric.031",
+      "kind": "tag-injection",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b376dd8a984392a34e8f22d03f095b24eb5c1ff3307508e63b911ee0cb365fa5",
+        "1657150ec749cfdc152bdad2bc5453222105b139272570f3f5329abbdbc4c444"
+      ],
+      "costUsd": 0.0012969000000000001
+    },
+    {
+      "id": "heldout-rubric.032",
+      "kind": "scope",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b3a1c7a299f7d4b7edf3778b82356fa5f6f624b0410e50aaa33d2b35c8c6241b"
+      ],
+      "costUsd": 0.0005120999999999999
+    },
+    {
+      "id": "heldout-rubric.033",
+      "kind": "tag-injection",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8028a8d8ed08f03318a3806da9c336d0e6c170bbfc279a22651bb3dd72e86b5f"
+      ],
+      "costUsd": 0.0006517000000000001
+    },
+    {
+      "id": "heldout-rubric.034",
+      "kind": "disjunction",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3056511477c99fac6812f8516b464735374468375c42c9070b46957c0fb226ae"
+      ],
+      "costUsd": 0.0005325
+    },
+    {
+      "id": "heldout-rubric.035",
+      "kind": "partial-completion",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6ac02998a8699e76509d270726b7aa530ff03b43d5e8ada0983d6ce5704d9bd1"
+      ],
+      "costUsd": 0.00047480000000000005
+    },
+    {
+      "id": "heldout-rubric.036",
+      "kind": "arithmetic",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a703cc89a1f0e3b3575736f67f69a81bcfee599aad58fc38c6f7c8103f7ce60d"
+      ],
+      "costUsd": 0.0004358
+    },
+    {
+      "id": "heldout-rubric.037",
+      "kind": "cross-language",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "24c37ebd7b18aa87d3b97536af617eae46e1f353c562ee1f076816fa86b53c28"
+      ],
+      "costUsd": 0.0005816
+    },
+    {
+      "id": "heldout-rubric.038",
+      "kind": "long-fluent",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "15b2e555c1d4511b96e457c9f9f6e6ac61d55822b055d9391842e11c2286c173"
+      ],
+      "costUsd": 0.0006185
+    },
+    {
+      "id": "heldout-rubric.039",
+      "kind": "conjunction",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "02e8a10ee236c57bec11a95853940648702682d32c0b4505c376c4fdc329511c"
+      ],
+      "costUsd": 0.0006319
+    },
+    {
+      "id": "heldout-rubric.040",
+      "kind": "long-fluent",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8946a27fc36d31246fd3e7edc0d4ba488152b5251b3dd8f9f6f6aaf708b6be66"
+      ],
+      "costUsd": 0.0006905
+    },
+    {
+      "id": "heldout-rubric.041",
+      "kind": "partial-completion",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "604b9173b76fdeabf5fb377d10dd7d6c7320c95efc2d81d785ff52bd67ea195c"
+      ],
+      "costUsd": 0.0005008
+    },
+    {
+      "id": "heldout-rubric.042",
+      "kind": "arithmetic",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e10166770c580ee1cb838a54c14b1fe48a4f09ab9def68c470606d31d61b969f"
+      ],
+      "costUsd": 0.0005363
+    },
+    {
+      "id": "heldout-rubric.043",
+      "kind": "period",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "23cc229afae92bec7dd05a2c37b24e96adc86fd67e166ea7ea74154ca01a0045"
+      ],
+      "costUsd": 0.0004565
+    },
+    {
+      "id": "heldout-rubric.044",
+      "kind": "long-fluent",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bbc0d441555e37dd18c171a06b436d3157a79bd24bb6c8f6932c80277cd47f9a"
+      ],
+      "costUsd": 0.000719
+    },
+    {
+      "id": "heldout-rubric.045",
+      "kind": "disjunction",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "58629ddb03c376b4a0a46e9f91e4b9d453088c299a644604b954e1a08692f267"
+      ],
+      "costUsd": 0.00045430000000000004
+    },
+    {
+      "id": "heldout-rubric.046",
+      "kind": "conjunction",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "32652fd596d2f4b27d64d871724f3d69a2f02afd3d6774b369139b885c36b7ae"
+      ],
+      "costUsd": 0.0004339
+    },
+    {
+      "id": "heldout-rubric.047",
+      "kind": "tag-injection",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0405ff09f0638b878bf3993032e7a930e270f769b53c037f415792c754a5b565"
+      ],
+      "costUsd": 0.0006202
+    },
+    {
+      "id": "heldout-rubric.048",
+      "kind": "quoted-claim",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "12274aad46745983f0668b618e6afe3bc4a3abda3f852c437ed754e087d5be98"
+      ],
+      "costUsd": 0.00032879999999999997
+    },
+    {
+      "id": "heldout-rubric.049",
+      "kind": "conjunction",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a198e32cb2ba742ff5c8985b881ca6e3afd29d02be9553ace042bc5c71f1a733"
+      ],
+      "costUsd": 0.0004034
+    },
+    {
+      "id": "heldout-rubric.050",
+      "kind": "disjunction",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "36ef7d7dd5be53dc75fc54c5fe6b77b0b67e9bd6636b3856ff743e3305f952bf"
+      ],
+      "costUsd": 0.000533
+    },
+    {
+      "id": "heldout-rubric.051",
+      "kind": "later-contradiction",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c5ed0ff20c7a3e4ebb569cabf694de57c604531682103b447a282ef4d472b56e"
+      ],
+      "costUsd": 0.0006197
+    },
+    {
+      "id": "heldout-rubric.052",
+      "kind": "long-fluent",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "120a1fb0e4d2806f99c4b8ca77b16f7422524c32ec9a49dc3864105dedea2296"
+      ],
+      "costUsd": 0.0006835000000000001
+    },
+    {
+      "id": "heldout-rubric.053",
+      "kind": "later-contradiction",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "15f1b7528135db2761b2c8d86f6dadd7877e1006441bd18655700c573afede8d"
+      ],
+      "costUsd": 0.0005812
+    },
+    {
+      "id": "heldout-rubric.054",
+      "kind": "period",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "43d26939c2c0681597cf47f70d765f05221754b4995fb1312fa09afbc97ca0f9"
+      ],
+      "costUsd": 0.0004145
+    },
+    {
+      "id": "heldout-rubric.055",
+      "kind": "disjunction",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2e20e173c16d1ba40f14a3a4c007b888ce46a9492be53cafd2a3788ce1a9b1fe"
+      ],
+      "costUsd": 0.0005318
+    },
+    {
+      "id": "heldout-rubric.056",
+      "kind": "conjunction",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d592fa67d4c3930015fc58477fca96e272a75fa5faf9b96c93fa82ce19fa7c4d"
+      ],
+      "costUsd": 0.0006464
+    },
+    {
+      "id": "heldout-rubric.057",
+      "kind": "later-contradiction",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6dc4a73c8c51c854a05ff12f532458f1dabd49817dc3b8e91ec25d6fe89f3ecf"
+      ],
+      "costUsd": 0.00042
+    },
+    {
+      "id": "heldout-rubric.058",
+      "kind": "cross-language",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0bcd312c39fb7fbc6d32104b9e159f45e1f22f244d0b4902fc49677605fda14d"
+      ],
+      "costUsd": 0.0005521
+    },
+    {
+      "id": "heldout-rubric.059",
+      "kind": "partial-completion",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "aa847929b47669117663a9f7d4dfb7cba318a173654724c72058acdb213420e5"
+      ],
+      "costUsd": 0.0005965
+    },
+    {
+      "id": "heldout-rubric.060",
+      "kind": "later-contradiction",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "96386e34ef5f19f65c8828a1e997308e25a75c9d5a33adaf6d32c991737fb3a6"
+      ],
+      "costUsd": 0.0004175
+    },
+    {
+      "id": "heldout-rubric.061",
+      "kind": "later-contradiction",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "de419be41faf87d4d28f730b22099f434d76cb54b5ca68296deb36ac29887d7f"
+      ],
+      "costUsd": 0.0006597
+    },
+    {
+      "id": "heldout-rubric.062",
+      "kind": "negation",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0819b84ed19d877d3282cae5dec7635b319f96d0fb2880a5e67c5a0979346c45"
+      ],
+      "costUsd": 0.00041200000000000004
+    },
+    {
+      "id": "heldout-rubric.063",
+      "kind": "disjunction",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0eee4fdc0ee1089334de3bc97e94002909c4aff2e92bd74b42c212489c77ced4"
+      ],
+      "costUsd": 0.00048729999999999997
+    },
+    {
+      "id": "heldout-rubric.064",
+      "kind": "partial-completion",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "eb8d8d0af36b0991a3aa3ef4182f17fb56c9c26347b83b3d4820c44e2a406b6c"
+      ],
+      "costUsd": 0.000637
+    },
+    {
+      "id": "heldout-rubric.065",
+      "kind": "period",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c86d070e5e8315104bba22aa195d0763cf46c97d0759cd7a2718a1bbd2904ff5"
+      ],
+      "costUsd": 0.0003165
+    },
+    {
+      "id": "heldout-rubric.066",
+      "kind": "tag-injection",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ff46e89a88eb193a07f0b60f91e8e6adc8ecb43e5a7802bb69fecdf6262bec72"
+      ],
+      "costUsd": 0.0007097000000000001
+    },
+    {
+      "id": "heldout-rubric.067",
+      "kind": "arithmetic",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2c689ab455bcf87b36debbb5190d3c6d42f4e7a3940c005c8c74ec6e0a1ecefc"
+      ],
+      "costUsd": 0.0005578
+    },
+    {
+      "id": "heldout-rubric.068",
+      "kind": "arithmetic",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "38daea67040b7bb433973fcc1e27738a4a28a4ca199d709ff4988764895d73b1"
+      ],
+      "costUsd": 0.0004848
+    },
+    {
+      "id": "heldout-rubric.069",
+      "kind": "negation",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6cc594e28d0c2994a4b80a7fcc38c4fd119059c816317f39599de670def5b9b7"
+      ],
+      "costUsd": 0.0004431
+    },
+    {
+      "id": "heldout-rubric.070",
+      "kind": "negation",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0557b59fc13ef6bb142734db41e4ecb7c92661833eedc21e33eff855b8764b70"
+      ],
+      "costUsd": 0.000366
+    },
+    {
+      "id": "heldout-rubric.071",
+      "kind": "later-contradiction",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9881d1957d575477305be809cabcefc5fd6172fd57ca0d67786a7b4ee1c330ef"
+      ],
+      "costUsd": 0.000574
+    },
+    {
+      "id": "heldout-rubric.072",
+      "kind": "quoted-claim",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "659271cdef52e162a6eea1b86b2835b3b0a7e81b518f91bb07606fee95f5a1e3"
+      ],
+      "costUsd": 0.0004398
+    }
+  ]
+}

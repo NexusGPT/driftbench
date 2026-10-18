@@ -1,0 +1,602 @@
+[
+  {
+    "id": "h001",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Zeelaan 20.",
+    "golden": "Acme Mobile M costs 44 USD a month and includes 100 GB. It is available at Zeelaan 20.",
+    "candidate_a": "Acme Mobile M is 44 USD a month with 100 GB. It is available at Zeelaan 20.",
+    "candidate_b": "Acme Mobile M is 49 USD a month with 100 GB. It is not available at Zeelaan 20.",
+    "errors_a": 0,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h002",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Zeelaan 20.",
+    "golden": "Acme Mobile M costs 47 USD a month and includes 60 GB. It is not available at Zeelaan 20.",
+    "candidate_a": "For Zeelaan 20: Acme Mobile M costs 47 USD monthly, includes 60 GB, and is not available there.",
+    "candidate_b": "Acme Mobile M is 46 USD a month with 60 GB. It is not available at Zeelaan 20.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h003",
+    "task": "Tell me the price, the data and whether Acme Home Plus is available at Molenweg 7.",
+    "golden": "Acme Home Plus costs 73 USD a month and includes 20 GB. It is not available at Molenweg 7.",
+    "candidate_a": "Acme Home Plus is 73 USD a month with 20 GB. It is not available at Molenweg 7.",
+    "candidate_b": "Acme Home Plus is 73 USD a month with 20 MB. It is not available at Molenweg 7.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h004",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Kastanjelaan 4.",
+    "golden": "Acme Mobile L costs 74 USD a month and includes 100 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Thank you for asking about Acme Mobile L. We have looked at your question carefully. The plan costs 74 USD a month, which is the same price for every household in our area, and it gives you 100 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Mobile L is not available at Kastanjelaan 4, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "candidate_b": "Acme Mobile L is 79 USD a month with 100 GB. It is not available at Kastanjelaan 4.",
+    "errors_a": 1,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h005",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Zeelaan 20.",
+    "golden": "Acme Mobile L costs 34 USD a month and includes 10 GB. It is not available at Zeelaan 20.",
+    "candidate_a": "For Zeelaan 20: Acme Mobile L costs 34 USD monthly, includes 10 GB, and is not available there.",
+    "candidate_b": "Thank you for asking about Acme Mobile L. We have looked at your question carefully. The plan costs 34 USD a month, which is the same price for every household in our area, and it gives you 10 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Mobile L is available at Zeelaan 20, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h006",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Kastanjelaan 4.",
+    "golden": "Acme Fibre 300 costs 22 USD a month and includes 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Fibre 300 is 22 USD a month with 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_b": "Thank you for asking about Acme Fibre 300. We have looked at your question carefully. The plan costs 22 USD a month, which is the same price for every household in our area, and it gives you 20 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Fibre 300 is not available at Kastanjelaan 4, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h007",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Lindenstraat 12.",
+    "golden": "Acme Fibre 300 costs 25 USD a month and includes 20 GB. It is available at Lindenstraat 12.",
+    "candidate_a": "Acme Fibre 300 is 30 USD a month with 20 GB. It is not available at Lindenstraat 12.",
+    "candidate_b": "Thank you for asking about Acme Fibre 300. We have looked at your question carefully. The plan costs 25 USD a month, which is the same price for every household in our area, and it gives you 20 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Fibre 300 is not available at Lindenstraat 12, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 2,
+    "errors_b": 1,
+    "better": "B"
+  },
+  {
+    "id": "h008",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Zeelaan 20.",
+    "golden": "Acme Fibre 300 costs 41 USD a month and includes 100 GB. It is not available at Zeelaan 20.",
+    "candidate_a": "For Zeelaan 20: Acme Fibre 300 costs 41 USD monthly, includes 100 GB, and is not available there.",
+    "candidate_b": "Acme Fibre 300 is 41 USD a month with 100 GB, and it is not available at Zeelaan 20. It also comes with free international calls to 40 countries.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h009",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Molenweg 7.",
+    "golden": "Acme Mobile L costs 78 USD a month and includes 60 GB. It is not available at Molenweg 7.",
+    "candidate_a": "Acme Mobile L is 78 USD a month with 60 MB. It is not available at Molenweg 7.",
+    "candidate_b": "Acme Mobile L is 78 USD a month with 60 GB. It is not available at Molenweg 7.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h010",
+    "task": "Tell me the price, the data and whether Acme Home Plus is available at Lindenstraat 12.",
+    "golden": "Acme Home Plus costs 20 USD a month and includes 40 GB. It is not available at Lindenstraat 12.",
+    "candidate_a": "Acme Home Plus is 21 USD a month with 40 GB. It is not available at Lindenstraat 12.",
+    "candidate_b": "Acme Home Plus is 25 USD a month with 40 GB. It is available at Lindenstraat 12.",
+    "errors_a": 1,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h011",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Kastanjelaan 4.",
+    "golden": "Acme Fibre 300 costs 60 USD a month and includes 100 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Fibre 300 is 60 USD a month with 100 MB. It is available at Kastanjelaan 4.",
+    "candidate_b": "Acme Fibre 300 is 60 USD a month with 100 GB. It is available at Kastanjelaan 4.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h012",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Lindenstraat 12.",
+    "golden": "Acme Mobile L costs 25 USD a month and includes 60 GB. It is available at Lindenstraat 12.",
+    "candidate_a": "For Lindenstraat 12: Acme Mobile L costs 25 USD monthly, includes 60 GB, and is available there.",
+    "candidate_b": "Acme Mobile L is 30 USD a month with 60 GB. It is not available at Lindenstraat 12.",
+    "errors_a": 0,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h013",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Kastanjelaan 4.",
+    "golden": "Acme Mobile L costs 50 USD a month and includes 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Mobile L is 51 USD a month with 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_b": "Acme Mobile L is 55 USD a month with 20 GB. It is not available at Kastanjelaan 4.",
+    "errors_a": 1,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h014",
+    "task": "Tell me the price, the data and whether Acme Home Plus is available at Molenweg 7.",
+    "golden": "Acme Home Plus costs 35 USD a month and includes 60 GB. It is not available at Molenweg 7.",
+    "candidate_a": "Acme Home Plus is 35 USD a month with 60 GB. It is not available at Molenweg 7.",
+    "candidate_b": "Thank you for asking about Acme Home Plus. We have looked at your question carefully. The plan costs 35 USD a month, which is the same price for every household in our area, and it gives you 60 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Home Plus is available at Molenweg 7, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h015",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Molenweg 7.",
+    "golden": "Acme Mobile L costs 30 USD a month and includes 20 GB. It is available at Molenweg 7.",
+    "candidate_a": "Acme Mobile L is 30 USD a month with 20 GB. It is available at Molenweg 7.",
+    "candidate_b": "Acme Mobile L is 29 USD a month with 20 GB. It is available at Molenweg 7.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h016",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Molenweg 7.",
+    "golden": "Acme Mobile M costs 67 USD a month and includes 60 GB. It is available at Molenweg 7.",
+    "candidate_a": "Thank you for asking about Acme Mobile M. We have looked at your question carefully. The plan costs 67 USD a month, which is the same price for every household in our area, and it gives you 60 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Mobile M is not available at Molenweg 7, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "candidate_b": "Acme Mobile M is 67 USD a month with 60 GB. It is available at Molenweg 7.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h017",
+    "task": "Tell me the price, the data and whether Acme Home Plus is available at Zeelaan 20.",
+    "golden": "Acme Home Plus costs 30 USD a month and includes 60 GB. It is available at Zeelaan 20.",
+    "candidate_a": "Acme Home Plus is 30 USD a month with 60 GB. It is available at Zeelaan 20.",
+    "candidate_b": "Acme Home Plus is 35 USD a month with 60 GB. It is not available at Zeelaan 20.",
+    "errors_a": 0,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h018",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Lindenstraat 12.",
+    "golden": "Acme Mobile M costs 61 USD a month and includes 100 GB. It is not available at Lindenstraat 12.",
+    "candidate_a": "Acme Mobile M is 60 USD a month with 100 GB. It is not available at Lindenstraat 12.",
+    "candidate_b": "Acme Mobile M is 66 USD a month with 100 GB. It is available at Lindenstraat 12.",
+    "errors_a": 1,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h019",
+    "task": "Tell me the price, the data and whether Acme Home Plus is available at Lindenstraat 12.",
+    "golden": "Acme Home Plus costs 31 USD a month and includes 100 GB. It is available at Lindenstraat 12.",
+    "candidate_a": "Acme Home Plus is 32 USD a month with 100 GB. It is available at Lindenstraat 12.",
+    "candidate_b": "Acme Home Plus is 31 USD a month with 100 GB. It is available at Lindenstraat 12.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h020",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Kastanjelaan 4.",
+    "golden": "Acme Mobile M costs 27 USD a month and includes 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Mobile M is 27 USD a month with 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_b": "Acme Mobile M is 27 USD a month with 20 GB, and it is available at Kastanjelaan 4. It also comes with free international calls to 40 countries.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h021",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Zeelaan 20.",
+    "golden": "Acme Mobile M costs 55 USD a month and includes 100 GB. It is available at Zeelaan 20.",
+    "candidate_a": "Acme Mobile M is 56 USD a month with 100 GB. It is available at Zeelaan 20.",
+    "candidate_b": "Acme Mobile M is 60 USD a month with 100 GB. It is not available at Zeelaan 20.",
+    "errors_a": 1,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h022",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Kastanjelaan 4.",
+    "golden": "Acme Fibre 300 costs 57 USD a month and includes 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Fibre 300 is 57 USD a month with 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_b": "Thank you for asking about Acme Fibre 300. We have looked at your question carefully. The plan costs 57 USD a month, which is the same price for every household in our area, and it gives you 20 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Fibre 300 is not available at Kastanjelaan 4, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h023",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Kastanjelaan 4.",
+    "golden": "Acme Fibre 300 costs 78 USD a month and includes 60 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Fibre 300 is 78 USD a month with 60 GB, and it is available at Kastanjelaan 4. It also comes with free international calls to 40 countries.",
+    "candidate_b": "Acme Fibre 300 is 78 USD a month with 60 GB. It is available at Kastanjelaan 4.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h024",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Molenweg 7.",
+    "golden": "Acme Mobile L costs 57 USD a month and includes 100 GB. It is not available at Molenweg 7.",
+    "candidate_a": "For Molenweg 7: Acme Mobile L costs 57 USD monthly, includes 100 GB, and is not available there.",
+    "candidate_b": "Thank you for asking about Acme Mobile L. We have looked at your question carefully. The plan costs 57 USD a month, which is the same price for every household in our area, and it gives you 100 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Mobile L is available at Molenweg 7, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h025",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Molenweg 7.",
+    "golden": "Acme Fibre 300 costs 42 USD a month and includes 10 GB. It is not available at Molenweg 7.",
+    "candidate_a": "Acme Fibre 300 is 42 USD a month with 10 GB. It is not available at Molenweg 7.",
+    "candidate_b": "Acme Fibre 300 is 42 USD a month with 10 MB. It is not available at Molenweg 7.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h026",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Kastanjelaan 4.",
+    "golden": "Acme Fibre 300 costs 67 USD a month and includes 60 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Fibre 300 is 66 USD a month with 60 GB. It is available at Kastanjelaan 4.",
+    "candidate_b": "For Kastanjelaan 4: Acme Fibre 300 costs 67 USD monthly, includes 60 GB, and is available there.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h027",
+    "task": "Tell me the price, the data and whether Acme Home Plus is available at Kastanjelaan 4.",
+    "golden": "Acme Home Plus costs 60 USD a month and includes 20 GB. It is not available at Kastanjelaan 4.",
+    "candidate_a": "For Kastanjelaan 4: Acme Home Plus costs 60 USD monthly, includes 20 GB, and is not available there.",
+    "candidate_b": "Acme Home Plus is 65 USD a month with 20 GB. It is available at Kastanjelaan 4.",
+    "errors_a": 0,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h028",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Zeelaan 20.",
+    "golden": "Acme Mobile L costs 51 USD a month and includes 20 GB. It is available at Zeelaan 20.",
+    "candidate_a": "Acme Mobile L is 51 USD a month with 20 GB. It is available at Zeelaan 20.",
+    "candidate_b": "Thank you for asking about Acme Mobile L. We have looked at your question carefully. The plan costs 51 USD a month, which is the same price for every household in our area, and it gives you 20 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Mobile L is not available at Zeelaan 20, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h029",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Kastanjelaan 4.",
+    "golden": "Acme Fibre 300 costs 74 USD a month and includes 100 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Fibre 300 is 75 USD a month with 100 GB. It is available at Kastanjelaan 4.",
+    "candidate_b": "For Kastanjelaan 4: Acme Fibre 300 costs 74 USD monthly, includes 100 GB, and is available there.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h030",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Zeelaan 20.",
+    "golden": "Acme Fibre 300 costs 55 USD a month and includes 100 GB. It is available at Zeelaan 20.",
+    "candidate_a": "For Zeelaan 20: Acme Fibre 300 costs 55 USD monthly, includes 100 GB, and is available there.",
+    "candidate_b": "Acme Fibre 300 is 60 USD a month with 100 GB. It is not available at Zeelaan 20.",
+    "errors_a": 0,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h031",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Lindenstraat 12.",
+    "golden": "Acme Mobile M costs 56 USD a month and includes 100 GB. It is not available at Lindenstraat 12.",
+    "candidate_a": "Thank you for asking about Acme Mobile M. We have looked at your question carefully. The plan costs 56 USD a month, which is the same price for every household in our area, and it gives you 100 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Mobile M is available at Lindenstraat 12, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "candidate_b": "Acme Mobile M is 61 USD a month with 100 GB. It is available at Lindenstraat 12.",
+    "errors_a": 1,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h032",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Kastanjelaan 4.",
+    "golden": "Acme Mobile L costs 34 USD a month and includes 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Mobile L is 39 USD a month with 20 GB. It is not available at Kastanjelaan 4.",
+    "candidate_b": "Acme Mobile L is 34 USD a month with 20 GB, and it is available at Kastanjelaan 4. It also comes with free international calls to 40 countries.",
+    "errors_a": 2,
+    "errors_b": 1,
+    "better": "B"
+  },
+  {
+    "id": "h033",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Molenweg 7.",
+    "golden": "Acme Mobile L costs 66 USD a month and includes 40 GB. It is not available at Molenweg 7.",
+    "candidate_a": "Acme Mobile L is 66 USD a month with 40 GB. It is not available at Molenweg 7.",
+    "candidate_b": "Thank you for asking about Acme Mobile L. We have looked at your question carefully. The plan costs 66 USD a month, which is the same price for every household in our area, and it gives you 40 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Mobile L is available at Molenweg 7, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h034",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Molenweg 7.",
+    "golden": "Acme Fibre 300 costs 41 USD a month and includes 10 GB. It is not available at Molenweg 7.",
+    "candidate_a": "For Molenweg 7: Acme Fibre 300 costs 41 USD monthly, includes 10 GB, and is not available there.",
+    "candidate_b": "Thank you for asking about Acme Fibre 300. We have looked at your question carefully. The plan costs 41 USD a month, which is the same price for every household in our area, and it gives you 10 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Fibre 300 is available at Molenweg 7, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h035",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Kastanjelaan 4.",
+    "golden": "Acme Fibre 300 costs 74 USD a month and includes 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Acme Fibre 300 is 74 USD a month with 20 MB. It is available at Kastanjelaan 4.",
+    "candidate_b": "For Kastanjelaan 4: Acme Fibre 300 costs 74 USD monthly, includes 20 GB, and is available there.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h036",
+    "task": "Tell me the price, the data and whether Acme Home Plus is available at Lindenstraat 12.",
+    "golden": "Acme Home Plus costs 35 USD a month and includes 10 GB. It is available at Lindenstraat 12.",
+    "candidate_a": "Thank you for asking about Acme Home Plus. We have looked at your question carefully. The plan costs 35 USD a month, which is the same price for every household in our area, and it gives you 10 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Home Plus is not available at Lindenstraat 12, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "candidate_b": "Acme Home Plus is 35 USD a month with 10 GB. It is available at Lindenstraat 12.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h037",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Lindenstraat 12.",
+    "golden": "Acme Mobile M costs 44 USD a month and includes 40 GB. It is not available at Lindenstraat 12.",
+    "candidate_a": "For Lindenstraat 12: Acme Mobile M costs 44 USD monthly, includes 40 GB, and is not available there.",
+    "candidate_b": "Acme Mobile M is 43 USD a month with 40 GB. It is not available at Lindenstraat 12.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h038",
+    "task": "Tell me the price, the data and whether Acme Home Plus is available at Lindenstraat 12.",
+    "golden": "Acme Home Plus costs 37 USD a month and includes 40 GB. It is not available at Lindenstraat 12.",
+    "candidate_a": "Acme Home Plus is 42 USD a month with 40 GB. It is available at Lindenstraat 12.",
+    "candidate_b": "Acme Home Plus is 37 USD a month with 40 GB, and it is not available at Lindenstraat 12. It also comes with free international calls to 40 countries.",
+    "errors_a": 2,
+    "errors_b": 1,
+    "better": "B"
+  },
+  {
+    "id": "h039",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Molenweg 7.",
+    "golden": "Acme Fibre 300 costs 77 USD a month and includes 10 GB. It is not available at Molenweg 7.",
+    "candidate_a": "For Molenweg 7: Acme Fibre 300 costs 77 USD monthly, includes 10 GB, and is not available there.",
+    "candidate_b": "Acme Fibre 300 is 77 USD a month with 10 GB, and it is not available at Molenweg 7. It also comes with free international calls to 40 countries.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h040",
+    "task": "Tell me the price, the data and whether Acme Home Plus is available at Kastanjelaan 4.",
+    "golden": "Acme Home Plus costs 43 USD a month and includes 10 GB. It is not available at Kastanjelaan 4.",
+    "candidate_a": "Acme Home Plus is 48 USD a month with 10 GB. It is available at Kastanjelaan 4.",
+    "candidate_b": "Acme Home Plus is 42 USD a month with 10 GB. It is not available at Kastanjelaan 4.",
+    "errors_a": 2,
+    "errors_b": 1,
+    "better": "B"
+  },
+  {
+    "id": "h041",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Zeelaan 20.",
+    "golden": "Acme Mobile M costs 45 USD a month and includes 60 GB. It is not available at Zeelaan 20.",
+    "candidate_a": "Acme Mobile M is 45 USD a month with 60 GB, and it is not available at Zeelaan 20. It also comes with free international calls to 40 countries.",
+    "candidate_b": "Acme Mobile M is 45 USD a month with 60 GB. It is not available at Zeelaan 20.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h042",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Kastanjelaan 4.",
+    "golden": "Acme Fibre 300 costs 20 USD a month and includes 40 GB. It is not available at Kastanjelaan 4.",
+    "candidate_a": "Acme Fibre 300 is 25 USD a month with 40 GB. It is available at Kastanjelaan 4.",
+    "candidate_b": "Acme Fibre 300 is 20 USD a month with 40 GB, and it is not available at Kastanjelaan 4. It also comes with free international calls to 40 countries.",
+    "errors_a": 2,
+    "errors_b": 1,
+    "better": "B"
+  },
+  {
+    "id": "h043",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Zeelaan 20.",
+    "golden": "Acme Mobile L costs 22 USD a month and includes 20 GB. It is available at Zeelaan 20.",
+    "candidate_a": "Acme Mobile L is 27 USD a month with 20 GB. It is not available at Zeelaan 20.",
+    "candidate_b": "Acme Mobile L is 21 USD a month with 20 GB. It is available at Zeelaan 20.",
+    "errors_a": 2,
+    "errors_b": 1,
+    "better": "B"
+  },
+  {
+    "id": "h044",
+    "task": "Tell me the price, the data and whether Acme Home Plus is available at Zeelaan 20.",
+    "golden": "Acme Home Plus costs 73 USD a month and includes 40 GB. It is available at Zeelaan 20.",
+    "candidate_a": "Acme Home Plus is 73 USD a month with 40 MB. It is available at Zeelaan 20.",
+    "candidate_b": "Acme Home Plus is 73 USD a month with 40 GB. It is available at Zeelaan 20.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h045",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Lindenstraat 12.",
+    "golden": "Acme Fibre 300 costs 70 USD a month and includes 10 GB. It is available at Lindenstraat 12.",
+    "candidate_a": "Acme Fibre 300 is 75 USD a month with 10 GB. It is not available at Lindenstraat 12.",
+    "candidate_b": "Thank you for asking about Acme Fibre 300. We have looked at your question carefully. The plan costs 70 USD a month, which is the same price for every household in our area, and it gives you 10 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Fibre 300 is not available at Lindenstraat 12, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 2,
+    "errors_b": 1,
+    "better": "B"
+  },
+  {
+    "id": "h046",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Kastanjelaan 4.",
+    "golden": "Acme Fibre 300 costs 75 USD a month and includes 20 GB. It is not available at Kastanjelaan 4.",
+    "candidate_a": "Acme Fibre 300 is 80 USD a month with 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_b": "Acme Fibre 300 is 75 USD a month with 20 GB. It is not available at Kastanjelaan 4.",
+    "errors_a": 2,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h047",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Zeelaan 20.",
+    "golden": "Acme Fibre 300 costs 25 USD a month and includes 40 GB. It is not available at Zeelaan 20.",
+    "candidate_a": "Acme Fibre 300 is 30 USD a month with 40 GB. It is available at Zeelaan 20.",
+    "candidate_b": "Thank you for asking about Acme Fibre 300. We have looked at your question carefully. The plan costs 25 USD a month, which is the same price for every household in our area, and it gives you 40 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Fibre 300 is available at Zeelaan 20, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 2,
+    "errors_b": 1,
+    "better": "B"
+  },
+  {
+    "id": "h048",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Zeelaan 20.",
+    "golden": "Acme Fibre 300 costs 42 USD a month and includes 60 GB. It is not available at Zeelaan 20.",
+    "candidate_a": "Acme Fibre 300 is 42 USD a month with 60 GB. It is not available at Zeelaan 20.",
+    "candidate_b": "Acme Fibre 300 is 47 USD a month with 60 GB. It is available at Zeelaan 20.",
+    "errors_a": 0,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h049",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Kastanjelaan 4.",
+    "golden": "Acme Mobile L costs 78 USD a month and includes 100 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "For Kastanjelaan 4: Acme Mobile L costs 78 USD monthly, includes 100 GB, and is available there.",
+    "candidate_b": "Thank you for asking about Acme Mobile L. We have looked at your question carefully. The plan costs 78 USD a month, which is the same price for every household in our area, and it gives you 100 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Mobile L is not available at Kastanjelaan 4, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h050",
+    "task": "Tell me the price, the data and whether Acme Home Plus is available at Kastanjelaan 4.",
+    "golden": "Acme Home Plus costs 65 USD a month and includes 20 GB. It is not available at Kastanjelaan 4.",
+    "candidate_a": "Acme Home Plus is 70 USD a month with 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_b": "Thank you for asking about Acme Home Plus. We have looked at your question carefully. The plan costs 65 USD a month, which is the same price for every household in our area, and it gives you 20 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Home Plus is available at Kastanjelaan 4, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "errors_a": 2,
+    "errors_b": 1,
+    "better": "B"
+  },
+  {
+    "id": "h051",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Kastanjelaan 4.",
+    "golden": "Acme Mobile L costs 22 USD a month and includes 10 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "For Kastanjelaan 4: Acme Mobile L costs 22 USD monthly, includes 10 GB, and is available there.",
+    "candidate_b": "Acme Mobile L is 23 USD a month with 10 GB. It is available at Kastanjelaan 4.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h052",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Zeelaan 20.",
+    "golden": "Acme Mobile M costs 50 USD a month and includes 20 GB. It is available at Zeelaan 20.",
+    "candidate_a": "Acme Mobile M is 50 USD a month with 20 MB. It is available at Zeelaan 20.",
+    "candidate_b": "Acme Mobile M is 55 USD a month with 20 GB. It is not available at Zeelaan 20.",
+    "errors_a": 1,
+    "errors_b": 2,
+    "better": "A"
+  },
+  {
+    "id": "h053",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Molenweg 7.",
+    "golden": "Acme Fibre 300 costs 20 USD a month and includes 60 GB. It is available at Molenweg 7.",
+    "candidate_a": "Acme Fibre 300 is 20 USD a month with 60 GB. It is available at Molenweg 7.",
+    "candidate_b": "Acme Fibre 300 is 20 USD a month with 60 GB, and it is available at Molenweg 7. It also comes with free international calls to 40 countries.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h054",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Lindenstraat 12.",
+    "golden": "Acme Mobile L costs 37 USD a month and includes 10 GB. It is available at Lindenstraat 12.",
+    "candidate_a": "Acme Mobile L is 42 USD a month with 10 GB. It is not available at Lindenstraat 12.",
+    "candidate_b": "For Lindenstraat 12: Acme Mobile L costs 37 USD monthly, includes 10 GB, and is available there.",
+    "errors_a": 2,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h055",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Zeelaan 20.",
+    "golden": "Acme Fibre 300 costs 69 USD a month and includes 60 GB. It is available at Zeelaan 20.",
+    "candidate_a": "Acme Fibre 300 is 74 USD a month with 60 GB. It is not available at Zeelaan 20.",
+    "candidate_b": "Acme Fibre 300 is 69 USD a month with 60 GB, and it is available at Zeelaan 20. It also comes with free international calls to 40 countries.",
+    "errors_a": 2,
+    "errors_b": 1,
+    "better": "B"
+  },
+  {
+    "id": "h056",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Lindenstraat 12.",
+    "golden": "Acme Mobile L costs 60 USD a month and includes 10 GB. It is available at Lindenstraat 12.",
+    "candidate_a": "For Lindenstraat 12: Acme Mobile L costs 60 USD monthly, includes 10 GB, and is available there.",
+    "candidate_b": "Acme Mobile L is 61 USD a month with 10 GB. It is available at Lindenstraat 12.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  },
+  {
+    "id": "h057",
+    "task": "Tell me the price, the data and whether Acme Mobile L is available at Kastanjelaan 4.",
+    "golden": "Acme Mobile L costs 30 USD a month and includes 20 GB. It is available at Kastanjelaan 4.",
+    "candidate_a": "Thank you for asking about Acme Mobile L. We have looked at your question carefully. The plan costs 30 USD a month, which is the same price for every household in our area, and it gives you 20 GB of data each month so you can stream, work and play without worrying about limits. As for coverage, Acme Mobile L is not available at Kastanjelaan 4, and our installers can tell you more about the timing when you call us. We hope this helps and we are happy to answer any other question.",
+    "candidate_b": "For Kastanjelaan 4: Acme Mobile L costs 30 USD monthly, includes 20 GB, and is available there.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h058",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Molenweg 7.",
+    "golden": "Acme Mobile M costs 35 USD a month and includes 10 GB. It is not available at Molenweg 7.",
+    "candidate_a": "Acme Mobile M is 34 USD a month with 10 GB. It is not available at Molenweg 7.",
+    "candidate_b": "Acme Mobile M is 35 USD a month with 10 GB. It is not available at Molenweg 7.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h059",
+    "task": "Tell me the price, the data and whether Acme Fibre 300 is available at Lindenstraat 12.",
+    "golden": "Acme Fibre 300 costs 31 USD a month and includes 20 GB. It is available at Lindenstraat 12.",
+    "candidate_a": "Acme Fibre 300 is 31 USD a month with 20 GB, and it is available at Lindenstraat 12. It also comes with free international calls to 40 countries.",
+    "candidate_b": "For Lindenstraat 12: Acme Fibre 300 costs 31 USD monthly, includes 20 GB, and is available there.",
+    "errors_a": 1,
+    "errors_b": 0,
+    "better": "B"
+  },
+  {
+    "id": "h060",
+    "task": "Tell me the price, the data and whether Acme Mobile M is available at Molenweg 7.",
+    "golden": "Acme Mobile M costs 30 USD a month and includes 100 GB. It is not available at Molenweg 7.",
+    "candidate_a": "For Molenweg 7: Acme Mobile M costs 30 USD monthly, includes 100 GB, and is not available there.",
+    "candidate_b": "Acme Mobile M is 31 USD a month with 100 GB. It is not available at Molenweg 7.",
+    "errors_a": 0,
+    "errors_b": 1,
+    "better": "A"
+  }
+]

@@ -1,0 +1,9 @@
+# A change manifest for driftbench radius. Fictional data only.
+# What counts as a confirmation at the recap changed, and how a loose yes is handled.
+from: acme-v1
+to: acme-v2
+changes:
+  - kind: stage
+    id: recap
+  - kind: deviation
+    id: D4

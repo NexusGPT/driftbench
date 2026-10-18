@@ -1,0 +1,503 @@
+{
+  "baseCommit": "a0fedc3b27508ff342a18f5957f1485a253a2719",
+  "measurement": "seed 1, scaledSpec(1, 10), t=3, uncapped, complete written specs reloaded, real runner; reference k=1; every bank cheater; no faults",
+  "historical": {
+    "source": "PR 155 and validators/generator/HANDOVER.md",
+    "pairs": {
+      "covered": 1485,
+      "allowed": 1526,
+      "missing": 41
+    },
+    "unsafeBypassAddedConstantEchoPasses": 53,
+    "note": "Historical source, not the current-base measurement. Current missing-pair membership differs."
+  },
+  "before": {
+    "commit": "a0fedc3b27508ff342a18f5957f1485a253a2719",
+    "at": "2026-10-13T07:14:24.560Z",
+    "seed": 1,
+    "factor": 10,
+    "strength": 3,
+    "specs": 3299,
+    "blocks": 16441,
+    "pair": {
+      "t": 2,
+      "specs": 3299,
+      "allowed": 1526,
+      "covered": 1480,
+      "share": 0.9698558322411533
+    },
+    "uncovered": [
+      {
+        "behaviour": "B-001",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-002",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-003",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-004",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-005",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1000",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1001",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1003",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1004",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1006",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1007",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1008",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1009",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1010",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1012",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1013",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1015",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1016",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1018",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1019",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1021",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1022",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1025",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1026",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1028",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1029",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1030",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1031",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1033",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1034",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1036",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1037",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1039",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1040",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1041",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1042",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1043",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1045",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1046",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1047",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1048",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1049",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1050",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1051",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1052",
+        "stage": "opening"
+      },
+      {
+        "behaviour": "B-1053",
+        "stage": "opening"
+      }
+    ],
+    "cheaters": {
+      "constant": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "echo": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "copy-given": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "every-tool": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "replay-suite": {
+        "passes": 0,
+        "witnesses": []
+      }
+    },
+    "followerFailures": [],
+    "errors": [],
+    "sourceFiles": {
+      "packages/generate/src/seed/scenario.ts": "679901b3a412813275be51837bd2dd297b88a8dc4a100d810bab55b218d1673d",
+      "packages/validators/src/ladders/generator/hidden.ts": "af7561d3fd14565ce53ec8d6615e99c043d34e9081a4d433b75f74c32e5cc63a",
+      "packages/validators/src/ladders/generator/follower.ts": "e7ba0202175cd1464fefb3bafc3e3e18ea9aa20fd872086625c3798ca214fa5f",
+      "packages/validators/src/ladders/generator/render.ts": "50e9ac7bbd66b76c7ff0981043bd4dd7c38388745962b9910868e5f6fccc8548"
+    },
+    "sourceState": "base tree"
+  },
+  "after": {
+    "commit": "a0fedc3b27508ff342a18f5957f1485a253a2719",
+    "at": "2026-10-13T07:20:30.059Z",
+    "seed": 1,
+    "factor": 10,
+    "strength": 3,
+    "specs": 3604,
+    "blocks": 17894,
+    "pair": {
+      "t": 2,
+      "specs": 3604,
+      "allowed": 1526,
+      "covered": 1526,
+      "share": 1
+    },
+    "uncovered": [],
+    "cheaters": {
+      "constant": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "echo": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "copy-given": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "every-tool": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "replay-suite": {
+        "passes": 0,
+        "witnesses": []
+      }
+    },
+    "followerFailures": [],
+    "errors": [],
+    "sourceFiles": {
+      "packages/generate/src/seed/scenario.ts": "0a1e16f59542a3e067e55c12907bee8a9dd8629336ceb8791c23a39203942c0f",
+      "packages/validators/src/ladders/generator/hidden.ts": "84fa8d716864ac772e81094fec0f5153abc9b3bd59f6469463aba45af7027865",
+      "packages/validators/src/ladders/generator/follower.ts": "90ff9bbb8090adeeb6fe23679ee3475284800401e6081d2a145b14ad9495edc5",
+      "packages/validators/src/ladders/generator/render.ts": "e7dbe748e5c30ea62edfe13436a1b21b63fe4746f26f4fef6d8e2a7c7ec939ce"
+    },
+    "sourceState": "working tree fix; recorded hashes include comment-only cleanup after the run"
+  },
+  "unchangedBankAndOracleSources": [
+    {
+      "path": "packages/validators/src/ladders/generator/bank3.ts",
+      "sha256": "11375333d89b89692857e23b0c1fd007e4ca5166123e13b4bfb832914945b616",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/bank-row.ts",
+      "sha256": "4281d2f9076e218f8d0434539f8c017a02d30a53b9cea7b95185fb37ec0197fc",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/bank2.ts",
+      "sha256": "84bcd534601afcc1b6d5b25c0376e850ab2f131c78e9d54e3179c718fd625715",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/bank.ts",
+      "sha256": "59ec33d0a775041766efa982d025754b100e74386f235ae14691a935e282b8dd",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/bank-run.ts",
+      "sha256": "537b7235318d2589ddd06a46673245e0c33c702cca326e6eda80974f98ccf197",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/bank4.ts",
+      "sha256": "f05ed70cf59f5802fcc648c1ce472941f4662edf566e750c0d25e671c8353704",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/acme.ts",
+      "sha256": "a93bf6460d5f27f4ac71a3a13e3ced8514fd64c78fd67ac21defcf515b894b89",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/index.ts",
+      "sha256": "f860848751ad99cc7f9ee5edc1bdf4d653188768998d66aab14359e9720f4939",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/possible.ts",
+      "sha256": "6d08f73b5e32678186686610197f656106cf58b8213305a45bc3398658845a2e",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/scale.ts",
+      "sha256": "8e8ce441edac908935f7da9c08d4b6ca3259b18fd3d196f4d7ab1489adfab9b3",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/cheaters.ts",
+      "sha256": "cdf9b921831a3f83004f184f6ea14e6d8ddd779ee14c8ad55afc3b6dc125b094",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/faults.ts",
+      "sha256": "fcf88db8dc971a5dc0ff77e607a1de9e4e1d7cbf102f0593e1ffc2cf67a4669f",
+      "unchanged": true
+    },
+    {
+      "path": "packages/validators/src/ladders/generator/baseline.ts",
+      "sha256": "b502ebcdbb5ef44d51b7c29a31476e4cc07930d0100f4c3f2600113f078eca4a",
+      "unchanged": true
+    }
+  ],
+  "redFirst": {
+    "failed": 8,
+    "passed": 43,
+    "afterPassed": 51
+  },
+  "integrationBase": "a7fb2452c50b5aa34347ff55fe742cb59ce8de80",
+  "integratedAfter": {
+    "commit": "c6fc6ed2123896fd4b34ce35dac145589247901d",
+    "at": "2026-10-13T07:28:02.284Z",
+    "seed": 1,
+    "factor": 10,
+    "strength": 3,
+    "specs": 3604,
+    "blocks": 17894,
+    "pair": {
+      "t": 2,
+      "specs": 3604,
+      "allowed": 1526,
+      "covered": 1526,
+      "share": 1
+    },
+    "uncovered": [],
+    "cheaters": {
+      "constant": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "echo": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "copy-given": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "every-tool": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "replay-suite": {
+        "passes": 0,
+        "witnesses": []
+      }
+    },
+    "followerFailures": [],
+    "errors": [],
+    "sourceFiles": {
+      "packages/generate/src/seed/scenario.ts": "5ca1549bbe1d46349cca00ce94fd3b10d5fb598985e0b30ecf8a0b3213365b4a",
+      "packages/validators/src/ladders/generator/hidden.ts": "84fa8d716864ac772e81094fec0f5153abc9b3bd59f6469463aba45af7027865",
+      "packages/validators/src/ladders/generator/follower.ts": "90ff9bbb8090adeeb6fe23679ee3475284800401e6081d2a145b14ad9495edc5",
+      "packages/validators/src/ladders/generator/render.ts": "e7dbe748e5c30ea62edfe13436a1b21b63fe4746f26f4fef6d8e2a7c7ec939ce"
+    },
+    "sourceState": "committed implementation after merging cap, speed and stage provenance fixes"
+  },
+  "acme": {
+    "base": "a0fedc3b27508ff342a18f5957f1485a253a2719",
+    "at": "2026-10-13T07:29:41.982Z",
+    "before": {
+      "specs": 252,
+      "blocks": 1111,
+      "cheaterBlockPasses": {
+        "constant": 0,
+        "echo": 0,
+        "first-tool": 0
+      }
+    },
+    "after": {
+      "specs": 259,
+      "blocks": 1152,
+      "cheaterBlockPasses": {
+        "constant": 0,
+        "echo": 0,
+        "first-tool": 0
+      }
+    },
+    "coverage": {
+      "before": {
+        "covered": 624,
+        "allowed": 637
+      },
+      "after": {
+        "covered": 637,
+        "allowed": 637
+      }
+    }
+  },
+  "bankExpectedAnswers": "All 13 bank, oracle, fault, cheater and baseline source files are byte identical to both bases; no item predicate or threshold changed. Full bank execution is left to CI.",
+  "focusedChecks": {
+    "openingAndDiscriminatorRed": {
+      "failed": 8,
+      "passed": 43
+    },
+    "openingAndDiscriminatorGreen": {
+      "passed": 51
+    },
+    "integratedGenerationBudgetAndOpening": {
+      "passed": 74,
+      "files": 4
+    },
+    "capRegressionAfterExplicitWeakFixture": {
+      "passed": 7,
+      "files": 1
+    },
+    "acmeRuntimeAndFaults": {
+      "passed": 15,
+      "files": 2
+    },
+    "hiddenFollowerCheatersApprovedReplies": {
+      "passed": 26,
+      "files": 4
+    },
+    "totalDistinctRelatedTestsPassed": 122,
+    "fullSuite": "left to CI per owner request due shared host load",
+    "review": "Independent Astra review found no blocking findings."
+  },
+  "missingStageGuardRegression": {
+    "beforeCommit": "5f3201fa35d545ef6fde8eb64450a11f03e6ee5a",
+    "cause": "A null reported stage omitted the whole runtime and deleted policy guards.",
+    "fix": "Preserve runtime.guards and omit only runtime.stages when reported is null.",
+    "deviations": ["D1_off_topic", "D5_language_switch", "D6_instruction_in_data", "D9_out_of_scope"],
+    "faults": [["X3.no-report"], ["X3.no-report", "X4.narrate"], ["X4.narrate", "X3.no-report"]],
+    "red": {
+      "failed": 12,
+      "skipped": 12,
+      "reason": "All new cases fail on missing guard traces."
+    },
+    "green": {
+      "files": 3,
+      "passed": 28,
+      "filesRun": ["follower.test.ts", "opening.test.ts", "approved-replies.test.ts"]
+    },
+    "assertions": [
+      "named reference guards preserved",
+      "mutant stages absent",
+      "reply and segments unchanged relative to the same narration choice",
+      "tool calls unchanged including a later positive call"
+    ],
+    "typecheckExitCode": 0,
+    "bankAndOracleSourceHashesUnchanged": true,
+    "followerSourceSha256": "f8d3a0924c9d76fe37cb693cd9d0963aa7359786841655a6af5e083e004069c6"
+  }
+}

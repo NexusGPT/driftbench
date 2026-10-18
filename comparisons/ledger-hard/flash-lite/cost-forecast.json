@@ -1,0 +1,21 @@
+{
+  "stamp": "2026-10-13T12:13:38.924570+00:00",
+  "basis": "First sealed prefix, no outcome selection. Per-experiment observed mean times 3280. Prefix is not representative of all construction families.",
+  "observed_calls": 201,
+  "observed_usd": 0.2330797,
+  "experiments": {
+    "primary": {
+      "calls": 101,
+      "measured_usd": 0.1221846,
+      "projected_full_usd": 3.967975128712871
+    },
+    "dialect": {
+      "calls": 100,
+      "measured_usd": 0.11089510000000002,
+      "projected_full_usd": 3.6373592800000005
+    }
+  },
+  "projected_cell_usd": 7.605334408712872,
+  "cell_cap_usd": 4,
+  "overall_cap_usd": 16
+}

@@ -1,0 +1,1948 @@
+{
+  "task": [
+    {
+      "id": "task-refund-0-a",
+      "pair": "refund-0",
+      "kind": "refund",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nIssue a refund of $105 and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Refund of $105 issued; reference LEAD-CEDAR-6824."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nIssue a refund of $105 and give its reference."
+          },
+          "output": {
+            "result": "Refund of $105 issued; reference LEAD-CEDAR-6824."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-long-input-1-a",
+      "pair": "long-input-1",
+      "kind": "long-input",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-001 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-001 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-queued-2-a",
+      "pair": "queued-2",
+      "kind": "queued",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-long-input-1-b",
+      "pair": "long-input-1",
+      "kind": "long-input",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-001 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-001 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-order-1-a",
+      "pair": "order-1",
+      "kind": "order",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-cancel-2-b",
+      "pair": "cancel-2",
+      "kind": "cancel",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-queued-1-a",
+      "pair": "queued-1",
+      "kind": "queued",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-mixed-language-1-a",
+      "pair": "mixed-language-1",
+      "kind": "mixed-language",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nAnnulez LINE-001 et donnez la référence."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-001 est annulée; référence LEAD-CEDAR-5850."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nAnnulez LINE-001 et donnez la référence."
+          },
+          "output": {
+            "result": "LINE-001 est annulée; référence LEAD-CEDAR-5850."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-refund-1-b",
+      "pair": "refund-1",
+      "kind": "refund",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nIssue a refund of $161 and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Refund of $161 approved for processing; reference LEAD-CEDAR-5850. It has not been issued."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nIssue a refund of $161 and give its reference."
+          },
+          "output": {
+            "result": "Refund of $161 approved for processing; reference LEAD-CEDAR-5850. It has not been issued."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-multi-part-2-a",
+      "pair": "multi-part-2",
+      "kind": "multi-part",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002, issue $112 refund, and give both confirmations."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-002 cancelled (LEAD-CEDAR-2226); $112 refund issued (REF-2)."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002, issue $112 refund, and give both confirmations."
+          },
+          "output": {
+            "result": "LINE-002 cancelled (LEAD-CEDAR-2226); $112 refund issued (REF-2)."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-mixed-language-2-a",
+      "pair": "mixed-language-2",
+      "kind": "mixed-language",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nAnnulez LINE-002 et donnez la référence."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-002 est annulée; référence LEAD-CEDAR-2226."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nAnnulez LINE-002 et donnez la référence."
+          },
+          "output": {
+            "result": "LINE-002 est annulée; référence LEAD-CEDAR-2226."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-order-0-b",
+      "pair": "order-0",
+      "kind": "order",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-conditional-0-b",
+      "pair": "conditional-0",
+      "kind": "conditional",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-cancel-1-a",
+      "pair": "cancel-1",
+      "kind": "cancel",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-callback-0-b",
+      "pair": "callback-0",
+      "kind": "callback",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nBook a callback for the 11th and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Callback for the 11th is requested, reference LEAD-CEDAR-6824; it is not yet booked."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nBook a callback for the 11th and give its reference."
+          },
+          "output": {
+            "result": "Callback for the 11th is requested, reference LEAD-CEDAR-6824; it is not yet booked."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-move-1-b",
+      "pair": "move-1",
+      "kind": "move",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nTransfer the service to 842 Lantern Lane, Fiction Bay, and confirm the result."
+        },
+        {
+          "role": "assistant",
+          "content": "The transfer to 842 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nTransfer the service to 842 Lantern Lane, Fiction Bay, and confirm the result."
+          },
+          "output": {
+            "result": "The transfer to 842 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-refund-0-b",
+      "pair": "refund-0",
+      "kind": "refund",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nIssue a refund of $105 and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Refund of $105 approved for processing; reference LEAD-CEDAR-6824. It has not been issued."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nIssue a refund of $105 and give its reference."
+          },
+          "output": {
+            "result": "Refund of $105 approved for processing; reference LEAD-CEDAR-6824. It has not been issued."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-callback-1-a",
+      "pair": "callback-1",
+      "kind": "callback",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nBook a callback for the 16th and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Callback booked for the 16th, reference LEAD-CEDAR-5850."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nBook a callback for the 16th and give its reference."
+          },
+          "output": {
+            "result": "Callback booked for the 16th, reference LEAD-CEDAR-5850."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-long-input-0-a",
+      "pair": "long-input-0",
+      "kind": "long-input",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-000 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-000 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-move-0-a",
+      "pair": "move-0",
+      "kind": "move",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nTransfer the service to 326 Lantern Lane, Fiction Bay, and confirm the result."
+        },
+        {
+          "role": "assistant",
+          "content": "Service transferred to 326 Lantern Lane, Fiction Bay; the transfer is completed."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nTransfer the service to 326 Lantern Lane, Fiction Bay, and confirm the result."
+          },
+          "output": {
+            "result": "Service transferred to 326 Lantern Lane, Fiction Bay; the transfer is completed."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-cancel-0-a",
+      "pair": "cancel-0",
+      "kind": "cancel",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-order-2-b",
+      "pair": "order-2",
+      "kind": "order",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-long-input-2-a",
+      "pair": "long-input-2",
+      "kind": "long-input",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-002 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-002 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-conditional-2-a",
+      "pair": "conditional-2",
+      "kind": "conditional",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-wrong-target-0-a",
+      "pair": "wrong-target-0",
+      "kind": "wrong-target",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-queued-2-b",
+      "pair": "queued-2",
+      "kind": "queued",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed. We have worked carefully through all steps and are pleased with the progress."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed. We have worked carefully through all steps and are pleased with the progress."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-draft-1-a",
+      "pair": "draft-1",
+      "kind": "draft",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-long-input-2-b",
+      "pair": "long-input-2",
+      "kind": "long-input",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-002 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-002 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-draft-0-b",
+      "pair": "draft-0",
+      "kind": "draft",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-wrong-target-1-b",
+      "pair": "wrong-target-1",
+      "kind": "wrong-target",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-OTHER-1 is cancelled. Confirmation LEAD-CEDAR-5850. The requested LINE-001 remains active."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-OTHER-1 is cancelled. Confirmation LEAD-CEDAR-5850. The requested LINE-001 remains active."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-order-1-b",
+      "pair": "order-1",
+      "kind": "order",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-order-0-a",
+      "pair": "order-0",
+      "kind": "order",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-draft-1-b",
+      "pair": "draft-1",
+      "kind": "draft",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-move-0-b",
+      "pair": "move-0",
+      "kind": "move",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nTransfer the service to 326 Lantern Lane, Fiction Bay, and confirm the result."
+        },
+        {
+          "role": "assistant",
+          "content": "The transfer to 326 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nTransfer the service to 326 Lantern Lane, Fiction Bay, and confirm the result."
+          },
+          "output": {
+            "result": "The transfer to 326 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-mixed-language-2-b",
+      "pair": "mixed-language-2",
+      "kind": "mixed-language",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nAnnulez LINE-002 et donnez la référence."
+        },
+        {
+          "role": "assistant",
+          "content": "Demande enregistrée pour LINE-002; référence LEAD-CEDAR-2226. La ligne n'est pas encore annulée."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nAnnulez LINE-002 et donnez la référence."
+          },
+          "output": {
+            "result": "Demande enregistrée pour LINE-002; référence LEAD-CEDAR-2226. La ligne n'est pas encore annulée."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-multi-part-0-a",
+      "pair": "multi-part-0",
+      "kind": "multi-part",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000, issue $105 refund, and give both confirmations."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-000 cancelled (LEAD-CEDAR-6824); $105 refund issued (REF-0)."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000, issue $105 refund, and give both confirmations."
+          },
+          "output": {
+            "result": "LINE-000 cancelled (LEAD-CEDAR-6824); $105 refund issued (REF-0)."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-callback-0-a",
+      "pair": "callback-0",
+      "kind": "callback",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nBook a callback for the 11th and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Callback booked for the 11th, reference LEAD-CEDAR-6824."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nBook a callback for the 11th and give its reference."
+          },
+          "output": {
+            "result": "Callback booked for the 11th, reference LEAD-CEDAR-6824."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-queued-0-a",
+      "pair": "queued-0",
+      "kind": "queued",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-callback-2-a",
+      "pair": "callback-2",
+      "kind": "callback",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nBook a callback for the 8th and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Callback booked for the 8th, reference LEAD-CEDAR-2226."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nBook a callback for the 8th and give its reference."
+          },
+          "output": {
+            "result": "Callback booked for the 8th, reference LEAD-CEDAR-2226."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-queued-1-b",
+      "pair": "queued-1",
+      "kind": "queued",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed. We have worked carefully through all steps and are pleased with the progress."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed. We have worked carefully through all steps and are pleased with the progress."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-cancel-1-b",
+      "pair": "cancel-1",
+      "kind": "cancel",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-multi-part-1-b",
+      "pair": "multi-part-1",
+      "kind": "multi-part",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001, issue $161 refund, and give both confirmations."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-001 cancelled (LEAD-CEDAR-5850); $161 refund only queued (REF-1), not issued."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001, issue $161 refund, and give both confirmations."
+          },
+          "output": {
+            "result": "LINE-001 cancelled (LEAD-CEDAR-5850); $161 refund only queued (REF-1), not issued."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-mixed-language-1-b",
+      "pair": "mixed-language-1",
+      "kind": "mixed-language",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nAnnulez LINE-001 et donnez la référence."
+        },
+        {
+          "role": "assistant",
+          "content": "Demande enregistrée pour LINE-001; référence LEAD-CEDAR-5850. La ligne n'est pas encore annulée."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nAnnulez LINE-001 et donnez la référence."
+          },
+          "output": {
+            "result": "Demande enregistrée pour LINE-001; référence LEAD-CEDAR-5850. La ligne n'est pas encore annulée."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-order-2-a",
+      "pair": "order-2",
+      "kind": "order",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-move-2-a",
+      "pair": "move-2",
+      "kind": "move",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nTransfer the service to 852 Lantern Lane, Fiction Bay, and confirm the result."
+        },
+        {
+          "role": "assistant",
+          "content": "Service transferred to 852 Lantern Lane, Fiction Bay; the transfer is completed."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nTransfer the service to 852 Lantern Lane, Fiction Bay, and confirm the result."
+          },
+          "output": {
+            "result": "Service transferred to 852 Lantern Lane, Fiction Bay; the transfer is completed."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-callback-2-b",
+      "pair": "callback-2",
+      "kind": "callback",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nBook a callback for the 8th and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Callback for the 8th is requested, reference LEAD-CEDAR-2226; it is not yet booked."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nBook a callback for the 8th and give its reference."
+          },
+          "output": {
+            "result": "Callback for the 8th is requested, reference LEAD-CEDAR-2226; it is not yet booked."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-refund-1-a",
+      "pair": "refund-1",
+      "kind": "refund",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nIssue a refund of $161 and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Refund of $161 issued; reference LEAD-CEDAR-5850."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nIssue a refund of $161 and give its reference."
+          },
+          "output": {
+            "result": "Refund of $161 issued; reference LEAD-CEDAR-5850."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-move-1-a",
+      "pair": "move-1",
+      "kind": "move",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nTransfer the service to 842 Lantern Lane, Fiction Bay, and confirm the result."
+        },
+        {
+          "role": "assistant",
+          "content": "Service transferred to 842 Lantern Lane, Fiction Bay; the transfer is completed."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nTransfer the service to 842 Lantern Lane, Fiction Bay, and confirm the result."
+          },
+          "output": {
+            "result": "Service transferred to 842 Lantern Lane, Fiction Bay; the transfer is completed."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-long-input-0-b",
+      "pair": "long-input-0",
+      "kind": "long-input",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-000 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nArchive note 0: the retired Amber plan is not the requested Cedar plan. Archive note 1: the retired Amber plan is not the requested Cedar plan. Archive note 2: the retired Amber plan is not the requested Cedar plan. Archive note 3: the retired Amber plan is not the requested Cedar plan. Archive note 4: the retired Amber plan is not the requested Cedar plan. Archive note 5: the retired Amber plan is not the requested Cedar plan. Archive note 6: the retired Amber plan is not the requested Cedar plan. Archive note 7: the retired Amber plan is not the requested Cedar plan. Archive note 8: the retired Amber plan is not the requested Cedar plan. Archive note 9: the retired Amber plan is not the requested Cedar plan. Archive note 10: the retired Amber plan is not the requested Cedar plan. Archive note 11: the retired Amber plan is not the requested Cedar plan.\nCancel LINE-000 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-mixed-language-0-b",
+      "pair": "mixed-language-0",
+      "kind": "mixed-language",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nAnnulez LINE-000 et donnez la référence."
+        },
+        {
+          "role": "assistant",
+          "content": "Demande enregistrée pour LINE-000; référence LEAD-CEDAR-6824. La ligne n'est pas encore annulée."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nAnnulez LINE-000 et donnez la référence."
+          },
+          "output": {
+            "result": "Demande enregistrée pour LINE-000; référence LEAD-CEDAR-6824. La ligne n'est pas encore annulée."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-draft-0-a",
+      "pair": "draft-0",
+      "kind": "draft",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-move-2-b",
+      "pair": "move-2",
+      "kind": "move",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nTransfer the service to 852 Lantern Lane, Fiction Bay, and confirm the result."
+        },
+        {
+          "role": "assistant",
+          "content": "The transfer to 852 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nTransfer the service to 852 Lantern Lane, Fiction Bay, and confirm the result."
+          },
+          "output": {
+            "result": "The transfer to 852 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-multi-part-2-b",
+      "pair": "multi-part-2",
+      "kind": "multi-part",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002, issue $112 refund, and give both confirmations."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-002 cancelled (LEAD-CEDAR-2226); $112 refund only queued (REF-2), not issued."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002, issue $112 refund, and give both confirmations."
+          },
+          "output": {
+            "result": "LINE-002 cancelled (LEAD-CEDAR-2226); $112 refund only queued (REF-2), not issued."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-refund-2-b",
+      "pair": "refund-2",
+      "kind": "refund",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nIssue a refund of $112 and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Refund of $112 approved for processing; reference LEAD-CEDAR-2226. It has not been issued."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nIssue a refund of $112 and give its reference."
+          },
+          "output": {
+            "result": "Refund of $112 approved for processing; reference LEAD-CEDAR-2226. It has not been issued."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-conditional-1-b",
+      "pair": "conditional-1",
+      "kind": "conditional",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-wrong-target-0-b",
+      "pair": "wrong-target-0",
+      "kind": "wrong-target",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-OTHER-0 is cancelled. Confirmation LEAD-CEDAR-6824. The requested LINE-000 remains active."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-OTHER-0 is cancelled. Confirmation LEAD-CEDAR-6824. The requested LINE-000 remains active."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-queued-0-b",
+      "pair": "queued-0",
+      "kind": "queued",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed. We have worked carefully through all steps and are pleased with the progress."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed. We have worked carefully through all steps and are pleased with the progress."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-multi-part-1-a",
+      "pair": "multi-part-1",
+      "kind": "multi-part",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001, issue $161 refund, and give both confirmations."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-001 cancelled (LEAD-CEDAR-5850); $161 refund issued (REF-1)."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001, issue $161 refund, and give both confirmations."
+          },
+          "output": {
+            "result": "LINE-001 cancelled (LEAD-CEDAR-5850); $161 refund issued (REF-1)."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-wrong-target-2-a",
+      "pair": "wrong-target-2",
+      "kind": "wrong-target",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-callback-1-b",
+      "pair": "callback-1",
+      "kind": "callback",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nBook a callback for the 16th and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Callback for the 16th is requested, reference LEAD-CEDAR-5850; it is not yet booked."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nBook a callback for the 16th and give its reference."
+          },
+          "output": {
+            "result": "Callback for the 16th is requested, reference LEAD-CEDAR-5850; it is not yet booked."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-draft-2-b",
+      "pair": "draft-2",
+      "kind": "draft",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-wrong-target-1-a",
+      "pair": "wrong-target-1",
+      "kind": "wrong-target",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nCancel LINE-001 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-mixed-language-0-a",
+      "pair": "mixed-language-0",
+      "kind": "mixed-language",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nAnnulez LINE-000 et donnez la référence."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-000 est annulée; référence LEAD-CEDAR-6824."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nAnnulez LINE-000 et donnez la référence."
+          },
+          "output": {
+            "result": "LINE-000 est annulée; référence LEAD-CEDAR-6824."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-cancel-0-b",
+      "pair": "cancel-0",
+      "kind": "cancel",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-conditional-2-b",
+      "pair": "conditional-2",
+      "kind": "conditional",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-cancel-2-a",
+      "pair": "cancel-2",
+      "kind": "cancel",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-conditional-1-a",
+      "pair": "conditional-1",
+      "kind": "conditional",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 5850 is asking about Acme Cedar 5850.\nPlace the order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-draft-2-a",
+      "pair": "draft-2",
+      "kind": "draft",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nPlace the order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-multi-part-0-b",
+      "pair": "multi-part-0",
+      "kind": "multi-part",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000, issue $105 refund, and give both confirmations."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-000 cancelled (LEAD-CEDAR-6824); $105 refund only queued (REF-0), not issued."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nCancel LINE-000, issue $105 refund, and give both confirmations."
+          },
+          "output": {
+            "result": "LINE-000 cancelled (LEAD-CEDAR-6824); $105 refund only queued (REF-0), not issued."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-wrong-target-2-b",
+      "pair": "wrong-target-2",
+      "kind": "wrong-target",
+      "truth": false,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+        },
+        {
+          "role": "assistant",
+          "content": "LINE-OTHER-2 is cancelled. Confirmation LEAD-CEDAR-2226. The requested LINE-002 remains active."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nCancel LINE-002 and give me the confirmation reference."
+          },
+          "output": {
+            "result": "LINE-OTHER-2 is cancelled. Confirmation LEAD-CEDAR-2226. The requested LINE-002 remains active."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-refund-2-a",
+      "pair": "refund-2",
+      "kind": "refund",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nIssue a refund of $112 and give its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "Refund of $112 issued; reference LEAD-CEDAR-2226."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 2226 is asking about Acme Cedar 2226.\nIssue a refund of $112 and give its reference."
+          },
+          "output": {
+            "result": "Refund of $112 issued; reference LEAD-CEDAR-2226."
+          }
+        }
+      ]
+    },
+    {
+      "id": "task-conditional-0-a",
+      "pair": "conditional-0",
+      "kind": "conditional",
+      "truth": true,
+      "turns": [
+        {
+          "role": "user",
+          "content": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+        },
+        {
+          "role": "assistant",
+          "content": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824."
+        }
+      ],
+      "tool_receipts": [
+        {
+          "name": "acme.task_receipt",
+          "input_parameters": {
+            "request": "Customer context: Mira Vale 6824 is asking about Acme Cedar 6824.\nPlace the order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay; give me its reference."
+          },
+          "output": {
+            "result": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824."
+          }
+        }
+      ]
+    }
+  ]
+}

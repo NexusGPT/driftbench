@@ -1,6 +1,13 @@
 /** Intervals on rates: Wilson, Clopper-Pearson, the zero-failure count, the design effect and the clustered bootstrap. */
 
-import { assertCount, assertProbability, mulberry32, quantileSorted } from './basics';
+import {
+  assertCount,
+  assertFinite,
+  assertFiniteValues,
+  assertProbability,
+  mulberry32,
+  quantileSorted,
+} from './basics';
 import { betaQuantile, normalQuantile } from './special';
 
 /** z for a two-sided 95 percent interval. */
@@ -15,9 +22,11 @@ export interface Interval {
 
 /** The Wilson score interval for k successes in n trials. */
 export function wilson(k: number, n: number, z: number = Z95): Interval {
-  assertCount('k', k);
-  assertCount('n', n);
+  assertCount('wilson', 'k', k);
+  assertCount('wilson', 'n', n);
   if (n === 0) throw new RangeError('wilson: n must be at least 1');
+  assertFinite('wilson', 'z', z);
+  if (!(z > 0)) throw new RangeError(`wilson: z must be above 0, got ${z}`);
   if (k > n) throw new RangeError(`wilson: k (${k}) exceeds n (${n})`);
   const p = k / n;
   const z2 = z * z;
@@ -29,9 +38,9 @@ export function wilson(k: number, n: number, z: number = Z95): Interval {
 
 /** The exact (Clopper-Pearson) interval for k successes in n trials at level 1 - alpha. */
 export function clopperPearson(k: number, n: number, alpha = 0.05): Interval {
-  assertCount('k', k);
-  assertCount('n', n);
-  assertProbability('alpha', alpha, true);
+  assertCount('clopperPearson', 'k', k);
+  assertCount('clopperPearson', 'n', n);
+  assertProbability('clopperPearson', 'alpha', alpha, true);
   if (n === 0) throw new RangeError('clopperPearson: n must be at least 1');
   if (k > n) throw new RangeError(`clopperPearson: k (${k}) exceeds n (${n})`);
   const lower = k === 0 ? 0 : betaQuantile(alpha / 2, k, n - k + 1);
@@ -45,9 +54,9 @@ export function clopperPearson(k: number, n: number, alpha = 0.05): Interval {
  * 59 for p = 0.05 at 95 percent.
  */
 export function zeroFailureBound(p: number, alpha = 0.05): number {
-  assertProbability('p', p, true);
-  assertProbability('alpha', alpha, true);
-  const exact = Math.log(alpha) / Math.log(1 - p);
+  assertProbability('zeroFailureBound', 'p', p, true);
+  assertProbability('zeroFailureBound', 'alpha', alpha, true);
+  const exact = Math.log(alpha) / Math.log1p(-p);
   // Guard against floating noise when the ratio is an exact integer.
   const rounded = Math.round(exact);
   return Math.abs(exact - rounded) < 1e-9 ? rounded : Math.ceil(exact);
@@ -55,14 +64,90 @@ export function zeroFailureBound(p: number, alpha = 0.05): number {
 
 /** The design effect 1 + (m - 1) rho for clusters of size m with intraclass correlation rho. */
 export function designEffect(m: number, rho: number): number {
-  if (!(m >= 1)) throw new RangeError(`designEffect: cluster size must be at least 1, got ${m}`);
+  assertFinite('designEffect', 'm', m);
+  if (!(m >= 1)) throw new RangeError(`designEffect: m must be at least 1, got ${m}`);
   if (!(rho >= -1 && rho <= 1)) throw new RangeError(`designEffect: rho must lie in [-1, 1], got ${rho}`);
-  return 1 + (m - 1) * rho;
+  const de = 1 + (m - 1) * rho;
+  if (!(de > 0)) {
+    throw new RangeError(
+      `designEffect: rho must be above -1 / (m - 1) = ${-1 / (m - 1)} for clusters of size ${m}, got ${rho}`,
+    );
+  }
+  return de;
 }
 
 /** The effective number of independent units: n divided by the design effect. */
 export function effectiveSampleSize(n: number, m: number, rho: number): number {
+  assertFinite('effectiveSampleSize', 'n', n);
   return n / designEffect(m, rho);
+}
+
+/**
+ * Kish's effective sample size of weighted units, (sum w)^2 / sum w^2 (Owen, Monte Carlo theory, equation
+ * 9.13). Equal weights give n; unequal weights give less. Throws a RangeError on no weights, a weight that is
+ * not finite or is negative, or weights that sum to zero.
+ */
+export function kishEffectiveSize(weights: readonly number[]): number {
+  if (weights.length === 0) throw new RangeError('kishEffectiveSize of no weights');
+  let sum = 0;
+  let sumSquares = 0;
+  for (let i = 0; i < weights.length; i += 1) {
+    const w = weights[i] as number;
+    if (!Number.isFinite(w) || w < 0) {
+      throw new RangeError(`kishEffectiveSize: weights[${i}] must be finite and not negative, got ${w}`);
+    }
+    sum += w;
+    sumSquares += w * w;
+  }
+  if (!(sum > 0)) throw new RangeError('kishEffectiveSize: the weights must not sum to zero');
+  return (sum * sum) / sumSquares;
+}
+
+/** The two-sided Student t quantile at 1 - alpha / 2 on `df` degrees of freedom. */
+function studentQuantile(alpha: number, df: number): number {
+  // P(|T| > t) = I_x(df / 2, 1 / 2) with x = df / (df + t^2), so t = sqrt(df (1 - x) / x) at x = betaQuantile(alpha).
+  const x = betaQuantile(alpha, df / 2, 0.5);
+  return Math.sqrt((df * (1 - x)) / x);
+}
+
+/**
+ * The interval for the mean of clustered values: mean -/+ t(1 - alpha / 2, G - 1) SE, with the clustered
+ * standard error SE = sqrt(sum over clusters of (sum of (x - mean))^2) / n and G the clusters. Throws a
+ * RangeError on no values, mismatched lengths, a value that is not finite, fewer than two clusters or an alpha
+ * outside (0, 1). The bounds are not clipped to the range of the values.
+ */
+export function clusteredMeanInterval(
+  values: readonly number[],
+  clusters: readonly (string | number)[],
+  alpha = 0.05,
+): Interval {
+  if (values.length === 0) throw new RangeError('clusteredMeanInterval of an empty sample');
+  if (values.length !== clusters.length) {
+    throw new RangeError(
+      `clusteredMeanInterval: values and clusters must have the same length, got ${values.length} and ${clusters.length}`,
+    );
+  }
+  assertProbability('clusteredMeanInterval', 'alpha', alpha, true);
+  let total = 0;
+  for (let i = 0; i < values.length; i += 1) {
+    const v = values[i] as number;
+    if (!Number.isFinite(v))
+      throw new RangeError(`clusteredMeanInterval: values[${i}] must be finite, got ${v}`);
+    total += v;
+  }
+  const n = values.length;
+  const estimate = total / n;
+  const sums = new Map<string | number, number>();
+  for (let i = 0; i < n; i += 1) {
+    const key = clusters[i] as string | number;
+    sums.set(key, (sums.get(key) ?? 0) + ((values[i] as number) - estimate));
+  }
+  const g = sums.size;
+  if (g < 2) throw new RangeError(`clusteredMeanInterval needs at least two clusters, got ${g}`);
+  let ss = 0;
+  for (const d of sums.values()) ss += d * d;
+  const half = studentQuantile(alpha, g - 1) * (Math.sqrt(ss) / n);
+  return { estimate, lower: estimate - half, upper: estimate + half };
 }
 
 export interface BootstrapOptions {
@@ -99,14 +184,15 @@ export function bootstrapCI(values: readonly number[], options: BootstrapOptions
   const method = options.method ?? 'percentile';
   const alpha = options.alpha ?? 0.05;
   const seed = options.seed ?? 1;
-  if (values.length === 0) throw new RangeError('bootstrapCI: no values');
+  if (values.length === 0) throw new RangeError('bootstrapCI: values must not be empty');
+  assertFiniteValues('bootstrapCI', 'values', values);
   if (!Number.isInteger(iterations) || iterations < 1) {
     throw new RangeError(`bootstrapCI: iterations must be a positive integer, got ${iterations}`);
   }
-  assertProbability('alpha', alpha, true);
+  assertProbability('bootstrapCI', 'alpha', alpha, true);
   const keys = options.clusters;
   if (keys && keys.length !== values.length) {
-    throw new RangeError(`bootstrapCI: ${keys.length} cluster keys for ${values.length} values`);
+    throw new RangeError(`bootstrapCI: clusters has ${keys.length} keys for ${values.length} values`);
   }
 
   // Group values by cluster, in order of first appearance.
@@ -139,8 +225,10 @@ export function bootstrapCI(values: readonly number[], options: BootstrapOptions
     }
     return s / c;
   };
+  // Equal values have that value as mean exactly; a sum divided by a count can round away from it.
+  const constant = values.every((v) => v === values[0]);
   const evaluate = (drawn: readonly number[]): number => {
-    if (!statistic) return pooled(drawn);
+    if (!statistic) return constant ? (values[0] as number) : pooled(drawn);
     const flat: number[] = [];
     for (const g of drawn) for (const v of groups[g] as number[]) flat.push(v);
     return statistic(flat);
@@ -163,8 +251,12 @@ export function bootstrapCI(values: readonly number[], options: BootstrapOptions
   return { estimate, lower, upper, iterations, clusters: g, method, seed };
 }
 
-/** z for a two-sided interval at level 1 - alpha. */
+/**
+ * z for a two-sided interval at level 1 - alpha. It reads the quantile off the lower tail, `-normalQuantile(alpha / 2)`:
+ * the upper-tail form `1 - alpha / 2` rounds to 1 for alpha below 2.2e-16 (z = Infinity) and keeps only the digits
+ * of alpha that sit above 1e-16 (a relative error of 2.5e-9 at alpha = 1e-10).
+ */
 export function zFor(alpha: number): number {
-  assertProbability('alpha', alpha, true);
-  return normalQuantile(1 - alpha / 2);
+  assertProbability('zFor', 'alpha', alpha, true);
+  return -normalQuantile(alpha / 2);
 }

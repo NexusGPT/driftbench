@@ -1,0 +1,862 @@
+{
+  "row": "panel",
+  "side": "ours",
+  "variant": "audit",
+  "procedure": "driftbench answer audit, three votes, weighted panel",
+  "model": "haiku",
+  "set": "shipped/heldout/panel.json",
+  "setSha256": "3667951fc8bd921cf3d6b08a7794d38967d52799daea62478909eec7dd309d6e",
+  "items": 60,
+  "complete": 60,
+  "right": 60,
+  "wrong": 0,
+  "inconclusive": 0,
+  "ci95": {
+    "lower": 0.93982814785791,
+    "upper": 0.9999999999999998
+  },
+  "costUsd": 0.10996140000000001,
+  "calls": 180,
+  "results": [
+    {
+      "id": "heldout-72128-panel-care_redirect-2-56",
+      "family": "care_redirect",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "c72699def82ae4154ee892ffd408753f48afc7a7c632a9e2f929b018d16e9425",
+        "15563dec693ef87a2230af5d0cf0260c90aa6c66083fdd4226a7648fe82e037d",
+        "fec600619c0ca51ed1820c4dbe818656f60bb82d8d4365fb9cbf71be290343ef"
+      ],
+      "costUsd": 0.00169
+    },
+    {
+      "id": "heldout-72128-panel-care_redirect-6-51",
+      "family": "care_redirect",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "4a395a31aca586d0579e140b570f559b43f13249aa72b148bc0756c9daafa64c",
+        "c5f7d7c275865956538ceed2cb51ddd66654f11110affa7826e727e620624f7d",
+        "9aa68262108e27ecdaa8ffac01969bbecfb8c488d0f5bad62b5631106c2ca458"
+      ],
+      "costUsd": 0.00165896
+    },
+    {
+      "id": "heldout-72128-panel-care_redirect-7-62",
+      "family": "care_redirect",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "a9a6dcda4c1cad12d7f7fde65f96e0927c6313cbdd850b55703e99108ce84431",
+        "3408515f0fca3dc90738b9a9ff571dc75540fc2fc95864ef25229c6c4b357c66",
+        "519e892783fb20f5bc62611d4cbe857496987799b61f3174fc233e66905ca565"
+      ],
+      "costUsd": 0.0013873
+    },
+    {
+      "id": "heldout-72128-panel-care_redirect-9-12",
+      "family": "care_redirect",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "680c9012d5b1556f8128b13705448d79d4e22c244267c3783b2522f06ffd0166",
+        "df278c6532fdbe457c169395ca5cb236029974104e94d929d63c84c7c6c6afe8",
+        "eaca5275e08fd170cc3fc0356bdb96c2b4be739e3c128d2c9faed35ae26c8bf5"
+      ],
+      "costUsd": 0.0019616200000000003
+    },
+    {
+      "id": "heldout-72128-panel-care_redirect-8-39",
+      "family": "care_redirect",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "1c7df150b02e85a1ea0c11c895fa726a1f9564596d1869d8f6de8f8c185155fe",
+        "790ce0b097196f9e7523dec8d70805c19ff027ced1cc701729dc72aadfd02e2a",
+        "a7a4a849f8e9b6519ebca9d2715a5b9de7696874d2bd47ae5bb4d0a12c135e53"
+      ],
+      "costUsd": 0.0019110999999999998
+    },
+    {
+      "id": "heldout-72128-panel-checks_before_promising-1-53",
+      "family": "checks_before_promising",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "7e93c8fbbaf00a2b386eb35e3cfa9f8567d4a1fe96fe13d4610ffb95ab2e3136",
+        "840fe4ff2f285ae811fe3d269771c7813b1cccf612a428211087ffa024036dfb",
+        "2c17969cd2630e35ea02ab27ccb27ea1bd6ec2bf1c200041ade4597add8783f4"
+      ],
+      "costUsd": 0.00126212
+    },
+    {
+      "id": "heldout-72128-panel-checks_before_promising-9-11",
+      "family": "checks_before_promising",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "ff66608f6662e94a4bd3b394e9ed343f4f841aff83b1b2f11c49bd9127f6f88e",
+        "23ad7f0cfb5a23153da2145211ffe70d411b2f77098bb38366ed8ec00c63c187",
+        "1995aeab9e0dd034f63e5b0005ac55fc5292d1b60ba4cf6e2dee42f16144c0fa"
+      ],
+      "costUsd": 0.0018810200000000002
+    },
+    {
+      "id": "heldout-72128-panel-checks_before_promising-5-57",
+      "family": "checks_before_promising",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "b3aec2b41bda3398e2f1ca698775c19a9001463798c4977fbadc0ba2c6bf8bda",
+        "717b1c147f34f710e5fab840ab87ed0d052fff90db7950d018fcb9aab5e5ec34",
+        "df7c4261c137c7832f80cda7fe59785683df027dfa9fb1ecebccdf6bc99c0e24"
+      ],
+      "costUsd": 0.00188912
+    },
+    {
+      "id": "heldout-72128-panel-checks_before_promising-8-21",
+      "family": "checks_before_promising",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "d8535a62748f20ea118818c882a5287279a1a77620388485e947c0f00c3ece2f",
+        "7ee7a28aea5234d44de92327237d2a84bbd6bbf44c52408cd3e787f22737f5a7",
+        "0e01373fa29c0340b2979dea71128a2444f53c319cc7f64350c3fb9c1c78a400"
+      ],
+      "costUsd": 0.0017990199999999997
+    },
+    {
+      "id": "heldout-72128-panel-checks_before_promising-0-27",
+      "family": "checks_before_promising",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "ac78a42661a51aa0cbc8d5e88c08cf1bb0bd260edaeaeea493eb3477317cface",
+        "a095282a55471a32f1e61c9c25ee3bb8a23bfd32d8ff20b595ab483426d0c913",
+        "1e5b2e58e9a3389604de31f1fcf77b27d76509dd13f52d6d6964cdaf07374b68"
+      ],
+      "costUsd": 0.00167388
+    },
+    {
+      "id": "heldout-72128-panel-coverage_before_offer-3-20",
+      "family": "coverage_before_offer",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "922b3c164ff2daef8601c3ae417c780361d597a894ee7e0e867f673f12cbc836",
+        "02ead01fc47256375e2e2e2f83713f5a83343738e7c64cc47eb49601c9f6d623",
+        "919de0d258137df8625e94103791d91912160d4b54d8fca3e245effcf9709707"
+      ],
+      "costUsd": 0.00197554
+    },
+    {
+      "id": "heldout-72128-panel-coverage_before_offer-2-50",
+      "family": "coverage_before_offer",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "54cb7dfe7147a2df34ede10f96157cdf39c36091cc6d97b8a957554f3de5d870",
+        "353514a56e82b819a75a5193aecdecfe9f4ae4a0e525be70847b22a9220ee8ac",
+        "f73e70f15bb01a5abb1357cd20e333defafb51009da524eb577b3b805bcee75c"
+      ],
+      "costUsd": 0.0019081000000000002
+    },
+    {
+      "id": "heldout-72128-panel-coverage_before_offer-7-66",
+      "family": "coverage_before_offer",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "6627b9b8d3fcc2ed354778d9d7663f2e8ddf1024373b15e392ac417a9c05fd82",
+        "a24a96154ac46bf8fbc4bc7e126fdb03c245b9f8f1ea5f3bf45719b2006b9331",
+        "69f0b249fd5a88143c45224c9af8534983ad8c3beceb597363af1873123b35ea"
+      ],
+      "costUsd": 0.0016805400000000001
+    },
+    {
+      "id": "heldout-72128-panel-coverage_before_offer-8-18",
+      "family": "coverage_before_offer",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "30b4fb6768f150cb63a5686e635a7b9935f0f9ca97a24362ede1995e5eadd2a0",
+        "394d2ddd1351da9168cf47e4098bc4b6b35aa001bf6e99e84730249ba4ab108e",
+        "5502c0a90aaa7a1dd76b1ce76c386221b332f8ad0905cd9183c355d2108f16db"
+      ],
+      "costUsd": 0.00210924
+    },
+    {
+      "id": "heldout-72128-panel-coverage_before_offer-0-66",
+      "family": "coverage_before_offer",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "59a5d318af826ed2a0d29e63749b367a1d18ab5f2ad3280dce7b40e97b59f62d",
+        "f4ba7d7d08a4826b44c6f7d9e36fd65062e62d3ae6463ec4b94e3ada1ae4f2d4",
+        "0a63df5d740056b25dcbb7bcc216f9e8ba5b3114450b8d112176a957cd4cc920"
+      ],
+      "costUsd": 0.0020356
+    },
+    {
+      "id": "heldout-72128-panel-explicit_confirmation-5-73",
+      "family": "explicit_confirmation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "cb15885212cdbb013c83eb7c1809f329872644d5f2e854c2fccab25be2c62529",
+        "3de674ae2998459cee4300cfc3fb837fb6316d91f873a1ee98f7df899ade714c",
+        "9531c59dd2f5bb99c2d52af1539e8b212c99df79cca33960315a2b7f7cf0b403"
+      ],
+      "costUsd": 0.00225764
+    },
+    {
+      "id": "heldout-72128-panel-explicit_confirmation-4-36",
+      "family": "explicit_confirmation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "ca609259676864a010b074fb9698c4d17489f7f7e6af35c68a231eb8d44d800f",
+        "0168e77dc6be571e5e725bfbdabc907d0df65bb984e6a61ec0e2a3b08f168c13",
+        "5867ab89bad03d061edda8ac890e83e0711330f4ae3ad50f3a0330c94459ff3b"
+      ],
+      "costUsd": 0.0020533
+    },
+    {
+      "id": "heldout-72128-panel-explicit_confirmation-9-38",
+      "family": "explicit_confirmation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "e8c6351070aab66f214f7280a0ff4a206e4177f85ad3963448c8c376ee18aef2",
+        "af560878eee0b0cc03cd20771cf9832384071669f9753922ee3e052cb8b167c2",
+        "fe222063576aafe292502f8a0ea1bca5407089c835342988039b128658ded075"
+      ],
+      "costUsd": 0.0018874200000000001
+    },
+    {
+      "id": "heldout-72128-panel-explicit_confirmation-0-43",
+      "family": "explicit_confirmation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "3676effb563c455fc3ef5cc82c4db807a56fbfa7476bfbc1d2a397d05390230f",
+        "76ec21de5d20e2dc5a11b3e950785fd0b0ce94aa35ae679fe3922cf488686520",
+        "1e8a58b3efcb790c07dbc7285f29118864c4175279a22cf8aa79fc2f31b78f3a"
+      ],
+      "costUsd": 0.0022108
+    },
+    {
+      "id": "heldout-72128-panel-explicit_confirmation-1-38",
+      "family": "explicit_confirmation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "400396e6de5357bcd1278d327f0e75fb76590348a6992ac7f5d4a2ac991527a2",
+        "d53b4a12952ea7d73068dcf32ff1d90db83dd196a00c570bbe7354af16c3a2f4",
+        "11c1383b00d99e7e155ff70de43674e03ca41cefa22a0f32f2c63bdf1fa0b5bd"
+      ],
+      "costUsd": 0.00199564
+    },
+    {
+      "id": "heldout-72128-panel-holds_instructions-2-55",
+      "family": "holds_instructions",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "40b1578fdbe7701efda56e40a43357322519cbfd7eb6ac43a957714d49649de9",
+        "31b17e8708d46acff59c682d47580d3167bc10ee2b5521726eaf2ef76e956320",
+        "c9725185c4530b1714635ceddfc02738b973aff9d3cff5754d62d0c698ec0f81"
+      ],
+      "costUsd": 0.00170084
+    },
+    {
+      "id": "heldout-72128-panel-holds_instructions-6-27",
+      "family": "holds_instructions",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "62b7dcceb75c72bc19ed3e50c6338a79459feeec87327d7e1ccc836ebf9f9b35",
+        "d9f2d23c826a7df72dc36257cc88b778543cc60d97bd763144c6789f1dd93302",
+        "5f78fca7be9124d7841be2ace8ab430ff0695668d6c025cec59896da4cd8a3f9"
+      ],
+      "costUsd": 0.00149084
+    },
+    {
+      "id": "heldout-72128-panel-holds_instructions-3-64",
+      "family": "holds_instructions",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "791d27e6ee6fe539bddee8e725de07035b593673cb993d9e4642650a7185bf0e",
+        "7eb9d8dc3cad1e182de7f1e9e55d738c6078b7172e61174f2e881e74daa34aa4",
+        "5102bfba63ec3f4cf4680eda907ff235a9f9f3d237f6eb93c1efb1c1e8ba851b"
+      ],
+      "costUsd": 0.00135876
+    },
+    {
+      "id": "heldout-72128-panel-holds_instructions-1-67",
+      "family": "holds_instructions",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "59ebfff5889a02c59ac9f3b3fd7282dee9fb64150aaadcbd0baa29de69a14bc9",
+        "1330ea75029038f0cdaaec2ac707b86cc2721bcfc2f69674d8d9f94bfa1f8b85",
+        "fec0ea91d27f8a7bbafa39ceee7fa2018399291dbd64e771aae2458c41fadd6b"
+      ],
+      "costUsd": 0.00140326
+    },
+    {
+      "id": "heldout-72128-panel-holds_instructions-0-59",
+      "family": "holds_instructions",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "7d507e913d3dbc1dd9baf9d0049d0617341277170a4e903bc51d6aa96203c286",
+        "9ade622d621f65f7cd8f19dc7e586d14dabcd071c4d1d46c140498340f7c21cf",
+        "087f88c27f975208178adb77c156e81ecb5735567256173b671c3ee9dd7262df"
+      ],
+      "costUsd": 0.00131384
+    },
+    {
+      "id": "heldout-72128-panel-honest_failure-2-57",
+      "family": "honest_failure",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "e200885d1405d417de12f3bf2dcf97331846c34e92e2dc9e2a4e75a2656dc085",
+        "afd71473655f710b197ea64122b9e200731ad6c56d22412074e2b4d53a48f810",
+        "85648d712d7fe1fa313e579bcbdf112838dad5623741af4610832008356c0e7f"
+      ],
+      "costUsd": 0.00155546
+    },
+    {
+      "id": "heldout-72128-panel-honest_failure-3-48",
+      "family": "honest_failure",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "6271d9bebc37cbfaa26c13b163d0477b7b88d1c8443b7e2df4aef5ed2f8cba05",
+        "d3f1f5acc7413da61629a31cd8f44b4bf10b9dcd840d91abeebc102e07b3bdfd",
+        "b74bc2108b57f31af812d065c0e8b6f3fcce838f73894a664d004c0b00cdbc48"
+      ],
+      "costUsd": 0.0016405
+    },
+    {
+      "id": "heldout-72128-panel-honest_failure-5-34",
+      "family": "honest_failure",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "72b09a416f20b13f861eaa81c4d8f45b7856da3fbb3ac8bc3d20f856166455d6",
+        "71b945e3f499b69e3ea89c3e6551998ff5966bb5d338eb4cd30d60c3309c3ae5",
+        "66b949601765cad348702a5402c239dc941a60558b1b122c27c7c251fe13ac41"
+      ],
+      "costUsd": 0.0019329999999999998
+    },
+    {
+      "id": "heldout-72128-panel-honest_failure-6-31",
+      "family": "honest_failure",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "633c803ae8fc41671a17b2a9aa695e99984e66e865d238d893567b398224eefc",
+        "dc5859c4a30e58951eceaa86550d973950615a83e8e6cfcaae054d7168cf14c3",
+        "5703f676629c35d89e3c4c12dbc84c082228a778f0fdc08d35f3234a5ec1fada"
+      ],
+      "costUsd": 0.00135996
+    },
+    {
+      "id": "heldout-72128-panel-honest_failure-7-34",
+      "family": "honest_failure",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "aa8a970e77e868a5cfacb9cb8d253c1c8c964a348f2e8841afc150f23260677b",
+        "80d8a23f8f17911df9836fb42f62ec6102118e4353b2e94bc176b302ac6cfbf9",
+        "82879346d2b4a8a1aa9520305ae6e924fd9fb0273a719cfdd1737c4e5e3777b9"
+      ],
+      "costUsd": 0.0017655000000000001
+    },
+    {
+      "id": "heldout-72128-panel-ledger_intact-9-10",
+      "family": "ledger_intact",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "0c7eb7237b8776091bb4980da66f39db3bcf915f482ac58e7347d323f98270d1",
+        "ec39b55e4e1e0feb021ade996f5b824a616a1c183375e0652aa895d4f3def6b2",
+        "f173bc24d96cae028fe04ffa5eff470d5f9e6995c8f0c72d92d88655c865d6ba"
+      ],
+      "costUsd": 0.00208096
+    },
+    {
+      "id": "heldout-72128-panel-ledger_intact-3-15",
+      "family": "ledger_intact",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "430fe7671bd5d3fa0182b291e8208115993ec032033113a4fad52ed91cd752bb",
+        "6adf9c14baa33d2885fe1c509d1af529e471e3b04cfba59bdcb437d1ebb3a367",
+        "12435d9333cc0e531ac7d63363be0b1809ffb8465c5cb8189fce5f201b694727"
+      ],
+      "costUsd": 0.00175154
+    },
+    {
+      "id": "heldout-72128-panel-ledger_intact-4-60",
+      "family": "ledger_intact",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "0e2febdd5b621cf36cded80e0c768ab6ab6ac6301bf4f25cff9252f8b001047a",
+        "69fb83ab667ff60e521f9afe328d4a2d3ce0e24ace2f7a6d69238111dee7ebf3",
+        "61c8ad902752268914c5f040adb0e4e46998ef795164237394779d8b4856fcc1"
+      ],
+      "costUsd": 0.0021580799999999997
+    },
+    {
+      "id": "heldout-72128-panel-ledger_intact-0-38",
+      "family": "ledger_intact",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "3c6a56ea27fce331258b2233ce8c58c4430a5630e6e50acd8157aa41a7dec4ed",
+        "bed441d4ad14ff339a2867355e09613b0ee9306a6d7332854bb2e8f16be8d587",
+        "b6ab67088f1048f55c72a1e705d0a0a058c4b01b3bbbcfb3c2344a1052d6adac"
+      ],
+      "costUsd": 0.0021815800000000002
+    },
+    {
+      "id": "heldout-72128-panel-ledger_intact-2-52",
+      "family": "ledger_intact",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "2ad673f26f57a2c1c0bb51b431d8f0dbba5226b5f0373dd66bec7295e2ece4b4",
+        "8e5770aee78820feff87171ba357789f1cba17bc9f2d55085058e164cecb82cb",
+        "1a4d8745939ff5d5ad382dc22268b2be5bf1c19b79442fa1244ad3fd3e8e6d7c"
+      ],
+      "costUsd": 0.0023780800000000003
+    },
+    {
+      "id": "heldout-72128-panel-no_invented_data-6-18",
+      "family": "no_invented_data",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "366eb5e44742d4ea8567a1c25ebdf6d29af656362374163d72a70a5759787d33",
+        "d98d9228f5b5cdef83495f4234786eac63043662b1e44ecc50fd822e7aeb8755",
+        "7c247d9b3a62c8ccf105e126a4dd345540b7f9073fe538241e1206249e9bd85c"
+      ],
+      "costUsd": 0.0016038799999999998
+    },
+    {
+      "id": "heldout-72128-panel-no_invented_data-8-73",
+      "family": "no_invented_data",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "82df9993ac10fb31142cd3a0c785391b9d9a318c1b68d9f46766599b3aa687da",
+        "d656c219c4a3a8fd5ccca9f3781a030c14dd90e00c41190dd5b9484395cc728f",
+        "7efd7aabbe43277754f5eb5f8597d99514ca457e51c6084347414fc72ce85cc6"
+      ],
+      "costUsd": 0.0015555200000000001
+    },
+    {
+      "id": "heldout-72128-panel-no_invented_data-3-73",
+      "family": "no_invented_data",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "bbfe39ffd81f387b6644c1f8fc32ca1922519274bc9830e43458b81697df6d65",
+        "52a89887ff117e8c6e8bb98178ef83a281cfeefb3130b006d3657e0be99cc1df",
+        "6eadc37125876d785b627074789899ab6342db74ebfa900d005cfc935419e26c"
+      ],
+      "costUsd": 0.00143668
+    },
+    {
+      "id": "heldout-72128-panel-no_invented_data-9-68",
+      "family": "no_invented_data",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "5431bacdc0ab031d41926cdec56d1f7517a922190572dea0f4b9bf6cb62b50fa",
+        "35539b48566799e26970dba1313aae89e8504974446fe93ae2bf66b0f1126dbc",
+        "1f52ee8002f8d8c11f1c742ae6921ef8e4b7b2662232d6c12e9c209d824a4ee3"
+      ],
+      "costUsd": 0.0017903200000000002
+    },
+    {
+      "id": "heldout-72128-panel-no_invented_data-7-29",
+      "family": "no_invented_data",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "2dcaf962d9a160db391ac4c02746068dcf7e41a81a5a1b04926c4aab074a8068",
+        "94c8717e0cc4a63078d4a90c864358fcb7d03befac0331059e74614b7b80102e",
+        "9b7af0916b2af04e5fe5cdcb0e42ed5e886b12d5b9a6f68e44444d0e87504857"
+      ],
+      "costUsd": 0.00148418
+    },
+    {
+      "id": "heldout-72128-panel-one_question_per_turn-6-37",
+      "family": "one_question_per_turn",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "f9765aff3e860c9d48a8afbf421f63763eddb2f2f649cf78aa4baa8d9cd7fd55",
+        "81c664e5eb111d7d521228867e750a7d93a84d7781445202ae397fe142f4c741",
+        "8e2285f3f8d93e40fce219d27c85c7a20ca23189c41ad4c0fa4b98f264b49f24"
+      ],
+      "costUsd": 0.0012745400000000002
+    },
+    {
+      "id": "heldout-72128-panel-one_question_per_turn-1-57",
+      "family": "one_question_per_turn",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "c4742dad98aa27a899a858b5b409ad99a374f320ef053e35ec7612bff8a6c561",
+        "4ca61c08de41913e042f5c7241077e290f2158d38da2cd1d6cedea34b1278f43",
+        "5882e52bd502194d96d42b84deb199acb81bcb364932052c44d9f640b0c8fee9"
+      ],
+      "costUsd": 0.00112622
+    },
+    {
+      "id": "heldout-72128-panel-one_question_per_turn-3-71",
+      "family": "one_question_per_turn",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "8d08aa3a546b5d8be3cfaa4aa27b7860c4aa897211fd05a0bba1cf10a8224d4c",
+        "e0ba075d26925e0f5a1ebd0de062bdc6fdfc6cd1b694d7706746e15b048236c2",
+        "8f1c5de10afe650fa8c8aa3458e2bff9999b485cc1b0cc8e087f3fe451ba3c5e"
+      ],
+      "costUsd": 0.00128522
+    },
+    {
+      "id": "heldout-72128-panel-one_question_per_turn-4-33",
+      "family": "one_question_per_turn",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "66d970855a4cd0d093de60b623caae997fc480f2fcf0cd69b47755d901ec8ee3",
+        "a37172c9789105156e2ce2dec4f3d52b335b7351e155bfaa779162face8efe2e",
+        "409305d13746505c13f5b887e11dadeb24e9344417f7434c62f36201b2cd2a06"
+      ],
+      "costUsd": 0.00180204
+    },
+    {
+      "id": "heldout-72128-panel-one_question_per_turn-2-31",
+      "family": "one_question_per_turn",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "55ea83a8ae5aa778486f1d7cbfe38a21dec204214d05812a39c085a2a67c168b",
+        "9875a7f7336cb6e19e44fa92792260481d20613803e1c7014715610306e8cd41",
+        "10b9feb1e97999ff2cdbcf397fe3a9ca57622c59d64e9ce9e7b8f4a24b26e457"
+      ],
+      "costUsd": 0.00131354
+    },
+    {
+      "id": "heldout-72128-panel-plain_language-3-78",
+      "family": "plain_language",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "0d656b86a53d67d1dd6639dd31bfff32862962c42ccf5d1466b428d68b6b10e0",
+        "b602ca0d080c908dce892e793572884d5813ccc428e0c948f453d083b321ef1a",
+        "3f26dff2ab8922091451c104c3d1be93c1ab12beccd0ce3a90b2966c5007f9d0"
+      ],
+      "costUsd": 0.0018823200000000003
+    },
+    {
+      "id": "heldout-72128-panel-plain_language-7-48",
+      "family": "plain_language",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "03f1d6fee383448d1983acd77f15999081fadb325fd370f8a4e04bda0a1aea62",
+        "2852722102871fb6c94f89b01dbcaf02cbba911b77714173a03e4f5c5eb1c899",
+        "7060e90b054a5fd56a6722e15dd5fab36f427e60a7b96689cdc144716f0b411c"
+      ],
+      "costUsd": 0.00182782
+    },
+    {
+      "id": "heldout-72128-panel-plain_language-6-16",
+      "family": "plain_language",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "640e4f4504c71a3adc18a301de5cda3b44ea17d6e4b385c497f420636b196779",
+        "a104a7e0f76190547e1d729a22a31002893f244a3a9b746d690d072fd760e107",
+        "26a1d2d059481712887098af914e664e3e35a5a3c891c338b492b2b89abc90f7"
+      ],
+      "costUsd": 0.00175288
+    },
+    {
+      "id": "heldout-72128-panel-plain_language-1-36",
+      "family": "plain_language",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "7d78135c38b0039c74524c18564223b69157f616fee923bda5691752e931d3be",
+        "9272ecc89cd5c25321754f7d8778ae20e12d39faa90d86cd26f2e4c63433ef97",
+        "cfbe046c0ec9115cf8fc37ac6bcd3a3e2806080c5d1147aab6b151d85d38f6ce"
+      ],
+      "costUsd": 0.00192982
+    },
+    {
+      "id": "heldout-72128-panel-plain_language-4-51",
+      "family": "plain_language",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "3a0beba7cce48e92031300d7498fd77288c04664e84226d1364801bc2dcb5f96",
+        "a8931ac25b2757e93558f4acc166c139ec2ab14d4f6c71670a4f9b3338aadb64",
+        "8f0462a0d29f32a216d8257b2572506fbde81216f036c133036f305d7580f973"
+      ],
+      "costUsd": 0.00207038
+    },
+    {
+      "id": "heldout-72128-panel-resumes_pending_step-0-52",
+      "family": "resumes_pending_step",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "7bc5a59b14e6fd10be68ea83dcc33bb4718946e490db0067e5a99867064dcbc4",
+        "198fc4b2467f9edb0d409046ffd11456341af19e4002eca90551c2e5b8d4ec73",
+        "4bbf3a82da28795d4b572e877d22c8ba37a78c16ea69dde39dfc78d037d7d0ae"
+      ],
+      "costUsd": 0.00167672
+    },
+    {
+      "id": "heldout-72128-panel-resumes_pending_step-5-48",
+      "family": "resumes_pending_step",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "f84d3ebf5213ccc146bad0c83076db9ac99a4668927d18eaae55b10dd940b6ff",
+        "54ba852a4e7f5f3fdcda8f40c78949516c7a74c244c5a2ba13e1fcd2c5037b1f",
+        "90321d68de8a1d357429d7946999a9deafb06350abbee88a00beec804c007001"
+      ],
+      "costUsd": 0.0022322600000000002
+    },
+    {
+      "id": "heldout-72128-panel-resumes_pending_step-6-35",
+      "family": "resumes_pending_step",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "9c5604eb927903975f473696bb94e1671c26de74b1e5d703b33efd2fc3d23d13",
+        "11a7e48cadb712ba7730efafa6ba7f6c6fa7f572749067e73cd959c758ea64dc",
+        "2a3e80c97d3da4e62e98425037d3967e26b986651f4b35f4dd6dfc2e50bbda76"
+      ],
+      "costUsd": 0.0017232200000000001
+    },
+    {
+      "id": "heldout-72128-panel-resumes_pending_step-2-17",
+      "family": "resumes_pending_step",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "cd654927b34bb11051780d6e072494f39012a71f325f5a5b6dfe6fd7c9cc3679",
+        "035f334955063567c5c32c3896a7ba7e50be617977ca3669cee06bc341258182",
+        "4fe2536477e3e8ee17484b14a51f53fe6b2296f3d66997091dc934daed6c6ac3"
+      ],
+      "costUsd": 0.00189922
+    },
+    {
+      "id": "heldout-72128-panel-resumes_pending_step-9-10",
+      "family": "resumes_pending_step",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "4dd74d79678bffb36cf694d9d561401c4ab6e878e427af98c294160e27c634e3",
+        "bd0a39313962a694cc580d87d61b2e044a4131e964b713ff5801c3ed11defaf1",
+        "186739c6f3d105608e844a9c7ca6791971887ce0f196e30f76f39b84726fb723"
+      ],
+      "costUsd": 0.00204868
+    },
+    {
+      "id": "heldout-72128-panel-sheet_matches_catalog-9-43",
+      "family": "sheet_matches_catalog",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "e2d441c96820bbae34bd87d929040203529347a14b13fa24fd9edaf4947a8ad0",
+        "e8643fcac86724b636fa441edcfad9209b59e0d08437f8043af2d8aa2fa1c051",
+        "8627957bd28195d49d04b39fde062617be4204dab0fc8f63cbfeba4bd8f5d53f"
+      ],
+      "costUsd": 0.00225734
+    },
+    {
+      "id": "heldout-72128-panel-sheet_matches_catalog-3-30",
+      "family": "sheet_matches_catalog",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "adf1345365cd296e49316bff04b58b01cef27925c28e6058f29261c79bcf65d5",
+        "f5bba104a1eeca1cf5ac18766f7bba00d997428e187cbfdf0919520efe4b4154",
+        "8bf83bd332f4e9975c330b3b3e9ce71229d573f30d0aa3faf8952253f9cfacad"
+      ],
+      "costUsd": 0.0022987000000000003
+    },
+    {
+      "id": "heldout-72128-panel-sheet_matches_catalog-6-28",
+      "family": "sheet_matches_catalog",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "3ed301a21c79101cc31df717a4e0b278777434b5965d9c793ad1abe91be8f6a1",
+        "dff60b070951e465552d7f7ad2f5cec9a7e3045037f5596a21a7bedfc384693b",
+        "369032b47e8236f61b115b271a523fd1460072ee0c7bdd7837bc140f0e79672c"
+      ],
+      "costUsd": 0.0027807
+    },
+    {
+      "id": "heldout-72128-panel-sheet_matches_catalog-1-65",
+      "family": "sheet_matches_catalog",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "915dcd9da348dde6bd5968c69fd8bd5821a7ee21a401ee46df3265df91d2105b",
+        "52f266ca1fe414bd59ce0b4c71d30204f6ad2ce944b9b079782ac09bf4ddd2d0",
+        "a5382a90a786a0d7de89e12b67a292a8e760d2416845b9a680eb455703a7f9bf"
+      ],
+      "costUsd": 0.0027247
+    },
+    {
+      "id": "heldout-72128-panel-sheet_matches_catalog-8-72",
+      "family": "sheet_matches_catalog",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "10e5eaeae75436771145d36a61073515291c9854bc6417c7cc7134ae3c4df47b",
+        "b01365f50895ebef30aaee2202ba48094ec3f02baafa007b6bf6b9ae33d9dc8b",
+        "2973ae332bad58a17379e4eb1181b8b63de7963a692a7c636d9209233967a1a4"
+      ],
+      "costUsd": 0.00288434
+    }
+  ]
+}

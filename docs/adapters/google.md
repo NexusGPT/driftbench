@@ -2,13 +2,13 @@
 
 Status: shipped, release phase. It passes the [contract suite](index.md#the-contract-suite) in chat mode, on a fake client that plays the Acme example agent, and on the real `@google/genai` client with its `fetch` stubbed. It has not run against a live model yet.
 
-The google adapter runs an agent built on the Gemini API: a model, a system instruction and function declarations. The SDK is not a dependency of driftbench: the adapter takes your client and types it with a local interface that mirrors `client.models.generateContent`. `@google/genai` is an optional peer dependency of `@driftbench/adapters`; the shapes match version 2.28.0.
+The google adapter runs an agent built on the Gemini API: a model, a system instruction and function declarations. The SDK is not a dependency of driftbench: the adapter takes your client and types it with a local interface that mirrors `client.models.generateContent`. `@google/genai` is an optional peer dependency of `@agent-nexus/driftbench-adapters`; the shapes match version 2.28.0.
 
 ## Options
 
 ```ts
 import { GoogleGenAI } from '@google/genai';
-import { googleAdapter } from '@driftbench/adapters';
+import { googleAdapter } from '@agent-nexus/driftbench-adapters';
 import { salesPrompt, salesTools } from './agent'; // your prompt, and a function that returns SdkTool[]
 
 const adapter = googleAdapter({
@@ -52,6 +52,10 @@ The model's content goes back unchanged within the block, so a Gemini 3 signed f
 
 Contents of the same role in a row merge into one. Function names keep their dots: the API accepts letters, digits, underscore, dot, colon and dash, 128 at most. A call without an id gets one for its segments and goes back without one.
 
+The current Google serializer omits empty text-only turns without adding placeholder text. This describes the adapter's serialization rule, not a Gemini API restriction. `Observed.historyNormalizations` records `google`, the original role and the zero-based history index for each omission. The neutral session history stays intact. HTML and JUnit reports show one summary line per block, such as `3 empty turns not sent on google`; JSON retains the per-index detail. All carried text and tool records remain subject to exact read-back checks. See the [observation schema reference](../reference/observed.md#history-normalization).
+
+Adapter versions and model-request bytes are unchanged. Cached observations recorded before this change carry no normalization note until they are rerun.
+
 ## What `send` returns
 
 * Text parts are text segments. Thought parts (`thought: true`) are reasoning and add no segment. Each `functionCall` is a tool call, followed by its result.
@@ -70,7 +74,7 @@ As on the anthropic adapter: each call of a `sideEffects` tool that did not fail
 
 | Error | Becomes |
 |---|---|
-| an `ApiError` with a 429 or any 5xx status, or a network error in the error or its causes (a `fetch failed` with `ECONNREFUSED` in its cause), after the [shared retry policy](../retries.md)'s attempts | `AdapterTransportError`, marked exhausted: the runner does not retry the block on top |
+| an `ApiError` with a 408, 429 or any 5xx status, or a network error in the error or its causes (a `fetch failed` with `ECONNREFUSED` in its cause), after the [shared retry policy](../retries.md)'s attempts | `AdapterTransportError`, marked exhausted: the runner does not retry the block on top |
 | any other status or error | `AgentFailure` |
 | an answer that is not an object | `AgentFailure` |
 | an answer with no candidate: the block fails, naming `promptFeedback.blockReason` when the prompt was blocked | `AgentFailure` |

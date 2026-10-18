@@ -24,6 +24,7 @@ export {
   type CostLine,
   cellIdOf,
   type MinimumDetectableEffect,
+  mdeLine,
   minimumDetectableEffect,
   outcomeOf,
   type PlannedCell,
@@ -32,6 +33,7 @@ export {
   runCampaign,
   runsByCell,
 } from './campaign';
+export { capabilityGap, type GivenLayers } from './capability';
 export { type CellKey, cellId } from './cell';
 export {
   type CompoundingBlock,
@@ -63,6 +65,8 @@ export {
   ledgerContradictions,
   ledgerVerdicts,
 } from './ledger';
+export { preflightTargetPrices, TokenPriceError, TokenPrices } from './pricing';
+export { adapterProvenance, provenanceDigest, provenanceHash, runProvenance } from './provenance';
 export { type RecoveryMetrics, type RecoveryOptions, recoveryOf } from './recovery';
 export {
   CallFailure,
@@ -72,7 +76,7 @@ export {
   retryLayer,
   withRetry,
 } from './retry';
-export { type RunOptions, runSpec } from './run';
+export { type RunEvent, type RunOptions, runSpec } from './run';
 export {
   canonicalPreviousStage,
   classifyStage,
@@ -89,3 +93,15 @@ export {
   type TranscriptComparison,
   transcriptOf,
 } from './transcript';
+export {
+  blockStatus,
+  blocksOutcome,
+  countBlocks,
+  countRuns,
+  isScored,
+  type RunOutcome,
+  runOutcome,
+  skipReason,
+  unscoredText,
+  type VerdictCounts,
+} from './verdicts';

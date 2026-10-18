@@ -1,4 +1,4 @@
-# @driftbench/checks
+# @agent-nexus/driftbench-checks
 
 Machine checks for driftbench blocks: tool calls, text, language, personal data, stage, skills, guards, workspace, artifacts, schemas and budget, each verdict with evidence.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install @driftbench/checks
+npm install @agent-nexus/driftbench-checks
 ```
 
 Node.js 22 or newer. ESM only, with TypeScript types.
@@ -20,6 +20,7 @@ Node.js 22 or newer. ESM only, with TypeScript types.
 * `createCustomCheck`
 * `createLangCheck`
 * `createSimilarityCheck`
+* `statedLength` (opt-in) and `preferByStatedLength`
 * `scanPii`
 
 The full list of exports is in the type declarations (`dist/index.d.ts`).
@@ -30,4 +31,4 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## License
 
-Apache-2.0
+MIT

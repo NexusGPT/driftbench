@@ -151,4 +151,42 @@ describe('a catalogue of checks', () => {
       ['C2', 'table'],
     ]);
   });
+
+  it('reads a check once across catalogue files, with its trigger material and the hook script that holds it', async () => {
+    const root = await estate({
+      'CLAUDE.md': RULES,
+      '.claude/settings.json': JSON.stringify({
+        hooks: {
+          PreToolUse: [
+            {
+              matcher: 'Bash',
+              hooks: [{ type: 'command', command: 'python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/pre.py' }],
+            },
+          ],
+        },
+      }),
+      '.claude/hooks/pre.py': 'import sys\n# K1: refuse a swallowed stderr\nsys.exit(0)\n',
+      '.claude/hooks/CATALOGUE.json': JSON.stringify({
+        K1: {
+          kind: 'check',
+          event: 'PreToolUse (Bash)',
+          watches: 'a command ending in `2>/dev/null` or `|| true`',
+          status: 'enforce',
+        },
+        K2: { kind: 'check', event: 'Stop', watches: 'a reply that promises a date', status: 'enforce' },
+      }),
+      '.claude/hooks/tools/catalogue-tags.json': JSON.stringify({
+        K1: { kind: 'check', event: 'PreToolUse (Bash)', status: 'enforce', tagged: 'io' },
+      }),
+    });
+    const raw = await new ClaudeCodeReader().read(root);
+    const checks = raw.guards.filter((guard) => guard.scope === 'catalogue');
+    expect(checks.map((guard) => [guard.check?.id, guard.check?.trigger, guard.check?.host])).toEqual([
+      ['K1', ['2>/dev/null', '|| true'], '.claude/hooks/pre.py'],
+      ['K2', [], undefined],
+    ]);
+    expect(raw.notes.map((note) => note.message)).toContain(
+      'a later catalogue repeats 1 check an earlier one holds; it is read once',
+    );
+  });
 });

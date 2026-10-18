@@ -1,0 +1,11 @@
+{
+  "sourceAndPoolHashes": "PASS",
+  "frozenCascadeRoutes": "PASS",
+  "pointParser": "PASS",
+  "strictReplay": "PASS",
+  "missingReplayFailsClosed": "PASS",
+  "restrictedPython": "PASS",
+  "pointwiseSchemasAndPlainSolves": "PASS",
+  "newModelCalls": 0,
+  "at": "2026-10-13T08:43:12.867Z"
+}
