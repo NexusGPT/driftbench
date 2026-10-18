@@ -4,13 +4,17 @@ The repaired bank retains the original 402 IDs and adds five separate label-set 
 
 ## Level per seed
 
+Historical seed-1 result for the earlier 402-item bank only. The repaired 419-item baseline is **pending PR 692**.
+
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
 | 1 | 0 |
 <!-- level-table:end -->
 
-`baseline.json` records seeds 1–20 and the canonical HEAD-derived hidden seed against the default adapter, including the measured commit and every item result. `journal.jsonl` holds this iteration-0 row. `journal-seed1.jsonl` preserves the superseded one-seed baseline. No executor iteration or hardness forecast is supplied by this repair.
+The existing `journal.jsonl` is the historical iteration-0 row for commit `cf184f5943fd`, not a measurement of the repaired bank. The requested seeds 1–20 plus canonical hidden baseline cannot measure the pointer component before PR 692 supplies it. No replacement baseline numbers or executor iterations are claimed. `audit.md` records this dependency.
+
+After PR 692 merges, the runner checks reader availability before running any bank item. Missing imports or required exports stop the command with a clear error; they do not generate synthetic baseline rows.
 
 Reproduce from a clean source commit:
 
@@ -26,7 +30,7 @@ Run through the host's heavy-command slot wrapper when required. An adapter over
 
 ## Open items
 
-Component PR 692 and the validator observation exports must be integrated before implementation repairs can be piloted. The baseline records each failing item.
+Component PR 692 and the validator observation exports must be integrated before implementation repairs can be piloted. The repaired baseline and all real-component audit results remain pending.
 
 ## Hypotheses tried
 

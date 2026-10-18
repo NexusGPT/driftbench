@@ -9,4 +9,6 @@ The bank repairs do not constitute the independent audit in `docs/validators.md`
 | cause review | pending | Author-declared cause tags and composite exclusions are not a reviewed distinct-fix count. |
 | planted bugs | pending | Requires independent mutations of the merged real component. |
 
-The seeds 1–20 plus hidden baseline is recorded in `baseline.json` and the journal after the repaired bank runs. No forecast or merge-gate pass is claimed from this baseline.
+The repaired bank's seeds 1–20 plus canonical hidden baseline is **pending PR 692**. This branch's estate package has no pointer-reader namespace. The attempted default-adapter run did not produce a completed baseline and was stopped; no result is inferred from that attempt. The runner now checks availability before starting items and fails clearly when the component cannot load. No substitute reader produces baseline numbers.
+
+The existing `journal.jsonl` preserves the historical seed-1, 402-item measurement at `cf184f5943fd`; it is not a baseline for this repaired 419-item bank. No hardness forecast or merge-gate pass is claimed.

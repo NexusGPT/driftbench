@@ -161,17 +161,21 @@ const NAMES = [
 const SPECIFIER = '@agent-nexus/driftbench-estate';
 let loaded: Promise<ReaderExports> | undefined;
 
-function load(): Promise<ReaderExports> {
-  loaded ??= (async () => {
+/** Bounds module loading once, before a baseline can spend an item timeout on a missing component. */
+export async function loadReaderExports(
+  importer: () => Promise<Record<string, unknown>>,
+  timeoutMs = 5_000,
+): Promise<ReaderExports> {
+  let timer: NodeJS.Timeout | undefined;
+  const importing = (async () => {
     let mod: Record<string, unknown>;
     try {
-      mod = (await import(/* @vite-ignore */ SPECIFIER)) as Record<string, unknown>;
+      mod = await importer();
     } catch (cause) {
       throw new ReaderNotReachable(
         `${SPECIFIER} cannot be loaded (${cause instanceof Error ? cause.message : String(cause)})`,
       );
     }
-    // The reader is exported as the `pointer` namespace of the estate package, and its atom builder as `scan.AtomBuilder`.
     const ns = (mod.pointer ?? {}) as Record<string, unknown>;
     const merged: Record<string, unknown> = { ...ns, AtomBuilder: mod.AtomBuilder };
     const missing = NAMES.filter((n) => merged[n] === undefined);
@@ -179,7 +183,34 @@ function load(): Promise<ReaderExports> {
       throw new ReaderNotReachable(`${SPECIFIER} does not export ${missing.join(', ')} (namespace pointer)`);
     return merged as unknown as ReaderExports;
   })();
+  const deadline = new Promise<never>((_resolve, reject) => {
+    timer = setTimeout(
+      () =>
+        reject(
+          new ReaderNotReachable(
+            `${SPECIFIER} import did not settle within ${timeoutMs} ms; the reader component must be available before a baseline`,
+          ),
+        ),
+      timeoutMs,
+    );
+  });
+  try {
+    return await Promise.race([importing, deadline]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+function load(): Promise<ReaderExports> {
+  loaded ??= loadReaderExports(
+    async () => (await import(/* @vite-ignore */ SPECIFIER)) as Record<string, unknown>,
+  );
   return loaded;
+}
+
+/** A real baseline requires the actual reader exports before it runs any item or writes any score. */
+export async function assertReaderAvailable(): Promise<void> {
+  await load();
 }
 
 /* ----- cut ----- */

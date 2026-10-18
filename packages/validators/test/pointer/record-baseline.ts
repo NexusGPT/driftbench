@@ -5,9 +5,16 @@ import { bankSummary } from '../../src/bank';
 import { JournalRowSchema } from '../../src/journal';
 import { runSeeds, seedLabel } from '../../src/ladder';
 import { pointerLadder } from '../../src/ladders/pointer';
+import { assertReaderAvailable } from '../../src/ladders/pointer/sut/reader';
 import { hiddenSeed, seedSpecs } from '../../src/seeds';
 
 if (process.env.DRIFTBENCH_POINTER_SUT) throw new Error('Baseline requires the actual default adapter');
+try {
+  await assertReaderAvailable();
+} catch (cause) {
+  console.error(`BASELINE_PENDING PR 692: ${cause instanceof Error ? cause.message : String(cause)}`);
+  process.exit(2);
+}
 const root = process.cwd();
 const dirty = execFileSync(
   'git',

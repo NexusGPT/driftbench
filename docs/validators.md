@@ -256,6 +256,8 @@ A validator is merged only with its hardness measured, not asserted.
 5. A forecast under 100, or fewer than 100 distinct causes, sends the lane back to section 12.2 to extend the bank, with the families it extended named in the handoff.
 6. A pilot that fixes nothing in ten iterations means the items are miswritten or the component is missing a foundation; both go to the maintainer.
 
+Composite checks (`causeKind: composite`) retain their bank verdicts but contribute no distinct-cause credit. If only composite checks fail, `failingCauses: 0` is a valid journal measurement. Zero causes still fails the distinct-cause merge gate; accepting the row does not certify hardness or replace the independent cause review.
+
 The iteration 0 row and the ten pilot rows are the first rows of `validators/<component>/journal.jsonl`, and `driftbench validate <component> --hardness` prints the measurement from them: bank size per family and tier, score at iteration 0, score after the pilot, items fixed per iteration, the forecast, and whether the gate holds.
 
 ### 12.5 Floors under the contract
