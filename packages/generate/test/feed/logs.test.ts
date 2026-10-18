@@ -277,6 +277,115 @@ describe('feedFromLogs: the calibration of each group', () => {
   });
 });
 
+describe('feedFromLogs: the prior of the store names every group it read', () => {
+  it('names both groups, their counts with their units and their set hashes, after a two-scope feed', async () => {
+    const result = await feedFromLogs({
+      store: fixtureStore(),
+      conversations: logs(40),
+      reader: keywordReader([]),
+      scopes: SCOPES,
+      options: { variables: ONLY, minDecided: 10 },
+    });
+    const prior = result.store.prior;
+    expect(prior.kind).toBe('fitted');
+    const source = prior.kind === 'fitted' ? prior.source : '';
+    expect(source).toContain('session_state');
+    expect(source).toContain('customer_mood');
+    expect(source).toContain('40 past conversations');
+    expect(source).toContain('80 turns');
+    expect(source).not.toContain('80 past conversations');
+    expect(source).toContain((result.reports.conversation?.set_hash ?? '?').slice(0, 12));
+    expect(source).toContain((result.reports.turn?.set_hash ?? '?').slice(0, 12));
+  });
+
+  it('counts turns as turns when only a turn-scoped variable is read', async () => {
+    const result = await feedFromLogs({
+      store: scoped({ customer_mood: 'turn' }),
+      conversations: logs(40),
+      reader: keywordReader([]),
+      options: { variables: ['customer_mood'], minDecided: 10 },
+    });
+    const prior = result.store.prior;
+    const source = prior.kind === 'fitted' ? prior.source : '';
+    expect(source).toContain('80 turns');
+    expect(source).not.toContain('past conversations (set hash');
+  });
+
+  it('leaves the prior as it was when no variable was fitted', async () => {
+    const result = await feedFromLogs({
+      store: fixtureStore(),
+      conversations: logs(5),
+      reader: keywordReader([]),
+      scopes: SCOPES,
+      options: { variables: ONLY, minDecided: 1000 },
+    });
+    expect(result.store.prior).toEqual({ kind: 'declared' });
+  });
+});
+
+describe('feedFromLogs: each scope takes its own calibration', () => {
+  it('corrects both groups when both bring items, and not with the items of the other scope', async () => {
+    const conversationItems = [
+      ...Array.from({ length: 12 }, () => ({
+        text: 'user: I have never used this.',
+        truth: { session_state: 'first_time' },
+      })),
+      ...Array.from({ length: 12 }, () => ({
+        text: 'user: I am a regular here.',
+        truth: { session_state: 'returning' },
+      })),
+    ];
+    const turnItems = [
+      ...Array.from({ length: 12 }, () => ({
+        text: 'Thank you, no rush.',
+        truth: { customer_mood: 'calm' },
+      })),
+      ...Array.from({ length: 12 }, () => ({ text: 'I am furious.', truth: { customer_mood: 'upset' } })),
+    ];
+    const result = await feedFromLogs({
+      store: fixtureStore(),
+      conversations: logs(40),
+      reader: keywordReader([]),
+      scopes: SCOPES,
+      calibration: { conversation: conversationItems, turn: turnItems },
+      options: { variables: ONLY, minDecided: 10 },
+    });
+    expect(result.reports.conversation?.variables[0]).toMatchObject({
+      id: 'session_state',
+      corrected: true,
+      calibrationItems: 24,
+    });
+    expect(result.reports.turn?.variables[0]).toMatchObject({
+      id: 'customer_mood',
+      corrected: true,
+      calibrationItems: 24,
+    });
+  });
+
+  it('gives a group no calibration when only the other scope brought items', async () => {
+    const turnItems = [
+      ...Array.from({ length: 12 }, () => ({
+        text: 'Thank you, no rush.',
+        truth: { customer_mood: 'calm' },
+      })),
+      ...Array.from({ length: 12 }, () => ({ text: 'I am furious.', truth: { customer_mood: 'upset' } })),
+    ];
+    const result = await feedFromLogs({
+      store: fixtureStore(),
+      conversations: logs(40),
+      reader: keywordReader([]),
+      scopes: SCOPES,
+      calibration: { turn: turnItems },
+      options: { variables: ONLY, minDecided: 10 },
+    });
+    expect(result.reports.conversation?.variables[0]).toMatchObject({
+      corrected: false,
+      calibrationItems: 0,
+    });
+    expect(result.reports.turn?.variables[0]).toMatchObject({ corrected: true });
+  });
+});
+
 describe('feedFromLogs: what the reader sees and what is kept', () => {
   const RAW = [
     JSON.stringify({
