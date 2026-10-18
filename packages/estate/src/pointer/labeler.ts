@@ -1,6 +1,6 @@
 import { ModelError } from '@agent-nexus/driftbench-generate';
 import type { Recorded, Wire } from './cassette';
-import type { LabelSet, Window } from './labels';
+import type { LabelContext, LabelSet, LinkAnswer, SpanAnswer, Window } from './labels';
 
 /**
  * A labeler is a port: a window of numbered units and a label set in, an opinion per unit out. Nothing else
@@ -24,6 +24,10 @@ export type Opinion = {
   probabilities?: Record<string, number>;
   /** The unit, as its index in the file, at the other end of a label that asks for one. */
   target?: number;
+  /** Clauses of the unit, as offsets into its text. */
+  spans?: SpanAnswer[];
+  /** Atoms the unit points at. */
+  links?: LinkAnswer[];
   /** The first 12 characters of the cassette key of the answer this opinion comes from. */
   source?: string;
 };
@@ -47,9 +51,9 @@ export interface Labeler {
   /** The most units one request for this set may hold. */
   maxUnits(set: LabelSet, wanted: number): number;
   /** The request as it goes on the wire. Pure: the same set and window give the same bytes. */
-  render(set: LabelSet, window: Window): Wire;
+  render(set: LabelSet, window: Window, context?: LabelContext): Wire;
   /** The opinions a recorded answer gives. Pure: a threshold may change here without a new call. */
-  opinions(answer: Recorded, set: LabelSet, window: Window): Opinions;
+  opinions(answer: Recorded, set: LabelSet, window: Window, context?: LabelContext): Opinions;
   /** The network call. Absent on a labeler that can only replay. */
   call?(wire: Wire, set: LabelSet, window: Window, attempt?: number): Promise<Recorded>;
 }

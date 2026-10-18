@@ -2,7 +2,7 @@ import type { HttpOptions } from '@agent-nexus/driftbench-generate';
 import { sha } from './cut';
 import { createAnthropicLabeler } from './dense';
 import { type Labeler, type LabelerClass, LabelerConfigError, type Opinion } from './labeler';
-import { canonical, type LabelSet } from './labels';
+import { canonical, type LabelSet, type LinkAnswer, type SpanAnswer } from './labels';
 import { createHttpLabeler, loadModuleLabeler } from './user';
 import { askedLabels, createJevLabeler, createOpenAiDecisionsLabeler, isVector } from './yesno';
 
@@ -89,6 +89,9 @@ export type Decision = {
   target?: number;
   by: LabelerClass;
   sources: string[];
+  /** Clauses and links of the unit: from system 2, which reads the whole window, when it gave the same label. */
+  spans?: SpanAnswer[];
+  links?: LinkAnswer[];
   /** True when the other labeler of a stack gave no opinion for the unit, so the one that did decided alone. */
   fallback?: true;
 };
@@ -103,6 +106,12 @@ export type Labelling = {
   /** The label a unit takes from the opinions of the members, in member order. */
   decide(opinions: ReadonlyArray<Opinion | undefined>, set: LabelSet): Decision | undefined;
 };
+
+/** The spans and links an opinion carries, as decision fields (nothing when it carries none). */
+const extrasOf = (opinion: Opinion | undefined): Pick<Decision, 'spans' | 'links'> => ({
+  ...(opinion?.spans ? { spans: opinion.spans } : {}),
+  ...(opinion?.links ? { links: opinion.links } : {}),
+});
 
 const sourcesOf = (...opinions: Array<Opinion | undefined>): string[] =>
   opinions.flatMap((opinion) => (opinion?.source ? [opinion.source] : []));
@@ -119,6 +128,7 @@ function single(member: Labeler): Labelling {
         ...(opinion.target === undefined ? {} : { target: opinion.target }),
         by: member.cls,
         sources: sourcesOf(opinion),
+        ...extrasOf(opinion),
       };
     },
   };
@@ -173,6 +183,7 @@ function stacked(
         ...(opinion.target === undefined ? {} : { target: opinion.target }),
         by: 'system2',
         sources: sourcesOf(first, opinion),
+        ...extrasOf(opinion),
       });
       // System 1 gave no opinion (a failed call, a refused vector): it counts as below the cut and system 2 decides.
       if (!first && second) return { ...fromSecond(second), fallback: true };
@@ -188,6 +199,8 @@ function stacked(
           label: sure,
           by: 'system1',
           sources: sourcesOf(first, second),
+          // System 2 read the whole window: its spans and links stand when it gave the same label.
+          ...(second?.label === sure ? extrasOf(second) : {}),
           ...(second ? {} : { fallback: true as const }),
         };
       }
