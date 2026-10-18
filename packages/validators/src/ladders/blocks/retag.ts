@@ -1,3 +1,5 @@
+import { FOUNDATIONS } from './foundations';
+
 /**
  * The honest cause count (docs/validators.md section 12.4 point 4): causes that one change turns green together
  * are one cause. Two kinds of evidence merge them:
@@ -157,7 +159,11 @@ export const MERGES: readonly Merge[] = [
 ];
 
 /** The cause an item counts under: the merged one when a merge holds it, else its own. */
+const FOUNDATION_OF = new Map(
+  FOUNDATIONS.flatMap((foundation) => foundation.causes.map((cause) => [cause, foundation.into])),
+);
+
 export function retag(cause: string): string {
-  for (const merge of MERGES) if (merge.from.some((pattern) => pattern.test(cause))) return merge.into;
-  return cause;
+  const merged = MERGES.find((merge) => merge.from.some((pattern) => pattern.test(cause)))?.into ?? cause;
+  return FOUNDATION_OF.get(merged) ?? merged;
 }

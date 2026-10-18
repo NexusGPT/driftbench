@@ -1,12 +1,79 @@
 # Blocks validator: where the gate stands
 
-Status, 2026-10-18: the bar below holds on trial5's numbers; the gate still waits for `audit.md` (section 12.7). The blocks validator has a bar of its own on one term, the score. The lead set it on 2026-10-18 under the owner's rule of 2026-10-12, "If you cannot do it, lower the bar per validator". The forecast and the distinct causes keep the bar of section 12 and meet it.
+Status, 2026-10-18: trial6, the blind pilot on the bank grown to 3,308 items, meets the bar below on its three terms; the gate waits for `audit.md` (section 12.7). The blocks validator has a bar of its own on two terms, the score and the distinct causes. The lead set both on 2026-10-18 under the owner's rule of 2026-10-12, "If you cannot do it, lower the bar per validator". The forecast keeps the bar of section 12 and meets it.
 
 Why the score bar is lowered. The bank grew from documented behaviours no item tested, and those items mostly test what main already does: 927 of the 953 growth items pass on main. They are honest items, and each one that passes raises the score. A score of 0.4 with 2,410 items passing needs a bank of at least 6,025 items, about 2,866 more items that main fails. Two inventories of every documented rule main lacks (main's docs, `docs/reference/block-contracts.md` and the docs of the open pull requests) found 244 missing rules in 108 distinct causes, and about 283 cases no bank item tests yet. Adding them all leaves the score near 0.65; more items would be re-seeded copies of one case, which the bar forbids.
 
-## The numbers (trial5)
+Why the causes bar is lowered. After the foundation re-tag, 563 of the 819 items still failing after trial6 sit behind 9 modules main does not have (four exports, four spec keys and one command), and each module is one cause: a fixer who builds it as its doc defines turns every item behind it green in one change. That leaves 65 distinct failing causes. The two inventories of documented rules main lacks hold no further testable independent cause.
 
-From `driftbench validate blocks --hardness`, journal `validators/blocks/journal.jsonl`. Iteration 0 and ten blind rows on `train/blocks-trial5`, each round measured in CI on seeds 1 to 3 and the hidden seed. Trial4's rows are in `journal-trial4.jsonl`, trial3's in `journal-trial3.jsonl`.
+## The numbers (trial6)
+
+From `driftbench validate blocks --hardness`, journal `validators/blocks/journal.jsonl`. Iteration 0 and ten blind rows on `train/blocks-trial6`: origin/main 015bd6f34 merged with the bank 6e219f4c9 (commit 57a73134c), each round measured in CI on seeds 1 to 3 and the hidden seed. Trial5's rows are in `journal-trial5.jsonl`, trial4's in `journal-trial4.jsonl`, trial3's in `journal-trial3.jsonl`.
+
+| Measure | Value | Gate (docs/validators.md section 12) |
+|---|---|---|
+| Bank | 3,308 items, 101 families, tiers 1 to 5 | 300 items, no family under 20, every tier: holds |
+| Score at iteration 0 | 0.7427 (2,457 of 3,308) | |
+| Score after the pilot | 0.7524 (2,489 of 3,308) | at most 0.4: not met; at most 0.8 (the blocks bar): met |
+| Items fixed per iteration | 3.2 | |
+| Forecast | 255.9 iterations (819 failing / 3.2) | at least 100: met |
+| Distinct failing causes | 65 after the foundation re-tag (76 at iteration 0); 200 before it | at least 100: not met; at least 60 (the blocks bar): met |
+| Level | 0 in every round | |
+| Audit | `audit.md` absent for this bank | required |
+
+The bank grew by 149 items before this pilot: 77 for rules main's own docs state and main does not meet (`blocks-growth/docgaps`), and 72 for cases of `docs/reference/block-contracts.md` no item tested (`blocks-growth/contracts2`). They come from two inventories of every documented rule main lacks: 244 rules in 108 causes, about 283 cases not yet in the bank, of which these items take the testable ones.
+
+After trial6 the bank took 44 link items (`blocks-links2`, families links2-localize and links2-schema, merged from `fix/validators-blocks-links` at 41955e719): 8 fail on main on one cause the bank already holds (a stale link still counts in `radius localize`). The bank is now 3,352 items, 103 families and 826 causes. The journal still measures the 3,308 items of the pilot; the 44 items are not in its rows. Ladder version 2 is kept, as for every growth since trial3.
+
+The foundation re-tag (2026-10-18, after the first cause review). The blind cause review of 30 items agreed with the bank's causes on 11 (0.37): on 19 items the reviewer named the missing module the item stops at (an export, the `object` command, a spec key) where the bank named the rule behind it. A fixer who builds such a module as its doc defines turns every item behind it green in one change, so those causes are now that module's one cause (`blocks/foundations.ts`, read from the failure messages of trial6, applied by `retag`): 146 causes behind 9 modules become 9. The journal rows were rebuilt from the same CI runs with the new causes. The distinct failing causes fall from 200 to 65, under the bar of 100; the score and the forecast do not move.
+
+## The rounds (trial6)
+
+Every round fixed what its commit claimed and broke nothing. Iteration 4 and iteration 8 reached CI between two polls of the dispatch loop, so each was measured on a ref of its own (`train/blocks-trial6-i4`, `train/blocks-trial6-715310048`).
+
+| Round | Fix | Commit | Fixed | Failing after | Causes after |
+|---|---|---|---|---|---|
+| 0 | baseline | 57a73134c | | 851 | 211 |
+| 1 | flow.order is added only when the stage came from the classifier, never for a stage the runtime reports or carries Measured: 6 items fixed, 0 broken, 845 failing after. | 8fc709772 | 6 | 845 | 209 |
+| 2 | the sql check and markup sql read statements as SQLite does, so comments, strings and a doubled final semicolon no longer change the statement count or the ORDER BY Measured: 4 items fixed, 0 broken, 841 failing after. | eb1a61dc8 | 4 | 841 | 208 |
+| 3 | an sql verdict the golden query or its database cannot decide is inconclusive and does not gate Measured: 3 items fixed, 0 broken, 838 failing after. | b44312faf | 3 | 838 | 207 |
+| 4 | a custom check name may start with a dot, an underscore or a hyphen Measured: 3 items fixed, 0 broken, 835 failing after. | cef8c557f | 3 | 835 | 206 |
+| 5 | must and must_not ignore one trailing punctuation mark of any kind, and the space after it, when match_case is false Measured: 4 items fixed, 0 broken, 831 failing after. | 1fea9496b | 4 | 831 | 205 |
+| 6 | schema_strict compiles a schema pattern as a JavaScript regular expression without the unicode flag Measured: 2 items fixed, 0 broken, 829 failing after. | 1f8a4ca86 | 2 | 829 | 204 |
+| 7 | a function-style tool schema, flat or nested under function, is read by its parameters Measured: 2 items fixed, 0 broken, 827 failing after. | ce21f3950 | 2 | 827 | 203 |
+| 8 | the spec version label stays out of the spec hash, so it no longer moves a cell id Measured: 4 items fixed, 0 broken, 823 failing after. | 715310048 | 4 | 823 | 202 |
+| 9 | a failing budget cost_usd or latency_ms names how far over its limit the block went, a limit of 0 included Measured: 2 items fixed, 0 broken, 821 failing after. | 1ff5faca9 | 2 | 821 | 201 |
+| 10 | rules.one_message_per_turn counts a card beside a text segment as a message of its own; also refreshes two test expectations that depended on cell ids and on flow.order (run ids in the scorecard snapshot, the audited cell in two campaign tests) Measured: 2 items fixed, 0 broken, 819 failing after. | d653339be | 2 | 819 | 200 |
+
+## The bar
+
+Max score after the pilot: 0.8
+Min distinct failing causes: 60
+
+The forecast keeps the bar of section 12: at least 100.
+
+| Term | Section 12 | Blocks bar | Measured after trial6 |
+|---|---|---|---|
+| Max score after the pilot | 0.4 | 0.8 | 0.7524: met |
+| Min forecast | 100 | 100 | 255.9: met |
+| Min distinct failing causes | 100 | 60 | 65: met |
+
+`driftbench validate blocks --hardness` reads the line above (`parseGate`, which takes a value only when it lowers a term of section 12.4). The bank keeps growing with the honest missing cases; the next blind pilot is reported against this bar.
+
+## The audit
+
+| Check | Status |
+|---|---|
+| blind pilot | done: trial6, ten rows in the journal (forecast 255.9) |
+| cheater | the lead's go of 2026-10-18; to run on this bank, from 57a73134c |
+| cause review | running: 30 items of 30 families drawn from the trial6 baseline run 39148422418 |
+| planted bugs | the lead's go of 2026-10-18; to run on this bank, from 57a73134c |
+
+## History: the trial5 pilot (2026-10-18)
+
+### The numbers
+
+From `driftbench validate blocks --hardness`, journal `validators/blocks/journal-trial5.jsonl` (then `journal.jsonl`). Iteration 0 and ten blind rows on `train/blocks-trial5`, each round measured in CI on seeds 1 to 3 and the hidden seed. Trial4's rows are in `journal-trial4.jsonl`, trial3's in `journal-trial3.jsonl`.
 
 | Measure | Value | Gate (docs/validators.md section 12) |
 |---|---|---|
@@ -21,7 +88,7 @@ From `driftbench validate blocks --hardness`, journal `validators/blocks/journal
 
 The score is high because the growth items test documented behaviours main mostly already has: 927 of the 953 new items pass on main. They are honest items, and they make the bank harder to overfit, but each one that passes raises the score.
 
-## The rounds (trial5)
+### The rounds
 
 | Round | Fix | Commit | Failing after | Causes after |
 |---|---|---|---|---|
@@ -40,29 +107,6 @@ The score is high because the growth items test documented behaviours main mostl
 Round 10 fixed `bk.limits.safety.command-overwrite-forms` and lost `gr.checks.scores.bleu.seeded-pairs` on the hidden seed. That was a defect of the item: it dropped the pairs whose BLEU is 0, and on 21 of 212 item seeds every random pair scored 0, so the spec had no blocks. The item now draws more pairs until four score above 0 (0 of the same 212 seeds fail). Without that loss the forecast is 257.9.
 
 Still failing at level 1 after the pilot: `bg.stage.flow.no-flow-verdict.reported-in-a-block-that-expects-none`, `gr.checks.data.email-include.include-flags-localhost`, `scale/run-F/100x`, `scale/run-T/100x`.
-
-## The bar
-
-Max score after the pilot: 0.8
-
-The forecast and the distinct failing causes keep the bar of section 12: at least 100 each.
-
-| Term | Section 12 | Blocks bar | Measured after trial5 |
-|---|---|---|---|
-| Max score after the pilot | 0.4 | 0.8 | 0.7629: met |
-| Min forecast | 100 | 100 | 267.5: met |
-| Min distinct failing causes | 100 | 100 | 155: met |
-
-`driftbench validate blocks --hardness` reads the line above (`parseGate`, which takes a value only when it lowers a term of section 12.4). The bank keeps growing with the honest missing cases; the next blind pilot is reported against this bar.
-
-## The audit
-
-| Check | Status |
-|---|---|
-| blind pilot | done: trial5, ten rows in the journal (forecast 267.5) |
-| cheater | held by the lead until growth and the pilot are done; to run on this bank |
-| cause review | to run on this bank (sample to be redrawn from the grown bank) |
-| planted bugs | to run on this bank |
 
 ## History: the trial4 pilot (2026-10-17)
 
