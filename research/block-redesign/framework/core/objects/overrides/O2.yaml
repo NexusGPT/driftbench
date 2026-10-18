@@ -1,6 +1,0 @@
-kind: policy/value-check
-id: o2
-extends: default
-items:
-  - id: rung4_exact
-    params: { strip_punctuation: true }
