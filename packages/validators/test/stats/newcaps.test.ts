@@ -47,6 +47,57 @@ describe('the new-capability fixtures', () => {
     for (const item of items) expect(ids.has(item.id), item.id).toBe(true);
   });
 
+  it('leave the roadmap methods to the roadmap, so no cause is counted twice', () => {
+    const roadmap = JSON.parse(
+      readFileSync(join(ROOT, 'packages/validators/fixtures/stats/roadmap.json'), 'utf8'),
+    ) as { methods: Array<{ name: string }> };
+    const methods = new Set(roadmap.methods.map((m) => m.name));
+    expect(entries.map(({ entry }) => entry.fn).filter((name) => methods.has(name))).toEqual([]);
+    const roadmapCauses = new Set(
+      statsBank(ROOT)
+        .filter((item) => !item.id.startsWith('newcap.'))
+        .map((item) => item.cause),
+    );
+    expect(newcapItems(ROOT, only).filter((item) => roadmapCauses.has(item.cause))).toEqual([]);
+  });
+
+  it('give no domain item to a library that throws a RangeError on every call', async () => {
+    const thrower = new Proxy(real, {
+      get: () => () => {
+        throw new RangeError('refused');
+      },
+    });
+    const passing: string[] = [];
+    for (const item of newcapItems(ROOT, only))
+      if ((await runItem(item, 1, ROOT, thrower)).pass) passing.push(item.id);
+    expect(passing).toEqual([]);
+  });
+
+  it('pass the domain item of a function written from its page, and fail it when that function throws on valid input', async () => {
+    if (only !== undefined && !only.includes('descriptive')) return;
+    // median as docs/statistics/descriptive.md defines it, with the RangeError of the shared conventions.
+    const median = (xs: number[]): number => {
+      if (xs.length === 0 || xs.some((x) => !Number.isFinite(x))) throw new RangeError('median of no finite values');
+      const s = [...xs].sort((a, b) => a - b);
+      const h = Math.floor(s.length / 2);
+      return s.length % 2 === 1 ? (s[h] as number) : ((s[h - 1] as number) + (s[h] as number)) / 2;
+    };
+    const items = newcapItems(ROOT, ['descriptive']).filter((item) => item.id.startsWith('newcap.median.'));
+    expect(items.map((item) => item.id).sort()).toEqual(['newcap.median.domain', 'newcap.median.values']);
+    const correct = { ...real, median };
+    for (const item of items) expect((await runItem(item, 1, ROOT, correct)).pass, item.id).toBe(true);
+    // Refusing the even-sized valid arrays is not domain checking: the domain item fails too.
+    const picky = {
+      ...real,
+      median: (xs: number[]) => {
+        if (xs.length % 2 === 0) throw new RangeError('refused');
+        return median(xs);
+      },
+    };
+    const domain = items.find((item) => item.id === 'newcap.median.domain') as (typeof items)[number];
+    expect((await runItem(domain, 1, ROOT, picky)).pass).toBe(false);
+  });
+
   it('fail today, naming the missing function, and are reachable in the documented pages', async () => {
     for (const item of newcapItems(ROOT, only)) {
       const result = await runItem(item, 1, ROOT, real);
