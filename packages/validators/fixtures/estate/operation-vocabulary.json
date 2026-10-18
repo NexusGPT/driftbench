@@ -1,7 +1,7 @@
 {
   "source": {
     "path": "packages/checks/src/support/operations.ts",
-    "sha256": "adefd5ecbfa5921b483c0f5176e3821fabd0bae928a60a4813cfb625e37e0f80"
+    "sha256": "107562fea63a90a13c3bc79d9dcd2ff4b98d58f28202232100281df2a9acaeca"
   },
   "grammar": "Literal branch expansion; repetition boundaries 0, 1, 2; unsupported syntax listed in gaps.",
   "toolWords": [
@@ -223,36 +223,45 @@
     },
     {
       "class": "overwrite",
-      "source": "\\bgit\\s+checkout\\s+(?:[^\\s;&|-][^\\s;&|]*\\s+)?--(?=\\s|$|\\w)",
+      "source": "\\bgit\\s+checkout\\s+(?:[^\\s;&|-][^\\s;&|]*\\s+)?--(?:\\s+[^\\s;&|]|(?=\\w))",
       "flags": "",
       "needsNoDiff": true,
-      "witnesses": [],
+      "witnesses": [
+        "git checkout -- x",
+        "git checkout --  x",
+        "git checkout  -- x",
+        "git checkout  --  x",
+        "git  checkout -- x",
+        "git  checkout --  x",
+        "git  checkout  -- x",
+        "git  checkout  --  x"
+      ],
       "gaps": [
         "30:unsupported-character-range",
-        "48:unsupported-group",
-        "57:unconsumed-pattern",
-        "57:unresolved-branch-boundary:0",
-        "57:unresolved-branch-boundary:1",
-        "57:unresolved-branch-boundary:2",
-        "57:unresolved-branch-boundary:3",
-        "57:unresolved-branch-boundary:4",
-        "57:unresolved-branch-boundary:5",
-        "57:unresolved-branch-boundary:6",
-        "57:no-matching-witness"
+        "63:unsupported-group",
+        "68:unconsumed-pattern",
+        "68:unresolved-branch-boundary:2",
+        "68:unresolved-branch-boundary:3",
+        "68:unresolved-branch-boundary:6",
+        "68:unresolved-branch-boundary:7",
+        "68:unresolved-branch-boundary:10",
+        "68:unresolved-branch-boundary:11",
+        "68:unresolved-branch-boundary:14",
+        "68:unresolved-branch-boundary:15"
       ]
     }
   ],
   "gaps": [
     "COMMAND_RULES.8:30:unsupported-character-range",
-    "COMMAND_RULES.8:48:unsupported-group",
-    "COMMAND_RULES.8:57:unconsumed-pattern",
-    "COMMAND_RULES.8:57:unresolved-branch-boundary:0",
-    "COMMAND_RULES.8:57:unresolved-branch-boundary:1",
-    "COMMAND_RULES.8:57:unresolved-branch-boundary:2",
-    "COMMAND_RULES.8:57:unresolved-branch-boundary:3",
-    "COMMAND_RULES.8:57:unresolved-branch-boundary:4",
-    "COMMAND_RULES.8:57:unresolved-branch-boundary:5",
-    "COMMAND_RULES.8:57:unresolved-branch-boundary:6",
-    "COMMAND_RULES.8:57:no-matching-witness"
+    "COMMAND_RULES.8:63:unsupported-group",
+    "COMMAND_RULES.8:68:unconsumed-pattern",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:2",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:3",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:6",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:7",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:10",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:11",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:14",
+    "COMMAND_RULES.8:68:unresolved-branch-boundary:15"
   ]
 }
