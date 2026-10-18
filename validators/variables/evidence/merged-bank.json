@@ -1,0 +1,228 @@
+{
+  "what": "Data only. The soundness of the merged variables bank (the first bank, PR 719, with the stems of the second, PR 762): a reference implementation outside the repository passes every item; planted defects each lose items of the merged stems. The reference and the defects are not committed.",
+  "bankSize": 536,
+  "referenceBySeed": [
+    {
+      "seed": 1,
+      "passing": 536,
+      "items": 536
+    },
+    {
+      "seed": 2,
+      "passing": 536,
+      "items": 536
+    },
+    {
+      "seed": 3,
+      "passing": 536,
+      "items": 536
+    },
+    {
+      "seed": 7,
+      "passing": 536,
+      "items": 536
+    },
+    {
+      "seed": 20,
+      "passing": 536,
+      "items": 536
+    },
+    {
+      "seed": 820020691,
+      "passing": 536,
+      "items": 536
+    }
+  ],
+  "plantedDefectsOnSeed1": [
+    {
+      "defect": "validate-accepts-everything",
+      "lost": 35
+    },
+    {
+      "defect": "validate-refuses-everything",
+      "lost": 35
+    },
+    {
+      "defect": "validate-no-count-over-total",
+      "lost": 1
+    },
+    {
+      "defect": "validate-fractional-count-rounded",
+      "lost": 1
+    },
+    {
+      "defect": "validate-uppercase-hash-ok",
+      "lost": 1
+    },
+    {
+      "defect": "validate-day-shape-only",
+      "lost": 1
+    },
+    {
+      "defect": "validate-extra-keys-ignored",
+      "lost": 1
+    },
+    {
+      "defect": "validate-blank-words-ok",
+      "lost": 1
+    },
+    {
+      "defect": "validate-ledger-unchecked",
+      "lost": 1
+    },
+    {
+      "defect": "validate-total-zero-ok",
+      "lost": 1
+    },
+    {
+      "defect": "validate-no-duplicate-values",
+      "lost": 3
+    },
+    {
+      "defect": "validate-no-ambiguous-values",
+      "lost": 1
+    },
+    {
+      "defect": "validate-no-kind-repeated",
+      "lost": 3
+    },
+    {
+      "defect": "validate-no-unknown-deviation",
+      "lost": 1
+    },
+    {
+      "defect": "validate-no-unknown-variable",
+      "lost": 2
+    },
+    {
+      "defect": "validate-no-unknown-value",
+      "lost": 4
+    },
+    {
+      "defect": "validate-no-empty-constraint",
+      "lost": 1
+    },
+    {
+      "defect": "validate-no-grid-check",
+      "lost": 1
+    },
+    {
+      "defect": "validate-no-boundary-sides",
+      "lost": 5
+    },
+    {
+      "defect": "validate-no-weight-incomplete",
+      "lost": 1
+    },
+    {
+      "defect": "validate-no-weight-zero",
+      "lost": 1
+    },
+    {
+      "defect": "validate-no-prior-source",
+      "lost": 1
+    },
+    {
+      "defect": "validate-negative-weight-ok",
+      "lost": 2
+    },
+    {
+      "defect": "validate-grid-path-wrong",
+      "lost": 1
+    },
+    {
+      "defect": "validate-boundary-treats-gt-as-ge",
+      "lost": 1
+    },
+    {
+      "defect": "validate-ambiguity-counts-details",
+      "lost": 4
+    },
+    {
+      "defect": "validate-constraint-duplicate-order-sensitive",
+      "lost": 1
+    },
+    {
+      "defect": "quotes-no-folding",
+      "lost": 5
+    },
+    {
+      "defect": "quotes-case-insensitive",
+      "lost": 1
+    },
+    {
+      "defect": "quotes-punctuation-ignored",
+      "lost": 2
+    },
+    {
+      "defect": "quotes-unreadable-each-quote",
+      "lost": 1
+    },
+    {
+      "defect": "quotes-unreadable-as-not-found",
+      "lost": 10
+    },
+    {
+      "defect": "quotes-stops-at-first-issue",
+      "lost": 1
+    },
+    {
+      "defect": "quotes-never-reports",
+      "lost": 14
+    },
+    {
+      "defect": "plan-budget-below-seeds-cuts-seeds",
+      "lost": 2
+    },
+    {
+      "defect": "plan-budget-below-seeds-adds-rows",
+      "lost": 3
+    },
+    {
+      "defect": "plan-keeps-unknown-seed-entries",
+      "lost": 2
+    },
+    {
+      "defect": "plan-no-seed-warnings",
+      "lost": 6
+    },
+    {
+      "defect": "plan-drops-unapproved-seed-entries",
+      "lost": 2
+    },
+    {
+      "defect": "plan-zero-weight-finite",
+      "lost": 1
+    },
+    {
+      "defect": "plan-zero-weight-nan",
+      "lost": 1
+    },
+    {
+      "defect": "plan-weights-not-normalized",
+      "lost": 1
+    },
+    {
+      "defect": "plan-forbid-ignored-unless-pair",
+      "lost": 2
+    },
+    {
+      "defect": "plan-unapproved-forbid-applied",
+      "lost": 1
+    },
+    {
+      "defect": "plan-no-unreachable-warning",
+      "lost": 1
+    },
+    {
+      "defect": "plan-variable-flag-beats-value-flag",
+      "lost": 1
+    },
+    {
+      "defect": "plan-nothing-approved-plans-anyway",
+      "lost": 6
+    }
+  ],
+  "everyDefectLosesAnItem": true,
+  "itemsRunForTheDefects": "the merged stems only: sources.file, values.file, boundaries.file, weights.file, quotes.verify, budget.below, seeds.kept, weights.plan, impossible.general, values.unapproved"
+}

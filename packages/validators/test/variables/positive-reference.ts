@@ -70,6 +70,11 @@ function weight(store: StoreDoc, row: Row): number {
     }, 1);
 }
 
+/** The log weight as the page writes it: nine places, null for minus infinity. */
+function logOf(w: number): number | null {
+  return w > 0 ? Number(Math.log(w).toFixed(9)) : null;
+}
+
 function subsets(ids: string[], n: number): string[][] {
   if (n === 0) return [[]];
   return ids.flatMap((id, i) => subsets(ids.slice(i + 1), n - 1).map((tail) => [id, ...tail]));
@@ -124,7 +129,7 @@ function buildStore(sources: Sources): StoreDoc {
   return store;
 }
 
-export const variablesImpl: VariablesImpl = {
+export const variablesImpl: Omit<VariablesImpl, 'validate' | 'quotes'> = {
   buildStore,
   plan(store, options) {
     for (const variable of store.variables) {
@@ -137,14 +142,15 @@ export const variablesImpl: VariablesImpl = {
     const rows = allRows(store)
       .filter((row) => !seeded.has(key(row)))
       .map((values) => ({ values, weight: weight(store, values) }))
-      .sort((a, b) => b.weight - a.weight || order(key(a.values), key(b.values)));
+      .sort((a, b) => b.weight - a.weight || order(key(a.values), key(b.values)))
+      .map(({ values, weight: w }) => ({ values, logWeight: logOf(w) }));
     const plan: Plan = {
       rows: [
         ...seeds.map((values, i) => ({
           id: `seed${i}`,
           kind: 'seed' as const,
           values: JSON.parse(JSON.stringify(values)) as Row,
-          weight: weight(store, values),
+          logWeight: logOf(weight(store, values)),
         })),
         ...rows.map((row, i) => ({ id: `new${i}`, kind: 'new' as const, ...row })),
       ],

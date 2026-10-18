@@ -29,3 +29,9 @@ The suite retains 51 constant-operation mutation cases, nine nonempty wrong-outp
 The raw baseline is not append-ready journal data. `baseline-journal.ts` checks its source hash, seed population, all-zero outcomes and bank shape, then emits a `JournalRowSchema`-validated row. It only supports the measured empty-adapter baseline; a future nonempty adapter needs per-item outcomes before journal conversion. Do not append a second iteration 0: archive the prior baseline or begin a new run. The old journal is retained in `journal-historical.jsonl`, outside the active journal. Duration/token fields are explicitly marked unmeasured zero placeholders, not measured costs.
 
 The historical `reference-and-mutants.json` reports external code that is unavailable here. Its numbers are preserved as history, explicitly unverified. `audit.md` lists the remaining integration and independent gates.
+
+## The merged bank (the second bank, PR 762, folded into this one)
+
+`merged-bank.json` records the soundness of the merged bank: a reference implementation that is outside the repository passes every item on seeds 1, 2, 3, 7, 20 and 820020691, and each of 47 planted defects in `validate`, `quotes` and `plan` loses at least one item of the merged stems. The reference is not committed.
+
+`test/variables/call-cheats.test.ts` plays the call-order and request-guess cheats of the second bank against every file-format item. They pass 0 items, and the same cheat given the class of every answer passes all of them. The baseline was measured again for the merged bank (ladder version 2); the earlier row is in `journal-historical.jsonl`.

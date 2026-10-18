@@ -1,11 +1,14 @@
 import type {
   CoverageResult,
+  FileStore,
   Group,
   Plan,
   PlanOptions,
+  QuotesResult,
   Row,
   Sources,
   StoreDoc,
+  ValidateResult,
   VariablesImpl,
 } from '../interface';
 import { formatProblems } from './format';
@@ -196,4 +199,39 @@ export function callInterval(ctx: ItemContext, count: number, total: number): [n
     () => `weightInterval(${count}, ${total}) returned ${show(iv)}, expected [lower, upper] as numbers`,
   );
   return iv as [number, number];
+}
+
+/** Calls validate. A throw or a reply that is neither `{ok: true, ...}` nor `{ok: false, errors}` fails the item. */
+export function callValidate(ctx: ItemContext, value: unknown): ValidateResult {
+  const fn = provided(ctx, 'validate');
+  const got = attempt(() => fn(value));
+  must(
+    !got.error,
+    () => `validate threw ${got.error?.name}: ${got.error?.message}; it should return the errors`,
+  );
+  const result = got.value as ValidateResult | undefined;
+  must(
+    !!result &&
+      typeof result === 'object' &&
+      ((result.ok === true && Array.isArray(result.warnings)) ||
+        (result.ok === false && Array.isArray(result.errors))),
+    () => `validate returned ${show(result, 160)}, not {ok: true, store, warnings} or {ok: false, errors}`,
+  );
+  return result as ValidateResult;
+}
+
+/** Calls quotes. A throw or a reply without an errors array fails the item. */
+export function callQuotes(ctx: ItemContext, store: FileStore, files: Record<string, string>): QuotesResult {
+  const fn = provided(ctx, 'quotes');
+  const got = attempt(() => fn(store, files));
+  must(
+    !got.error,
+    () => `quotes threw ${got.error?.name}: ${got.error?.message}; it should return the issues`,
+  );
+  const result = got.value as QuotesResult | undefined;
+  must(
+    !!result && typeof result === 'object' && Array.isArray(result.errors),
+    () => `quotes returned ${show(result, 160)}, not {errors: [...]}`,
+  );
+  return result as QuotesResult;
 }

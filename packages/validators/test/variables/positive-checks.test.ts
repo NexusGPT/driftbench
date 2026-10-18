@@ -118,7 +118,7 @@ describe('positive witnesses and constant-result mutants', () => {
     ].map((id) => ({
       id,
       operation: {
-        plan: () => ({ rows: [{ id: 'fake', kind: 'new' as const, values: {}, weight: 1 }] }),
+        plan: () => ({ rows: [{ id: 'fake', kind: 'new' as const, values: {}, logWeight: 0 }] }),
       },
     })),
     {
@@ -128,7 +128,7 @@ describe('positive witnesses and constant-result mutants', () => {
           const plan = reference.plan(store, options);
           return plan.rows.length === 0
             ? plan
-            : { rows: [{ id: 'fake', kind: 'new', values: {}, weight: 1 }] };
+            : { rows: [{ id: 'fake', kind: 'new', values: {}, logWeight: 0 }] };
         },
       },
     },

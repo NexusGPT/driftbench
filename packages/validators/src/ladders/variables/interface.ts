@@ -78,11 +78,19 @@ export type RuleDoc = { id: string; variables: VarId[] };
 /** An entry the store refused, with the reason. `what` names the value, variable, pair or weight. */
 export type Refusal = { what: string; reason: string };
 
+/**
+ * A combination the store forbids, of any size: one value, a pair or three (docs/variables.md "Impossible
+ * combinations"). Pairs the readers produce stay in `impossible`; a store may also carry these. An absent
+ * `approved` means approved; a constraint that is not approved plans nothing.
+ */
+export type StoreForbid = { forbid: Row; approved?: boolean; provenance?: Provenance[] };
+
 export type StoreDoc = {
   variables: StoreVariable[];
   impossible: ImpossiblePair[];
   rules: RuleDoc[];
   refused: Refusal[];
+  forbids?: StoreForbid[];
 };
 
 /** The estate source: files by path, and the rules read from them. */
@@ -133,14 +141,21 @@ export type PlanRow = {
   id: string;
   kind: 'seed' | 'new';
   values: Row;
-  /** The traffic weight of the row: the product of the shares of its values. */
-  weight: number;
+  /**
+   * The traffic weight of the row as a sum of logarithms of the shares of its values (docs/variables.md R9),
+   * written to nine places; null for minus infinity (a value of weight 0).
+   */
+  logWeight: number | null;
 };
+
+/** A note the plan makes about its input: a code from the page (R8) and a message. */
+export type PlanWarning = { code: string; message: string };
 
 export type Plan = {
   rows: PlanRow[];
   /** What the plan covers: the allowed tuples required by the groups, and how many the rows hold. */
   report?: { allowed: number | bigint; covered: number | bigint };
+  warnings?: PlanWarning[];
 };
 
 /** A set of variables covered at a strength: every allowed combination of `strength` of them. */
@@ -155,6 +170,68 @@ export type CoverageResult = {
   uncovered?: Row[];
 };
 
+/**
+ * The serialized store file (docs/variables.md "The file"): snake_case keys, the full schema. `validate` and
+ * `quotes` take this shape, not the StoreDoc projection. The bank builds only fictional files.
+ */
+export type FileProvenance =
+  | { kind: 'quote'; path: string; quote: string; ledger?: string }
+  | { kind: 'conversations'; count: number; total: number; set_hash: string }
+  | { kind: 'owner'; words: string; date: string };
+export type FileValue = {
+  id: string;
+  title: string;
+  weight?: number;
+  approved?: boolean;
+  provenance?: FileProvenance[];
+  when?: Record<string, string[]>;
+  unless?: Record<string, string[]>;
+};
+export type FileBoundary = {
+  holds: string;
+  fails: string;
+  edge: string;
+  limit?: number;
+  comparison?: 'lt' | 'le' | 'gt' | 'ge';
+  unit?: string;
+  provenance?: FileProvenance[];
+};
+export type FileVariable = {
+  id: string;
+  title: string;
+  kind: 'stage' | 'behaviour' | 'deviation' | 'persona' | 'channel' | 'data' | 'task';
+  role: 'axis' | 'detail';
+  approved: boolean;
+  values: FileValue[];
+  provenance?: FileProvenance[];
+  boundaries?: FileBoundary[];
+};
+export type FileConstraint = {
+  forbid: Record<string, string>;
+  reason: string;
+  approved: boolean;
+  provenance?: FileProvenance[];
+};
+export type FileStore = {
+  format: 1;
+  agent: string;
+  version: string;
+  prior?: { kind: 'declared' | 'fitted'; source?: string };
+  variables: FileVariable[];
+  constraints?: FileConstraint[];
+};
+
+/** One refusal of the loader or the quote check: a code of the page and the dotted path it is reported at. */
+export type FileIssue = { code: string; path: string };
+
+/** What `validate` returns: the store with its warnings, or every error found (docs/variables.md "Loading, checking and converting"). */
+export type ValidateResult =
+  | { ok: true; store: unknown; warnings: FileIssue[] }
+  | { ok: false; errors: FileIssue[] };
+
+/** What `quotes` returns: the issues of the quote check, none when every quote is found. */
+export type QuotesResult = { errors: FileIssue[] };
+
 export type VariablesImpl = {
   /** Builds the store from the three sources. */
   buildStore(sources: Sources): StoreDoc;
@@ -164,4 +241,8 @@ export type VariablesImpl = {
   plan(store: StoreDoc, options: PlanOptions): Plan;
   /** Counts allowed and covered tuples of groups over rows. */
   coverage(store: StoreDoc, rows: Row[], groups: Group[], options?: { uncovered?: number }): CoverageResult;
+  /** Checks a parsed store file against the format; never throws on a bad input. */
+  validate(value: unknown): ValidateResult;
+  /** Checks every quote of a store against the files it names; `files` maps a path to its text, a missing path is an unreadable file. */
+  quotes(store: FileStore, files: Record<string, string>): QuotesResult;
 };

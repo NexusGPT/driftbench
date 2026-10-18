@@ -459,6 +459,24 @@ export const VALUES_RUNS: Record<string, StemRun> = {
       );
       return;
     }
+    if (variant === 'approved-value-in-unapproved-variable') {
+      // A value counts when its own flag, else its variable's, is true (docs/variables.md "Approval"): the one
+      // approved value of an unapproved variable is planned, its unflagged sibling is not.
+      const space = makeSpace([2, 3, 3, 2, 1], { shared: [0, 1, 2], rules: [[2, 3, 4]] });
+      const store = toStore(space);
+      const last = store.variables[4] as StoreVariable;
+      last.approved = false;
+      (last.values[0] as StoreValue).approved = true;
+      last.values.push({ id: 'sibling', provenance: [flagged as never] });
+      const plan = planOf(ctx, store, { seed: ctx.seed });
+      const facts = checkPlan(space, new SpaceOracle(space), plan);
+      must(
+        facts.problems.length === 0,
+        () =>
+          `the approved value of an unapproved variable must be planned and its unflagged sibling must not: ${facts.problems.join('; ')}`,
+      );
+      return;
+    }
     const space = makeSpace(arities, { shared: [0, 1, 2], rules: [[2, 3, 4]] });
     const store = toStore(space);
     if (variant === 'proposed-variable') {

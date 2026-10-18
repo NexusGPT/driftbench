@@ -83,6 +83,8 @@ export const COMPONENTS = {
   'store/merge': 'merging the three sources and keeping every provenance',
   'store/quotes': 'checking that a quote is findable in its source file',
   'store/ids': 'turning names into ids and keeping ids unique',
+  'store/validate':
+    'validating a store file against the format of the page (schema, references, rules, errors)',
   'store/boundaries': 'the two sides and the boundary of a condition',
   'store/weights': 'weights and their 95 percent intervals',
   'planner/constraints': 'impossible pairs in the plan and in the required tuples',
@@ -116,6 +118,8 @@ export const CLAUSES = {
   H4: 'docs/validators.md 12.2 rule 4: scale; correct and slow is a failing item.',
   H6: 'docs/validators.md 12.2 rule 6: differential against a brute force wherever one exists.',
   H7: 'docs/validators.md 12.2 rule 7: degenerate and hostile inputs, one item per family.',
+  F1: 'docs/variables.md, The file to Loading, checking and converting: the schema, the references, the rules and the errors of a store file.',
+  F2: 'docs/variables.md, Provenance: a quote is findable in its file word for word after the folding of the page.',
   M1: 'docs/reference/map.md: ids, quotes and weights of the map format that the store feeds.',
 } as const;
 export type ClauseId = keyof typeof CLAUSES;

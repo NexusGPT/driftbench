@@ -3,6 +3,7 @@ import { BUDGET } from './budget';
 import { COUNTER } from './counter';
 import { DETERMINISM } from './determinism';
 import { IMPOSSIBLE } from './impossible';
+import { MERGED } from './merged';
 import { QUOTES } from './quotes';
 import { SCALE } from './scale';
 import { SEEDS } from './seeds';
@@ -28,4 +29,5 @@ export const STEMS: readonly StemDef[] = [
   ...BUDGET,
   ...DETERMINISM,
   ...SCALE,
+  ...MERGED,
 ];

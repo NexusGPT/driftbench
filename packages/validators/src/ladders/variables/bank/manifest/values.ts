@@ -147,7 +147,12 @@ export const VALUES: readonly StemDef[] = [
       ['proposed-variable', 3],
       ['proposed-value-in-a-pair', 4],
       ['approved-later', 3],
+      ['approved-value-in-unapproved-variable', 4],
     ],
+    variantCauses: {
+      'approved-value-in-unapproved-variable':
+        "a value counts when its own approval flag, else its variable's, is true",
+    },
   },
   {
     id: 'values.fresh-objects',
