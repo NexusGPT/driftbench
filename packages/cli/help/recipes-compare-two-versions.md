@@ -201,6 +201,7 @@ driftbench report --store versions.db --baseline v1 --out v3-vs-v1.html
 Margin auto: 39.5 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 39.0 points).
 Warning: this suite cannot show parity under 15 points (the all-pass flag needs 39.0 points); about 22 goldens would.
 Campaign c-c88f6734e8df: 18 runs, 9 pass, 9 fail, 0 did not complete.
+Suite pass rate, mode F: 50.0% [18.6%, 81.4%] (hierarchical 95% interval); 6 goldens, n_eff 5.0 runs (design effect 3.60), no drop detectable at 80% power.
 Against baseline v1: regressed, margin 39.5 points.
 Wrote v3-vs-v1.html.
 ```

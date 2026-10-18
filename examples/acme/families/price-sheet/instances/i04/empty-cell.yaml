@@ -180,63 +180,63 @@ blocks:
             - formula:
                 sheet: Mobile
                 cell: D2
-                regex: ^=C2\s*\*\s*12$
+                regex: ^=(?:C2\s*\*\s*12|12\s*\*\s*C2)$
             - formula:
                 sheet: Mobile
                 cell: D3
-                regex: ^=C3\s*\*\s*12$
+                regex: ^=(?:C3\s*\*\s*12|12\s*\*\s*C3)$
             - formula:
                 sheet: Mobile
                 cell: D4
-                regex: ^=C4\s*\*\s*12$
+                regex: ^=(?:C4\s*\*\s*12|12\s*\*\s*C4)$
             - formula:
                 sheet: Mobile
                 cell: D5
-                regex: ^=C5\s*\*\s*12$
+                regex: ^=(?:C5\s*\*\s*12|12\s*\*\s*C5)$
             - formula:
                 sheet: Mobile
                 cell: D6
-                regex: ^=C6\s*\*\s*12$
+                regex: ^=(?:C6\s*\*\s*12|12\s*\*\s*C6)$
             - formula:
                 sheet: Mobile
                 cell: D7
-                regex: ^=C7\s*\*\s*12$
+                regex: ^=(?:C7\s*\*\s*12|12\s*\*\s*C7)$
             - formula:
                 sheet: Mobile
                 cell: D8
-                regex: ^=C8\s*\*\s*12$
+                regex: ^=(?:C8\s*\*\s*12|12\s*\*\s*C8)$
             - formula:
                 sheet: Mobile
                 cell: D9
-                regex: ^=C9\s*\*\s*12$
+                regex: ^=(?:C9\s*\*\s*12|12\s*\*\s*C9)$
             - formula:
                 sheet: Mobile
                 cell: D10
-                regex: ^=C10\s*\*\s*12$
+                regex: ^=(?:C10\s*\*\s*12|12\s*\*\s*C10)$
             - formula:
                 sheet: Mobile
                 cell: D11
-                regex: ^=C11\s*\*\s*12$
+                regex: ^=(?:C11\s*\*\s*12|12\s*\*\s*C11)$
             - formula:
                 sheet: Mobile
                 cell: D12
-                regex: ^=C12\s*\*\s*12$
+                regex: ^=(?:C12\s*\*\s*12|12\s*\*\s*C12)$
             - formula:
                 sheet: Mobile
                 cell: D13
-                regex: ^=C13\s*\*\s*12$
+                regex: ^=(?:C13\s*\*\s*12|12\s*\*\s*C13)$
             - formula:
                 sheet: Mobile
                 cell: D14
-                regex: ^=C14\s*\*\s*12$
+                regex: ^=(?:C14\s*\*\s*12|12\s*\*\s*C14)$
             - formula:
                 sheet: Mobile
                 cell: D15
-                regex: ^=C15\s*\*\s*12$
+                regex: ^=(?:C15\s*\*\s*12|12\s*\*\s*C15)$
             - formula:
                 sheet: Mobile
                 cell: D16
-                regex: ^=C16\s*\*\s*12$
+                regex: ^=(?:C16\s*\*\s*12|12\s*\*\s*C16)$
             - header:
                 sheet: Office
                 row: 1
@@ -290,35 +290,35 @@ blocks:
             - formula:
                 sheet: Office
                 cell: D2
-                regex: ^=C2\s*\*\s*12$
+                regex: ^=(?:C2\s*\*\s*12|12\s*\*\s*C2)$
             - formula:
                 sheet: Office
                 cell: D3
-                regex: ^=C3\s*\*\s*12$
+                regex: ^=(?:C3\s*\*\s*12|12\s*\*\s*C3)$
             - formula:
                 sheet: Office
                 cell: D4
-                regex: ^=C4\s*\*\s*12$
+                regex: ^=(?:C4\s*\*\s*12|12\s*\*\s*C4)$
             - formula:
                 sheet: Office
                 cell: D5
-                regex: ^=C5\s*\*\s*12$
+                regex: ^=(?:C5\s*\*\s*12|12\s*\*\s*C5)$
             - formula:
                 sheet: Office
                 cell: D6
-                regex: ^=C6\s*\*\s*12$
+                regex: ^=(?:C6\s*\*\s*12|12\s*\*\s*C6)$
             - formula:
                 sheet: Office
                 cell: D7
-                regex: ^=C7\s*\*\s*12$
+                regex: ^=(?:C7\s*\*\s*12|12\s*\*\s*C7)$
             - formula:
                 sheet: Office
                 cell: D8
-                regex: ^=C8\s*\*\s*12$
+                regex: ^=(?:C8\s*\*\s*12|12\s*\*\s*C8)$
             - formula:
                 sheet: Office
                 cell: D9
-                regex: ^=C9\s*\*\s*12$
+                regex: ^=(?:C9\s*\*\s*12|12\s*\*\s*C9)$
             - header:
                 sheet: Home
                 row: 1
@@ -360,19 +360,19 @@ blocks:
             - formula:
                 sheet: Home
                 cell: D2
-                regex: ^=C2\s*\*\s*12$
+                regex: ^=(?:C2\s*\*\s*12|12\s*\*\s*C2)$
             - formula:
                 sheet: Home
                 cell: D3
-                regex: ^=C3\s*\*\s*12$
+                regex: ^=(?:C3\s*\*\s*12|12\s*\*\s*C3)$
             - formula:
                 sheet: Home
                 cell: D4
-                regex: ^=C4\s*\*\s*12$
+                regex: ^=(?:C4\s*\*\s*12|12\s*\*\s*C4)$
             - formula:
                 sheet: Home
                 cell: D5
-                regex: ^=C5\s*\*\s*12$
+                regex: ^=(?:C5\s*\*\s*12|12\s*\*\s*C5)$
             - no_error_cells: true
       workspace:
         created:

@@ -1,5 +1,6 @@
 import {
   agreement,
+  calibrationEligible,
   DEFAULT_REPEATS,
   type LabelAgreement,
   type LabelledBlock,
@@ -153,7 +154,7 @@ export async function calibrateCascade(
         });
       }
     }
-    const blocks = config.labels.get(criterion.def.name) ?? [];
+    const blocks = (config.labels.get(criterion.def.name) ?? []).filter(calibrationEligible);
     for (const block of blocks)
       items.push({ id: block.id, truth: block.label, request: labelRequest(criterion, block) });
 

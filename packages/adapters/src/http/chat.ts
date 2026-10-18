@@ -1,5 +1,5 @@
 import { isPlainObject, type Message } from '@agent-nexus/driftbench-core';
-import { contentText, parseArguments } from '../shared';
+import { contentText, HistoryCompiler, parseArguments } from '../shared';
 
 /**
  * The OpenAI-compatible chat shape the http adapter speaks: the messages it sends, and the completion an
@@ -31,25 +31,27 @@ export type ChatReply = {
  */
 export function toChatMessages(messages: readonly Message[]): ChatMessage[] {
   const out: ChatMessage[] = [];
-  let unnamed = 0;
+  const compiler = new HistoryCompiler({ fallback: (n) => `call-h${n}` });
   for (const message of messages) {
     const name = message.name === undefined ? {} : { name: message.name };
-    const recorded = message.role === 'assistant' ? (message.tool_calls ?? []) : [];
+    const recorded = compiler.calls(message);
     if (recorded.length === 0) {
-      out.push({ role: message.role, content: message.content, ...name });
+      // A free tool note answers no call: the wire refuses a tool message without one, so it is user text.
+      const role = message.role === 'tool' ? 'user' : message.role;
+      out.push({ role, content: message.content, ...name });
       continue;
     }
     const calls = recorded.map(
       (call): ChatToolCall => ({
-        id: call.id ?? `call-h${++unnamed}`,
+        id: call.id as string,
         type: 'function',
         function: { name: call.label, arguments: JSON.stringify(call.input ?? {}) },
       }),
     );
     out.push({ role: 'assistant', content: null, tool_calls: calls, ...name });
-    recorded.forEach((call, index) => {
-      const content = call.error !== undefined ? { error: call.error } : (call.output ?? null);
-      out.push({ role: 'tool', tool_call_id: calls[index]?.id ?? '', content: JSON.stringify(content) });
+    recorded.forEach((call) => {
+      const content = call.result.kind === 'error' ? { error: call.result.message } : call.result.value;
+      out.push({ role: 'tool', tool_call_id: call.id as string, content: JSON.stringify(content) });
     });
     if (message.content !== '') out.push({ role: 'assistant', content: message.content, ...name });
   }

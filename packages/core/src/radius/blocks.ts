@@ -1,8 +1,10 @@
 import { runProvenance } from '../runner/provenance';
+import { applyBlockRealizedTextPolicy } from '../runner/realized-text';
 import type { RunOptions } from '../runner/run';
+import { blockStatus } from '../runner/verdicts';
 import type { BlockResult, Campaign, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
-import { contentHash } from '../spec/hash';
+import { specHash } from '../spec/identity';
 import { planRadiusCampaign } from './carry';
 import type { ChangeManifest } from './change';
 import { radiusOf } from './radius';
@@ -25,6 +27,8 @@ export function planBlockRerun(
   now: Date,
 ): { indices: Set<number>; carried: Map<number, BlockResult> } | { reason: string } {
   const { source, manifest } = reuse;
+  if (spec.blocks.some((block) => block.parent !== undefined))
+    return { reason: 'parent-linked blocks require a full tree replay' };
   const fail = (reason: string) => ({ reason });
   if (options.mode !== 'T' || source.mode !== 'T' || options.adapter.capabilities().sandbox)
     return fail('only independent mode T cells support block reruns');
@@ -32,13 +36,13 @@ export function planBlockRerun(
     source.endState?.match === false ||
     source.status !== 'completed' ||
     source.blocks.length !== spec.blocks.length ||
-    source.blocks.some((b) => !b.pass || !b.provenance)
+    source.blocks.some((b) => blockStatus(b) !== 'pass' || !b.provenance)
   )
     return fail('the baseline is incomplete, failing or lacks block provenance');
   if (source.rejudged) return fail('a re-judged baseline requires a full agent measurement');
   if (options.driver.id !== 'scripted' || JSON.stringify(options.driver.seeds) !== '{}')
     return fail('the driver inputs are uncertain');
-  if (source.specHash !== contentHash(spec)) return fail('the full spec hash changed');
+  if (source.specHash !== specHash(spec)) return fail('the full spec hash changed');
   const radius = radiusOf([{ spec, hash: source.specHash }], manifest, { modes: ['T'] });
   if (radius.whole) return fail(radius.whole.reason);
   const indices = new Set(radius.specs[0]?.blocks.filter((b) => b.state.T !== 'out').map((b) => b.index));
@@ -85,7 +89,10 @@ export function planBlockRerun(
     if (campaigns > (reuse.maxCarry ?? 5) || days > (reuse.maxAgeDays ?? 7))
       return fail('the carried block exceeds an age or count limit');
     carried.set(index, {
-      ...block,
+      ...applyBlockRealizedTextPolicy(block, options.recordRealizedText === true, {
+        fromRun: source.runId,
+        fromCampaign: reuse.fromCampaign,
+      }),
       carried: {
         ...eligible.carried,
         ...(block.carried ?? {}),

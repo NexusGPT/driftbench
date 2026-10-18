@@ -34,6 +34,7 @@ import {
   openStore,
   readCampaignBundle,
   restoreFiles,
+  SCHEMA_VERSION,
   type SqliteStore,
   StoreError,
 } from '@agent-nexus/driftbench-store';
@@ -1200,7 +1201,10 @@ function concurrencyItems(): BankItem[] {
             failedOps(results).length === 0,
             `expected no error, got ${failedOps(results).slice(0, 3).join('; ')}`,
           ],
-          [version === 2, `expected user_version 2 after the upgrade, got ${version}`],
+          [
+            version === SCHEMA_VERSION,
+            `expected user_version ${SCHEMA_VERSION} (the current schema) after the upgrade, got ${version}`,
+          ],
           [runs === 3, `expected the old run and the two new ones, got ${runs}`],
           [versions === 2, `expected two dataset versions, got ${versions}`],
         ]);
@@ -3716,13 +3720,16 @@ function versionItems(): BankItem[] {
   oldRecord(
     'schema-1-upgraded',
     1,
-    'packages/store/src/schema.ts (an older database is upgraded on open): a store written with the schema 1 SQL (commit 1b0d48bf) opens with user_version 2 and the registry tables of schema 2',
-    'openStore upgrades a schema 1 store to schema 2 on open',
+    'packages/store/src/schema.ts (an older database is upgraded on open): a store written with the schema 1 SQL (commit 1b0d48bf) opens with the current user_version (SCHEMA_VERSION) and the registry tables of schema 2',
+    'openStore upgrades a schema 1 store to the current schema on open',
     async (_store, _old, path) => {
       const version = readUserVersion(path);
       const tables = tablesOf(path);
       return expectAll([
-        [version === 2, `expected user_version 2, got ${version}`],
+        [
+          version === SCHEMA_VERSION,
+          `expected user_version ${SCHEMA_VERSION} (the current schema), got ${version}`,
+        ],
         [
           tables.includes('blobs') && tables.includes('versions'),
           `expected the blobs and versions tables, got ${show(tables)}`,

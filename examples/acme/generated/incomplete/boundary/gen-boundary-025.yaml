@@ -6,7 +6,7 @@ id: gen-boundary-025
 version: 7a022d4e1380
 kind: conversation
 title: "Boundary value coverage.check.out.fiber_mbps.absent: Path order-named-plan of order: needs > address > offer > details > recap > order_placed"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -79,11 +79,14 @@ metadata:
     path: order-named-plan
     cell:
       coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.absent
+      coverage.check.out.found: coverage.check.out.found.false
+      coverage.check.out.address_id: coverage.check.out.address_id.absent
+      coverage.check.out.five_g: coverage.check.out.five_g.absent
       flow: order
       coverage_result: fiber
       plan_choice: names-one
       customer_details: name-and-email
-      channel: chat
+      channel: whatsapp
       user_type: existing-customer
     blocks:
       - block: b1-needs-to-address
@@ -91,7 +94,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address

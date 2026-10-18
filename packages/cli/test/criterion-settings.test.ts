@@ -73,7 +73,10 @@ function spec(criterion: string): string {
     .join('\n');
 }
 
-/** Replays one session against a spec with the recorder as judge; returns what the judge was sent. */
+/**
+ * Replays one session against a spec with the recorder as judge; returns what the judge was sent. The default
+ * policy first routes each request with its own call; `calls` holds the criterion calls and `routes` the routing ones.
+ */
 async function recorded(criterion: string, ...flags: string[]) {
   const dir = await tempDir();
   const judge = join(dir, 'judge.cjs');
@@ -93,24 +96,28 @@ async function recorded(criterion: string, ...flags: string[]) {
     ...flags,
     '--json',
   ]);
-  const calls = (await readFile(process.env.RECORD_FILE, 'utf8'))
+  const sent = (await readFile(process.env.RECORD_FILE, 'utf8'))
     .split('\n')
     .filter(Boolean)
     .map((line) => JSON.parse(line) as { system: string; input: string });
-  return { result, calls };
+  const routing = (call: { system: string }) => call.system.includes('"route":"criterion"');
+  return { result, calls: sent.filter((call) => !routing(call)), routes: sent.filter(routing) };
 }
 
 describe('criterion settings from a spec reach the judge of a run', () => {
-  it('sends the same prompt without settings, the version 2 rules with prompt_version 2, and the items with items', async () => {
+  it('sends the default policy prompt (version 2) without settings, the version 1 rules with prompt_version 1, and the items with items', async () => {
     const plain = await recorded('');
     expect(plain.result.err).toBe('');
     expect(plain.calls).toHaveLength(1);
-    const again = await recorded('    prompt_version: 1');
+    expect(plain.routes).toHaveLength(1);
+    const again = await recorded('    prompt_version: 2');
     expect(again.calls).toEqual(plain.calls);
 
-    const v2 = await recorded('    prompt_version: 2');
-    expect(v2.calls[0]?.system).toContain('Compare each named identifier, number and unit exactly');
-    expect(plain.calls[0]?.system).not.toContain('Compare each named identifier, number and unit exactly');
+    const v1 = await recorded('    prompt_version: 1');
+    expect(plain.calls[0]?.system).toContain('Compare each named identifier, number and unit exactly');
+    expect(v1.calls[0]?.system).not.toContain('Compare each named identifier, number and unit exactly');
+    // A pinned version keeps the request as written: no routing call.
+    expect(v1.routes).toHaveLength(0);
 
     const items = await recorded(
       '    items:\n      - { name: on-scope, rubric: Edits only the invoice total. }\n    threshold: 0.5',
@@ -121,10 +128,14 @@ describe('criterion settings from a spec reach the judge of a run', () => {
       '    assessment: conformance\n    reference: The shop build stays in scope.',
     );
     expect(conformance.calls).toHaveLength(1);
+    // An assessment is pinned too: an unexpected routing call fails here, not only in the count above.
+    expect(conformance.routes).toHaveLength(0);
     expect(conformance.calls[0]?.input).toContain('The shop build stays in scope.');
 
     const repeat = await recorded('    repeat: 3');
     expect(repeat.calls).toHaveLength(3);
+    // The repeats share one routing call; a second routing call per repeat would fail here.
+    expect(repeat.routes).toHaveLength(1);
   }, 120_000);
 
   it('refuses a spec whose settings cannot work, naming the fix', async () => {
@@ -219,6 +230,6 @@ describe('run-wide judge flags', () => {
     expect(errors.join('')).toContain('--prompt-budget takes a whole number of characters above 0, not "0"');
     const without = await cli(['replay', SESSION, '--suite', ROOT, '--verify', 'arithmetic']);
     expect(without.code).toBe(2);
-    expect(without.err).toContain('need --judge claude:<model>');
+    expect(without.err).toContain('error: --verify needs --judge claude:<model>');
   });
 });
