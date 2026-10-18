@@ -140,8 +140,9 @@ A quote copies text of the agent's files. A store built from a private estate is
 
 | Variable | Question | Answer read as |
 |---|---|---|
-| two values | one yes or no question about the first value | yes is the first value, no is the second, a probability in between is unsure |
-| three or more values | one choice question with an option for each value and one for "none of these" | the top option when its probability is at least 0.5, else unsure; "none of these" is absent |
+| two or more values | one choice question with an option for each value and one for "none of these" | the top option when its probability is at least 0.5, else unsure; "none of these" is absent |
+
+A variable with two values gets the same choice question as one with more: a conversation can show neither value, and a yes or no question about the first value would count that conversation as the second. The yes or no question (`yesno`, a probability of yes, read as the first value at 0.75 or more and the second at 0.25 or less) stays a kind a reader may be asked, but the feed no longer builds one.
 
 The questions use only the title of the variable and the titles of its values, never conversation text. The reader is a port: any object with a `read` method can stand in, and `createJevReader` is one that calls a system 1 service (one request per conversation, with the questions of all variables in the same request). The thresholds (0.75 and 0.25 for yes or no, 0.5 for a choice) are settings and the report records them.
 
