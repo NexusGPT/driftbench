@@ -48,8 +48,13 @@ export function registerRadiusLocalize(radius: Command, io: Io, setExit: (code: 
     .option('--counting <rule>', 'grouped: drop inherited failures only; flat: count every block', 'grouped')
     .option('--top <n>', 'print this many sections; 0 prints all', '10')
     .action(async (paths: string[], _own: unknown, command: Command) => {
-      // `radius` has its own --json, which commander gives the parent: read it with the globals.
-      setExit(await localizeCommand(paths, command.optsWithGlobals<LocalizeOptions>(), io));
+      // `radius` has its own --json, which commander gives the parent: read it with the globals. `radius`
+      // also has --mode with the default F: that default is not a mode given to localize, which reads the
+      // campaign's own mode when none is given.
+      const options = command.optsWithGlobals<LocalizeOptions>();
+      if (command.opts().mode === undefined && command.parent?.getOptionValueSource('mode') === 'default')
+        delete options.mode;
+      setExit(await localizeCommand(paths, options, io));
     });
 }
 

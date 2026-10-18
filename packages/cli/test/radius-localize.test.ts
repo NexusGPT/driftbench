@@ -112,3 +112,35 @@ it('refuses bad input with exit 2', async () => {
     (await cli([...base, '--campaign', 'linked', '--sections', registry, '--prompt', 'other'])).code,
   ).toBe(2);
 }, 120_000);
+
+it('reads the one mode of a mode T campaign when --mode is not given', async () => {
+  const run = await cli([
+    'campaign',
+    'run',
+    linked,
+    '--store',
+    'acme.db',
+    '--campaign',
+    'linked-t',
+    '--mode',
+    'T',
+  ]);
+  expect([0, 1, 3]).toContain(run.code);
+  const json = JSON.parse(
+    (
+      await cli([
+        'radius',
+        'localize',
+        linked,
+        '--store',
+        'acme.db',
+        '--campaign',
+        'linked-t',
+        '--sections',
+        registry,
+        '--json',
+      ])
+    ).out,
+  );
+  expect(json.mode).toBe('T');
+}, 120_000);
