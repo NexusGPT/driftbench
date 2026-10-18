@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { type CalibrationItem, type ConversationReader, FeedError, feedVariables } from '../../src/feed';
+import {
+  type CalibrationItem,
+  type ConversationReader,
+  FeedError,
+  feedVariables,
+  NOT_SHOWN,
+} from '../../src/feed';
 import { FIXTURE_VARIABLES, fixtureStore, Population, simulatedReader } from './support';
 
 const SEEDS = Number(process.env.FEED_COVERAGE_SEEDS ?? 20);
@@ -64,6 +70,49 @@ async function coverage(
   }
   return { inside, checks, width: width / checks, seedsAllInside };
 }
+
+describe('a variable with two values and conversations that show neither', () => {
+  // 100 conversations about customer_mood: 30 show calm, 30 show upset, 40 show no mood at all. Among the
+  // conversations that show a mood the shares are 0.5 and 0.5; counting "neither" as the second value gives
+  // 0.3 and 0.7, with an interval that excludes the truth.
+  async function run() {
+    const population = new Population(31);
+    const make = (n: number, mood: string) =>
+      Array.from({ length: n }, () => ({
+        id: `c${mood}`,
+        text: population.conversation({ customer_mood: mood }).text,
+      }));
+    const conversations = [...make(30, 'calm'), ...make(30, 'upset'), ...make(40, NOT_SHOWN)].map((c, i) => ({
+      ...c,
+      id: `c${i}`,
+    }));
+    return feedVariables({
+      store: fixtureStore(),
+      conversations,
+      reader: simulatedReader(population, { accuracy: 1, unsure: 0, seed: 31 }),
+      options: { variables: ['customer_mood'], minDecided: 20 },
+    });
+  }
+
+  it('counts the conversations that show neither as absent, not as the second value', async () => {
+    const { report } = await run();
+    const mood = report.variables[0];
+    expect(mood).toMatchObject({ id: 'customer_mood', decided: 60, absent: 40, unsure: 0 });
+    expect(mood?.values.map((v) => v.count)).toEqual([30, 30]);
+  });
+
+  it('keeps the shares of the conversations that show a mood: 0.5 and 0.5, inside their intervals', async () => {
+    const { report, store } = await run();
+    const values = report.variables[0]?.values ?? [];
+    for (const value of values) {
+      expect(value.share).toBeCloseTo(0.5, 6);
+      expect(value.lower ?? 1).toBeLessThanOrEqual(0.5);
+      expect(value.upper ?? 0).toBeGreaterThanOrEqual(0.5);
+    }
+    const mood = store.variables.find((v) => v.id === 'customer_mood');
+    expect(mood?.values.map((v) => v.weight)).toEqual([0.5, 0.5]);
+  });
+});
 
 describe('the recovered weights against a known mix', () => {
   // A 95% interval holds the truth 95 times in 100, not 100. Over 20 seeds and 11 values (220 checks) about 11
