@@ -408,6 +408,13 @@ export {
 export { isPlainObject, normalizeSpec } from './spec/normalize';
 export { checkSemantics, isZero, parseCriterionRef, patternError } from './spec/semantics';
 export {
+  resolveSpecParents,
+  type SpecParentRecord,
+  type SpecParentRef,
+  specParentRecord,
+  specParentRef,
+} from './spec/spec-parents';
+export {
   type GivenFinding,
   type VerifyGivenOptions,
   valueInText,

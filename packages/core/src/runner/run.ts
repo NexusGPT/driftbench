@@ -23,6 +23,7 @@ import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from 
 import { cloneJson, contentHash } from '../spec/hash';
 import { specHash as specHashOf, specIdentity } from '../spec/identity';
 import { parentOrder } from '../spec/parents';
+import { specParentRecord, specParentRef } from '../spec/spec-parents';
 import { type GivenFinding, verifyGiven } from '../spec/verify-given';
 import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
@@ -145,6 +146,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   if (options.store && options.campaignId === undefined) {
     throw new Error('runSpec: a store needs a campaignId to file the run under');
   }
+  if (specParentRef(spec.blocks[0]?.parent))
+    throw new RunnerError(
+      `${spec.id}: block 0 starts from another spec's block; load the specs together (loadSpecs) so the loader writes the parent's blocks out first`,
+    );
   const parents = parentOrder(spec);
   if (parents.issues.length) throw new RunnerError(parents.issues.map((issue) => issue.message).join('; '));
   const linked = spec.blocks.some((block) => block.parent !== undefined);
@@ -234,6 +239,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     selectedBlocks,
     requestedBlocks: options.blocks,
     replayOnly,
+    replayed: specParentRecord(spec)?.replayed ?? 0,
     parentOrder: linked ? parents.order : undefined,
     blockRerunReason,
     carriedBlocks,
@@ -304,6 +310,8 @@ type RunContext = {
   /** The block subset as asked for, before a parent-linked subset adds the ancestors it replays. */
   requestedBlocks: ReadonlySet<number> | undefined;
   replayOnly: ReadonlySet<number> | undefined;
+  /** The leading blocks a parent in another spec wrote out (`metadata.parent`): replayed, never scored. */
+  replayed: number;
   selectedBlocks: ReadonlySet<number> | undefined;
   blockRerunReason: string | undefined;
   carriedBlocks: Map<number, BlockResult> | undefined;
@@ -500,6 +508,24 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let error: string | undefined;
   /** F and P: a prefix the spec wrote at a block run so far; the session holds it from there on. */
   let prefixWritten = false;
+  /**
+   * The parent's opening a child of another spec replays (`run.replayed` leading blocks): its results, never
+   * scored, and the first of them that did not pass, which blocks every block of the child.
+   */
+  const replay: { from?: number; results: Set<BlockResult>; failure?: { by: string; root: string } } = {
+    results: new Set(),
+  };
+  const settleReplay = () => {
+    if (replay.from === undefined) return;
+    for (const result of blocks.slice(replay.from)) {
+      replay.results.add(result);
+      if (replay.failure === undefined && blockStatus(result) !== 'pass') {
+        const by = result.blockId ?? `block ${result.index}`;
+        replay.failure = { by, root: result.blocked?.root ?? by };
+      }
+    }
+    replay.from = undefined;
+  };
 
   try {
     for (let position = 0; ; position++) {
@@ -520,6 +546,15 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         }
         break;
       }
+      settleReplay();
+      if (replay.failure) {
+        // The parent's opening did not pass: the child is blocked, never sent and never failed.
+        const from = Math.max(step.kind === 'block' ? step.blockIndex : step.beforeBlock, run.replayed);
+        for (let index = from; index < spec.blocks.length; index++, position++)
+          blocks.push(replayBlocked(run, spec, position, index, replay.failure));
+        break;
+      }
+      replay.from = step.kind === 'block' && step.blockIndex < run.replayed ? blocks.length : undefined;
       const planned = planStep(spec, step);
       const perturbation =
         step.kind === 'injected'
@@ -1034,14 +1069,17 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         };
   }
 
+  settleReplay();
   const note = await channel.close();
   if (channel.replay && blocks.length === 0) return undefined;
   // A replayed ancestor gave its end state to the blocks asked for; it is no measurement of this run, so
   // it adds no verdict or count. What it cost stays in the run's cost.
   const executed = blocks;
-  const measured = run.replayOnly?.size
-    ? executed.filter((block) => block.specIndex === undefined || !run.replayOnly?.has(block.specIndex))
-    : executed;
+  const measured = executed.filter(
+    (block) =>
+      !replay.results.has(block) &&
+      (!run.replayOnly?.size || block.specIndex === undefined || !run.replayOnly.has(block.specIndex)),
+  );
   const recovery =
     run.mode === 'P'
       ? recoveryOf(spec, { blocks: measured, perturbationId: run.perturbationId }, run.recovery)
@@ -1480,4 +1518,36 @@ function replayChannel(cache: ObservedCache, toolPolicy: readonly ToolRule[] | u
 
 function userMessagesOf(messages: readonly Message[]): Message[] {
   return messages.filter((message) => message.role === 'user');
+}
+
+/** A block of a child whose parent's opening, replayed from another spec, did not pass: never sent, never failed. */
+function replayBlocked(
+  run: RunContext,
+  spec: Spec,
+  position: number,
+  index: number,
+  { by, root }: { by: string; root: string },
+): BlockResult {
+  const block = spec.blocks[index];
+  const from = specParentRecord(spec)?.from ?? by;
+  run.onEvent?.({ type: 'block_start', index: position, at: run.now().toISOString() });
+  run.onEvent?.({
+    type: 'block_end',
+    index: position,
+    pass: false,
+    status: 'blocked',
+    at: run.now().toISOString(),
+  });
+  return {
+    index: position,
+    ...(block?.id === undefined ? {} : { blockId: block.id }),
+    givenHash: resolveGiven(initialGiven(spec), [], run.target).hash,
+    observed: { ...NOT_SENT, segments: [], toolCalls: [], cost: {} },
+    verdicts: [],
+    ledgerCheck: { ok: true, contradictions: [] },
+    drift: [],
+    pass: false,
+    status: 'blocked',
+    blocked: { by, root, reason: `the opening from ${from} did not pass at ${by}` },
+  };
 }

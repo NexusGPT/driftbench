@@ -241,6 +241,9 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | `DUPLICATE_BLOCK_ID` | error | two blocks share an id |
 | `PARENT_MISSING` | error | a block's `parent` names no block id in the spec |
 | `PARENT_CYCLE` | error | `parent` links form a cycle, a block naming itself included; the message prints the cycle, such as `a -> b -> a` |
+| `PARENT_SPEC_MISMATCH` | error | block 0 names a block of another spec whose kind, channel, lang, target or Given defaults differ, or whose criteria of the same name differ |
+| `PARENT_SPEC_POSITION` | error | a block of another spec is named as the parent of a block other than block 0, or beside parent links of the spec's own |
+| `PARENT_WITH_PREFIX` | error | block 0 names a block of another spec and also writes `given.prefix` |
 | `WORKSPACE_PATH_TWICE` | error | a workspace path is in both `files` and `binary` |
 | `DUPLICATE_PERTURBATION_ID` | error | two perturbations share an id |
 | `TOOL_COUNT_CONTRADICTION` | error | a tool is expected 0 times but has input assertions |

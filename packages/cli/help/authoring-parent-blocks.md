@@ -61,7 +61,7 @@ No project config key enables parent behavior: the `parent` spec key enables it.
 | Key | Type | Meaning |
 |---|---|---|
 | `blocks[].id` | Non-empty string | Unique within the spec. Children name this id. |
-| `blocks[].parent` | Non-empty string, optional | The id of one parent in this spec. Missing ids and cycles are invalid. |
+| `blocks[].parent` | Non-empty string, optional | The id of one parent in this spec. On block 0 only, `<spec id>#<block id>` names a block of another spec loaded with this one: its blocks up to that one are replayed first, unscored. Missing ids and cycles are invalid. |
 | `blocks[].given.prefix` | Message list, optional | Replaces the inherited conversation, including when the list is empty. |
 | `given.ledger`, `blocks[].given.ledger` | Mapping, optional | Facts. Child values replace inherited values with the same key. |
 | `blocks[].expect.ledger_add` | Mapping, optional | Facts established by a parent and available to its children. |
@@ -289,7 +289,11 @@ Each record includes the offending spec path and a message explaining the proble
 
 | Error or result | Cause | Fix |
 |---|---|---|
-| `PARENT_MISSING` | The `parent` id does not name a block in this spec. | Add the parent or correct its id. |
+| `PARENT_MISSING` | The `parent` id does not name a block in this spec, or `<spec id>#<block id>` names a spec not loaded with this one or a block it lacks. | Add the parent, correct its id, or load the parent spec's file with the child. |
+| `PARENT_SPEC_MISMATCH` | The parent spec's kind, channel, lang, target or Given defaults differ from the child's, or a criterion of the same name differs. | Give both specs the same header, or write the opening inline. |
+| `PARENT_SPEC_POSITION` | `<spec id>#<block id>` is named on a block other than block 0, or beside parent links of the spec's own. | Put the other-spec parent on block 0 of a spec without parent links. |
+| `PARENT_WITH_PREFIX` | Block 0 names a block of another spec and also writes `given.prefix`. | Keep one: the parent's opening or the prefix. |
+| `blocked`, `blocked.root` `<spec id>#<block id>` | A replayed block of the parent spec did not pass. | Fix that block in the parent spec, then rerun both. |
 | `PARENT_CYCLE` | Parent links form a cycle, including a self-reference. The message prints the cycle, such as `first -> second -> first`. | Remove one link of the printed cycle. A parent chain must reach a root. |
 | `DUPLICATE_BLOCK_ID` | Two blocks share an id. | Give each block a unique id and update its children. |
 | `WORKSPACE_PATH_TWICE` | One workspace path is present in both `files` and `binary`. | Keep the path in one mapping. |
