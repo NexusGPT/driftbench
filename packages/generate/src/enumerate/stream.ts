@@ -4,7 +4,6 @@ import { checkSpec, type Spec } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import { seedFolderName } from '../families/instances';
 import { Allocation } from '../seed/allocation';
-import { TerminalSubsumption } from '../seed/minimal';
 import {
   generatedSpecText,
   NO_THEN_CRITERION,
@@ -16,6 +15,7 @@ import {
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
+import { TerminalSubsumption } from '../seed/minimal';
 import { phraseDrafts, type UnsaidPhrase } from '../seed/phrase-seeder';
 import { restatedDrafts } from '../seed/restated-seeder';
 import { indexDimensions, indexPathValues } from '../seed/scenario';
@@ -40,6 +40,7 @@ import {
   INCOMPLETE_DIR,
   measuredCoverage,
   REPORT_FILE,
+  reachabilityReport,
   type SeederTotals,
 } from './generate';
 import { StreamCoverage } from './stream-coverage';
@@ -365,6 +366,7 @@ function writeSuite(
           .filter((cell) => cell.count === 0)
           .map((cell) => cell.values),
       })),
+      ...(prepared.reachability ? { reachability: reachabilityReport(prepared) } : {}),
       t,
       allowed: completeCoverage.allowed,
       complete: completeCoverage,
