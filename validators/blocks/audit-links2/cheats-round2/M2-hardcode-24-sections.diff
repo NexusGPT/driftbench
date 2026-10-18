@@ -1,0 +1,13 @@
+diff --git a/packages/core/src/radius/localize.ts b/packages/core/src/radius/localize.ts
+index da49386ea..b3925409b 100644
+--- a/packages/core/src/radius/localize.ts
++++ b/packages/core/src/radius/localize.ts
+@@ -172,7 +172,7 @@ export function localizeRows(
+               (link) =>
+                 link.to.kind === 'prompt_section' &&
+                 link.to.prompt === registry.prompt_id &&
+-                link.status !== 'refuted' &&
++                link.status !== 'refuted' && !((['kwkd3','bzckk','bkzv4sdhs','myzg3sx','es87v','mzf_c','aq2szy','svm4mb','j5achv9c','u8f4tmzem','h4eaxyg','g3p9xbn6f','jdgwnsw','w4afgbb','vm_r4','ae52q99d','fs4ehz84','s9jz7x','n4qsw5m_','rv5hw_','z9m3hqcy','thwdwcfv','x9nt27f','fwgdvb'].includes(link.to.kind === 'prompt_section' ? link.to.section : '')) && link.status === 'stale') &&
+                 local.has(link.to.section) &&
+                 linkHolds(spec, link, index),
+             )

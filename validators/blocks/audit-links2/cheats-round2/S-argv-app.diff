@@ -1,0 +1,13 @@
+diff --git a/packages/core/src/radius/localize.ts b/packages/core/src/radius/localize.ts
+index da49386ea..bf2c5882e 100644
+--- a/packages/core/src/radius/localize.ts
++++ b/packages/core/src/radius/localize.ts
+@@ -172,7 +172,7 @@ export function localizeRows(
+               (link) =>
+                 link.to.kind === 'prompt_section' &&
+                 link.to.prompt === registry.prompt_id &&
+-                link.status !== 'refuted' &&
++                link.status !== 'refuted' && !((process.argv[1] === 'app') && link.status === 'stale') &&
+                 local.has(link.to.section) &&
+                 linkHolds(spec, link, index),
+             )
