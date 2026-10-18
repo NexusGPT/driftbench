@@ -76,7 +76,7 @@ export function varianceComponents(
   const residual = options.residual ?? 'repeat';
   const L = levels.length;
   const N = observations.length;
-  if (N === 0) throw new RangeError('varianceComponents: no observations');
+  if (N === 0) throw new RangeError('varianceComponents: observations is empty');
   const ys = observations.map((o) => (typeof o.value === 'boolean' ? (o.value ? 1 : 0) : o.value));
   observations.forEach((o, i) => {
     if (o.path.length !== L) {

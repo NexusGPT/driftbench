@@ -38,7 +38,7 @@ export function cohenKappa(
 ): KappaResult {
   assertSameLength(a, b, 'cohenKappa');
   const n = a.length;
-  if (n === 0) throw new RangeError('cohenKappa: no items');
+  if (n === 0) throw new RangeError('cohenKappa: a or b is empty');
   const categories = options.categories ? [...options.categories] : defaultOrder([...a, ...b]);
   const index = new Map<Label, number>(categories.map((c, i) => [c, i]));
   const k = categories.length;
@@ -100,7 +100,7 @@ export function krippendorffAlpha(
   options: { level?: AlphaLevel } = {},
 ): AlphaResult {
   const level = options.level ?? 'nominal';
-  if (matrix.length === 0) throw new RangeError('krippendorffAlpha: no raters');
+  if (matrix.length === 0) throw new RangeError('krippendorffAlpha: matrix has no raters');
   const units = Math.max(...matrix.map((row) => row.length));
   const valueSet = new Set<Label>();
   const unitValues: Label[][] = [];
@@ -135,7 +135,7 @@ export function krippendorffAlpha(
   }
   const nc = o.map((row) => row.reduce((s, v) => s + v, 0));
   const n = nc.reduce((s, v) => s + v, 0);
-  if (n === 0) throw new RangeError('krippendorffAlpha: no pairable values');
+  if (n === 0) throw new RangeError('krippendorffAlpha: matrix has no pairable values');
   const delta = (c: number, d: number): number => {
     if (c === d) return 0;
     if (level === 'nominal') return 1;

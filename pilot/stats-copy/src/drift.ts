@@ -37,7 +37,7 @@ export interface CusumResult {
  * upper = max(0, upper + z - k), lower = max(0, lower - z - k); an alarm when either exceeds h.
  */
 export function cusum(series: readonly number[], options: CusumOptions = {}): CusumResult {
-  if (series.length === 0) throw new RangeError('cusum: empty series');
+  if (series.length === 0) throw new RangeError('cusum: series is empty');
   const warmup = options.warmup ?? Math.min(20, series.length);
   const head = series.slice(0, warmup);
   const target = options.target ?? mean(head);
@@ -93,6 +93,7 @@ export interface PageHinkleyResult {
  * state resets after an alarm.
  */
 export function pageHinkley(series: readonly number[], options: PageHinkleyOptions = {}): PageHinkleyResult {
+  if (series.length === 0) throw new RangeError('pageHinkley: series is empty');
   const delta = options.delta ?? 0.005;
   const threshold = options.threshold ?? 50;
   const minInstances = options.minInstances ?? 30;
@@ -171,7 +172,7 @@ export function ksTest(
 ): KsResult {
   const m = a.length;
   const n = b.length;
-  if (m === 0 || n === 0) throw new RangeError('ksTest: both samples need at least one value');
+  if (m === 0 || n === 0) throw new RangeError('ksTest: a or b is empty');
   const x = [...a].sort((p, q) => p - q);
   const y = [...b].sort((p, q) => p - q);
   // D * m * n is an integer: track the integer gap i * n - j * m along the merged order.

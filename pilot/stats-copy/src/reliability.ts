@@ -36,7 +36,7 @@ export function passAtK(c: number, n: number, k: number): number {
 
 /** Unreliability: the 90th percentile minus the 10th percentile of the scores across repeats (type 7 quantiles). */
 export function unreliability(samples: readonly number[]): number {
-  if (samples.length === 0) throw new RangeError('unreliability: no samples');
+  if (samples.length === 0) throw new RangeError('unreliability: samples is empty');
   const sorted = [...samples].sort((a, b) => a - b);
   return quantileSorted(sorted, 0.9) - quantileSorted(sorted, 0.1);
 }

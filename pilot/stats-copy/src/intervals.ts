@@ -99,7 +99,7 @@ export function bootstrapCI(values: readonly number[], options: BootstrapOptions
   const method = options.method ?? 'percentile';
   const alpha = options.alpha ?? 0.05;
   const seed = options.seed ?? 1;
-  if (values.length === 0) throw new RangeError('bootstrapCI: no values');
+  if (values.length === 0) throw new RangeError('bootstrapCI: values is empty');
   if (!Number.isInteger(iterations) || iterations < 1) {
     throw new RangeError(`bootstrapCI: iterations must be a positive integer, got ${iterations}`);
   }
