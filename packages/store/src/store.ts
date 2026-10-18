@@ -3,6 +3,7 @@ import { dirname } from 'node:path';
 import type { DatabaseSync, SQLInputValue, StatementSync } from 'node:sqlite';
 import {
   applyRealizedTextPolicy,
+  blockStatus,
   Campaign,
   type CostUnit,
   canonicalJson,
@@ -70,9 +71,18 @@ export function openMemoryStore(): SqliteStore {
   return openStore(':memory:');
 }
 
+/**
+ * How long a call waits for another connection that holds the file, in milliseconds. SQLite takes the whole
+ * file for a commit, and a live holder can be slow: a large commit, a loaded machine, a process the scheduler has
+ * not run for seconds. A call that waits only five seconds then fails with `database is locked` although the
+ * holder is alive and will finish; a holder that is gone drops its lock with the process, so a long wait costs
+ * only when the holder is alive. Every call is synchronous, so this is also the longest a call blocks.
+ */
+const BUSY_TIMEOUT_MS = 30_000;
+
 function setUp(db: DatabaseSync, path: string): void {
   db.exec('PRAGMA foreign_keys = ON');
-  db.exec('PRAGMA busy_timeout = 5000');
+  db.exec(`PRAGMA busy_timeout = ${BUSY_TIMEOUT_MS}`);
   const version = Number(db.prepare('PRAGMA user_version').get()?.user_version ?? 0);
   if (version > SCHEMA_VERSION) {
     throw new StoreError(
@@ -80,12 +90,28 @@ function setUp(db: DatabaseSync, path: string): void {
       `the store at ${path} has schema version ${version}; this version of driftbench reads ${SCHEMA_VERSION} and older`,
     );
   }
-  if (version < SCHEMA_VERSION) {
-    transaction(db, () => {
-      db.exec(SCHEMA_SQL);
-      db.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
-    });
-  }
+  // Every statement of SCHEMA_SQL is idempotent. A store older than this version runs it; a store at this
+  // version runs it only when a table or index it creates is missing (one written before a table of the
+  // current schema existed), so an open that finds everything writes nothing and the version stays.
+  if (version >= SCHEMA_VERSION && schemaObjectsMissing(db).length === 0) return;
+  transaction(db, () => {
+    db.exec(SCHEMA_SQL);
+    if (version < SCHEMA_VERSION) db.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
+  });
+}
+
+/** The tables and indexes SCHEMA_SQL creates that the database does not hold. */
+function schemaObjectsMissing(db: DatabaseSync): string[] {
+  const wanted = [...SCHEMA_SQL.matchAll(/CREATE (?:TABLE|INDEX) IF NOT EXISTS (\w+)/g)].map(
+    (match) => match[1] as string,
+  );
+  const held = new Set(
+    db
+      .prepare("SELECT name FROM sqlite_master WHERE type IN ('table', 'index')")
+      .all()
+      .map((row) => String(row.name)),
+  );
+  return wanted.filter((name) => !held.has(name));
 }
 
 /** Closes a database that failed to set up. The setup error is the one the caller reports. */
@@ -200,6 +226,9 @@ export class SqliteStore implements Store {
   private readonly db: DatabaseSync;
   private readonly sql: ReturnType<typeof statements>;
   private closed = false;
+  // Run writes need only this policy. Keep one validated row, not the full campaign per run.
+  // Compare the current database bytes on every write so other connections' changes are still checked.
+  private runCampaignPolicy?: { id: string; json: string; realizedText: boolean };
 
   constructor(db: DatabaseSync, path: string) {
     this.db = db;
@@ -634,6 +663,7 @@ export class SqliteStore implements Store {
   async close(): Promise<void> {
     if (this.closed) return;
     this.closed = true;
+    this.runCampaignPolicy = undefined;
     this.db.close();
   }
 
@@ -681,11 +711,18 @@ export class SqliteStore implements Store {
         `putRun: campaign ${campaignId} is not in the store; put the campaign before its runs`,
       );
     }
-    const campaign = readCampaign(campaignRow);
-    const { blocks, ...summary } = applyRealizedTextPolicy(
-      parsed.data,
-      campaign.provenance?.realizedText === true,
-    );
+    const campaignJson = text(campaignRow, 'json', `the campaigns row ${campaignId}`);
+    let policy = this.runCampaignPolicy;
+    if (policy?.id !== campaignId || policy.json !== campaignJson) {
+      const campaign = readCampaign(campaignRow);
+      policy = {
+        id: campaignId,
+        json: campaignJson,
+        realizedText: campaign.provenance?.realizedText === true,
+      };
+      this.runCampaignPolicy = policy;
+    }
+    const { blocks, ...summary } = applyRealizedTextPolicy(parsed.data, policy.realizedText);
     const what = `run ${summary.runId}`;
     let previous = -1;
     for (const block of blocks) {
@@ -708,7 +745,7 @@ export class SqliteStore implements Store {
         toJson(observed, label),
         toJson(verdicts, label),
         toJson(drift, label),
-        block.pass ? 1 : 0,
+        blockStatus(block) === 'pass' ? 1 : 0,
         toJson(rest, label),
       ] satisfies SQLInputValue[];
     });

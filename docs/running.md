@@ -625,9 +625,13 @@ Each cell ends in one state:
 |---|---|---|
 | `pass` | `✓` | the run completed, it has blocks, every block passed, and the end state matched |
 | `fail` | `✗` | the run completed, and a block failed or the end state differs |
+| `not_run` | `-` | the run completed with no failure, but a block was not run: its Given carries a layer the target cannot apply |
+| `blocked` | `-` | the run completed with no failure, but a block was blocked: an ancestor it depends on failed |
 | `failed` | `!` | the run ended with an error |
 | `stopped` | `!` | the run stopped: the driver did not stop in time, or the budget stopped the cell before it started |
 | `pending` | `·` | the cell has no run yet, in `status` |
+
+A block is `pass`, `fail`, `not_run` or `blocked`. The last two are not measurements: the block was not sent, it has no verdicts, its `pass` field is false, and every pass rate (the scorecard, `stats`, `compare`, `ci`, the JUnit file, where a run is `skipped`) leaves it out and prints its count beside the rate. Before it sends a block, the runner checks that the target can apply every layer of the block's Given: a `prefix` needs `seedPrefix`, a forced tool result in `world.tools` needs `toolStubs`. A Given error the verifier finds (`spec lint` warns `GIVEN_UNMET` on it) makes the block `not_run` with kind `given_unmet`, and a seeded workspace file that does not read back as written after setup makes it `not_run` with kind `setup_failed` (check `world_digest`). A layer the target cannot apply makes the block `not_run` with kind `unsupported` (the `capability` check) and its `notRun` record names the layer, the check, what was expected and what the target declares. In modes F and P every later block is then `not_run` too and the end state is not compared; in mode T each block is checked alone. In mode T a block after the first starts from the canonical history the runner builds from the blocks before, which also needs `seedPrefix`: on `nexus` and the live Claude Code adapter those blocks are `not_run`. A carried result or a re-judge never turns such a block into a pass: a run with one is not carried, and a re-judge leaves the block as it was. Every command that prints a pass or a fail per spec (`replay`, `estate live`, `simulate`, `perturb`, `family verify`, the vitest plugin) prints such a spec or block apart with its reason, and every rate says how many runs it left out. A block record whose `pass` and `status` disagree (a `status` of `pass` with `pass` false, or any other status with `pass` true) is refused when it is written and when it is read back; a block with no `status` is a pass or a fail as `pass` says.
 
 A cell's line notes `reused` when a completed run of the cell was already in the store, and `replayed from the cache` when its run came from the cache. The summary line counts each state, the cells the budget stopped, the reused cells, and the money spent by the runs of this command.
 
@@ -724,7 +728,7 @@ effective units per arm = specs * repeats / design effect
 ```ts
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
-import { loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
+import { blockStatus, loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { createAcmeAgent, createStore } from './examples/acme/src/index';
 
@@ -748,19 +752,19 @@ const run = await runSpec(loaded.spec, {
   mode: 'F',
   repeat: 0,
 });
-console.log(run.runId, run.status, run.blocks.map((block) => block.pass), run.endState?.match);
+console.log(run.runId, run.status, run.blocks.map(blockStatus), run.endState?.match);
 ```
 
 Run from the repository root, it prints:
 
 ```
-a66a7aba9986a136 completed [ true, true, true, true, true ] true
+a66a7aba9986a136 completed [ 'pass', 'pass', 'pass', 'pass', 'pass' ] true
 ```
 
 With `mode: 'T'`, it prints:
 
 ```
-6a402b958212918e completed [ true, true, true, true, true ] true
+6a402b958212918e completed [ 'pass', 'pass', 'pass', 'pass', 'pass' ] true
 ```
 
 | Option | Meaning |
@@ -802,7 +806,7 @@ A block passes when every gating verdict passes, the flow and ledger verdicts in
 
 The run starts from the spec's `given`: its ledger, world and vars. A block's own `given` merges into them from that block on: tools, store keys, fixtures, variables and facts by name, the later value winning, and a later workspace replacing the earlier one whole. The world of an injected perturbation merges the same way.
 
-A block's `given.prefix` ends the open session: the next send opens a new one, whose history is that prefix. The block's `given.origin`, when it writes one, holds from that block until a block writes another prefix.
+A block's `given.prefix` ends the open session: the next send opens a new one, whose history is that prefix. The block's `given.origin`, when it writes one, holds from that block until a block writes another prefix. It covers the messages that prefix holds, not the turns a run or a mode T replay adds after them: the resolved Given carries their count as `originLength`. It stays out of the Given hash, since the spec the hash covers already decides it, but the block cache key reads the whole resolved Given, so it is part of that key: an adapter can act on it (crewai does), and a cache entry stands for what the adapter received.
 
 In mode T every block opens its own session from its canonical Given: the ledger, world and vars the spec writes up to that block, and a prefix of the earlier blocks as the spec writes them. On an adapter with a sandbox, a block that writes no `given.world.workspace` of its own keeps the session of the block before, with the canonical prefix as its history, so a task step finds the files the step before made. See [run modes](concepts/run-modes.md#teacher-forced).
 

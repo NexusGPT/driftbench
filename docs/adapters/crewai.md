@@ -53,7 +53,7 @@ Each tool use as a tool call followed by its result (an output that is JSON text
 
 ## Capabilities
 
-`seedPrefix` yes (the history goes in the inputs); `toolStubs` no (the crew runs its own tools); `endState` with `sideEffects` through the process interface only; the rest no; `deterministic` as declared.
+`seedPrefix` yes (the history goes in the inputs; with the default inputs a Given prefix whose tool calls the spec states as a record, `origin: recorded` or `authored`, is refused, since the crew would read them as prose; a canonical prefix, as in mode T, runs); `toolStubs` no (the crew runs its own tools); `endState` with `sideEffects` through the process interface only; the rest no; `deterministic` as declared.
 
 ## Errors
 
