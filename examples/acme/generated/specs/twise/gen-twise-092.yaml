@@ -148,10 +148,10 @@ end_state:
 perturbations:
   - id: p1-D6_instruction_in_data
     class: D6_instruction_in_data
-    inject_at: 0
+    inject_at: 1
     user: ""
     expect:
-      stage: needs
+      stage: address
       stage_reported: true
       tools:
         - label: coverage.check
@@ -166,7 +166,7 @@ perturbations:
       lang: EN
     recovery:
       within_blocks: 0
-      stage_after: needs
+      stage_after: address
     world:
       workspace:
         files:

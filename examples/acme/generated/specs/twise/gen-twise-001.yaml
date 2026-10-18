@@ -127,10 +127,10 @@ end_state:
 perturbations:
   - id: p1-D7_silence_or_burst
     class: D7_silence_or_burst
-    inject_at: 1
+    inject_at: 3
     user: hello?
     expect:
-      stage: identify
+      stage: recap
       stage_reported: true
       tools:
         - label: catalog.search
@@ -142,7 +142,7 @@ perturbations:
       lang: EN
     recovery:
       within_blocks: 0
-      stage_after: identify
+      stage_after: recap
 metadata:
   generated:
     by: driftbench generate

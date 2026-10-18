@@ -128,10 +128,10 @@ end_state:
 perturbations:
   - id: p1-D5_language_switch
     class: D5_language_switch
-    inject_at: 0
+    inject_at: 3
     user: Kunt u dat ook in het Nederlands uitleggen?
     expect:
-      stage: needs
+      stage: callback
       stage_reported: true
       tools:
         - label: coverage.check
@@ -145,7 +145,7 @@ perturbations:
       lang: EN
     recovery:
       within_blocks: 0
-      stage_after: needs
+      stage_after: callback
 metadata:
   generated:
     by: driftbench generate
