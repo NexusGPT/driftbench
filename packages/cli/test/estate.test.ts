@@ -37,6 +37,7 @@ async function fixtureCopy(): Promise<string> {
   await cp(join(FIXTURE, 'CLAUDE.md'), join(root, 'CLAUDE.md'));
   await cp(join(FIXTURE, '.claude'), join(root, '.claude'), { recursive: true });
   await cp(join(FIXTURE, 'answers.yaml'), join(root, 'answers.yaml'));
+  await cp(join(FIXTURE, 'cassette.jsonl'), join(root, 'cassette.jsonl'));
   return root;
 }
 
@@ -64,29 +65,41 @@ describe('driftbench estate scan', () => {
     await expect(readFile(join(root, 'map.yaml'), 'utf8')).rejects.toThrow();
   });
 
-  it('writes the map from recorded answers and prints the counts, refusals, orphans and unenforced atoms', async () => {
+  it('writes the map from recorded labels and prints the counts, refusals, orphans and unenforced atoms', async () => {
     const root = await fixtureCopy();
     const result = await run(
-      ['estate', 'scan', '.', '--runtime', 'claude-code', '--replay', 'answers.yaml', '--out', 'map.yaml'],
+      [
+        'estate',
+        'scan',
+        '.',
+        '--runtime',
+        'claude-code',
+        '--pointer',
+        '--cassette',
+        'cassette.jsonl',
+        '--out',
+        'map.yaml',
+      ],
       root,
     );
     expect(result.err).toBe('');
-    expect(result.code).toBe(0);
+    // The recorded labeler gave answers the checks refused: they stay out of the map, and the scan exits 1.
+    expect(result.code).toBe(1);
     expect(result.out).toContain(
-      'Wrote map.yaml: 126 atoms (69 read by code and approved, 57 split from prose by the model and waiting for approval), 55 edges.',
+      'Wrote map.yaml: 125 atoms (53 read by code and approved, 72 split from prose by the model and waiting for approval), 53 edges.',
     );
-    expect(result.out).toMatch(/instruction\s+43 {2}\(43 by the model\)/);
+    expect(result.out).toMatch(/instruction\s+46 {2}\(46 by the model\)/);
+    expect(result.out).toContain('refused: CLAUDE.md unit');
     expect(result.out).toContain(
       // The fixture's weekly-report template is a template document, so no chunk of it is sent to the model.
       'Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).',
     );
     expect(result.out).not.toContain('Unanswered prose chunks');
-    expect(result.out).toContain('Refused: none.');
     expect(result.out).toContain('Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.');
     expect(result.out).toContain(
       'Unreachable from the standing instructions: .claude/agents/inbox-triager.md.',
     );
-    expect(result.out).toContain('Unenforced: 54 of 61 rules have no guard.');
+    expect(result.out).toContain('Unenforced: 56 of 62 rules have no guard.');
     const loaded = await loadEstateMap(join(root, 'map.yaml'));
     expect(loaded.ok && loaded.map.root).toBe('.');
   });
@@ -109,7 +122,8 @@ describe('driftbench estate scan', () => {
     expect(loaded.map.root.startsWith('../')).toBe(true);
     const lint = await run(['estate', 'lint', 'maps/map.yaml'], elsewhere);
     expect(lint.code).toBe(1);
-    expect(lint.out).toContain('6 findings.');
+    // A scan with no model reads the structure only: the six files that prose names stay unnamed.
+    expect(lint.out).toContain('10 findings.');
   });
 
   it('exits 1 and lists the refusal when an answer quotes text that is not in the file', async () => {
@@ -182,8 +196,21 @@ describe('driftbench estate scan and lint with an ignore list', () => {
 
   it('prints what the defaults and the config skip, records the list in the map, and lints with it', async () => {
     const out = await mkdtemp(join(tmpdir(), 'driftbench-estate-ignore-'));
-    const scan = await run(['estate', 'scan', CASES, '--no-model', '--out', join(out, 'map.yaml')], out);
-    expect(scan.code).toBe(0);
+    const scan = await run(
+      [
+        'estate',
+        'scan',
+        CASES,
+        '--pointer',
+        '--cassette',
+        join(CASES, 'cassette.jsonl'),
+        '--out',
+        join(out, 'map.yaml'),
+      ],
+      out,
+    );
+    // The recorded labeler gave answers the checks refused: they stay out of the map, and the scan exits 1.
+    expect(scan.code).toBe(1);
     expect(scan.out).toContain(
       [
         '  Ignored: 9 files no runtime loads.',
@@ -199,8 +226,9 @@ describe('driftbench estate scan and lint with an ignore list', () => {
     );
     const lint = await run(['estate', 'lint', join(out, 'map.yaml')], out);
     // The documented local subtree wins before another skill with the same bare name.
-    expect(lint.code).toBe(0);
-    expect(lint.out).toContain('Clean.');
+    // The labelers left two sentences that name a file unlabeled, so those two files stay unnamed.
+    expect(lint.code).toBe(1);
+    expect(lint.out).not.toContain('Clean.');
     expect(lint.out).not.toContain('AMBIGUOUS_REFERENCE');
     const original = await loadEstateMap(join(out, 'map.yaml'));
     if (!original.ok) throw new Error('invalid map');
@@ -237,8 +265,13 @@ describe('driftbench estate lint, approve and map', () => {
   it('lints the planted defects, approves by kind and all, and writes a space map the space package loads', async () => {
     const root = await fixtureCopy();
     expect(
-      (await run(['estate', 'scan', '.', '--replay', 'answers.yaml', '--out', 'map.yaml'], root)).code,
-    ).toBe(0);
+      (
+        await run(
+          ['estate', 'scan', '.', '--pointer', '--cassette', 'cassette.jsonl', '--out', 'map.yaml'],
+          root,
+        )
+      ).code,
+    ).toBe(1);
 
     const lint = await run(['estate', 'lint', 'map.yaml'], root);
     expect(lint.code).toBe(1);
@@ -256,14 +289,14 @@ describe('driftbench estate lint, approve and map', () => {
 
     const pending = await run(['estate', 'approve', 'map.yaml'], root);
     expect(pending.code).toBe(0);
-    expect(pending.out).toContain('map.yaml: 57 of 126 atoms wait for approval.');
+    expect(pending.out).toContain('map.yaml: 72 of 125 atoms wait for approval.');
     const kind = await run(
       ['estate', 'approve', 'map.yaml', '--kind', 'register', '--to', 'registers.yaml'],
       root,
     );
-    expect(kind.out).toBe('Approved 10 atoms in registers.yaml; 0 were already approved.\n');
+    expect(kind.out).toBe('Approved 11 atoms in registers.yaml; 0 were already approved.\n');
     const all = await run(['estate', 'approve', 'registers.yaml', '--all', '--to', 'approved.yaml'], root);
-    expect(all.out).toBe('Approved 47 atoms in approved.yaml; 79 were already approved.\n');
+    expect(all.out).toBe('Approved 61 atoms in approved.yaml; 64 were already approved.\n');
     expect((await run(['estate', 'approve', 'map.yaml', '--kind', 'rule'], root)).code).toBe(1);
     expect((await run(['estate', 'approve', 'map.yaml', '--all', '--kind', 'gate'], root)).code).toBe(2);
     expect(
@@ -277,9 +310,9 @@ describe('driftbench estate lint, approve and map', () => {
     expect(space.ok).toBe(true);
     expect(
       space.ok && space.map.dimensions.find((dimension) => dimension.id === 'atoms.instruction')?.values,
-    ).toHaveLength(43);
+    ).toHaveLength(46);
     const unapproved = await run(['estate', 'map', 'map.yaml', '--to', 'code-only.yaml'], root);
-    expect(unapproved.out).toContain('6 target dimensions (gate 4, route 13');
+    expect(unapproved.out).toContain('5 target dimensions (route 13');
     expect((await run(['estate', 'map', 'map.yaml'], root)).code).toBe(2);
   });
 

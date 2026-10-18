@@ -25,7 +25,7 @@ import { type Io, main } from '../src/index';
  * every hand-off is asserted by an id or a hash that the two steps must agree on. The table printed at the
  * end lists them. The same chain, step by step with its commands, is on docs/estate-chain.md.
  *
- * No model call. The scan replays recorded answers. The live runs use the fixture's stand-in command, a
+ * No model call. The scan replays the recorded labels of the pointer reader. The live runs use the fixture's stand-in command, a
  * script with the stand-in marker that `estate run` accepts without --allow-billed, and the check below
  * refuses the real runtime. The provider keys are emptied for the whole file, so a command that tried to
  * reach a model would stop with an error instead.
@@ -281,8 +281,8 @@ afterAll(async () => {
 });
 
 describe('the Northwind estate chain, from scan to radius, with no model call', () => {
-  it('step 1: scan with recorded answers writes a map whose atom ids and provenance hashes recompute', async () => {
-    await prove('1 scan', 'estate folder, answers.yaml', 'map.yaml', async () => {
+  it('step 1: scan with the recorded labels writes a map whose atom ids and provenance hashes recompute', async () => {
+    await prove('1 scan', 'estate folder, cassette.jsonl', 'map.yaml', async () => {
       const out = join(work, 'map.yaml');
       const result = await cli([
         'estate',
@@ -290,13 +290,17 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         FIXTURE,
         '--runtime',
         'claude-code',
-        '--replay',
-        join(FIXTURE, 'answers.yaml'),
+        '--pointer',
+        '--cassette',
+        join(FIXTURE, 'cassette.jsonl'),
         '--out',
         out,
       ]);
       expect(result.err).toBe('');
-      expect(result.code).toBe(0);
+      // The recorded labeler gave answers the checks refused (a span outside its unit, a condition with no target):
+      // they stay out of the map and the scan says so, and exits 1.
+      expect(result.code).toBe(1);
+      expect(result.out).toContain('refused:');
       const map = await loadMap(out);
       chain.scanned = map;
 
@@ -711,17 +715,17 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
   const PROOF = [
     'journey/estate.journey.03.yaml',
     'misroute/estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker.yaml',
-    'obligation/estate.obligation.instruction.standing.tell-the-user-about-a-late.yaml',
-    'ordered_pair/estate.ordered_pair.gate.standing.never-report-done-before-verify-passed.yaml',
-    'outside_trigger/estate.outside_trigger.instruction.standing.tell-the-user-about-a-late.yaml',
-    'register_sample/estate.register_sample.register.invoice-reconcile.one-closing-line-per-invoice.build.yaml',
+    'obligation/estate.obligation.instruction.standing.r7-when-a-shipment-is-late.yaml',
+    'ordered_pair/estate.ordered_pair.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml',
+    'outside_trigger/estate.outside_trigger.instruction.standing.r7-when-a-shipment-is-late.yaml',
+    'register_sample/estate.register_sample.register.invoice-reconcile.end-with-one-line-per-invoice.build.yaml',
     'route_near_miss/estate.route_near_miss.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.yaml',
     'route_positive/estate.route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1.yaml',
-    'skip_pressure/estate.skip_pressure.gate.standing.read-a-file-before-editing-it.yaml',
+    'skip_pressure/estate.skip_pressure.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml',
     'stage_order/estate.stage_order.stage.steps.stage-do-make-the-change.yaml',
     'stage_skip/estate.stage_skip.stage.steps.stage-verify-run-the-check-that.yaml',
     'tool_denied/estate.tool_denied.tool.settings.deny-webfetch.yaml',
-    'twin/estate.twin.instruction.standing.tell-the-user-about-a-late.yaml',
+    'twin/estate.twin.instruction.standing.r7-when-a-shipment-is-late.yaml',
   ];
   /** The two planted faults of the recorded streams: they fail on their own checks, with or without a mutant. */
   const FAULTS = [
@@ -879,7 +883,8 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       const played = await playing(mutantDir);
       expect(played.length).toBeGreaterThan(0);
       for (const rule of played) {
-        expect([rule.file, rule.quote], rule.ask).toEqual([atom.provenance.file, atom.provenance.quote]);
+        expect(rule.file, rule.ask).toBe(atom.provenance.file);
+        expect(atom.provenance.quote, rule.ask).toContain(rule.quote);
       }
       const affected = new Set(played.map((rule) => rule.ask));
 

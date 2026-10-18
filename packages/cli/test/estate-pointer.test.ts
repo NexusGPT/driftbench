@@ -174,9 +174,10 @@ describe('driftbench estate scan --pointer', () => {
     expect(await readFile(join(root, 'replayed.yaml'), 'utf8')).toContain('extraction: pointer');
   });
 
-  it('leaves unlabeled, and says so, the units on which the three runs of system 2 disagree', async () => {
+  it('leaves unlabeled, and says so, the units on which no label has two of the three runs of system 2', async () => {
     const root = await estate();
-    // The second ask of a window holding the "Close" unit (system 1 is torn on it) calls it a prohibition.
+    // The second and third asks of a window holding the "Close" unit (system 1 is torn on it) call it a prohibition and
+    // a description: three runs, three labels.
     const asks = new Map<string, number>();
     const wavering: FetchLike = async (url, init) => {
       const response = await services(url, init);
@@ -187,12 +188,13 @@ describe('driftbench estate scan --pointer', () => {
       if (close === undefined) return response;
       const seen = (asks.get(content) ?? 0) + 1;
       asks.set(content, seen);
-      if (seen !== 2) return response;
+      if (seen !== 2 && seen !== 3) return response;
       const payload = (await response.json()) as { content: Array<{ text: string }> };
       const text = JSON.parse(payload.content[0]?.text ?? '{}') as {
         labels: Array<{ units: string; label: string }>;
       };
-      for (const entry of text.labels) if (entry.units === String(close)) entry.label = 'prohibition';
+      for (const entry of text.labels)
+        if (entry.units === String(close)) entry.label = seen === 2 ? 'prohibition' : 'description';
       payload.content[0] = { type: 'text', text: JSON.stringify(text) } as { text: string };
       return new Response(JSON.stringify(payload), {
         status: 200,

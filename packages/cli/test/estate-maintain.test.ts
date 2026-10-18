@@ -49,7 +49,7 @@ describe('driftbench estate diff', () => {
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
     expect(result.out).toContain(
-      'Atoms: 0 added, 0 removed, 0 changed (0 white space only, 0 semantic), 0 moved with the same quote, 0 restated, 126 unchanged.',
+      'Atoms: 0 added, 0 removed, 0 changed (0 white space only, 0 semantic), 0 moved with the same quote, 0 restated, 125 unchanged.',
     );
     expect(result.out).toContain('Edges: 0 added, 0 removed.');
   });
@@ -123,7 +123,7 @@ function spec(id: string, atoms: string[]): string {
   ].join('\n');
 }
 
-/** Two scans of the fixture, the second after a route changed meaning, a route was removed and a gate added. */
+/** Two scans of the fixture, the second after a route changed meaning, a route was removed and a route added. */
 async function editedEstate(): Promise<string> {
   const root = await fixtureCopy();
   expect((await cli(['estate', 'scan', '.', '--no-model', '--out', 'v1.yaml'], root)).code).toBe(0);
@@ -136,8 +136,8 @@ async function editedEstate(): Promise<string> {
   await edit(standing, '| audit the ledger for duplicate payments | the `ledger-auditor` agent |\n', '');
   await edit(
     standing,
-    'during this session.\n',
-    'during this session.\n- **R18.** Before closing a month: Read `.claude/skills/weekly-report/templates/report.md`.\n',
+    '| prepare the weekly report | `weekly-report` |\n',
+    '| prepare the weekly report | `weekly-report` |\n| write the month summary | `weekly-report` |\n',
   );
   expect((await cli(['estate', 'scan', '.', '--no-model', '--out', 'v2.yaml'], root)).code).toBe(0);
   expect((await cli(['estate', 'diff', 'v1.yaml', 'v2.yaml', '--out', 'diff.json'], root)).code).toBe(0);
@@ -172,7 +172,7 @@ describe('driftbench estate impact', () => {
       '  t-audit (audit.yaml): retired: atom route.standing.an-ask-to-audit-the-ledger removed [to write with --write]',
     );
     expect(result.out).toContain(
-      'New atoms with no test:\n  reference.standing.read-claude-skills-weekly-report-templates (reference) CLAUDE.md:26\n  gate.standing.read-claude-skills-weekly-report-templates (gate) CLAUDE.md:26\n',
+      'New atoms with no test:\n  route.standing.an-ask-to-write-the-month (route) CLAUDE.md:35\n',
     );
     expect(result.out).toContain(
       're-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits',
@@ -207,15 +207,15 @@ describe('driftbench estate impact', () => {
     const root = await editedEstate();
     await writeFile(
       join(root, 'tests', 'new.yaml'),
-      spec('t-new', ['gate.standing.read-claude-skills-weekly-report-templates']),
+      spec('t-new', ['route.standing.an-ask-to-write-the-month']),
     );
     const diff = JSON.parse(await readFile(join(root, 'diff.json'), 'utf8')) as {
       atoms: { changed: unknown[]; added: { id: string }[] };
     };
-    const gate = diff.atoms.added.find((entry) => entry.id.startsWith('gate.'));
-    expect(gate?.id).toBe('gate.standing.read-claude-skills-weekly-report-templates');
+    const added = diff.atoms.added.find((entry) => entry.id.startsWith('route.'));
+    expect(added?.id).toBe('route.standing.an-ask-to-write-the-month');
     diff.atoms.changed = [];
-    diff.atoms.added = diff.atoms.added.filter((entry) => entry.id.startsWith('gate.'));
+    diff.atoms.added = diff.atoms.added.filter((entry) => entry.id.startsWith('route.'));
     await writeFile(join(root, 'quiet.json'), JSON.stringify(diff));
     const result = await cli(['estate', 'impact', 'quiet.json', '--tests', 'tests'], root);
     expect(result.out).toContain('Nothing needs a person.');
@@ -504,9 +504,7 @@ describe('the fixture-v2 outputs', () => {
     const written = await cli(['estate', 'impact', 'diff.json', '--tests', 'tests', '--write'], root);
     expect(written.code).toBe(1);
     const retired = await readFile(join(root, 'tests', 'unsent-draft.yaml'), 'utf8');
-    expect(retired).toContain(
-      '  retired: atom instruction.standing.r12-when-r2-applies-and-the removed\n',
-    );
+    expect(retired).toContain('  retired: atom instruction.standing.r12-when-r2-applies-and-the removed\n');
     for (const name of ['supplier-yes', 'draft-pair', 'late-shipment']) {
       expect(await readFile(join(root, 'tests', `${name}.yaml`), 'utf8')).toBe(
         await readFile(join(ROOT, V2, 'tests', `${name}.yaml`), 'utf8'),
