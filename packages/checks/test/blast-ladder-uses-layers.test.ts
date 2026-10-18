@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { clearObjectContexts, loadSpecFile, type Spec } from '@agent-nexus/driftbench-core';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { createToolsCheck } from '../src/checks/tools';
+import { initializeShippedObjects } from '../src/initialize';
 import { acmeReplayer } from './support/acme-replayer';
 import { context, observed, run, verdict } from './support/context';
 
@@ -43,7 +44,10 @@ const made: string[] = [];
 afterAll(async () => {
   for (const dir of made) await rm(dir, { recursive: true, force: true });
 });
-beforeEach(() => clearObjectContexts());
+beforeEach(() => {
+  initializeShippedObjects();
+  clearObjectContexts();
+});
 
 /** A project folder: `driftbench.yaml`, the strict policy in `driftbench/`, and the spec in `specs/`. */
 async function project(options: { uses?: string; suiteUses?: string }): Promise<string> {

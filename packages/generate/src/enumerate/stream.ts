@@ -3,6 +3,7 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 import { checkSpec, type Spec } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import { seedFolderName } from '../families/instances';
+import { Allocation } from '../seed/allocation';
 import {
   generatedSpecText,
   NO_THEN_CRITERION,
@@ -14,7 +15,7 @@ import {
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
-import { phraseDrafts } from '../seed/phrase-seeder';
+import { phraseDrafts, type UnsaidPhrase } from '../seed/phrase-seeder';
 import { restatedDrafts } from '../seed/restated-seeder';
 import { indexDimensions, indexPathValues } from '../seed/scenario';
 import {
@@ -29,6 +30,7 @@ import {
 import { streamTaskSpecs } from '../seed/tasks';
 import { TerminalPerturbations } from '../seed/terminal-perturbation';
 import {
+  addUnsaid,
   COMPLETE_DIR,
   DEFAULT_SEED,
   DEFAULT_T,
@@ -37,6 +39,7 @@ import {
   INCOMPLETE_DIR,
   measuredCoverage,
   REPORT_FILE,
+  reachabilityReport,
   type SeederTotals,
 } from './generate';
 import { StreamCoverage } from './stream-coverage';
@@ -94,6 +97,7 @@ function writeSuite(
   const { t, seed, max } = context;
   context.pathValues = indexPathValues(prepared);
   context.dimensionIndex = indexDimensions(prepared);
+  context.allocation = new Allocation(prepared);
   const run = { seed, mapPath: options.mapPath };
   const coverage = new StreamCoverage(prepared, t, scratch);
   const invalid = new DiskArray<GenerateReport['invalid'][number]>(scratch, 'invalid.jsonl');
@@ -101,7 +105,13 @@ function writeSuite(
   const noThen = new DiskArray<GenerateReport['no_then'][number]>(scratch, 'no-then.jsonl');
   const gaps = new Map<
     string,
-    { dimension: string; value: string; blocks: number; specs: DiskArray<string> }
+    {
+      dimension: string;
+      value: string;
+      blocks: number;
+      specs: DiskArray<string>;
+      unsaid?: Array<{ text: string; reasons: string[] }>;
+    }
   >();
   const seeders = Object.fromEntries(
     SEEDERS.map((seeder) => [
@@ -129,7 +139,8 @@ function writeSuite(
       mkdirSync(parent, { recursive: true });
       lastDirectory = parent;
     }
-    writeFileSync(target, text, { flag: 'wx' });
+    // Explicit UTF-8 keeps strings on Node's native write path; byte fixtures stay unchanged.
+    writeFileSync(target, text, { flag: 'wx', encoding: 'utf8' });
     fileCount += 1;
   };
   const balance = new DeviationBalance(prepared);
@@ -137,6 +148,7 @@ function writeSuite(
   // The phrases the complete specs say so far: the phrase seeder adds only those no complete spec says yet.
   const saidPhrases = new Set<string>();
   const render = (draft: SpecDraft): Spec | undefined => {
+    context.allocation?.observeDraft(draft);
     const seeder = draft.seeder;
     drafted[seeder] += 1;
     const rendered = renderDraft(prepared, draft, run);
@@ -228,6 +240,7 @@ function writeSuite(
     seeders.task.specs += 1;
     seeders.task.blocks += loaded.spec.blocks.length;
     seeders.task.complete += 1;
+    context.allocation?.observeSpec(loaded.spec);
     balance.observe(loaded.spec);
     terminal.observe(loaded.spec);
     coverage.add(loaded.spec, 'task', true);
@@ -269,12 +282,20 @@ function writeSuite(
   const covered = uncovered.filter((cell) => coverage.isCovered(cell)).length;
   // Restated slots, then phrases no complete spec says yet, in the order the eager API runs them.
   for (const draft of restatedDrafts(prepared, context, 0)) render(draft);
-  for (const draft of phraseDrafts(prepared, context, saidPhrases, 0)) render(draft);
+  const unsaid: UnsaidPhrase[] = [];
+  for (const draft of phraseDrafts(prepared, context, saidPhrases, 0, unsaid)) render(draft);
+  addUnsaid(gaps, unsaid, (gap) => ({
+    ...gap,
+    blocks: 0,
+    specs: new DiskArray<string>(scratch, `gap-${gaps.size}.jsonl`),
+  }));
   // Deviation balance, as the eager API runs it: after coverage, on what the suite probes so far.
-  const written = Object.values(seeders).reduce((sum, entry) => sum + entry.specs, 0);
-  for (const draft of balance.topUps(context, written)) render(draft);
+  const written = () => Object.values(seeders).reduce((sum, entry) => sum + entry.specs, 0);
+  for (const draft of balance.topUps(context, written())) render(draft);
   // A class whose recovery moves the conversation elsewhere, as the eager API declares it: one walk cut for it.
   for (const draft of terminal.drafts(context)) render(draft);
+  // Allocation, as the eager API runs it: walks for rare stages and behaviours, alternating with class probes.
+  for (const draft of context.allocation.rounds(context, written, balance)) render(draft);
   const held = new Set(
     cells.flatMap((cell) => Object.entries(cell.values).map(([dimension, value]) => `${dimension}=${value}`)),
   );
@@ -336,6 +357,7 @@ function writeSuite(
           .filter((cell) => cell.count === 0)
           .map((cell) => cell.values),
       })),
+      ...(prepared.reachability ? { reachability: reachabilityReport(prepared) } : {}),
       t,
       allowed: completeCoverage.allowed,
       complete: completeCoverage,

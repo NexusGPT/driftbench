@@ -7,8 +7,8 @@ import { afterAll, describe, expect, it } from 'vitest';
 
 /**
  * Blast radius of the value-check ladder (PR 459) on `driftbench spec lint`, run as the bin runs, in its own
- * process: the checks package registers `policy/value-check:default` with the core registry when it is
- * imported, so a command that never imports it must still accept the shipped object the help topic documents
+ * process: the CLI initializes `policy/value-check:default` before loading a spec, so every command accepts
+ * the shipped object the help topic documents
  * (`uses: { value_check: { extends: default, ... } }`). Fictional data only.
  */
 

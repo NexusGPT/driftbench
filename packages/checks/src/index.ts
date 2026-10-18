@@ -79,6 +79,7 @@ export { createToolsCheck, type ToolsCheckOptions, tools } from './checks/tools'
 export { toolsOffered } from './checks/tools_offered';
 export { workspace } from './checks/workspace';
 export { type DefaultChecksOptions, defaultChecks, type JudgeCheckSource } from './defaults';
+export { initializeShippedObjects } from './initialize';
 export { type AssertionResult, checkAssertion } from './support/assert';
 export { countAllows, describeCount } from './support/count';
 export { DETECT_DEFAULTS, type DetectOptions, detect, toDetectorCode } from './support/language';

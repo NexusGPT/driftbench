@@ -8,6 +8,8 @@ see_also:
   - results-statistics
   - results-report
   - results-exports
+  - judging-judge-options
+  - judging-pairwise
 next:
   - results-ci
 ---
@@ -19,6 +21,10 @@ goldens both ran, and decides whether the candidate is non-inferior to the basel
 
 * A golden is one spec in one mode (one perturbation in mode P), over every repeat. It passes when every
   repeat passes. Repeats are never counted as independent pairs.
+* Pairs are clustered by golden. The repeats of one golden collapse into one pass or fail before the
+  paired tests, so a golden with ten repeats counts once. The pass rate printed for each side is a rate
+  over goldens, not over runs. Where `report` prints a rate over clustered runs, it reads the design effect
+  from the same grouping (`results-statistics`).
 * A criterion is a machine verdict family (`must`, `tools`, `stage`, `forbidden`, ...) or one judged
   criterion. It passes in a golden when every decided occurrence over every repeat passes.
 * The verdict is one of three:
@@ -60,6 +66,19 @@ driftbench compare --baseline <campaign> --candidate <campaign> --store <file> [
 | `--pairwise <criterion.yaml>` | none | also judge, for every block both campaigns ran, which reply better meets this criterion, in both orders. The file holds `name` and `rubric`, optionally `pass` and `fail`. Calls a model |
 | `--pairwise-judge <kind>` | `openai` | the judge of the pairwise calls: `openai`, `anthropic`, `google`, or a judge a plugin registered. Its key is read from the environment |
 | `--pairwise-reference <file>` | none | judge which reply matches the reference answer in this file better, instead of which reply is better |
+| `--rank <campaigns...>` | none | Rank at least three distinct campaigns on shared runs. Replaces `--baseline`, `--candidate` and `--pairwise`. |
+| `--pairwise-contract <contract>` | `winner` | `winner` asks for a winner. `ledger` scores requirements, then code decides. Ledger requires both orders. |
+| `--pairwise-presentation <order>` | `both-orders` | `canonical` uses one content-based order, with no position-bias measurement. |
+| `--pairwise-items <file>` | none | YAML list, or `{ items: [...] }`. Each item needs unique `name` and `rubric`; optional `weight` is positive and `hard` is boolean. |
+| `--no-pairwise-audit` | audit on | Disable the reference fact audit and ledger recovery. |
+| `--pairwise-config <config>` | none | `reader-first` prefers the longer complete reply unless supported failures justify the shorter reply. |
+| `--judge-margin <n>` | `4` | Reader-first score advantage the shorter reply needs. Positive number. |
+| `--feature-margin <n>` | `5` | Reader-first machine risk-flag gap. Positive number. |
+| `--min-failures <n>` | `1` | Reader-first supported failures required in the longer reply. Positive number. |
+| `--pairwise-preference <preference>` | none | `long-structured` applies a declared preference after a ledger verdict. Requires `--pairwise-contract ledger`. |
+
+Shared judge selection, budget, routing and recording options are listed in `judging-judge-options`.
+Reader-first cannot combine with the contract, presentation, items, reference, audit or preference flags.
 
 Global: `--plugin <module>`. New flags always gate, and so does an underpowered criterion whose
 regression Benjamini-Hochberg keeps. The pairwise line never changes the exit code; a pairwise judge
@@ -72,6 +91,12 @@ a golden only one side ran, or ran on another spec version, or that was carried 
 blast radius run, is listed as not paired and never compared.
 
 ## Outputs and how to read them
+
+With `--rank`, shared units match spec id, mode, perturbation and repeat. Each campaign must use one target per unit.
+A pass against a failure wins. Two passes or two failures tie. A tie gives half a win to each campaign.
+Runs with only unrun or blocked blocks are left out. The output lists strength, shared counts and three-campaign cycles.
+Ranking exits 0 with an order, 1 when no finite order exists, and 2 on bad input.
+JSON holds `campaigns`, `wins`, `ties`, `shared`, `cycles`, and either `order` or `unranked`; `notRun` counts omitted runs.
 
 The text output, top to bottom:
 
@@ -240,7 +265,29 @@ $ driftbench compare --baseline c-base --candidate c-next --store acme.db --stri
 
 A comparison with a real regression is in `results-ci`, where `driftbench ci` runs a planted fault.
 
+### Rank fictional campaigns without a model
+
+```sh
+driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --store rank.db --campaign acme-a --no-cache
+driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --store rank.db --campaign acme-b --no-cache
+driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --store rank.db --campaign acme-c --no-cache
+driftbench compare --rank acme-a acme-b acme-c --store rank.db --json
+driftbench compare --rank acme-a acme-b --store rank.db # exit 2
+driftbench compare --baseline acme-a --candidate acme-b --store rank.db --pairwise-contract ledger --pairwise-presentation canonical # exit 2
+driftbench compare --baseline acme-a --candidate acme-b --store rank.db --judge-margin 4 # exit 2
+```
+
+The three identical campaigns tie on their shared runs. Ranking has no agent or judge call.
+The rejected settings exit before any judge call.
+
 ## Common errors
+
+* `--rank takes three or more different campaign ids`: pass distinct ids; compare two with baseline and candidate.
+* `--rank compares campaigns on its own`: remove baseline, candidate and pairwise flags.
+* `campaign <id> ran <spec> on several targets`: rank separate single-target campaigns.
+* `--pairwise-contract ledger reads both orders`: remove `--pairwise-presentation canonical`.
+* `--judge-margin, --feature-margin and --min-failures need --pairwise-config reader-first`: select that configuration first.
+* Reader-first rejects other pairwise controls. Use its own three thresholds, or choose a different contract.
 
 | Message | Cause and fix |
 |---|---|

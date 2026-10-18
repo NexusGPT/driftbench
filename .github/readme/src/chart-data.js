@@ -5,7 +5,7 @@ window.CHART_DATA = {
     "kicker": "Judge accuracy · held-out cases · Claude Haiku 5.5 on both sides",
     "title": "Cases correct of 72, driftbench against DeepEval's default.",
     "key": [
-      "driftbench, shipped judge",
+      "driftbench default-on-v7",
       "the other tool's default"
     ],
     "min": 0,
@@ -24,14 +24,30 @@ window.CHART_DATA = {
         "header": "DeepEval 4.2.8, default metrics",
         "rows": [
           {
-            "label": "Hallucination",
-            "a": 98.61,
+            "label": "Turn relevancy",
+            "a": 100,
             "b": 50,
-            "aText": "71",
+            "aText": "72",
             "bText": "36",
             "aCi": [
-              92.54,
-              99.75
+              94.93,
+              100
+            ],
+            "bCi": [
+              38.75,
+              61.25
+            ],
+            "tag": "ahead"
+          },
+          {
+            "label": "Hallucination",
+            "a": 100,
+            "b": 50,
+            "aText": "72",
+            "bText": "36",
+            "aCi": [
+              94.93,
+              100
             ],
             "bCi": [
               38.75,
@@ -41,29 +57,13 @@ window.CHART_DATA = {
           },
           {
             "label": "Faithfulness",
-            "a": 98.61,
+            "a": 100,
             "b": 50,
-            "aText": "71",
+            "aText": "72",
             "bText": "36",
             "aCi": [
-              92.54,
-              99.75
-            ],
-            "bCi": [
-              38.75,
-              61.25
-            ],
-            "tag": "ahead"
-          },
-          {
-            "label": "Turn relevancy",
-            "a": 90.28,
-            "b": 50,
-            "aText": "65",
-            "bText": "36",
-            "aCi": [
-              81.26,
-              95.21
+              94.93,
+              100
             ],
             "bCi": [
               38.75,
@@ -73,13 +73,13 @@ window.CHART_DATA = {
           },
           {
             "label": "Completeness",
-            "a": 97.22,
+            "a": 100,
             "b": 63.89,
-            "aText": "70",
+            "aText": "72",
             "bText": "46",
             "aCi": [
-              90.43,
-              99.23
+              94.93,
+              100
             ],
             "bCi": [
               52.35,
@@ -113,7 +113,7 @@ window.CHART_DATA = {
     "kicker": "Judge cost · US dollars per 100 cases · Claude Haiku 5.5",
     "title": "Cost per 100 judged cases.",
     "key": [
-      "driftbench, shipped judge",
+      "driftbench default-on-v7",
       "the other tool's default"
     ],
     "min": 0,
@@ -132,43 +132,43 @@ window.CHART_DATA = {
         "rows": [
           {
             "label": "Inspect, grader panel",
-            "a": 0.07590650000000003,
+            "a": 0.06476766666666667,
             "b": 0.13815413333333335,
-            "aText": "$0.076",
+            "aText": "$0.065",
             "bText": "$0.138"
           },
           {
             "label": "Inspect, panel on borderline cases",
-            "a": 0.0782674,
+            "a": 0.06687183333333335,
             "b": 0.12479490000000004,
-            "aText": "$0.078",
+            "aText": "$0.067",
             "bText": "$0.125"
           },
           {
+            "label": "Langfuse, Correctness template",
+            "a": 0.051982500000000015,
+            "b": 0.05248416666666667,
+            "aText": "$0.052",
+            "bText": "$0.052"
+          },
+          {
             "label": "Inspect, model-graded QA",
-            "a": 0.04762383333333334,
+            "a": 0.07325433333333335,
             "b": 0.06228716666666667,
-            "aText": "$0.048",
+            "aText": "$0.073",
             "bText": "$0.062"
           },
           {
             "label": "Inspect, model-graded fact",
-            "a": 0.04762383333333334,
+            "a": 0.07325433333333335,
             "b": 0.05957716666666667,
-            "aText": "$0.048",
+            "aText": "$0.073",
             "bText": "$0.060"
-          },
-          {
-            "label": "Langfuse, Correctness template",
-            "a": 0.05400083333333333,
-            "b": 0.05248416666666667,
-            "aText": "$0.054",
-            "bText": "$0.052"
           }
         ]
       }
     ],
-    "note": "60 to 120 cases per row · recorded spend"
+    "note": "60 to 120 cases per row · v7: Messages API; peers: recorded spend"
   },
   "mm-eval-sealed-test": {
     "kind": "pairs",
@@ -375,7 +375,7 @@ window.CHART_DATA = {
   "self-tests": {
     "kind": "single",
     "kicker": "Self-tests · cases built by code with a known answer",
-    "title": "7,454 planted-truth cases test driftbench itself.",
+    "title": "7,455 planted-truth cases test driftbench itself.",
     "key": [
       "holds a floor in CI",
       "no floor yet"
@@ -392,8 +392,8 @@ window.CHART_DATA = {
     "rows": [
       {
         "label": "Whole pipeline",
-        "value": 2384,
-        "text": "2,384",
+        "value": 2385,
+        "text": "2,385",
         "series": 0,
         "sub": "floor: level 9"
       },
@@ -423,7 +423,7 @@ window.CHART_DATA = {
         "value": 638,
         "text": "638",
         "series": 0,
-        "sub": "floor: level 7"
+        "sub": "floor: level 20"
       },
       {
         "label": "Map extraction",
@@ -1714,13 +1714,29 @@ window.CHART_DATA = {
     "axis": "score out of 100: correct, % of items",
     "groups": [
       {
+        "label": "Turn rel|e|vancy",
+        "sub": "of 72",
+        "bars": [
+          {
+            "series": 0,
+            "value": 100,
+            "text": "72"
+          },
+          {
+            "series": 1,
+            "value": 50,
+            "text": "36"
+          }
+        ]
+      },
+      {
         "label": "Hal|luci|nation",
         "sub": "of 72",
         "bars": [
           {
             "series": 0,
-            "value": 98.61,
-            "text": "71"
+            "value": 100,
+            "text": "72"
           },
           {
             "series": 1,
@@ -1735,24 +1751,8 @@ window.CHART_DATA = {
         "bars": [
           {
             "series": 0,
-            "value": 98.61,
-            "text": "71"
-          },
-          {
-            "series": 1,
-            "value": 50,
-            "text": "36"
-          }
-        ]
-      },
-      {
-        "label": "Turn rel|e|vancy",
-        "sub": "of 72",
-        "bars": [
-          {
-            "series": 0,
-            "value": 90.28,
-            "text": "65"
+            "value": 100,
+            "text": "72"
           },
           {
             "series": 1,
@@ -1767,8 +1767,8 @@ window.CHART_DATA = {
         "bars": [
           {
             "series": 0,
-            "value": 97.22,
-            "text": "70"
+            "value": 100,
+            "text": "72"
           },
           {
             "series": 1,
@@ -1794,34 +1794,34 @@ window.CHART_DATA = {
         ]
       },
       {
-        "label": "G-Eval, strict *",
-        "sub": "of 480; ahead",
-        "bars": [
-          {
-            "series": 0,
-            "value": 98.75,
-            "text": "474"
-          },
-          {
-            "series": 1,
-            "value": 93.96,
-            "text": "451"
-          }
-        ]
-      },
-      {
         "label": "DAG, one node",
         "sub": "of 72",
         "bars": [
           {
             "series": 0,
-            "value": 90.28,
-            "text": "65"
+            "value": 100,
+            "text": "72"
           },
           {
             "series": 1,
             "value": 90.28,
             "text": "65"
+          }
+        ]
+      },
+      {
+        "label": "G-Eval, strict *",
+        "sub": "of 480; ahead",
+        "bars": [
+          {
+            "series": 0,
+            "value": 99.79,
+            "text": "479"
+          },
+          {
+            "series": 1,
+            "value": 93.96,
+            "text": "451"
           }
         ]
       },
@@ -1847,8 +1847,8 @@ window.CHART_DATA = {
         "bars": [
           {
             "series": 0,
-            "value": 99.84,
-            "text": "1270"
+            "value": 99.92,
+            "text": "1271"
           },
           {
             "series": 1,
@@ -1858,14 +1858,14 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "Fresh rows: exact paired test, Holm p <= 0.05; other rows: separate 95% intervals · Retention exact p = 1.00 · Knowledge retention: 2 incomplete pairs excluded · cases per test: 72 or 480 or 1272 · * opt-in setting response-relevance; every other bar is the shipped judge"
+    "note": "Fresh rows: exact paired test, Holm p <= 0.05; other rows: separate 95% intervals · Retention exact p = 1.00 · Knowledge retention: 1 incomplete pairs excluded · cases per test: 72 or 480 or 1272 · * opt-in setting response-relevance (opt-in); every other bar is the shipped judge"
   },
   "hard-promptfoo": {
     "kind": "columns",
     "kicker": "promptfoo hard cases · held-out · Claude Haiku 5.5 on both sides · bars labelled with cases correct",
     "title": "promptfoo: cases correct of 72.",
     "key": [
-      "driftbench, shipped judge",
+      "driftbench default-on-v7",
       "promptfoo default"
     ],
     "min": 0,
@@ -1886,13 +1886,29 @@ window.CHART_DATA = {
         "bars": [
           {
             "series": 0,
-            "value": 98.61,
-            "text": "71"
+            "value": 100,
+            "text": "72"
           },
           {
             "series": 1,
             "value": 95.83,
             "text": "69"
+          }
+        ]
+      },
+      {
+        "label": "Factuality",
+        "sub": "of 72",
+        "bars": [
+          {
+            "series": 0,
+            "value": 100,
+            "text": "72"
+          },
+          {
+            "series": 1,
+            "value": 97.22,
+            "text": "70"
           }
         ]
       },
@@ -1927,22 +1943,6 @@ window.CHART_DATA = {
             "text": "71"
           }
         ]
-      },
-      {
-        "label": "Factuality",
-        "sub": "of 72",
-        "bars": [
-          {
-            "series": 0,
-            "value": 97.22,
-            "text": "70"
-          },
-          {
-            "series": 1,
-            "value": 97.22,
-            "text": "70"
-          }
-        ]
       }
     ],
     "note": "Ahead or behind: the 95% intervals do not overlap"
@@ -1952,7 +1952,7 @@ window.CHART_DATA = {
     "kicker": "Inspect hard cases · held-out · Claude Haiku 5.5 on both sides · bars labelled with cases correct",
     "title": "Inspect: cases correct of 60.",
     "key": [
-      "driftbench, shipped judge",
+      "driftbench default-on-v7",
       "Inspect default"
     ],
     "min": 0,
@@ -1968,29 +1968,13 @@ window.CHART_DATA = {
     "axis": "score out of 100: correct, % of items",
     "groups": [
       {
-        "label": "Grader panel",
-        "sub": "of 60",
-        "bars": [
-          {
-            "series": 0,
-            "value": 98.33,
-            "text": "59"
-          },
-          {
-            "series": 1,
-            "value": 98.33,
-            "text": "59"
-          }
-        ]
-      },
-      {
         "label": "Model-graded QA",
         "sub": "of 60",
         "bars": [
           {
             "series": 0,
-            "value": 80,
-            "text": "48"
+            "value": 96.67,
+            "text": "58"
           },
           {
             "series": 1,
@@ -2000,13 +1984,29 @@ window.CHART_DATA = {
         ]
       },
       {
+        "label": "Panel, borderline",
+        "sub": "of 60",
+        "bars": [
+          {
+            "series": 0,
+            "value": 100,
+            "text": "60"
+          },
+          {
+            "series": 1,
+            "value": 100,
+            "text": "60"
+          }
+        ]
+      },
+      {
         "label": "Model-graded fact",
         "sub": "of 60",
         "bars": [
           {
             "series": 0,
-            "value": 80,
-            "text": "48"
+            "value": 96.67,
+            "text": "58"
           },
           {
             "series": 1,
@@ -2016,18 +2016,18 @@ window.CHART_DATA = {
         ]
       },
       {
-        "label": "Panel, borderline",
+        "label": "Grader panel",
         "sub": "of 60",
         "bars": [
           {
             "series": 0,
-            "value": 81.67,
-            "text": "49"
+            "value": 90,
+            "text": "54"
           },
           {
             "series": 1,
-            "value": 100,
-            "text": "60"
+            "value": 98.33,
+            "text": "59"
           }
         ]
       }
@@ -2037,9 +2037,9 @@ window.CHART_DATA = {
   "hard-langfuse": {
     "kind": "hbars",
     "kicker": "Langfuse hard cases · held-out · Claude Haiku 5.5 on both sides",
-    "title": "Langfuse: 116 of 120 correct, against 115.",
+    "title": "Langfuse: 119 of 120 correct, against 115.",
     "key": [
-      "driftbench, shipped judge",
+      "driftbench default-on-v7",
       "Langfuse default"
     ],
     "min": 0,
@@ -2057,9 +2057,9 @@ window.CHART_DATA = {
       {
         "label": "driftbench",
         "series": 0,
-        "value": 96.67,
-        "text": "96.7",
-        "sub": "116 of 120"
+        "value": 99.17,
+        "text": "99.2",
+        "sub": "119 of 120"
       },
       {
         "label": "Langfuse",

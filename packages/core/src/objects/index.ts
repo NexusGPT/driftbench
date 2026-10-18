@@ -23,6 +23,7 @@ export {
 export {
   BUILTIN_KINDS,
   type ImplDef,
+  initializeShippedObjects,
   itemOf,
   type KindDef,
   ObjectRegistry,
@@ -56,7 +57,14 @@ export function specUsesObjects(spec: Pick<Spec, 'uses' | 'blocks'>): boolean {
  * spec, the block, the kind and the id. Nothing is resolved when no layer names an object.
  */
 export function checkSpecObjects(spec: Spec, context: ObjectContext): Issue[] {
-  if (!specUsesObjects(spec) && context.uses.length === 0 && context.problems.length === 0) return [];
+  if (
+    !specUsesObjects(spec) &&
+    context.uses.length === 0 &&
+    context.problems.length === 0 &&
+    !context.cli?.set.length &&
+    !context.cli?.use.size
+  )
+    return [];
   const issues: Issue[] = [];
   const seen = new Set<string>();
   const report = (path: string, cause: unknown, block?: number) => {

@@ -79,6 +79,7 @@ metadata:
     path: home-no-coverage
     cell:
       port.check.out.eligible: port.check.out.eligible.true
+      port.check.out.reason: port.check.out.reason.absent
       flow: new-home
       user_type: new-customer
       coverage_result: no-service
@@ -90,7 +91,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address

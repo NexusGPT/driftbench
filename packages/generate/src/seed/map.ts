@@ -1,7 +1,13 @@
 import { contentHash, type Inventory, isPlainObject } from '@agent-nexus/driftbench-core';
 import { type CompiledSpace, compileSpace, NONE, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { parse as parseYaml } from 'yaml';
-import { type NumericSetting, type Proposal, type ProposalPhrase, valueApproved } from '../extract/proposal';
+import {
+  FLOW_DIMENSION,
+  type NumericSetting,
+  type Proposal,
+  type ProposalPhrase,
+  valueApproved,
+} from '../extract/proposal';
 import { toSpaceMap } from '../extract/space';
 import { toolSlug } from '../extract/tools';
 import { Feasibility } from './feasible';
@@ -42,6 +48,8 @@ export type PreparedMap = {
   space: CompiledSpace;
   /** The space map of the approved axes (`toSpaceMap`): the map coverage is counted on. */
   axisMap: SpaceMap;
+  /** Inventory exclusions added to the relation-only target, retained for transparent reporting. */
+  reachability?: { before: SpaceMap; excluded: SpaceMap['constraints'] };
   /** Indices, in `space`, of the axis dimensions. Every other dimension is a detail. */
   axes: ReadonlySet<number>;
   feasibility: Feasibility;
@@ -80,7 +88,14 @@ export function prepareMap(
   // The cell space holds the details too: the same conversion with every dimension read as an axis. The
   // pairs the relations rule out, and the `none` of a data or task axis, come from the axis map: the
   // relations speak of the axes.
-  const axisMap = toSpaceMap(proposal, { approvedOnly: true });
+  const before = toSpaceMap(proposal, { approvedOnly: true });
+  const axisMap = extras.inventory
+    ? toSpaceMap(proposal, { approvedOnly: true, inventory: extras.inventory })
+    : before;
+  const previous = new Set(before.constraints.map((constraint) => JSON.stringify(constraint.forbid)));
+  const excluded = axisMap.constraints.filter(
+    (constraint) => !previous.has(JSON.stringify(constraint.forbid)),
+  );
   const whole = toSpaceMap(
     {
       ...proposal,
@@ -171,6 +186,7 @@ export function prepareMap(
     map,
     space,
     axisMap,
+    ...(excluded.length > 0 ? { reachability: { before, excluded } } : {}),
     axes,
     feasibility: new Feasibility(space),
     phrases,
@@ -203,6 +219,16 @@ export function valueId(prepared: PreparedMap, dimension: number, value: number)
 /** The dimension id of an index. */
 export function dimensionId(prepared: PreparedMap, dimension: number): string {
   return prepared.space.dimensions[dimension]?.id ?? '';
+}
+
+/**
+ * True when a relation's subject is a behaviour value: a `uses_tool` with such a subject is a call the
+ * behaviour's own phrase turn makes, never a move of the walk.
+ */
+export function behaviourSubject(prepared: PreparedMap, subject: { dimension: string }): boolean {
+  // The flow dimension is of the behaviour kind too: its calls are the walk's moves.
+  if (subject.dimension === FLOW_DIMENSION) return false;
+  return prepared.space.dimensions.find((entry) => entry.id === subject.dimension)?.kind === 'behaviour';
 }
 
 /** The index of a value id in a dimension, or undefined. */

@@ -1,12 +1,12 @@
 ---
 title: Spec file format
-summary: 'A spec is one YAML or JSON file that describes one golden conversation or one code-agent task as a list of blocks; read this before you write or edit any spec.'
+summary: 'A spec is one YAML or JSON file: one golden conversation or one code-agent task, as a list of blocks. Read this before you write or edit a spec.'
 commands:
   - spec validate
   - spec lint
   - spec coverage
-  - campaign run
 see_also:
+  - running-campaign-run
   - authoring-blocks
   - authoring-prefixes
   - authoring-perturbations
@@ -24,7 +24,12 @@ A spec is a test for an agent. One spec file holds one mapping. The mapping desc
 - one golden conversation (`kind: conversation`, the default), or
 - one task for a code agent that works in a workspace (`kind: task`).
 
-The core of a spec is `blocks`: a list of steps in order. Each block sends one stimulus to the agent and checks what the agent did. Around the blocks, the spec declares the agent to run (`target`), the starting state (`given`), the stage names (`stages`), the judged criteria (`criteria`), rules for the whole run (`rules`), the expected final state (`end_state`), and the deviations a perturbed run injects (`perturbations`).
+The core of a spec is `blocks`: a list of steps in order. Each block sends one stimulus to the agent and checks what the agent did. Around the blocks, the spec declares:
+
+- the agent to run (`target`) and the starting state (`given`);
+- the stage names (`stages`) and the judged criteria (`criteria`);
+- rules for the whole run (`rules`) and the expected final state (`end_state`);
+- the deviations a perturbed run injects (`perturbations`).
 
 Every command that reads specs parses, normalises and validates them the same way. Unknown keys are errors at every level.
 
@@ -36,14 +41,49 @@ Every command that reads specs parses, normalises and validates them the same wa
 
 ## Commands and every option
 
-This is a format topic. These commands read spec files:
+This is a format topic: no option of any command changes the format. The three `spec` commands read spec files and report on them. `campaign run` runs them; its options are in running-campaign-run.
 
-| Command | What it does with specs | Topic |
+### driftbench spec validate
+
+```
+driftbench spec validate [options] <paths...>
+```
+
+Parses and validates specs. Exit 0 when every spec is valid, 1 when one is invalid. Its codes are in authoring-spec-check.
+
+| Option | Meaning | Default |
 |---|---|---|
-| `driftbench spec validate <paths...> [--json]` | parses and validates; exit 1 on an invalid spec | authoring-spec-check |
-| `driftbench spec lint <paths...> [--json] [--strict]` | validates and prints warnings | authoring-spec-check |
-| `driftbench spec coverage <paths...> --inventory <file> [--channel <name>] [--json]` | counts behaviours and deviations covered | authoring-inventory |
-| `driftbench campaign run [paths...] [--target <adapter[:agent]>] ...` | runs the specs on an agent | the running area |
+| `<paths...>` (required) | spec files or folders | none |
+| `--json` | print one JSON document | off |
+
+### driftbench spec lint
+
+```
+driftbench spec lint [options] <paths...>
+```
+
+Validates specs and prints advice warnings. Exit 1 on an invalid spec, and on a warning with `--strict`.
+
+| Option | Meaning | Default |
+|---|---|---|
+| `<paths...>` (required) | spec files or folders | none |
+| `--json` | print one JSON document | off |
+| `--strict` | treat warnings as failures | off |
+
+### driftbench spec coverage
+
+```
+driftbench spec coverage [options] <paths...>
+```
+
+Shows which behaviours and deviations the specs cover. Exit 1 when one is missing. The inventory format is in authoring-inventory.
+
+| Option | Meaning | Default |
+|---|---|---|
+| `<paths...>` (required) | spec files or folders | none |
+| `--inventory <file>` | the behaviour inventory, YAML or JSON | none |
+| `--channel <name>` | count only the specs of this channel | every channel |
+| `--json` | print one JSON document | off |
 
 How every command finds spec files in the paths you give:
 
@@ -62,6 +102,7 @@ YAML is parsed with unique keys: a key written twice in one mapping is a `SPEC_P
 
 | Key | Type | Required | Default | Meaning |
 |---|---|---|---|---|
+| `schema_version` | whole number, 1 | no | 1 | The spec format the spec is written for. A driftbench that reads a lower version refuses the spec with `SPEC_SCHEMA_VERSION` and says to upgrade, instead of reporting its newer keys as unknown. Written, it is part of the spec and its hash. It is not the free `version` label below. |
 | `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes | none | The spec id. Run ids and reports use it. |
 | `version` | string | no | none | A free label. The content hash, not this label, is the cache key. Quote numbers: `version: '1'`. |
 | `kind` | `conversation` or `task` | no | `conversation` | A conversation with a chat agent, or a task for a code agent in a workspace. |
@@ -130,6 +171,22 @@ On the command line the same target is written `<adapter>:<agent>`, such as `fun
 | `judge_class` | `system1`, `system2` or `auto` | no | The judge class; `auto` lets calibration choose. |
 | `repeat_reducer` | `mode`, `median` or `at_least:<k>` | no | How the verdicts of the repeats of one spec become one verdict. |
 
+Further `criteria` keys change how the judge reads the criterion. Each is optional. A combination the schema refuses is a spec error.
+
+| Key | Type | Meaning |
+|---|---|---|
+| `assessment` | `response-relevance`, `conformance`, `answer-audit` or `fact-ledger` | An assessment kind in place of the criterion ledger. `conformance` reads only the rubric, so it takes no `pass` or `fail`, no `scope: block`, and needs `reference`. |
+| `reference` | string | The reference answer an assessment reads. Needed by `conformance` (it may be empty) and `fact-ledger` (not empty); optional for `answer-audit`. Refused with no `assessment` or with `response-relevance`. |
+| `grounding` | `strict` | `fact-ledger` only: refuses reference or reply text that is not a source quote. |
+| `requirements` | list of `{ id, requirement }`, at least one | The rubric split into requirements the judge checks one by one. `id` is the id the judge answers under; `requirement` says what it asks. Ids are unique. Not with `assessment` or `items`. |
+| `items` | list of `{ name, rubric, weight?, hard? }`, at least one | Rubric items, each scored 0 to 4 by the judge. `weight` defaults to 1. `hard: true` fails the criterion when that item is not met. Names are unique. Not with `assessment`. |
+| `threshold` | number from 0 to 1 | With `items` only: the weighted fraction a pass needs. Default 1. |
+| `repeat` | whole number from 1 to 20 | How many times the judge answers the same request. The verdict holds only when every answer agrees, else it is inconclusive. This is not the spec `repeats` of a campaign (see `repeat_reducer`). Not with `per_turn`. |
+| `per_turn` | boolean | `true` judges the transcript one customer turn at a time; any failing turn fails the criterion. Not with `repeat`. |
+| `answer_contract` | `ledger` or `legacy` | `ledger` is the default. `legacy` is the earlier prompt and parser, to replay scores recorded with them; it cannot be combined with `assessment` or `items`. |
+| `prompt_version` | `1` or `2` | The criterion prompt rules. `2` is the default; `1` replays answers recorded with the earlier rules. |
+| `decoder_version` | `1` or `2` | How a ledger answer is read. Unset uses the current default reader (topic judging-evidence). `1` rejects an ungrounded quote; `2` drops the quote and keeps the verdict. |
+
 When a spec has no `criteria` key, blocks may still name criteria; they must then come from a shared catalogue, and `spec lint` warns `CRITERION_UNRESOLVED`. A criterion is judged only when the run loads a judge council; otherwise it has no verdict and counts in no pass or fail.
 
 ### `rules`
@@ -151,7 +208,7 @@ When a spec has no `criteria` key, blocks may still name criteria; they must the
 |---|---|---|---|
 | `source` | string | yes | Where the adapter reads the state, such as `tool:order.create` (the payload the tool recorded). |
 | `mode` | `subset` or `exact` | no | `subset` compares the listed fields; `exact` compares the whole state. |
-| `expect` | mapping of field to assertion | yes | Assertions on fields of the state. An assertion is a bare value (exact equality) or one of `{ exact }`, `{ regex }`, `{ contains }`, `{ one_of }`, `{ nonempty: true }`, `{ absent: true }`, `{ subset }`. |
+| `expect` | mapping of field to assertion | yes | Assertions on fields of the state. An assertion is a bare value, compared for exact equality. Or it is one of seven forms. Four take a value: `{ exact }`, `{ regex }`, `{ contains }` and `{ one_of }`. The others are `{ nonempty: true }`, `{ absent: true }` and `{ subset }`. |
 
 The end state is checked on the last block of a run in modes T and F.
 
@@ -190,7 +247,7 @@ Every rule driftbench applies is an object: a kind (`policy/blame`, `policy/valu
 | `judges` | `judge-council` |
 | `diagnostics` | a list of `diagnostic` ids |
 
-A value is an id, such as `blame: acme`, or an inline object that extends one: `value_check: { extends: default, items: [{ id: rung3_same_referent, params: { repeats: 5 } }] }`. An item operation names an item of the parent and sets fields (`params` maps merge, lists replace, `+key: [values]` appends, `-key: [values]` removes); `enabled: false` disables it; `add: true` with `title`, `when`, `effect` and `impl` adds one; `before` or `after` moves it, or `order` lists every enabled item once. An item may carry `applies_to: { skills, tools, units }`: it then fires only when the evidence names one of those skills or tools, or a unit matching one of the unit patterns (`R#41/*`); without it, everywhere.
+A value is an id, such as `blame: acme`, or an inline object that extends one: `value_check: { extends: default, items: [{ id: rung3_same_referent, params: { repeats: 5 } }] }`. An item operation names an item of the parent and sets fields (`params` maps merge, lists replace, `+key: [values]` appends, `-key: [values]` removes); `enabled: false` disables it; `add: true` with `title`, `when`, `effect` and `impl` adds one; `before` or `after` moves it, or `order` lists every enabled item once. An item may carry `applies_to: { skills, tools, units }`: it then fires only when the evidence names one of those skills or tools, or a unit matching one of the unit patterns (`R#41/*`); without it, everywhere. An item may also carry `cites`, a text naming its source for the reader, such as a rule number; it changes no result.
 
 Where an id is looked up, weakest first: the shipped objects; the project, files `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml` and its `objects:` list; each `_driftbench/<kind>/<id>.yaml` suite folder from the project down to the spec, a nearer one stronger. A `uses.yaml` in a `driftbench/` or `_driftbench/` folder sets `uses` for the specs below it. A block's key replaces the spec's, which replaces the suite's and the project's.
 
@@ -212,13 +269,13 @@ blocks:
 
 A spec file produces nothing by itself. Each command prints its own result:
 
-- `spec validate` prints `✓ <path>  <id> · <n> blocks · <m> perturbations · hash <12 hex>` for a valid spec, and `✗ <path>` with one line per error for an invalid one. See authoring-spec-check.
+- For a valid spec, `spec validate` prints `✓ <path>  <id> · <n> blocks · <m> perturbations · hash <12 hex>`. For an invalid one, it prints `✗ <path>` with one line per error. See authoring-spec-check.
 - The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, keys sorted at every depth. Equal content gives an equal hash. The hash, not `version`, enters the cache key and every run id. A workspace folder written `./<path>` is resolved from the spec's folder before the hash is taken.
 - `campaign run` prints one line per cell: spec id, target, mode, repeat, `pass` or `fail`, and the block count.
 
 ## Worked example
 
-The Acme example holds one spec of each kind: `examples/acme/specs/conversations/plan-upgrade.yaml` (a conversation on `function:acme-sales`) and `examples/acme/specs/tasks/price-sheet.yaml` (a task on `process:acme-ops`, with `workspace_seed`, artifacts and a workspace diff). Validate the seven Acme specs, then run one of each kind on the targets they name; both agents are deterministic and free:
+The Acme example holds one spec of each kind. `examples/acme/specs/conversations/plan-upgrade.yaml` is a conversation on `function:acme-sales`. `examples/acme/specs/tasks/price-sheet.yaml` is a task on `process:acme-ops`, with `workspace_seed`, artifacts and a workspace diff. Validate the seven Acme specs, then run one of each kind on the targets they name; both agents are deterministic and free:
 
 ```sh
 driftbench spec validate examples/acme/specs
@@ -328,6 +385,87 @@ The runs are not kept: pass --store <file> to keep them.
 
 The campaign id holds the clock, so it differs on each run. The criterion has no verdict because no judge is loaded; the block still passes on its machine checks.
 
+### A spec written for a newer format
+
+`schema_version` says which spec format a file is written for. This driftbench reads format 1. A spec that says 1 loads as before; its hash changes, because the key is now part of the spec. A spec that says 2 is refused with one error, before any of its keys is read:
+
+```yaml file=out/authoring-spec-format/formats/current.yaml
+schema_version: 1
+id: format-current
+blocks:
+  - user: Hi, I'm already an Acme customer and I want more data.
+    expect:
+      must: ['email address']
+```
+
+```yaml file=out/authoring-spec-format/newer/next.yaml
+schema_version: 2
+id: format-next
+blocks:
+  - user: Hi, I'm already an Acme customer and I want more data.
+    persona: terse-regular
+    expect:
+      must: ['email address']
+```
+
+Three more specs write the version in a form the schema refuses: `0`, `1.5` and the text `'1'`:
+
+```yaml file=out/authoring-spec-format/malformed/zero.yaml
+schema_version: 0
+id: format-zero
+blocks:
+  - user: Hi, I'm already an Acme customer and I want more data.
+    expect:
+      must: ['email address']
+```
+
+```yaml file=out/authoring-spec-format/malformed/half.yaml
+schema_version: 1.5
+id: format-half
+blocks:
+  - user: Hi, I'm already an Acme customer and I want more data.
+    expect:
+      must: ['email address']
+```
+
+```yaml file=out/authoring-spec-format/malformed/text.yaml
+schema_version: '1'
+id: format-text
+blocks:
+  - user: Hi, I'm already an Acme customer and I want more data.
+    expect:
+      must: ['email address']
+```
+
+```sh
+driftbench spec validate out/authoring-spec-format/formats/current.yaml
+driftbench spec validate out/authoring-spec-format/newer/next.yaml # exit 1
+driftbench spec validate out/authoring-spec-format/malformed # exit 1
+```
+
+```text
+$ driftbench spec validate out/authoring-spec-format/formats/current.yaml
+✓ out/authoring-spec-format/formats/current.yaml  format-current · 1 block · hash 09681194e96f
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
+(exit 0)
+$ driftbench spec validate out/authoring-spec-format/newer/next.yaml
+✗ out/authoring-spec-format/newer/next.yaml
+    schema_version  SPEC_SCHEMA_VERSION  the spec is written for spec format version 2; this driftbench reads version 1 and older: upgrade driftbench
+Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
+(exit 1)
+$ driftbench spec validate out/authoring-spec-format/malformed
+✗ out/authoring-spec-format/malformed/half.yaml
+    schema_version  SCHEMA_INVALID_TYPE  Invalid input: expected int, received number
+✗ out/authoring-spec-format/malformed/text.yaml
+    schema_version  SCHEMA_INVALID_TYPE  Invalid input: expected number, received string
+✗ out/authoring-spec-format/malformed/zero.yaml
+    schema_version  SCHEMA_TOO_SMALL  Too small: expected number to be >=1
+Checked 3 specs: 0 valid, 3 invalid, 0 warnings.
+(exit 1)
+```
+
+The second spec carries a block key, `persona`, that format 1 does not know. driftbench names the format, not that key, so the fix is plain: upgrade driftbench, or remove `schema_version` and the newer keys.
+
 ## Common errors
 
 Four broken files in `out/authoring-spec-format/bad/`:
@@ -358,7 +496,18 @@ Checked 4 specs: 0 valid, 4 invalid, 0 warnings.
 | `SCHEMA_INVALID_VALUE` on `kind` | a kind other than the two | `conversation` or `task` |
 | `SCHEMA_UNRECOGNIZED_KEYS` | a key the format does not know | move free data under `metadata` or `tags` |
 | `SPEC_NOT_OBJECT` | the file holds a list or a scalar | one mapping per file |
+| `schema_version  SPEC_SCHEMA_VERSION  the spec is written for spec format version 2; this driftbench reads version 1 and older: upgrade driftbench` | `schema_version` is a whole number above the format this driftbench reads | upgrade driftbench, or write the spec in format 1 |
+| `schema_version  SCHEMA_TOO_SMALL  Too small: expected number to be >=1` | `schema_version: 0` | a whole number, 1 or more |
+| `schema_version  SCHEMA_INVALID_TYPE  Invalid input: expected int, received number` | `schema_version: 1.5` | a whole number |
+| `schema_version  SCHEMA_INVALID_TYPE  Invalid input: expected number, received string` | `schema_version: '1'`, a quoted number | write the number with no quotes |
 | `SPEC_PARSE` | the YAML or JSON does not parse, a key is repeated, or the path does not exist | fix the syntax or the path |
+| `OBJECT_INVALID` | an object is malformed: a file that does not parse or is not a mapping, an unknown key such as `polcy`, an item id listed twice, a file at the wrong path (it holds `policy/blame` `acme` but is not `policy/blame/acme.yaml`), or a `--use` or `--set` value of the wrong shape, such as `--use blame`; the message names the file and the key | fix the key named; write `--use policy/blame/acme` and `--set policy/blame#R3.recovery_ok=[asked_user]` |
+| `OBJECT_KIND_UNKNOWN` | an object file names a kind that does not exist, such as `kind: policy/blam`; the message lists the known kinds | use a kind from the list |
+| `OBJECT_DUPLICATE` | two object files of one layer and one folder level define the same kind and id, such as two `policy/blame` `acme`; the message names both files | keep one, or give one another id |
+| `OBJECT_SHIPPED_IMMUTABLE` | a project, suite or spec object uses the id of a shipped object, such as `policy/blame` `default` | give the object another id and set `extends: default` |
+| `OBJECT_ITEM_EXISTS` | an item operation has `add: true` for an id the parent already holds, such as `R3` | drop `add: true` to change the item, or choose a new id |
+| `OBJECT_ITEM_INCOMPLETE` | a new item lacks a field (`add: true` needs `title`, `when`, `effect` and `impl`), or a root object lists an item without `id`, `title` or `impl`, or with `add`, `before` or `after` (those belong to an object that extends another) | add the fields the message names |
+| `OBJECT_ORDER_INVALID` | an order is not a permutation: a file sets `order` and also moves items with `before` or `after`, an item sets both `before` and `after`, an item is moved relative to itself, or `order` lists an item twice or leaves out an enabled item | use one way to order; list every enabled item once |
 | `OBJECT_UNKNOWN` | `uses` names an object no layer defines; the message lists the layers searched | write the object file, or fix the id |
 | `OBJECT_ITEM_UNKNOWN` | an inline or file object operates on an item its parent does not hold; the message lists the parent's items | fix the item id, or add it with `add: true`, `title`, `when`, `effect` and `impl` |
 | `OBJECT_CYCLE` | objects extend each other in a loop; the message prints the loop | break the chain |

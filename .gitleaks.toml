@@ -14,29 +14,35 @@ description = "judge cassette request keys are 12-character content hashes"
 regexTarget = "line"
 regexes = ['''^[+\s]*"key": "[0-9a-f]{12}",?\s*$''']
 
-# The all-peers call journal stores each request under a field named "key" whose value is the 64-character
-# sha256 of model, system prompt and user text. The generic-api-key rule reads those hashes as secrets.
-# The exception needs both conditions: a file under examples/all-peers-public/cells/calls-parts/, and a
-# finding whose text is the field "key" or "attempt_key" followed by hex digits only (gitleaks 8.30 reports a
-# prefix of the hash, 8.24 the whole value). Any other finding in the same files, a non-hex value, or another
-# field name is still reported.
+# Recording content hashes. Three recording folders store each request under a content hash: the all-peers call
+# journal ("key", "attempt_key"), the ledger-verify evidence ("key") and the RubricBench pair-ledger recordings
+# ("key", "callKey", "probeCallKey", and freeze records that map the file .cache/ledger-rb/audit-token-loss.py to
+# its sha256). The generic-api-key rule reads those hashes as secrets.
+#
+# Its match starts at the keyword, so "api/key" and "key" give the same match text; a match-level exception would
+# also pass "api/key". The exceptions below therefore read the whole line and pass only a line that holds one such
+# field with a bare lowercase hex value and nothing else. A hash inside a longer JSONL line is not covered here: it
+# is listed by exact commit, file and line in the generated block of .gitleaksignore, which
+# tools/guard/gitleaks-recording-fingerprints.mjs rebuilds and which refuses any line that carries another finding.
 [[rules]]
 id = "generic-api-key"
 [[rules.allowlists]]
-description = "all-peers call journal request keys are sha256 content hashes"
+description = "all-peers call journal: a line holding only a key or attempt_key content hash"
 condition = "AND"
 paths = ['''^examples/all-peers-public/cells/calls-parts/part-\d{4}\.jsonl$''']
-regexTarget = "match"
-regexes = ['''^(attempt_)?key"?\s*[:=]\s*"?[0-9a-f]{16,64}"?$''']
+regexTarget = "line"
+regexes = ['''^[+\s]*"(?:attempt_)?key"\s*:\s*"[0-9a-f]{16,64}",?\s*$''']
 
-# The verify evidence in examples/ledger-verify records every request under a content hash in a field named
-# "key" (12 to 64 hex characters). The generic-api-key rule reads some of those hashes as secrets. This
-# exception applies only to that rule, only under that folder, and only when the whole reported match is
-# the field name with a bare hex value. Any other field, a longer or non-hex value, a different folder, or
-# a token of a known format is still reported.
 [[rules.allowlists]]
-description = "ledger-verify request content hashes"
+description = "ledger-verify evidence: a line holding only a key content hash"
 condition = "AND"
 paths = ['''^examples/ledger-verify/''']
-regexTarget = "match"
-regexes = ['''^"?key"?\s*:\s*"[0-9a-f]{12,64}"?$''']
+regexTarget = "line"
+regexes = ['''^[+\s]*"key"\s*:\s*"[0-9a-f]{12,64}",?\s*$''']
+
+[[rules.allowlists]]
+description = "RubricBench ledger-rb recordings: a line holding only one content hash field"
+condition = "AND"
+paths = ['''^examples/judge-benchmarks/experiments/ledger-rb/''']
+regexTarget = "line"
+regexes = ['''^[+\s]*"(?:key|callKey|probeCallKey)"\s*:\s*"[0-9a-f]{12,64}",?\s*$''', '''^[+\s]*"\.cache/ledger-rb/audit-token-loss\.py"\s*:\s*"[0-9a-f]{64}",?\s*$''']
