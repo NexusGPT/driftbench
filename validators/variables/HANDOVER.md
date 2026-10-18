@@ -36,7 +36,7 @@ No variables floor is committed in `validators/floors.json`; the measured baseli
 
 ## Open items
 
-All 203 items in the first level (`store`) fail: sources 61, quotes 54, values 33 and boundaries 55. The actual adapter supplies no operations. Their stable IDs and target components are listed in `CATALOGUE.md`; integrate the real readers before starting executor repairs.
+All 248 items in the first level (`store`) fail: sources 69, quotes 68, values 48 and boundaries 63. The actual adapter supplies no operations, including `validate` and `quotes`. Their stable IDs and target components are listed in `CATALOGUE.md`; integrate the real readers, the loader, the quote check and the planner before starting executor repairs.
 
 ## Hypotheses tried
 

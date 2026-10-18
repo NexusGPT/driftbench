@@ -5,7 +5,7 @@ The bank is not merge-ready under docs/validators.md §12.7. These are pending i
 | Required independent audit | Status | Evidence / next owner action |
 |---|---|---|
 | blind pilot | pending | Ten executor iterations after real component integration and adapter mapping; no executor iteration is claimed by the bank repair. |
-| cheater | pending | Builder tests reject the constant empty implementation and targeted mutants; an independent helper must attempt new cheats. |
+| cheater | pending | Builder tests reject the constant empty implementation, targeted mutants, and the call-order and request-hash cheats of the second bank's review (`call-cheats.test.ts`); an independent helper must attempt new cheats. |
 | cause review | pending | The candidate labels are an upper bound on the number of distinct repairs, not a count of them: one defect fails several stems (an ignored impossible pair loses stems of the counter, planner and strength families; a wrong edge sample loses many boundary stems) and some stems bundle two fixes. The measured number will be lower. An independent helper must sample thirty failures and regroup by actual fixes. |
 | planted bugs | pending | Independent helper must plant at least twenty implementation defects after real components are integrated. |
 
