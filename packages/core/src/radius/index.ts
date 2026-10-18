@@ -65,6 +65,17 @@ export {
 } from './localize';
 export { type PromptAnchor, promptChangeManifest } from './prompt';
 export {
+  type BlockProof,
+  type BlockProofVerdict,
+  blockOutcomes,
+  type LinkProof,
+  linksRule,
+  type ProofMutant,
+  type ProofOutcome,
+  type ProofRule,
+  proveRuleLinks,
+} from './prove';
+export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   completeBaselineProvenance,
   sameCarryContext,

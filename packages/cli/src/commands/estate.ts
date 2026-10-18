@@ -29,6 +29,7 @@ import { registerEstateGenerateCommand } from './estate-generate';
 import { registerEstateLiveCommands } from './estate-live';
 import { registerEstateMaintainCommands } from './estate-maintain';
 import { registerEstatePlanCommands } from './estate-plan';
+import { registerEstateProveCommand } from './estate-prove';
 import { registerEstateStaticCommand } from './estate-static';
 import { registerEstateStatsCommand } from './estate-stats';
 import { registerEstateUnitCommand } from './estate-unit';
@@ -120,6 +121,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
   registerEstateMaintainCommands(estate, io, setExit);
   registerEstateGenerateCommand(estate, io, setExit);
   registerEstateLiveCommands(estate, io, setExit);
+  registerEstateProveCommand(estate, io, setExit);
   registerEstateStaticCommand(estate, io, setExit);
   registerEstateStatsCommand(estate, io, setExit);
   registerEstateUnitCommand(estate, io, setExit);
