@@ -2157,6 +2157,7 @@
       "VariableConstraint": "value",
       "VariablePrior": "value",
       "VariableProvenance": "value",
+      "VariableScope": "value",
       "VariableStore": "value",
       "VariableStoreIssue": "type",
       "VariableStoreIssueCode": "type",
@@ -2200,6 +2201,7 @@
       "validateSpaceMap": "value",
       "validateVariableStore": "value",
       "variableProvenance": "value",
+      "variableScope": "value",
       "variablesToSpaceMap": "value"
     },
     "stats": {
