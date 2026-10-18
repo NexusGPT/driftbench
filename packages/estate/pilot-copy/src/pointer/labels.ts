@@ -63,8 +63,19 @@ export type Labelled = { units: string; label: string; target?: number };
 
 /** `5` or `5-7` as the numbers it names. */
 export function expandUnits(units: string): number[] | undefined {
-  throw new Error('not implemented: expandUnits');
+  const match = /^(\d+)(?:-(\d+))?$/.exec(units.trim());
+  if (!match) return undefined;
+  const from = Number(match[1]);
+  const to = match[2] === undefined ? from : Number(match[2]);
+  if (!Number.isSafeInteger(from) || !Number.isSafeInteger(to) || to < from) return undefined;
+  if (to - from > MAX_RANGE) return undefined;
+  const out: number[] = [];
+  for (let n = from; n <= to; n++) out.push(n);
+  return out;
 }
+
+/** The widest range, from its first number to its last: a range wider than any window is no range. */
+const MAX_RANGE = 10000;
 
 export type Checked = {
   /** Unit number to its label, for a label other than none. */
