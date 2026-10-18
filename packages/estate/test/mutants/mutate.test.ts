@@ -84,18 +84,18 @@ describe('mutateEstate', () => {
     expect(await readFile(join(root, skill), 'utf8')).toBe(before);
   });
 
-  it('inverts an obligation by the table of forms, in place, the line count kept', async () => {
+  it('inverts an obligation by its polarity, in place, the line count kept', async () => {
     const root = await copy();
     const original = await readFile(join(FIXTURE, 'CLAUDE.md'), 'utf8');
     const result = await mutateEstate({ root, map }, { invert: R7 });
     const text = await readFile(join(root, 'CLAUDE.md'), 'utf8');
     expect(result.after).toBe(
-      '- **R7.** When a shipment is late by more than two days, do not tell the user and propose a supplier email.',
+      '- **R7.** Do not follow this rule: When a shipment is late by more than two days, tell the user and propose a supplier email.',
     );
     expect(text.split('\n')).toHaveLength(original.split('\n').length);
     const atom = result.map.atoms.find((candidate) => candidate.id === R7);
     expect(atom?.provenance.quote).toBe(
-      'When a shipment is late by more than two days, do not tell the user and propose a supplier email.',
+      'Do not follow this rule: When a shipment is late by more than two days, tell the user and propose a supplier email.',
     );
     expect(result.mapHash).not.toBe(map.hash);
     await consistent(root, result.map);
@@ -131,32 +131,46 @@ describe('mutateEstate', () => {
 });
 
 describe('invertText', () => {
-  it.each([
-    ['Never run `git push --force` on any branch.', 'Always run `git push --force` on any branch.'],
-    [
-      'Always answer in the language of the latest message.',
-      'Never answer in the language of the latest message.',
-    ],
-    ['Do not invent order numbers.', 'Invent order numbers.'],
-    ["Don't paste the token.", 'Paste the token.'],
-    ['The brief must name the files.', 'The brief must not name the files.'],
-    ['The brief must not name the files.', 'The brief must name the files.'],
-    ['When the user says stop, stop all work.', 'When the user says stop, do not stop all work.'],
-    [
-      'Before editing any invoice file: Read the rules.',
-      'Before editing any invoice file: do not read the rules.',
-    ],
-    ['If a tool fails twice, never retry it.', 'If a tool fails twice, always retry it.'],
-    ['Read a file before you edit it.', 'Do not read a file before you edit it.'],
-    ['- **R9.** Ask at most one question per reply.', '- **R9.** Do not ask at most one question per reply.'],
-  ])('%s', (text, inverted) => {
-    expect(invertText(text)).toBe(inverted);
+  const CLAUSE = 'Never run `git push --force` on any branch.';
+
+  it('keeps the whole quote and sets a fixed sentence before it, chosen by the declared polarity alone', () => {
+    expect(invertText(CLAUSE, 'prohibition')).toBe(`This prohibition is lifted: ${CLAUSE}`);
+    expect(invertText(CLAUSE, 'obligation')).toBe(`Do not follow this rule: ${CLAUSE}`);
+    expect(invertText(CLAUSE)).toBe(`Do not follow this rule: ${CLAUSE}`);
+  });
+
+  it('reads no word of the quote: a quote that holds none of the old forms is inverted the same way', () => {
+    const text = 'Ask at most one question per reply.';
+    expect(invertText(text, 'obligation')).toBe(`Do not follow this rule: ${text}`);
+    // The old table read these openings; the polarity decides now, whatever the words say.
+    expect(invertText('Never X the file.', 'obligation')).toBe('Do not follow this rule: Never X the file.');
+    expect(invertText('Always X the file.', 'prohibition')).toBe(
+      'This prohibition is lifted: Always X the file.',
+    );
+  });
+
+  it('keeps a markdown prefix (list marker, bold label) in front of the sentence', () => {
+    expect(invertText('- **R9.** Ask one question per reply.', 'obligation')).toBe(
+      '- **R9.** Do not follow this rule: Ask one question per reply.',
+    );
+    expect(invertText('1. Read the rules first.', 'obligation')).toBe(
+      '1. Do not follow this rule: Read the rules first.',
+    );
+  });
+
+  it('works in any script: a letter is a letter', () => {
+    expect(invertText('Toujours répondre en français.', 'obligation')).toBe(
+      'Do not follow this rule: Toujours répondre en français.',
+    );
+    expect(invertText('Всегда отвечайте по-русски.', 'obligation')).toBe(
+      'Do not follow this rule: Всегда отвечайте по-русски.',
+    );
   });
 
   it.each([['"WebFetch"'], ['name: invoice-reconcile'], ['Edit'], ['$CLAUDE_PROJECT_DIR/x.sh']])(
     'refuses %s',
     (text) => {
-      expect(invertText(text)).toBeUndefined();
+      expect(invertText(text, 'obligation')).toBeUndefined();
     },
   );
 });
