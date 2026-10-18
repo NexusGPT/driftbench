@@ -194,6 +194,9 @@ const CLASS_PROOFS: Record<
     // The deleted value is `count: { min: 1 }` on a guards, references, skills or subagents entry.
     census: () => fieldReadCensus(ROOT, READER_ROOTS, DEFAULT_COUNT_READS),
     readers: [
+      // The blame inputs list the names of an `expect.skills` list as the routed skills. They read `name`s and never a
+      // `count`, so an absent count and `{ min: 1 }` give the same names.
+      'packages/checks/src/blame/inputs.ts: const skills = (expect?.skills ?? []).map((skill) => skill.name);',
       'packages/checks/src/checks/guards.ts: applies: (ctx) => (ctx.expect.guards?.length ?? 0) > 0,',
       'packages/checks/src/checks/guards.ts: const expected = ctx.expect.guards ?? [];',
       "packages/checks/src/checks/guards.ts: countAllows(guard.count, count) ? 'pass' : 'fail',",
