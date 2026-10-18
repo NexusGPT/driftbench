@@ -19,6 +19,12 @@ export const ResolvedGiven = z.strictObject({
   prefix: z.array(Message),
   /** The origin of the latest prefix, when the spec states one; it is hashed only when present. */
   origin: GivenOrigin.optional(),
+  /**
+   * With `origin`: how many of the first prefix messages the origin covers, the ones the spec wrote. Messages
+   * after them (a run's own turns, a teacher-forced replay's canonical turns) are not covered. Outside the
+   * Given hash; inside the block cache key, which reads the whole resolved Given.
+   */
+  originLength: z.number().int().nonnegative().optional(),
   ledger: z.record(z.string(), z.unknown()),
   world: WorldState,
   vars: z.record(z.string(), z.unknown()),
@@ -184,6 +190,26 @@ export const RetryEvent = z.strictObject({
 });
 export type RetryEvent = z.infer<typeof RetryEvent>;
 
+/** A history turn a wire serializer omits because its text is empty. */
+export const HistoryNormalization = z.strictObject({
+  wire: z
+    .string()
+    .min(1)
+    .describe('The adapter wire that normalizes the history, such as anthropic or google.'),
+  historyIndex: z
+    .number()
+    .int()
+    .nonnegative()
+    .describe('Zero-based index in the session history sent for this block, including system messages.'),
+  role: z
+    .enum(['system', 'user', 'assistant', 'tool'])
+    .describe('The original role of the omitted text-only turn.'),
+  kind: z
+    .literal('omitted-empty-turn')
+    .describe('An empty text-only turn is absent from the model input; no placeholder text replaces it.'),
+});
+export type HistoryNormalization = z.infer<typeof HistoryNormalization>;
+
 /** Everything observed in one block. */
 export const Observed = z.strictObject({
   segments: z.array(Segment),
@@ -201,6 +227,8 @@ export const Observed = z.strictObject({
   latencyMs: z.number().nonnegative(),
   /** Every retry the block's calls took, the adapter's own and the runner's, in order. Absent when none. */
   retries: z.array(RetryEvent).optional(),
+  /** Wire differences, absent when no empty text-only turn was omitted. */
+  historyNormalizations: z.array(HistoryNormalization).optional(),
   raw: z.unknown().optional(),
 });
 export type Observed = z.infer<typeof Observed>;
@@ -235,36 +263,82 @@ const RealizedTextStripped = z.strictObject({
   fromRun: z.string().min(1),
   fromCampaign: z.string().min(1).optional(),
 });
+/**
+ * A block's verdict. `pass` and `fail` are measurements. `not_run`: the block was never sent, because its
+ * Given could not be applied (a layer the adapter cannot apply, an unmet or failed setup). `blocked`: an
+ * ancestor the block depends on failed, so the block was not run. Neither is a pass or a fail.
+ */
+export const BlockStatus = z.enum(['pass', 'fail', 'not_run', 'blocked']);
+export type BlockStatus = z.infer<typeof BlockStatus>;
 
-export const BlockResult = z.strictObject({
-  realizedTextStripped: RealizedTextStripped.optional(),
-  provenance: BlockProvenance.optional(),
-  carried: z.lazy(() => CarriedFrom.extend({ measuredAt: z.string().optional() })).optional(),
-  rejudged: RejudgedFrom.optional(),
-  index: z.number().int().min(0),
-  blockId: z.string().optional(),
-  injected: z.boolean().optional(),
-  /**
-   * Present when the text the driver sent differs from the text the spec block wrote (a simulated user, a
-   * red-team attacker). The sent text is the user messages the agent received, joined by newlines; `hash`
-   * is its SHA-256 (of its canonical JSON). `text` holds it only when the run asked for it
-   * (`recordRealizedText`): what a driver writes may be private, so by default only the hash is kept. Only
-   * the text is compared; a change of form alone (the same text as an injection) is in `injected`. Absent
-   * means the authored text was sent. The provenance digest covers it.
-   */
-  realized: z
-    .strictObject({ hash: z.string().regex(/^[0-9a-f]{64}$/), text: z.string().optional() })
-    .optional(),
-  givenHash: z.string().min(1),
-  /** The key the block's observed record is cached under: what a replay looked up. */
-  cacheKey: z.string().min(1).optional(),
-  observed: Observed,
-  verdicts: z.array(Verdict),
-  stageObserved: z.string().optional(),
-  ledgerCheck: z.strictObject({ ok: z.boolean(), contradictions: z.array(z.string()) }),
-  drift: z.array(DriftClass),
-  pass: z.boolean(),
+/** Why a block was not run: the check that refused its Given, on which layer, what it expected and what it got. */
+export const NotRun = z.strictObject({
+  /** given_unmet: the Given is wrong; unsupported: the adapter cannot apply a layer; setup_failed: setup broke. */
+  kind: z.enum(['given_unmet', 'unsupported', 'setup_failed']),
+  layer: z.string().min(1),
+  check: z.string().min(1),
+  expected: z.string(),
+  got: z.string(),
 });
+export type NotRun = z.infer<typeof NotRun>;
+
+/** Why a block was blocked: the ancestor that failed (`by`) and the earliest failing ancestor (`root`). */
+export const Blocked = z.strictObject({
+  by: z.string().min(1),
+  root: z.string().min(1),
+  reason: z.string().optional(),
+});
+export type Blocked = z.infer<typeof Blocked>;
+
+export const BlockResult = z
+  .strictObject({
+    realizedTextStripped: RealizedTextStripped.optional(),
+    provenance: BlockProvenance.optional(),
+    carried: z.lazy(() => CarriedFrom.extend({ measuredAt: z.string().optional() })).optional(),
+    rejudged: RejudgedFrom.optional(),
+    index: z.number().int().min(0),
+    blockId: z.string().optional(),
+    parent: z.string().optional(),
+    /** Authored index when parent scheduling changes execution order. */
+    specIndex: z.number().int().min(0).optional(),
+    injected: z.boolean().optional(),
+    /**
+     * Present when the text the driver sent differs from the text the spec block wrote (a simulated user, a
+     * red-team attacker). The sent text is the user messages the agent received, joined by newlines; `hash`
+     * is its SHA-256 (of its canonical JSON). `text` holds it only when the run asked for it
+     * (`recordRealizedText`): what a driver writes may be private, so by default only the hash is kept. Only
+     * the text is compared; a change of form alone (the same text as an injection) is in `injected`. Absent
+     * means the authored text was sent. The provenance digest covers it.
+     */
+    realized: z
+      .strictObject({ hash: z.string().regex(/^[0-9a-f]{64}$/), text: z.string().optional() })
+      .optional(),
+    givenHash: z.string().min(1),
+    /** The key the block's observed record is cached under: what a replay looked up. */
+    cacheKey: z.string().min(1).optional(),
+    observed: Observed,
+    verdicts: z.array(Verdict),
+    stageObserved: z.string().optional(),
+    ledgerCheck: z.strictObject({ ok: z.boolean(), contradictions: z.array(z.string()) }),
+    drift: z.array(DriftClass),
+    /** False on a not_run or blocked block: an old reader never counts one as a pass. */
+    pass: z.boolean(),
+    /** Written only on a not_run or blocked block; absent, the status is pass or fail as `pass` says. */
+    status: BlockStatus.optional(),
+    notRun: NotRun.optional(),
+    blocked: Blocked.optional(),
+  })
+  .superRefine((block, context) => {
+    // A record that says two things is refused: `status` pass needs `pass` true; fail, not_run and blocked need
+    // it false. A missing status is the runner's normal form for a pass or a fail.
+    if (block.status !== undefined && block.pass !== (block.status === 'pass')) {
+      context.addIssue({
+        code: 'custom',
+        path: ['status'],
+        message: `status ${block.status} contradicts pass ${block.pass}: ${block.status === 'pass' ? 'a passing block has pass true' : 'a block that did not pass has pass false'}`,
+      });
+    }
+  });
 export type BlockResult = z.infer<typeof BlockResult>;
 
 export const Succession = z.strictObject({
@@ -313,6 +387,8 @@ export const RunEvent = z.discriminatedUnion('type', [
     type: z.literal('block_end'),
     index: z.number().int().min(0),
     pass: z.boolean(),
+    /** Set on a not_run or blocked block. */
+    status: BlockStatus.optional(),
     at: z.string().min(1),
   }),
   z.strictObject({
