@@ -1,0 +1,57 @@
+# Fictional data only: Acme Telecom, people at example.com. The plan upgrade with the simulated user
+# defined in the blocks: the agenda engine plans each message, a model writes it. The user text of each
+# block is what the person means at that point; in mode simulated it is not sent as written.
+id: acme-plan-upgrade-simulated
+title: An existing customer moves to a plan with more data, played by a simulated user
+channel: chat
+lang: EN
+target: { adapter: function, agent: acme-sales }
+ledger_seed:
+  customer: existing
+  lang: EN
+stages: [identify, offer, recap, order_placed, callback, handover, closing]
+
+blocks:
+  - when:
+      user: Hi, I'm already an Acme customer and I keep running out of data on my phone.
+      simulated_user: &sam
+        mode: simulated
+        persona: >
+          Sam Rivera. A busy Acme mobile customer in their thirties. Writes short, friendly messages with
+          full sentences, answers what is asked and does not chat about anything else.
+        goal: >
+          Move the current Acme phone plan to one with more data, ideally unlimited, place the change, and
+          end the chat once it is done.
+        hidden_knowledge:
+          email: sam.rivera@example.com
+        reveal: { email: on_request }
+        ask_patterns: { email: ['e-?mail'] }
+        stop: '###STOP###'
+        trials: 4
+    expect:
+      stage: identify
+
+  - when:
+      user: It's sam.rivera@example.com
+      simulated_user: *sam
+    expect:
+      stage: offer
+      ledger_add: { customer_id: cust-001 }
+
+  - when:
+      user: The unlimited one, please.
+      simulated_user: *sam
+    expect:
+      stage: recap
+
+  - when:
+      user: Confirm
+      simulated_user: *sam
+    expect:
+      stage: order_placed
+
+  - when:
+      user: No, that's all. Thanks!
+      simulated_user: *sam
+    expect:
+      stage: closing

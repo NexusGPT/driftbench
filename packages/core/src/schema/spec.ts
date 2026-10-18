@@ -21,10 +21,136 @@ import { BlockLinks } from './links';
  * Then (the expected output and state delta, under `expect`).
  */
 
+const Share = z.number().min(0).max(1);
+
+/** The agenda engine's parameters. Every field is optional: absent, the engine's default applies. */
+export const SimulatedUserEngine = z
+  .strictObject({
+    acts_per_turn: z
+      .array(Share)
+      .min(1)
+      .optional()
+      .describe('The chance of 1, 2, 3 ... dialogue acts in one message, in order. They must sum to 1.'),
+    volunteer_share: Share.optional().describe(
+      'The chance that the opening message also gives each fact whose reveal is volunteer.',
+    ),
+    opening_detail_share: Share.optional().describe(
+      'The chance that the opening message also states the specific problem, not only the request.',
+    ),
+    short_turn_share: Share.optional().describe('The share of messages of at most three words.'),
+    polite_turn_share: Share.optional().describe('The share of messages planned as polite.'),
+    uncertainty_turn_share: Share.optional().describe('The share of messages planned as unsure.'),
+    question_turn_share: Share.optional().describe('The share of messages planned as a question.'),
+    repeat_after_refusal: z
+      .number()
+      .int()
+      .min(0)
+      .optional()
+      .describe('How many times the person repeats the request after the agent says it cannot.'),
+    turn_budget: z
+      .number()
+      .int()
+      .min(1)
+      .optional()
+      .describe('The most messages the person writes before giving up.'),
+    engagement_initial: Share.optional().describe('Engagement at the start.'),
+    decay_per_unhelpful_turn: Share.optional().describe('Engagement lost on each unhelpful agent turn.'),
+    disengage_below: Share.optional().describe('Below this engagement the person gives up.'),
+  })
+  .describe("The agenda engine's parameters for a simulated user.");
+export type SimulatedUserEngine = z.infer<typeof SimulatedUserEngine>;
+
+/**
+ * A simulated user defined in the block. `exact` sends `user` as written; `simulated` has the agenda engine
+ * plan the message and a model write it; `replay` sends `user`, a message a simulated run wrote and a
+ * freeze stored.
+ */
+export const SimulatedUserSpec = z
+  .strictObject({
+    mode: z
+      .enum(['exact', 'simulated', 'replay'])
+      .describe(
+        'exact: send the user text as written. simulated: the agenda engine plans the message, a model writes it. replay: send the user text, a message frozen from a simulated run.',
+      ),
+    persona: z.string().min(1).optional().describe('Who the person is and how they write. Fictional.'),
+    goal: z
+      .string()
+      .min(1)
+      .optional()
+      .describe("What the person wants. Absent, the first simulated block's user text is the goal."),
+    hidden_knowledge: z
+      .record(z.string(), z.string().min(1))
+      .optional()
+      .describe('What the person knows, by name. A value reaches the model only once it is planned.'),
+    reveal: z
+      .record(z.string(), z.enum(['on_request', 'volunteer']))
+      .optional()
+      .describe(
+        'For each fact: on_request (the default) gives it only once the agent asks; volunteer may give it in the opening message.',
+      ),
+    ask_patterns: z
+      .record(z.string(), z.array(z.string().min(1)).min(1))
+      .optional()
+      .describe(
+        'For each fact, patterns (case-insensitive) of an agent reply that asks for it. Used when no model reads the agent turns.',
+      ),
+    stop: z.string().min(1).optional().describe('What the person says when the goal is met or given up.'),
+    trials: z
+      .number()
+      .int()
+      .min(1)
+      .optional()
+      .describe('How many times a simulated run plays the spec, for pass^k and the rerun flip rate.'),
+    seed: z
+      .union([z.string().min(1), z.number().int()])
+      .optional()
+      .describe('The seed of the engine. Absent, the spec id.'),
+    engine: SimulatedUserEngine.optional().describe("The agenda engine's parameters."),
+    recorded: z
+      .strictObject({
+        hash: z
+          .string()
+          .regex(/^[0-9a-f]{64}$/)
+          .describe('The SHA-256 of the canonical JSON of the frozen text.'),
+        from: z.string().min(1).optional().describe('The run the text was frozen from.'),
+      })
+      .optional()
+      .describe('replay: where the frozen text came from. A text that does not match its hash is refused.'),
+  })
+  .superRefine((user, ctx) => {
+    const facts = user.hidden_knowledge ?? {};
+    for (const key of ['reveal', 'ask_patterns'] as const) {
+      for (const name of Object.keys(user[key] ?? {})) {
+        if (!Object.hasOwn(facts, name))
+          ctx.addIssue({
+            code: 'custom',
+            path: [key, name],
+            message: `${key} names ${name}, which is not in hidden_knowledge`,
+          });
+      }
+    }
+    const shares = user.engine?.acts_per_turn;
+    if (shares && Math.abs(shares.reduce((sum, share) => sum + share, 0) - 1) > 1e-9)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['engine', 'acts_per_turn'],
+        message: 'acts_per_turn must sum to 1',
+      });
+  })
+  .describe('A simulated user defined in the block: exact, simulated or replay.');
+export type SimulatedUserSpec = z.infer<typeof SimulatedUserSpec>;
+
 /** What reaches the agent in one block. */
 export const Stimulus = z
   .union([
-    z.strictObject({ user: z.string() }).describe('One user message, or one instruction to a task agent.'),
+    z
+      .strictObject({
+        user: z.string().describe('One user message, or one instruction to a task agent.'),
+        simulated_user: SimulatedUserSpec.optional().describe(
+          'A simulated user that plays this block. Absent, the user text is sent as written.',
+        ),
+      })
+      .describe('One user message, or one instruction to a task agent.'),
     z
       .strictObject({ burst: z.array(z.string()).min(2) })
       .describe('Two or more messages that arrive together.'),
