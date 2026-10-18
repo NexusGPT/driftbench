@@ -53,26 +53,6 @@ driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --s
 | `--max-age <days>` | The most days since a carried observation was measured, at least 0. | `7` |
 | `--record-realized-text` | Retain available `realized.text` in this new campaign. Without it, copies keep only the hash, even when the baseline recorded text. Missing text is never reconstructed. | off |
 | `--json` | Print the summary as JSON. | off |
-| `--judges <cassette>` | Add every judge of this recording as a player: no call. | none |
-| `--judge-mode <mode>` | The council mode: `system1`, `hybrid` or `llm`. | from the judge classes |
-| `--assignments <file>` | The council assignment table `judge calibrate` wrote. | none |
-| `--cascade` | Run the cheapest judge first and stop on a sure pass. | off |
-| `--weights <weights>` | Council vote weights, `judge=weight,...` or a YAML file. | none |
-| `--judge-route <route>` | `escalation`: route each call through a label-blind router. | none |
-| `--route-first <judge>` | With `--judge-route escalation`: the judge that answers first. | none |
-| `--route-then <judge>` | With `--judge-route escalation`: a judge asked when a trigger fires; repeat it. | none |
-| `--route-on <triggers>` | The escalation triggers, comma separated. | `order-split,inconclusive,reference-disagreement,low-confidence` |
-| `--route-confidence <p>` | The low-confidence bar, from 0 to 1. | `0.5` |
-| `--route-decide <rule>` | `majority` or `first-stands`. | `majority` |
-| `--panel-weights <weights>` | A weighted panel of every judge; a thin margin abstains. | none |
-| `--panel-margin <share>` | With `--panel-weights`: the smallest winning margin, a share of the total weight. | `0.3` |
-| `--reference-solve <kind:model>` | Solve each question blind first, and judge against the agreed answer. | none |
-| `--reference-samples <n>` | With `--reference-solve`: how many solves, from 1 to 20. | `5` |
-| `--reference-route <route>` | With `--reference-solve`: `auto` solves only a question with one checkable answer. | none |
-| `--verify <kind>` | `arithmetic`: check explicit equations in the reply, in a bounded sandbox, before the judge reads it. | none |
-| `--prompt-budget <chars>` | Drop the oldest transcript entries until the judge prompt fits; the last block stays. | none |
-| `--record <cassette>` | Save every live judge answer as a cassette, to replay with `--judges`. | none |
-| `--agent-family <family>` | The model family of the agent under test: a judge of that family is refused. `none` for no model. | none |
 
 Exit codes:
 
