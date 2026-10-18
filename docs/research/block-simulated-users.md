@@ -9,7 +9,7 @@ The experiments cost 5.78 USD of a 25 USD cap.
 | # | Claim | Verdict | Key numbers |
 |---|---|---|---|
 | H11 | Simulated verdicts flip across simulator families. | Falsified | The cross-family flip share is 0.15. The within-family re-run flip share is 0.20. The difference is -0.05 (interval -0.125 to 0.000). 20 blocks, 8 trials each, `gpt-5.4-nano` against `gemini-3.5-flash-lite`. |
-| H10 | An agenda engine outside the model beats prompting for simulator realism. | Supported | The engine is closer to human users than the findings prompt on 5 of 6 metrics. Three intervals exclude 0. It is worse on none. Short turns are 38.0% against 2.0% (humans 38.2%). |
+| H10 | An agenda engine outside the model beats prompting for simulator realism. | Supported | The engine is closer to human users than the findings prompt on 5 of 6 metrics. Three intervals exclude 0. It is worse on one metric, Uncert%, with an interval that includes 0. No metric is worse with an interval that excludes 0. Short turns are 38.0% against 2.0% (humans 38.2%). |
 | H14 | Uncovered production clusters yield more failing blocks than random samples. | Falsified | Failing blocks: 2 of 17 for uncovered clusters, 6 of 17 for random ones. The difference is -0.235 (interval -0.484 to +0.053). |
 
 ## What the results mean
