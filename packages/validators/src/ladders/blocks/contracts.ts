@@ -759,7 +759,7 @@ export const CONTRACTS: Readonly<Record<string, string>> = {
     'docs/concepts/statistics.md#Intervals',
   'localizeRuns weighs a block by its failed rows over its rows':
     'docs/reference/block-contracts.md#Localize',
-  'localizeRows leaves a stale link out of the sections a block covers':
+  'radius localize leaves stale links out of the Ochiai counts and reports them as advisory.':
     'docs/reference/block-contracts.md#Localize',
   'localizeRows leaves a stale section out of the ranking': 'docs/reference/block-contracts.md#Localize',
   'localizeRuns lists a global section apart and never ranks it':
