@@ -1,45 +1,29 @@
 import type { Atom } from '@agent-nexus/driftbench-estate';
-import { askedClauses, pronounDerivation } from '@agent-nexus/driftbench-generate';
 
 /**
- * Whether a piece of a code-written ask is a whole clause of the text it says it came from. The check reads
- * the shape of the text (word and punctuation tokens, the boundaries between clauses), never the meaning of a
- * word.
+ * Whether a piece of a code-written ask is taken from the text it says it came from. The check reads the shape
+ * of the text (word and punctuation tokens, the boundaries between clauses, recorded offsets), never the
+ * meaning of a word. Two things are accepted:
  *
- * A piece is a clause of a field when its tokens are those of a run of the field's tokens, case folded, with
- * three allowances the generator declares: the first word may be another form of the source word (they share
- * their first three letters: "audits" gives "audit", "editing" gives "edit"), a run may follow up to
- * `LEAD_WORDS` words of a declared leading operator that the generator dropped ("never", "do not", "before"), and a
- * field also yields the acts the generator derives from it (`pronounDerivation`, `askedClauses`). The run must end where a clause
- * ends: at the end of the field, a sentence end or a semicolon. Other punctuation does not end a clause.
- * A cut in the middle of a clause, a run in another
- * order, or words added to a clause are none of these.
+ * - a whole clause of a field: the piece's tokens are those of a run of the field's tokens, case folded, with
+ *   one allowance (the first word may be another form of the source word: they share their first three
+ *   letters, "audits" gives "audit"). The run starts where a clause starts and ends where one ends: at the
+ *   edge of the field, a sentence end or a semicolon. A word dropped before the run, a cut in the middle of a
+ *   clause, a run in another order and words added are none of these;
+ * - a slice of a labelled clause: the spec records the offsets the piece was taken at in the quote of an atom
+ *   (`from.offsets`), the tokens of that slice are the piece, and the slice lies inside a span the pointer
+ *   reader labelled `act`, `governed-action`, `prerequisite` or `ask` on that atom (`fields.labelSpans`).
+ *   Which words the generator dropped does not matter: the label says the clause acts, the offsets say what
+ *   was taken.
+ *
+ * A piece the generator cut with a list of English words (the clause a description asks for, the work after a
+ * read-before, a clause after "never") has no offsets until the generator takes pieces from spans, and is
+ * refused.
  */
-
-/** The most words of a clause the generator drops before the piece it takes. */
-export const LEAD_WORDS = 3;
 
 const TOKEN = /(?:\.{1,2}\/|\.(?=[\p{L}\p{N}]))?[\p{L}\p{N}]+(?:['’_/.-][\p{L}\p{N}]+)*\/?|[^\s\p{L}\p{N}]/gu;
 const isWord = (token: string): boolean => /[\p{L}\p{N}]/u.test(token);
 const isBoundary = (token: string | undefined): boolean => token === undefined || /^[.!?;]$/.test(token);
-const LEADING_OPERATORS: ReadonlySet<string> = new Set([
-  'never',
-  'do not',
-  "don't",
-  'no one may',
-  'you must not',
-  'always',
-  'must',
-  'should',
-  'before',
-  'when',
-  'while',
-  'after',
-  'on',
-  'once',
-  'if',
-]);
-
 /** The tokens of a text, lower case, with markdown links and emphasis removed. */
 export function tokensOf(text: string): string[] {
   return (
@@ -75,31 +59,19 @@ export function fieldsOf(atom: Atom): Field[] {
     // The documented rule of a guard is the rule it enforces.
     if (name === 'ruleText') own.push(value);
   }
-  const derived = texts.flatMap((text) => {
-    const found = pronounDerivation(text);
-    // These clauses are the generator's read-when context and read-before work, not arbitrary comma cuts.
-    const condition =
-      /\b((?:when|whenever|if|while|after|before|once)\b[^,]+),\s*(?:then\s+)?(?:read|see|open|load|consult)\b/i.exec(
-        text,
-      )?.[1];
-    const governed = /\bbefore\s+([^,:;]+?)\s*[:,]\s*(?:read|load|check|review|consult)\b/i.exec(text)?.[1];
-    const readBefore = /\b(?:read|load|check|review|consult)\s+.+?\s+before\s+(.+)$/i.exec(text)?.[1];
-    return [
-      ...askedClauses(text),
-      ...[found, condition, governed, readBefore].filter((part): part is string => part !== undefined),
-    ];
-  });
   // A stage's title is a labelled value, not a clause cut from its JSON provenance.
-  if (atom.kind === 'stage' && atom.title.includes(': '))
-    derived.push(atom.title.slice(atom.title.indexOf(': ') + 2));
+  const derived =
+    atom.kind === 'stage' && atom.title.includes(': ')
+      ? [atom.title.slice(atom.title.indexOf(': ') + 2)]
+      : [];
   return [...texts, ...derived]
     .map((text) => ({ tokens: tokensOf(text), rule: own.includes(text) }))
     .filter((field) => field.tokens.length > 0);
 }
 
 /**
- * Whether the piece is a whole clause of one of the fields. A clause copied whole from the start of a rule's
- * title or passage is the rule itself, not an ask to do the work it governs, and is not accepted.
+ * Whether the piece is a whole clause of one of the fields. A clause of the title or the passage of a rule is the
+ * rule itself, not an ask to do the work it governs, and is not accepted: such a piece needs offsets (`isSliceOfSpan`).
  */
 export function isClauseOf(piece: string, fields: readonly Field[]): boolean {
   const wanted = tokensOf(piece);
@@ -111,16 +83,12 @@ export function isClauseOf(piece: string, fields: readonly Field[]): boolean {
         continue;
       const next = field[at + wanted.length];
       if (!isBoundary(next)) continue;
-      let dropped = 0;
-      while (at - dropped - 1 >= 0 && isWord(field[at - dropped - 1] as string)) dropped += 1;
-      // A comma in a list or before a dependent clause starts no new clause either.
-      if (!isBoundary(field[at - dropped - 1])) continue;
-      const prefix = field
-        .slice(at - dropped, at)
-        .join(' ')
-        .replaceAll('’', "'");
-      if (dropped > 0 && !LEADING_OPERATORS.has(prefix)) continue;
-      if (dropped <= LEAD_WORDS && !(rule && dropped === 0)) return true;
+      // The run starts a clause: the token before it ends one. A comma in a list or before a dependent clause
+      // starts no new clause either, and a word dropped before the run is a cut.
+      if (!isBoundary(field[at - 1])) continue;
+      // A rule copied whole from its start is the rule itself, not the work it governs: only a labelled slice
+      // of a rule is accepted.
+      if (!rule) return true;
     }
   }
   return false;
@@ -142,4 +110,45 @@ export function orderedShare(rule: string, ask: string): number {
     previous = row;
   }
   return (previous[b.length] as number) / a.length;
+}
+
+/** A span the pointer reader labelled on an atom, as offsets into the atom's quote. */
+export type LabelledSpan = { kind: string; from: number; to: number };
+
+/** The kinds of span that say what a rule asks of the reader: a piece taken inside one is an act, not a mention. */
+const ACTING_SPAN_KINDS: ReadonlySet<string> = new Set(['act', 'governed-action', 'prerequisite', 'ask']);
+
+/** The labelled spans of an atom (`fields.labelSpans`) that are well formed and of an acting kind. */
+export function actingSpansOf(atom: Atom): LabelledSpan[] {
+  const raw = atom.fields?.labelSpans;
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((item): LabelledSpan[] => {
+    const entry = item as Partial<LabelledSpan> | null;
+    return entry !== null &&
+      typeof entry === 'object' &&
+      typeof entry.kind === 'string' &&
+      ACTING_SPAN_KINDS.has(entry.kind) &&
+      Number.isInteger(entry.from) &&
+      Number.isInteger(entry.to) &&
+      (entry.from as number) >= 0 &&
+      (entry.to as number) > (entry.from as number)
+      ? [entry as LabelledSpan]
+      : [];
+  });
+}
+
+/**
+ * Whether the piece is the slice `[from, to)` of the quote of the atom, and that slice lies inside a span the
+ * pointer reader labelled as acting on that atom. The tokens of the slice must be the tokens of the piece, so
+ * the offsets cannot name one clause and the ask carry another.
+ */
+export function isSliceOfSpan(piece: string, offsets: { from: number; to: number }, atom: Atom): boolean {
+  const quote = atom.provenance.quote;
+  if (!Number.isInteger(offsets.from) || !Number.isInteger(offsets.to)) return false;
+  if (offsets.from < 0 || offsets.to <= offsets.from || offsets.to > quote.length) return false;
+  const wanted = tokensOf(piece);
+  const taken = tokensOf(quote.slice(offsets.from, offsets.to));
+  if (wanted.length === 0 || wanted.length !== taken.length) return false;
+  if (!wanted.every((token, index) => token === taken[index])) return false;
+  return actingSpansOf(atom).some((span) => span.from <= offsets.from && offsets.to <= span.to);
 }
