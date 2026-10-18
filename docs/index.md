@@ -88,6 +88,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Block framework persona experiments](research/block-framework-persona.md): three pre-registered experiments on the persona grid, prompt unit routing and ownership refusals.
 * [Block framework value, blame and diagnosis experiments](research/block-framework-value.md): five pre-registered experiments on the value-check ladder, blame rules and diagnosis.
 * [Block framework core experiments](research/block-framework-core.md): four pre-registered experiments on backward compatibility, defaults, overrides and re-judging in a block framework prototype.
+* [Block links experiments](research/block-links.md): two pre-registered experiments on section links and per-root counting, with prompt mutation as ground truth.
 
 ## What exists today
 
