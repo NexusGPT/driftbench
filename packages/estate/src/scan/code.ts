@@ -85,6 +85,11 @@ export class AtomBuilder {
 
   constructor(private readonly files: ReadonlyMap<string, EstateFile>) {}
 
+  /** The file of the estate that a path written in `from` leads to; the path as resolved when none is found. */
+  locate(path: string, from: string): string {
+    return locateNamed(path, from, this.files).path;
+  }
+
   scopeOf(path: string): string {
     const file = this.files.get(path);
     if (!file) return slug(path, 8);

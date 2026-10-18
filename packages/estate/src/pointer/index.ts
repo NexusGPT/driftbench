@@ -20,6 +20,7 @@ export {
   denseOpinions,
   denseUser,
   parseDenseAnswer,
+  SPAN_RULE,
   windowLines,
 } from './dense';
 export {
@@ -40,10 +41,15 @@ export {
   checkAnswer,
   expandUnits,
   Label,
+  type LabelContext,
   type Labelled,
   LabelSet,
   type LabelSetsResult,
+  type LinkAnswer,
+  LinkKind,
   parseLabelSets,
+  type SpanAnswer,
+  SpanKind,
   setHash,
   type Window,
   type WindowUnit,
