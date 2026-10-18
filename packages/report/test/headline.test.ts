@@ -15,6 +15,35 @@ function golden(specId: string, total: number, passes: number) {
 }
 const treeOf = (r: { specId: string }) => r.specId;
 
+/** The run with its block as a runner writes a block it did not send: the run is not run or blocked. */
+function unsent(base: ReturnType<typeof run>, status: 'not_run' | 'blocked'): ReturnType<typeof run> {
+  const [first] = base.blocks;
+  if (!first) throw new Error('no block');
+  return {
+    ...base,
+    blocks: [
+      {
+        ...first,
+        verdicts: [],
+        drift: [],
+        pass: false,
+        status,
+        ...(status === 'not_run'
+          ? {
+              notRun: {
+                kind: 'unsupported' as const,
+                layer: '5 world',
+                check: 'capability',
+                expected: 'e',
+                got: 'g',
+              },
+            }
+          : { blocked: { by: 'block 0', root: 'block 0' } }),
+      },
+    ],
+  };
+}
+
 describe('suiteHeadline', () => {
   const runs = [
     ...golden('a', 5, 5),
@@ -74,15 +103,17 @@ describe('suiteHeadline', () => {
       ...golden('b', 4, 2),
       run({ specId: 'c', status: 'failed' }),
       run({ specId: 'c', repeat: 1 }),
-      { ...run({ specId: 'd' }), status: 'blocked' } as unknown as ReturnType<typeof run>,
-      { ...run({ specId: 'd', repeat: 1 }), status: 'not_run' } as unknown as ReturnType<typeof run>,
+      unsent(run({ specId: 'd' }), 'blocked'),
+      unsent(run({ specId: 'd', repeat: 1 }), 'not_run'),
     ];
     const got = suiteHeadline(odd, treeOf);
-    expect(got?.shares.incomplete).toBeCloseTo(3 / 12, 12);
+    expect(got?.shares.incomplete).toBeCloseTo(1 / 12, 12);
     expect(got?.shares.blocked).toBeCloseTo(1 / 12, 12);
     expect(got?.shares.notRun).toBeCloseTo(1 / 12, 12);
+    // The runs not run or blocked are out of the rate: 10 scored runs in 3 goldens.
+    expect(got).toMatchObject({ runs: 10, trees: 3 });
     expect(headlineNote(got as NonNullable<typeof got>)).toMatch(
-      /25\.0% did not complete, 8\.3% blocked, 8\.3% not run/,
+      /8\.3% did not complete, 8\.3% blocked, 8\.3% not run/,
     );
     expect(h?.shares).toEqual({ incomplete: 0, blocked: 0, notRun: 0 });
     expect(headlineNote(h as NonNullable<typeof h>)).not.toMatch(/did not complete|blocked|not run/);

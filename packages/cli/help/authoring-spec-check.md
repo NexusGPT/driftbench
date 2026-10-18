@@ -6,10 +6,12 @@ commands:
   - spec lint
 see_also:
   - authoring-spec-format
+  - authoring-prompt-sections
   - authoring-blocks
   - authoring-prefixes
   - authoring-perturbations
   - authoring-inventory
+  - authoring-given-checks
 next:
   - authoring-inventory
 ---
@@ -21,7 +23,7 @@ Two commands check spec files without running any agent:
 - `spec validate` parses each file, rewrites the shorthands, checks the schema, then checks the rules a schema cannot express (regexes compile, criterion references resolve, stages exist, counts are sane, perturbation positions exist). It prints one line per spec and a summary.
 - `spec lint` does exactly the same, then also prints the warnings of the valid specs: advice on specs that are valid but weak.
 
-Each spec also gets its content hash: the first 12 hex characters of the SHA-256 of the spec's canonical JSON (keys sorted at every depth). Equal content gives an equal hash. The hash, not `version`, enters the cache key and every run id, so any edit to a spec makes its runs new.
+Each spec also gets its content hash: the first 12 hex characters of the SHA-256 of the spec's canonical JSON (keys sorted at every depth), without `metadata.links` and `metadata.provenance`. Equal content gives an equal hash. Links say what a block tests, not what it runs, so adding, promoting or refuting a link never changes the hash, a run id, a carry or a rejudge (authoring-prompt-sections). The hash, not `version`, enters the cache key and every run id, so any edit to a spec makes its runs new.
 
 Checks run in three layers, and a later layer runs only when the earlier ones pass:
 
@@ -59,7 +61,7 @@ driftbench spec validate <paths...> [--json]
 ### driftbench spec lint
 
 ```
-driftbench spec lint <paths...> [--json] [--strict]
+driftbench spec lint <paths...> [--json] [--strict] [--summaries] [--sections <registries...>]
 ```
 
 | Option | Meaning | Default |
@@ -67,12 +69,14 @@ driftbench spec lint <paths...> [--json] [--strict]
 | `<paths...>` (required) | As for `spec validate`. | none |
 | `--json` | Print one JSON array. | off |
 | `--strict` | Treat warnings as failures. | off |
+| `--summaries` | Also warn (`GIVEN_SUMMARY_MISSING`) when a workspace folder or a named session state has no summary. Off by default: the shipped estate specs name states without one. | off |
+| `--sections <registries...>` | Section registries (authoring-prompt-sections). Every `prompt_section` link of a spec is checked against the registry of its prompt: a section the registry does not hold is the error `LINK_TARGET_UNKNOWN`; a link to a prompt no registry describes, a link whose status is `stale` and a link to a stale section are warnings. | off: links are checked for shape and block only |
 
 | Exit code | When |
 |---|---|
 | 0 | every spec is valid; warnings allowed without `--strict` |
 | 1 | a spec is invalid, no spec file was found, or a warning was printed with `--strict` |
-| 2 | usage error |
+| 2 | usage error, or a `--sections` file that is not a valid registry, or two registries for one prompt |
 
 ## Inputs
 
@@ -101,7 +105,7 @@ The path in a spec is dotted, counting from 0: `blocks.2.expect.tools.0.label` i
 | `BLOCK_STIMULUS_MISSING` | error | a block has none of `user`, `burst` and `when` |
 | `BLOCK_STIMULUS_AMBIGUOUS` | error | a block has more than one of `user`, `burst` and `when` |
 | `SCHEMA_*` | error | the schema refuses a value; the suffix is the zod issue code: such as `SCHEMA_UNRECOGNIZED_KEYS` (unknown key), `SCHEMA_INVALID_TYPE` (wrong type, or missing), `SCHEMA_INVALID_VALUE` (not an allowed option), `SCHEMA_INVALID_FORMAT` (pattern mismatch), `SCHEMA_TOO_SMALL` (a list or number under its minimum), `SCHEMA_INVALID_UNION` (a value that fits none of the allowed forms, with a hint), `SCHEMA_CUSTOM` (an unsupported JSON Schema keyword in `json.schema` or `metadata.tool_schemas`, or a length bound with no min and no max) |
-| `REGEX_INVALID` | error | a pattern in `must`, `must_not`, a `regex` assertion or a `knowledge_retention` `ask` does not compile |
+| `REGEX_INVALID` | error | a pattern in `must`, `must_not`, the `regex` list, a `regex` assertion (in a tool input, an end state or a `json` path) or a `knowledge_retention` `ask` does not compile |
 | `CRITERION_REF_INVALID` | error | a criterion reference is not a name, optionally followed by `@gating` |
 | `CRITERION_UNDEFINED` | error | the spec defines `criteria`, and a block names one that is not there |
 | `CRITERION_DUPLICATE` | error | two criteria share a name |
@@ -116,11 +120,35 @@ The path in a spec is dotted, counting from 0: `blocks.2.expect.tools.0.label` i
 | `RETENTION_FACT_UNKNOWN` | error | `knowledge_retention` names a fact no ledger holds before the block: not in `given.ledger`, nor in an earlier block's `ledger_add` |
 | `TOOL_FORBIDDEN_EXPECTED` | error | a block expects a tool that `rules.forbidden_tools` or `rules.max_calls: 0` forbids |
 | `GIVEN_ORIGIN_WITHOUT_PREFIX` | error | a block sets `given.origin` and writes no `given.prefix` |
+| `LINK_BLOCK_UNKNOWN` | error | a link in `metadata.links` names a block id the spec does not have, or an index past its last block |
+| `LINK_TARGET_UNKNOWN` | error or warning | `spec lint --sections` only: error when the registry of the prompt has no such section, warning when no registry was given for the prompt |
+| `LINK_STALE` | warning | `spec lint --sections` only: the link's status is `stale`, or its section could not be found again in the registry's version |
 | `CRITERION_UNRESOLVED` | warning | blocks name criteria and the spec defines none; they must come from a shared catalogue |
 | `BLOCK_NO_EXPECTATION` | warning | a block checks nothing |
 | `TASK_WITHOUT_OUTCOME` | warning | a task spec checks none of `artifacts`, `workspace`, `execution` and `end_state` |
 | `PERTURBATION_NO_RECOVERY` | warning | a perturbation has no `recovery`, so its recovery is not measured |
 | `PREFIX_PROSE_HISTORY` | warning | an assistant message of a prefix states a ledger fact that no recorded tool call of the prefix holds and the user never said, in a spec that names tools: the agent may call the tool again (see authoring-prefixes) |
+| `GIVEN_UNMET` | warning | the Given verifier found a Given error on a block (`tool_history_paired`, `tool_known`, `history_matches_world` or `value_in_message`, named first in the message). The runner does not send that block: it is `not_run` with kind `given_unmet` |
+| `GIVEN_CHAIN` | warning | a block's `ledger_add` contradicts the ledger it starts from (check `chain`) |
+| `GIVEN_SUMMARY_MISSING` | warning | with `--summaries` only: a workspace folder (`world.workspace.from`) or a named session state (`vars.session_state`) has no summary (check `summary_present`) |
+| `GIVEN_CANONICAL_UNPAIRED` | warning | a prefix whose `origin` is `canonical` holds a tool call with no output or error. Advice only: the block runs |
+
+### The Given verifier
+
+Topic authoring-given-checks explains each check with the keys it reads, a worked example and every message.
+
+A Given is a recipe: these checks are its predicate. Each runs only on the layers the spec writes. A finding is a warning of `spec lint`; the four Given errors also stop the block at run time, so a block whose Given is wrong is `not_run` (kind `given_unmet`, with the layer, the check, what was expected and what was found) instead of a pass or a fail of the agent.
+
+| Check | Layer | Holds when | At run time |
+|---|---|---|---|
+| `tool_history_paired` | 2 tool history | every tool call of a prefix carries an `output` or an `error`, and no call `id` repeats within one message. The same id in two assistant turns is accepted, as every wire accepts it | `not_run`; a warning only on a prefix whose `origin` is `canonical` |
+| `tool_known` | 2 tool history, 5 world | every tool a prefix calls or `world.tools` forces is a key of `metadata.tool_schemas`. Off when the spec declares no tool schemas | `not_run` |
+| `history_matches_world` | 2 tool history and 5 world | a recorded call of a tool the block's world forces records that forced result or error | `not_run` |
+| `value_in_message` | 4 beliefs | each `given.shared` entry said by `user` or `agent` names a fact the ledger holds, and its value is in message `in` of the history the block starts from (its own prefix, else the latest earlier one), a user message for `user` and an assistant message for `agent`, as whole tokens: case, spacing and punctuation aside, so `+1 202 555 0131` holds `+12025550131` and `went` does not hold `EN` | `not_run` |
+| `chain` | 4 beliefs | a block's `ledger_add` agrees with the ledger | warning only |
+| `summary_present` | 5 world | a workspace folder and a named session state carry a summary | warning only, with `--summaries` |
+
+A finding on a block's prefix or shared facts holds for the blocks that keep its history (in mode T, the later blocks with no prefix of their own; in modes F and P the conversation stops there). One on the world holds from its block on. "Earlier" and "later" follow the file order in a spec without parent links. When blocks link by `parent`, they follow the ancestors: a root starts at the spec defaults (the spec's own `given`, no history), a child starts from its parent's ledger, world and history, and a finding on one tree never reaches another. In a run, the block with the finding is `not_run`, its descendants are `blocked`, and the other trees run. After setup, the runner also reads back every file `world.workspace.files` writes, on an adapter with a sandbox: a file that does not read back as written makes the block `not_run` with kind `setup_failed`, check `world_digest`.
 
 ## Worked example
 
