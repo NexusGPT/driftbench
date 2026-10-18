@@ -87,6 +87,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Block links experiments](research/block-links.md): two pre-registered experiments on section links and per-root counting, with prompt mutation as ground truth.
 * [Simulated human experiments for blocks](research/block-simulated-users.md): three pre-registered experiments on simulated users, an agenda engine and uncovered production clusters.
 * [Block given experiments](research/block-given.md): three pre-registered experiments on the Given of a block: tool call records, context size and a Given verifier.
+* [Block parents experiments](research/block-parents.md): three pre-registered experiments on parent links, root counts, clustered intervals and isolation runs.
 
 ## What exists today
 
