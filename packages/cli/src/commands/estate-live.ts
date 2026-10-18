@@ -51,7 +51,7 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
     .argument('<map>', 'the approved estate map')
     .requiredOption('--atom <id>', 'the atom to mutate')
     .option('--delete', 'remove the quoted span from its file')
-    .option('--invert', 'replace the quote by its negation, by the fixed table of forms')
+    .option('--invert', "set a fixed sentence in front of the quote, chosen by the atom's declared polarity")
     .requiredOption(
       '--to <dir>',
       'the folder of the mutant estate (it receives the copy, map.yaml, mutant.json)',

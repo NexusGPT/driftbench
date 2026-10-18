@@ -25,7 +25,7 @@ import type { Atom, EstateMap } from '../schema';
  *
  * - delete: the quoted span is removed from its file. A line left holding only a list marker or a bold
  *   label goes with it, and so does a comma left dangling in a JSON file.
- * - invert: the quote is replaced by its negation, by a fixed table of forms (below). A quote that is not
+ * - invert: a fixed sentence keyed by the atom's polarity is set before the whole quote (below). A quote that is not
  *   a prose obligation (a JSON value, a name, a single word) is refused: delete it instead.
  *
  * The mutant's map is the original with the atom removed (delete) or its quote replaced (invert); the spans
@@ -142,11 +142,9 @@ export async function mutateEstate(
   let next: string;
   let replacement = '';
   if (kind === 'invert') {
-    const inverted = invertText(text.slice(from, to));
+    const inverted = invertText(text.slice(from, to), atom.fields?.polarity as string | undefined);
     if (inverted === undefined) {
-      throw new MutantError(
-        `${id}: the quote is not a prose obligation the table can invert; delete it instead`,
-      );
+      throw new MutantError(`${id}: the quote is not prose that can be inverted; delete it instead`);
     }
     replacement = inverted;
     next = text.slice(0, from) + replacement + text.slice(to);
@@ -428,48 +426,23 @@ function holderToCut(root: JsonRange, from: number, to: number): JsonRange | und
 }
 
 /**
- * The fixed table of forms an obligation inverts by. The first form that applies wins; a markdown prefix
- * (a list marker, a bold label) is kept as it is.
+ * The two fixed sentences an atom inverts by, keyed by its declared polarity and nothing else: the words of the
+ * quote are never read. The quote stays whole after the sentence; a markdown prefix (a list marker, a bold label)
+ * stays in front of it. An atom with no declared polarity is an obligation.
  *
- * | Form | Inverted |
+ * | Polarity | Inverted |
  * |---|---|
- * | Never X | Always X |
- * | Always X | Never X |
- * | Do not X, Don't X | X |
- * | ... must not ... | ... must ... |
- * | ... must ... | ... must not ... |
- * | When, If, Once, After, Before, Whenever C, X (or C: X) | the same C, then X inverted |
- * | X, an imperative sentence | Do not x |
+ * | obligation | Do not follow this rule: <quote> |
+ * | prohibition | This prohibition is lifted: <quote> |
  *
  * Undefined when the text is not prose: it starts with no letter, holds a single word, or is a `key: value` line.
  */
-export function invertText(text: string): string | undefined {
+export function invertText(text: string, polarity?: string): string | undefined {
   const prefix = /^(\s*(?:[-*+]\s+|\d+[.)]\s+)?(?:\*\*[^*]*\*\*\s*)?)/.exec(text)?.[1] ?? '';
   const body = text.slice(prefix.length);
   // Prose starts with a letter, holds more than one word and is no `key: value` line of a settings file.
-  if (!/^[A-Za-z]/.test(body) || !/\s/.test(body.trim()) || /^[\w-]+:\s/.test(body)) return undefined;
-  const inverted = invertClause(body, true);
-  return inverted === undefined ? undefined : prefix + inverted;
-}
-
-function invertClause(clause: string, sentence: boolean): string | undefined {
-  const cap = (value: string) => (sentence ? value.charAt(0).toUpperCase() + value.slice(1) : value);
-  let match = /^never\s+(.+)$/is.exec(clause);
-  if (match) return `${cap('always')} ${match[1]}`;
-  match = /^always\s+(.+)$/is.exec(clause);
-  if (match) return `${cap('never')} ${match[1]}`;
-  match = /^(?:do not|don't)\s+(.+)$/is.exec(clause);
-  if (match) return cap(match[1] ?? '');
-  if (/\bmust not\b/.test(clause)) return clause.replace(/\bmust not\b/, 'must');
-  if (/\bmust\b/.test(clause)) return clause.replace(/\bmust\b/, 'must not');
-  match = /^(when|if|once|after|before|whenever)\b([^,:]*)([,:])\s*(.+)$/is.exec(clause);
-  if (match) {
-    const rest = invertClause(match[4] ?? '', false);
-    return rest === undefined ? undefined : `${match[1]}${match[2]}${match[3]} ${rest}`;
-  }
-  if (!/^[A-Za-z]/.test(clause)) return undefined;
-  const lowered = clause.charAt(0).toLowerCase() + clause.slice(1);
-  return `${cap('do not')} ${lowered}`;
+  if (!/^\p{L}/u.test(body) || !/\s/.test(body.trim()) || /^[\w-]+:\s/.test(body)) return undefined;
+  return `${prefix}${polarity === 'prohibition' ? 'This prohibition is lifted: ' : 'Do not follow this rule: '}${body}`;
 }
 
 /** Runs `work` on every item, at most `limit` at a time. */

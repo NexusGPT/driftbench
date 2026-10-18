@@ -32,6 +32,7 @@ import {
 } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { planStream } from './agent.mjs';
+import { holds } from './held.mjs';
 
 const args = process.argv.slice(2);
 const cwd = process.cwd();
@@ -113,7 +114,7 @@ let played = manifest ? (entry ? 'recorded' : 'default') : 'estate';
 // Legacy protocol cases only. Default estate execution never reads a manifest or selects a recording.
 for (const rule of entry?.unless ?? []) {
   const text = readText(join(cwd, rule.file));
-  if (text === undefined || !text.includes(rule.quote)) {
+  if (text === undefined || !holds(text, rule.quote)) {
     streamFile = rule.stream;
     played = `unless ${rule.file}`;
     break;

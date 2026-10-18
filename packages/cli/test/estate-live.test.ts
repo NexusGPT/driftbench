@@ -69,7 +69,7 @@ describe('driftbench estate mutate', () => {
     const result = await run(['estate', 'mutate', MAP, '--atom', R7, '--invert', '--to', to, '--json']);
     expect(result.code).toBe(0);
     const record = JSON.parse(result.out);
-    expect(record.after).toContain('do not tell the user');
+    expect(record.after).toContain('Do not follow this rule: When a shipment is late');
   });
 
   it('refuses a missing or double mutation, an unknown atom, a quote it cannot invert, and an occupied folder', async () => {
