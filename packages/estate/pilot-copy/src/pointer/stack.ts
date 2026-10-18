@@ -145,7 +145,61 @@ function stacked(
   system2: Labeler,
   bounds: { passAt: number; failAt: number; marginCut?: number },
 ): Labelling {
-  throw new Error('not implemented: stacked');
+  const { passAt, failAt, marginCut } = bounds;
+  const byMargin = marginCut !== undefined;
+  const decision = (by: LabelerClass, opinion: Opinion, sources: string[], fallback = false): Decision => ({
+    label: opinion.label,
+    ...(opinion.target === undefined ? {} : { target: opinion.target }),
+    by,
+    sources,
+    ...(fallback ? { fallback: true as const } : {}),
+  });
+  /** What system 1 decides alone: a label from its extreme probability or margin, or none; else nothing. */
+  const sure = (opinion: Opinion, set: LabelSet): { label: string } | undefined => {
+    const probabilities = opinion.probabilities;
+    if (!probabilities) return undefined;
+    // A unit whose label asks for a target was never asked of system 1: it cannot be called none from here.
+    const noneAllowed = !set.labels.some((entry) => entry.target === 'required');
+    if (byMargin) {
+      const read = margin(probabilities);
+      if (!read || read.margin < marginCut) return undefined;
+      return read.label === 'none' && !noneAllowed ? undefined : { label: read.label };
+    }
+    const asked = Object.entries(probabilities).filter(([name]) => name !== 'none');
+    let top: [string, number] | undefined;
+    for (const entry of asked) if (!top || entry[1] > top[1]) top = entry;
+    if (top && top[1] >= passAt) return { label: top[0] };
+    if (noneAllowed && asked.every(([, p]) => p < failAt)) return { label: 'none' };
+    return undefined;
+  };
+  return {
+    members: [system1, system2],
+    hash: sha(
+      canonical({
+        members: [describeMember(system1), describeMember(system2)],
+        ...(byMargin ? { rule: 'margin', marginCut } : { rule: 'cascade', passAt, failAt }),
+      }),
+    ).slice(0, 16),
+    describe: `${label(system1)}, then ${label(system2)}`,
+    decide(opinions, set) {
+      const [first, second] = opinions;
+      if (!first && !second) return undefined;
+      if (!first && second) return decision('system2', second, sourcesOf(second), true);
+      if (!first) return undefined;
+      // A label that system 1 never asked (one that needs a target, or none of the set) is system 2's to give.
+      const owned =
+        second !== undefined &&
+        second.label !== 'none' &&
+        !set.labels.some((entry) => entry.name === second.label && entry.target !== 'required');
+      if (second && owned) return decision('system2', second, sourcesOf(first, second));
+      const called = sure(first, set);
+      if (called) {
+        return decision('system1', { ...first, label: called.label }, sourcesOf(first), second === undefined);
+      }
+      if (second) return decision('system2', second, sourcesOf(first, second));
+      return undefined;
+    },
+  };
 }
 
 function describeMember(member: Labeler): Record<string, unknown> {
