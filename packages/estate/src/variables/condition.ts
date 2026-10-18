@@ -1,3 +1,4 @@
+import { INVARIANT_LIMITS, type InvariantLimit } from '../scan/invariants';
 import type { Atom } from '../schema';
 
 /**
@@ -7,23 +8,16 @@ import type { Atom } from '../schema';
  * - `fields.condition`, in the shape of a store boundary: `{ limit, comparison, unit? }`, where the comparison
  *   is `lt`, `le`, `gt` or `ge` and says how the quantity is compared with the limit for the condition to hold.
  *   A reader that finds a number (a structured file, or the labels of the pointer reader) writes it there;
- * - the limits an estate check measures, listed in `STRUCTURED_LIMITS`: the invariant `standing_size` carries
- *   the `ceiling` of the standing instructions, in characters, and the check fails above it.
+ * - the limit an invariant check measures: an invariant atom whose `fields.check` is declared in
+ *   `INVARIANT_LIMITS` (beside the checks, in the scan) carries its limit in the field the declaration names,
+ *   and the declaration gives the comparison and the unit. The feed names no check: a check that measures a
+ *   limit declares it, and every such invariant gives a condition.
  */
 
 export type Comparison = 'lt' | 'le' | 'gt' | 'ge';
 export type Condition = { limit: number; comparison: Comparison; unit?: string };
 
 const COMPARISONS: ReadonlySet<string> = new Set(['lt', 'le', 'gt', 'ge']);
-
-/** The limits the estate itself measures: the kind and the check of the atom, the field that holds the limit. */
-const STRUCTURED_LIMITS: ReadonlyArray<{
-  kind: Atom['kind'];
-  check: string;
-  limit: string;
-  comparison: Comparison;
-  unit: string;
-}> = [{ kind: 'invariant', check: 'standing_size', limit: 'ceiling', comparison: 'le', unit: 'characters' }];
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -40,20 +34,23 @@ function declared(value: unknown): Condition | undefined {
 }
 
 /** The condition of an atom, with a base for its variable id, or undefined when its fields hold none. */
-export function conditionOf(atom: Atom): (Condition & { base: string }) | undefined {
+export function conditionOf(
+  atom: Atom,
+  limits: readonly InvariantLimit[] = INVARIANT_LIMITS,
+): (Condition & { base: string }) | undefined {
   const fields = atom.fields ?? {};
   const own = declared(fields.condition);
   if (own !== undefined) return { ...own, base: atom.id };
-  for (const rule of STRUCTURED_LIMITS) {
-    const limit = fields[rule.limit];
-    if (
-      atom.kind === rule.kind &&
-      fields.check === rule.check &&
-      typeof limit === 'number' &&
-      Number.isFinite(limit)
-    ) {
-      return { limit, comparison: rule.comparison, unit: rule.unit, base: rule.check };
-    }
+  if (atom.kind !== 'invariant') return undefined;
+  const rule = limits.find((candidate) => candidate.check === fields.check);
+  const limit = rule === undefined ? undefined : fields[rule.limit];
+  if (rule !== undefined && typeof limit === 'number' && Number.isFinite(limit)) {
+    return {
+      limit,
+      comparison: rule.comparison,
+      ...(rule.unit === undefined ? {} : { unit: rule.unit }),
+      base: rule.check,
+    };
   }
   return undefined;
 }

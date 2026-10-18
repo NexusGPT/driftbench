@@ -1,5 +1,6 @@
 import type { QuoteProvenance, StructureProvenance, VariableStore } from '@agent-nexus/driftbench-space';
 import { TARGET_KINDS } from '../map/space';
+import type { InvariantLimit } from '../scan/invariants';
 import type { Atom, EstateMap } from '../schema';
 import { type Condition, conditionOf } from './condition';
 import type { ProvenanceResolver } from './provenance';
@@ -28,6 +29,8 @@ export type EstateVariablesOptions = {
   version?: string;
   /** Keep only approved atoms. Default false: the store keeps every atom with its own `approved` flag. */
   approvedOnly?: boolean;
+  /** The limits invariant checks declare. Default: the declarations of the estate checks (`INVARIANT_LIMITS`). */
+  limits?: readonly InvariantLimit[];
 };
 
 /** An atom the feed would not turn into a value, and the variable it was meant for. */
@@ -153,7 +156,7 @@ export function estateToVariables(
   const conditions: Variable[] = [];
   const taken = new Set<string>();
   for (const atom of atoms) {
-    const condition = conditionOf(atom);
+    const condition = conditionOf(atom, options.limits);
     if (condition === undefined) continue;
     let id = `condition.${slug(condition.base)}`;
     for (let n = 2; taken.has(id); n++) id = `condition.${slug(condition.base)}_${n}`;

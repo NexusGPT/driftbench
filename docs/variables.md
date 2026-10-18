@@ -253,12 +253,12 @@ An atom is refused, named in `refused` with the reason, and left out of the stor
 **Where a condition comes from.** A numeric condition comes from a structured field and from nowhere else. The feed matches no word of a situation or a quote, so "late by more than two days" in prose makes no condition. Two fields give one:
 
 * `fields.condition` on an atom, in the shape of a store boundary: `{ limit, comparison, unit? }`, where `comparison` is `lt`, `le`, `gt` or `ge`. A reader that finds a number in a structured file, or the labels of the pointer reader, writes it there. Anything else in the field (another comparison, a string for the limit, an extra key) makes no condition.
-* The limits the estate itself measures, listed in the feed: the invariant `standing_size` carries the `ceiling` of the standing instructions, and the check fails above it, so it gives `comparison: le` and `unit: characters`.
+* The limit an invariant check measures. A check that measures a number declares it beside the check (`INVARIANT_LIMITS` in the estate scan): the check, the field of its atom that holds the limit, the comparison and the unit. The feed takes a limit from every invariant whose check is declared, and names no check itself. Today one check declares a limit: `standing_size`, whose `ceiling` caps the standing instructions in characters (`le`, `characters`). A check that measures a new limit adds its row.
 
 **What the feed leaves out, and how it names things.**
 
 * The fixed situation axes of every estate (`ask_class`, `session_state` and the others in the estate map) name no source, so they are not in the feed. They come from a space map (`spaceMapToVariables`) and are merged beside it, as the Northwind example does.
-* A variable's id is a slug: `atoms.<kind>`, `details.<kind>`, and `condition.<slug of the atom id>` (the check name for a measured limit, `condition.standing_size`). A second atom with the same slug gets `_2`, `_3`. The values of a condition are `above_N`, `at_N` and `below_N`, with N the limit as written.
+* A variable's id is a slug: `atoms.<kind>`, `details.<kind>`, and `condition.<slug of the atom id>` (the check id for a measured limit, such as `condition.standing_size`). A second atom with the same slug gets `_2`, `_3`. The values of a condition are `above_N`, `at_N` and `below_N`, with N the limit as written.
 
 The result depends on the map and the files only: `renderVariableStore` writes the same bytes for the same estate. The three invented estates of `examples/estates` have their stores beside their maps: `fixture/variables.yaml`, `fixture-v2/variables.yaml` and `reader-cases/variables.yaml`. Each validates, every provenance entry resolves in its file, and no atom is refused. Each holds one condition, the size ceiling.
 
