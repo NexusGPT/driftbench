@@ -93,7 +93,10 @@ advisory.
   and 12 of 26 local sections had no killing mutant. Rephrase is optional for that reason.
 * On a live rerun of that suite, the gate scored on the links the H7 run verified fails: 4 of 110 mutants
   kill a block their selection leaves out (2 single-section, 2 of 20 new two-section mutants), an upper
-  bound of 9.0%. Section selection on that suite stays advisory.
+  bound of 9.0%. Section selection on that suite stays advisory. Scoring that rerun writes the two
+  single-section misses in as 4 verified links (`upgrade_identify` to ly1, ly2 and ly3,
+  `new_customer_details` to p1). The two pair misses, both on p1, move no link and stay known gaps. Links
+  that rerun verified need a later run before the gate can be scored again.
 
 ## Commands and every option
 

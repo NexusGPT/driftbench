@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ChangeManifest } from '../../src/radius/change';
-import { analyseMutation, type MutationAnalysis } from '../../src/radius/mutation-analysis';
+import { analyseMutation, type MutationAnalysis, promoteLinks } from '../../src/radius/mutation-analysis';
 import { radiusOf } from '../../src/radius/radius';
 import { SECTION_SELECTION_ADVISORY, sectionSelection } from '../../src/radius/select';
 import { checkSelectionGate, selectionGate, verifiedOnly } from '../../src/radius/selection-gate';
@@ -107,6 +107,33 @@ describe('the verified-link gate on the live rerun of the H7 suite', () => {
       ['upgrade-loose-yes#ly1', 'upgrade-loose-yes#ly2', 'upgrade-loose-yes#ly3'],
       ['porting-ok#p1'],
     ]);
+  });
+
+  it('writes the single-section misses in as verified links; the pair misses stay known gaps', () => {
+    const promotion = promoteLinks(
+      promotedSpecs('h7').map((entry) => entry.spec),
+      live,
+      registry,
+    );
+    const moved = (block: string, section: string) =>
+      promotion.changes
+        .filter((change) => change.block === block && change.section === section)
+        .map((change) => [change.from, change.to]);
+    expect(moved('ly1', 'upgrade_identify')).toEqual([['refuted', 'verified']]);
+    expect(moved('ly2', 'upgrade_identify')).toEqual([[null, 'verified']]);
+    expect(moved('ly3', 'upgrade_identify')).toEqual([[null, 'verified']]);
+    expect(moved('p1', 'new_customer_details')).toEqual([[null, 'verified']]);
+    // p1 flips under two pairs and under no single-section mutant of their sections: a pair moves no link.
+    for (const section of ['explicit_confirm', 'home_address_first', 'recap'])
+      expect(moved('p1', section)).toEqual([]);
+    // Links verified by this run cannot be scored on it: the gate needs a later run, so selection stays advisory.
+    const written = promotedSpecs('h7').map((entry, at) => ({
+      ...entry,
+      spec: { ...entry.spec, metadata: { links: promotion.links[at]?.links ?? [] } },
+    }));
+    const again = selectionGate(written, registry, live);
+    expect(again.pass).toBe(false);
+    expect(again.reason).toContain('verified by this same run');
   });
 
   it('keeps section selection advisory: the radius of a section change is the whole suite', () => {
