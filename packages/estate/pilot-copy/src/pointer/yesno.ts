@@ -38,7 +38,18 @@ export function yesNoText(window: Window): string {
  * system 2 labeler.
  */
 export function askedLabels(set: LabelSet, skipTargetLabels: boolean): readonly Label[] {
-  throw new Error('not implemented: askedLabels');
+  const withTarget = set.labels.filter((label) => label.target === 'required');
+  if (withTarget.length === 0) return set.labels;
+  if (skipTargetLabels) {
+    const rest = set.labels.filter((label) => label.target !== 'required');
+    if (rest.length > 0) return rest;
+    throw new LabelerConfigError(
+      `a yes or no labeler has nothing to ask in the set ${set.set}: every label asks for a target`,
+    );
+  }
+  throw new LabelerConfigError(
+    `a yes or no labeler cannot ask the label ${withTarget[0]?.name} of the set ${set.set}: a probability names no other unit`,
+  );
 }
 
 /** The questions of a window, as [key, text] pairs in unit then label order. */
@@ -60,7 +71,30 @@ export function yesNoOpinions(
   asked: readonly Label[],
   threshold: number,
 ): Opinions {
-  throw new Error('not implemented: yesNoOpinions');
+  const byUnit = new Map<number, Opinion>();
+  const refusals: string[] = [];
+  if (asked.length === 0) return { byUnit, refusals };
+  const given = answer.probabilities ?? {};
+  for (const unit of window.units) {
+    const probabilities: Record<string, number> = {};
+    let missing: string | undefined;
+    for (const label of asked) {
+      const p = given[questionKey(unit.n, label.name)];
+      if (typeof p === 'number') probabilities[label.name] = p;
+      else missing ??= label.name;
+    }
+    if (missing !== undefined) {
+      refusals.push(`${window.id} unit ${unit.n}: no answer for the label ${missing}, so the unit has no opinion`);
+      continue;
+    }
+    let best: string | undefined;
+    for (const label of asked) {
+      const p = probabilities[label.name] as number;
+      if (p >= threshold && (best === undefined || p > (probabilities[best] as number))) best = label.name;
+    }
+    byUnit.set(unit.index, { label: best ?? 'none', probabilities });
+  }
+  return { byUnit, refusals };
 }
 
 /** The probabilities in a list of answers by name; a refusal or a figure outside 0 to 1 is left out. */
