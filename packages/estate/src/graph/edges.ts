@@ -187,7 +187,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
         for (const rule of withLabel(label)) take(rule, 'id');
       }
       for (const literal of literals(script.text)) {
-        for (const rule of rules) if (repeats(rule.provenance.quote, literal)) take(rule, 'quote');
+        for (const rule of rules) if (repeats(rule, literal)) take(rule, 'quote');
       }
     }
     for (const entry of found) add(guard.id, entry.atom, 'enforces');
@@ -205,26 +205,20 @@ function holds(quote: string, passage: string): boolean {
   return a.includes(b) || b.includes(a);
 }
 
-/** A clause that sets when a rule applies: from its lead word to the next comma, colon or semicolon. */
-const CONDITION = /\b(?:when|whenever|if|unless|once|after|before|until|while|as soon as|in case)\b[^,:;]*/g;
-
 /**
  * Whether a string of a guard's source repeats a rule. A registry row declares what it enforces, so any
  * passage it quotes counts (`holds`); a string in the source is only circumstantial, so a part of the rule
- * counts only when it reaches past the rule's condition. A message that quotes the condition alone ("the user
- * asks to stop" of "When the user asks to stop, stop all work") repeats when the rule applies, not the rule.
+ * counts only when it reaches past the situation the rule declares. A message that quotes the situation alone
+ * ("the user asks to stop" for the rule "When the user asks to stop, stop all work") repeats when the rule
+ * applies, not the rule. The situation is the one the reader or the model gave the atom: no word is read.
  */
-function repeats(quote: string, literal: string): boolean {
-  if (!holds(quote, literal)) return false;
-  const rule = plain(quote);
+function repeats(rule: Atom, literal: string): boolean {
+  if (!holds(rule.provenance.quote, literal)) return false;
+  const quote = plain(rule.provenance.quote);
   const part = plain(literal);
-  const at = rule.indexOf(part);
-  if (part.length >= rule.length || at < 0) return true;
-  for (const condition of rule.matchAll(CONDITION)) {
-    const start = condition.index ?? 0;
-    if (at >= start && at + part.length <= start + condition[0].length) return false;
-  }
-  return true;
+  if (part.length >= quote.length || !quote.includes(part)) return true;
+  const situation = plain(rule.situation ?? '');
+  return situation === '' || !situation.includes(part);
 }
 
 /** Identifier-bearing entity classes, independent of a particular estate's subject domain. */
