@@ -87,6 +87,80 @@ export function fillShape(shape: string, pieces: readonly string[]): string | un
   return parts.reduce((text, part, index) => `${text}${pieces[index - 1] ?? ''}${part}`);
 }
 
+/** The frames that print a background sentence after the act; every other frame shows none. */
+export const BACKGROUND_FRAMES: ReadonlySet<string> = new Set([
+  'trigger',
+  'twin',
+  'pressure',
+  ...TRIGGER_VARIANTS.map((_, index) => variantFrame(index + 1)),
+]);
+
+/** The shapes of an act that names a topic or a piece of work from the text of a rule, a route or a unit. */
+const TOPIC_SHAPES: readonly string[] = [
+  SLOT,
+  `help me with ${SLOT}`,
+  `help with ${SLOT}`,
+  `have a helper agent ${SLOT}`,
+  `have a helper agent help with ${SLOT}`,
+];
+
+/** The shapes of an act a guard or a tool rule gives: a tool use, a command, a prompt phrase, a breach. */
+const GUARD_SHAPES: readonly string[] = [
+  SLOT,
+  `help me with ${SLOT}`,
+  `${SLOT} without the required prerequisite`,
+  `use the ${SLOT} tool on the files here`,
+  `use the ${SLOT} tool on a file under ${SLOT}`,
+  `run ${SLOT} in the shell here`,
+  `say "${SLOT}"`,
+  ...ACT_SHAPES.filter((shape) => TOOL_PHRASES.some((phrase) => shape.startsWith(phrase))),
+];
+
+const HAZARD_SHAPES: readonly string[] = [HAZARD_FRAME, `${HAZARD_FRAME}, after ${SLOT}`];
+
+const TRIGGER_FRAMES: readonly string[] = ['trigger', ...TRIGGER_VARIANTS.map((_, i) => variantFrame(i + 1))];
+
+/**
+ * The frames and act shapes a code-written ask may use in each test type. A test type that asks for the work
+ * (trigger) uses the trigger frame or one of its variants; a pressure type the pressure frame; a control its
+ * own: a near miss of a route, a misroute, a near act of a guard. `twin` writes the twin frame. A check
+ * reads this table to refuse a frame or a shape that belongs to another kind of test. A test type that never
+ * writes an ask by code has empty lists.
+ */
+export const ASK_PARTS_BY_TEST_TYPE: Readonly<
+  Record<string, { frames: readonly string[]; shapes: readonly string[] }>
+> = {
+  obligation: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  twin: { frames: ['twin', ...TRIGGER_FRAMES.slice(1)], shapes: TOPIC_SHAPES },
+  ordered_pair: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  route_positive: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  read_when: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  script_fixture: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  dispatch: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  contract_alone: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  stop_resume: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  stage_order: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  stage_anytime: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  register_sample: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  journey: { frames: TRIGGER_FRAMES, shapes: TOPIC_SHAPES },
+  hazard_recovery: { frames: TRIGGER_FRAMES, shapes: HAZARD_SHAPES },
+  tool_boundary: { frames: TRIGGER_FRAMES, shapes: [...TOPIC_SHAPES, ...GUARD_SHAPES] },
+  tool_denied: { frames: TRIGGER_FRAMES, shapes: [...TOPIC_SHAPES, ...GUARD_SHAPES] },
+  tool_deferred: { frames: TRIGGER_FRAMES, shapes: [...TOPIC_SHAPES, ...GUARD_SHAPES] },
+  guard_positive: { frames: [...TRIGGER_FRAMES, VERBATIM], shapes: GUARD_SHAPES },
+  guard_hostile: { frames: TRIGGER_FRAMES, shapes: GUARD_SHAPES },
+  guard_speed: { frames: TRIGGER_FRAMES, shapes: GUARD_SHAPES },
+  guard_register: { frames: TRIGGER_FRAMES, shapes: GUARD_SHAPES },
+  guard_negative: { frames: ['guard_near_act', 'guard_near_situation'], shapes: GUARD_SHAPES },
+  skip_pressure: { frames: ['pressure'], shapes: TOPIC_SHAPES },
+  stage_skip: { frames: ['pressure'], shapes: TOPIC_SHAPES },
+  route_near_miss: { frames: ['near_miss'], shapes: TOPIC_SHAPES },
+  misroute: { frames: ['misroute'], shapes: TOPIC_SHAPES },
+  outside_trigger: { frames: [], shapes: [] },
+  invariant: { frames: [], shapes: [] },
+  setting: { frames: [], shapes: [] },
+};
+
 const upperFirst = (text: string): string => `${text.slice(0, 1).toUpperCase()}${text.slice(1)}`;
 
 /**

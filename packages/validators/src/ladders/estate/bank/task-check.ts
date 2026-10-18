@@ -2,6 +2,8 @@ import type { Observed } from '@agent-nexus/driftbench-core';
 import type { Atom } from '@agent-nexus/driftbench-estate';
 import {
   ASK_FORMS,
+  ASK_PARTS_BY_TEST_TYPE,
+  BACKGROUND_FRAMES,
   OUTSIDE_ASK,
   RESUME_ASK,
   renderAsk,
@@ -141,6 +143,7 @@ function pieceReasons(
   ask: string,
   atomIds: readonly string[],
   env: AskEnv,
+  testType: string,
 ): string[] {
   const text = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined);
   const frame = text(from.frame);
@@ -154,6 +157,15 @@ function pieceReasons(
   if (rebuilt === undefined) return [`the frame ${frame} and the shape ${shape} are not the generator's`];
   if (rebuilt !== ask) return ['the ask is not what its frame, shapes and pieces give'];
   const reasons: string[] = [];
+  // The frame and the act shape belong to the kind of test: a near miss is no frame of a positive test.
+  const allowed = ASK_PARTS_BY_TEST_TYPE[testType];
+  if (!allowed) reasons.push(`the test type ${testType} declares no frame for a code-written ask`);
+  else {
+    if (!allowed.frames.includes(frame)) reasons.push(`the frame ${frame} is no frame of a ${testType} test`);
+    if (!allowed.shapes.includes(shape)) reasons.push(`the shape ${shape} is no shape of a ${testType} test`);
+    if (context !== undefined && !BACKGROUND_FRAMES.has(frame))
+      reasons.push(`the frame ${frame} prints no background sentence`);
+  }
   const tools =
     typeof cited.fields?.matcher === 'string'
       ? cited.fields.matcher
@@ -264,7 +276,7 @@ export function checkAsk(spec: SuiteSpec, env: AskEnv): AskVerdict {
       reasons.push(`the field ${String(from.field)} is no field of the form ${from.form}`);
     else if (from.fp !== cited.provenance.hash)
       reasons.push(`the fingerprint of ${cited.id} is not the map's`);
-    else reasons.push(...pieceReasons(from, cited, ask, atomIds, env));
+    else reasons.push(...pieceReasons(from, cited, ask, atomIds, env, spec.testType));
   } else reasons.push('the source of the ask is none of bank, session, neutral or form');
 
   // C3, last part: an ask never restates a rule of the estate.
