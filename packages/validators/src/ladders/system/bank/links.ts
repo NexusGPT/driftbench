@@ -296,9 +296,12 @@ function localizeForest(): Draft[] {
                 };
               }),
             );
+            // A block whose forest ancestor fails is blocked: no measurement, so no row of the reference.
+            const failing = failingKeys(suite, plant);
+            const measured = rows.filter((row) => !row.ancestors.some((ancestor) => failing.has(ancestor)));
             const broken = plantHolds(suite, runs, plant);
             if (broken) return fail(`the plant did not hold: ${broken}`);
-            const diff = localizeDifference(suite, runs, plant, 'F', 'grouped', undefined, rows);
+            const diff = localizeDifference(suite, runs, plant, 'F', 'grouped', undefined, measured);
             return diff ? fail(`${cls}, forest ${shape}: ${diff}`) : PASS;
           },
         ),
