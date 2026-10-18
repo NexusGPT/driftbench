@@ -46,6 +46,10 @@ it 91.3% (normal quantile) to 93.1% (Student t quantile); the hierarchical inter
 400 suites each). So the suite headline, and any result you publish, uses the hierarchical interval; a rate
 of one conversation or one block, and interactive output, use Wilson on `n_eff`. The headline needs at least
 two goldens: one golden has no spread to measure and prints no interval.
+When the blocks of a spec name a `parent`, the tree is the family (the root and all its descendants), not the
+golden or each child: the family gives one outcome per repeat, which fails when one of its measured blocks fails.
+On simulated suites of families that move together this held the true rate 95.8% of the time; reading every child
+as a tree held it 84.2%.
 
 **The suite headline** (`report`, per mode): the mean over goldens with its interval, then `n_eff` (the runs
 the clustering is worth), the design effect, the smallest drop two suites like it detect at 80% power, and
