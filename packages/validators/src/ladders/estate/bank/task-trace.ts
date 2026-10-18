@@ -8,13 +8,16 @@ import { REPO } from './bench';
 import { FAKE, FIXTURE, JUDGE, STATES } from './fixture-suite';
 
 /**
- * The first block of each spec, run on the fixture's fake agent in its original estate, as the trace the run
- * recorded: the tool calls, the guards that fired, the skills and the helpers loaded. Specs are run in small
+ * The first block of each spec, run on the fixture's fake agent in its original estate (given the estate's approved
+ * map and phrase bank, which its dispatch reads), as the trace the run recorded: the tool calls, the guards that fired, the skills and the helpers loaded. Specs are run in small
  * batches, each in its own store, so a long list never holds the disk or one process for long.
  */
 const BATCH = 20;
 
-export async function observeOnFake(paths: readonly string[]): Promise<Map<string, Observed>> {
+export async function observeOnFake(
+  paths: readonly string[],
+  options: { phrases?: string } = {},
+): Promise<Map<string, Observed>> {
   const out = new Map<string, Observed>();
   if (paths.length === 0) return out;
   const work = await mkdtemp(join(tmpdir(), 'astra-askwords-observe-'));
@@ -45,6 +48,10 @@ export async function observeOnFake(paths: readonly string[]): Promise<Map<strin
           JUDGE,
           '--map',
           join(FIXTURE, 'approved.yaml'),
+          '--set-env',
+          `FAKE_MAP=${join(FIXTURE, 'approved.yaml')}`,
+          '--set-env',
+          `FAKE_PHRASES=${options.phrases ?? join(FIXTURE, 'phrases.yaml')}`,
           '--json',
         ],
         { cwd: REPO, encoding: 'utf8', timeout: 900_000, maxBuffer: 200_000_000 },

@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -109,7 +110,7 @@ const roots: string[] = [];
 afterEach(async () => {
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true });
 });
-async function play(ask: string, standing = '', skillBody?: string) {
+async function play(ask: string, standing = '', skillBody?: string, declared = false) {
   const cwd = await mkdtemp(join(tmpdir(), 'astra-askwords-reply-act-'));
   roots.push(cwd);
   await mkdir(join(cwd, '.claude'), { recursive: true });
@@ -127,9 +128,37 @@ ${skillBody}
 `,
     );
   }
+  // The estate's map, when the ask is one it declares: a route that names the skill.
+  const map = join(cwd, 'fake-map.json');
+  if (declared)
+    await writeFile(
+      map,
+      JSON.stringify({
+        atoms: [
+          {
+            id: 'route.harbour',
+            kind: 'route',
+            provenance: {
+              file: '.claude/skills/harbour/SKILL.md',
+              quote: 'description: Review harbour vessel papers.',
+              startLine: 3,
+              endLine: 3,
+              hash: createHash('sha256')
+                .update('.claude/skills/harbour/SKILL.md\n3-3\ndescription: Review harbour vessel papers.')
+                .digest('hex'),
+            },
+            fields: { target: 'harbour', targetKind: 'skill', ask },
+          },
+        ],
+      }),
+    );
   const output = execFileSync(process.execPath, [fake, '-p', ask], {
     cwd,
-    env: { PATH: process.env.PATH, CLAUDE_CONFIG_DIR: join(cwd, 'config') },
+    env: {
+      PATH: process.env.PATH,
+      ...(declared ? { FAKE_MAP: map } : {}),
+      CLAUDE_CONFIG_DIR: join(cwd, 'config'),
+    },
     encoding: 'utf8',
     timeout: 10000,
   });
@@ -144,6 +173,7 @@ describe('fictional fake emits the act of its actual reply branch', () => {
       'Review harbour vessel papers.',
       '',
       'Read `policy.md` before applying any policy line.',
+      true,
     );
     expect(session.blocks[0]?.observed.text).toContain('actions cannot be resolved');
     expect(session.blocks[0]?.observed.replyAct?.id).toBe('report');
@@ -156,15 +186,16 @@ describe('fictional fake emits the act of its actual reply branch', () => {
     const saved = await readFile(join(projects, folders[0] ?? '', `${parsed.sessionId}.jsonl`), 'utf8');
     const session = mapSession({ transcript: parseJsonl(saved) });
     expect(session.blocks[0]?.observed.replyAct).toMatchObject({
-      id: 'report',
+      id: 'answer',
       source: { kind: 'adapter', name: 'driftbench-fictional-agent' },
     });
   });
 
   it.each([
-    ['Berthify the vessel.', '', 'report'],
-    ['Draft a vessel report.', '', 'report'],
-    ['Ask for the missing vessel identifier.', '', 'report'],
+    // An ask the map and the bank do not know sets nothing off: the fake answers it and does nothing.
+    ['Berthify the vessel.', '', 'answer'],
+    ['Draft a vessel report.', '', 'answer'],
+    ['Ask for the missing vessel identifier.', '', 'answer'],
     ['What kinds of things can you help with?', '', 'answer'],
     ['Read `missing.md`.', '', 'report'],
     ['Read `private.md`.', 'Never read `private.md`.', 'report'],

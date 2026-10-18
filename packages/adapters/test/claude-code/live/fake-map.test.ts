@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -11,6 +12,10 @@ import { ESTATE, FAKE } from './support';
  * the fictional Northwind fixture.
  */
 
+// The adapters package keeps no YAML reader; the generate package of the workspace does.
+const { parse } = createRequire(join(ESTATE, '../../../packages/generate/package.json'))('yaml') as {
+  parse: (text: string) => unknown;
+};
 const MAP = join(ESTATE, 'approved.yaml');
 const PHRASES = join(ESTATE, 'phrases.yaml');
 
@@ -202,6 +207,57 @@ describe('what the copy says still decides', () => {
       standing.replace('stop all work and confirm in one line', 'carry on'),
     );
     expect(play(dir, ask).replyAct).toMatchObject({ id: 'answer' });
+  });
+
+  it('drops an atom when its quote is edited by one character, inverted or deleted', async () => {
+    const ask = 'Stop, that is enough for now.';
+    const quote = 'stop all work and confirm in one line';
+    for (const change of [
+      (text: string) => text.replace(quote, 'stop all work and confirm in one lin'),
+      (text: string) => text.replace(quote, 'never stop and never confirm'),
+      (text: string) => text.replace(/^.*stop all work and confirm in one line.*$/m, ''),
+    ]) {
+      const dir = await copyOfEstate();
+      expect(play(dir, ask).replyAct).toMatchObject({ id: 'acknowledge' });
+      const standing = await readFile(join(dir, 'CLAUDE.md'), 'utf8');
+      await writeFile(join(dir, 'CLAUDE.md'), change(standing));
+      expect(play(dir, ask).replyAct).toMatchObject({ id: 'answer' });
+    }
+  });
+
+  it('does not trust a map whose atom no longer matches its own provenance hash', async () => {
+    const dir = await copyOfEstate();
+    const ask = 'Stop, that is enough for now.';
+    const map = parse(await readFile(MAP, 'utf8')) as { atoms: Row[] };
+    const tampered = join(dir, 'tampered-map.json');
+    // The atom keeps its quote, and the copy holds it; its hash no longer recomputes from file, span and quote.
+    for (const atom of map.atoms) if (atom.replyAct) atom.provenance.hash = '0'.repeat(64);
+    await writeFile(tampered, JSON.stringify(map));
+    expect(play(dir, ask, { FAKE_MAP: tampered, FAKE_PHRASES: PHRASES }).replyAct).toMatchObject({
+      id: 'answer',
+    });
+    expect(play(dir, ask).replyAct).toMatchObject({ id: 'acknowledge' });
+  });
+
+  it('keeps an atom whose quote the map folded across the lines of a wrapped paragraph', async () => {
+    const dir = await copyOfEstate();
+    const wrapped = join(dir, 'wrapped-map.json');
+    const text = await readFile(join(dir, 'CLAUDE.md'), 'utf8');
+    const map = parse(await readFile(MAP, 'utf8')) as { atoms: Row[] };
+    const folded = map.atoms.find((atom) => atom.id === 'instruction.standing.on-stop-stop-all-work-and');
+    const quote: string = folded?.provenance.quote;
+    // The copy wraps the quoted sentence after its fourth word; the quote still reads as one line.
+    const words = quote.split(' ');
+    await writeFile(
+      join(dir, 'CLAUDE.md'),
+      text.replace(quote, `${words.slice(0, 4).join(' ')}\n${words.slice(4).join(' ')}`),
+    );
+    await writeFile(wrapped, JSON.stringify(map));
+    expect(
+      play(dir, 'Stop, that is enough for now.', { FAKE_MAP: wrapped, FAKE_PHRASES: PHRASES }).replyAct,
+    ).toMatchObject({
+      id: 'acknowledge',
+    });
   });
 
   it('loads a unit only while its file is in the copy', async () => {

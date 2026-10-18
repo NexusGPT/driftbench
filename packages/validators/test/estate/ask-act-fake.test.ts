@@ -89,7 +89,25 @@ it('uses actual fake traces for an unlisted helper verb, a wrong act, and the re
         spec: loaded.spec,
       });
     }
-    const traces = await observeOnFake(specs.map((spec) => spec.path));
+    // The fake is handed the phrases the estate approves. The two wrong asks are not among them: a phrase that does
+    // not make its act must leave the fake without that act, whatever a bank claims for it.
+    const listed = cases.filter((entry) => entry.pass || entry.id === 'guard-recording-gap');
+    const phrases = join(scratch, 'phrases.yaml');
+    await writeFile(
+      phrases,
+      stringify({
+        situations: listed.map((entry) => ({
+          id: entry.id,
+          use: 'trigger',
+          atoms: [entry.unit.id],
+          phrases: [{ text: entry.ask, lang: 'en', approved: true }],
+        })),
+      }),
+    );
+    const traces = await observeOnFake(
+      specs.map((spec) => spec.path),
+      { phrases },
+    );
     for (const [index, spec] of specs.entries()) {
       const verdict = checkAsk(spec, env);
       expect(verdict.reasons, spec.id).toEqual([]);
@@ -97,7 +115,8 @@ it('uses actual fake traces for an unlisted helper verb, a wrong act, and the re
       expect(traces.get(spec.id), spec.id).toBeDefined();
       if (cases[index]?.id === 'unlisted-reply' || cases[index]?.id === 'wrong-reply') {
         const trace = traces.get(spec.id);
-        expect(trace?.replyAct?.id).toBe('report');
+        // A listed ask gets the act its atom declares; an ask the bank does not list is answered plainly.
+        expect(trace?.replyAct?.id).toBe(cases[index]?.id === 'unlisted-reply' ? 'report' : 'answer');
         const segment = trace?.segments[trace?.replyAct?.evidence.index ?? -1];
         expect(segment?.type).toBe('text');
       }
