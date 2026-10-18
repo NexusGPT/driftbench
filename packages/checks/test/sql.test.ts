@@ -131,6 +131,23 @@ describe('sql: the query the agent ran returns the same rows as the golden query
     ).toEqual({ 'sql.0': 'pass' });
   });
 
+  it('is inconclusive and does not gate when the golden query or its database cannot decide', async () => {
+    const own = 'SELECT id FROM chargebacks';
+    const cases = [
+      await check(own, { golden: 'SELECT id FROM missing_table' }),
+      await check(own, { golden: 'SELECT id FROM chargebacks; SELECT 1' }),
+      await check(own, { database: join(dir, 'absent.db') }),
+    ];
+    for (const verdicts of cases) {
+      expect(verdict(verdicts, 'sql.0')).toMatchObject({ outcome: 'inconclusive', gating: false });
+    }
+  });
+
+  it('still gates an agent query that fails', async () => {
+    const verdicts = await check('SELECT id FROM missing_table', { golden: 'SELECT id FROM chargebacks' });
+    expect(verdict(verdicts, 'sql.0')).toMatchObject({ outcome: 'fail', gating: true });
+  });
+
   it('applies only to a block that names a golden query', async () => {
     const ctx = context(spec, 1, sqlFor('SELECT 1'));
     expect(outcomes(await run(sqlEquivalence, ctx))).toEqual({});
