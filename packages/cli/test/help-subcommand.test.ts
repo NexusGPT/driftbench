@@ -24,3 +24,8 @@ it.each([
   },
   60_000,
 );
+
+it('radius localize --help lists --json, the option its help topic documents', async () => {
+  const flag = await cli(['radius', 'localize', '--help']);
+  expect(flag.out).toContain('--json');
+}, 60_000);

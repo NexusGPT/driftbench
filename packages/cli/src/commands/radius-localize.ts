@@ -33,6 +33,8 @@ type LocalizeOptions = {
 export function registerRadiusLocalize(radius: Command, io: Io, setExit: (code: number) => void): void {
   radius
     .command('localize')
+    // --json and --sections are options of `radius` that localize reads: its usage lists them too.
+    .configureHelp({ showGlobalOptions: true })
     .description(
       'Rank the prompt sections most likely to cause the failures of a campaign (Ochiai over block links)',
     )
