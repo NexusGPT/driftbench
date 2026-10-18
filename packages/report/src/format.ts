@@ -1,7 +1,22 @@
-import type { BlockStatus } from '@agent-nexus/driftbench-core';
+import type { BlockStatus, HistoryNormalization } from '@agent-nexus/driftbench-core';
 import type { CarriedSummary } from './data';
 import type { Estimate } from './estimate';
 import type { SuiteHeadline } from './headline';
+
+/** One compact line per block; the observation and JSON drilldown retain the per-index records. */
+export function historyNormalizationsText(entries: readonly HistoryNormalization[] | undefined): string {
+  const counts = new Map<string, number>();
+  for (const entry of entries ?? []) counts.set(entry.wire, (counts.get(entry.wire) ?? 0) + 1);
+  return [...counts]
+    .map(([wire, count]) => `${count} empty ${count === 1 ? 'turn' : 'turns'} not sent on ${wire}`)
+    .join('; ');
+}
+
+/** No markup when absent, so legacy reports retain their exact bytes. */
+export function historyNormalizationsHtml(entries: readonly HistoryNormalization[] | undefined): string {
+  const summary = historyNormalizationsText(entries);
+  return summary === '' ? '' : `<p class="history-normalization">${esc(summary)}</p>`;
+}
 
 /** Escapes text for HTML element content and attribute values. */
 export function esc(text: string): string {
@@ -57,12 +72,12 @@ export function effectiveNote(estimate: Estimate): string {
  * could detect, and the shares of runs that gave no verdict (only those above 0).
  */
 export function headlineNote(headline: SuiteHeadline): string {
-  const parts = [`${count(headline.trees, 'golden')}`];
+  const parts = [`${count(headline.trees, headline.unit ? 'parent tree' : 'golden')}`];
   if (headline.trees > 1) {
     parts.push(
       headline.degenerate
-        ? `n_eff ${fixed(headline.effectiveRuns, 1)} runs (every run agrees, so each golden counts once)`
-        : `n_eff ${fixed(headline.effectiveRuns, 1)} runs (design effect ${fixed(headline.designEffect, 2)})`,
+        ? `n_eff ${fixed(headline.effectiveRuns, 1)} ${headline.unit ? 'tree outcomes' : 'runs'} (every ${headline.unit ? 'tree outcome' : 'run'} agrees, so each ${headline.unit ? 'parent tree' : 'golden'} counts once)`
+        : `n_eff ${fixed(headline.effectiveRuns, 1)} ${headline.unit ? 'tree outcomes' : 'runs'} (design effect ${fixed(headline.designEffect, 2)})`,
     );
     parts.push(
       headline.detectableDrop === null
