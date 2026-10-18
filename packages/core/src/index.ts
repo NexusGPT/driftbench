@@ -357,6 +357,7 @@ export {
   Block,
   BlockSpec,
   CardExpect,
+  ClassRef,
   CriterionDef,
   EndState,
   EndStateSpec,

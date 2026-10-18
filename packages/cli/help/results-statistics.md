@@ -8,6 +8,7 @@ see_also:
   - results-ci
   - results-scorecard
   - results-monitor
+  - authoring-classes
 next:
   - results-drift-recovery
 ---
@@ -84,6 +85,14 @@ wording, repeat) with the ANOVA estimator of a nested random-effects model; `icc
 each level; `repeatsForFloor` gives the repeats per block that keep run-to-run noise under a floor;
 `neymanAllocation` spreads conversations across cells in proportion to size times spread. The spread view
 flags a cell whose wording range is above 20 points and above its run-to-run noise floor.
+
+**The envelope of a class block** (`class envelope`, see authoring-classes): a block measured over the frozen
+realisations of its utterance class. The runs of one realisation are correlated, so the class rate carries
+Wilson on `n_eff` with the realisations as the clusters, its design effect and the detectable drop. Each cell
+(a combination of axis values) gets its own rate and Wilson interval, and MinP is the lowest cell rate: one
+cell at 0 hides inside a fair class rate. The phrasing share is the part of the outcome variance between
+realisations rather than between runs of one (it needs at least 2 runs per realisation). Class results are a
+column of their own: they are never averaged with blocks that send one string.
 
 **Over time** (`monitor`): CUSUM, Page-Hinkley and the two-sample Kolmogorov-Smirnov test.
 

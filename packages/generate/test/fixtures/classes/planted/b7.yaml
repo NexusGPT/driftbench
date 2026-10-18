@@ -1,0 +1,13 @@
+id: acme.planted.b7
+intent: "After a failed coverage check, the customer gives a callback phone number."
+seed: "+1 202 555 0188"
+context:
+  last_reply: "Sorry, I could not check coverage right now. Can I take a number so our team calls you back?"
+slots:
+  - name: phone
+    format: phone
+    surface_forms:
+      - { form: "+1 202 555 0188", approved: true }
+      - { form: "(202) 555-0188", approved: true }
+      - { form: "202 555 0188", approved: true }
+    minimal: ["+1 202 555 0181"]

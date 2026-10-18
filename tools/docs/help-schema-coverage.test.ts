@@ -49,7 +49,7 @@ describe('block and campaign schema help', () => {
 /** Where each object of the spec is described: the first pattern that matches its path picks the topics. */
 const SPEC_OBJECT_TOPICS: Array<[RegExp, string[]]> = [
   [/given|prefix|\.world/, ['authoring-prefixes', 'authoring-parent-blocks']],
-  [/^blocks\[\](\.when(\.injection)?)?$/, ['authoring-blocks', 'authoring-parent-blocks']],
+  [/^blocks\[\](\.when(\.injection|\.class)?)?$/, ['authoring-blocks', 'authoring-parent-blocks']],
   [/^perturbations\[\](\.recovery)?$/, ['authoring-perturbations', 'authoring-blocks']],
   [
     /expect|budget/,
