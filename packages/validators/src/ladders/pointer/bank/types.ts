@@ -33,6 +33,8 @@ export type PointerItem = {
   title: string;
   /** The one change that would make the item pass (docs/validators.md section 12.4). */
   cause: string;
+  /** Omitted means author-declared atomic; a composite check contributes no distinct-cause credit. */
+  causeKind?: CauseKind;
   /** How the input is built and what the oracle checks, as printed in the catalogue. */
   gen: string;
   oracle: string;
@@ -69,3 +71,5 @@ export class Problem extends Error {}
 
 export const pass = (detail: string): Outcome => ({ pass: true, detail });
 export const fail = (detail: string): Outcome => ({ pass: false, detail });
+
+import type { CauseKind } from '../../../ladder';

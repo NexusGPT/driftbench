@@ -1,10 +1,12 @@
+import { validationSpecs } from './labelset-validation';
+import { stackSpecs } from './stack';
 import { type FamilySpec, row } from './types';
 
 /**
  * Design sections 1, 3 and 5, and the Jev and Haiku ports. Labels come from planted labellers (perfect, keyed on
  * headings, keyed on length, none, invalid, poisoned) or from fake model transports that answer from the hidden
- * truth. No live model and no measured model accuracy. Section 3 defines no stack of two labellers and no unsure
- * band, so none is tested here (see the catalogue notes).
+ * truth. No live model and no measured model accuracy. Stack cases use the explicit margin/unanimity contract
+ * in docs/estate-pointer-reader.md and independent probability/vote fixtures.
  */
 export const labels: FamilySpec = {
   id: 'labels',
@@ -14,6 +16,8 @@ export const labels: FamilySpec = {
   summary:
     'The labeller port, its windows, answer validation, carry-forward, label sets as data, and the two ports (Jev thresholds and call shapes, Haiku dense requests) behave as the design says.',
   specs: [
+    ...stackSpecs,
+    ...validationSpecs,
     row(
       'perfect-labels-recovered',
       1,
@@ -106,8 +110,8 @@ export const labels: FamilySpec = {
       'prompt-generic-template',
       3,
       'The template around the set lines is generic',
-      'Build the request for `agent-rules` and for the bakery set `house-voice` on the same units.',
-      'Outside the set-derived lines the system text and the user text are identical, and neither contains: estate, agent, skill, nexus, claude, driftbench, helper, prompt, rule, gate, instruction, bakery, email.',
+      'Build requests for two equal-shape user sets on the same units; vary every set-owned name, description and example.',
+      'After substituting only caller-owned set fields, the complete system and user request texts are identical. There is no word blacklist.',
       'labelset:generic-prompt-template',
       { component: 'labelset', needs: ['transport'] },
     ),
@@ -323,7 +327,7 @@ export const labels: FamilySpec = {
       'Sets with a repeated set name, a label named `none`, a repeated label name, a label name with a space, a `target` other than `required`.',
       'Each is refused and the message names the offending set or label.',
       'labelset:validation',
-      { component: 'labelset' },
+      { causeKind: 'composite', component: 'labelset' },
     ),
     row(
       'read-unit-not-labelable',
@@ -476,7 +480,7 @@ export const labels: FamilySpec = {
       'First answer echoes another window id; another time another set name.',
       'Each is refused and retried once.',
       'haiku:validate-response',
-      { component: 'haiku', needs: ['transport'] },
+      { causeKind: 'composite', component: 'haiku', needs: ['transport'] },
     ),
   ],
 };

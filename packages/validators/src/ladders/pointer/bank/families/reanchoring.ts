@@ -459,46 +459,61 @@ export const reanchoringRuns: Record<string, Run> = {
     );
   },
   'reword-sweep-monotone': async (ctx) => {
-    const { p, w } = mid(ctx);
-    const v2 = cloneWorld(w);
-    const rows: Array<{ old: string; next: string; s: number }> = [];
-    for (let i = 0; i < 12; i += 1) {
-      const old = w.texts[0]?.[1 + i * 2] as string;
-      const share = 0.05 + i * 0.08;
-      const words = old
-        .replace(/\.$/, '')
-        .split(' ')
-        .filter((x) => /^[a-z]+$/.test(x) && x.length >= 4).length;
-      const next = rewordWords(p.random, old, Math.max(1, Math.round(share * words)));
-      v2.texts[0]![1 + i * 2] = next;
-      rows.push({ old, next, s: similarity(old, next) });
+    const p = prose(ctx);
+    const length = 100 + Math.floor(p.random() * 40);
+    const old = `M${'b'.repeat(length)}.`;
+    let checked = 0;
+    // Each edit has its own scan pair: changing another target cannot change this one's context.
+    const frame = (text: string, mark: string) =>
+      `# ${mark.repeat(40)}\n\n${mark.repeat(80)}.\n\n${text}\n\n${mark.repeat(80)}.\n`;
+    const context = (source: string, text: string) => {
+      const start = source.indexOf(text);
+      return {
+        prefix: source.slice(Math.max(0, start - 24), start),
+        suffix: source.slice(start + text.length, start + text.length + 24),
+      };
+    };
+    for (const share of [0.3, 0.43, 0.53, 0.74, 0.87]) {
+      const kept = Math.round(length * share);
+      const next = `M${'b'.repeat(kept)}${'q'.repeat(length - kept)}.`;
+      for (const sameContext of [true, false]) {
+        const before = frame(old, 'A');
+        const after = frame(next, sameContext ? 'A' : 'Z');
+        const left = context(before, old);
+        const right = context(after, next);
+        const textScore = similarity(norm(old), norm(next));
+        const contextScore =
+          (similarity(left.prefix, right.prefix) +
+            similarity(left.suffix, right.suffix) +
+            (sameContext ? 1 : 0)) /
+          3;
+        const score = 0.6 * textScore + 0.4 * contextScore;
+        const retain = textScore > 0.4 && score > 0.45;
+        const first = await scanOk(ctx.sut, {
+          files: [{ path: 'notes/score.md', text: before }],
+          labeler: perfect(),
+        });
+        const original = liveByText(first.ledger, old);
+        if (!original) return fail('positive witness: the planted original unit is absent');
+        const second = await scanOk(ctx.sut, {
+          files: [{ path: 'notes/score.md', text: after }],
+          previousLedger: first.ledger.raw,
+          labeler: perfect(),
+        });
+        const fresh = liveByText(second.ledger, next);
+        if (!fresh) return fail('positive witness: the planted replacement unit is absent');
+        const retained = fresh.id === original.id;
+        if (retained !== retain)
+          return fail(
+            `weighted score ${score.toFixed(3)}, text ${textScore.toFixed(3)}, context ${contextScore.toFixed(3)}: expected ${retain ? 'retention' : 'a new id'}`,
+          );
+        const event = eventNow(second, retain ? fresh : (byId(second.ledger, original.id) ?? original));
+        if (event !== (retain ? 'changed' : 'deleted'))
+          return fail(`the reader reports ${event} for the weighted-score decision`);
+        checked += 1;
+      }
     }
-    const first = await scanOk(ctx.sut, { files: build(filesOf(w)).files, labeler: perfect() });
-    const second = await scanOk(ctx.sut, {
-      files: build(filesOf(v2)).files,
-      previousLedger: first.ledger.raw,
-      labeler: perfect(),
-    });
-    const outcome = rows
-      .map((r) => {
-        const id = liveByText(first.ledger, r.old)?.id as string;
-        const now = byId(second.ledger, id);
-        return { ...r, carried: !!now && now.status === 'live' && norm(now.quote) === norm(r.next) };
-      })
-      .sort((x, y) => y.s - x.s);
-    for (const r of outcome) {
-      if (r.s >= 0.55 && !r.carried) return fail(`a reword at similarity ${r.s.toFixed(2)} lost its id`);
-      if (r.s <= 0.3 && r.carried) return fail(`a rewrite at similarity ${r.s.toFixed(2)} kept its id`);
-    }
-    let lost = false;
-    for (const r of outcome) {
-      if (!r.carried) lost = true;
-      else if (lost)
-        return fail(
-          `acceptance is not monotone: similarity ${r.s.toFixed(2)} is carried after a more similar unit was lost`,
-        );
-    }
-    return pass(`${outcome.filter((r) => r.carried).length} of 12 carried, monotone`);
+    return pass(`${checked} text/context boundary cases match the weighted rule`);
   },
   'split-sentence': async (ctx) => {
     const p = prose(ctx);

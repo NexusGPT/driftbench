@@ -1,7 +1,7 @@
 export type Tier = 1 | 2 | 3 | 4 | 5;
 
 /** What an item needs from the reader binding (the seam of the catalogue preface). */
-export type Need = 'cut' | 'scan' | 'transport' | 'cassette' | 'prompt' | 'links' | 'child' | 'cli';
+export type Need = 'cut' | 'scan' | 'transport' | 'cassette' | 'prompt' | 'links' | 'child' | 'cli' | 'stack';
 
 /** One row of the bank: the data the catalogue prints and the code zips with its runner. */
 export type Spec = {
@@ -14,6 +14,8 @@ export type Spec = {
   oracle: string;
   /** The one change that would make the item pass: `<component>:<change>`. */
   cause: string;
+  /** Omitted means an author-declared atomic repair. Composite checks add no distinct-cause credit. */
+  causeKind?: CauseKind;
   component?: string;
   needs?: Need[];
   /** The input does not depend on the seed: judged once per process. */
@@ -39,7 +41,9 @@ export function row(
   gen: string,
   oracle: string,
   cause: string,
-  extra: Partial<Pick<Spec, 'component' | 'needs' | 'seedFree'>> = {},
+  extra: Partial<Pick<Spec, 'component' | 'needs' | 'seedFree' | 'causeKind'>> = {},
 ): Spec {
   return { key, tier, title, gen, oracle, cause, ...extra };
 }
+
+import type { CauseKind } from '../../../../ladder';

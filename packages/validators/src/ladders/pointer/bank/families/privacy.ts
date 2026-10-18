@@ -5,6 +5,7 @@ import type { Job, JobOutput } from '../../kit/child';
 import { type ChildRun, runChild } from '../../kit/child-run';
 import { compose } from '../../kit/compose';
 import { build, liveOf } from '../../kit/estate';
+import { loadFixture, requireFixtureLabels } from '../../kit/fixture';
 import { perfect } from '../../kit/labellers';
 import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML } from '../../kit/sets';
@@ -225,7 +226,8 @@ export const privacyRuns: Record<string, Run> = {
   'replay-makes-no-network': async (ctx) => {
     const { files } = privateEstate(ctx);
     const rec = await go(modelJob(files, 'haiku'));
-    const cassette = await withClean(rec, () => mustRun(rec).cassette ?? '');
+    await withClean(rec, () => mustRun(rec));
+    const fixture = loadFixture('haiku');
     const canary = `const net = require('node:net');
 const fs = require('node:fs');
 const log = process.env.CANARY_LOG;
@@ -235,10 +237,10 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
     const seen = await go(
       {
         kind: 'scan',
-        files,
+        files: fixture.files,
         model: { arm: 'haiku' },
-        cassette: { mode: 'replay', text: cassette },
-        labelsYaml: RULES_YAML,
+        cassette: { mode: 'replay', text: fixture.cassette },
+        labelsYaml: fixture.labelsYaml,
         fake: { badAnswers: true },
       },
       {
@@ -249,7 +251,7 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
     return withClean(seen, () => {
       const out = seen.run.output;
       if (!out?.ok) return fail(`the replay child failed: ${seen.run.stderr.slice(0, 200)}`);
-      mustRun(seen);
+      requireFixtureLabels(mustRun(seen), fixture);
       if ((out.fakeCalls ?? 0) !== 0) return fail(`${out.fakeCalls} transport calls in a private replay`);
       return pass('no transport call, no connection');
     });
@@ -417,6 +419,7 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
     return withClean(seen, () => {
       const out = seen.run.output;
       const r = out?.ok ? (out.result as ScanResult) : undefined;
+      if (r && !Array.isArray(r.warnings)) return fail('the reader does not expose warnings');
       const text = `${r?.error ?? ''}\n${JSON.stringify(r?.diagnostics ?? [])}\n${JSON.stringify(r?.warnings ?? [])}\n${seen.run.stdout}\n${seen.run.stderr}`;
       const leak = hit(text, secrets);
       if (leak) return fail(`${leak} is in a failure message`);
@@ -437,15 +440,17 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
     });
     if (!rec.ok || !rec.ledger) return fail(`the record run failed: ${rec.error}`);
     requireSourceWitness(rec, files);
+    const fixture = loadFixture('haiku');
+    const fixtureCopy = JSON.stringify(fixture.files);
     const again = await ctx.sut.scan({
-      files: frozen,
-      previousLedger: rec.ledger.raw,
+      files: fixture.files.map((file) => Object.freeze({ ...file })),
+      labelsYaml: fixture.labelsYaml,
       model: { arm: 'haiku', transport: fakeTransport() },
-      cassette: { mode: 'replay', text: rec.cassette },
+      cassette: { mode: 'replay', text: fixture.cassette },
     });
     if (!again.ok) return fail(`the replay failed: ${again.error}`);
-    requireSourceWitness(again, files);
-    return JSON.stringify(files) === copy
+    requireFixtureLabels(again, fixture);
+    return JSON.stringify(files) === copy && JSON.stringify(fixture.files) === fixtureCopy
       ? pass('files as they were')
       : fail('a scan changed the text of a private file');
   },

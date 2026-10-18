@@ -100,10 +100,10 @@ export const cutting: FamilySpec = {
     row(
       'sentences-lowercase-start-merges',
       2,
-      'A lower-case start after a full stop joins the previous sentence',
+      'A lower-case sentence start does not erase an established boundary',
       '`We bake rye daily. iOS bakers prefer wheat.`',
-      'One unit holding both (design 10a result 5: the shape rule merges when unsure).',
-      'cutter:merge-lowercase-start',
+      'Two complete sentence units, with exact source spans (section 2). The observed prototype merge in section 10a is a defect, not a required result.',
+      'cutter:preserve-lowercase-boundary',
     ),
     row(
       'sentences-decimal',
@@ -480,6 +480,7 @@ export const cutting: FamilySpec = {
       'Seeded document of 12 blocks, every construct.',
       'Exact cut.',
       'cutter:mixed-document-cut',
+      { causeKind: 'composite' },
     ),
     row(
       'mixed-medium',
@@ -488,6 +489,7 @@ export const cutting: FamilySpec = {
       'Seeded document of 80 blocks, every construct, nested lists, tables and quotes.',
       'Exact cut.',
       'cutter:mixed-document-nested',
+      { causeKind: 'composite' },
     ),
     row(
       'mixed-large',
@@ -496,6 +498,7 @@ export const cutting: FamilySpec = {
       'Seeded document of 400 blocks, 60 KB.',
       'Exact cut inside 3 s.',
       'cutter:mixed-document-large',
+      { causeKind: 'composite' },
     ),
     row(
       'digest-same-text',

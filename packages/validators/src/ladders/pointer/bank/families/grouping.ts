@@ -343,11 +343,15 @@ export const groupingRuns: Record<string, Run> = {
   },
   'atom-flags': async (ctx) => {
     const t = distinctSentences(prose(ctx), 6);
-    const { res } = await scanDoc(
+    const { doc, res } = await scanDoc(
       ctx,
       [P(t)],
       perfect(() => 'rule'),
     );
+    for (const text of t) {
+      const problem = verbatim(doc, text, res.atoms);
+      if (problem) return fail(`positive witness: ${problem}`);
+    }
     const ids = new Set(liveOf(res.ledger).map((e) => e.id));
     for (const a of res.atoms) {
       if (a.producedBy !== 'model' || a.approved !== false)

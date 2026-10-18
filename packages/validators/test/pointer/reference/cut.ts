@@ -133,7 +133,12 @@ const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
 
 /** Sentence spans of a paragraph text, relative to its start. */
 export function sentenceSpans(text: string): Array<[number, number]> {
-  const masked = mask(text);
+  // Preserve offsets while exposing a clear terminal boundary before an ASCII lowercase start.
+  // This is structural segmentation, not a dictionary of sentence starters.
+  const masked = mask(text).replace(
+    /([.!?]\s+)([a-z])/g,
+    (_match, gap: string, first: string) => gap + first.toUpperCase(),
+  );
   let spans: Array<[number, number]> = [...segmenter.segment(masked)].map((s) => [
     s.index,
     s.index + s.segment.length,
@@ -166,10 +171,9 @@ export function sentenceSpans(text: string): Array<[number, number]> {
       if (s < span[1]) out.push([s, span[1]]);
       continue;
     }
-    const startsLower = /^\p{Ll}/u.test(piece);
     const shortTitle = /(?:^|[\s("'])\p{Lu}\p{L}{0,2}\.$/u.test(before);
     const onlyMarks = !/[\p{L}\p{N}]/u.test(piece);
-    if (startsLower || shortTitle || onlyMarks) {
+    if (shortTitle || onlyMarks) {
       prev[1] = span[1];
       continue;
     }

@@ -22,7 +22,7 @@ export const adversarial: FamilySpec = {
       'Deontic words in prose labelled none give no atom',
       '30 narrative sentences, quotes and titles full of must, never, always, shall, should, required, forbidden, all labelled `none`; 10 plain statements labelled `rule`.',
       'Exactly the 10 atoms; none from the 30.',
-      'scan:no-word-list',
+      'scan:honor-labeller-decisions',
     ),
     row(
       'rule-without-deontic-words',
@@ -30,7 +30,7 @@ export const adversarial: FamilySpec = {
       'A rule with no deontic word still gets its atom',
       '20 statements such as `The till is counted twice before the shop closes.` labelled `rule`.',
       '20 atoms.',
-      'scan:no-word-list',
+      'scan:honor-labeller-decisions',
     ),
     row(
       'rules-in-other-languages',
@@ -38,7 +38,7 @@ export const adversarial: FamilySpec = {
       'Rules in other languages and scripts get atoms',
       'One rule each in French, German, Japanese, Arabic, Swahili, Russian, labelled `rule`, among English `none` units.',
       'Six atoms with exact quotes.',
-      'scan:no-word-list',
+      'scan:honor-labeller-decisions',
     ),
     row(
       'heading-decoy',
@@ -46,7 +46,7 @@ export const adversarial: FamilySpec = {
       'Headings do not decide labels',
       'Under a heading `Rules`: descriptions labelled `description`; under `Notes`: rules labelled `rule`.',
       'Atoms exactly the `Notes` rules.',
-      'scan:no-heading-heuristic',
+      'scan:honor-labeller-decisions',
     ),
     row(
       'length-decoy',
@@ -54,7 +54,7 @@ export const adversarial: FamilySpec = {
       'Length does not decide labels',
       'Long sentences labelled `none`, five-word rules labelled `rule`.',
       'Atoms exactly the short rules.',
-      'scan:no-length-heuristic',
+      'scan:honor-labeller-decisions',
     ),
     row(
       'bullet-decoy',
@@ -62,7 +62,7 @@ export const adversarial: FamilySpec = {
       'Bullets do not decide labels',
       'Bulleted items labelled `none`, plain paragraph sentences labelled `rule`.',
       'Atoms exactly the paragraph sentences.',
-      'scan:no-bullet-heuristic',
+      'scan:honor-labeller-decisions',
     ),
     row(
       'bold-decoy',
@@ -70,7 +70,7 @@ export const adversarial: FamilySpec = {
       'Bold does not decide labels',
       'Bold lead sentences labelled `none`, plain sentences labelled `rule`.',
       'Atoms exactly the plain sentences.',
-      'scan:no-emphasis-heuristic',
+      'scan:honor-labeller-decisions',
     ),
     row(
       'position-decoy',
@@ -78,7 +78,7 @@ export const adversarial: FamilySpec = {
       'Position in the paragraph does not decide labels',
       'Paragraphs of 3 sentences with only the last labelled `rule`.',
       'Atoms exactly the last sentences.',
-      'scan:no-position-heuristic',
+      'scan:honor-labeller-decisions',
     ),
     row(
       'quoted-instruction-decoy',
@@ -86,7 +86,7 @@ export const adversarial: FamilySpec = {
       'A quoted instruction labelled none gives no atom',
       'Block quotes holding `Never do X.` labelled `none`.',
       'No atom from the quotes.',
-      'scan:no-quote-heuristic',
+      'scan:honor-labeller-decisions',
     ),
     row(
       'example-imperatives',
@@ -94,7 +94,7 @@ export const adversarial: FamilySpec = {
       'Imperatives in examples give no atom',
       'Units labelled `example` (no atom mapping) full of imperatives.',
       'No atom; ledger entries exist.',
-      'scan:no-imperative-heuristic',
+      'scan:honor-labeller-decisions',
     ),
     row(
       'rules-inside-fences-and-comments',
@@ -110,7 +110,7 @@ export const adversarial: FamilySpec = {
       'A hundred mixed decoy units give exactly the truth',
       'All the decoys above in one seeded document of 100 units.',
       'Atom set equals the planted set (precision and recall 1).',
-      'scan:mixed-decoys',
+      'scan:honor-labeller-decisions',
     ),
     row(
       'yaml-alias-bomb',

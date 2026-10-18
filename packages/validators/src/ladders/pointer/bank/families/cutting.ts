@@ -175,8 +175,9 @@ export const cuttingRuns: Record<string, Run> = {
   'sentences-lowercase-start-merges': cutRun((ctx) => {
     const p = prose(ctx);
     const r = p.random;
-    const joined = `${p.next()} ${pick(r, ['iOS', 'eBay', 'macOS', 'iPhone'])} ${word(r)} ${word(r)} ${word(r)}.`;
-    return [sentenceBlock([joined])];
+    const first = p.next();
+    const second = `${pick(r, ['iOS', 'eBay', 'macOS', 'iPhone'])} ${word(r)} ${word(r)} ${word(r)}.`;
+    return [sentenceBlock([first, second])];
   }),
   'sentences-decimal': cutRun((ctx) => {
     const p = prose(ctx);
@@ -584,6 +585,8 @@ export const cuttingRuns: Record<string, Run> = {
     if (ms > 2000) return fail(`the cut took ${Math.round(ms)} ms`);
     const containing = got.units.filter((u) => doc.text.slice(u.start, u.end).includes(inner));
     if (containing.length !== 1) return fail(`the text ${show(inner)} is inside ${containing.length} units`);
+    if (!containing.some((u) => u.text === doc.text.slice(u.start, u.end) && u.text.includes(inner)))
+      return fail('positive witness: the nested unit must return its actual source text');
     return pass(`the nested text is inside one unit, ${Math.round(ms)} ms`);
   },
   'html-inline-tags-in-sentence': cutRun((ctx) => {

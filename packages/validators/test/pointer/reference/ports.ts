@@ -1,5 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import {
+  type CassetteRow,
+  canonical,
+  hash,
+  readableFor,
+  wireFor,
+} from '../../../src/ladders/pointer/kit/fixture';
 import type { LabelAnswer, LabelEntry, ModelArm, Transport } from '../../../src/ladders/pointer/sut/port';
 import { canonicalCompact, sha256 } from './hash';
 import type { ParsedSet } from './labelset';
@@ -88,6 +95,7 @@ export function validateAnswer(
 
 export type CassetteEntry = {
   key: string;
+  readable?: Record<string, string>;
   file: string;
   window: string;
   promptVersion: string;
@@ -409,5 +417,113 @@ async function jev(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<Mod
 
 /** One call of a model port for a window and a set. */
 export function askModel(plan: WindowPlan, set: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
+  if ([...ctx.cassette.entries.values()].some((e) => e.readable)) return fixtureReplay(plan, set, ctx);
   return ctx.arm === 'haiku' ? haiku(plan, set, ctx) : jev(plan, set, ctx);
+}
+
+/** Supports the public reader wire format as well as this reference's legacy record format. */
+async function fixtureReplay(plan: WindowPlan, parsed: ParsedSet, ctx: ModelCtx): Promise<ModelResult> {
+  const { hash: _setHash, ...set } = parsed;
+  const units = plan.units.filter((u) => u.mode !== 'opaque' && u.mode !== 'read');
+  const cap =
+    ctx.arm === 'jev-unit' ? 1 : Math.min(60, ctx.arm === 'jev' ? Math.floor(250 / set.labels.length) : 60);
+  const labels: LabelEntry[] = [];
+  let lastKey = '';
+  for (let offset = 0; offset < units.length; offset += cap) {
+    const selected = units.slice(offset, offset + cap),
+      window = `${plan.file}#${Math.floor(offset / cap) + 1}`;
+    const wire = wireFor(
+      ctx.arm,
+      set,
+      window,
+      selected.map((u, i) => ({ n: i + 1, text: u.text })),
+      selected[0]?.path ?? [],
+    );
+    const key = hash(canonical(wire));
+    lastKey = key;
+    const want = readableFor(wire, {
+      path: plan.file,
+      window,
+      promptVersion: 'p1',
+      schemaVersion: 's1',
+      set: set.set,
+      setHash: hash(canonical(set)).slice(0, 16),
+      model: String(wire.body.model),
+      cutDigest: ctx.cutDigestOf(plan.file),
+    });
+    const rows = [...ctx.cassette.entries.values()] as unknown as CassetteRow[];
+    let hit = rows.find((row) => row.key === key);
+    if (!hit && ctx.cassette.mode === 'record') {
+      const response = await ctx.transport({
+        url: 'https://fixture.invalid',
+        headers: {},
+        body: JSON.stringify(wire.body),
+      });
+      if (response.status !== 200) return { kind: 'error', message: `HTTP ${response.status}` };
+      const body = JSON.parse(response.body) as {
+        model: string;
+        content?: Array<{ type: string; text: string }>;
+        answers?: Record<string, { noul: number }>;
+      };
+      const recordedLabels =
+        ctx.arm === 'haiku'
+          ? JSON.parse(body.content?.find((b) => b.type === 'text')?.text ?? '{}').labels
+          : undefined;
+      const prior = rows.find((row) => row.answer.returnedModel !== body.model);
+      if (prior) ctx.warnings.push(`returned model ${body.model} differs from ${prior.answer.returnedModel}`);
+      hit = {
+        key,
+        readable: want,
+        answer: {
+          ...(recordedLabels
+            ? { labels: recordedLabels }
+            : {
+                probabilities: Object.fromEntries(
+                  Object.entries(body.answers ?? {}).map(([k, v]) => [k, v.noul]),
+                ),
+              }),
+          returnedModel: body.model,
+          stopReason: 'end_turn',
+          usage: { input: 10, output: 10 },
+        },
+      };
+      ctx.cassette.entries.set(key, hit as unknown as CassetteEntry);
+    }
+    const near =
+      hit ??
+      rows.find(
+        (row) =>
+          row.readable.path === plan.file && row.readable.window === window && row.readable.set === set.set,
+      ) ??
+      rows[0];
+    const differs = near
+      ? [...new Set([...Object.keys(want), ...Object.keys(near.readable)])].filter(
+          (k) => want[k] !== near.readable[k],
+        )
+      : [];
+    if (!hit || differs.length) {
+      const fields = differs.length ? differs.join(', ') : 'file, window';
+      return Promise.resolve({
+        kind: 'error',
+        message: `cassette miss for ${window}: nearest entry ${near?.readable.window ?? 'none'} differs in ${fields}${differs.includes('cutDigest') ? `; Node ${process.versions.node}, ICU ${process.versions.icu}` : ''}`,
+      });
+    }
+    if (ctx.arm === 'haiku') {
+      for (const label of hit.answer.labels ?? [])
+        labels.push({ ...label, units: String(Number(label.units) + offset) });
+    } else
+      for (const [index, unit] of selected.entries()) {
+        let best: { label: string; p: number } | undefined;
+        for (const label of set.labels) {
+          const p = hit.answer.probabilities?.[`u${index + 1}__${label.name}`];
+          if (typeof p === 'number' && (!best || p > best.p)) best = { label: label.name, p };
+        }
+        labels.push({
+          units: String(unit.n),
+          label:
+            best && best.p >= (ctx.threshold ?? (ctx.arm === 'jev-unit' ? 0.7 : 0.4)) ? best.label : 'none',
+        });
+      }
+  }
+  return Promise.resolve({ kind: 'answer', answer: { labels }, key: lastKey });
 }

@@ -32,9 +32,11 @@ export async function scanOk(
 export const liveOf = (ledger: LedgerView): LedgerEntry[] =>
   ledger.entries.filter((e) => e.status === 'live');
 
-/** The event the scan decided for an id; `unchanged` when the scan names none. */
+/** Only the event the reader reports for this id; an absent observation cannot earn credit. */
 export function eventNow(result: Pick<ScanResult, 'events'>, entry: LedgerEntry): string {
-  return result.events?.[entry.id] ?? 'unchanged';
+  const event = result.events?.[entry.id];
+  if (event === undefined) throw new Problem(`the reader does not expose an event for ${entry.id}`);
+  return event;
 }
 
 /** The live entry whose quote is the text, in the normal form. */

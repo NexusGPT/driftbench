@@ -6,8 +6,8 @@ import type { PointerSut } from '../../src/ladders/pointer/sut/port';
 
 export const REFERENCE_MODULE = fileURLToPath(new URL('./reference/index.ts', import.meta.url));
 
-/** Items that read the committed fixture cassettes: only the real reader can serve them. */
-export const readerOnly = (item: PointerItem): boolean => item.id.startsWith('replay.fixture-');
+/** Every committed fixture uses the public wire format supported by both bindings. */
+export const readerOnly = (_item: PointerItem): boolean => false;
 
 /** The scale items too heavy for a unit test run; the light ones stay. */
 const LIGHT_SCALE = new Set(['scale.cut-1x', 'scale.long-paragraph', 'scale.wide-table', 'scale.cut-10x']);

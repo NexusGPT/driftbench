@@ -1,8 +1,10 @@
 import { rngFor } from '@agent-nexus/driftbench-generate';
 import type { LedgerView, Link, PointerSut, ScanResult, SourceFile } from '../sut/port';
 import { type Block, compose } from './compose';
+import { makeFixture, requireFixtureLabels } from './fixture';
 import { perfect, truthLabel } from './labellers';
 import { norm } from './norm';
+import { RULES_YAML } from './sets';
 import { fakeTransport } from './transport';
 import { type Rng, rewordWords, sentence } from './words';
 import { tag } from './world';
@@ -275,21 +277,52 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
         cassette: { mode: 'record' },
       });
       const ledger1 = ok(rec, 'the record run');
+      const fixture = makeFixture(
+        'haiku',
+        estate.before.map((file, index) => ({
+          path: file.path,
+          text: file.text,
+          units: [
+            {
+              text: `# Notes number ${tag(index)}`,
+              container: 'heading',
+              path: [],
+              label: truthLabel(`# Notes number ${tag(index)}`),
+            },
+            ...(estate.texts[index] ?? []).map((text) => ({
+              text,
+              path: [`Notes number ${tag(index)}`],
+              label: truthLabel(text),
+            })),
+          ],
+        })),
+        RULES_YAML,
+      );
+      requireFixtureLabels(rec, fixture);
       const closed = fakeTransport({ respond: () => ({ status: 500, body: 'closed' }) });
+      const firstReplay = await sut.scan({
+        files: fixture.files,
+        labelsYaml: fixture.labelsYaml,
+        model: { arm: 'haiku', transport: closed },
+        cassette: { mode: 'replay', text: fixture.cassette },
+      });
+      requireFixtureLabels(firstReplay, fixture);
       const { value, ms } = await timed(() =>
         sut.scan({
-          files: estate.before,
+          files: fixture.files,
+          labelsYaml: fixture.labelsYaml,
           model: { arm: 'haiku', transport: closed },
-          cassette: { mode: 'replay', text: rec.cassette },
+          cassette: { mode: 'replay', text: fixture.cassette },
         }),
       );
+      requireFixtureLabels(value, fixture);
       out.ms.push(ms);
       out.live.push(ledger1.entries.filter((entry) => entry.status === 'live').length);
       out.live.push(value.ledger?.entries.filter((entry) => entry.status === 'live').length ?? 0);
       out.extra = {
         expectedLive: out.units + job.spec.files,
         calls: closed.count,
-        same: value.ok && value.ledger?.raw === ledger1.raw,
+        same: value.ok && value.ledger?.raw === firstReplay.ledger?.raw,
         error: value.error,
         entries: (rec.cassette ?? '').split('\n').filter(Boolean).length,
       };

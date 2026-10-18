@@ -9,6 +9,7 @@ import type {
   ScanRequest,
   ScanResult,
   SourceFile,
+  StackApi,
   Transport,
 } from './port';
 import { ReaderNotReachable } from './port';
@@ -43,6 +44,8 @@ type REntry = {
   suffix: string;
   status: 'live' | 'deleted';
   labels: Record<string, RLabel>;
+  lineage?: LedgerEntry['lineage'];
+  twinOf?: LedgerEntry['twinOf'];
 };
 type RLedger = { version: 1; cutDigests: Record<string, string>; entries: REntry[] };
 type RSet = { set: string; description: string; labels: unknown[] };
@@ -64,17 +67,23 @@ type RWire = { labeler: string; body: Record<string, unknown> };
 type RLabeler = {
   id: string;
   family: string;
+  cls: 'system1' | 'system2';
+  settings: Readonly<Record<string, unknown>>;
   model: string;
   maxUnits(set: RSet, wanted: number): number;
   render(set: RSet, window: RWindow): RWire;
-  interpret(answer: RRecorded, set: RSet, window: RWindow): RLabelled[];
+  opinions(answer: RRecorded, set: RSet, window: RWindow): unknown;
   call?(wire: RWire, set: RSet, window: RWindow): Promise<RRecorded>;
 };
+type RLabelling = { members: readonly RLabeler[]; describe: string };
 type RCassette = { render(): string };
 type RLabelledUnit = unknown;
 type RResult = {
   ledger: RLedger;
   events: Record<string, number>;
+  /** Observability extensions: absence is not an empty observation. */
+  eventsById?: Record<string, string>;
+  warnings?: string[];
   cuts: Map<string, RCut>;
   labelled: RLabelledUnit[];
   windows: number;
@@ -94,22 +103,29 @@ type RAtom = {
   evidence: Array<Record<string, unknown>>;
 };
 
-type Reader = {
+export type ReaderExports = {
+  /** Optional stack observables. Unsupported rules fail explicitly. */
+  margin?: StackApi['margin'];
+  stackDecision?: StackApi['decide'];
   AGENT_RULES_SET: string;
   AtomBuilder: new (files: ReadonlyMap<string, unknown>) => { atoms: RAtom[] };
   Cassette: { parse(text: string): RCassette };
   cut(source: string): RCut;
   LabelerError: new (message: string) => Error;
-  labelerByName(
-    name: string,
+  buildLabelling(
+    specs: Array<{ cls: 'system1' | 'system2'; client: string }>,
     options: {
-      model?: string;
-      env?: Record<string, string | undefined>;
+      env: Record<string, string | undefined>;
+      cwd: string;
       record: boolean;
       threshold?: number;
       fetch?: unknown;
     },
-  ): RLabeler | undefined;
+  ): Promise<{ ok: true; labelling: RLabelling } | { ok: false; message: string }>;
+  singleLabelling(labeler: RLabeler): RLabelling;
+  denseOpinions(answer: RRecorded, set: RSet, window: RWindow): unknown;
+  /** Optional validator seam; the adapter never implements lockfile semantics. */
+  checkLedger?(previous: string | undefined, current: RLedger): { ok: boolean; error?: string };
   parseDenseAnswer(text: string): RLabelled[];
   parseLabelSets(text: string): { ok: true; sets: RSet[] } | { ok: false; message: string };
   parseLedger(text: string): RLedger | undefined;
@@ -130,7 +146,9 @@ const NAMES = [
   'Cassette',
   'cut',
   'LabelerError',
-  'labelerByName',
+  'buildLabelling',
+  'singleLabelling',
+  'denseOpinions',
   'parseDenseAnswer',
   'parseLabelSets',
   'parseLedger',
@@ -141,9 +159,9 @@ const NAMES = [
 ] as const;
 
 const SPECIFIER = '@agent-nexus/driftbench-estate';
-let loaded: Promise<Reader> | undefined;
+let loaded: Promise<ReaderExports> | undefined;
 
-function load(): Promise<Reader> {
+function load(): Promise<ReaderExports> {
   loaded ??= (async () => {
     let mod: Record<string, unknown>;
     try {
@@ -159,7 +177,7 @@ function load(): Promise<Reader> {
     const missing = NAMES.filter((n) => merged[n] === undefined);
     if (missing.length > 0)
       throw new ReaderNotReachable(`${SPECIFIER} does not export ${missing.join(', ')} (namespace pointer)`);
-    return merged as unknown as Reader;
+    return merged as unknown as ReaderExports;
   })();
   return loaded;
 }
@@ -201,7 +219,7 @@ function toUnit(unit: RUnit): CutUnit {
 
 /* ----- ledger view and events ----- */
 
-function viewOf(reader: Reader, ledger: RLedger, cuts: Map<string, RCut>): LedgerView {
+function viewOf(reader: ReaderExports, ledger: RLedger, cuts: Map<string, RCut>): LedgerView {
   const entries: LedgerEntry[] = ledger.entries.map((e) => {
     const unit = cuts.get(e.path)?.units[e.index];
     const container =
@@ -233,50 +251,28 @@ function viewOf(reader: Reader, ledger: RLedger, cuts: Map<string, RCut>): Ledge
       ...(unit && e.status === 'live' ? { hint: { start: unit.start, end: unit.end } } : {}),
       status: e.status,
       labels,
-      lineage: [],
-      twinOf: null,
+      ...(e.lineage !== undefined ? { lineage: e.lineage } : {}),
+      ...(e.twinOf !== undefined ? { twinOf: e.twinOf } : {}),
     };
   });
   return { raw: reader.renderLedger(ledger), entries };
 }
 
-/** What happened to each id, read off the two ledgers. The reader reports only counts; `split`, `merged` and `ambiguous` per id are not derivable. */
-function eventsOf(previous: RLedger | undefined, current: RLedger): Record<string, string> {
-  const events: Record<string, string> = {};
-  const before = new Map((previous?.entries ?? []).filter((e) => e.status === 'live').map((e) => [e.id, e]));
-  for (const e of current.entries) {
-    if (e.status === 'deleted') {
-      if (before.has(e.id)) events[e.id] = 'deleted';
-      continue;
-    }
-    const was = before.get(e.id);
-    if (!was) events[e.id] = 'new';
-    else if (was.quote !== e.quote) events[e.id] = 'changed';
-    else if (was.path !== e.path || was.index !== e.index) events[e.id] = 'moved';
-    else events[e.id] = 'unchanged';
-  }
-  return events;
-}
-
 /* ----- labelers ----- */
 
-function plantedLabeler(
-  reader: Reader,
-  request: ScanRequest,
-  cuts: Map<string, RCut>,
-  counter: { calls: number },
-): RLabeler {
+function plantedLabeler(reader: ReaderExports, request: ScanRequest, cuts: Map<string, RCut>): RLabeler {
   const planted = request.labeler;
   return {
     id: 'planted',
     family: 'planted',
+    cls: 'system2',
+    settings: {},
     model: 'planted',
     maxUnits: (_set, wanted) => wanted,
     render: (set, window) => ({ labeler: 'planted', body: { set: set.set, window } }),
-    interpret: (answer) => answer.labels ?? [],
+    opinions: (answer, set, window) => reader.denseOpinions(answer, set, window),
     async call(_wire, set, window) {
       if (!planted) throw new reader.LabelerError('no labeller');
-      counter.calls += 1;
       const cutOf = cuts.get(window.path);
       const answer = await planted({
         set: set.set,
@@ -340,15 +336,15 @@ function fetchOf(
 
 /* ----- scan ----- */
 
-async function scan(request: ScanRequest): Promise<ScanResult> {
-  const reader = await load();
+async function scan(reader: ReaderExports, request: ScanRequest): Promise<ScanResult> {
   const fail = (error: string): ScanResult => ({
     ok: false,
     error,
-    warnings: [],
     atoms: [],
     diagnostics: [],
   });
+  if (request.check && !reader.checkLedger)
+    throw new ReaderNotReachable('check mode requires the reader checkLedger export');
   const labelsText = request.labelsYaml ?? reader.AGENT_RULES_SET;
   const parsed = reader.parseLabelSets(labelsText);
   if (!parsed.ok) return fail(parsed.message);
@@ -359,42 +355,57 @@ async function scan(request: ScanRequest): Promise<ScanResult> {
   }
   const cuts = new Map<string, RCut>();
   for (const file of request.files) cuts.set(file.path, reader.cut(file.text));
-  const counter = { calls: 0 };
   const mode = request.cassette?.mode ?? 'record';
   const cassette = reader.Cassette.parse(request.cassette?.text ?? '');
-  let labeler: RLabeler | undefined;
+  let labelling: RLabelling;
   if (request.model) {
     try {
-      labeler = reader.labelerByName(request.model.arm, {
-        record: mode === 'record',
-        env: TEST_ENV,
-        fetch: fetchOf(request.model.transport),
-        ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
-      });
+      const built = await reader.buildLabelling(
+        [
+          {
+            cls: request.model.arm === 'haiku' ? 'system2' : 'system1',
+            client: request.model.arm === 'haiku' ? 'anthropic' : request.model.arm,
+          },
+        ],
+        {
+          record: mode === 'record',
+          cwd: '.',
+          env: TEST_ENV,
+          fetch: fetchOf(request.model.transport),
+          ...(request.model.threshold !== undefined ? { threshold: request.model.threshold } : {}),
+        },
+      );
+      if (!built.ok) return fail(built.message);
+      labelling = built.labelling;
     } catch (cause) {
       return fail(cause instanceof Error ? cause.message : String(cause));
     }
-    if (!labeler) return fail(`the reader has no labeller named ${request.model.arm}`);
   } else {
-    labeler = plantedLabeler(reader, request, cuts, counter);
+    labelling = reader.singleLabelling(plantedLabeler(reader, request, cuts));
   }
-  const effectiveMode = request.model ? mode : 'record';
   let result: RResult;
   try {
     result = await reader.pointerScan({
       files: request.files,
       sets: parsed.sets,
-      labeler,
+      labelling,
       cassette,
-      mode: effectiveMode,
+      mode,
       ...(previous ? { previous } : {}),
     });
   } catch (cause) {
     return fail(cause instanceof Error ? cause.message : String(cause));
   }
   const view = viewOf(reader, result.ledger, result.cuts);
-  if (request.check && request.previousLedger !== undefined && view.raw !== request.previousLedger)
-    return { ...fail('the ledger is stale'), ledger: view };
+  if (request.check && reader.checkLedger) {
+    const checked = reader.checkLedger(request.previousLedger, result.ledger);
+    if (!checked.ok)
+      return {
+        ...fail(checked.error ?? 'the reader rejected check mode'),
+        ledger: view,
+        ...(result.warnings !== undefined ? { warnings: result.warnings } : {}),
+      };
+  }
 
   const texts = new Map(request.files.map((f: SourceFile) => [f.path, f.text]));
   let atoms: Atom[] = [];
@@ -404,7 +415,7 @@ async function scan(request: ScanRequest): Promise<ScanResult> {
   ];
   try {
     const builder = new reader.AtomBuilder(new Map());
-    const made = reader.pointerAtoms(result.labelled, texts, builder, labeler.id);
+    const made = reader.pointerAtoms(result.labelled, texts, builder, labelling.describe);
     atoms = made.accepted.map(atomOf);
     diagnostics.push(
       ...made.refusals.map((detail) => ({ code: 'atom-refusal', detail })),
@@ -418,15 +429,15 @@ async function scan(request: ScanRequest): Promise<ScanResult> {
   }
   return {
     ok: true,
-    warnings: [],
+    ...(result.warnings !== undefined ? { warnings: result.warnings } : {}),
     ledger: view,
     atoms,
     diagnostics,
     cassette: cassette.render(),
-    events: eventsOf(previous, result.ledger),
+    ...(result.eventsById !== undefined ? { events: result.eventsById } : {}),
     eventCounts: result.events,
     windows: result.windows,
-    calls: request.model ? result.calls : counter.calls,
+    calls: result.calls,
   };
 }
 
@@ -465,6 +476,37 @@ export function realReader(): PointerSut {
       const out = reader.cut(file.text);
       return { units: out.units.map(toUnit), cutDigest: out.digest };
     },
-    scan,
+    scan: async (request) => scan(await load(), request),
+    stack: {
+      margin: async (probabilities) => stackOf(await load()).margin(probabilities),
+      decide: async (request) => stackOf(await load()).decide(request),
+    },
+  };
+}
+
+/** Binds an already loaded reader for seam verification; it does not replace reader behavior. */
+export function readerAdapter(reader: ReaderExports): PointerSut {
+  return {
+    name: 'pointer-reader',
+    async cut(file) {
+      const out = reader.cut(file.text);
+      return { units: out.units.map(toUnit), cutDigest: out.digest };
+    },
+    scan: (request) => scan(reader, request),
+    stack: stackOf(reader),
+  };
+}
+
+function stackOf(reader: ReaderExports): StackApi {
+  return {
+    margin(probabilities) {
+      if (!reader.margin) throw new ReaderNotReachable('the reader does not expose margin');
+      return reader.margin(probabilities);
+    },
+    decide(request) {
+      if (!reader.stackDecision)
+        throw new ReaderNotReachable('the reader does not expose the independent-vote stackDecision seam');
+      return reader.stackDecision(request);
+    },
   };
 }

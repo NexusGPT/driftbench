@@ -46,7 +46,7 @@ describe('the pointer bank', () => {
     for (const item of bank) expect(item.cause, item.id).toMatch(/^[a-z][a-z0-9-]*:[a-z0-9][a-z0-9-]*$/);
   });
 
-  it('holds more than 110 distinct causes', () => {
+  it('holds more than 110 declared cause tags (independent fix audit pending)', () => {
     expect(new Set(bank.map((i) => i.cause)).size).toBeGreaterThan(110);
   });
 

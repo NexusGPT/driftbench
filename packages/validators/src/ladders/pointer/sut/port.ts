@@ -120,8 +120,10 @@ export type LedgerEntry = {
   hint?: { start: number; end: number };
   status: string;
   labels: Record<string, { label: string; source: string; setHash: string }>;
-  lineage: Array<{ scan: number; event: string }>;
-  twinOf: string | null;
+  /** Absent when the reader does not expose lineage; never synthesised by an adapter. */
+  lineage?: Array<{ scan: number; event: string }>;
+  /** Absent when unavailable; null is an observed absence of a twin. */
+  twinOf?: string | null;
 };
 
 export type LedgerView = { raw: string; entries: LedgerEntry[] };
@@ -145,7 +147,8 @@ export type ScanResult = {
   ok: boolean;
   /** The failure message when `ok` is false. */
   error?: string;
-  warnings: string[];
+  /** Absent when the reader does not expose warnings. */
+  warnings?: string[];
   ledger?: LedgerView;
   atoms: Atom[];
   diagnostics: Diagnostic[];
@@ -205,12 +208,29 @@ export interface LinksApi {
   ): { rerun: string[]; advisory: string[] };
 }
 
+/** A validator-facing observation seam for the product stack (no voting in the adapter). */
+export type StackRequest = {
+  probabilities: Record<string, number>;
+  system1Label?: string;
+  system2Votes: Array<string | null>;
+  marginCut: number;
+  requireAgreement?: boolean;
+};
+export type StackDecision = { label: string; by: 'system1' | 'system2' } | undefined;
+export interface StackApi {
+  margin(
+    probabilities: Record<string, number>,
+  ): { label: string; margin: number } | Promise<{ label: string; margin: number }>;
+  decide(request: StackRequest): StackDecision | Promise<StackDecision>;
+}
+
 /** The system under test. */
 export interface PointerSut {
   readonly name: string;
   cut(file: SourceFile): Promise<CutResult>;
   scan(request: ScanRequest): Promise<ScanResult>;
   links?: LinksApi;
+  stack?: StackApi;
 }
 
 /** Thrown by the unreachable binding: the reader cannot be called from this checkout. */

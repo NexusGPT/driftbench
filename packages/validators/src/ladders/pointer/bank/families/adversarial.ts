@@ -296,13 +296,19 @@ export const adversarialRuns: Record<string, Run> = {
       : fail(`${r.cut?.units.length} units for 600 levels`);
   },
   'deep-nested-quotes': async (ctx) => {
-    const text = `${'> '.repeat(1000)}${prose(ctx).next()}\n`;
+    const p = prose(ctx);
+    const control = await cutCase(ctx, [para(p.next())]);
+    if (!control.pass) return fail(`positive witness: ${control.detail}`);
+    const inner = p.next();
+    const text = `${'> '.repeat(1000)}${inner}\n`;
     const r = await childCut({ path: 'deepq.md', text }, 60_000);
     if (r.crashed) return fail(`the cut did not survive 1000 nested quote levels: ${r.error}`);
     if (r.error)
       return clearMessage(r.error)
         ? pass(`refused with a clear message: ${r.error.slice(0, 80)}`)
         : fail(`the failure message does not say why: ${r.error}`);
+    if (!r.cut?.units.some((u) => u.text === text.slice(u.start, u.end) && u.text.includes(inner)))
+      return fail('positive witness: a successful deep cut must return the quoted source text');
     return r.cut && r.cut.units.length >= 1
       ? pass('a quote unit')
       : fail('no unit for a deeply quoted paragraph');
@@ -407,6 +413,8 @@ export const adversarialRuns: Record<string, Run> = {
       return fail(
         `${live.length} entries, ${new Set(live.map((e) => e.id)).size} distinct ids, expected 800 and 800`,
       );
+    if (live.some((entry) => entry.twinOf !== null && typeof entry.twinOf !== 'string'))
+      return fail('the reader does not expose twinOf for every live unit');
     const twins = live.filter((e) => e.twinOf !== null && e.twinOf !== undefined).length;
     if (twins < 792) return fail(`${twins} twin marks, expected at least 792 (every copy but the first)`);
     const again = await scanOk(ctx.sut, { files, previousLedger: first.ledger.raw, labeler: perfect() });

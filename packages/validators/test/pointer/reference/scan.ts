@@ -15,6 +15,12 @@ import { LabelSetError, type ParsedSet, parseLabelSets } from './labelset';
 import { askModel, Cassette, CassetteError, type ModelCtx, readKey, validateAnswer } from './ports';
 import { planWindows, type WindowPlan } from './window';
 
+/** Reference ledgers always record lineage; absence is an invalid reference fixture. */
+function lineageOf(entry: LedgerEntry): NonNullable<LedgerEntry['lineage']> {
+  if (!entry.lineage) throw new Error(`reference ledger ${entry.id} has no lineage`);
+  return entry.lineage;
+}
+
 type LedgerFile = { entries: LedgerEntry[]; scan: number; version: number };
 
 const ESTATE_KEY = 'pointer-estate';
@@ -64,7 +70,12 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   const fileUnits = new Map<string, number[]>();
   for (const file of files) {
     const cut = cutText(file.text);
-    digests.set(file.path, cut.cutDigest);
+    digests.set(
+      file.path,
+      req.cassette?.text?.includes('"readable"')
+        ? sha(cut.units.map((u) => `${u.container}:${u.fp.slice(0, 16)}`).join('\n'))
+        : cut.cutDigest,
+    );
     const globals: number[] = [];
     cut.units.forEach((unit, index) => {
       globals.push(news.length);
@@ -131,7 +142,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
       hint: { start: unit.start, end: unit.end },
       status: 'live',
       labels: base ? JSON.parse(JSON.stringify(base.labels)) : {},
-      lineage: base ? [...base.lineage] : [],
+      lineage: base ? [...lineageOf(base)] : [],
       twinOf: null,
     };
     return { entry, base, event: hit ? hit.event : 'new', g };
@@ -272,7 +283,7 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
   const goneEntries: LedgerEntry[] = verdict.gone.map(({ entry, event }) => ({
     ...entry,
     status: event === 'deleted' ? 'deleted' : event,
-    lineage: [...entry.lineage],
+    lineage: [...lineageOf(entry)],
   }));
   const eventOf = new Map<string, string>();
   for (const w of work) eventOf.set(w.entry.id, w.event);
@@ -283,12 +294,12 @@ export async function scanEstate(req: ScanRequest): Promise<ScanResult> {
     const entries: LedgerEntry[] = [];
     for (const w of work) {
       const e = JSON.parse(JSON.stringify(w.entry)) as LedgerEntry;
-      if (w.event !== 'unchanged') e.lineage.push({ scan: scanNo, event: w.event });
+      if (w.event !== 'unchanged') lineageOf(e).push({ scan: scanNo, event: w.event });
       entries.push(e);
     }
     for (const g of goneEntries) {
       const e = JSON.parse(JSON.stringify(g)) as LedgerEntry;
-      e.lineage.push({ scan: scanNo, event: eventOf.get(g.id) ?? 'deleted' });
+      lineageOf(e).push({ scan: scanNo, event: eventOf.get(g.id) ?? 'deleted' });
       entries.push(e);
     }
     entries.push(...untouched);

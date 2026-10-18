@@ -1,6 +1,7 @@
 import { distinctSentences } from '../../kit/anchor-world';
 import { type Block, compose } from '../../kit/compose';
 import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
+import { makeFixture, requireFixtureLabels } from '../../kit/fixture';
 import {
   constant,
   entriesFor,
@@ -39,6 +40,8 @@ import type {
   SourceFile,
 } from '../../sut/port';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
+import { validateSetCases, validationRuns } from './labelset-validation';
+import { stackRuns } from './stack';
 
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
 const para = (text: string): Block => ({ kind: 'paragraph', sentences: [text] });
@@ -118,33 +121,8 @@ const bodyText = (call: { body: string }): string => {
   }
   return strings.join('\n');
 };
-const systemText = (call: { body: string }): string => {
-  try {
-    const b = JSON.parse(call.body) as { system?: unknown };
-    return typeof b.system === 'string' ? b.system : JSON.stringify(b.system ?? '');
-  } catch {
-    return '';
-  }
-};
-
 /** Wraps the labels of a set into a labels file: the VOICE sets alone. */
 const VOICE_ONLY = `labels:\n${VOICE_YAML}`;
-
-const FORBIDDEN = [
-  'estate',
-  'agent',
-  'skill',
-  'nexus',
-  'claude',
-  'driftbench',
-  'helper',
-  'prompt',
-  'rule',
-  'gate',
-  'instruction',
-  'bakery',
-  'email',
-];
 
 /* ---------------- Jev helpers ---------------- */
 
@@ -190,6 +168,8 @@ function probsAround(i: number, level: number, step: number): Probs {
 const rewordOf = (_ctx: ItemContext, p: Prose, t: string) => rewordWords(p.random, t, 1);
 
 export const labelsRuns: Record<string, Run> = {
+  ...stackRuns,
+  ...validationRuns,
   'perfect-labels-recovered': async (ctx) => {
     const p = prose(ctx);
     const texts = distinctSentences(p, 60);
@@ -392,58 +372,28 @@ export const labelsRuns: Record<string, Run> = {
   },
   'prompt-generic-template': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 8);
-    const fake = fakeTransport();
-    must(await modelScan(ctx, docOf(texts), 'haiku', fake, { labelsYaml: TWO_SETS_YAML }));
-    const sets: Record<string, string[]> = {
-      'agent-rules': [
-        'agent-rules',
-        'What an instruction file asks of the agent.',
-        'rule',
-        'prohibition',
-        'gate',
-        'example',
-        'description',
-        'A unit that tells the reader what to do.',
-        'A unit that tells the reader what never to do.',
-        'A unit that sets an order, one act before another.',
-        'A unit that shows a case and is not itself an instruction.',
-        'A unit that states how something is, with no instruction.',
-      ],
-      'house-voice': [
-        'house-voice',
-        "How a style guide for a bakery's customer emails is written.",
-        'voice-rule',
-        'claim-needs-source',
-        'legal-line',
-        'A unit that fixes a tone or a word choice for customer emails.',
-        'A unit that states a fact about an ingredient, a price or an allergen.',
-        'A unit that must appear word for word in a message.',
-        'Write as if you were speaking over the counter.',
-        "Say 'loaf', never 'unit'.",
-        'Allergen details are on the label.',
-      ],
-    };
-    const systems: string[] = [];
-    for (const [name, derived] of Object.entries(sets)) {
-      const call = fake.calls.find((c) => c.set === name);
-      if (!call) return fail(`no request for the set ${name}`);
-      let user = bodyText(call);
-      const system = systemText(call);
-      systems.push(system);
-      for (const x of [...derived, ...texts, ...call.units.map((u) => u.text)].sort(
-        (a, b) => b.length - a.length,
-      ))
-        user = user.split(x).join(' ');
-      for (const word of FORBIDDEN) {
-        const re = new RegExp(`\\b${word}\\b`, 'i');
-        if (re.test(user))
-          return fail(`the request for ${name} holds the word "${word}" outside the set text`);
-        if (re.test(system)) return fail(`the system text for ${name} holds the word "${word}"`);
-      }
+    // Equal-shape sets vary only caller-owned data, never a blacklist of words.
+    const sets = [
+      ['alpha-set', 'Alpha description.', 'alpha-label', 'Alpha meaning.', 'alpha-example'],
+      ['omega-set', 'Omega description.', 'omega-label', 'Omega meaning.', 'omega-example'],
+    ];
+    const signatures: string[] = [];
+    for (const fields of sets) {
+      const [name, description, labelName, meaning, example] = fields;
+      const labelsYaml = `labels:\n  - set: ${name}\n    description: ${description}\n    labels:\n      - name: ${labelName}\n        description: ${meaning}\n        examples: [${example}]\n`;
+      const fake = fakeTransport();
+      const res = must(await modelScan(ctx, docOf(texts), 'haiku', fake, { labelsYaml }));
+      requireSourceWitness(res, docOf(texts));
+      if (fake.calls.length !== 1 || fake.calls[0]?.set !== name)
+        return fail('positive witness: expected one request for the declared set');
+      let signature = bodyText(fake.calls[0] as NonNullable<(typeof fake.calls)[0]>);
+      for (const [index, field] of fields.entries())
+        signature = signature.split(field).join(`<set-field-${index}>`);
+      signatures.push(signature);
     }
-    return systems[0] === systems[1]
-      ? pass('generic template')
-      : fail('the system text differs between the two sets');
+    return signatures[0] === signatures[1]
+      ? pass('same template after substituting caller-owned set data')
+      : fail('the request template changes with the set beyond its declared data');
   },
   'prompt-examples-max-three': async (ctx) => {
     const yaml = `labels:
@@ -746,8 +696,8 @@ export const labelsRuns: Record<string, Run> = {
       const now = byId(second.ledger, id);
       if (now?.status !== 'live')
         return fail(`${show(t, 36)} is not live after the label flip (status ${now?.status})`);
-      if (second.events?.[id] !== undefined && second.events[id] !== 'unchanged')
-        return fail(`${show(t, 36)} has event ${second.events[id]}, expected unchanged`);
+      if (second.events?.[id] !== 'unchanged')
+        return fail(`${show(t, 36)} has event ${second.events?.[id]}, expected unchanged`);
       if (now.labels['agent-rules']?.label !== 'none')
         return fail(`${show(t, 36)} has label ${now.labels['agent-rules']?.label}, expected none`);
       if (!second.diagnostics.some((d) => d.code === 'label_flip' && d.unit === id))
@@ -770,11 +720,16 @@ export const labelsRuns: Record<string, Run> = {
     const views: string[] = [];
     for (const l of labellers) {
       const first = await scanOk(ctx.sut, { files: build(before).files, labeler: l });
+      requireSourceWitness(first, build(before).files);
       const second = await scanOk(ctx.sut, {
         files: build(after).files,
         previousLedger: first.ledger.raw,
         labeler: l,
       });
+      requireSourceWitness(second, build(after).files);
+      for (const entry of second.ledger.entries)
+        if (second.events?.[entry.id] === undefined)
+          return fail(`the reader does not expose an event for ${entry.id}`);
       const entries = JSON.parse(second.ledger.raw).entries.map((e: Record<string, unknown>) => {
         const { labels: _labels, ...rest } = e;
         return rest;
@@ -817,6 +772,9 @@ export const labelsRuns: Record<string, Run> = {
   'set-hash-ignores-yaml-formatting': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 12);
     const first = await scanOk(ctx.sut, { files: docOf(texts), labeler: perfect(), labelsYaml: RULES_YAML });
+    for (const text of texts)
+      if (label(first.ledger, text) !== truthLabel(text))
+        return fail('positive witness: every source unit must carry its planted label before formatting');
     const reformatted = `# labels of the estate
 labels:
     - description: "What an instruction file asks of the agent."   # set text
@@ -846,6 +804,9 @@ labels:
       labeler,
       labelsYaml: reformatted,
     });
+    for (const text of texts)
+      if (label(second.ledger, text) !== truthLabel(text))
+        return fail('positive witness: every source unit must keep its planted label after formatting');
     if (labeler.calls.length !== 0)
       return fail(`${labeler.calls.length} calls after a formatting-only change`);
     const h = (l: LedgerView) => liveOf(l)[0]?.labels['agent-rules']?.setHash;
@@ -877,27 +838,7 @@ labels:
       ? pass('six variants, six hashes')
       : fail(`${new Set(hashes).size} distinct hashes for ${variants.length} different sets`);
   },
-  'set-validation-errors': async (ctx) => {
-    const lab = (name: string, extra = '') =>
-      `      - name: ${name}\n        description: A unit named ${name}.\n${extra}`;
-    const set = (name: string, labels: string) =>
-      `  - set: ${name}\n    description: A set.\n    labels:\n${labels}`;
-    const cases: Array<{ yaml: string; names: string }> = [
-      { yaml: `labels:\n${set('dup', lab('a'))}${set('dup', lab('b'))}`, names: 'dup' },
-      { yaml: `labels:\n${set('s1', lab('none'))}`, names: 'none' },
-      { yaml: `labels:\n${set('s2', lab('twice') + lab('twice'))}`, names: 'twice' },
-      { yaml: `labels:\n${set('s3', lab('bad name'))}`, names: 'bad name' },
-      { yaml: `labels:\n${set('s4', lab('odd', '        target: optional\n'))}`, names: 'odd' },
-    ];
-    const texts = distinctSentences(prose(ctx), 4);
-    for (const c of cases) {
-      const res = await ctx.sut.scan({ files: docOf(texts), labeler: constant('none'), labelsYaml: c.yaml });
-      if (res.ok) return fail(`the set with "${c.names}" was accepted`);
-      if (!(res.error ?? '').includes(c.names))
-        return fail(`the refusal does not name "${c.names}": ${res.error}`);
-    }
-    return pass('five bad sets refused by name');
-  },
+  'set-validation-errors': (ctx) => validateSetCases(ctx),
   'read-unit-not-labelable': async (ctx) => {
     const p = prose(ctx);
     const name = 'shelf-audit';
@@ -1025,14 +966,25 @@ labels:
     }));
     const { res } = await jevLabels(ctx, 'jev', units);
     if (!res.cassette) return fail('the record run returned no cassette');
+    const fixture = makeFixture(
+      'jev',
+      [
+        {
+          path: 'doc.md',
+          units: units.map((unit) => ({ text: unit.text, label: 'rule', probabilities: unit.probs })),
+        },
+      ],
+      PROBE_YAML,
+    );
     const closed = fakeTransport({ respond: () => ({ status: 500, body: 'closed' }) });
     const replay = await ctx.sut.scan({
-      files: docOf(texts),
+      files: fixture.files,
       labelsYaml: PROBE_YAML,
       model: { arm: 'jev', transport: closed, threshold: 0.9 },
-      cassette: { mode: 'replay', text: res.cassette },
+      cassette: { mode: 'replay', text: fixture.cassette },
     });
     if (!replay.ok || !replay.ledger) return fail(`the replay at another threshold failed: ${replay.error}`);
+    requireFixtureLabels(replay, fixture, 0.9);
     if (closed.count !== 0) return fail(`${closed.count} transport calls on a replay`);
     for (const [i, t] of texts.entries()) {
       const want = i % 2 === 0 ? 'rule' : 'none';

@@ -47,6 +47,7 @@ export function pointerBank(): PointerItem[] {
         component: spec.component ?? family.component,
         title: spec.title,
         cause: spec.cause,
+        ...(spec.causeKind !== undefined ? { causeKind: spec.causeKind } : {}),
         gen: spec.gen,
         oracle: spec.oracle,
         needs: spec.needs ?? family.needs,
@@ -113,8 +114,12 @@ export function bankByFamilyTier(items: readonly PointerItem[]): Record<string, 
   return out;
 }
 
-/** The distinct causes among the items that fail (section 12.4): items sharing a cause count once. */
+/** Declared atomic cause tags among failing items; composite checks add no independently fixable claim. */
 export function distinctCauses(items: readonly PointerItem[], failing: Iterable<string>): string[] {
   const ids = new Set(failing);
-  return [...new Set(items.filter((item) => ids.has(item.id)).map((item) => item.cause))].sort();
+  return [
+    ...new Set(
+      items.filter((item) => ids.has(item.id) && item.causeKind !== 'composite').map((item) => item.cause),
+    ),
+  ].sort();
 }

@@ -43,7 +43,7 @@ export const radius: FamilySpec = {
       'A cosmetic edit reruns nothing',
       'Rewrap and bullet swap.',
       'Rerun set empty.',
-      'radius:only-suspect-links',
+      'radius:suspect-tests',
     ),
     row(
       'move-rule-empty',
@@ -51,7 +51,7 @@ export const radius: FamilySpec = {
       'Moving a rule reruns nothing',
       'Move a rule to another file.',
       'Rerun set empty.',
-      'radius:only-suspect-links',
+      'radius:suspect-tests',
     ),
     row(
       'rename-file-empty',
@@ -59,7 +59,7 @@ export const radius: FamilySpec = {
       'Renaming a file reruns nothing',
       'Rename a file holding 5 rules.',
       'Rerun set empty.',
-      'radius:only-suspect-links',
+      'radius:suspect-tests',
     ),
     row(
       'edit-unlinked-rule-empty',
@@ -67,7 +67,7 @@ export const radius: FamilySpec = {
       'Editing a rule no block links to reruns nothing',
       'Reword a rule with no link.',
       'Rerun set empty.',
-      'radius:only-suspect-links',
+      'radius:suspect-tests',
     ),
     row(
       'edit-two-rules-union',
@@ -91,7 +91,7 @@ export const radius: FamilySpec = {
       'A block without links is never rerun',
       '5 blocks with no link; delete rules.',
       'None of those 5 in any rerun set.',
-      'radius:only-suspect-links',
+      'radius:suspect-tests',
     ),
     row(
       'delete-file-with-rules',
@@ -187,7 +187,7 @@ export const radius: FamilySpec = {
       'A mixed world has precision and recall 1',
       '100 rules, 150 blocks, 60 seeded mutants of delete, negate, reword, cosmetic and move.',
       'Precision and recall against the planted truth are both 1.0.',
-      'radius:precision-recall',
+      'radius:suspect-tests',
     ),
     row(
       'output-sorted-unique',

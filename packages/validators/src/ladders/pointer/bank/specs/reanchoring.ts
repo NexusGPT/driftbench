@@ -267,7 +267,7 @@ export const reanchoring: FamilySpec = {
       'A third of the words changed still keeps the id',
       'Replace words of a 170 character sentence until its measured similarity to the source lies in 0.6 to 0.8.',
       'Id live, event `changed`.',
-      'anchor:moderate-reword-changed',
+      'anchor:pairwise-similarity-changed',
     ),
     row(
       'rewrite-sentence',
@@ -320,10 +320,10 @@ export const reanchoring: FamilySpec = {
     row(
       'reword-sweep-monotone',
       4,
-      'Acceptance falls monotonically with the share of changed words',
-      'Twelve units with 5, 13, 21 ... 93 percent of their words replaced; the similarity of each pair is measured.',
-      'A pair at similarity 0.55 or more keeps its id (`changed`); a pair at 0.3 or less is deleted and fresh; sorted by similarity the outcomes never turn from lost back to kept.',
-      'anchor:monotone-acceptance',
+      'Re-anchoring uses both text and context, with the text floor',
+      'Five independently generated text-similarity bands, each scanned with unchanged and replaced context; every edit has its own scan pair.',
+      'Keep the original id exactly when text similarity exceeds 0.4 and 0.6 × text + 0.4 × context exceeds 0.45; otherwise retain the old tombstone and assign a fresh id. Every replacement has positive source evidence.',
+      'anchor:weighted-text-context-threshold',
     ),
     row(
       'split-sentence',
@@ -412,6 +412,7 @@ export const reanchoring: FamilySpec = {
       'Segment script of 6 edits (reword, rewrite, delete, insert, move, split) among 30 kept units; every text that leaves is under 0.39 alike to every text that enters.',
       "Every old unit's outcome class equals the script's; inserted units fresh; live count equals the new unit count.",
       'anchor:mixed-edit-script',
+      { causeKind: 'composite' },
     ),
     row(
       'script-mixed-20',
@@ -420,6 +421,7 @@ export const reanchoring: FamilySpec = {
       'Segment script of 20 edits (all kinds including merge) among 100 kept units, same constraint.',
       'Same oracle.',
       'anchor:mixed-edit-script',
+      { causeKind: 'composite' },
     ),
     row(
       'script-multi-file',
@@ -428,6 +430,7 @@ export const reanchoring: FamilySpec = {
       '10 files and about 165 units; 15 edits including three moves to another file.',
       'Same oracle, with the path of each moved unit.',
       'anchor:multi-file-anchoring',
+      { causeKind: 'composite' },
     ),
     row(
       'no-wrong-anchors-fuzz',
@@ -436,6 +439,7 @@ export const reanchoring: FamilySpec = {
       '100 seeded random edit pairs (keep, reword, rewrite, delete, copy, reverse, insert) on documents of 8 units.',
       'For every carried id the new quote is exact old text or has normalised similarity at least 0.3 to the old quote; ids unique; every new unit has exactly one live entry.',
       'anchor:no-wrong-anchor-invariant',
+      { causeKind: 'composite' },
     ),
   ],
 };

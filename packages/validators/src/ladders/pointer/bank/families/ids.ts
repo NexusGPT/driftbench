@@ -313,6 +313,8 @@ export const idsRuns: Record<string, Run> = {
         ])
       ).ledger,
     );
+    if (live.some((entry) => entry.twinOf !== null && typeof entry.twinOf !== 'string'))
+      return fail('the reader does not expose twinOf for every live unit');
     const copied = shared.map((blk) => (blk.kind === 'paragraph' ? blk.sentences[0] : '') as string);
     for (const text of copied) {
       const pair = live.filter((e) => e.quote.startsWith(text.slice(0, 30)));
@@ -762,6 +764,8 @@ export const idsRuns: Record<string, Run> = {
     const r = await fresh(ctx, build(filesOf(w)).files);
     const raw = (JSON.parse(r.ledger.raw) as { entries: Array<{ status: string; lineage?: unknown }> })
       .entries;
+    if (raw.length === 0 || raw.length !== r.ledger.entries.length)
+      return fail('the raw ledger does not contain every observed live unit');
     if (raw.some((e) => e.status !== 'live')) return fail('an entry of a fresh scan is not live');
     return raw.every((e) => Array.isArray(e.lineage) && e.lineage.length > 0)
       ? pass('all live with a lineage')

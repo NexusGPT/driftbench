@@ -2,6 +2,7 @@ import type { PointerSut } from '../../../src/ladders/pointer/sut/port';
 import { cutText } from './cut';
 import { referenceLinks } from './links';
 import { scanEstate } from './scan';
+import { referenceStack } from './stack';
 
 /**
  * The reference reader: a test-only implementation of the bank's port, written from docs/estate-pointer-reader.md,
@@ -18,6 +19,7 @@ export function referenceSut(): PointerSut {
       return scanEstate(request);
     },
     links: referenceLinks,
+    stack: referenceStack,
   };
 }
 

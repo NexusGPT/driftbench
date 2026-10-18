@@ -73,10 +73,14 @@ export function parseCall(request: FetchRequest): ParsedCall {
         .split('|')
         .map((s) => s.trim())
         .filter((s) => s !== 'none' && s !== '')
-    : [];
+    : [...text.matchAll(/^- ([a-z][a-z0-9_-]*):/gm)].map((m) => m[1] as string).filter((n) => n !== 'none');
   return {
     arm,
-    set: /^SET (.*)$/m.exec(text)?.[1]?.trim() ?? '',
+    set:
+      /^SET ([^:\n]+)(?::|$)/m.exec(text)?.[1]?.trim() ??
+      (typeof (record.state as { set?: unknown })?.set === 'string'
+        ? (record.state as { set: string }).set
+        : ''),
     labels,
     window: /^WINDOW (\S+)/m.exec(text)?.[1] ?? '',
     units,
