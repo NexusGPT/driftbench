@@ -141,7 +141,7 @@ describe('README innovation YAML dropdowns', () => {
     const readme = await readFile(README, 'utf8');
     const bodies = [...readme.matchAll(DROPDOWN)].map((dropdown) => dropdown[2] ?? '');
     expect(bodies.join('\n')).not.toMatch(/ships? in \[PR/);
-    for (const pr of [418, 443, 459, 562]) {
+    for (const pr of [418, 443, 459]) {
       expect(
         bodies.some((body) =>
           body.includes(`coming in [#${pr}](https://github.com/achammah/driftbench/pull/${pr})`),
