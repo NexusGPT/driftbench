@@ -1,10 +1,16 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import { type ItemPatch, type Layer, USES_KINDS, Uses } from '../schema/object';
+import { type ItemPatch, LAYERS, type Layer, USES_KINDS, Uses } from '../schema/object';
 import type { Spec } from '../schema/spec';
 import { isPlainObject } from '../spec/normalize';
-import { type ObjectRegistry, ObjectStore, objectRegistry, type ResolvedObject } from './resolve';
+import {
+  initializeShippedObjects,
+  type ObjectRegistry,
+  ObjectStore,
+  objectRegistry,
+  type ResolvedObject,
+} from './resolve';
 import { ObjectError } from './rules';
 
 /** The project folder of user objects, beside `driftbench.yaml`: `driftbench/<kind>/<id>.yaml`. */
@@ -20,7 +26,11 @@ export type LayerUses = { layer: 'project' | 'suite'; rank: number; path: string
 /** Command-line overrides: `--use <kind>/<id>` and `--set <kind>[/<id>]#<item>.<param>=<value>`. */
 export type CliOverrides = {
   use: ReadonlyMap<string, string>;
-  set: ReadonlyArray<{ kind: string; id?: string; patch: ItemPatch; flag: string }>;
+  /**
+   * Each `--set`: the kind, the object id when the flag names one, the dotted `<item>.<param>` text after `#`
+   * (split against the object's item ids when it resolves, since an item id may hold dots) and the value.
+   */
+  set: ReadonlyArray<{ kind: string; id?: string; path: string; value: unknown; flag: string }>;
 };
 
 /** Everything a spec at one place resolves its objects against. */
@@ -36,26 +46,17 @@ export type ObjectContext = {
 };
 
 type Discovered = { root?: string; suites: string[] };
-const discoveryCache = new Map<string, Discovered>();
-const contextCache = new Map<string, ObjectContext>();
-
-/** Forgets every discovered folder, so tests and long-lived processes read changed object files. */
-export function clearObjectContexts(): void {
-  discoveryCache.clear();
-  contextCache.clear();
-}
+/** Compatibility hook: contexts are read afresh, so there is no process cache to clear. */
+export function clearObjectContexts(): void {}
 
 /**
  * The objects visible from a spec file: the shipped ones, the project's (`driftbench/` beside the nearest
  * `driftbench.yaml`, and its `objects:` key), and every `_driftbench/` suite folder from the project root down
  * to the spec's folder, a nearer one stronger. The search stops at the project root, else at the repository
- * root (a folder holding `.git`). Folders are read once per process; `clearObjectContexts` forgets them.
+ * root (a folder holding `.git`). Each load reads fresh files; a loaded spec keeps its own context snapshot.
  */
 export function objectContextFor(specPath: string, registry: ObjectRegistry = objectRegistry): ObjectContext {
   const dir = dirname(resolve(specPath));
-  const cacheKey = registry === objectRegistry ? dir : '';
-  const cached = cacheKey === '' ? undefined : contextCache.get(cacheKey);
-  if (cached) return cached;
   const found = discover(dir);
   const store = new ObjectStore(registry);
   const uses: LayerUses[] = [];
@@ -83,7 +84,6 @@ export function objectContextFor(specPath: string, registry: ObjectRegistry = ob
     problems,
     ...(found.root === undefined ? {} : { root: found.root }),
   };
-  if (cacheKey !== '') contextCache.set(cacheKey, context);
   return context;
 }
 
@@ -93,8 +93,6 @@ export function shippedObjectContext(registry: ObjectRegistry = objectRegistry):
 }
 
 function discover(dir: string): Discovered {
-  const known = discoveryCache.get(dir);
-  if (known) return known;
   let result: Discovered;
   const suite = join(dir, SUITE_OBJECTS_DIR);
   const own = isDir(suite) ? [suite] : [];
@@ -106,7 +104,6 @@ function discover(dir: string): Discovered {
     const above = discover(dirname(dir));
     result = { ...(above.root === undefined ? {} : { root: above.root }), suites: [...above.suites, ...own] };
   }
-  discoveryCache.set(dir, result);
   return result;
 }
 
@@ -235,6 +232,35 @@ export function resolveBlockObjects(
   context: ObjectContext,
   options: { explicitOnly?: boolean } = {},
 ): UsedObject[] {
+  // Every named target must exist, before kind-specific branches can skip it, including unselected objects.
+  const namedTargets = new Map<string, { kind: string; id: string }>();
+  for (const set of context.cli?.set ?? []) {
+    if (set.id === undefined || /^\([a-z]+\)$/.test(set.id)) continue;
+    if (!context.store.has(set.kind, set.id)) {
+      throw new ObjectError(
+        `--set ${set.flag}: unknown object ${set.kind}:${set.id}; searched layers ${LAYERS.join(', ')}`,
+        'OBJECT_UNKNOWN',
+        `--set ${set.flag}`,
+      );
+    }
+    namedTargets.set(`${set.kind}:${set.id}`, { kind: set.kind, id: set.id });
+  }
+  // The objects that took their flags: every flag an object receives is applied together and its combined
+  // params are validated once. The object a kind selects receives its named flags and the kind-only flags of
+  // its kind, in the order given.
+  const applied = new Set<string>();
+  const applySets = (object: ResolvedObject): ResolvedObject => {
+    applied.add(`${object.kind}:${object.id}`);
+    const sets = (context.cli?.set ?? []).filter(
+      (set) => set.kind === object.kind && (set.id === undefined || set.id === object.id),
+    );
+    return sets.length === 0
+      ? object
+      : context.store.resolveCli(
+          object,
+          sets.map((set) => cliPatch(object, set)),
+        );
+  };
   const out: UsedObject[] = [];
   for (const key of Object.keys(USES_KINDS) as Array<keyof typeof USES_KINDS>) {
     const kind = USES_KINDS[key];
@@ -245,35 +271,63 @@ export function resolveBlockObjects(
         : referenceOf(spec, blockIndex, key, context);
     if (key === 'diagnostics') {
       const ids = (reference?.ref as string[] | undefined) ?? [];
+      const unresolved = (context.cli?.set ?? []).find(
+        (set) => set.kind === kind && (set.id === undefined ? ids.length === 0 : /^\([a-z]+\)$/.test(set.id)),
+      );
+      if (unresolved)
+        throw new ObjectError(
+          `--set ${unresolved.flag}: unknown object ${kind}:${unresolved.id ?? 'default'}; searched layers ${LAYERS.join(', ')}`,
+          'OBJECT_UNKNOWN',
+          `--set ${unresolved.flag}`,
+        );
       for (const id of ids) {
         out.push({
           key,
           setAt: reference?.setAt ?? 'shipped',
           place: reference?.place ?? '',
-          object: withPlace(() => context.store.resolve(kind, id), reference?.place),
+          object: applySets(withPlace(() => context.store.resolve(kind, id), reference?.place)),
         });
       }
       continue;
     }
+    const forKind = (context.cli?.set ?? []).filter((set) => set.kind === kind);
     let object: ResolvedObject | undefined;
     if (reference !== undefined) {
       object = withPlace(
         () => context.store.resolveRef(kind, reference.ref as never, reference.setAt, reference.place),
         reference.place,
       );
-    } else if (!options.explicitOnly && context.store.has(kind, 'default')) {
+    } else if (
+      (!options.explicitOnly || forKind.some((set) => set.id === undefined)) &&
+      context.store.has(kind, 'default')
+    ) {
+      // A kind-only --set explicitly targets the effective default, even during loader preflight.
       object = context.store.resolve(kind, 'default');
     }
-    if (object === undefined) continue;
-    const sets = (context.cli?.set ?? []).filter(
-      (set) => set.kind === kind && (set.id === undefined || set.id === object?.id),
-    );
-    if (sets.length > 0)
-      object = context.store.resolveCli(
-        object,
-        sets.map((set) => set.patch),
-      );
+    if (object === undefined) {
+      const unresolved = forKind.find((set) => set.id === undefined || /^\([a-z]+\)$/.test(set.id));
+      if (unresolved)
+        throw new ObjectError(
+          `--set ${unresolved.flag}: unknown object ${kind}:${unresolved.id ?? 'default'}; searched layers ${LAYERS.join(', ')}`,
+          'OBJECT_UNKNOWN',
+          `--set ${unresolved.flag}`,
+        );
+      continue;
+    }
+    object = applySets(object);
     out.push({ key, setAt: reference?.setAt ?? 'shipped', place: reference?.place ?? '', object });
+  }
+  // A named object this block does not select is never used, so it takes only the flags that name it; it is
+  // still validated, so a mistake in a flag for an unselected object is refused.
+  for (const { kind, id } of namedTargets.values()) {
+    if (applied.has(`${kind}:${id}`)) continue;
+    const target = context.store.resolve(kind, id);
+    context.store.resolveCli(
+      target,
+      (context.cli?.set ?? [])
+        .filter((set) => set.kind === kind && set.id === id)
+        .map((set) => cliPatch(target, set)),
+    );
   }
   return out;
 }
@@ -293,6 +347,40 @@ function withPlace<T>(action: () => T, place: string | undefined): T {
   }
 }
 
+/**
+ * The item patch of one `--set`: the longest prefix of its dotted path that is an item id of the object, then the
+ * rest as the param path. A path that starts with no item id of the object, or names no param after it, is refused
+ * with the object's items.
+ */
+export function cliPatch(
+  object: ResolvedObject,
+  set: { path: string; value: unknown; flag: string },
+): ItemPatch {
+  const ids = object.items.map((item) => item.id);
+  const parts = set.path.split('.');
+  for (let cut = parts.length - 1; cut >= 1; cut -= 1) {
+    const item = parts.slice(0, cut).join('.');
+    if (!ids.includes(item)) continue;
+    const params: Record<string, unknown> = {};
+    let cursor = params;
+    const rest = parts.slice(cut);
+    rest.forEach((part, index) => {
+      if (index === rest.length - 1) cursor[part] = set.value;
+      else {
+        const child: Record<string, unknown> = {};
+        cursor[part] = child;
+        cursor = child;
+      }
+    });
+    return { id: item, params };
+  }
+  throw new ObjectError(
+    `--set ${set.flag}: no item of ${object.kind}:${object.id} starts ${set.path}; it holds ${ids.length === 0 ? 'no items' : ids.join(', ')}, and a param follows the item id`,
+    'OBJECT_ITEM_UNKNOWN',
+    `--set ${set.flag}`,
+  );
+}
+
 /** Splits `<kind>/<id>` at the longest registered kind. */
 function splitKindId(text: string, registry: ObjectRegistry): { kind: string; id?: string } | undefined {
   const kinds = registry
@@ -309,13 +397,16 @@ function splitKindId(text: string, registry: ObjectRegistry): { kind: string; id
 /**
  * Reads the command-line layer: `--use <kind>/<id>` picks the object of a kind, `--set
  * <kind>[/<id>]#<item>.<param>=<value>` sets one parameter of one item (the value is read as YAML: `0.3`, `true`,
- * `[a, b]`). A flag that names no known kind, or has no `#item.param=value`, is refused.
+ * `[a, b]`). An item id may hold dots, so the item and the param are split when the object resolves: the longest
+ * prefix that is an item id of the object (`cliPatch`). A flag that names no known kind, or has no
+ * `#<item>.<param>=<value>`, is refused here; an unknown object id or item, when the block's objects resolve.
  */
 export function parseCliOverrides(
   useFlags: readonly string[],
   setFlags: readonly string[],
   registry: ObjectRegistry = objectRegistry,
 ): CliOverrides {
+  if (registry === objectRegistry) initializeShippedObjects();
   const use = new Map<string, string>();
   for (const flag of useFlags) {
     const parsed = splitKindId(flag, registry);
@@ -328,9 +419,9 @@ export function parseCliOverrides(
     if (use.has(parsed.kind)) throw new ObjectError(`--use names ${parsed.kind} twice`, 'OBJECT_INVALID');
     use.set(parsed.kind, parsed.id);
   }
-  const set: Array<{ kind: string; id?: string; patch: ItemPatch; flag: string }> = [];
+  const set: Array<{ kind: string; id?: string; path: string; value: unknown; flag: string }> = [];
   for (const flag of setFlags) {
-    const match = /^([^#]+)#([A-Za-z0-9][A-Za-z0-9._-]*?)\.([A-Za-z0-9_][A-Za-z0-9_.-]*)=(.*)$/s.exec(flag);
+    const match = /^([^#]+)#([A-Za-z0-9_][A-Za-z0-9_.-]*\.[A-Za-z0-9_][A-Za-z0-9_-]*)=(.*)$/s.exec(flag);
     const target = match ? splitKindId(match[1] as string, registry) : undefined;
     if (!match || !target) {
       throw new ObjectError(
@@ -338,30 +429,14 @@ export function parseCliOverrides(
         'OBJECT_INVALID',
       );
     }
-    const [, , item, param, text] = match as unknown as [string, string, string, string, string];
+    const [, , path, text] = match as unknown as [string, string, string, string];
     let value: unknown;
     try {
       value = parseYaml(text);
     } catch {
       value = text;
     }
-    const params: Record<string, unknown> = {};
-    let cursor = params;
-    const parts = param.split('.');
-    parts.forEach((part, index) => {
-      if (index === parts.length - 1) cursor[part] = value;
-      else {
-        const child: Record<string, unknown> = {};
-        cursor[part] = child;
-        cursor = child;
-      }
-    });
-    set.push({
-      kind: target.kind,
-      ...(target.id === undefined ? {} : { id: target.id }),
-      patch: { id: item, params },
-      flag,
-    });
+    set.push({ kind: target.kind, ...(target.id === undefined ? {} : { id: target.id }), path, value, flag });
   }
   return { use, set };
 }

@@ -2,6 +2,7 @@ import type { BlockResult, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import { canonicalJson } from '../spec/hash';
 import { replacesBlock } from './inject';
+import { blockStatus, isScored } from './verdicts';
 
 /** A point estimate with its two-sided interval, the shape `@agent-nexus/driftbench-stats` returns. */
 export type IntervalEstimate = { estimate: number; lower: number; upper: number };
@@ -137,10 +138,11 @@ function blockRates(runs: readonly RunResult[]): Map<number, Rate> {
   const rates = new Map<number, Rate>();
   for (const run of runs) {
     for (const { block, result } of specBlocks(run)) {
-      if (result.carried || run.carried) continue;
+      // A carried result is no new measurement, and a block not run or blocked is none at all.
+      if (result.carried || run.carried || !isScored(result)) continue;
       const rate = rates.get(block) ?? { pass: 0, runs: 0 };
       rate.runs += 1;
-      if (result.pass) rate.pass += 1;
+      if (blockStatus(result) === 'pass') rate.pass += 1;
       rates.set(block, rate);
     }
   }
@@ -154,6 +156,10 @@ function blockRates(runs: readonly RunResult[]): Map<number, Rate> {
  * A spec block whose stimulus is an injection stands for itself.
  */
 export function specBlocks(run: RunResult, spec?: Spec): Array<{ block: number; result: BlockResult }> {
+  if (run.blocks.some((result) => result.specIndex !== undefined))
+    return run.blocks
+      .filter((result) => result.specIndex !== undefined)
+      .map((result) => ({ block: result.specIndex as number, result }));
   if (run.blockRerun) return run.blocks.map((result) => ({ block: result.index, result }));
   const perturbation = spec?.perturbations?.find((entry) => entry.id === run.perturbationId);
   const replaces = perturbation !== undefined && replacesBlock(perturbation);

@@ -11,11 +11,14 @@ import {
   stimulusMessages,
 } from '../runner/given';
 import { provenanceHash } from '../runner/provenance';
+import { applyRealizedTextPolicy } from '../runner/realized-text';
 import { succession } from '../runner/succession';
+import { isScored } from '../runner/verdicts';
 import type { Message } from '../schema/common';
 import { type BlockResult, type Campaign, type RunResult, Verdict } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import { canonicalJson, contentHash } from '../spec/hash';
+import { specHash, specIdentity } from '../spec/identity';
 import { parseCriterionRef } from '../spec/semantics';
 import { type CarryLimits, carryOrigin } from './carry';
 import { completeBaselineProvenance } from './provenance';
@@ -28,7 +31,7 @@ import { agentVersionOf } from './version';
  * inside a criterion, until deliberately classified as judge-only. Never project onto today's schema.
  */
 export function observationCompatibilityHash(spec: Spec, execution: { executionHash: string }): string {
-  const copy = structuredClone(spec);
+  const copy = structuredClone(specIdentity(spec));
   // `uses` names scoring-only objects (policies, check sets, diagnostics): judge-only by construction, as the
   // block cache key leaves it out (cacheSpecHash).
   delete copy.uses;
@@ -66,6 +69,18 @@ const refuse = (why: string): never => {
   throw new Error(`${why}; rerun the agent in a full campaign.`);
 };
 
+/**
+ * A child of a parent-linked run was measured with the history, the previous stage and the Given of its
+ * ancestors; a re-judge builds its contexts from the block order, which would hand it unrelated trees.
+ */
+function refuseParentLinked(spec: Spec): void {
+  if (spec.blocks.some((block) => block.parent !== undefined)) {
+    refuse(
+      "A parent-linked run takes each child's history from its ancestors, which a re-judge or re-score does not rebuild",
+    );
+  }
+}
+
 /** Validate every context before the caller makes any judge call or writes any campaign. */
 export function prepareRejudge(
   old: Spec,
@@ -73,11 +88,12 @@ export function prepareRejudge(
   run: RunResult,
   options: RejudgeOptions,
 ): PreparedRejudge {
+  refuseParentLinked(spec);
   const provenance = run.provenance;
   if (!provenance || !completeBaselineProvenance({ provenance: options.baselineProvenance, runs: [run] }))
     return refuse('Legacy observation has missing, incomplete or inconsistent execution provenance');
   if (run.status !== 'completed') return refuse('The observation did not complete');
-  if (run.specHash !== contentHash(old)) return refuse('The pinned old spec hash does not match');
+  if (run.specHash !== specHash(old)) return refuse('The pinned old spec hash does not match');
   if (
     !options.agentVersion ||
     agentVersionOf(run) !== options.agentVersion ||
@@ -181,7 +197,7 @@ export function prepareRejudge(
       fromCampaign: options.fromCampaign,
       fromRun: run.runId,
       oldSpecHash: run.specHash,
-      newSpecHash: contentHash(spec),
+      newSpecHash: specHash(spec),
       compatibilityHash,
       criteria: [...names],
       judgedAt: options.now.toISOString(),
@@ -194,15 +210,19 @@ export async function rejudgeRun(
   prepared: PreparedRejudge,
   judge: Check,
   spent: () => number,
+  recordRealizedText = false,
 ): Promise<RunResult> {
   const { source, spec, contexts, stamp, carried } = prepared;
+  // The sink of every door that prepared this re-judge: the contexts were built from the block order.
+  refuseParentLinked(spec);
   const before = spent();
   const blocks: BlockResult[] = [];
   for (const ctx of contexts) {
     const original = source.blocks[ctx.blockIndex];
     if (!original) return refuse('The observation disappeared');
     const selected = (ctx.expect.criteria ?? []).map((ref) => parseCriterionRef(ref)?.name ?? ref);
-    if (!selected.length) {
+    // A block not run or blocked holds no observation to judge: it stays as it was, never a pass.
+    if (!selected.length || !isScored(original)) {
       const { rejudged: _previousJudge, ...unchanged } = original;
       blocks.push({ ...unchanged, carried });
       continue;
@@ -230,7 +250,7 @@ export async function rejudgeRun(
   const { carried: _carried, events: _events, ...rest } = source;
   const updated = {
     ...rest,
-    specHash: contentHash(spec),
+    specHash: specHash(spec),
     blocks,
     carried,
     rejudged: stamp,
@@ -238,5 +258,8 @@ export async function rejudgeRun(
     cost: spent() - before,
     cacheHit: false,
   };
-  return { ...updated, runId: cellId(updated) };
+  return applyRealizedTextPolicy({ ...updated, runId: cellId(updated) }, recordRealizedText, {
+    fromRun: source.runId,
+    fromCampaign: stamp.fromCampaign,
+  });
 }

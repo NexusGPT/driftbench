@@ -1,4 +1,5 @@
 import { createHash, type Hash } from 'node:crypto';
+import { SPEC_OBJECT_CONTEXT } from '../objects/context';
 
 /** JSON with object keys sorted at every depth, so equal content gives equal text. */
 export function canonicalJson(value: unknown): string {
@@ -38,6 +39,9 @@ export function cloneJson<T>(value: T): T {
   if (prototype !== Object.prototype && prototype !== null) return structuredClone(value);
   const out: Record<string, unknown> = {};
   for (const key of Object.keys(value)) out[key] = cloneJson((value as Record<string, unknown>)[key]);
+  const context = (value as Record<symbol, unknown>)[SPEC_OBJECT_CONTEXT];
+  if (context !== undefined)
+    Object.defineProperty(out, SPEC_OBJECT_CONTEXT, { value: context, enumerable: true, configurable: true });
   return out as T;
 }
 
@@ -87,6 +91,20 @@ export function canonicalJsonWithList(value: Record<string, unknown>, listKey: s
   return `{${fields.join(',')}}`;
 }
 
+/**
+ * Read-only lists made by appending to another read-only list, child to parent. A frozen list never changes, so
+ * a child that names its parent starts with exactly the parent's items: the prefix test is a short walk up this
+ * chain, not a comparison of every item.
+ */
+const extensionOf = new WeakMap<readonly unknown[], readonly unknown[]>();
+
+/** Records that the frozen list `child` is the frozen list `parent` with items appended. */
+export function noteExtension(parent: readonly unknown[], child: readonly unknown[]): void {
+  if (Object.isFrozen(parent) && Object.isFrozen(child) && child.length >= parent.length) {
+    extensionOf.set(child, parent);
+  }
+}
+
 type Running = { head: string; items: readonly unknown[]; state: Hash; text: string };
 const running: Running[] = [];
 const RUNNING_KEPT = 8;
@@ -104,6 +122,12 @@ function itemText(item: unknown): string {
 /** Whether `items` starts with every item of `entry`, the same objects in the same order. */
 function isPrefixOf(entry: Running, items: readonly unknown[]): boolean {
   if (entry.items.length > items.length) return false;
+  if (entry.items === items) return true;
+  if (Object.isFrozen(entry.items) && Object.isFrozen(items)) {
+    let list: readonly unknown[] | undefined = items;
+    while (list !== undefined && list.length > entry.items.length) list = extensionOf.get(list);
+    if (list === entry.items) return true;
+  }
   for (let index = 0; index < entry.items.length; index += 1) {
     if (entry.items[index] !== items[index]) return false;
   }
@@ -145,7 +169,8 @@ export function sha256WithList(head: string, items: readonly unknown[], tail: st
   }
   if (added !== '') state.update(added);
   text += added;
-  const entry: Running = { head, items: [...items], state, text };
+  // A frozen list is kept as it is; any other is copied, as a caller may change it later.
+  const entry: Running = { head, items: Object.isFrozen(items) ? items : [...items], state, text };
   running.unshift(entry);
   if (running.length > RUNNING_KEPT) running.length = RUNNING_KEPT;
   return state.copy().update(`]${tail}`).digest('hex');

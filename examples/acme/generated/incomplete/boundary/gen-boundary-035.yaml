@@ -78,6 +78,7 @@ metadata:
     path: upgrade-plan-not-in-catalog
     cell:
       port.check.out.reason: port.check.out.reason.absent
+      port.check.out.eligible: port.check.out.eligible.true
       flow: upgrade
       user_type: existing-customer
       account_lookup: plan-not-in-catalog
@@ -89,7 +90,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-identify
-          stage: needs
+          stage: identify
         phrase:
           dimension: stage_transition
           value: needs-to-identify

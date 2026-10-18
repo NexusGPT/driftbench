@@ -79,6 +79,9 @@ metadata:
     path: home-callback
     cell:
       coverage.check.out.address_id: coverage.check.out.address_id.absent
+      coverage.check.out.found: coverage.check.out.found.false
+      coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.absent
+      coverage.check.out.five_g: coverage.check.out.five_g.absent
       flow: new-home
       user_type: new-customer
       coverage_result: fiber
@@ -91,7 +94,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address

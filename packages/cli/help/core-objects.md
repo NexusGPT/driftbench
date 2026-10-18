@@ -200,7 +200,9 @@ driftbench object validate [paths...] [--json]
 | `--json` | print one JSON document | off |
 
 Checks the schema, the `extends` chain, the items, the order, the implementations of enabled items and their
-params.
+params. A file under a `driftbench/` or `_driftbench/` folder is also judged as the folder load reads it: a file
+at a path that does not match its kind and id, or a second file for one id, is refused, as every spec of the
+project would refuse it. A `uses.yaml` there names objects and holds none: it is valid when it loads.
 
 Exit 0 when every object is valid; 1 when one is refused; 2 when a path cannot be read.
 
@@ -240,13 +242,16 @@ Reads every file before it writes any. For each persona `<id>` it writes three f
   `holds`: `slot`, `value`, `reveal: on_request`, and `asked_by` with the old ask patterns.
 
 It writes a `driftbench.yaml` holding one comment when the folder has none, so the new objects are found.
-Files that exist are replaced.
+It writes nothing when one of the files it would write already exists. It also writes nothing when the folder
+lies inside another project, below a `driftbench.yaml` of a folder above it: run it from the project root, or
+pass the root as `--out`.
 
 `simulate --persona` and `campaign run --driver simulated --persona` take a situational block in place of a
 persona file. Its persona and scenario are found by id in the project layer of the block's folder. They are
 composed back into the persona the old file gave, so it plays the same conversation.
 
-Exit 0; 2 when a file does not load, two files hold one persona id, or a file cannot be written.
+Exit 0; 2 when a file does not load, two files hold one persona id, a file it would write already exists, the
+folder lies inside another project, or a file cannot be written.
 
 ### driftbench object push
 
@@ -588,7 +593,8 @@ searched. The fourth names an id that already exists.
 | `--set <text>: expected <kind>[/<id>]#<item>.<param>=<value>, such as policy/blame#R3.recovery_ok=[asked_user]` | 1 | write the item and the param; quote the flag so the shell keeps `#` and `[ ]` |
 | `The spec <id> has no block <block>. Its blocks: <blocks>.` | 2 from `explain` | name a block by its id, or `blocks.<n>` |
 | `<kind>/<id> already exists (<layer> <file>): pick another id.` | 2 from `init` | pick another id |
-| `<file> already exists: nothing was written.` | 2 from `init` | remove the file, or give `--out` |
+| `<file> already exists: nothing was written.` | 2 from `init` or `migrate persona` | remove the file, or give `--out` |
+| `<folder> is inside the project at <root>, whose driftbench.yaml the specs here read: run from there or pass --out <root>. Nothing was written.` | 2 from `migrate persona` | run it from the project root, or pass the root as `--out` |
 | `<a> and <b> are of two kinds: diff compares objects of one kind.` | 2 from `diff` | compare objects of one kind |
 | `Cannot read <path>: <reason>` | 2 from `validate` and `push` | fix the path |
 | `<path> holds no object file: push a *.yaml object file or a folder of them.` | 2 from `push` | push a `.yaml` file or a folder of them |
