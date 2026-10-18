@@ -125,6 +125,7 @@ Code and files (mostly for `kind: task`):
 | `artifacts` | list of `{ path, kind?, checks? }` | Files the block must produce. `kind` is `xlsx`, `docx`, `pptx`, `pdf`, `csv`, `json`, `text` or `code`. Each check is a one-key mapping, such as `{ sheets: [Mobile, Home] }`. |
 | `workspace` | `{ created?, changed?, deleted?, others_untouched? }` | The workspace diff. |
 | `safety` | `{ max_destructive_ops?, confirm_before? }` | The most destructive operations; operations that need a confirmation first, such as `delete`. |
+| `protected` | list of paths or globs | Files the agent must not change or delete, whoever wrote them, such as the tests and checkers it was given. No check reads it. When a gating verdict fails and the net workspace diff changes one, blame attributes the failure to the agent as an integrity fault (topic results-diagnostics). |
 
 Artifact checks by kind: `xlsx`: `sheets`, `header`, `rows`, `cells`, `formula`, `value`, `total`, `no_error_cells`, `contains`, `not_contains`, `regex`. `docx`: `headings`, `sections`, `tables`, `table`, `contains`, `not_contains`, `regex`. `pptx`: `slide_count`, `titles`, `slide`, `contains`, `not_contains`, `regex`. `pdf`: `page_count`, `contains`, `not_contains`, `regex`. `csv`: `header`, `rows`, `cells`, `value`, `total`, `contains`, `not_contains`, `regex`. `json`: `subset`, `value`, `contains`, `not_contains`, `regex`. `text`: `contains`, `not_contains`, `regex`, `lines`. `code`: `contains`, `not_contains`, `regex`, `lines`, `tests`.
 
