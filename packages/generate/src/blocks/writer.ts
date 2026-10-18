@@ -48,18 +48,34 @@ export type WrittenBlocks<B extends SpecBlock = SpecBlock> = { blocks: B[]; link
 export function writeBlocks<B extends SpecBlock>(
   inputs: readonly BlockInput<B>[],
   version: string,
+  options: WriteOptions = {},
 ): WrittenBlocks<B> {
   const blocks: B[] = [];
   const links: BlockLink[] = [];
   for (const { block, origin } of inputs) {
     blocks.push(block);
-    links.push(...linksOf(block.id, origin, version));
+    links.push(...linksOf(block.id, origin, version, options));
   }
   return { blocks, links };
 }
 
+export type WriteOptions = {
+  /**
+   * For a rule, the other rules whose change reaches it, such as `sectionsReaching` of a prompt's section
+   * registry (the sections it references, overrides or duplicates). A block that tests the rule links them too,
+   * with the evidence of the rule it reaches them through: a recap that asks for a confirmation also depends
+   * on the confirmation rule.
+   */
+  reaches?: ReadonlyMap<string, readonly string[]>;
+};
+
 /** The links of one block, in the writer's order. */
-export function linksOf(block: string, origin: BlockOrigin, version: string): BlockLink[] {
+export function linksOf(
+  block: string,
+  origin: BlockOrigin,
+  version: string,
+  options: WriteOptions = {},
+): BlockLink[] {
   const links: BlockLink[] = [];
   const seen = new Set<string>();
   for (const { rule, ledger, relation } of origin.rules) {
@@ -73,6 +89,22 @@ export function linksOf(block: string, origin: BlockOrigin, version: string): Bl
       created_by: 'generator',
       at_version: version,
     });
+  }
+  // Then the rules each linked rule is reached through, each once, after every rule the block names itself.
+  for (const { rule, relation } of origin.rules) {
+    for (const through of options.reaches?.get(rule) ?? []) {
+      if (seen.has(through)) continue;
+      seen.add(through);
+      links.push({
+        block,
+        to: { kind: 'rule', rule: through },
+        relation: relation ?? 'verifies',
+        status: 'declared',
+        created_by: 'generator',
+        at_version: version,
+        evidence: { declared: { through: rule } },
+      });
+    }
   }
   links.push({
     block,

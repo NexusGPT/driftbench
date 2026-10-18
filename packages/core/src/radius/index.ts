@@ -114,6 +114,8 @@ export {
   type SectionSelectionSpec,
   sectionChangeManifest,
   sectionChanges,
+  sectionClosure,
   sectionSelection,
+  sectionsReaching,
 } from './select';
 export { agentVersionOf, withAgentVersion } from './version';

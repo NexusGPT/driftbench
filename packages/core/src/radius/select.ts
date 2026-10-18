@@ -86,6 +86,25 @@ export function sectionChanges(
     });
 }
 
+/** The sections a change to `changed` reaches: those and the sections that reference, override or duplicate them. */
+export function sectionClosure(registry: SectionRegistry, changed: Iterable<string>): Set<string> {
+  return closureOf(registry, new Set(changed));
+}
+
+/**
+ * For each section, the other sections whose change reaches it through the registry (it references, overrides
+ * or duplicates them, transitively): a block that tests the section also depends on them.
+ */
+export function sectionsReaching(registry: SectionRegistry): Map<string, string[]> {
+  const reaching = new Map<string, string[]>(registry.sections.map((section) => [section.id, []]));
+  for (const source of registry.sections) {
+    for (const reached of closureOf(registry, new Set([source.id]))) {
+      if (reached !== source.id) reaching.get(reached)?.push(source.id);
+    }
+  }
+  return reaching;
+}
+
 /** The changed sections and the sections that reference, override or duplicate them, transitively. */
 function closureOf(registry: SectionRegistry, changed: Set<string>): Set<string> {
   const out = new Set(changed);
