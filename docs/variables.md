@@ -222,13 +222,13 @@ Three conversions connect the store to the two files it replaces.
 
 ## Worked examples
 
-The folder `examples/variables` holds three stores, one for each kind of agent. Every number, date and sentence of the owner in them is invented. Their quotes are copied from files of the repository, and the tests check each one.
+The folder [`examples/variables`](../examples/variables/README.md) holds three stores, one for each kind of agent. Every number, date and sentence of the owner in them is invented. Their quotes are copied from files of the repository, and the tests check each one.
 
 | File | Agent | What it shows |
 |---|---|---|
-| `acme.yaml` | the Acme sales assistant, a prompt | entries that follow the Acme proposal (behaviours, channels, who talks, the coverage check), with weights from conversation counts and from the owner's words, and a boundary read from the prompt: a lookup that fails again is the second failure in a row |
-| `northwind.yaml` | the Northwind operations assistant, an estate | three variables a condition names, each with its boundary and ledger ids, beside the two fixed axes of every estate, which come from a space map and name no source |
-| `tidewater.yaml` | the Tidewater Cycles booking assistant, a prompt with one tab per channel | the channel as an axis weighted by conversation counts, a value a model proposed that nobody approved, two boundaries, and impossible pairs that come from the tabs and from the owner |
+| [`acme.yaml`](../examples/variables/acme.yaml) | the Acme sales assistant, a prompt | entries that follow the Acme proposal (behaviours, channels, who talks, the coverage check), with weights from conversation counts and from the owner's words, and a boundary read from the prompt: a lookup that fails again is the second failure in a row |
+| [`northwind.yaml`](../examples/variables/northwind.yaml) | the Northwind operations assistant, an estate | three variables a condition names, each with its boundary and ledger ids, beside the two fixed axes of every estate, which come from a space map and name no source |
+| [`tidewater.yaml`](../examples/variables/tidewater.yaml) | the Tidewater Cycles booking assistant, a prompt with one tab per channel | the channel as an axis weighted by conversation counts, a value a model proposed that nobody approved, two boundaries, and impossible pairs that come from the tabs and from the owner |
 
 The boundary of the Northwind store, as the file writes it:
 
