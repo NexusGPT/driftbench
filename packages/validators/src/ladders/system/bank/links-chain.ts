@@ -313,7 +313,9 @@ function localizeChain(): Draft[] {
         c.counting === 'flat' ? 3 : c.mode === 'T' ? 3 : 2,
         LOCALIZE_CMD,
         `${c.cls} planted on two failing blocks of a stored ${c.mode} campaign: radius localize --json prints the documented Ochiai score of every section and exits 0`,
-        'radius localize reads the stored campaign and prints the localisation of its runs',
+        c.mode === 'T'
+          ? 'radius localize reads the mode of a campaign that holds one mode, not the F default of radius --mode'
+          : 'radius localize reads the stored campaign and prints the localisation of its runs',
         async ({ seed, scratch }) => {
           const suite = linkedSuite(seed, id);
           const dir = join(scratch, id.replace(/[^A-Za-z0-9-]/g, '-'));
