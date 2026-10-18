@@ -89,6 +89,9 @@ jobs:
           key: build-v1-${{ runner.os }}-node24-${{ hashFiles('pnpm-lock.yaml', 'pnpm-workspace.yaml', 'package.json', 'tsconfig*.json', 'packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig*.json', 'packages/**/tsup.config.*', 'examples/**/src/**', 'examples/**/package.json', 'examples/**/tsconfig*.json', 'tools/structure/**') }}
       # The tests verify the build stamp, so the build gate runs first.
       - run: node tools/structure/api-surface.mjs --build --check
+      # Markdown dependencies are read at runtime, so --changed alone cannot select their examples.
+      - name: Help topics and executable examples
+        run: pnpm exec vitest run packages/cli/test/help-topics.test.ts --maxWorkers=2
       - name: Tests affected by this PR
         run: pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests
 
