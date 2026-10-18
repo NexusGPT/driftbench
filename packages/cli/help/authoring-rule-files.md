@@ -402,7 +402,7 @@ Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 (exit 1)
 ```
 
-The first two specs are valid, and `spec validate` skips the `_driftbench` folder. The spec hash of `upgrade-with-rules` records its `uses`; its block cache keys are the ones it would have without `uses`. Each bad spec names its problem, with the parent's items where an item is unknown. The `broken` project fails its plain spec, because its only rule file belongs at `policy/blame/team.yaml`.
+The first two specs are valid, and `spec validate` skips the `_driftbench` folder. The spec hash of `upgrade-with-rules` records its `uses`; its block cache keys are the ones it would have without `uses`. Each bad spec names its problem, with the parent's items where an item is unknown. The `broken` project fails its plain spec, because its only rule file belongs at `policy/blame/team.yaml`. The wrong-path message names the rule file by its absolute path; the output above shows it relative to the working folder.
 
 ## Common errors
 

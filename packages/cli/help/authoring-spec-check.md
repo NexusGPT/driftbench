@@ -1,6 +1,6 @@
 ---
 title: Checking specs
-summary: '`spec validate` parses and validates spec files and fails on any invalid one; `spec lint` does the same and also prints advice warnings; every problem it reports is listed here with its level.'
+summary: '`spec validate` parses and validates spec files and fails on any invalid one. `spec lint` does the same and also prints advice warnings. Every problem it reports is listed here with its level.'
 commands:
   - spec validate
   - spec lint
@@ -21,7 +21,7 @@ next:
 
 Two commands check spec files without running any agent:
 
-- `spec validate` parses each file, rewrites the shorthands, checks the schema, then checks the rules a schema cannot express (regexes compile, criterion references resolve, stages exist, counts are sane, perturbation positions exist). It prints one line per spec and a summary.
+- `spec validate` parses each file, rewrites the shorthands, and checks the schema. Then it checks the rules a schema cannot express: regexes compile, criterion references resolve, stages exist, counts are sane, perturbation positions exist. It prints one line per spec and a summary.
 - `spec lint` does exactly the same, then also prints the warnings of the valid specs: advice on specs that are valid but weak.
 
 Each spec also gets its content hash: the first 12 hex characters of the SHA-256 of the spec's canonical JSON (keys sorted at every depth), without `metadata.links` and `metadata.provenance`. Equal content gives an equal hash. Links say what a block tests, not what it runs, so adding, promoting or refuting a link never changes the hash, a run id, a carry or a rejudge (authoring-prompt-sections). The hash, not `version`, enters the cache key and every run id, so any edit to a spec makes its runs new.
@@ -51,7 +51,7 @@ driftbench spec validate <paths...> [--json]
 
 | Option | Meaning | Default |
 |---|---|---|
-| `<paths...>` (required) | Spec files or folders. A folder is searched recursively for `*.yaml`, `*.yml` and `*.spec.json`, sorted; names starting with a dot, `node_modules`, `dist` and `_driftbench` are skipped, and so is a `driftbench` folder beside a `driftbench.yaml`. A `.json` file is read as JSON, any other as YAML. | none |
+| `<paths...>` (required) | Spec files or folders. A folder is searched recursively for `*.yaml`, `*.yml` and `*.spec.json`, sorted. Names starting with a dot, `node_modules`, `dist` and `_driftbench` are skipped. So is a `driftbench` folder beside a `driftbench.yaml`. A `.json` file is read as JSON, any other as YAML. | none |
 | `--json` | Print one JSON array, one entry per spec. | off |
 
 | Exit code | When |
@@ -82,7 +82,7 @@ driftbench spec lint <paths...> [--json] [--strict] [--summaries] [--sections <r
 
 ## Inputs
 
-Spec files, in the format of authoring-spec-format. Also the rule files their folders see (see authoring-rule-files): the nearest `driftbench.yaml` above the spec with its `driftbench/` folder, and every `_driftbench/` folder on the way. Nothing else is read: the commands never load the inventory, the criteria catalogue or the agent.
+Spec files, in the format of authoring-spec-format. Also the rule files their folders see (see authoring-rule-files). These are the nearest `driftbench.yaml` above the spec with its `driftbench/` folder, and every `_driftbench/` folder on the way. Nothing else is read: the commands never load the inventory, the criteria catalogue or the agent.
 
 ## Outputs and how to read them
 
@@ -106,7 +106,7 @@ The path in a spec is dotted, counting from 0: `blocks.2.expect.tools.0.label` i
 | `SPEC_ALIAS_CONFLICT` | error | a shorthand and its long form are both set: `ledger_seed` with `given.ledger`, or `workspace_seed` with `given.world.workspace` |
 | `BLOCK_STIMULUS_MISSING` | error | a block has none of `user`, `burst` and `when` |
 | `BLOCK_STIMULUS_AMBIGUOUS` | error | a block has more than one of `user`, `burst` and `when` |
-| `SCHEMA_*` | error | the schema refuses a value; the suffix is the zod issue code: such as `SCHEMA_UNRECOGNIZED_KEYS` (unknown key), `SCHEMA_INVALID_TYPE` (wrong type, or missing), `SCHEMA_INVALID_VALUE` (not an allowed option), `SCHEMA_INVALID_FORMAT` (pattern mismatch), `SCHEMA_TOO_SMALL` (a list or number under its minimum), `SCHEMA_INVALID_UNION` (a value that fits none of the allowed forms, with a hint), `SCHEMA_CUSTOM` (an unsupported JSON Schema keyword in `json.schema` or `metadata.tool_schemas`, or a length bound with no min and no max) |
+| `SCHEMA_*` | error | the schema refuses a value. The suffix is the zod issue code. `SCHEMA_UNRECOGNIZED_KEYS` is an unknown key. `SCHEMA_INVALID_TYPE` is a wrong type, or a missing value. `SCHEMA_INVALID_VALUE` is not an allowed option. `SCHEMA_INVALID_FORMAT` is a pattern mismatch. `SCHEMA_TOO_SMALL` is a list or number under its minimum. `SCHEMA_INVALID_UNION` is a value that fits none of the allowed forms, with a hint. `SCHEMA_CUSTOM` is an unsupported JSON Schema keyword in `json.schema` or `metadata.tool_schemas`, or a length bound with no min and no max) |
 | `REGEX_INVALID` | error | a pattern in `must`, `must_not`, the `regex` list, a `regex` assertion (in a tool input, an end state or a `json` path) or a `knowledge_retention` `ask` does not compile |
 | `CRITERION_REF_INVALID` | error | a criterion reference is not a name, optionally followed by `@gating` |
 | `CRITERION_UNDEFINED` | error | the spec defines `criteria`, and a block names one that is not there |
@@ -141,7 +141,7 @@ The path in a spec is dotted, counting from 0: `blocks.2.expect.tools.0.label` i
 | `BLOCK_NO_EXPECTATION` | warning | a block checks nothing |
 | `TASK_WITHOUT_OUTCOME` | warning | a task spec checks none of `artifacts`, `workspace`, `execution` and `end_state` |
 | `PERTURBATION_NO_RECOVERY` | warning | a perturbation has no `recovery`, so its recovery is not measured |
-| `PREFIX_PROSE_HISTORY` | warning | an assistant message of a prefix states a ledger fact that no recorded tool call of the prefix holds and the user never said, in a spec that names tools: the agent may call the tool again (see authoring-prefixes) |
+| `PREFIX_PROSE_HISTORY` | warning | an assistant message of a prefix states a ledger fact. No recorded tool call of the prefix holds it, and the user never said it. It applies in a spec that names tools. The agent may call the tool again (see authoring-prefixes) |
 | `GIVEN_UNMET` | warning | the Given verifier found a Given error on a block (`tool_history_paired`, `tool_known`, `history_matches_world` or `value_in_message`, named first in the message). The runner does not send that block: it is `not_run` with kind `given_unmet` |
 | `GIVEN_CHAIN` | warning | a block's `ledger_add` contradicts the ledger it starts from (check `chain`) |
 | `GIVEN_SUMMARY_MISSING` | warning | with `--summaries` only: a workspace folder (`world.workspace.from`) or a named session state (`vars.session_state`) has no summary (check `summary_present`) |
