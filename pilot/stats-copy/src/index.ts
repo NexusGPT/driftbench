@@ -5,8 +5,10 @@ export {
   type AlphaLevel,
   type AlphaResult,
   cohenKappa,
+  type KappaIntervalResult,
   type KappaOptions,
   type KappaResult,
+  kappaInterval,
   krippendorffAlpha,
   type Label,
 } from './agreement';

@@ -1,6 +1,7 @@
 /** Agreement between judges and hand labels: Cohen's kappa and Krippendorff's alpha. */
 
-import { assertSameLength } from './basics';
+import { assertProbability, assertSameLength } from './basics';
+import { normalQuantile } from './special';
 
 export type Label = string | number | boolean;
 
@@ -75,6 +76,35 @@ export function cohenKappa(
   }
   const kappa = expectedDis === 0 ? 1 : 1 - observedDis / expectedDis;
   return { kappa, observed: 1 - observedDis, expected: 1 - expectedDis, n };
+}
+
+export interface KappaIntervalResult {
+  readonly kappa: number;
+  /** Large-sample standard error sqrt(po (1 - po) / (n (1 - pe)^2)). */
+  readonly se: number;
+  readonly lower: number;
+  readonly upper: number;
+}
+
+/**
+ * Cohen's kappa of two raters with its large-sample interval: se = sqrt(po (1 - po) / (n (1 - pe)^2)),
+ * po the observed and pe the chance agreement, and kappa -/+ z(1 - alpha / 2) se clipped to [-1, 1].
+ * Unweighted. When pe is 1 the interval is the point.
+ */
+export function kappaInterval(
+  a: readonly Label[],
+  b: readonly Label[],
+  options: { alpha?: number } = {},
+): KappaIntervalResult {
+  const alpha = options.alpha ?? 0.05;
+  assertSameLength(a, b, 'kappaInterval', 'a or b');
+  if (a.length === 0) throw new RangeError('kappaInterval: a is empty');
+  assertProbability('kappaInterval: alpha', alpha, true);
+  const { kappa, observed: po, expected: pe, n } = cohenKappa(a, b);
+  if (pe === 1) return { kappa, se: 0, lower: kappa, upper: kappa };
+  const se = Math.sqrt((po * (1 - po)) / (n * (1 - pe) * (1 - pe)));
+  const z = normalQuantile(1 - alpha / 2);
+  return { kappa, se, lower: Math.max(-1, kappa - z * se), upper: Math.min(1, kappa + z * se) };
 }
 
 export type AlphaLevel = 'nominal' | 'ordinal' | 'interval' | 'ratio';
