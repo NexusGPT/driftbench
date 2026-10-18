@@ -256,7 +256,7 @@ Every kind `uses` names is scoring-only. `uses` stays out of the block cache key
 
 The loader resolves every object a layer names. These are load errors: an unknown object, an unknown item, an `extends` cycle, a bad order, a missing implementation, and params of the wrong type. A bad order is one that is not a permutation. Each error names the spec, the block, the kind and the id.
 
-In this release no run reads these objects yet, and none is shipped: `uses` is checked at load and recorded in the spec hash. How to write a rule file, every operation and every `OBJECT_*` error: see authoring-rule-files.
+The shipped objects are `check-set:default` and `policy/value-check:default`; a run reads `check_set` (see running-check-sets) and `value_check` (see judging-check-tools). How to write a rule file, every operation and every `OBJECT_*` error: see authoring-rule-files.
 
 ### A minimal valid spec
 
