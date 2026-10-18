@@ -1,6 +1,6 @@
 /** Intervals on rates: Wilson, Clopper-Pearson, the zero-failure count, the design effect and the clustered bootstrap. */
 
-import { assertCount, assertProbability, mulberry32, quantileSorted } from './basics';
+import { assertCount, assertFiniteValues, assertProbability, mulberry32, quantileSorted } from './basics';
 import { betaQuantile, normalQuantile } from './special';
 
 /** z for a two-sided 95 percent interval. */
@@ -100,6 +100,7 @@ export function bootstrapCI(values: readonly number[], options: BootstrapOptions
   const alpha = options.alpha ?? 0.05;
   const seed = options.seed ?? 1;
   if (values.length === 0) throw new RangeError('bootstrapCI: values is empty');
+  assertFiniteValues(values, 'bootstrapCI: values');
   if (!Number.isInteger(iterations) || iterations < 1) {
     throw new RangeError(`bootstrapCI: iterations must be a positive integer, got ${iterations}`);
   }

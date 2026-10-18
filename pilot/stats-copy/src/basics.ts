@@ -22,6 +22,7 @@ export function mulberry32(seed: number): () => number {
 export function quantileSorted(sorted: readonly number[], p: number): number {
   const n = sorted.length;
   if (n === 0) throw new RangeError('quantileSorted: sorted is empty');
+  assertFiniteValues(sorted, 'quantileSorted: sorted');
   if (!(p >= 0 && p <= 1)) throw new RangeError(`quantileSorted: p must lie in [0, 1], got ${p}`);
   const h = (n - 1) * p;
   const lo = Math.floor(h);
@@ -34,6 +35,7 @@ export function quantileSorted(sorted: readonly number[], p: number): number {
 /** Quantile of an unsorted sample, type 7. */
 export function quantile(values: readonly number[], p: number): number {
   if (values.length === 0) throw new RangeError('quantile: values is empty');
+  assertFiniteValues(values, 'quantile: values');
   if (!(p >= 0 && p <= 1)) throw new RangeError(`quantile: p must lie in [0, 1], got ${p}`);
   return quantileSorted(
     [...values].sort((x, y) => x - y),
@@ -49,6 +51,7 @@ export function sum(values: readonly number[]): number {
 
 export function mean(values: readonly number[]): number {
   if (values.length === 0) throw new RangeError('mean: values is empty');
+  assertFiniteValues(values, 'mean: values');
   return sum(values) / values.length;
 }
 
@@ -57,10 +60,20 @@ export function sampleVariance(values: readonly number[]): number {
   const n = values.length;
   if (n === 0) throw new RangeError('sampleVariance: values is empty');
   if (n < 2) throw new RangeError('sampleVariance: values needs at least two values');
+  assertFiniteValues(values, 'sampleVariance: values');
   const m = mean(values);
   let ss = 0;
   for (const v of values) ss += (v - m) * (v - m);
   return ss / (n - 1);
+}
+
+/** Reject a NaN or an infinite value in a data array; prefix is "function: argument". */
+export function assertFiniteValues(values: readonly number[], prefix: string): void {
+  for (let i = 0; i < values.length; i += 1) {
+    if (!Number.isFinite(values[i])) {
+      throw new RangeError(`${prefix} must hold finite numbers, got ${values[i]} at index ${i}`);
+    }
+  }
 }
 
 export function assertCount(name: string, value: number): void {

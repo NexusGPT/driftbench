@@ -1,6 +1,6 @@
 /** Change detection over time (CUSUM, Page-Hinkley) and the two-sample Kolmogorov-Smirnov test. */
 
-import { mean, sampleVariance } from './basics';
+import { assertFiniteValues, mean, sampleVariance } from './basics';
 
 export interface Alarm {
   readonly index: number;
@@ -38,6 +38,7 @@ export interface CusumResult {
  */
 export function cusum(series: readonly number[], options: CusumOptions = {}): CusumResult {
   if (series.length === 0) throw new RangeError('cusum: series is empty');
+  assertFiniteValues(series, 'cusum: series');
   const warmup = options.warmup ?? Math.min(20, series.length);
   const head = series.slice(0, warmup);
   const target = options.target ?? mean(head);
@@ -94,6 +95,7 @@ export interface PageHinkleyResult {
  */
 export function pageHinkley(series: readonly number[], options: PageHinkleyOptions = {}): PageHinkleyResult {
   if (series.length === 0) throw new RangeError('pageHinkley: series is empty');
+  assertFiniteValues(series, 'pageHinkley: series');
   const delta = options.delta ?? 0.005;
   const threshold = options.threshold ?? 50;
   const minInstances = options.minInstances ?? 30;
@@ -172,7 +174,10 @@ export function ksTest(
 ): KsResult {
   const m = a.length;
   const n = b.length;
-  if (m === 0 || n === 0) throw new RangeError('ksTest: a or b is empty');
+  if (m === 0) throw new RangeError('ksTest: a is empty');
+  if (n === 0) throw new RangeError('ksTest: b is empty');
+  assertFiniteValues(a, 'ksTest: a or b');
+  assertFiniteValues(b, 'ksTest: a or b');
   const x = [...a].sort((p, q) => p - q);
   const y = [...b].sort((p, q) => p - q);
   // D * m * n is an integer: track the integer gap i * n - j * m along the merged order.

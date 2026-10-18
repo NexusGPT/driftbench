@@ -38,8 +38,8 @@ const cases: [string, () => unknown, RegExp][] = [
   ['krippendorffAlpha pairable', () => krippendorffAlpha([[], []]), /^krippendorffAlpha: matrix/],
   ['cusum', () => cusum([], { sd: 1 }), /^cusum: series/],
   ['pageHinkley', () => pageHinkley([]), /^pageHinkley: series/],
-  ['ksTest a', () => ksTest([], [0.1, 0.25]), /^ksTest: a or b/],
-  ['ksTest b', () => ksTest([0.1], []), /^ksTest: a or b/],
+  ['ksTest a', () => ksTest([], [0.1, 0.25]), /^ksTest: a\b/],
+  ['ksTest b', () => ksTest([0.1], []), /^ksTest: b\b/],
   ['wilcoxonSignedRank', () => wilcoxonSignedRank([], []), /^wilcoxonSignedRank: x or y/],
   [
     'pairedRateDifference',
