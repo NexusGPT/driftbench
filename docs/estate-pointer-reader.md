@@ -202,7 +202,7 @@ The default labeller is a system 1 labeler and a system 2 labeler working togeth
 
 A unit stays unlabeled, for a person, when system 2 gave no unanimous label and system 1 was not sure. System 1's uncertain label is never taken in its place. A system 1 answer whose probabilities are no vector is refused, counted and never normalised, and the unit goes to system 2.
 
-The cut is a setting of a replay: the cassette keeps every probability, so a new cut needs no new call. Section 14 gives the fixture sweep.
+The cut is a setting of a replay: the cassette keeps every probability, so a new cut needs no new call. Section 14 gives the fixture arms.
 
 ### System-1 settings (measured, section 10a)
 
@@ -498,12 +498,12 @@ Reference for the next table: the 57 prose atoms of the fixture map that its aut
 
 | Arm | Atoms built | Precision | Recall | Units left unlabeled |
 |---|---|---|---|---|
-| System 2 alone, three unanimous runs | 47 | 97.9% | 80.7% | 25 |
+| System 2 alone, three unanimous runs | 47 | 97.9% | 80.7% | 38 |
 | System 1 alone, choice, window of 30 | 85 | 69.4% | 98.2% | 0 |
 | System 1 alone, choice, unit state | 91 | 65.9% | 98.2% | 0 |
 | Stack, margin cut 0.65 (default) | 59 | 83.1% | 84.2% | 32 |
 
-Reading: on this one small fictional estate system 2 with unanimous runs is the most precise and leaves a fifth of the units to a person; system 1 alone finds nearly every approved atom for 30 to 40 more atoms; the stack falls between them. Before the unanimity rule the stack built 71 atoms at 81.7% precision and 96.5% recall: the unanimity trades recall for precision. One estate, one run per arm and a reference built by overlap prove no ranking.
+Reading: on this one small fictional estate system 2 with unanimous runs is the most precise and leaves a quarter of the units to a person; system 1 alone finds nearly every approved atom for 30 to 40 more atoms; the stack falls between them. Before the unanimity rule the stack built 71 atoms at 81.7% precision and 96.5% recall: the unanimity trades recall for precision. One estate, one run per arm and a reference built by overlap prove no ranking.
 
 ### System-1 request size on the fixture
 
