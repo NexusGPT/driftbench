@@ -572,9 +572,9 @@ On the approved Acme map:
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated --t 2
-Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2928 of 4064 (72.0%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3116 of 4064 (76.7%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 1136 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 948 triples (see coverage.actual[].uncovered).
 Map acme (../../../../examples/acme/map/approved.yaml), hash 7a022d4e1380: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
@@ -582,10 +582,10 @@ Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           156     793       153           3
 boundary         85     183        13          72
-deviation        21     111        21           0
+deviation       139     570       139           0
 metamorphic      42     192        42           0
 task             67      71        67           0
-cover            27     142        27           0
+cover            11      50        11           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 463.
@@ -623,7 +623,7 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 507 files to _captures/docs3/cli/generated.
+Wrote 609 files to _captures/docs3/cli/generated.
 exit 1
 ```
 
@@ -860,21 +860,21 @@ $ pnpm -s driftbench pilot plan --map examples/acme/map/approved.yaml --suite ex
 Pilot plan: 13 cells by behaviour; per cell up to 10 conversations x 3 approved wordings x 5 repeats.
   cell             conversations  wordings  runs  blocks  cost
   behaviour=-      10             23        115   425     $0.00
-  behaviour=B-001  10             26        130   635     $0.00
-  behaviour=B-002  10             25        125   575     $0.00
-  behaviour=B-003  10             26        130   675     $0.00
-  behaviour=B-004  10             23        115   535     $0.00
-  behaviour=B-005  10             22        110   530     $0.00
-  behaviour=B-006  10             28        140   865     $0.00
-  behaviour=B-007  10             28        140   940     $0.00
-  behaviour=B-008  10             29        145   860     $0.00
-  behaviour=B-009  10             30        150   900     $0.00
-  behaviour=B-010  10             26        130   705     $0.00
-  behaviour=B-011  10             24        120   580     $0.00
-  behaviour=B-012  10             24        120   500     $0.00
-  total            130            334       1670  8725    $0.00
+  behaviour=B-001  10             22        110   320     $0.00
+  behaviour=B-002  10             21        105   255     $0.00
+  behaviour=B-003  10             22        110   410     $0.00
+  behaviour=B-004  10             22        110   450     $0.00
+  behaviour=B-005  10             24        120   520     $0.00
+  behaviour=B-006  10             30        150   825     $0.00
+  behaviour=B-007  10             30        150   885     $0.00
+  behaviour=B-008  10             27        135   615     $0.00
+  behaviour=B-009  10             26        130   575     $0.00
+  behaviour=B-010  10             24        120   520     $0.00
+  behaviour=B-011  10             23        115   465     $0.00
+  behaviour=B-012  10             23        115   365     $0.00
+  total            130            317       1585  6630    $0.00
 Cost: the agent runs in process: no model call, nothing billed.
-Wordings: the approved phrase bank gives fewer than 3 wordings to some conversations (3 with 1, 50 with 2).
+Wordings: the approved phrase bank gives fewer than 3 wordings to some conversations (1 with 1, 71 with 2).
 Skipped acme-price-sheet-i01-base: a code-agent task: the pilot measures conversations.
 (66 more Skipped lines)
 ```
