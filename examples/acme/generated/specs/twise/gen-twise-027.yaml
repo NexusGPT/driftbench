@@ -74,10 +74,10 @@ rules:
 perturbations:
   - id: p1-D1_off_topic
     class: D1_off_topic
-    inject_at: 0
+    inject_at: 1
     user: Are your stores open on Saturday?
     expect:
-      stage: needs
+      stage: address
       stage_reported: true
       tools:
         - label: coverage.check
@@ -87,7 +87,7 @@ perturbations:
       lang: EN
     recovery:
       within_blocks: 0
-      stage_after: needs
+      stage_after: address
 metadata:
   generated:
     by: driftbench generate
