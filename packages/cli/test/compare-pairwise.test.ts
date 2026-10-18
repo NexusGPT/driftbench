@@ -125,6 +125,37 @@ describe('driftbench compare --pairwise', () => {
     expect(refused.err).toContain('unknown pairwise judge bogus');
   });
 
+  it('refuses a pairwise judge of the agent family on every judge path, before any call', async () => {
+    let calls = 0;
+    const deps: ReportDeps = {
+      openStore: async (path) => openStore(path),
+      pairwiseClient: () => {
+        const judge = new FakeJudge('pairwise', [{ outcome: 'pass', reasoning: 'A reads better' }], {
+          family: 'openai',
+        });
+        const ask = judge.judge.bind(judge);
+        judge.judge = async (request) => {
+          calls += 1;
+          return ask(request);
+        };
+        return judge;
+      },
+    };
+    const pairwise = [...base, '--pairwise', join(dir, 'helpful.yaml'), '--agent-family', 'openai'];
+    const byDefault = await cli(pairwise, deps);
+    expect(byDefault.code).toBe(2);
+    expect(byDefault.err).toContain('judge pairwise is from the openai family');
+    const named = await cli([...pairwise, '--pairwise-judge', 'openai'], deps);
+    expect(named.code).toBe(2);
+    expect(calls).toBe(0);
+    const other = await cli(
+      [...base, '--pairwise', join(dir, 'helpful.yaml'), '--agent-family', 'google'],
+      deps,
+    );
+    expect(other.err).toBe('');
+    expect(calls).toBeGreaterThan(0);
+  });
+
   it('a missing criterion file is bad input: exit 2, the path named', async () => {
     const { code, err } = await cli([...base, '--pairwise', join(dir, 'missing.yaml')]);
     expect(code).toBe(2);

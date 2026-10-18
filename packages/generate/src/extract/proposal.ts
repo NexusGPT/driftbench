@@ -297,7 +297,9 @@ export type PathRelation = z.infer<typeof PathRelation>;
 export const UsesToolRelation = z
   .strictObject({
     kind: z.literal('uses_tool').describe('Marks the relation as a tool call a flow or a behaviour makes.'),
-    subject: ValueRef.describe('The flow or behaviour value that calls the tool.'),
+    subject: ValueRef.describe(
+      "The flow or behaviour value that calls the tool. A flow's call is made on a move; a behaviour's call is made in the turn that asks for the behaviour, never on a move.",
+    ),
     tool: z.string().min(1).describe('The tool label.'),
     stage: ValueId.describe('The stage the call is made at: the turn that leaves this stage.'),
     to: ValueId.optional().describe('Only on the turn that reaches this stage.'),

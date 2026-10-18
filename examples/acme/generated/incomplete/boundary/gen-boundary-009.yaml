@@ -79,6 +79,7 @@ metadata:
     path: home-order
     cell:
       catalog.search.out.plans: catalog.search.out.plans.empty
+      catalog.search.out.customer: catalog.search.out.customer.absent
       flow: new-home
       user_type: new-customer
       coverage_result: fiber
@@ -91,7 +92,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address

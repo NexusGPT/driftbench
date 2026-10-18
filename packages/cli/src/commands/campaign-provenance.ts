@@ -12,10 +12,12 @@ export function campaignProvenance(
   targets: readonly TargetRef[],
   adapterFor: (target: TargetRef) => AgentAdapter,
   endStateSnapshots = false,
+  realizedText = false,
 ): NonNullable<Campaign['provenance']> {
   return {
     version: 2,
     ...(endStateSnapshots ? { endStateSnapshots: true as const } : {}),
+    ...(realizedText ? { realizedText: true as const } : {}),
     adapters: [...new Map(targets.map((target) => [provenanceHash(target), target])).values()].map(
       (target) => {
         const adapter = adapterFor(target);

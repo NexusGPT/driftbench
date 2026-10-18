@@ -2,10 +2,15 @@ import { contentHash, type LoadedSpec, validateSpec } from '@agent-nexus/driftbe
 import { blockOutcome, runOnce } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { bankItems, SeedData } from '../../src/ladders/generator/bank';
-import { BASE_PATHS } from '../../src/ladders/generator/bank2';
+import { BASE_PATHS, heldFixed } from '../../src/ladders/generator/bank2';
 import { createFollower, defaultInput, defaultValue } from '../../src/ladders/generator/follower';
 import { hiddenSpec } from '../../src/ladders/generator/hidden';
-import { followerAdapter, type Generation, runContext } from '../../src/ladders/generator/measure';
+import {
+  followerAdapter,
+  type Generation,
+  generation,
+  runContext,
+} from '../../src/ladders/generator/measure';
 
 function required<T>(value: T | undefined): T {
   if (value === undefined) throw new Error('missing fixture value');
@@ -123,4 +128,63 @@ describe('invariance holds tool outputs fixed', () => {
         );
       });
     }
+});
+
+describe('invariance holds the turns fixed too', () => {
+  for (const path of BASE_PATHS)
+    for (const axis of ['persona', 'channel']) {
+      it(`${path} ${axis}: a spec with the same values and one more turn is no pair of the others`, async () => {
+        const pair = [
+          specimen(path, 'a', 'visitor', 'web', true),
+          specimen(
+            path,
+            'b',
+            axis === 'persona' ? 'member' : 'visitor',
+            axis === 'channel' ? 'messaging' : 'web',
+            true,
+          ),
+        ];
+        // The same values as a, said with one more turn: its Thens differ, and it changes no persona or channel.
+        const longer = structuredClone(specimen(path, 'd', 'visitor', 'web', true));
+        const first = required(longer.spec.blocks[0]);
+        longer.spec.blocks.push({ ...structuredClone(first), id: 'value-again' });
+        required(first.expect).must = [`${flag.name} is true`, 'again'];
+        expect((await verdict(path, axis, [...pair, longer])).pass).toBe(true);
+        // The same spec with the turns of a is a pair that expects something else: it fails.
+        const same = structuredClone(specimen(path, 'e', 'visitor', 'web', true));
+        required(required(same.spec.blocks[0]).expect).must = [`${flag.name} is true`, 'again'];
+        expect((await verdict(path, axis, [...pair, same])).pass).toBe(false);
+      });
+    }
+
+  it('seed 18: two specs of new-request-full with the same values and other turns are no pair', async () => {
+    const generated = await generation(18);
+    const data = (value: string) => (JSON.parse(value) as { data: unknown }).data;
+    // The generator decides which specs exist, so the pair is found by what it is: specs of the path that
+    // hold the same values and say other turns. A suite with no such pair does not exercise the rule.
+    const walking = generated.complete
+      .map((entry) => entry.spec)
+      .filter(
+        (entry) =>
+          (entry.tags ?? []).includes('flow:new-request') &&
+          entry.blocks.some((block) => (block.id ?? '').endsWith('recap-to-done')),
+      );
+    const groups = new Map<string, typeof walking>();
+    for (const entry of walking) {
+      const key = JSON.stringify(data(heldFixed(entry, generated.hidden)));
+      groups.set(key, [...(groups.get(key) ?? []), entry]);
+    }
+    const pairs = [...groups.values()].filter(
+      (group) => new Set(group.map((entry) => heldFixed(entry, generated.hidden))).size > 1,
+    );
+    expect(pairs.length).toBeGreaterThan(0);
+    for (const group of pairs) {
+      const first = required(group[0]);
+      const other = required(
+        group.find((entry) => heldFixed(entry, generated.hidden) !== heldFixed(first, generated.hidden)),
+      );
+      expect(data(heldFixed(first, generated.hidden))).toEqual(data(heldFixed(other, generated.hidden)));
+      expect(heldFixed(first, generated.hidden)).not.toBe(heldFixed(other, generated.hidden));
+    }
+  }, 300_000);
 });

@@ -78,6 +78,9 @@ metadata:
     path: upgrade-plan-not-in-catalog
     cell:
       coverage.check.out.five_g: coverage.check.out.five_g.true
+      coverage.check.out.found: coverage.check.out.found.true
+      coverage.check.out.address_id: coverage.check.out.address_id.present
+      coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.above-minimum
       flow: upgrade
       user_type: existing-customer
       account_lookup: plan-not-in-catalog
@@ -89,7 +92,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-identify
-          stage: needs
+          stage: identify
         phrase:
           dimension: stage_transition
           value: needs-to-identify

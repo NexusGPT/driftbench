@@ -1,4 +1,3 @@
-import { readFile } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
 import {
   orderedCheck,
@@ -15,26 +14,36 @@ import {
   ESTATE_CHECKS,
 } from '@agent-nexus/driftbench-checks';
 import {
+  blocksOutcome,
   type Campaign,
   type Check,
   type CheckSet,
   contentHash,
+  type Embedder,
   type LoadedSpec,
   type RunResult,
   runSpec,
   type Store,
   type TargetRef,
+  type ToolRule,
 } from '@agent-nexus/driftbench-core';
 import { noJudgeCheck } from '@agent-nexus/driftbench-judges';
 import { openMemoryStore, openStore } from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import {
+  addJudgeOptions,
+  addRunCheckOptions,
+  type RunCheckFlags,
+  type RunJudgeOptions,
+  runCheckSettingsFrom,
+  runJudgeFrom,
+} from '../judge-options';
 import { loadValidSpecs } from './campaign';
-import { addJudgeOptions, type RunJudgeOptions, runJudgeFrom } from './run-judge';
 
 /**
- * `driftbench replay`: runs a suite of specs over recorded sessions, offline, with no model call.
+ * `driftbench replay`: re-runs the checks of a suite of specs on recorded sessions, with no agent call; the judged criteria call a judge model only with --judge.
  *
  * Each session is read by the Claude Code adapter into blocks of Observed. Each spec is aligned with one
  * session and a first block:
@@ -72,7 +81,8 @@ export type ReplayOptions = {
   owner?: string[];
   /** A file of owner values, one per line; blank lines and lines starting with # are skipped. */
   ownerFile?: string;
-} & RunJudgeOptions;
+} & RunJudgeOptions &
+  RunCheckFlags;
 
 /** Registers `driftbench replay`. */
 export function registerReplayCommand(
@@ -83,7 +93,9 @@ export function registerReplayCommand(
 ): void {
   const replay = program
     .command('replay')
-    .description('Run a spec suite over recorded sessions, offline, with no model call.')
+    .description(
+      'Re-run the checks of a spec suite on recorded sessions: no agent call; a judge model only with --judge.',
+    )
     .argument('<sessions...>', 'session transcripts (JSONL)')
     .requiredOption('--suite <dir>', 'the spec files or folder to run')
     .option(
@@ -102,9 +114,11 @@ export function registerReplayCommand(
     )
     .option('--owner-file <file>', 'owner values, one per line, for the pii check; # starts a comment line')
     .option('--json', 'print one JSON document');
-  addJudgeOptions(replay).action(async (sessions: string[], options: ReplayOptions) => {
-    setExit(await replayCommand(sessions, options, io, deps));
-  });
+  addRunCheckOptions(addJudgeOptions(replay), { owner: false }).action(
+    async (sessions: string[], options: ReplayOptions) => {
+      setExit(await replayCommand(sessions, options, io, deps));
+    },
+  );
 }
 
 type SessionEntry = {
@@ -136,6 +150,8 @@ type ReplayLine = {
   runId: string;
   status: RunResult['status'];
   pass: boolean;
+  /** Set when no block failed but a block was not run or blocked: the spec is neither a pass nor a fail. */
+  outcome?: 'not_run' | 'blocked';
   failing: string[];
   error?: string;
 };
@@ -160,10 +176,11 @@ export async function replayCommand(
     io.err(`Two sessions share the name ${duplicate}; give each transcript its own file name.\n`);
     return 2;
   }
-  const owner = await ownerValues(options, io);
+  const settings = await runCheckSettingsFrom(options, io);
   const judge = await runJudgeFrom(options, io);
   if (!judge) return 2;
-  if (!owner) return 2;
+  if (!settings) return 2;
+  const owner = settings.piiOwner;
   const decisions = assign(options.decisions, names, '--decisions', io);
   const steps = assign(options.steps, names, '--steps', io);
   if (!decisions || !steps) return 2;
@@ -209,7 +226,11 @@ export async function replayCommand(
   try {
     const createdAt = deps.now().toISOString();
     const specs = uniqueBy(
-      aligned.alignments.map(({ spec }) => ({ id: spec.spec.id, hash: spec.hash })),
+      aligned.alignments.map(({ spec, entry }) => ({
+        id: spec.spec.id,
+        hash: spec.hash,
+        target: targetOf(entry),
+      })),
       (spec) => `${spec.id} ${spec.hash}`,
     );
     const targets = uniqueBy(
@@ -230,14 +251,17 @@ export async function replayCommand(
       modes: ['F'],
       repeats: { T: 0, F: 1, P: 0 },
       budgetUsd: 0,
-      judge: {
-        mode: judge.label === 'none' ? 'system1' : 'llm',
-        judges: judge.label === 'none' ? [] : [judge.label],
-      },
+      judge: { mode: judge.mode, judges: judge.judges },
       createdAt,
     };
     await store.putCampaign(campaign);
-    const checks = replayChecks({ piiOwner: owner, judge: judge.check, piiJudge: judge.piiJudge });
+    const checks = replayChecks({
+      piiOwner: owner,
+      judge: judge.check,
+      piiJudge: judge.piiJudge,
+      ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
+      ...(settings.embedder ? { embedder: settings.embedder } : {}),
+    });
     const artifacts = defaultReaders();
     for (const alignment of aligned.alignments) {
       const session = await sessionFor(alignment);
@@ -250,6 +274,7 @@ export async function replayCommand(
         artifacts,
         driver: createScriptedDriver(),
         checks,
+        ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
         mode: 'F',
         repeat: 0,
         target: targetOf(alignment.entry),
@@ -266,8 +291,12 @@ export async function replayCommand(
   }
   const closed = await closeStore(store, io);
   if (!closed) return 2;
+  await judge.save();
 
   const passed = lines.filter((line) => line.pass).length;
+  // A spec not run or blocked is neither a pass nor a fail: it is counted apart.
+  const unscored = lines.filter((line) => line.outcome !== undefined).length;
+  const failed = lines.length - passed - unscored;
   if (options.json) {
     io.out(
       `${JSON.stringify(
@@ -279,7 +308,8 @@ export async function replayCommand(
           judgeCostUsd: judge.spend.usd,
           runs: lines,
           passed,
-          failed: lines.length - passed,
+          failed,
+          ...(unscored > 0 ? { notRun: unscored } : {}),
         },
         null,
         2,
@@ -288,7 +318,7 @@ export async function replayCommand(
   } else {
     for (const note of aligned.notes) io.out(`note: ${note}\n`);
     for (const line of lines) {
-      const mark = line.status !== 'completed' ? '!' : line.pass ? '✓' : '✗';
+      const mark = line.status !== 'completed' ? '!' : line.pass ? '✓' : line.outcome ? '-' : '✗';
       io.out(
         `${mark} ${line.spec}  session ${line.session} from block ${line.fromBlock} (${line.aligned})\n`,
       );
@@ -296,7 +326,7 @@ export async function replayCommand(
       if (line.failing.length > 0) io.out(`    failing: ${line.failing.join(', ')}\n`);
     }
     io.out(
-      `${lines.length} spec${lines.length === 1 ? '' : 's'} replayed: ${passed} pass, ${lines.length - passed} fail. Judge ${judge.label}, ${judge.spend.usd.toFixed(4)} USD. Campaign ${campaignId}${storePath === undefined ? ' (in memory)' : ''}.\n`,
+      `${lines.length} spec${lines.length === 1 ? '' : 's'} replayed: ${passed} pass, ${failed} fail${unscored > 0 ? `, ${unscored} not run or blocked` : ''}. Judge ${judge.label}, ${judge.spend.usd.toFixed(4)} USD. Campaign ${campaignId}${storePath === undefined ? ' (in memory)' : ''}.\n`,
     );
   }
   return passed === lines.length ? 0 : 1;
@@ -355,7 +385,13 @@ export function replayRegistry(): CheckRegistry {
  * name; without one, each is inconclusive (`noJudgeCheck`), never a pass.
  */
 export function replayChecks(
-  options: { piiOwner?: readonly string[]; judge?: Check; piiJudge?: DefaultChecksOptions['piiJudge'] } = {},
+  options: {
+    piiOwner?: readonly string[];
+    judge?: Check;
+    piiJudge?: DefaultChecksOptions['piiJudge'];
+    toolPolicy?: readonly ToolRule[];
+    embedder?: Embedder;
+  } = {},
 ): CheckSet {
   const registry = replayRegistry();
   const judge = options.judge ?? noJudgeCheck();
@@ -364,6 +400,8 @@ export function replayChecks(
     judges: { check: () => judge },
     piiJudge: options.piiJudge,
     ...(options.piiOwner?.length ? { piiOwner: options.piiOwner } : {}),
+    ...(options.toolPolicy?.length ? { toolPolicy: options.toolPolicy } : {}),
+    ...(options.embedder ? { embedder: options.embedder } : {}),
   });
 }
 
@@ -514,8 +552,15 @@ function lineOf(alignment: Alignment, run: RunResult): ReplayLine {
           `block ${block.index}: ${verdict.id}${verdict.outcome === 'inconclusive' ? ' (inconclusive)' : ''}`,
       ),
   );
-  const pass =
-    run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
+  const outcome = blocksOutcome(run);
+  const pass = outcome === 'pass';
+  const skipped = run.blocks.flatMap((block) =>
+    block.notRun
+      ? [`block ${block.index}: not run (${block.notRun.check}: ${block.notRun.got})`]
+      : block.blocked
+        ? [`block ${block.index}: blocked by ${block.blocked.by}`]
+        : [],
+  );
   return {
     spec: run.specId,
     session: alignment.entry.name,
@@ -524,7 +569,8 @@ function lineOf(alignment: Alignment, run: RunResult): ReplayLine {
     runId: run.runId,
     status: run.status,
     pass,
-    failing,
+    ...(outcome === 'not_run' || outcome === 'blocked' ? { outcome } : {}),
+    failing: [...failing, ...skipped],
     ...(run.error === undefined ? {} : { error: run.error }),
   };
 }
@@ -559,21 +605,3 @@ function describe(cause: unknown): string {
 }
 
 /** The owner values from --owner and --owner-file. Undefined, with the reason printed, when the file cannot be read. */
-async function ownerValues(options: ReplayOptions, io: Io): Promise<string[] | undefined> {
-  const values = [...(options.owner ?? [])];
-  if (options.ownerFile !== undefined) {
-    const path = resolve(io.cwd, options.ownerFile);
-    let text: string;
-    try {
-      text = await readFile(path, 'utf8');
-    } catch (cause) {
-      io.err(`Cannot read the owner file ${path}: ${describe(cause)}\n`);
-      return undefined;
-    }
-    for (const line of text.split(/\r?\n/)) {
-      const value = line.trim();
-      if (value !== '' && !value.startsWith('#')) values.push(value);
-    }
-  }
-  return values.map((value) => value.trim()).filter((value) => value !== '');
-}

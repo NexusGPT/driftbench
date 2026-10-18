@@ -1,8 +1,10 @@
 import { resolve } from 'node:path';
 import {
+  blockStatus,
+  blocksOutcome,
   type Campaign,
   completeBaselineProvenance,
-  loadChangeManifest,
+  isScored,
   loadSpecs,
   planCampaign,
   prepareRejudge,
@@ -13,7 +15,9 @@ import { loadCampaign } from '@agent-nexus/driftbench-report';
 import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
-import { addJudgeOptions, type RunJudgeOptions, runJudgeFrom } from './run-judge';
+import { addJudgeOptions, judgeAsked, type RunJudgeOptions, runJudgeFrom } from '../judge-options';
+import { gateExit } from './gate-exit';
+import { loadRadiusChangeManifest } from './radius-change';
 
 type Options = RunJudgeOptions & {
   from: string;
@@ -23,6 +27,7 @@ type Options = RunJudgeOptions & {
   maxCarry?: string;
   maxAge?: string;
   json?: boolean;
+  recordRealizedText?: boolean;
 };
 export function registerCampaignRejudge(campaign: Command, io: Io, setExit: (code: number) => void): void {
   addJudgeOptions(
@@ -39,6 +44,7 @@ export function registerCampaignRejudge(campaign: Command, io: Io, setExit: (cod
       )
       .option('--max-carry <n>', 'maximum consecutive carries', '5')
       .option('--max-age <days>', 'maximum age of the observations', '7')
+      .option('--record-realized-text', 'keep available driver text in this new campaign')
       .option('--json', 'print the re-judge summary as JSON'),
   ).action(async (paths: string[], options: Options) => {
     setExit(await campaignRejudge(paths, options, io));
@@ -48,7 +54,7 @@ export function registerCampaignRejudge(campaign: Command, io: Io, setExit: (cod
 export async function campaignRejudge(paths: string[], options: Options, io: Io): Promise<number> {
   let store: ReturnType<typeof openStore> | undefined;
   try {
-    const manifest = await loadChangeManifest(resolve(io.cwd, options.change));
+    const manifest = await loadRadiusChangeManifest(resolve(io.cwd, options.change));
     if (!manifest.ok) throw new Error(manifest.errors.join('\n'));
     const change = manifest.manifest;
     if (
@@ -111,17 +117,25 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
         throw new Error('Baseline campaign is incomplete; rerun the agent.');
     }
     if (!prepared.length) throw new Error('Baseline campaign contains no observations; rerun the agent.');
-    if (!options.judge) throw new Error('Re-judge requires --judge claude:<model>.');
+    if (!judgeAsked(options))
+      throw new Error('Re-judge requires a judge: --judge <kind>:<model> or --judges <cassette>.');
     const judge = await runJudgeFrom(options, io);
     if (!judge) return 2;
     const campaign: Campaign = {
       ...data.campaign,
       campaignId: options.campaign,
       createdAt: now.toISOString(),
-      judge: { mode: 'llm', judges: [judge.label] },
+      judge: { mode: judge.mode, judges: judge.judges },
       specs: data.campaign.specs.map((p) => ({ ...p, hash: specs.get(p.id)?.hash ?? p.hash })),
       rejudged: prepared.map((p) => p.stamp),
     };
+    if (campaign.provenance) {
+      const { realizedText: _sourceOptIn, ...provenance } = campaign.provenance;
+      campaign.provenance = {
+        ...provenance,
+        ...(options.recordRealizedText === true ? { realizedText: true } : {}),
+      };
+    }
     delete campaign.radius;
     if (campaign.sources) campaign.sources = campaign.sources.filter((source) => source.kind === 'prompt');
     // Preflight above completes before any call or write. Store the new campaign so a failed judge
@@ -130,24 +144,58 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
     await store.putCampaign(campaign);
     const runs: RunResult[] = [];
     for (const item of prepared) {
-      const run = await rejudgeRun(item, judge.check, () => judge.spend.usd);
+      const run = await rejudgeRun(
+        item,
+        judge.check,
+        () => judge.spend.usd,
+        options.recordRealizedText === true,
+      );
       await store.putRun(campaign.campaignId, run);
       runs.push(run);
     }
+    await judge.save();
+    // A block not run or blocked is left as it was: no measurement to re-judge, named with its reason.
+    const unmeasured = runs.flatMap((r) =>
+      r.blocks.flatMap((b) => {
+        const status = blockStatus(b);
+        if (status !== 'not_run' && status !== 'blocked') return [];
+        const reason = b.notRun
+          ? `${b.notRun.check}: ${b.notRun.got}`
+          : `blocked by ${b.blocked?.by ?? 'an ancestor'}`;
+        return [{ spec: r.specId, mode: r.mode, repeat: r.repeat, block: b.index, status, reason }];
+      }),
+    );
+    const outcomes = runs.map(blocksOutcome);
     const summary = {
       campaign: campaign.campaignId,
       from: options.from,
       agentCalls: 0,
       rejudged: runs.flatMap((r) => r.blocks).filter((b) => b.rejudged).length,
-      carried: runs.flatMap((r) => r.blocks).filter((b) => !b.rejudged).length,
+      carried: runs.flatMap((r) => r.blocks).filter((b) => !b.rejudged && isScored(b)).length,
+      ...(unmeasured.length > 0 ? { unmeasured } : {}),
+      runs: {
+        pass: outcomes.filter((outcome) => outcome === 'pass').length,
+        fail: outcomes.filter((outcome) => outcome === 'fail').length,
+        notRun: outcomes.filter((outcome) => outcome === 'not_run').length,
+        blocked: outcomes.filter((outcome) => outcome === 'blocked').length,
+      },
       judgeCostUsd: judge.spend.usd,
     };
-    io.out(
-      options.json
-        ? `${JSON.stringify(summary, null, 2)}\n`
-        : `Campaign ${summary.campaign}: ${summary.rejudged} blocks re-judged, ${summary.carried} carried; 0 agent calls. Judge cost ${summary.judgeCostUsd.toFixed(4)} USD.\n`,
-    );
-    return runs.every((r) => r.blocks.every((b) => b.pass) && r.endState?.match !== false) ? 0 : 1;
+    if (options.json) io.out(`${JSON.stringify(summary, null, 2)}\n`);
+    else {
+      io.out(
+        `Campaign ${summary.campaign}: ${summary.rejudged} blocks re-judged, ${summary.carried} carried${unmeasured.length > 0 ? `, ${unmeasured.length} not run or blocked (left as they were)` : ''}; 0 agent calls. Judge cost ${summary.judgeCostUsd.toFixed(4)} USD.\n`,
+      );
+      io.out(
+        `Runs: ${summary.runs.pass} pass, ${summary.runs.fail} fail${summary.runs.notRun > 0 ? `, ${summary.runs.notRun} not run` : ''}${summary.runs.blocked > 0 ? `, ${summary.runs.blocked} blocked` : ''}.\n`,
+      );
+      for (const entry of unmeasured)
+        io.out(
+          `  ${entry.spec} ${entry.mode} repeat ${entry.repeat} block ${entry.block} ${entry.status === 'blocked' ? 'blocked' : 'not run'}: ${entry.reason}\n`,
+        );
+    }
+    // 1 when a run fails; 3 when none fails but a run was not run or blocked (no pass, no failure).
+    return gateExit(outcomes);
   } catch (error) {
     io.err(`${error instanceof Error ? error.message : String(error)}\n`);
     return 2;

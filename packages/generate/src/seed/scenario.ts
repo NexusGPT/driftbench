@@ -8,20 +8,23 @@ import type {
   ToolExpect,
   WorldState,
 } from '@agent-nexus/driftbench-core';
-import type { PathRelation, ProposalPhrase, Slots } from '../extract/proposal';
+import type { PathRelation, ProposalPhrase, Slots, UsesToolRelation } from '../extract/proposal';
+import type { Allocation, RecoveryOption } from './allocation';
 import type { BlockDraft, Pick, Stimulus } from './assemble';
 import { OPENING_CLASSES, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
-import { dimensionId, type PreparedMap, phraseKey, valueId } from './map';
+import { behaviourSubject, dimensionId, type PreparedMap, phraseKey, valueId } from './map';
 import { pick, type Rng } from './random';
 import {
   type Context,
   endState,
+  escapeRegExp,
   failureTools,
   fillText,
   matches,
   phraseFits,
   type Recovery,
   recoveryFor,
+  slotsIn,
   slotsOf,
   stageAfter,
   toolExpect,
@@ -45,6 +48,8 @@ export type ProbeRequest = {
   classId: string;
   /** The stage to probe at; any stage the recovery allows when absent. */
   stage?: string;
+  /** The walk ends at the probe: it is there to place the class, not to walk the rest of the path. */
+  cut?: boolean;
   /** For a tool failure: the tool that fails; any tool the path calls that has a recovery when absent. */
   tool?: string;
 };
@@ -54,6 +59,7 @@ export type ScenarioRequest = {
   /** A generation-local snapshot of this path's value indices. */
   pathValues?: ReadonlyMap<string, readonly number[]>;
   dimensionIndex?: ReadonlyMap<string, number>;
+  allocation?: Allocation;
   /** Values the seeder fixed: a t-wise row, a boundary value, a probe's class. */
   fixed: readonly Pick[];
   probe?: ProbeRequest;
@@ -68,6 +74,8 @@ export type ScenarioRequest = {
     stimulus: Stimulus;
     carries: Pick[];
     tools: ToolExpect[];
+    /** Behaviour calls, resolved against this turn's actual stage, cell and bound slots. */
+    usesTools?: readonly UsesToolRelation[];
     /**
      * A request that makes a call: the turn is said right after the walk's move that calls the tool, and the
      * call carries that move's arguments with `field` set to `value`, so every argument and the count hold.
@@ -110,9 +118,18 @@ export type ScenarioRequest = {
    */
   perturbEvery?: boolean;
   /**
+   * A walk built to fill a shortfall of the allocation declares only the recoveries the allocation adds: no
+   * drawn class and no tool failure, which every clean walk declares at the stages it crosses and would
+   * raise the stages the walk is there to balance.
+   */
+  allocationOnly?: boolean;
+  /**
    * The perturbation a clean walk must declare: this class said at this stage of the path. A first-turn
    * class whose recovery stays on the start stage has no Then an idle reply fails, so it is no block of the
-   * walk; declared here, a perturbed run says it and checks its recovery. The walk fails without it.
+   * walk; declared here, a perturbed run says it and checks its recovery. The walk fails without it. A class
+   * whose recovery moves the conversation elsewhere (a goal shift goes back to intake) cuts the walk at that
+   * stage: the perturbation is said after the walk's last turn, so no later turn starts from a stage the
+   * conversation has left.
    */
   perturb?: { classId: string; stage: string };
 };
@@ -194,6 +211,64 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       );
     cell.push([dimension, chosen]);
   }
+  // A behaviour phrase must exercise a declared call in a cell where it applies. Resolve every
+  // condition dimension before building the walk: contextAxes later fills only the remaining axes.
+  // This also lets conditional input bindings and flow assertions see the same values as the phrase.
+  if (request.turn?.usesTools?.length) {
+    const stage = path.stages[request.turn.at ?? 1];
+    const calls = request.turn.usesTools.filter(
+      (call) => call.stage === stage && (call.to === undefined || call.to === stage),
+    );
+    const keys = [...new Set(calls.flatMap((call) => Object.keys(call.when ?? {})))];
+    const stageKey = prepared.stage === undefined ? 'stage' : dimensionId(prepared, prepared.stage);
+    const fits = (picks: Pick[]) => {
+      if (!prepared.feasibility.allowed(picks)) return false;
+      return path.stages.slice(1).every((name) => {
+        const value = dimensions[prepared.stage ?? -1]?.index.get(name);
+        return (
+          prepared.stage === undefined ||
+          value === undefined ||
+          prepared.feasibility.allowed([
+            ...picks.filter(([at]) => at !== prepared.stage),
+            [prepared.stage, value],
+          ])
+        );
+      });
+    };
+    // Try each relation's condition, preserving map order. Backtrack across its allowed values;
+    // a condition can name any dimension, including detail dimensions that contextAxes does not draw.
+    const resolve = (call: UsesToolRelation, offset: number, picks: Pick[]): Pick[] | undefined => {
+      const key = keys[offset];
+      if (key === undefined) return picks;
+      const wanted = call.when?.[key];
+      if (key === stageKey)
+        return !wanted || (stage !== undefined && wanted.includes(stage))
+          ? resolve(call, offset + 1, picks)
+          : undefined;
+      const dimension = indexOf(key);
+      const own = held(picks, dimension);
+      if (own)
+        return !wanted || wanted.includes(valueId(prepared, dimension, own[1]))
+          ? resolve(call, offset + 1, picks)
+          : undefined;
+      const values = dimensions[dimension]?.values ?? [];
+      for (let value = 0; value < values.length; value += 1) {
+        if (wanted && !wanted.includes(valueId(prepared, dimension, value))) continue;
+        const next: Pick[] = [...picks, [dimension, value]];
+        if (!fits(next)) continue;
+        const resolved = resolve(call, offset + 1, next);
+        if (resolved) return resolved;
+      }
+      return undefined;
+    };
+    let resolved: Pick[] | undefined;
+    for (const call of calls) {
+      resolved = resolve(call, 0, cell);
+      if (resolved) break;
+    }
+    if (!resolved) return failedScenario(path, `no behaviour tool relation applies at ${stage}`);
+    cell.push(...resolved.slice(cell.length));
+  }
   if (!prepared.feasibility.allowed(cell))
     return failedScenario(path, 'the constraints forbid its values with this cell');
   // Every stage the walk reaches holds with the cell: a value the path states nothing about (a coverage
@@ -263,6 +338,62 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     return pick(rng, phrases);
   };
 
+  /**
+   * The patterns a reply that ran `tool` must hold: those of the `states` relations holding at `stage` (the
+   * subject the cell holds, the `when` its values meet) that state a returned field of the tool, filled from
+   * the cell. A returned field no such relation states is read in the one form the map's `states` relations
+   * state every returned field in where they hold (`statedForm`), when they show one. `strict` refuses a relation that
+   * reads a slot the cell does not bind; otherwise that pattern is left out.
+   */
+  const reportOf = (
+    tool: string,
+    stage: string,
+    strict: boolean,
+  ): { ok: true; patterns: string[] } | { ok: false; reason: string } => {
+    const patterns: string[] = [];
+    const stating: string[] = [];
+    const read = new Set<string>();
+    const context = contextOf(stage);
+    for (const entry of relations.states) {
+      const subject =
+        entry.subject.dimension === 'flow'
+          ? entry.subject.value === path.flow
+          : context[entry.subject.dimension] === entry.subject.value;
+      if (!subject || !matches(entry.when, context)) continue;
+      for (const pattern of entry.must ?? []) {
+        const out = slotsOf(pattern).filter((slot) => {
+          const source = boundBy.get(slot);
+          const found = source ? prepared.toolDimensions.get(source[0]) : undefined;
+          return found?.direction === 'out' && found.tool.name === tool;
+        });
+        if (out.length === 0) continue;
+        const filled = fillText(pattern, slots, true);
+        if (!filled.ok) {
+          if (strict)
+            return {
+              ok: false,
+              reason: `the report of ${tool} reads unbound slots ${filled.missing.join(', ')}`,
+            };
+          continue;
+        }
+        for (const slot of out) read.add(slot);
+        if (!patterns.includes(filled.value)) patterns.push(filled.value);
+        stating.push(pattern);
+      }
+    }
+    for (const pattern of statedFields(prepared, path.flow, context, tool, read)) {
+      const filled = fillText(pattern, slots, true);
+      if (!filled.ok) continue;
+      if (!patterns.includes(filled.value)) patterns.push(filled.value);
+      stating.push(pattern);
+    }
+    // The Given answers with the values the reply states.
+    replyData.push(
+      ...sourcesOf(boundBy, stating).filter(([at]) => prepared.toolDimensions.get(at)?.direction === 'out'),
+    );
+    return { ok: true, patterns };
+  };
+
   // A phrase probe goes in at a stage of the path, chosen before the walk: its phrase may bind a slot a later
   // turn reads (a plan named again at the recap).
   const probe = request.probe;
@@ -301,7 +432,19 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       .filter(({ stage }) =>
         choosePhraseExists(prepared, deviationKey, probe.classId, contextOf(stage), slots, request),
       );
-    const chosen = pick(rng, allowed);
+    // A probe goes where the allocation gains most among the stages its class can take: its own event, and
+    // the moves before it when the walk ends there. The draw is the same either way.
+    const cheapest = request.allocation?.cheapest(
+      allowed.map(({ stage, index }) => ({
+        stage,
+        events: [
+          ...path.stages.slice(1, probe.cut ? index + 1 : path.stages.length),
+          path.stages[index] as string,
+        ],
+      })),
+      probe.classId,
+    );
+    const chosen = pick(rng, cheapest ? allowed.filter(({ stage }) => cheapest.has(stage)) : allowed);
     if (!chosen) {
       if (
         probe.stage === path.stages[0] &&
@@ -326,7 +469,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   const blocks: BlockDraft[] = [];
   const replyData: Pick[] = [];
   const lang = relations.replyLanguage;
-  let movedAway = false;
+  let endsAtProbe = false;
   let turnPlaced = false;
   // What the reply that reached the pending stage must never hold, whatever the data: the states `must_not`
   // patterns with no slot, such as narrated internal steps. A recovery that stays there is held to them too.
@@ -334,42 +477,68 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   let beforePlaced = false;
   // A free turn's block: no tool is closed on it (`turn.free`).
   let freeBlock: number | undefined;
+  // A wanted perturbation whose recovery moves the conversation: the walk stops at its stage, never the last.
+  let cutAt: number | undefined;
+  const wantedMove = request.perturb;
+  if (wantedMove && !probe && !request.turn && !request.aside) {
+    const own = recoveryFor(relations, wantedMove.classId, path.flow);
+    const after = own ? stageAfter(own, wantedMove.stage) : undefined;
+    if (after !== undefined && after !== wantedMove.stage) {
+      const at = path.stages.findIndex(
+        (stage, index) =>
+          stage === wantedMove.stage &&
+          index + 1 < path.stages.length &&
+          (index >= 1 || OPENING_CLASSES.has(wantedMove.classId)),
+      );
+      if (at < 0)
+        return failedScenario(
+          path,
+          `no stage before the last takes ${wantedMove.classId} at ${wantedMove.stage}`,
+        );
+      cutAt = at;
+    }
+  }
+  const moveBlocks = new Map<number, number>();
   for (let index = 0; index < path.stages.length; index += 1) {
+    if (index === cutAt) break;
     if (request.turn && !request.turn.call && index === (request.turn.at ?? 1)) {
       freeBlock = request.turn.free ? blocks.length : undefined;
-      const reports: string[] = [];
-      // The relations that hold here, as a move's Then reads them: the subject the cell holds, the `when`
-      // its values meet (a channel-only reply rule stays on its channel).
-      const context = contextOf(path.stages[index] as string);
-      for (const entry of request.turn.report ? relations.states : []) {
-        const subject =
-          entry.subject.dimension === 'flow'
-            ? entry.subject.value === path.flow
-            : context[entry.subject.dimension] === entry.subject.value;
-        if (!subject || !matches(entry.when, context)) continue;
-        for (const pattern of entry.must ?? []) {
-          const out = slotsOf(pattern).some((slot) => {
-            const source = boundBy.get(slot);
-            const found = source ? prepared.toolDimensions.get(source[0]) : undefined;
-            return found?.direction === 'out' && found.tool.name === request.turn?.report;
-          });
-          if (!out) continue;
-          const filled = fillText(pattern, slots, true);
-          if (!filled.ok)
-            return failedScenario(
-              path,
-              `the report of ${request.turn.report} reads unbound slots ${filled.missing.join(', ')}`,
-            );
-          if (!reports.includes(filled.value)) reports.push(filled.value);
-        }
+      const stage = path.stages[index] as string;
+      const active = (request.turn.usesTools ?? []).filter(
+        (call) =>
+          call.stage === stage &&
+          (call.to === undefined || call.to === stage) &&
+          matches(call.when, contextOf(stage)),
+      );
+      if (request.turn.usesTools?.length && active.length === 0)
+        return failedScenario(path, `no behaviour tool relation applies at ${stage} in this cell`);
+      const tools = [...request.turn.tools];
+      const reports = new Set(request.turn.report ? [request.turn.report] : []);
+      const carries = [...request.turn.carries];
+      for (const call of active) {
+        const expected = toolExpect(call.tool, call.count ?? 1, call.input, slots);
+        if (!expected.ok)
+          return failedScenario(
+            path,
+            `${call.tool} at ${stage} reads unbound slots ${expected.missing.join(', ')}`,
+          );
+        tools.push(expected.value);
+        reports.add(call.tool);
+        carries.push(...sourcesOf(boundBy, call.input ?? {}));
+      }
+      const patterns: string[] = [];
+      for (const tool of reports) {
+        const report = reportOf(tool, stage, true);
+        if (!report.ok) return failedScenario(path, report.reason);
+        for (const pattern of report.patterns) if (!patterns.includes(pattern)) patterns.push(pattern);
       }
       blocks.push({
-        ...(reports.length > 0 ? { must: reports } : {}),
+        ...(patterns.length > 0 ? { must: patterns } : {}),
         id: `b${blocks.length + 1}-value`,
         stimulus: request.turn.stimulus,
-        stage: path.stages[index] as string,
-        carries: request.turn.carries,
-        tools: request.turn.tools,
+        stage,
+        carries: unique(carries),
+        tools,
         ...(lang === undefined ? {} : { lang }),
       });
       turnPlaced = true;
@@ -430,9 +599,9 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       });
       // A recovery that leaves the conversation elsewhere than the stage it had reached (a goal shift goes
       // back to the stage that owns the change) ends the walk: the path's next turn starts from a stage the
-      // conversation is no longer at.
-      if (after !== undefined && after !== stage) {
-        movedAway = true;
+      // conversation is no longer at. A probe asked to cut the walk ends it as well, unless the walk is over.
+      if ((after !== undefined && after !== stage) || (probe.cut && index + 1 < path.stages.length)) {
+        endsAtProbe = true;
         break;
       }
     }
@@ -454,6 +623,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     const tools: ToolExpect[] = [];
     const ruled: Pick[] = [];
     for (const call of relations.usesTools) {
+      // A behaviour's call is made in that behaviour's own phrase turn, never on a move.
+      if (behaviourSubject(prepared, call.subject)) continue;
       const subject =
         call.subject.dimension === 'flow'
           ? call.subject.value === path.flow
@@ -544,6 +715,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         id: `b${blocks.length + 1}-restated`,
         stimulus: first.stimulus,
         stage: from,
+        saidAt: from,
         carries: first.carries,
         tools: [{ ...run, input: { ...run.input, [first.call.field]: first.call.value } }],
         ...(reported.length > 0 ? { must: reported } : {}),
@@ -551,6 +723,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       });
       beforePlaced = true;
     }
+    moveBlocks.set(index, blocks.length);
     const block: BlockDraft = {
       id: `b${blocks.length + 1}-${transitionId}`,
       stimulus: stimulusOf(slots, phrase, transitionKey, transitionId),
@@ -566,6 +739,9 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     const asked = request.turn?.call;
     const made = asked ? tools.find((tool) => tool.label === asked.tool && calls(tool)) : undefined;
     if (request.turn && asked && made) {
+      // The run the user asks for answers from the same Given: its reply states the tool's returned fields.
+      const answered = reportOf(asked.tool, to, false);
+      if (!answered.ok) return failedScenario(path, answered.reason);
       blocks.push({
         id: `b${blocks.length + 1}-value`,
         stimulus: request.turn.stimulus,
@@ -575,6 +751,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
           { ...made, input: { ...made.input, [asked.field]: asked.value } },
           ...request.turn.tools.filter((tool) => tool.label !== asked.tool),
         ],
+        ...(answered.patterns.length > 0 ? { must: answered.patterns } : {}),
         ...(lang === undefined ? {} : { lang }),
       });
       turnPlaced = true;
@@ -592,7 +769,10 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     return failedScenario(path, `the path has no stage ${request.turn.at ?? 1} moves after its start`);
 
   let placed: Built['probe'];
-  let truncated = turnPlaced;
+  // A turn said after the walk's last move cuts nothing: the walk still reaches its end and checks its end state.
+  const afterLastMove =
+    request.turn !== undefined && !request.turn.call && (request.turn.at ?? 1) === path.stages.length - 1;
+  let truncated = (turnPlaced && !afterLastMove) || cutAt !== undefined;
   // The answer a tool gives once it works again: the bound values the replies state, else its defaults.
   if (probe && probe.classId === TOOL_FAILURE) {
     const failed = toolFailure(prepared, rng, path, blocks, cell, probe, (tool) =>
@@ -603,7 +783,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     truncated = true;
   } else if (probe && probeAt !== undefined) {
     placed = { classId: probe.classId, stage: path.stages[probeAt] as string };
-    if (movedAway) truncated = true;
+    if (endsAtProbe) truncated = true;
   }
 
   // Every tool the scenario calls is expected 0 times in a turn that does not call it; a tool it never calls
@@ -645,11 +825,11 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     !probe &&
     !request.turn &&
     !request.aside &&
-    !request.before &&
     deviationKey !== undefined &&
     prepared.deviation !== undefined
   ) {
-    const options: Array<{ classId: string; index: number; expect: Expect; user: string }> = [];
+    const options: Array<{ classId: string; index: number; stage: string; expect: Expect; user: string }> =
+      [];
     for (const value of dimensions[prepared.deviation]?.values ?? []) {
       const classId = value.id;
       if (classId === TOOL_FAILURE) continue;
@@ -660,7 +840,19 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         if (index === 0 && !OPENING_CLASSES.has(classId)) continue;
         if (own.at && !own.at.includes(stage)) continue;
         const after = stageAfter(own, stage);
-        if (after !== undefined && after !== stage) continue;
+        // A recovery that moves is said only where the walk was cut for it, after its last turn.
+        if (after !== undefined && after !== stage && index !== cutAt) continue;
+        if (cutAt !== undefined && index !== cutAt) continue;
+        if (after !== undefined && after !== stage) {
+          const stagePick =
+            prepared.stage === undefined ? undefined : dimensions[prepared.stage]?.index.get(stage);
+          const picks: Pick[] = [...cell];
+          if (prepared.stage !== undefined && stagePick !== undefined)
+            picks.push([prepared.stage, stagePick]);
+          const classPick = dimensions[prepared.deviation]?.index.get(classId);
+          if (classPick !== undefined) picks.push([prepared.deviation, classPick]);
+          if (!prepared.feasibility.allowed(picks)) continue;
+        }
         const said = { ...slots };
         const phrase = choosePhrase(deviationKey, classId, contextOf(stage), said);
         if (!phrase) continue;
@@ -668,17 +860,23 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         if (!text.ok) continue;
         const expect = recoveryExpect(own, stage, { ...said, ...(phrase.binds ?? {}) }, inPlay, lang);
         if (!expect) continue;
-        options.push({ classId, index, expect, user: text.value });
+        options.push({
+          classId,
+          index: moveBlocks.get(index) ?? blocks.length,
+          stage,
+          expect,
+          user: text.value,
+        });
       }
     }
     // One class is drawn, as before; a walk that declares every class adds the others at the first stage
     // each can take, with no further draw, so the rest of the walk is the same either way.
     const wanted = request.perturb;
     const drawn = wanted
-      ? options.find(
-          (option) => option.classId === wanted.classId && path.stages[option.index] === wanted.stage,
-        )
-      : pick(rng, options);
+      ? options.find((option) => option.classId === wanted.classId && option.stage === wanted.stage)
+      : request.allocationOnly
+        ? undefined
+        : pick(rng, options);
     if (wanted && !drawn)
       return failedScenario(
         path,
@@ -706,7 +904,10 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     // A tool failure the recovery stays from: before the first turn that calls a recovered tool first, the
     // user says that turn with the tool failing. The recovery is the injected block's Then, and the turn
     // itself then runs with the tool answering again. It takes no seeded draw, so the rest is unchanged.
-    const failure = toolFailurePerturbation(relations, path, blocks, slots, inPlay, lang);
+    const failure =
+      cutAt === undefined && !request.allocationOnly
+        ? toolFailurePerturbation(relations, path, blocks, slots, inPlay, lang)
+        : undefined;
     if (failure) {
       const block = blocks[failure.index] as BlockDraft;
       block.given = {
@@ -727,6 +928,46 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         recovery: { within_blocks: 0, stage_after: failure.expect.stage as string },
       });
     }
+  }
+  if (request.allocation && deviationKey !== undefined && prepared.deviation !== undefined) {
+    const candidates: RecoveryOption[] = [];
+    const ordinary = !probe && !request.turn && !request.aside && !request.before;
+    const positions = ordinary ? Array.from({ length: blocks.length + 1 }, (_, index) => index) : [0];
+    for (const index of positions) {
+      const stage = index === 0 ? path.stages[0] : blocks[index - 1]?.stage;
+      if (stage === undefined) continue;
+      for (const value of dimensions[prepared.deviation]?.values ?? []) {
+        const classId = value.id;
+        if (classId === TOOL_FAILURE || (index === 0 && !OPENING_CLASSES.has(classId))) continue;
+        const own = recoveryFor(relations, classId, path.flow);
+        const after: string | undefined = own ? stageAfter(own, stage) : undefined;
+        if (!own || (own.at && !own.at.includes(stage)) || (after !== undefined && after !== stage)) continue;
+        const stageValue = dimensions[prepared.stage ?? -1]?.index.get(stage);
+        const classValue = dimensions[prepared.deviation]?.index.get(classId);
+        if (stageValue === undefined || classValue === undefined || prepared.stage === undefined) continue;
+        if (
+          !prepared.feasibility.allowed([
+            ...cell.filter(([at]) => at !== prepared.stage && at !== prepared.deviation),
+            [prepared.stage, stageValue],
+            [prepared.deviation, classValue],
+          ])
+        )
+          continue;
+        // Reuse an approved phrasing without adding random draws. Special value/probe walks only add
+        // a recovery at their initial state, leaving all inserted turns and bound values untouched.
+        const phrase = (prepared.phrasesOf.get(phraseKey(deviationKey, classId)) ?? []).find((entry) =>
+          phraseFits(entry, contextOf(stage), slots),
+        );
+        if (!phrase) continue;
+        const bound = { ...slots, ...(phrase.binds ?? {}) };
+        const text = fillText(phrase.text, bound);
+        const expect = recoveryExpect(own, stage, bound, inPlay, lang);
+        if (text.ok && expect) candidates.push({ classId, index, stage, expect, user: text.value });
+      }
+    }
+    request.allocation.supplement(blocks, perturbations, candidates, ordinary && !request.perturb);
+    if (perturbations.some((entry) => entry.class === 'D7_silence_or_burst'))
+      rules.one_message_per_turn = true;
   }
 
   let end: EndStateSpec | undefined;
@@ -818,7 +1059,7 @@ function toolFailurePerturbation(
   lang: string | undefined,
 ): { index: number; tool: string; user: string; expect: Expect } | undefined {
   for (const [index, block] of blocks.entries()) {
-    const stage = path.stages[index];
+    const stage = block.saidAt ?? (index === 0 ? path.stages[0] : blocks[index - 1]?.stage);
     const first = (block.tools ?? []).find(calls);
     if (stage === undefined || !first || block.stimulus.kind !== 'phrase') continue;
     const recovery = recoveryFor(relations, TOOL_FAILURE, path.flow, first.label);
@@ -1044,9 +1285,94 @@ function filledWords(patterns: string[], slots: Slots): string[] | undefined {
   return out;
 }
 
+/** Each top-level returned field of a tool the map binds a slot for: the tool, the field and the slot. */
+function returnedFields(prepared: PreparedMap): Array<{ tool: string; field: string; slot: string }> {
+  const out: Array<{ tool: string; field: string; slot: string }> = [];
+  for (const [dimension, found] of prepared.toolDimensions) {
+    if (found.direction !== 'out' || found.path.length !== 1) continue;
+    const field = found.path[0] as string;
+    const values = prepared.space.dimensions[dimension]?.values ?? [];
+    const slots = new Set<string>();
+    for (let value = 0; value < values.length; value += 1) {
+      const bound = prepared.relations.binds.get(
+        `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
+      );
+      for (const slot of Object.keys(bound ?? {})) slots.add(slot);
+    }
+    for (const slot of slots) out.push({ tool: found.tool.name, field, slot });
+  }
+  return out;
+}
+
 function answering(prepared: PreparedMap, replyData: Pick[], tool: string): ToolAnswer {
   const bound = worldFor(prepared, unique(replyData), { useBindings: true }).world?.tools?.[tool];
   if (bound) return bound;
   const schema = prepared.tools.find((entry) => entry.name === tool);
   return { result: (schema ? toolAnswer(schema, []).answer : {}) as never };
+}
+
+const TOOL_MARK = '\u0000';
+const FIELD_MARK = '\u0001';
+const VALUE_MARK = '\u0002';
+
+/**
+ * The one form the map's `states` relations state a returned field in, with the tool's label (its name with
+ * spaces), the field's name and its value marked: "lookup record says found is {lookup_record_out_found}\."
+ * gives "<tool> says <field> is <value>\.". Read from every `must` pattern that states one returned field and
+ * nothing else, of a relation whose conditions hold in the spec: its subject (the spec's `flow`, or a value
+ * `context` holds) and its `when`. Null when those patterns hold no form or more than one, or when no second
+ * tool states its fields in that form anywhere in the map (one tool shows no form a second tool shares).
+ */
+function statedForm(prepared: PreparedMap, flow: string, context: Context): string | null {
+  const bySlot = new Map(returnedFields(prepared).map((entry) => [entry.slot, entry]));
+  const holding = new Set<string>();
+  const toolsOf = new Map<string, Set<string>>();
+  for (const entry of prepared.relations.states) {
+    const subject =
+      entry.subject.dimension === 'flow'
+        ? entry.subject.value === flow
+        : context[entry.subject.dimension] === entry.subject.value;
+    const holds = subject && matches(entry.when, context);
+    for (const pattern of entry.must ?? []) {
+      const read = slotsIn(pattern);
+      const field = read.length === 1 ? bySlot.get(read[0] as string) : undefined;
+      if (!field) continue;
+      const label = escapeRegExp(field.tool.replace(/_/g, ' '));
+      const marked = pattern.split(`{${field.slot}}`);
+      if (marked.length !== 2) continue;
+      const parts = marked.map((part) => part.split(label));
+      if (parts.flat().length !== 3) continue;
+      const withTool = parts.map((part) => part.join(TOOL_MARK)).join(VALUE_MARK);
+      const named = withTool.split(field.field);
+      if (named.length !== 2) continue;
+      const form = named.join(FIELD_MARK);
+      if (holds) holding.add(form);
+      toolsOf.set(form, new Set([...(toolsOf.get(form) ?? []), field.tool]));
+    }
+  }
+  const form = holding.size === 1 ? ([...holding][0] as string) : undefined;
+  return form !== undefined && (toolsOf.get(form)?.size ?? 0) >= 2 ? form : null;
+}
+
+/**
+ * The patterns, in the one form of the relations that hold in `context`, of the returned fields of `tool`
+ * whose slot is not in `read`.
+ */
+function statedFields(
+  prepared: PreparedMap,
+  flow: string,
+  context: Context,
+  tool: string,
+  read: ReadonlySet<string>,
+): string[] {
+  const form = statedForm(prepared, flow, context);
+  if (form === null) return [];
+  return returnedFields(prepared)
+    .filter((entry) => entry.tool === tool && !read.has(entry.slot))
+    .map((entry) =>
+      form
+        .replace(TOOL_MARK, escapeRegExp(tool.replace(/_/g, ' ')))
+        .replace(FIELD_MARK, escapeRegExp(entry.field))
+        .replace(VALUE_MARK, `{${entry.slot}}`),
+    );
 }
