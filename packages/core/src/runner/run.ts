@@ -2,7 +2,7 @@ import type { AdapterCapabilities, AgentAdapter, Session, Turn } from '../contra
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import { type CheckSet, machineVerdict } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
-import { copyHistory, freezeHistory, freezeMessage } from '../contracts/history';
+import { copyHistory, extendHistory, freezeHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
 import { type DiagnosticBudget, runRunDiagnostics } from '../diagnostics/run';
@@ -27,7 +27,7 @@ import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from 
 import { cloneJson } from '../spec/hash';
 import { specHash as specHashOf } from '../spec/identity';
 import { parentOrder } from '../spec/parents';
-import { type GivenFinding, verifyGiven } from '../spec/verify-given';
+import { type GivenFinding, parentIndices, verifyGiven } from '../spec/verify-given';
 import { compareEndState, type EndStateMatch } from './assertion';
 import {
   blockCacheKey,
@@ -50,7 +50,7 @@ import { composeStates, type EndStateSnapshot, endStateSnapshot, snapshotValues 
 import {
   addFacts,
   assistantMessage,
-  canonicalGiven,
+  canonicalGivenFrozen,
   enterBlock,
   initialGiven,
   type RunningGiven,
@@ -480,9 +480,10 @@ class SetupCheckFailed extends Error {
 
 /**
  * The Given error each spec block starts from, by the static verifier. A finding on a block's prefix or shared
- * facts holds for that block and the later ones that keep its history (no prefix of their own); a finding
- * on the world holds from its block on, as the world merges forward; one on the spec's own Given holds for
- * every block.
+ * facts holds for that block and the blocks that keep its history (no prefix of their own); a finding on the
+ * world holds from its block on, as the world merges forward; one on the spec's own Given holds for every
+ * block. "After" follows the blocks in order, or, when blocks link by `parent`, the chain of ancestors: a
+ * root starts at the spec defaults, so a Given error in one tree never reaches another.
  */
 function givenGaps(spec: Spec): Map<number, NotRun> {
   const findings = verifyGiven(spec).filter((finding) => finding.level === 'not_run');
@@ -495,17 +496,32 @@ function givenGaps(spec: Spec): Map<number, NotRun> {
     got,
   });
   const whole = findings.find((finding) => finding.block === undefined);
-  let history: NotRun | undefined;
-  let world: NotRun | undefined;
-  spec.blocks.forEach((block, index) => {
-    if (block.given?.prefix !== undefined) history = undefined;
-    for (const finding of findings.filter((found) => found.block === index)) {
-      if (finding.layer === '5 world') world ??= strip(finding);
-      else history ??= strip(finding);
+  const byBlock = new Map<number, GivenFinding[]>();
+  for (const finding of findings) {
+    if (finding.block !== undefined)
+      byBlock.set(finding.block, [...(byBlock.get(finding.block) ?? []), finding]);
+  }
+  const linked = spec.blocks.some((block) => block.parent !== undefined);
+  const parentOf = linked ? parentIndices(spec) : new Map<number, number>();
+  const order = linked ? parentOrder(spec).order : spec.blocks.map((_, index) => index);
+  const history = new Map<number, NotRun | undefined>();
+  const world = new Map<number, NotRun | undefined>();
+  for (const index of order) {
+    const before = linked ? parentOf.get(index) : index - 1;
+    let ownHistory =
+      spec.blocks[index]?.given?.prefix !== undefined || before === undefined || before < 0
+        ? undefined
+        : history.get(before);
+    let ownWorld = before === undefined || before < 0 ? undefined : world.get(before);
+    for (const finding of byBlock.get(index) ?? []) {
+      if (finding.layer === '5 world') ownWorld ??= strip(finding);
+      else ownHistory ??= strip(finding);
     }
-    const gap = (whole ? strip(whole) : undefined) ?? history ?? world;
+    history.set(index, ownHistory);
+    world.set(index, ownWorld);
+    const gap = (whole ? strip(whole) : undefined) ?? ownHistory ?? ownWorld;
     if (gap) gaps.set(index, gap);
-  });
+  }
   return gaps;
 }
 
@@ -542,8 +558,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   const blocks: BlockResult[] = [];
   const { sources } = run;
   let state = initialGiven(spec);
-  // The running history is private to the loop: frozen, so each copy of it for the next block or the Given is a
-  // pass over pointers, not a validation of every message again.
+  /** The messages so far: a private read-only list, replaced by a longer one after each block, so a block reads only what it adds. */
   let history: readonly Message[] = [];
   /** The user messages of the history, one list that grows with it, so the ledger reads each one once. */
   let users: Message[] = [];
@@ -576,7 +591,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         error = `the driver ${run.driver.id} did not stop within ${run.maxSteps} steps`;
         break;
       }
-      const step = await nextStep(run, nextBlock, blocks);
+      const branchOf = run.parentOrder
+        ? (index: number) => ancestorResults(spec.blocks[index]?.parent, recordings)
+        : undefined;
+      const step = await nextStep(run, nextBlock, blocks, branchOf);
       if (step.kind === 'stop') {
         endVerdict = step.verdict;
         if (step.verdict === 'inconclusive') {
@@ -695,7 +713,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
             `teacher-forced mode runs the spec's own blocks; the driver ${run.driver.id} injected ${step.perturbationId}`,
           );
         }
-        const canonical = canonicalGiven(spec, step.blockIndex);
+        const canonical = canonicalGivenFrozen(spec, step.blockIndex);
         state = canonical.state;
         // A task's workspace is part of the state the reference trajectory had at this block: the session
         // of the block before keeps it, unless this block writes its own workspace. Its history becomes the
@@ -706,7 +724,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           await channel.restart();
           sessionBase = composed;
         }
-        history = canonical.history;
+        history = canonical.prefix;
         // The canonical prefix of a block is the one of the block before, then that block's user messages
         // and a reply (canonicalGiven), unless the block writes a prefix of its own. So after the block
         // before, the user messages kept are those of this prefix already.
@@ -770,7 +788,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         // it with their user messages and an empty reply, and the facts their ledger_add establishes.
         const from = step.kind === 'block' ? step.blockIndex + 1 : nextBlock;
         let laterState: RunningGiven = { ...state, ledger };
-        let laterHistory = freezeHistory(history, [
+        let laterHistory = copyHistory(history, [
           ...stimulusMessages(planned.stimulus),
           assistantMessage(NOT_SENT),
         ]);
@@ -781,11 +799,11 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
             stimulus: (spec.blocks[index] as BlockSpec).when,
           });
           laterState = enterBlock(laterState, later.given);
-          if (later.given?.prefix) laterHistory = freezeHistory(later.given.prefix);
+          if (later.given?.prefix) laterHistory = copyHistory(later.given.prefix);
           const laterHash = resolveGiven(laterState, laterHistory, run.target).hash;
           const laterLedger = addFacts(laterState.ledger, later.expect.ledger_add).ledger;
           laterState = { ...laterState, ledger: laterLedger };
-          laterHistory = freezeHistory(laterHistory, [
+          laterHistory = copyHistory(laterHistory, [
             ...stimulusMessages(later.stimulus),
             assistantMessage(NOT_SENT),
           ]);
@@ -1244,9 +1262,21 @@ function endStateValue(endState: EndState | undefined, sources: string[], states
   return states[0];
 }
 
-async function nextStep(run: RunContext, blockIndex: number, blocks: BlockResult[]): Promise<DriverStep> {
+async function nextStep(
+  run: RunContext,
+  blockIndex: number,
+  blocks: BlockResult[],
+  branchOf: ((blockIndex: number) => BlockResult[]) | undefined,
+): Promise<DriverStep> {
   try {
-    return await run.driver.next({ spec: run.spec, mode: run.mode, blockIndex, history: [...blocks] });
+    return await run.driver.next({
+      spec: run.spec,
+      mode: run.mode,
+      blockIndex,
+      history: [...blocks],
+      branch: branchOf ? branchOf(blockIndex) : [...blocks],
+      ...(branchOf ? { branchOf } : {}),
+    });
   } catch (cause) {
     throw new RunnerError(
       `the driver ${run.driver.id} failed before block ${blockIndex}: ${describeError(cause)}`,
@@ -1340,7 +1370,7 @@ function liveChannel(run: RunContext): Channel {
     restart: closeSession,
     reseat(prefix) {
       if (!session) return false;
-      session.history = copyHistory(prefix);
+      session.history = freezeHistory(prefix) as Message[];
       return true;
     },
     async observe(turn, user, key) {
@@ -1352,7 +1382,7 @@ function liveChannel(run: RunContext): Channel {
           if (run.capabilities.sandbox) await checkSetup(adapter, opened, turn.given);
         }
         const current = session;
-        current.history.push(...user);
+        current.history = extendHistory(current.history, user) as Message[];
         let sent: unknown = await call(`send on block ${turn.index}`, () => adapter.send(current, turn));
         const trace = adapter.trace;
         if (run.capabilities.trace && trace) {
@@ -1370,7 +1400,9 @@ function liveChannel(run: RunContext): Channel {
           `the adapter's Observed for block ${turn.index} does not match the schema as JSON: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim(),
         );
       }
-      current.history.push(freezeMessage(cloneJson(assistantMessage(parsed.data))));
+      current.history = extendHistory(current.history, [
+        freezeMessage(cloneJson(assistantMessage(parsed.data))),
+      ]) as Message[];
       // The cache keeps the block without its retries: a replay retries nothing.
       const { retries: _spent, ...kept } = parsed.data;
       await remember(key, kept);

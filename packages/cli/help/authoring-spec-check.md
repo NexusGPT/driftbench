@@ -11,6 +11,7 @@ see_also:
   - authoring-prefixes
   - authoring-perturbations
   - authoring-inventory
+  - authoring-given-checks
 next:
   - authoring-inventory
 ---
@@ -104,7 +105,7 @@ The path in a spec is dotted, counting from 0: `blocks.2.expect.tools.0.label` i
 | `BLOCK_STIMULUS_MISSING` | error | a block has none of `user`, `burst` and `when` |
 | `BLOCK_STIMULUS_AMBIGUOUS` | error | a block has more than one of `user`, `burst` and `when` |
 | `SCHEMA_*` | error | the schema refuses a value; the suffix is the zod issue code: such as `SCHEMA_UNRECOGNIZED_KEYS` (unknown key), `SCHEMA_INVALID_TYPE` (wrong type, or missing), `SCHEMA_INVALID_VALUE` (not an allowed option), `SCHEMA_INVALID_FORMAT` (pattern mismatch), `SCHEMA_TOO_SMALL` (a list or number under its minimum), `SCHEMA_INVALID_UNION` (a value that fits none of the allowed forms, with a hint), `SCHEMA_CUSTOM` (an unsupported JSON Schema keyword in `json.schema` or `metadata.tool_schemas`, or a length bound with no min and no max) |
-| `REGEX_INVALID` | error | a pattern in `must`, `must_not`, a `regex` assertion or a `knowledge_retention` `ask` does not compile |
+| `REGEX_INVALID` | error | a pattern in `must`, `must_not`, the `regex` list, a `regex` assertion (in a tool input, an end state or a `json` path) or a `knowledge_retention` `ask` does not compile |
 | `CRITERION_REF_INVALID` | error | a criterion reference is not a name, optionally followed by `@gating` |
 | `CRITERION_UNDEFINED` | error | the spec defines `criteria`, and a block names one that is not there |
 | `CRITERION_DUPLICATE` | error | two criteria share a name |
@@ -134,6 +135,8 @@ The path in a spec is dotted, counting from 0: `blocks.2.expect.tools.0.label` i
 
 ### The Given verifier
 
+Topic authoring-given-checks explains each check with the keys it reads, a worked example and every message.
+
 A Given is a recipe: these checks are its predicate. Each runs only on the layers the spec writes. A finding is a warning of `spec lint`; the four Given errors also stop the block at run time, so a block whose Given is wrong is `not_run` (kind `given_unmet`, with the layer, the check, what was expected and what was found) instead of a pass or a fail of the agent.
 
 | Check | Layer | Holds when | At run time |
@@ -145,7 +148,7 @@ A Given is a recipe: these checks are its predicate. Each runs only on the layer
 | `chain` | 4 beliefs | a block's `ledger_add` agrees with the ledger | warning only |
 | `summary_present` | 5 world | a workspace folder and a named session state carry a summary | warning only, with `--summaries` |
 
-A finding on a block's prefix or shared facts holds for the blocks that keep its history (in mode T, the later blocks with no prefix of their own; in modes F and P the conversation stops there). One on the world holds from its block on. After setup, the runner also reads back every file `world.workspace.files` writes, on an adapter with a sandbox: a file that does not read back as written makes the block `not_run` with kind `setup_failed`, check `world_digest`.
+A finding on a block's prefix or shared facts holds for the blocks that keep its history (in mode T, the later blocks with no prefix of their own; in modes F and P the conversation stops there). One on the world holds from its block on. "Earlier" and "later" follow the file order in a spec without parent links. When blocks link by `parent`, they follow the ancestors: a root starts at the spec defaults (the spec's own `given`, no history), a child starts from its parent's ledger, world and history, and a finding on one tree never reaches another. In a run, the block with the finding is `not_run`, its descendants are `blocked`, and the other trees run. After setup, the runner also reads back every file `world.workspace.files` writes, on an adapter with a sandbox: a file that does not read back as written makes the block `not_run` with kind `setup_failed`, check `world_digest`.
 
 ## Worked example
 
