@@ -377,7 +377,7 @@ Its keys are fictional and its base URL is a closed local port, so nothing leave
 |---|---|---|---|
 | `driftbench attack examples/acme/specs/conversations/plan-upgrade.yaml --rounds 11` | `--rounds takes a whole number from 1 to 10` | 2 | Give 1 to 10. |
 | `driftbench attack packages/cli/test/fixtures/redteam-acme.spec.json --rounds 1` | `No redteam/ folder sits at or above` | 2 | Pass `--pack <dir>`, or add a `redteam/` folder above the spec. |
-| `driftbench attack examples/acme/specs/conversations/order-loose-confirmation.yaml --replay packages/cli/test/fixtures/redteam-attack-d6.json` | `the recording attacks acme-plan-upgrade at 5ae085d0b267, not acme-order-loose-confirmation` | 2 | Replay on the spec the recording was made on, unchanged. |
+| `driftbench attack examples/acme/specs/conversations/order-loose-confirmation.yaml --replay packages/cli/test/fixtures/redteam-attack-d6.json` | `the recording attacks acme-plan-upgrade at 3577d4c43a98, not acme-order-loose-confirmation` | 2 | Replay on the spec the recording was made on, unchanged. |
 | `driftbench attack examples/acme/specs/conversations/plan-upgrade.yaml --replay packages/cli/test/fixtures/redteam-attack-d6.json --model` | `--replay runs recorded attacks: leave out --model.` | 2 | Use one source of attacks. |
 | `driftbench attack examples/acme/specs/conversations/plan-upgrade.yaml --faults examples/acme/faults` | `error: unknown option '--faults'` | 2 | Attack a fault with `perturb`. |
 | `driftbench attack examples/acme/specs/conversations/plan-upgrade.yaml --model` | `no model key: set ANTHROPIC_API_KEY, or OPENAI_API_KEY with OPENAI_MODEL` | 2 | Set a key, or drop `--model` to draw from the pack. |

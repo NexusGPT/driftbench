@@ -203,9 +203,9 @@ $ driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --
   "checks": ["tools", "tools_offered", "...", "custom"],
   "cells": [
     {
-      "cellId": "c33e3d92fa4b07da",
+      "cellId": "825ed01322e57af2",
       "specId": "acme-tool-failure",
-      "specHash": "e5bc5c9ba9d2",
+      "specHash": "9f55c5e3ba96",
       "target": {
         "adapter": "process",
         "agent": "my-agent"
@@ -219,7 +219,7 @@ $ driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --
         "block 1 not_run capability",
         "block 2 not_run capability"
       ],
-      "runId": "c33e3d92fa4b07da",
+      "runId": "825ed01322e57af2",
       "cacheHit": false,
       "cost": 0,
       "blocks": [
