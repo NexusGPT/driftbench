@@ -46,6 +46,23 @@ export type ImplRef = z.infer<typeof ImplRef>;
 /** A map of named values: an item's condition, its effect or its parameters. */
 const Fields = z.record(z.string(), z.unknown());
 
+/**
+ * Where an item applies: a scope, never a link. With it, the item fires only when the evidence names one of its
+ * skills, one of its tools (the label of the failing call) or a unit matching one of its unit patterns (`*` matches
+ * any run of characters, such as `R#41/*`); the scope is checked before `when`. Absent: everywhere.
+ */
+export const AppliesTo = z
+  .strictObject({
+    skills: z.array(z.string().min(1)).optional().describe('Skill names the evidence must name one of.'),
+    tools: z.array(z.string().min(1)).optional().describe('Tool labels the failing call must have one of.'),
+    units: z
+      .array(z.string().min(1))
+      .optional()
+      .describe('Unit patterns, such as R#41/*, a unit must match one of.'),
+  })
+  .describe('Where an item applies: skills, tools or unit patterns. Absent means everywhere.');
+export type AppliesTo = z.infer<typeof AppliesTo>;
+
 /** One rule, as a root object defines it: a title and an implementation, with its condition and parameters. */
 export const Item = z
   .strictObject({
@@ -60,6 +77,7 @@ export const Item = z
     params: Fields.optional().describe("Typed parameters, checked against the implementation's schema."),
     impl: ImplRef.describe('The implementation: builtin:<name> or plugin:<name>.'),
     cites: z.string().optional().describe('A source for the reader.'),
+    applies_to: AppliesTo.optional().describe('Where the rule applies; absent means everywhere.'),
   })
   .describe('One rule of a root object.');
 export type Item = z.infer<typeof Item>;
@@ -82,6 +100,7 @@ export const ItemPatch = z
     ),
     impl: ImplRef.optional().describe('Another implementation for the same rule.'),
     cites: z.string().optional().describe('A source for the reader.'),
+    applies_to: AppliesTo.optional().describe('Where the rule applies: maps merge, lists replace.'),
     before: ItemId.optional().describe('Moves the item just before this one.'),
     after: ItemId.optional().describe('Moves the item just after this one.'),
   })

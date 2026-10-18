@@ -189,9 +189,10 @@ Why:
 Verdict: AGGREGATE FAILED. Exit 1.
 ```
 
-The summary's `aggregates` entry holds the value (0.9), its Wilson 95% interval over the 10 runs, whether
-the interval decides the threshold (`decided`), and `runsNeeded`: the runs at the same rate whose interval
-would decide it (56 here). An aggregate over no runs is inconclusive and does not fail the gate.
+The summary's `aggregates` entry holds the value (0.9), its 95% interval (Wilson on the effective runs over the
+10 goldens, here 0.523 to 0.987), whether the interval decides the threshold (`decided`), and what would
+decide it: `goldensNeeded`, a whole number of copies of these goldens (80 here, 8 copies), and `runsNeeded`,
+the runs of those goldens (80 here, one run each). An aggregate over no runs is inconclusive and does not fail the gate.
 
 Criteria and run settings can live in a project config instead of flags: `driftbench.yaml` in the working
 folder, or the file `--config` names. Its `aggregates:` list is read by `ci` and `report`; from its
@@ -211,6 +212,7 @@ driftbench report --store candidate.db --out candidate.html --junit junit.xml
 ```text
 Margin auto: 28.0 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 27.8 points).
 Campaign c-71ad81ea18f6: 10 runs, 9 pass, 1 fail, 0 did not complete.
+Suite pass rate, mode F: 90.0% [58.7%, 97.8%] (hierarchical 95% interval); 10 goldens, n_eff 9.0 runs (design effect 1.11), detectable drop 60.6 points at 80% power.
 Wrote candidate.html and junit.xml.
 ```
 

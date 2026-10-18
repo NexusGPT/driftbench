@@ -79,6 +79,9 @@ metadata:
     path: order-single-plan
     cell:
       coverage.check.out.address_id: coverage.check.out.address_id.present
+      coverage.check.out.found: coverage.check.out.found.true
+      coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.at-minimum
+      coverage.check.out.five_g: coverage.check.out.five_g.false
       flow: order
       coverage_result: 5g-only
       plan_choice: loose-yes-to-single-offer
@@ -91,7 +94,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address

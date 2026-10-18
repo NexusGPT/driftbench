@@ -1,0 +1,19 @@
+# Fictional data only. A block whose prefix says it was recorded, and a block that inherits it.
+id: blast-wire3-origin
+target: { adapter: function, agent: acme-sales }
+blocks:
+  - user: What is my reference?
+    given:
+      origin: recorded
+      prefix:
+        - role: user
+          content: Can someone call me back about fiber?
+        - role: assistant
+          content: Done, an advisor will call you.
+          tool_calls:
+            - { id: call-1, label: notify_sales, input: { topic: fiber }, output: { ref: LD-4471 } }
+    expect:
+      must: ['origin recorded']
+  - user: And when will they call?
+    expect:
+      must: ['origin recorded']

@@ -61,7 +61,7 @@ export type {
  * Each model call runs under the shared retry policy, with the client's own retries off (`maxRetries: 0`).
  */
 
-export const ANTHROPIC_ADAPTER_VERSION = '0.1.0';
+export const ANTHROPIC_ADAPTER_VERSION = '0.1.1';
 
 export type AnthropicAdapterOptions = RetryOption & {
   /** The client. The adapter calls `client.messages.create(body)` and nothing else. */
@@ -254,6 +254,7 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
       // The stop reason of each model call, in order: `max_tokens` on the last one means a cut reply.
       const observed = observedOf(segments, usage, latencyMs, `the ${options.model} agent`, {
         raw: { stopReasons },
+        ...(history.normalizations.length > 0 ? { historyNormalizations: history.normalizations } : {}),
       });
       recordPayloads(state, turn.index, observed.toolCalls, sideEffects);
       return observed;

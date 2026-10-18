@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,6 +8,7 @@ import { context, observed, run } from '../../checks/test/support/context';
 import { replayChecks } from '../src/commands/replay';
 import { runJudgeFrom } from '../src/commands/run-judge';
 import { type Io, main } from '../src/index';
+import { routedJudge } from './support/routed-judge';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const JUDGE = join(ROOT, 'examples/estates/fixture/live/fake/judge.cjs');
@@ -57,6 +58,31 @@ blocks:
 }
 
 describe('replay connects personal-data opt-in to the configured judge', () => {
+  it('does not interpret an underfunded PII evaluation as absence of personal data', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'pii-underfunded-'));
+    dirs.push(dir);
+    const fake = await routedJudge(dir);
+    const judge = await runJudgeFrom(
+      { judge: 'claude:haiku', judgeCommand: fake.command, judgeBudget: '0.001' },
+      {
+        cwd: ROOT,
+        out: () => {},
+        err: (message) => {
+          throw new Error(message);
+        },
+      },
+    );
+    if (!judge?.piiJudge) throw new Error('PII judge did not configure');
+    await expect(judge.piiJudge('Fictional Mira Example.')).rejects.toThrow('the judge gave no answer');
+    expect(judge.spend.usd).toBe(0);
+    expect(
+      (await readFile(fake.receipts, 'utf8'))
+        .trim()
+        .split('\n')
+        .map((line) => JSON.parse(line)),
+    ).toEqual([{ route: true, budget: 0.001, cost: 0 }]);
+  });
+
   it('uses the same capped client for personal-data calls', async () => {
     const io: Io = {
       cwd: ROOT,
@@ -65,8 +91,11 @@ describe('replay connects personal-data opt-in to the configured judge', () => {
         throw new Error(message);
       },
     };
+    const dir = await mkdtemp(join(tmpdir(), 'pii-budget-'));
+    dirs.push(dir);
+    const fake = await routedJudge(dir);
     const judge = await runJudgeFrom(
-      { judge: 'claude:haiku', judgeCommand: JUDGE, judgeBudget: '0.001' },
+      { judge: 'claude:haiku', judgeCommand: fake.command, judgeBudget: '0.003' },
       io,
     );
     if (!judge) throw new Error('judge did not configure');
@@ -78,9 +107,17 @@ describe('replay connects personal-data opt-in to the configured judge', () => {
       expect: { pii_judge: true },
     });
     expect((await run(check, ctx)).find((v) => v.id === 'pii.personal_data')?.outcome).toBe('fail');
-    expect(judge.spend.usd).toBeCloseTo(0.0015);
+    expect(judge.spend.usd).toBeCloseTo(0.003);
     expect((await run(check, ctx)).find((v) => v.id === 'pii.personal_data')?.outcome).toBe('inconclusive');
-    expect(judge.spend.usd).toBeCloseTo(0.0015);
+    expect(judge.spend.usd).toBeCloseTo(0.003);
+    const calls = (await readFile(fake.receipts, 'utf8'))
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line));
+    expect(calls).toEqual([
+      { route: true, budget: 0.003, cost: 0.0015 },
+      { route: false, budget: 0.0015, cost: 0.0015 },
+    ]);
   }, 60_000);
 
   it('calls the stand-in judge and records its reported cost only with opt-in', async () => {

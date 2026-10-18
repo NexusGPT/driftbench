@@ -219,3 +219,5 @@ metadata:
       version: "1"
       hash: 7a022d4e1380
     family: ../families/price-sheet
+rules:
+  one_message_per_turn: true

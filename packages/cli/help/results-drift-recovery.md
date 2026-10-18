@@ -162,6 +162,9 @@ into `x3.html`:
 $ driftbench report --store acme.db --out x3.html
 Margin auto: 8.5 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 8.1 points).
 Campaign c-2f970fe77c6c: 23 runs, 10 pass, 13 fail, 0 did not complete.
+Suite pass rate, mode T: 50.0% [18.4%, 81.6%] (hierarchical 95% interval); 6 goldens, n_eff 5.0 runs (design effect 1.20), no drop detectable at 80% power.
+Suite pass rate, mode F: 50.0% [18.4%, 81.6%] (hierarchical 95% interval); 6 goldens, n_eff 5.0 runs (design effect 1.20), no drop detectable at 80% power.
+Suite pass rate, mode P: 36.4% [15.2%, 65.1%] (hierarchical 95% interval); 11 goldens, n_eff 10.0 runs (design effect 1.10), no drop detectable at 80% power.
 Wrote x3.html.
 ```
 

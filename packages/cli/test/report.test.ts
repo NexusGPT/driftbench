@@ -80,6 +80,10 @@ describe('driftbench report', () => {
     expect(err).toBe('');
     expect(code).toBe(0);
     expect(out).toContain('Campaign c-x3: 34 runs');
+    // The suite headline of every mode: the mean over goldens, its hierarchical interval, n_eff and the detectable drop.
+    expect(out).toMatch(
+      /Suite pass rate, mode F: \d+\.\d% \[\d+\.\d%, \d+\.\d%\] \(hierarchical 95% interval\); \d+ goldens, n_eff [\d.]+ runs \(design effect [\d.]+\)/,
+    );
     expect(out).toContain('Wrote out/card.html and out/junit.xml.');
     const html = readFileSync(join(dir, 'out/card.html'), 'utf8');
     expect(html).toContain('<title>Scorecard c-x3</title>');
@@ -114,6 +118,27 @@ describe('driftbench report', () => {
     ]);
     expect(bad.code).toBe(2);
     expect(bad.err).toContain('unknown aggregate nope');
+  });
+
+  it('prints the aggregate interval on the effective runs, with the goldens behind it', async () => {
+    const { code, out, err } = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'out/agg-goldens.html',
+      '--aggregate',
+      'pass-rate:>=0.99',
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    const line = out.split('\n').find((entry) => entry.startsWith('aggregate pass-rate')) ?? '';
+    expect(line).toMatch(
+      /Wilson 95% interval on the effective runs \d\.\d{3} to \d\.\d{3} over \d+ runs in \d+ goldens/,
+    );
+    expect(line).toMatch(/design effect \d+\.\d+/);
+    expect(line).toMatch(/undecided: \d+ goldens like these \(\d+ runs\) would decide it|, decided\)/);
   });
 
   it('scores the aggregates of the project config --config names', async () => {

@@ -1,7 +1,7 @@
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { expect, it } from 'vitest';
-import { adapterProvenance, provenanceHash } from '../../src/runner/provenance';
+import { adapterProvenance, provenanceDigest, provenanceHash } from '../../src/runner/provenance';
 import { runSpec } from '../../src/runner/run';
 import { echoAdapter, minimalChecks, specOf } from './support';
 
@@ -137,4 +137,40 @@ it('defaults to full cell without snapshots and recomposes the final carried blo
   expect(fallbackAdapter.opened).toHaveLength(3);
   expect(fallback.blockRerun?.reason).toBe('end state cannot be recomposed: full cell rerun');
   expect(fallback.endState?.match).toBe(false);
+});
+
+it.each([false, true])('partial block copies follow recordRealizedText (%s)', async (recordRealizedText) => {
+  const source = await runSpec(spec, { ...options, adapter: echoAdapter(), mode: 'T' });
+  // Exercise the copy boundary with stamped recorded blocks, including empty text.
+  for (const [index, block] of source.blocks.entries())
+    block.realized = {
+      hash: provenanceHash(index === 0 ? '' : 'private'),
+      text: index === 0 ? '' : 'private',
+    };
+  source.provenanceDigest = provenanceDigest(source);
+  const before = structuredClone(source);
+  const adapter = echoAdapter();
+  const result = await runSpec(spec, {
+    ...options,
+    adapter,
+    mode: 'T',
+    target: { ...options.target, variant: 'v2' },
+    recordRealizedText,
+    blockReuse: { source, fromCampaign: 'base', baselineProvenance: campaignStamp(adapter), manifest },
+  });
+  expect(adapter.opened).toHaveLength(1);
+  for (const index of [0, 2]) {
+    const block = result.blocks[index];
+    if (!block) throw new Error('missing copied block');
+    expect(block.carried).toBeDefined();
+    expect(block.realized).toEqual({
+      hash: source.blocks[index]?.realized?.hash,
+      ...(recordRealizedText ? { text: source.blocks[index]?.realized?.text } : {}),
+    });
+    if (!recordRealizedText)
+      expect(block.realizedTextStripped).toEqual({ fromRun: source.runId, fromCampaign: 'base' });
+  }
+  expect(result.blocks[1]?.carried).toBeUndefined();
+  expect(result.provenanceDigest).toBe(provenanceDigest(result));
+  expect(source).toEqual(before);
 });

@@ -65,6 +65,10 @@ inputs:
     description: With change, how many of the cells about to be carried run fresh and are compared with their stored run. One miss fails the job with verdict radius-miss. Empty means no audit.
     required: false
     default: ''
+  max-not-run:
+    description: The largest share of a spec's blocks that may be not run (a Given the target cannot apply) before the job fails with verdict not-run and exit 3, from 0 to 1. Empty means 0, so any block not run fails it.
+    required: false
+    default: ''
   aggregate:
     description: Campaign-level criteria, one name:op threshold per line, such as pass-rate:>=0.8. A failing one fails the job with verdict aggregate-failed. Empty means none.
     required: false
@@ -84,7 +88,7 @@ inputs:
 
 outputs:
   verdict:
-    description: parity, regression, not-shown-non-inferior, incomplete, aggregate-failed, radius-miss, or input-error when the CLI refused its input.
+    description: parity, regression, not-shown-non-inferior, incomplete, aggregate-failed, radius-miss, not-run, or input-error when the CLI refused its input.
     value: ${{ steps.ci.outputs.verdict }}
   report-path:
     description: The JSON summary the CLI wrote.
@@ -112,6 +116,7 @@ runs:
         INPUT_CHANGE: ${{ inputs.change }}
         INPUT_AGENT_VERSION: ${{ inputs.agent-version }}
         INPUT_AUDIT: ${{ inputs.audit }}
+        INPUT_MAX_NOT_RUN: ${{ inputs.max-not-run }}
         INPUT_ROUTE: ${{ inputs.route }}
         INPUT_PROCESS_COMMAND: ${{ inputs.process-command }}
         INPUT_REPORT_PATH: ${{ inputs.report-path }}
