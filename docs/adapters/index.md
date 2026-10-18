@@ -50,7 +50,7 @@ type Turn = {
 
 ## The history belongs to the runner
 
-`session.history` holds the messages so far. The runner appends the block's user message, or every message of a burst, before `send`, and the agent's reply after it: the text, and each tool call with its output or error. At send time the history ends with the current user turn. An adapter reads the history and never appends to it or changes a message.
+`session.history` holds the messages so far. The runner appends the block's user message, or every message of a burst, before `send`, and the agent's reply after it: the text, and each tool call with its output or error. At send time the history ends with the current user turn. An adapter reads the history and never appends to it or changes a message. The runner enforces this: `session.history`, the `prefix` of the Given and the `prefix` of the turn are read-only lists, so a write to one (`push`, `splice`, an assignment to an index) throws a `TypeError` at the write instead of leaking into a later block. Copy the list before changing it (`[...session.history]`).
 
 A session's history starts as a fresh array of the prefix's shared, deeply frozen messages, whatever the adapter can do with it. The runner freezes each message once when it enters history, including nested content, tool calls and metadata. Adapters must copy a message before changing it; a write to a received message throws in strict mode. Adapters also freeze messages from direct callers at `open` and `send`. A caller editing the same object afterwards gets a strict-mode error; copy before handing it over to retain an editable original. The `seedPrefix` capability says whether the agent itself sees the prefix.
 
