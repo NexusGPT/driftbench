@@ -9,6 +9,7 @@ import {
   type PointerItem,
   pointerBank,
   pointerFixtures,
+  runPointerChild,
 } from '../../../src/ladders/judges/v4';
 import { ROOT } from '../../stats/support';
 
@@ -458,17 +459,18 @@ describe('cheats of the audit gain nothing', () => {
     const index = join(dir, 'src/pointer/index.ts');
     return { impl: (await import(/* @vite-ignore */ pathToFileURL(index).href)) as PointerImpl, index };
   }
-  /** Scores a cheat the way the validator does: the environment names the copy, so the source items scan it. */
-  async function scoreCheat(name: string, edit: (dir: string) => void): Promise<string[]> {
-    const { impl, index } = await cheatLoad(name, edit);
-    const before = process.env.DRIFTBENCH_POINTER_IMPL;
-    process.env.DRIFTBENCH_POINTER_IMPL = index;
-    try {
-      return await failing(impl);
-    } finally {
-      if (before === undefined) delete process.env.DRIFTBENCH_POINTER_IMPL;
-      else process.env.DRIFTBENCH_POINTER_IMPL = before;
-    }
+  /** Scores a cheat the way the validator does: in a child process with locked built-ins, the copy named by the environment. */
+  async function scoreCheat(name: string, edit: (dir: string) => void, seed = 1): Promise<string[]> {
+    const dir = join(MUTANTS, name);
+    rmSync(dir, { recursive: true, force: true });
+    mkdirSync(dir, { recursive: true });
+    cpSync(join(ROOT, 'packages/estate/src'), join(dir, 'src'), { recursive: true });
+    edit(join(dir, 'src', 'pointer'));
+    const rows = await runPointerChild(seed, ROOT, {
+      ...process.env,
+      DRIFTBENCH_POINTER_IMPL: join(dir, 'src/pointer/index.ts'),
+    });
+    return rows.filter((row) => row.misses.length > 0).map((row) => row.id);
   }
   const append = (dir: string, file: string, text: string) =>
     writeFileSync(join(dir, file), `${readFileSync(join(dir, file), 'utf8')}\n${text}\n`);
@@ -556,5 +558,37 @@ describe('cheats of the audit gain nothing', () => {
     const impl = await loadPointerImpl();
     const item = bank.find((i) => i.id === 'pointer/stack/cascade-sure') as PointerItem;
     for (const seed of [1, 2, 3, 99, 1000123]) expect(await item.run(impl, fixtures, seed, ROOT)).toEqual([]);
+  });
+
+  it('a patch of Array.prototype.push built from strings at run time cannot change what the bank records', async () => {
+    const lost = await scoreCheat('c-built-push', (dir) =>
+      append(
+        dir,
+        'cassette.ts',
+        "const k = ['pu', 'sh'].join(''); (Array.prototype as unknown as Record<string, unknown>)[k] = function () { return 0; };",
+      ),
+    );
+    // the locked built-ins make the patch a TypeError at import: the module does not load and every item fails
+    expect(lost.length).toBe(bank.length);
+  });
+
+  it('a patch of the array iterator or of JSON.stringify in a helper beside the module changes nothing', async () => {
+    const lost = await scoreCheat('c-helper-patch', (dir) => {
+      mkdirSync(join(dir, '..', '_shim'), { recursive: true });
+      writeFileSync(join(dir, '..', '_shim', 'p.mts'), 'JSON.stringify = (() => "") as never;\nexport {};\n');
+      append(dir, 'cassette.ts', "import '../_shim/p.mts';");
+    });
+    expect(lost.length).toBe(bank.length);
+  });
+
+  it('a helper file kept beside the module is scanned: a file read there fails the source item', async () => {
+    const lost = await scoreCheat('c-helper-read', (dir) => {
+      mkdirSync(join(dir, '..', '_shim'), { recursive: true });
+      writeFileSync(
+        join(dir, '..', '_shim', 'r.ts'),
+        "import { readFileSync } from 'node:fs';\nexport const x = () => readFileSync('a');\n",
+      );
+    });
+    expect(lost).toContain('pointer/source/reads-files');
   });
 });

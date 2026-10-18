@@ -1,8 +1,10 @@
 import { bankMeasure, defineLadder, type Ladder } from '../../../ladder';
 import { type JudgesV3Options, judgesLadderV3 } from '../v3/index';
-import { loadPointerImpl, POINTER_FIXTURES, type PointerItem, pointerBank, pointerFixtures } from './pointer';
+import { POINTER_FIXTURES, type PointerItem, pointerBank } from './pointer';
+import { runPointerChild } from './run-child';
 
 export * from './pointer';
+export * from './run-child';
 
 export type JudgesV4Options = JudgesV3Options & { pointerBank?: PointerItem[] };
 
@@ -24,31 +26,19 @@ export function judgesLadderV4(options: JudgesV4Options = {}): Ladder {
         metric: `pointer labeller items matching the documented rules / ${bank.length} items (${POINTER_FIXTURES})`,
         threshold: 1,
         async compute({ root, seed }) {
-          const fixtures = pointerFixtures(root);
-          const impl = await loadPointerImpl();
-          const results = [];
-          for (const item of bank) {
-            let misses: string[];
-            try {
-              misses = await item.run(impl, fixtures, seed, root);
-            } catch (cause) {
-              misses = [
-                `threw ${cause instanceof Error ? `${cause.name}: ${cause.message}` : String(cause)}`,
-              ];
-            }
-            results.push({
-              id: item.id,
-              family: item.family,
-              tier: item.tier,
-              component: item.component,
-              cause: item.cause,
-              pass: misses.length === 0,
-              detail:
-                misses.length === 0
-                  ? undefined
-                  : `${misses.length} of its cases differ: ${misses.slice(0, 3).join(' | ')}${misses.length > 3 ? ` | and ${misses.length - 3} more` : ''}. Fix ${item.component}.`,
-            });
-          }
+          const rows = await runPointerChild(seed, root);
+          const results = rows.map((row) => ({
+            id: row.id,
+            family: row.family,
+            tier: row.tier as 1 | 2 | 3 | 4 | 5,
+            component: row.component,
+            cause: row.cause,
+            pass: row.misses.length === 0,
+            detail:
+              row.misses.length === 0
+                ? undefined
+                : `${row.misses.length} of its cases differ: ${row.misses.slice(0, 3).join(' | ')}${row.misses.length > 3 ? ` | and ${row.misses.length - 3} more` : ''}. Fix ${row.component}.`,
+          }));
           return bankMeasure(results, 'packages/estate/src/pointer');
         },
       },

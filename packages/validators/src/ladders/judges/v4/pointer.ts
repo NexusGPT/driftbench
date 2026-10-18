@@ -16,6 +16,7 @@ import {
   seededLabellingHash,
   seededRecording,
   seededSetHash,
+  seededSingle,
   seededStack,
   seededUnits,
   seededYesNo,
@@ -1302,6 +1303,7 @@ const SEEDED: Record<string, Seeded> = {
   'stack/cascade-bounds': (impl, r) => seededStack(impl, r, 'cascade-sure'),
   'stack/margin-rule': (impl, r) => seededStack(impl, r, 'margin'),
   'stack/margin-no-vector': (impl, r) => seededStack(impl, r, 'margin-no-vector'),
+  'stack/single': seededSingle,
   'recording/labelling-hash': seededLabellingHash,
   'recording/labelling-hash-changes': seededLabellingHash,
   'recording/key-value': seededRecording,
@@ -1413,19 +1415,34 @@ function finishBank(items: PointerItem[]): PointerItem[] {
 
 function moduleDir(root: string): string {
   const impl = process.env.DRIFTBENCH_POINTER_IMPL;
-  if (impl) return dirname(resolve(impl.startsWith('file://') ? new URL(impl).pathname : impl));
-  return join(root, 'packages', 'estate', 'src', 'pointer');
+  // The whole source tree of the module (the folder that holds pointer/), so a helper kept beside it is read too.
+  if (impl) return dirname(dirname(resolve(impl.startsWith('file://') ? new URL(impl).pathname : impl)));
+  return join(root, 'packages', 'estate', 'src');
 }
 
-function sourcesOf(dir: string): Array<{ file: string; text: string }> {
+/**
+ * The files of a module's source tree that need a scan: every file that is not byte for byte a file of the
+ * shipped module. A file the shipped module has and the copy keeps unchanged is the shipped code (it may use
+ * the process or a dynamic import where it must); a changed file, or one the shipped module does not have, is
+ * the code under audit.
+ */
+function sourcesOf(dir: string, shipped: string): Array<{ file: string; text: string }> {
   const found: Array<{ file: string; text: string }> = [];
   if (!existsSync(dir)) return found;
   const walk = (current: string) => {
     for (const name of readdirSync(current)) {
+      if (name === 'node_modules') continue;
       const path = join(current, name);
-      if (statSync(path).isDirectory()) walk(path);
-      else if (/\.(ts|js|mjs|cjs)$/.test(name))
-        found.push({ file: path.slice(dir.length + 1), text: readFileSync(path, 'utf8') });
+      if (statSync(path).isDirectory()) {
+        walk(path);
+        continue;
+      }
+      if (/\.(json|md|map)$/.test(name)) continue;
+      const relative = path.slice(dir.length + 1);
+      const text = readFileSync(path, 'utf8');
+      const twin = join(shipped, relative);
+      if (existsSync(twin) && readFileSync(twin, 'utf8') === text) continue;
+      found.push({ file: relative, text });
     }
   };
   walk(dir);
@@ -1468,7 +1485,7 @@ const SOURCE_GUARDS: Source[] = [
     id: 'runs-generated-code',
     what: 'generated code',
     cause: 'the pointer module builds code from strings at run time',
-    patterns: [/\beval\s*\(/, /\bnew\s+Function\b|\bFunction\s*\(/],
+    patterns: [/\beval\b/, /\bnew\s+Function\b|\bFunction\s*\(/, /\.constructor\s*[.(]/, /\bimport\s*\(/],
   },
   {
     id: 'patches-builtins',
@@ -1504,8 +1521,8 @@ function sourceGuardItems(): PointerItem[] {
     component: 'packages/estate/src/pointer',
     run: (_impl: PointerImpl, _fixtures: Fixtures, _seed: number, root: string) => {
       const dir = moduleDir(root);
-      const files = sourcesOf(dir);
-      if (files.length === 0) return [`no source of the pointer module under ${dir}`];
+      if (!existsSync(dir)) return [`no source of the pointer module under ${dir}`];
+      const files = sourcesOf(dir, join(root, 'packages', 'estate', 'src'));
       const misses: string[] = [];
       for (const f of files) {
         const text = stripComments(f.text);

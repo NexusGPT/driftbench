@@ -937,3 +937,40 @@ export function seededGold(impl: PointerImpl, r: Rng): string[] {
     misses.push(`kappa against the gold labels ${kappa(have)}, expected ${kappa(want)}`);
   return misses;
 }
+
+// ------------------------------------------------------------------------------------------ a lone labeller
+export function seededSingle(impl: PointerImpl, r: Rng): string[] {
+  const misses: string[] = [];
+  for (let i = 0; i < 12; i += 1) {
+    const cls = pick(r, ['system1', 'system2'] as const);
+    const opinion =
+      r() < 0.2
+        ? undefined
+        : { label: pick(r, [word(r), 'none']), ...(r() < 0.4 ? { target: int(r, 0, 40) } : {}) };
+    const labelling = guard('singleLabelling', () => impl.singleLabelling(plantedLabeler(cls)));
+    if (!labelling.ok) {
+      misses.push(labelling.error);
+      continue;
+    }
+    const got = guard('decide', () => labelling.value.decide([opinion as never], randomSet(r) as never));
+    if (!got.ok) {
+      misses.push(got.error);
+      continue;
+    }
+    const want = opinion
+      ? { label: opinion.label, by: cls, ...(opinion.target !== undefined ? { target: opinion.target } : {}) }
+      : undefined;
+    const have = got.value
+      ? {
+          label: got.value.label,
+          by: got.value.by,
+          ...(got.value.target !== undefined ? { target: got.value.target } : {}),
+        }
+      : undefined;
+    if (show(have) !== show(want))
+      misses.push(
+        `a lone ${cls} labeller decided ${show(have)} for ${show(opinion)}, expected ${show(want)}`,
+      );
+  }
+  return misses;
+}

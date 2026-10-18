@@ -84,7 +84,9 @@ when combined with `--ladder-version 3`. `validate all` uses default versions.
 `driftbench validate judges --ladder-version 4 --items` runs version 3 and a sixth level, `pointer-labellers`,
 that judges the labellers of the estate pointer reader (`packages/estate/src/pointer`) like judges: 49 items,
 ten families. No model is called: every labeller is a table. Each item runs its fixture cases and cases
-drawn from the seed, with expected values computed in the validator by short independent references.
+drawn from the seed, with expected values computed in the validator by short independent references. The level
+runs in a child process whose built-in objects are read-only before the module is imported, so a module that
+patches `Array.prototype`, `JSON` or an iterator fails to load.
 
 * `units`: a unit number or range, and what is refused.
 * `set-hash`: the hash of a label set from its canonical form; any edit of a label or its order changes it,
@@ -98,7 +100,7 @@ drawn from the seed, with expected values computed in the validator by short ind
   ask for a target), the margin rule and a lone labeller.
 * `recording`: the hash of a labelling and the cassette key: a changed set, model, run, cut, prompt, unit text or
   labeller gives another key.
-* `source`: six items that scan the module's source for file, process, call-stack, generated-code,
+* `source`: six items that scan the source of the module (every file that is not the shipped one, in any extension) for file, process, call-stack, generated-code,
   built-in-patching and validator-name access, which a labeller has no use for.
 * `gold-set`: twelve fictional units through the stack and through the whole scan; the labels, who decided and the
   kappa against the gold labels are checked.
