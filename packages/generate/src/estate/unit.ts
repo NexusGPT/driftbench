@@ -125,38 +125,27 @@ export function matcherTools(matcher: string | undefined): string[] {
   return tools.length > 0 ? tools : ['Bash'];
 }
 
-/** Words and marks that make a clause forbid what it names. */
-const FORBIDS =
-  /\b(never|no|not|don't|do not|must not|mustn't|forbid|forbidden|banned|refuse[sd]?|block(?:s|ed)?|den(?:y|ies|ied)|avoid|stop)\b|✗|\bWRONG\b/i;
-
 /**
- * The material of a rule quote: the backticked spans and quoted phrases of the clauses that forbid them
- * ("Never use `sed -i`", "✗ `2>/dev/null`"), never a name or path the rule only mentions. A quote with no
- * span at all is its own material.
+ * What a rule quote does with the spans it holds, read from structure: the polarity the atom carries (its
+ * `polarity` field; a gate is neither forbidding nor asking for a form) and the ✗ and ✓ marks of the quote.
  */
-export function materialOf(quote: string): string[] {
-  const spans: string[] = [];
-  const masked = quote.replace(
-    /`([^`]+)`|"([^"]{3,})"/g,
-    (_, code: string | undefined, phrase: string | undefined) => {
-      spans.push(code ?? phrase ?? '');
-      return `\uE000${spans.length - 1}\uE000`;
-    },
-  );
-  if (spans.length === 0) return [quote.trim()];
-  const found: string[] = [];
-  for (const clause of masked.split(/(?<=[.!?])\s+|\n|;|·|(?=✓)/)) {
-    if (!FORBIDS.test(clause.replace(/\uE000\d+\uE000/g, ' '))) continue;
-    for (const match of clause.matchAll(/\uE000(\d+)\uE000/g)) {
-      const span = spans[Number(match[1])] ?? '';
-      if (span.trim() !== '') found.push(span);
-    }
-  }
-  return [...new Set(found)];
+export type RulePolarity = 'prohibition' | 'obligation' | 'gate';
+
+/** The polarity of a rule atom, or undefined when the atom carries none (a register rule, a bare quote). */
+export function polarityOf(atom: EstateAtom): RulePolarity | undefined {
+  const polarity = atom.fields?.polarity;
+  if (polarity === 'prohibition' || polarity === 'obligation') return polarity;
+  return atom.kind === 'gate' ? 'gate' : undefined;
 }
 
-/** Words and marks that make a clause show the right way to act: its spans are the form the rule asks for. */
-const OBLIGES = /\b(always|must|should|as in|e\.g\.|for example)\b|✓|\bRIGHT\b/i;
+/**
+ * The words that split a quote with several unmarked clauses (a prohibition and the alternative it names).
+ * The atom carries one polarity for the whole quote, so such a quote keeps this split until the pointer
+ * reader labels the spans of a unit with a polarity each.
+ */
+const MIXED_FORBIDS =
+  /\b(never|no|not|don't|do not|must not|mustn't|forbid|forbidden|banned|refuse[sd]?|block(?:s|ed)?|den(?:y|ies|ied)|avoid|stop)\b/i;
+const MIXED_OBLIGES = /\b(always|must|should|as in|e\.g\.|for example)\b/i;
 
 /** The shell command of an act on a path, by the verb a rule names it with. */
 const ACT_COMMANDS: Record<string, string> = {
@@ -174,31 +163,73 @@ const ACT_COMMANDS: Record<string, string> = {
 /** One clause of a rule quote: whether it forbids or asks for a form, its act verb and its spans. */
 type Clause = { forbids: boolean; obliges: boolean; act?: string; spans: string[] };
 
-/** The clauses of a rule quote, split as `materialOf` splits them, with the spans each holds. */
-export function clausesOf(quote: string): Clause[] {
+/** The clauses of a quote with their spans and double-quoted phrases, split on sentence marks, lines and ✓. */
+function splitClauses(quote: string): Array<{ text: string; spans: string[]; phrases: string[] }> {
   const spans: string[] = [];
+  const phrases = new Set<string>();
   const masked = quote.replace(
     /`([^`]+)`|"([^"]{3,})"/g,
     (_, code: string | undefined, phrase: string | undefined) => {
       spans.push(code ?? phrase ?? '');
-      return `${spans.length - 1}`;
+      if (code === undefined) phrases.add(`${spans.length - 1}`);
+      return `\uE000${spans.length - 1}\uE000`;
     },
   );
-  return masked.split(/(?<=[.!?])\s+|\n|;|·|(?=✓)/).map((clause) => {
-    const words = clause.replace(/\d+/g, ' ');
+  return masked.split(/(?<=[.!?])\s+|\n|;|·|(?=✓)/).map((text) => {
+    const held = [...text.matchAll(/\uE000(\d+)\uE000/g)].map((match) => match[1] ?? '');
+    return {
+      text,
+      spans: held.map((at) => spans[Number(at)] ?? '').filter((span) => span.trim() !== ''),
+      phrases: held.filter((at) => phrases.has(at)).map((at) => spans[Number(at)] ?? ''),
+    };
+  });
+}
+
+/**
+ * The clauses of a rule quote with the spans each holds, and whether each forbids or shows the right form.
+ * A ✗ mark makes a clause forbid and a ✓ mark makes it show a form; a clause with no mark takes the polarity
+ * of the atom. A quote with several unmarked clauses that hold spans mixes polarities the atom cannot split,
+ * and keeps the word split; a quote with no polarity at all does too.
+ */
+export function clausesOf(quote: string, polarity?: RulePolarity): Clause[] {
+  const clauses = splitClauses(quote);
+  const loose = clauses.filter((clause) => clause.spans.length > 0 && !/[✗✓]/.test(clause.text));
+  const byWords = polarity === undefined || loose.length > 1;
+  return clauses.map((clause) => {
+    const words = clause.text.replace(/\uE000\d+\uE000/g, ' ');
     const act = words
       .toLowerCase()
       .split(/[^a-z]+/)
       .find((word) => ACT_COMMANDS[word] !== undefined);
-    return {
-      forbids: FORBIDS.test(words),
-      obliges: OBLIGES.test(words),
-      ...(act !== undefined ? { act } : {}),
-      spans: [...clause.matchAll(/(\d+)/g)]
-        .map((match) => spans[Number(match[1])] ?? '')
-        .filter((span) => span.trim() !== ''),
-    };
+    const marked = /[✗✓]/.test(clause.text);
+    const forbids = marked
+      ? clause.text.includes('✗')
+      : byWords
+        ? MIXED_FORBIDS.test(words)
+        : polarity === 'prohibition';
+    const obliges = marked
+      ? clause.text.includes('✓')
+      : byWords
+        ? MIXED_OBLIGES.test(words)
+        : polarity === 'obligation';
+    return { forbids, obliges, ...(act !== undefined ? { act } : {}), spans: clause.spans };
   });
+}
+
+/**
+ * The material of a rule quote: the backticked spans and quoted phrases of the clauses that forbid them
+ * ("Never use `sed -i`", "✗ `2>/dev/null`"), never a name or path the rule only mentions. A quote with no
+ * span at all is its own material.
+ */
+export function materialOf(quote: string, polarity?: RulePolarity): string[] {
+  const clauses = clausesOf(quote, polarity);
+  if (clauses.every((clause) => clause.spans.length === 0)) return [quote.trim()];
+  return [...new Set(clauses.filter((clause) => clause.forbids).flatMap((clause) => clause.spans))];
+}
+
+/** The double-quoted phrases of a quote: literal text, such as the words a prompt must hold to trigger a rule. */
+export function phrasesOf(quote: string): string[] {
+  return [...new Set(splitClauses(quote).flatMap((clause) => clause.phrases))];
 }
 
 /**
@@ -490,6 +521,7 @@ function guardRunOf(
   const pieces = enforced.flatMap((ruleId): Piece[] => {
     const rule = atoms.get(ruleId);
     const quote = rule?.provenance?.quote ?? '';
+    const polarity = rule === undefined ? undefined : polarityOf(rule);
     // A declared numeric output constraint supplies its boundary independently of the hook source.
     const bound = textEvent
       ? rule?.evidence.find((entry) => entry.type === 'custom' && entry.name === 'max_characters')
@@ -499,7 +531,7 @@ function guardRunOf(
       return [{ text: 'x'.repeat(max + 1) }];
     }
     if (cites) {
-      const clauses = clausesOf(quote);
+      const clauses = clausesOf(quote, polarity);
       const forbidden = clauses
         .filter((clause) => clause.forbids)
         .flatMap((clause) =>
@@ -519,10 +551,18 @@ function guardRunOf(
       const spans = [...lineSpans, ...quoteSpans];
       if (spans.length > 0) return spans.map((text) => ({ text }));
     } else {
-      const spans = materialOf(quote).filter((item) => item !== quote.trim());
+      const spans = materialOf(quote, polarity).filter((item) => item !== quote.trim());
       if (spans.length > 0) return spans.map((text) => ({ text }));
     }
-    return textEvent && quote.trim() !== '' ? materialOf(quote).map((text) => ({ text })) : [];
+    if (!textEvent || quote.trim() === '') return [];
+    // A text event reads the words a rule forbids; an obligation reacts to the phrase it quotes ("when the
+    // user says "stop""), which is the text a payload must hold to trigger it.
+    const material = materialOf(quote, polarity);
+    return (material.length > 0 ? material : polarity === 'obligation' ? phrasesOf(quote) : []).map(
+      (text) => ({
+        text,
+      }),
+    );
   });
   const formOf = (tool: string | undefined, piece: Piece) =>
     tool === 'Bash' ? bashForm(piece.text, piece.act) : piece.text;

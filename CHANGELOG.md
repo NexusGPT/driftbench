@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Estate unit tests of guards: the material a guard must stop is read from the `polarity` field of the rule atom and the ✗ and ✓ marks of its quote, no longer from a list of English words. A prohibition gives every span it holds in any phrasing or language; an obligation gives none (so "when the invoice is not in EUR, read `x.md`" no longer forbids `x.md`); a gate neither forbids nor asks for a form; a rule on the user's prompt that quotes a phrase sends that phrase. A quote with several unmarked clauses that carry spans keeps the word split until their spans carry labels. The fixture suite is unchanged.
+
 * New exports of `@agent-nexus/driftbench-estate`, frozen in `tools/structure/api-surface.json`: `proseCacheKey`, `ProseCache`, `FileProseCache` and `ProseEstimate`, `proseEstimateLine` (the cache of a model pass and its cost line); `USER_LAYER` and `isUserLayerPath` (the user-level skill layer); `citationsByFile` and `filesReached` (the estate graph).
 * Estate user-level skill layer: a container named `Trash` or `trash` is not read, a relative `--user-skills` folder is relative to the folder the command is typed in, an empty `--user-skills` value or `userSkills` reader option is refused, and the hidden-folder, dependency-folder, trash, `~` and relative-path rules each have a test that fails when the rule is removed.
 
