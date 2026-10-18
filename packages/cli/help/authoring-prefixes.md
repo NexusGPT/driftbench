@@ -9,6 +9,7 @@ see_also:
   - running-campaign-run
   - running-modes
   - authoring-blocks
+  - authoring-parent-blocks
   - authoring-spec-format
   - authoring-perturbations
   - running-tool-history
@@ -55,9 +56,13 @@ The check reads the prefix in order. A value is not prose history when a user me
 - `ledger`: facts the agent must hold. Keys merge. Later checks (`knowledge_retention`, the ledger check) read them.
 - `world.tools`: a forced `result`, `error` or `latency_ms` per tool, from this block on. Tools merge by name.
 - `world.store`: a seeded store. Keys merge.
-- `world.workspace`: the files a code agent starts from: a folder `from` or inline `files`. A later workspace replaces the earlier one whole.
+- `world.workspace`: the files a code agent starts from: a folder `from`, inline text `files` or base64 `binary`. A later workspace replaces the earlier one whole.
 - `world.fixtures`: free fixtures. Keys merge.
 - `vars`: runtime variables such as the clock, the channel or the sender.
+
+`vars` and `world.store` are distinct mappings. Neither is the campaign database selected by `--store`.
+The adapter decides how it uses these values. They do not set shell variables or substitute stimulus text.
+In a parent-linked spec, inheritance follows ancestors, not earlier siblings. See authoring-parent-blocks for the complete rules and runnable examples.
 
 How a run uses a prefix depends on the run mode:
 
@@ -202,7 +207,7 @@ The Given verifier checks a prefix before the block runs (topic authoring-spec-c
 |---|---|---|
 | `tools` | mapping of tool name to `{ result?, error?, latency_ms? }` | Forced results and errors, from this block on. |
 | `store` | mapping | A seeded store. |
-| `workspace` | `{ from?, files?, summary? }` | `from`: a folder the workspace starts from; `./<path>` is read from the spec's folder, any other relative path from the folder the run starts in. `files`: path to content; on an adapter with a sandbox each one must read back as written after setup, else the block is `not_run` (kind `setup_failed`). `summary`: what the workspace holds, in words, so a reader of the spec sees what a folder holds. |
+| `workspace` | `{ from?, files?, binary?, summary? }` | `from`: a folder the workspace starts from; `./<path>` is read from the spec's folder, any other relative path from the folder the run starts in. `files`: path to text. `binary`: path to base64 content, restored byte for byte. A path in both maps is `WORKSPACE_PATH_TWICE`. On an adapter with a sandbox, seeded files must read back as written, else the block is `not_run` (kind `setup_failed`). `summary`: what the workspace holds, in words. |
 | `fixtures` | mapping | Free fixtures. |
 
 Top-level shorthands: `ledger_seed` is `given.ledger`, and `workspace_seed` is `given.world.workspace` (a string becomes `{ from: <string> }`). Setting both forms is `SPEC_ALIAS_CONFLICT`.
