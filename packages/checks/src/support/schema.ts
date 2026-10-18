@@ -113,7 +113,7 @@ function stringIssues(value: string, schema: Record<string, unknown>, path: stri
   if (typeof schema.pattern === 'string') {
     let matches = true;
     try {
-      matches = new RegExp(schema.pattern, 'u').test(value);
+      matches = new RegExp(schema.pattern).test(value);
     } catch {
       issues.push(issue(path, `has a schema pattern that does not compile: /${schema.pattern}/`));
     }

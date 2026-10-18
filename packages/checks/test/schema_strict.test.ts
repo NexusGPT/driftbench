@@ -69,6 +69,15 @@ describe('schema_strict', () => {
     ]);
   });
 
+  it('compiles a pattern as a JavaScript regular expression without the unicode flag', () => {
+    const phone = { type: 'object', properties: { n: { type: 'string', pattern: '^\\d{3}\\-\\d{4}$' } } };
+    expect(validateStrict({ n: '555-0131' }, phone)).toEqual([]);
+    expect(validateStrict({ n: '5550131' }, phone)).toHaveLength(1);
+    const pair = { type: 'object', properties: { n: { type: 'string', pattern: '^[a-z]\\_[a-z]$' } } };
+    expect(validateStrict({ n: 'a_b' }, pair)).toEqual([]);
+    expect(validateStrict({ n: 'ab' }, pair)).toHaveLength(1);
+  });
+
   it('reads OpenAI-style functions and is inconclusive, never gating, on a tool with no schema', async () => {
     const wrapped: Spec = {
       ...porting,
