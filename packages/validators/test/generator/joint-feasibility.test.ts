@@ -514,7 +514,6 @@ describe('a suite built from the joint oracle on drawn maps', () => {
       );
       expect(missing.pass).toBe(false);
       expect(missing.detail).toContain(text(dropped));
-      expect(gaps.length).toBeGreaterThan(0);
       for (const gap of gaps) {
         const emitted = await triple.check(dataFor(suite(hidden, [...feasible, gap])));
         expect(emitted.pass, text(gap)).toBe(false);
@@ -522,4 +521,11 @@ describe('a suite built from the joint oracle on drawn maps', () => {
       }
     },
   );
+
+  // Whether a drawn map holds a gap depends on its ownership draw: at least one of these maps must, or the
+  // loop above proves nothing about an emitted gap.
+  it('draws a gap on at least one of its maps', () => {
+    const gaps = fresh.flatMap((seed) => triplesOf(hiddenSpec(seed)).filter((entry) => !entry.possible));
+    expect(gaps.length).toBeGreaterThan(0);
+  });
 });
