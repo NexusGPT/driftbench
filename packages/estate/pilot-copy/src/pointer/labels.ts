@@ -90,5 +90,57 @@ export type Checked = {
  * the window, a unit named twice, a target on a label that takes none (or missing on one that needs it).
  */
 export function checkAnswer(set: LabelSet, window: Window, answer: readonly Labelled[]): Checked {
-  throw new Error('not implemented: checkAnswer');
+  const accepted = new Map<number, { label: string; target?: number }>();
+  const covered = new Set<number>();
+  const refusals: string[] = [];
+  const inWindow = new Set(window.units.map((unit) => unit.n));
+  const byName = new Map(set.labels.map((label) => [label.name, label]));
+  for (const entry of answer) {
+    const numbers = typeof entry.units === 'string' ? expandUnits(entry.units) : undefined;
+    if (!numbers) {
+      refusals.push(`the units "${entry.units}" are not a number or a range`);
+      continue;
+    }
+    const label = byName.get(entry.label);
+    if (entry.label !== 'none' && !label) {
+      refusals.push(`label "${entry.label}" is not in the set ${set.set}`);
+      continue;
+    }
+    const outside = numbers.find((n) => !inWindow.has(n));
+    if (outside !== undefined) {
+      refusals.push(`unit ${outside} is not in the window`);
+      continue;
+    }
+    const twice = numbers.find((n) => covered.has(n));
+    if (twice !== undefined) {
+      refusals.push(`unit ${twice} is already labelled`);
+      continue;
+    }
+    const needsTarget = label?.target === 'required';
+    const target = entry.target;
+    if (needsTarget) {
+      if (target === undefined || target === null) {
+        refusals.push(`label "${entry.label}" needs a target`);
+        continue;
+      }
+      if (typeof target !== 'number' || !Number.isInteger(target)) {
+        refusals.push(`target ${JSON.stringify(target)} is not a whole number`);
+        continue;
+      }
+      if (!inWindow.has(target)) {
+        refusals.push(`label "${entry.label}" needs a target that is a unit of the window, not ${target}`);
+        continue;
+      }
+    } else if (target !== undefined && target !== null) {
+      refusals.push(`the label ${entry.label} takes no target`);
+      continue;
+    }
+    for (const n of numbers) {
+      covered.add(n);
+      if (entry.label !== 'none') {
+        accepted.set(n, { label: entry.label, ...(needsTarget ? { target: target as number } : {}) });
+      }
+    }
+  }
+  return { accepted, covered, refusals };
 }
