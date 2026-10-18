@@ -2,7 +2,7 @@
 
 import { assertFinite, assertProbability } from './basics';
 import { designEffect } from './intervals';
-import { normalQuantile } from './special';
+import { normalQuantile, normalQuantileFromLogP } from './special';
 
 export interface MdeInput {
   /** Number of specs (independent clusters) per version. */
@@ -54,7 +54,7 @@ export function mde(input: MdeInput): MdeResult {
   assertProbability('mde', 'alpha', alpha, true);
   const de = designEffect(repeats, rho);
   const effectiveN = (input.n * repeats) / de;
-  const za = -normalQuantile(alpha / 2);
+  const za = -normalQuantileFromLogP(Math.log(alpha) - Math.LN2);
   const zb = normalQuantile(power);
   const gap = (delta: number): number => {
     const p2 = p1 - delta;
@@ -121,7 +121,7 @@ export function sampleSizeForEffect(input: SampleSizeForEffectInput): SampleSize
   const p2 = p1 - input.effect;
   const pbar = (p1 + p2) / 2;
   const numerator =
-    -normalQuantile(alpha / 2) * Math.sqrt(2 * pbar * (1 - pbar)) +
+    -normalQuantileFromLogP(Math.log(alpha) - Math.LN2) * Math.sqrt(2 * pbar * (1 - pbar)) +
     normalQuantile(power) * Math.sqrt(p1 * (1 - p1) + p2 * (1 - p2));
   const required = (Math.max(0, numerator) / input.effect) ** 2;
   let n = Math.max(1, Math.ceil((required * de) / repeats));
