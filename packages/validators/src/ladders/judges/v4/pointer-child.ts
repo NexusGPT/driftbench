@@ -8,7 +8,7 @@ import * as childProcess from 'node:child_process';
 import * as crypto from 'node:crypto';
 import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { lstatSync, readdirSync, readFileSync, readlinkSync } from 'node:fs';
 import * as fsPromises from 'node:fs/promises';
 import * as module_ from 'node:module';
 import { dirname, join, resolve } from 'node:path';
@@ -31,7 +31,9 @@ function treeHash(dir: string): string {
   const walk = (current: string) => {
     for (const name of readdirSync(current).sort()) {
       const path = join(current, name);
-      if (statSync(path).isDirectory()) walk(path);
+      const info = lstatSync(path);
+      if (info.isSymbolicLink()) hash.update(`${path.slice(dir.length)}\0link ${readlinkSync(path)}`);
+      else if (info.isDirectory()) walk(path);
       else hash.update(`${path.slice(dir.length)}\0`).update(readFileSync(path));
     }
   };

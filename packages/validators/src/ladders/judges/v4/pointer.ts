@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, lstatSync, readdirSync, readFileSync, readlinkSync, statSync } from 'node:fs';
 import { dirname, join, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { pointer as shipped } from '@agent-nexus/driftbench-estate';
@@ -1432,7 +1432,9 @@ export function takeSnapshot(dir: string): Map<string, string> {
   const walk = (current: string) => {
     for (const name of readdirSync(current).sort()) {
       const path = join(current, name);
-      if (statSync(path).isDirectory()) walk(path);
+      const info = lstatSync(path);
+      if (info.isSymbolicLink()) files.set(path.slice(dir.length + 1), `\0symlink ${readlinkSync(path)}`);
+      else if (info.isDirectory()) walk(path);
       else files.set(path.slice(dir.length + 1), readFileSync(path, 'utf8'));
     }
   };
@@ -1448,7 +1450,6 @@ function sourcesOf(dir: string, shipped: string): Array<{ file: string; text: st
   const found: Array<{ file: string; text: string }> = [];
   const files = snapshot ?? takeSnapshot(dir);
   for (const [relative, text] of files) {
-    if (/\.(json|md|map)$/.test(relative)) continue;
     const twin = join(shipped, relative);
     if (existsSync(twin) && readFileSync(twin, 'utf8') === text) continue;
     found.push({ file: relative, text });
@@ -1555,6 +1556,34 @@ function importGuard(): Source {
   };
 }
 
+/** A dependency folder, package manifest or path alias between the module tree and the repository can redirect an import. */
+function redirects(dir: string, root: string): string[] {
+  const found: string[] = [];
+  const shippedPackage = join(root, 'packages', 'estate');
+  let current = dirname(dir);
+  const stop = resolve(root);
+  for (let i = 0; i < 12 && current.startsWith(stop) && current !== stop; i += 1) {
+    if (current !== shippedPackage) {
+      for (const name of readdirSync(current)) {
+        if (
+          name === 'node_modules' ||
+          name === 'package.json' ||
+          /^tsconfig.*\.json$/.test(name) ||
+          name === 'jsconfig.json' ||
+          name.startsWith('.pnp') ||
+          name === '.npmrc' ||
+          name === 'bunfig.toml'
+        )
+          found.push(
+            `${current.slice(stop.length + 1)}/${name} sits above the module tree and can redirect an import. A labeller imports only its own files and the packages the shipped module uses.`,
+          );
+      }
+    }
+    current = dirname(current);
+  }
+  return found;
+}
+
 function sourceGuardItems(): PointerItem[] {
   return [...SOURCE_GUARDS, importGuard()].map((g) => ({
     id: `pointer/source/${g.id}`,
@@ -1567,12 +1596,23 @@ function sourceGuardItems(): PointerItem[] {
       if (!snapshot && !existsSync(dir)) return [`no source of the pointer module under ${dir}`];
       const files = sourcesOf(dir, join(root, 'packages', 'estate', 'src'));
       const misses: string[] = [];
+      if (g.id === 'escapes-the-tree') misses.push(...redirects(dir, root));
       const shippedRoot = join(root, 'packages', 'estate', 'src');
       const allowed = g.id === 'escapes-the-tree' ? shippedPackages(shippedRoot) : new Set<string>();
       for (const f of files) {
-        const text = stripComments(f.text);
+        const text = f.text;
         if (g.id === 'escapes-the-tree') {
-          for (const m of text.matchAll(SPECIFIER)) {
+          if (f.text.startsWith('\0symlink ')) {
+            misses.push(`${f.file} is a symbolic link. A labeller is made of its own files.`);
+            continue;
+          }
+          if (!/\.(ts|tsx|mts|cts|js|mjs|cjs)$/.test(f.file)) {
+            misses.push(
+              `${f.file} is not a source file: a labeller is made of source files, and a changed or added data, doc or map file is not one.`,
+            );
+            continue;
+          }
+          for (const m of f.text.matchAll(SPECIFIER)) {
             const spec = m[1] as string;
             const here = dirname(join(dir, f.file));
             const target = spec.startsWith('.')
@@ -1580,22 +1620,29 @@ function sourceGuardItems(): PointerItem[] {
               : spec.startsWith('/')
                 ? resolve(spec)
                 : undefined;
-            if (target !== undefined && !(target === dir || target.startsWith(dir + sep)))
+            if (target !== undefined && !(target === dir || target.startsWith(dir + sep))) {
               misses.push(
                 `${f.file} imports ${show(spec)}, which is outside its own source tree. A labeller is made of its own files.`,
               );
-            else if (
-              target === undefined &&
+            } else if (target !== undefined) {
+              const key = target.slice(dir.length + 1);
+              const found = [
+                key,
+                ...['.ts', '.tsx', '.mts', '.cts', '.js', '.mjs', '.cjs'].map((e) => key + e),
+                ...['index.ts', 'index.js', 'index.mjs'].map((e) => join(key, e)),
+              ].find((k) => (snapshot ?? new Map()).has(k));
+              if (!found || !/\.(ts|tsx|mts|cts|js|mjs|cjs)$/.test(found))
+                misses.push(`${f.file} imports ${show(spec)}, which is not a source file of the tree.`);
+            } else if (
               !spec.startsWith('node:') &&
               !allowed.has(
                 spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : (spec.split('/')[0] as string),
               )
-            )
+            ) {
               misses.push(
                 `${f.file} imports the package ${show(spec)}, which the shipped module does not use.`,
               );
-            else if (/\.(json|map|node|wasm|txt)$/.test(spec))
-              misses.push(`${f.file} imports the data file ${show(spec)}.`);
+            }
           }
           continue;
         }

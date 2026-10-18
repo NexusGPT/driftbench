@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
@@ -443,7 +443,7 @@ describe('planted faults in a copy of the labellers', () => {
 
 // Cheats of the independent audit (docs/validators.md 12.7): each is a copy of the module that tries to score
 // without computing what the item asks. None may gain an item.
-describe('cheats of the audit gain nothing', () => {
+describe('cheats of the audit gain nothing', { timeout: 120_000 }, () => {
   async function cheatCopy(name: string, edit: (dir: string) => void): Promise<PointerImpl> {
     return (await cheatLoad(name, edit)).impl;
   }
@@ -648,5 +648,25 @@ describe('cheats of the audit gain nothing', () => {
       append(dir, 'cassette.ts', "export { requestKey as k } from '@agent-nexus/driftbench-estate';"),
     );
     expect(lost).toContain('pointer/source/escapes-the-tree');
+  });
+
+  it('the scan reads code in template literals, data files, links and dependency folders of the module tree', async () => {
+    const template = await scoreCheat('c-template', (dir) =>
+      append(dir, 'cassette.ts', 'const a = `\n/*\n`; export const b = process.argv; const c = `\n*/\n`;'),
+    );
+    expect(template).toContain('pointer/source/reads-process-state');
+    const data = await scoreCheat('c-md', (dir) => writeFileSync(join(dir, '..', 'notes.md'), 'x'));
+    expect(data).toContain('pointer/source/escapes-the-tree');
+    const link = await scoreCheat('c-link', (dir) => symlinkSync('/tmp', join(dir, 'tmp-link')));
+    expect(link).toContain('pointer/source/escapes-the-tree');
+    const deps = await scoreCheat('c-deps', (dir) => {
+      mkdirSync(join(dir, '..', '..', 'node_modules', 'left-pad'), { recursive: true });
+    });
+    expect(deps).toContain('pointer/source/escapes-the-tree');
+    const bare = await scoreCheat('c-bare', (dir) => {
+      writeFileSync(join(dir, 'tapes.json'), '{}');
+      append(dir, 'cassette.ts', "import './tapes';");
+    });
+    expect(bare).toContain('pointer/source/escapes-the-tree');
   });
 });
