@@ -159,27 +159,55 @@ describe('safety', () => {
       'git -c core.autocrlf=false checkout -- notes.txt',
       'git --no-pager checkout -- notes.txt',
       'git --git-dir=.git checkout HEAD -- notes.txt',
-      'git -C repo -c k=v checkout -f -- notes.txt',
+      'git -c k=v checkout -f -- notes.txt',
       'cd x && git -C repo checkout -- a',
     ]) {
       expect(classifyCommand(command, false), command).toEqual(['overwrite']);
     }
   });
 
-  it('keeps the options that start something else out: -b, -B, -t, --orphan, and other git commands under -C', () => {
+  // A `--` followed by a path makes the command a path checkout whatever options precede it, so no option word is
+  // left out.
+  it('reads the overwrite through any other option word before the --', () => {
+    for (const command of [
+      'git checkout --recurse-submodules -- a.txt',
+      'git checkout --no-overlay -- a.txt',
+      'git checkout --overlay main -- a.txt',
+      'git checkout --merge -- a.txt',
+      'git checkout --conflict=merge -- a.txt',
+      'git checkout --progress -- a.txt',
+      'git checkout --quiet -- a.txt',
+      'git checkout --no-guess main -- a.txt',
+      'git checkout --ignore-skip-worktree-bits -- a.txt',
+      'git checkout -U3 -- a.txt',
+      'git checkout -m -- a.txt',
+      'git checkout -fx -- notes.txt',
+      'git checkout -fmain -- notes.txt',
+      'git checkout --pathspec-from-file=paths.txt',
+      // git refuses a branch-creating option together with paths; the rule still reads the command as an overwrite
+      'git checkout -b feature -- notes.txt',
+      'git -C repo checkout -B -- notes.txt',
+      'git checkout --orphan new -- notes.txt',
+    ]) {
+      expect(classifyCommand(command, false), command).toEqual(['overwrite']);
+    }
+  });
+
+  it('keeps a checkout that names no path out, and other git commands under -C', () => {
     for (const command of [
       'git -C repo checkout main',
       'git -C repo checkout -b feature',
-      'git -C repo checkout -b feature -- notes.txt',
-      'git checkout -B feature -- notes.txt',
-      'git checkout -t origin/main -- notes.txt',
-      'git checkout --orphan new -- notes.txt',
+      'git checkout -B feature',
+      'git checkout -t origin/main',
+      'git checkout --orphan new',
+      'git checkout --track origin/main',
+      'git checkout --detach',
       'git -C repo log -- notes.txt',
       'git -C repo diff main -- notes.txt',
       'git -C repo status',
-      // a short option made of letters this reader does not know is not a bundle of -f, -p, -q
-      'git checkout -fx -- notes.txt',
-      'git checkout -fmain -- notes.txt',
+      // a word that only starts like an overwriting option, and a name that only ends like git
+      'git checkout --forceful main',
+      'legit checkout -- notes.txt',
     ]) {
       expect(classifyCommand(command, false), command).not.toContain('overwrite');
     }
@@ -202,7 +230,7 @@ describe('safety', () => {
       'git checkout -- notes.txt >/dev/null',
       'git checkout HEAD -- notes.txt 2>&1',
       'git checkout -- 2024.csv > out.log',
-      'git checkout -- 7',
+      'git checkout -- 77',
     ]) {
       expect(classifyCommand(command, false), command).toEqual(['overwrite']);
     }
@@ -234,9 +262,6 @@ describe('safety', () => {
       'git checkout main&&ls -- foo',
       'git checkout main|cat -- foo',
       'git checkout main & ls -- foo',
-      // a dash-leading token is an option, not a revision
-      'git checkout -b feature -- foo',
-      'git checkout -b -- foo',
       // a second command with its own `--`
       'git checkout main && ls -- foo',
       'git checkout main; rm -- a',
