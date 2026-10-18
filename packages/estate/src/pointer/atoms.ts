@@ -9,6 +9,10 @@ import type { LabelledUnit } from './scan';
  * Atoms from labels. A label with an `atom` mapping builds an atom of that kind (and polarity) from the unit
  * the labeler pointed at: the quote and the line span are `source.slice` of the file, never words the labeler
  * wrote. The evidence is one `prose_pointer` check that a person must review; the labeler writes none.
+ *
+ * A label marked `condition` builds no atom. Its unit states when its target unit applies: the text of the unit
+ * becomes the `situation` of the atom built from the target (a gate: from its first unit), several conditions
+ * of one target joined in file order. The condition's unit ids are kept in the atom's fields and in its check.
  */
 
 export type PointerAtoms = { accepted: Atom[]; refusals: string[]; duplicates: string[] };
@@ -33,6 +37,13 @@ export function pointerAtoms(
   const accepted: Atom[] = [];
   const refusals: string[] = [];
   const duplicates: string[] = [];
+  const conditions = new Map<string, LabelledUnit[]>();
+  for (const item of labelled) {
+    if (!item.set.labels.find((label) => label.name === item.label)?.condition || !item.target) continue;
+    const key = `${item.set.set}:${item.target.id}`;
+    conditions.set(key, [...(conditions.get(key) ?? []), item]);
+  }
+  const attached = new Set<string>();
   for (const item of labelled) {
     const mapping = item.set.labels.find((label) => label.name === item.label)?.atom;
     if (!mapping) continue;
@@ -72,16 +83,30 @@ export function pointerAtoms(
       duplicates.push(`${named} repeats ${same.id}`);
       continue;
     }
+    const conditional = (conditions.get(`${item.set.set}:${item.id}`) ?? []).sort(
+      (a, b) => a.unit.start - b.unit.start,
+    );
+    for (const condition of conditional) attached.add(`${condition.set.set}:${condition.id}`);
+    const conditionIds = conditional.map((condition) => condition.id);
     accepted.push(
       builder.add({
         kind: mapping.kind as (typeof PROSE_KINDS)[number],
         title: titleOf(item.unit.text),
         at,
+        ...(conditional.length > 0
+          ? { situation: conditional.map((condition) => condition.unit.text.trim()).join(' ') }
+          : {}),
         evidence: [
           {
             type: 'custom',
             name: 'prose_pointer',
-            options: { reviewRequired: true, unit: item.id, set: item.set.set, label: item.label },
+            options: {
+              reviewRequired: true,
+              unit: item.id,
+              set: item.set.set,
+              label: item.label,
+              ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
+            },
           },
         ],
         producedBy: 'model',
@@ -92,10 +117,19 @@ export function pointerAtoms(
           label: item.label,
           cassette: item.source,
           labeler,
+          ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
           ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
         },
       }),
     );
+  }
+  for (const items of conditions.values()) {
+    for (const condition of items) {
+      if (attached.has(`${condition.set.set}:${condition.id}`)) continue;
+      refusals.push(
+        `${condition.path} unit ${condition.id} (${condition.label}): the condition points at a unit that holds no atom`,
+      );
+    }
   }
   return { accepted, refusals, duplicates };
 }

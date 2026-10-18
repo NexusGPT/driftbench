@@ -88,6 +88,39 @@ describe('label sets', () => {
   });
 });
 
+describe('condition labels', () => {
+  const set = (label: string) =>
+    `labels:\n  - set: s\n    description: d\n    labels:\n      - name: when\n        description: States when another unit applies.\n${label}`;
+
+  it('reads a condition label that asks for a target and builds no atom', () => {
+    const parsed = parseLabelSets(set('        target: required\n        condition: true\n'));
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) expect(parsed.sets[0]?.labels[0]?.condition).toBe(true);
+  });
+
+  it('refuses a condition label with no target, or with an atom', () => {
+    const noTarget = parseLabelSets(set('        condition: true\n'));
+    expect(noTarget).toEqual({
+      ok: false,
+      message: 'the label when is a condition and needs target: required',
+    });
+    const withAtom = parseLabelSets(
+      set('        target: required\n        condition: true\n        atom: { kind: instruction }\n'),
+    );
+    expect(withAtom).toEqual({
+      ok: false,
+      message: 'the label when is a condition and builds no atom of its own: it takes no atom mapping',
+    });
+  });
+
+  it('changes the hash of the set when a label becomes a condition', () => {
+    const plain = parseLabelSets(set('        target: required\n'));
+    const cond = parseLabelSets(set('        target: required\n        condition: true\n'));
+    if (!plain.ok || !cond.ok) throw new Error('the sets parse');
+    expect(setHash(cond.sets[0] as LabelSet)).not.toBe(setHash(plain.sets[0] as LabelSet));
+  });
+});
+
 describe('unit ranges', () => {
   it('reads a number and a range, and nothing else', () => {
     expect(expandUnits('5')).toEqual([5]);

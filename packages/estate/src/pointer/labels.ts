@@ -20,6 +20,8 @@ export const Label = z.strictObject({
   description: z.string().min(1),
   examples: z.array(z.string().min(1)).max(3).optional(),
   target: z.literal('required').optional(),
+  /** A unit with this label states when its target unit applies: it becomes the situation of the target's atom. */
+  condition: z.literal(true).optional(),
   atom: z
     .strictObject({ kind: z.string().min(1), polarity: z.enum(['obligation', 'prohibition']).optional() })
     .optional(),
@@ -74,6 +76,15 @@ export function parseLabelSets(text: string): LabelSetsResult {
       if (names.has(label.name))
         return { ok: false, message: `the set ${set.set} declares ${label.name} twice` };
       names.add(label.name);
+      if (label.condition && label.target !== 'required') {
+        return { ok: false, message: `the label ${label.name} is a condition and needs target: required` };
+      }
+      if (label.condition && label.atom) {
+        return {
+          ok: false,
+          message: `the label ${label.name} is a condition and builds no atom of its own: it takes no atom mapping`,
+        };
+      }
     }
   }
   return { ok: true, sets: parsed.data.labels };
