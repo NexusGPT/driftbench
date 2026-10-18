@@ -6,8 +6,18 @@ import { must, type Rng } from '../util';
 /**
  * The stems that ask `quotes` whether the quotes of a store file are findable in the files they name
  * (docs/variables.md "Provenance"): word for word, after white space, typographic quotes, accents, characters
- * that print nothing and the backslash of markdown are folded; case and punctuation must match. Every scene has
- * its own file (depth, lines around the quote), words, place of the quote in the store and way of being wrong.
+ * that print nothing and the backslash of markdown are folded; case and punctuation must match.
+ *
+ * What is right lives in the RELATION between a quote and its file, never in either alone. A scene asks five
+ * requests, each with a store, a sentence and a file of its own (so no request names another):
+ *   - the quote is in the file, written the way the scene's form says;
+ *   - the same, with a quote that looks altered and a file that holds exactly that altered text;
+ *   - the quote is altered and the file holds the original;
+ *   - the quote is the original and the file holds the altered text;
+ *   - the file is absent.
+ * Whether a quote looks altered, how long it is, how its file looks and whether a file has decoy lines tell
+ * nothing: an adapter that reads requests and remembers earlier ones, that answers a missing file from the file
+ * list, has to guess on every request whose file is present. That is at least 2 to the minus 40 per item (48 or more such requests); the tests measure it.
  */
 
 const SCENES = 12;
@@ -27,29 +37,73 @@ const found = (file: string, quote: string) => fold(file).includes(fold(quote));
 
 type Sentence = { text: string; words: string[] };
 
-/** The canonical sentence of a scene: it carries an apostrophe, quotation marks, an accent, an underscore and a star. */
+/** Six shapes of one sentence, each with an apostrophe, quotation marks, an accent, an underscore and a star. */
+const SHAPES: ReadonlyArray<(w: string[]) => string> = [
+  (w) => `When the ${w[0]} is ${w[1]}, don't tell the "${w[2]}" at the café about ${w[3]}_x* again.`,
+  (w) => `If a ${w[0]} is ${w[1]} then don't send the "${w[2]}" to the café before ${w[3]}_x*.`,
+  (w) => `Never let the ${w[0]} near the café; don't forget "${w[2]}" and ${w[3]}_x* with the ${w[1]} today.`,
+  (w) => `At the café the ${w[0]} is ${w[3]}_x*, so don't read "${w[2]}" aloud to the ${w[1]}.`,
+  (w) => `Ask the ${w[0]}, then the ${w[1]}, and don't use the "${w[2]}" or ${w[3]}_x* at the café.`,
+  (w) => `Please don't mix ${w[0]} with "${w[2]}" at the café unless ${w[3]}_x* says ${w[1]} again.`,
+];
+
 function sentence(rng: Rng): Sentence {
-  const words = [word(rng, 5), word(rng, 4), word(rng, 6), word(rng, 5), word(rng, 4)];
-  return {
-    words,
-    text: `When the ${words[0]} is ${words[1]}, don't tell the "${words[2]}" at the café about ${words[3]}_x* again.`,
-  };
+  const words = [word(rng, 5), word(rng, 4), word(rng, 6), word(rng, 5)];
+  return { words, text: (rng.pick(SHAPES) as (w: string[]) => string)(words) };
 }
 
-function fileText(rng: Rng, sentenceText: string): string {
-  const before = Array.from(
-    { length: rng.int(1, 4) },
-    () => `Fictional line ${word(rng, 6)} ${word(rng, 4)}.`,
-  );
-  const after = Array.from(
-    { length: rng.int(1, 4) },
-    () => `Fictional line ${word(rng, 5)} ${word(rng, 5)}.`,
-  );
-  return `# Fictional file ${word(rng, 5)}\n\n${before.join('\n')}\n${sentenceText}\n${after.join('\n')}\n`;
+const LETTERS = 'bdfgklmnprstvz';
+
+/**
+ * A different text that no cut of the original holds and that holds no cut of the original, so a quote and a
+ * file that disagree this way never find each other in either direction.
+ */
+function alter(rng: Rng, s: Sentence, how: string): string {
+  const [a, b, c, d] = s.words as [string, string, string, string];
+  const tokens = s.text.split(' ');
+  switch (how) {
+    case 'inserted-word':
+      return [...tokens.slice(0, 3), word(rng, 5), ...tokens.slice(3)].join(' ');
+    case 'changed-letter': {
+      const i = s.text.indexOf(a) + 1 + rng.int(0, a.length - 3);
+      const old = s.text[i] as string;
+      let letter = rng.pick([...LETTERS]);
+      while (letter === old) letter = rng.pick([...LETTERS]);
+      return `${s.text.slice(0, i)}${letter}${s.text.slice(i + 1)}`;
+    }
+    case 'swapped-words': {
+      const bare = (token: string) => token.replace(/[^a-z]/gi, '');
+      const i = tokens.findIndex((t) => bare(t) === a);
+      const j = tokens.findIndex((t) => bare(t) === b);
+      const copy = [...tokens];
+      [copy[i], copy[j]] = [copy[j] as string, copy[i] as string];
+      return copy.join(' ');
+    }
+    case 'changed-last-word': {
+      let replacement = word(rng, d.length);
+      while (replacement === d) replacement = word(rng, d.length);
+      return s.text.replace(d, replacement);
+    }
+    // exact-forms
+    case 'case':
+      return s.text
+        .replace(/^./, (ch) => (ch === ch.toUpperCase() ? ch.toLowerCase() : ch.toUpperCase()))
+        .replace(c, `${c.charAt(0).toUpperCase()}${c.slice(1)}`);
+    default: {
+      // punctuation: the full stop becomes a bang, the first comma or semicolon goes, or a quotation mark goes.
+      const options = [
+        s.text.replace(/\.$/, '!'),
+        s.text.replace(/[,;]/, ''),
+        s.text.replace('"', ''),
+        s.text.replace(/\.$/, ','),
+      ].filter((option) => option !== s.text);
+      return options[rng.int(0, options.length - 1)] as string;
+    }
+  }
 }
 
-/** How a file writes the canonical sentence in another form that the page folds to the same text. */
-const FOLDED_FORMS: Record<string, (text: string, rng: Rng) => string> = {
+/** How a file (or a quote) writes the original in another form that the page folds to the same text. */
+const FORMS: Record<string, (text: string, rng: Rng) => string> = {
   whitespace: (text, rng) =>
     text.replace(/ /g, () => ['  ', '\n', '\t', '   ', ' \n '][rng.int(0, 4)] as string),
   typographic: (text) => text.replace(/'/g, '’').replace(/"([^"]*)"/g, '“$1”'),
@@ -93,32 +147,6 @@ function place(store: FileStore, scene: number, entry: FileProvenance, shift = 0
   }
 }
 
-type Scene = {
-  store: FileStore;
-  path: string;
-  /** The place of the quote entry in the store, as the page's dotted path. */
-  at: string;
-  s: Sentence;
-  /** The quote the store cites. */
-  quote: string;
-  file: string;
-};
-
-function scene(
-  rng: Rng,
-  index: number,
-  quote: (s: Sentence) => string,
-  text?: (s: Sentence) => string,
-): Scene {
-  const { store } = fictionalStore(rng, index);
-  const s = sentence(rng);
-  const path = `fiction/${word(rng, 4)}/${index % 2 === 0 ? `${word(rng, 5)}/` : ''}${word(rng, 6)}.md`;
-  const cited = quote(s);
-  const entry: FileProvenance = { kind: 'quote', path, quote: cited };
-  const at = place(store, index, entry);
-  return { store, path, at, s, quote: cited, file: fileText(rng, text ? text(s) : s.text) };
-}
-
 /** The provenance list that a dotted entry path (`...provenance.K`) points into. */
 function listAt(store: FileStore, entryPath: string): FileProvenance[] {
   const parts = entryPath.split('.').slice(0, -1);
@@ -128,164 +156,215 @@ function listAt(store: FileStore, entryPath: string): FileProvenance[] {
   return node as FileProvenance[];
 }
 
+type Built = { store: FileStore; path: string; at: string; file: string; quote: string };
+
+type Relation =
+  /** The quote is in the file; `altered` writes both as the altered text. */
+  | { holds: true; altered?: boolean }
+  /** The quote is altered and the file holds the original, or the other way round. */
+  | { holds: false; side: 'quote' | 'file' };
+
+type Spec = {
+  rng: Rng;
+  index: number;
+  relation: Relation;
+  /** How the altered text is made. */
+  how: string;
+  /** A form the page folds, written on one side. */
+  form?: { name: string; side: 'quote' | 'file' };
+};
+
+/** One request: a store with its own agent, a sentence of its own, and a file that relates to the quote as asked. */
+function request({ rng, index, relation, how, form }: Spec): Built {
+  const { store } = fictionalStore(rng, index);
+  const s = sentence(rng);
+  const alt = alter(rng, s, how);
+  const other = alter(rng, s, how === 'inserted-word' ? 'changed-letter' : 'inserted-word');
+  let quote: string;
+  let inFile: string;
+  if (relation.holds) {
+    quote = relation.altered ? alt : s.text;
+    inFile = quote;
+  } else if (relation.side === 'quote') {
+    quote = alt;
+    inFile = s.text;
+  } else {
+    quote = s.text;
+    inFile = alt;
+  }
+  if (form) {
+    const make = FORMS[form.name] as (text: string, rng: Rng) => string;
+    if (form.side === 'quote') quote = make(quote, rng);
+    else inFile = make(inFile, rng);
+  }
+  const path = `fiction/${word(rng, 4)}/${index % 2 === 0 ? `${word(rng, 5)}/` : ''}${word(rng, 6)}.md`;
+  const entry: FileProvenance = { kind: 'quote', path, quote };
+  const at = place(store, index, entry);
+  // A decoy line: another alteration of the sentence the file holds. It is never the quote, so it tells nothing.
+  const decoy =
+    relation.holds || relation.side === 'quote'
+      ? other
+      : alter(rng, { ...s, text: s.text }, 'changed-letter');
+  const before = Array.from(
+    { length: rng.int(1, 4) },
+    () => `Fictional line ${word(rng, 6)} ${word(rng, 4)}.`,
+  );
+  const after = Array.from(
+    { length: rng.int(1, 4) },
+    () => `Fictional line ${word(rng, 5)} ${word(rng, 5)}.`,
+  );
+  const lines = rng.chance(0.5) ? [...before, inFile, decoy, ...after] : [...before, decoy, inFile, ...after];
+  const file = `# Fictional file ${word(rng, 5)}\n\n${lines.join('\n')}\n`;
+  const expected = relation.holds;
+  must(
+    found(file, quote) === expected,
+    () =>
+      `the bank's ${expected ? 'findable' : 'wrong'} quote is ${expected ? 'not findable' : 'findable'} (${how}): this is a bug in the bank`,
+  );
+  return { store, path, at, file, quote };
+}
+
 const issue = (code: string, path: string) => ({ code, path });
 const NOT_FOUND = 'VARIABLES_QUOTE_NOT_FOUND';
 const UNREADABLE = 'VARIABLES_SOURCE_UNREADABLE';
 
-const ok = (store: FileStore, files: Record<string, string>): FileCase => ({
+const ok = (b: Built): FileCase => ({
   op: 'quotes',
-  store,
-  files,
+  store: b.store,
+  files: { [b.path]: b.file },
   want: { kind: 'issues', issues: [] },
 });
-const wrong = (store: FileStore, files: Record<string, string>, code: string, path: string): FileCase => ({
+const notFound = (b: Built): FileCase => ({
   op: 'quotes',
-  store,
-  files,
-  want: { kind: 'issues', issues: [issue(code, path)] },
+  store: b.store,
+  files: { [b.path]: b.file },
+  want: { kind: 'issues', issues: [issue(NOT_FOUND, `${b.at}.quote`)] },
+});
+/** The file is not among the files given (alone, or beside a file the store does not name). */
+const missing = (b: Built, elsewhere = false, rng?: Rng): FileCase => ({
+  op: 'quotes',
+  store: b.store,
+  files: elsewhere && rng ? { [`other/${word(rng, 4)}.md`]: 'Fictional unrelated file.\n' } : {},
+  want: { kind: 'issues', issues: [issue(UNREADABLE, `${b.at}.path`)] },
 });
 
-/** A quote that is wrong because of its own words: no cut of the file holds it, folded or not. */
-function broken(rng: Rng, s: Sentence, how: string): string {
-  const parts = s.text.split(' ');
-  switch (how) {
-    case 'inserted-word':
-      return [...parts.slice(0, 4), word(rng, 5), ...parts.slice(4)].join(' ');
-    case 'changed-letter': {
-      const i = s.text.indexOf(s.words[1] as string) + 1;
-      const c = s.text[i] === 'z' ? 'q' : 'z';
-      return `${s.text.slice(0, i)}${c}${s.text.slice(i + 1)}`;
-    }
-    case 'swapped-words':
-      return [...parts.slice(0, 2), parts[3], parts[2], ...parts.slice(4)].join(' ');
-    default:
-      return `${s.text} ${word(rng, 5)}`;
-  }
-}
-
-function checkedWrong(file: string, quote: string, label: string): string {
-  must(!found(file, quote), () => `the bank's wrong quote is findable (${label}): this is a bug in the bank`);
-  return quote;
+/** The five requests of a scene: two that hold, two that break the relation (one on each side), one missing file. */
+function fiveRequests(
+  rng: Rng,
+  index: number,
+  how: string,
+  form?: { name: string; side: 'quote' | 'file' },
+): FileCase[] {
+  const flip = form
+    ? ({ name: form.name, side: form.side === 'quote' ? 'file' : 'quote' } as const)
+    : undefined;
+  return [
+    ok(request({ rng, index, relation: { holds: true }, how, ...(form ? { form } : {}) })),
+    ok(
+      request({
+        rng,
+        index: index + 1,
+        relation: { holds: true, altered: true },
+        how,
+        ...(flip ? { form: flip } : {}),
+      }),
+    ),
+    notFound(
+      request({
+        rng,
+        index: index + 2,
+        relation: { holds: false, side: 'quote' },
+        how,
+        ...(form ? { form } : {}),
+      }),
+    ),
+    notFound(
+      request({
+        rng,
+        index: index + 3,
+        relation: { holds: false, side: 'file' },
+        how,
+        ...(form ? { form } : {}),
+      }),
+    ),
+    missing(request({ rng, index: index + 4, relation: { holds: true }, how }), index % 2 === 1, rng),
+  ];
 }
 
 const foldedForms: FileCaseBuilder = (variant, ctx) =>
-  scenes(ctx, SCENES, variant, (rng, index) => {
-    const form = FOLDED_FORMS[variant] as (text: string, rng: Rng) => string;
+  scenes(ctx, SCENES, variant, (rng, index) =>
     // Even scenes write the form in the file, odd scenes write it in the quote; both fold to the same text.
-    const inFile = index % 2 === 0;
-    const a = scene(
+    fiveRequests(
       rng,
       index,
-      (s) => (inFile ? s.text : form(s.text, rng)),
-      (s) => (inFile ? form(s.text, rng) : s.text),
-    );
-    const b = scene(rng, index + 1, (s) => s.text);
-    const c = scene(rng, index + 2, (s) =>
-      broken(
-        rng,
-        s,
-        ['inserted-word', 'changed-letter', 'swapped-words', 'appended-word'][index % 4] as string,
-      ),
-    );
-    checkedWrong(c.file, c.quote, variant);
-    const d = scene(rng, index + 3, (s) => s.text);
-    return [
-      ok(a.store, { [a.path]: a.file }),
-      ok(b.store, { [b.path]: b.file }),
-      wrong(c.store, { [c.path]: c.file }, NOT_FOUND, `${c.at}.quote`),
-      wrong(d.store, {}, UNREADABLE, `${d.at}.path`),
-    ];
-  });
+      ['inserted-word', 'changed-letter', 'swapped-words', 'changed-last-word'][index % 4] as string,
+      {
+        name: variant,
+        side: index % 2 === 0 ? 'file' : 'quote',
+      },
+    ),
+  );
 
 const exactForms: FileCaseBuilder = (variant, ctx) =>
-  scenes(ctx, SCENES, variant, (rng, index) => {
-    const make = (s: Sentence) =>
-      variant === 'case-sensitive'
-        ? s.text.replace(/^When/, 'when').replace(/ again\.$/, ' Again.')
-        : ([
-            s.text.replace(',', ';'),
-            s.text.replace(', ', ' '),
-            s.text.replace('.', '!'),
-            s.text.replace('"', ''),
-          ][index % 4] as string);
-    const a = scene(rng, index, make);
-    checkedWrong(a.file, make(a.s), variant);
-    const b = scene(rng, index + 1, (s) => s.text);
-    const c = scene(rng, index + 2, (s) => s.text);
-    return [
-      wrong(a.store, { [a.path]: a.file }, NOT_FOUND, `${a.at}.quote`),
-      ok(b.store, { [b.path]: b.file }),
-      wrong(
-        c.store,
-        { [`other/${word(rng, 4)}.md`]: 'Fictional unrelated file.\n' },
-        UNREADABLE,
-        `${c.at}.path`,
-      ),
-    ];
-  });
+  scenes(ctx, SCENES, variant, (rng, index) =>
+    fiveRequests(rng, index, variant === 'case-sensitive' ? 'case' : 'punctuation'),
+  );
 
-const notFound: FileCaseBuilder = (variant, ctx) =>
-  scenes(ctx, SCENES, variant, (rng, index) => {
-    const a = scene(rng, index, (s) => broken(rng, s, variant));
-    checkedWrong(a.file, a.quote, variant);
-    const b = scene(rng, index + 1, (s) => s.text);
-    const c = scene(rng, index + 2, (s) => s.text);
-    return [
-      wrong(a.store, { [a.path]: a.file }, NOT_FOUND, `${a.at}.quote`),
-      ok(b.store, { [b.path]: b.file }),
-      ok(c.store, { [c.path]: c.file, [`extra/${word(rng, 4)}.md`]: 'Fictional unused file.\n' }),
-    ];
-  });
+const notFoundForms: FileCaseBuilder = (variant, ctx) =>
+  scenes(ctx, SCENES, variant, (rng, index) => fiveRequests(rng, index, variant));
 
 const unreadable: FileCaseBuilder = (variant, ctx) =>
   scenes(ctx, SCENES, variant, (rng, index) => {
+    const how = ['inserted-word', 'changed-letter', 'swapped-words', 'changed-last-word'][
+      index % 4
+    ] as string;
+    const plain = (relation: Relation, shift: number) =>
+      request({ rng, index: index + shift, relation, how });
+    const third: Relation =
+      index % 2 === 0 ? { holds: true } : { holds: false, side: index % 4 === 1 ? 'quote' : 'file' };
     if (variant === 'missing-file') {
-      const a = scene(rng, index, (s) => s.text);
-      const b = scene(rng, index + 1, (s) => s.text);
-      const elsewhere = index % 2 === 1 ? { [`other/${word(rng, 4)}.md`]: 'Fictional other file.\n' } : {};
-      return [wrong(a.store, elsewhere, UNREADABLE, `${a.at}.path`), ok(b.store, { [b.path]: b.file })];
+      return [
+        missing(plain({ holds: true }, 0), index % 2 === 1, rng),
+        ok(plain({ holds: true }, 1)),
+        notFound(plain({ holds: false, side: 'quote' }, 2)),
+        notFound(plain({ holds: false, side: 'file' }, 3)),
+        ok(plain({ holds: true, altered: true }, 4)),
+      ];
     }
     if (variant === 'once-per-file') {
-      // Two quotes in one list name one missing file: one issue, at the first of them. A third quote on a present
-      // file, placed elsewhere, is fine.
-      const a = scene(rng, index, (s) => s.text);
+      // Two quotes in one list name one missing file: one issue, at the first of them. A third quote names a
+      // present file, and whether it is found depends on the file. The three sentences are unrelated.
+      const a = plain({ holds: true }, 0);
       listAt(a.store, a.at).push({
         kind: 'quote',
         path: a.path,
-        quote: `${a.s.text} Fictional second quote.`,
+        quote: `Fictional second quote ${word(rng, 6)}.`,
       });
-      const present = `fiction/present_${word(rng, 4)}.md`;
-      place(a.store, index, { kind: 'quote', path: present, quote: a.s.text }, 2);
-      const files = { [present]: fileText(rng, a.s.text) };
-      const b = scene(rng, index + 1, (s) => s.text);
-      const c = scene(rng, index + 2, (s) => s.text);
+      const c = plain(third, 1);
+      const thirdEntry = { kind: 'quote' as const, path: c.path, quote: c.quote };
+      const thirdAt = place(a.store, index, thirdEntry, 2);
+      const issues = [issue(UNREADABLE, `${a.at}.path`)];
+      if (!third.holds) issues.push(issue(NOT_FOUND, `${thirdAt}.quote`));
       return [
-        wrong(a.store, files, UNREADABLE, `${a.at}.path`),
-        ok(b.store, { [b.path]: b.file }),
-        wrong(c.store, {}, UNREADABLE, `${c.at}.path`),
+        { op: 'quotes', store: a.store, files: { [c.path]: c.file }, want: { kind: 'issues', issues } },
+        missing(plain({ holds: true }, 2)),
+        ok(plain({ holds: true, altered: true }, 3)),
+        notFound(plain({ holds: false, side: 'file' }, 4)),
+        notFound(plain({ holds: false, side: 'quote' }, 5)),
       ];
     }
-    // unreadable-and-not-found: a missing file and a present file with a wrong quote, in one store.
-    const a = scene(rng, index, (s) => s.text);
-    const present = `fiction/present_${word(rng, 4)}.md`;
-    const bad: FileProvenance = { kind: 'quote', path: present, quote: broken(rng, a.s, 'inserted-word') };
-    const badAt = place(a.store, index, bad, 1);
-    const text = fileText(rng, a.s.text);
-    checkedWrong(text, bad.quote, variant);
-    const b = scene(rng, index + 1, (s) => s.text);
-    const c = scene(rng, index + 2, (s) => s.text);
+    // unreadable-and-not-found: a missing file and a present file in one store; the present quote is found or not.
+    const a = plain({ holds: true }, 0);
+    const c = plain(third, 1);
+    const cAt = place(a.store, index, { kind: 'quote', path: c.path, quote: c.quote }, 1);
+    const issues = [issue(UNREADABLE, `${a.at}.path`)];
+    if (!third.holds) issues.push(issue(NOT_FOUND, `${cAt}.quote`));
     return [
-      {
-        op: 'quotes',
-        store: a.store,
-        files: { [present]: text },
-        want: {
-          kind: 'issues',
-          issues: [issue(UNREADABLE, `${a.at}.path`), issue(NOT_FOUND, `${badAt}.quote`)],
-        },
-      },
-      ok(b.store, { [b.path]: b.file }),
-      wrong(c.store, {}, UNREADABLE, `${c.at}.path`),
+      { op: 'quotes', store: a.store, files: { [c.path]: c.file }, want: { kind: 'issues', issues } },
+      missing(plain({ holds: true }, 2)),
+      ok(plain({ holds: true }, 3)),
+      notFound(plain({ holds: false, side: 'quote' }, 4)),
+      notFound(plain({ holds: false, side: 'file' }, 5)),
     ];
   });
 
@@ -293,7 +372,7 @@ const unreadable: FileCaseBuilder = (variant, ctx) =>
 export const VERIFY_CASES: Record<string, FileCaseBuilder> = {
   'quotes.verify.folded-forms': foldedForms,
   'quotes.verify.exact-forms': exactForms,
-  'quotes.verify.not-found': notFound,
+  'quotes.verify.not-found': notFoundForms,
   'quotes.verify.unreadable-file': unreadable,
 };
 

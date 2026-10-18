@@ -127,6 +127,12 @@ export function scenes(
   const out: FileCase[] = [];
   for (let scene = 0; scene < count; scene += 1)
     out.push(...make(subRng(ctx.rng, `${label}:${scene}`), scene));
+  // Every request is a store of its own: no two requests of an item share an agent, so the agent names no scene.
+  out.forEach((c, i) => {
+    const store = c.store as { agent?: unknown } | null;
+    if (store && typeof store === 'object' && typeof store.agent === 'string')
+      store.agent = `${store.agent}_${i}`;
+  });
   return out;
 }
 

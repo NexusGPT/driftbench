@@ -160,11 +160,11 @@
     },
     {
       "defect": "quotes-unreadable-as-not-found",
-      "lost": 10
+      "lost": 14
     },
     {
       "defect": "quotes-stops-at-first-issue",
-      "lost": 1
+      "lost": 2
     },
     {
       "defect": "quotes-never-reports",
@@ -224,5 +224,6 @@
     }
   ],
   "everyDefectLosesAnItem": true,
-  "itemsRunForTheDefects": "the merged stems only: sources.file, values.file, boundaries.file, weights.file, quotes.verify, budget.below, seeds.kept, weights.plan, impossible.general, values.unapproved"
+  "itemsRunForTheDefects": "the merged stems only: sources.file, values.file, boundaries.file, weights.file, quotes.verify, budget.below, seeds.kept, weights.plan, impossible.general, values.unapproved",
+  "note": "Quote items rebuilt on the relation between a quote and its file (see audit.md, Quote items and adapters with memory); the reference was run again on the quote items and the quote defects were run again."
 }

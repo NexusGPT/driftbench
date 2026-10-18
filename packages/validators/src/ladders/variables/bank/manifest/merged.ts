@@ -10,6 +10,9 @@ import type { StemDef } from './types';
 const SCENES =
   'Twelve scenes, each its own fictional store (3 to 5 variables, details, an unapproved decoy, a title that carries an instruction) and the same store with exactly one defect.';
 
+const RELATION =
+  'Five requests per scene, each with a store, a sentence and a file of its own: the quote is in the file; the quote looks altered and the file holds exactly that text; the quote is altered and the file holds the original; the quote is the original and the file holds the altered text; the file is absent. A decoy line (another alteration) sits in every file. The twelve scenes use six shapes of sentence, and a quote sits in a variable, a value, a boundary or a constraint.';
+
 export const MERGED: readonly StemDef[] = [
   {
     id: 'sources.file.provenance-shape',
@@ -148,9 +151,9 @@ export const MERGED: readonly StemDef[] = [
     family: 'quotes',
     component: 'store/quotes',
     need: 'F2',
-    generator: `${SCENES} A sentence with an apostrophe, quotation marks, an accent, an underscore and a star sits in a file with lines around it. The file (even scenes) or the quote (odd scenes) writes it with extra white space, typographic quote marks, a decomposed accent, markdown backslashes or characters that print nothing; the quote sits in a variable, a value, a boundary or a constraint.`,
+    generator: `${RELATION} The file (even scenes) or the quote (odd scenes) writes the sentence with extra white space, typographic quote marks, a decomposed accent, markdown backslashes or characters that print nothing; the broken requests carry the same form.`,
     oracle:
-      'quotes reports nothing when the folded quote is in the folded file, VARIABLES_QUOTE_NOT_FOUND at PATH.quote for a quote with a changed word, and VARIABLES_SOURCE_UNREADABLE at PATH.path when the file is absent.',
+      'quotes reports nothing when the folded quote is in the folded file, VARIABLES_QUOTE_NOT_FOUND at PATH.quote when the relation is broken on either side, and VARIABLES_SOURCE_UNREADABLE at PATH.path when the file is absent. The bank checks with its own folding that each request is what it says.',
     cause:
       'the quote check folds white space, typographic quotes, accents, characters that print nothing and markdown backslashes',
     variantCauses: {
@@ -173,9 +176,9 @@ export const MERGED: readonly StemDef[] = [
     family: 'quotes',
     component: 'store/quotes',
     need: 'F2',
-    generator: `${SCENES} The quote differs from the file by case (the first letter and the last word) or by one punctuation mark (a comma to a semicolon, a comma removed, the full stop to an exclamation mark, a quotation mark removed).`,
+    generator: `${RELATION} The alteration is a change of case (the first letter and one word) or of one punctuation mark (the full stop, a comma or semicolon, a quotation mark).`,
     oracle:
-      'quotes reports VARIABLES_QUOTE_NOT_FOUND at PATH.quote for the changed quote, nothing for the exact one and VARIABLES_SOURCE_UNREADABLE for a file that is not among the files given. The bank checks with its own folding that the changed quote is not findable.',
+      'quotes reports VARIABLES_QUOTE_NOT_FOUND at PATH.quote when the quote and the file differ in case or punctuation, on either side, nothing when they agree (also when both are the altered text), and VARIABLES_SOURCE_UNREADABLE for an absent file.',
     cause: 'the quote check does not fold case or punctuation',
     variants: [
       ['case-sensitive', 2],
@@ -187,15 +190,15 @@ export const MERGED: readonly StemDef[] = [
     family: 'quotes',
     component: 'store/quotes',
     need: 'F2',
-    generator: `${SCENES} The quote has a word inserted, a letter changed, two words swapped or a word appended, so that no part of the file holds it; the file has other lines around the real sentence.`,
+    generator: `${RELATION} The alteration is a word inserted, a letter changed, two words swapped or the last word replaced, so that neither text holds a cut of the other.`,
     oracle:
-      'quotes reports exactly VARIABLES_QUOTE_NOT_FOUND at PATH.quote for the wrong quote and nothing for the exact one, even when other files are given.',
+      'quotes reports exactly VARIABLES_QUOTE_NOT_FOUND at PATH.quote when the relation is broken on either side and nothing when it holds, even when other files are given.',
     cause: 'a quote that no part of its file holds is reported at its own path',
     variants: [
       ['inserted-word', 1],
       ['changed-letter', 2],
       ['swapped-words', 3],
-      ['appended-word', 3],
+      ['changed-last-word', 3],
     ],
   },
   {
@@ -203,9 +206,9 @@ export const MERGED: readonly StemDef[] = [
     family: 'quotes',
     component: 'store/quotes',
     need: 'F2',
-    generator: `${SCENES} A quote names a file that is not among the files given (alone, or beside an unrelated file); two quotes in one list name one missing file beside a third on a present file; a missing file beside a present file whose quote is wrong.`,
+    generator: `${RELATION} A quote names a file that is not among the files given (alone, or beside an unrelated file); two quotes in one list name one missing file beside a third on a present file that holds it or not; a missing file beside a present file whose quote is found or not. The sentences of one store are unrelated.`,
     oracle:
-      'quotes reports VARIABLES_SOURCE_UNREADABLE at PATH.path of the first quote that names a missing file, once per file, and also VARIABLES_QUOTE_NOT_FOUND for a wrong quote on a present file.',
+      'quotes reports VARIABLES_SOURCE_UNREADABLE at PATH.path of the first quote that names a missing file, once per file, and also VARIABLES_QUOTE_NOT_FOUND for a quote on a present file that does not hold it.',
     cause: 'a missing file is reported once, at the first quote that names it',
     variantCauses: {
       'missing-file': 'a quote whose file is not given is reported unreadable at its path',

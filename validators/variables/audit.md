@@ -52,3 +52,18 @@ Counts of the merged bank: see `CATALOGUE.md` section 1 (items, stems, candidate
 Call-order and request-guess cheats. `test/variables/call-cheats.test.ts` plays them against every file-format item (`validate` and `quotes`): a cheat that knows the class of every answer and is handed the right payload for it, and that chooses the class only by the position of the call (every period 1 to 8, every offset, a global or a per-item counter, the best pattern for the item) or by a hash of the request (each of the eight words of its SHA-256). Every item makes at least 18 different requests and runs them in a seeded order that the test certifies against every period; all of these cheats pass 0 items, and the same cheat given the class of each answer passes every item, so a failure means the order did its work. The plan and counter items are not class guesses: they need a computed plan or count, so the empty implementation, which also passes 0 items (`empty-bank.test.ts`), is their cheat test.
 
 Soundness. A reference implementation that is outside the repository passes every item on seeds 1, 2, 3, 7, 20 and 820020691. Forty-nine planted defects in `validate`, `quotes` and `plan` each lose at least one item of the merged stems (`evidence/merged-bank.json`). The reference is not committed, because it would give the builder the answer.
+
+## Quote items and adapters with memory
+
+The review of the second bank found that an adapter which reads requests and remembers earlier ones passed 11.1 percent of its quote items (73 of 660 attempts): the request for the missing file carried the altered quote, so a present-file request with the same quote was the altered one. The floor the second bank stated for a guess from the request alone, 3 to the minus 12 per item, was wrong: a missing file is answered from the file list, a fact of the request, so only the requests with a present file are coin flips.
+
+How the quote items of this bank avoid it, and what they measure:
+
+- Each scene asks five requests, each with a store, an agent, a sentence and a file of its own; no quote, agent or path is shared between two requests of an item.
+- What is right lives in the relation between a quote and its file. A quote that looks altered is found when the file holds that very text, and a whole-looking quote is not found when the file holds the altered text, so neither the look of the quote nor the look of the file decides. Every file also holds a decoy line.
+- Six shapes of sentence replace the one sentence of the first design, whose shape alone told found from not found.
+- Every item makes 48 or more requests whose file is present, so the file-list-plus-coin adapter passes an item with chance 2 to the minus 48 at most. The test asserts the 40-request floor.
+
+`test/variables/quote-leaks.test.ts` keeps seven adapters as zero-score regressions on 22 seeds (1 to 20, 820020691 and 360920726): the scene-pairing adapter of the review (written for this port), a quote seen with an absent file is the altered one, the length of the quote, a look-alike of an earlier quote, a near-identical quote in the same store, the shape of the quote, and the file list plus a coin. All pass 0 items. Run against the first design of these items, the shape adapter passed 154 of 308 attempts (50 percent) and was the leak that this redesign closed; the scene-pairing adapter could not pair the first design, whose requests had separate agents, and passes 0 on both.
+
+Not covered: an adapter built on the generator of this bank, which learns its sentences, is not a cue-only adapter and is out of scope here, as it was for the second bank.
