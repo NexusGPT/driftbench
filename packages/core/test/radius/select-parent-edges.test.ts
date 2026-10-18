@@ -44,4 +44,29 @@ describe('sectionSelection across block-level parent edges', () => {
     const states = got.specs[0]?.blocks.map((block) => `${block.id}:${block.state}`);
     expect(states).toEqual(['child:forward', 'root:direct']);
   });
+
+  it('leaves an independent root of a forest out, even authored after a selected block', () => {
+    const forest = {
+      ...spec,
+      id: 'forest',
+      blocks: [
+        { id: 'child', parent: 'root', when: { user: 'child' } },
+        { id: 'other', when: { user: 'other' } },
+        { id: 'root', when: { user: 'root' } },
+      ],
+      metadata: {
+        links: [
+          ...(spec.metadata as { links: unknown[] }).links,
+          {
+            block: 'other',
+            to: { kind: 'prompt_section', prompt: 'p', section: 'intro' },
+            status: 'declared',
+          },
+        ],
+      },
+    } as Spec;
+    const got = sectionSelection([{ spec: forest, hash: specHash(forest) }], manifest, [registry]);
+    const states = got.specs[0]?.blocks.map((block) => `${block.id}:${block.state}`);
+    expect(states).toEqual(['child:forward', 'other:out', 'root:direct']);
+  });
 });

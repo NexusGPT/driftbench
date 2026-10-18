@@ -222,9 +222,12 @@ export function sectionSelection(
   for (let moved = true; moved; ) {
     moved = false;
     for (const [at, report] of reports.entries()) {
-      const first = report.blocks.find((block) => block.state !== 'out');
-      if (first) moved = forwardFrom(report, first.index + 1, `after ${first.id}`) || moved;
+      // In a parent forest a block inherits only its ancestors, so the authored order carries nothing: explicit
+      // forest roots remain independent and only the parent edges below reach further.
       const own = specs[at]?.spec;
+      const forest = own?.blocks.some((block) => block.parent !== undefined) === true;
+      const first = report.blocks.find((block) => block.state !== 'out');
+      if (first && !forest) moved = forwardFrom(report, first.index + 1, `after ${first.id}`) || moved;
       if (own) moved = descendants(own, report) || moved;
       const spec = specs[at]?.spec;
       const parent = spec ? parentOf(spec) : undefined;
