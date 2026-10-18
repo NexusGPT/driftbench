@@ -37,6 +37,11 @@ export interface Labeler {
   readonly cls: LabelerClass;
   readonly family: string;
   readonly model: string;
+  /**
+   * How many times the same request is asked. Runs of a chat model differ; a unit takes a label only when every
+   * run gives it the same label and the same target. Absent: one run.
+   */
+  readonly runs?: number;
   /** What decides a label besides the answer (a threshold, a state). Part of the identity of the labels. */
   readonly settings: Readonly<Record<string, unknown>>;
   /** The most units one request for this set may hold. */

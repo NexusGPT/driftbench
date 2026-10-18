@@ -7,8 +7,8 @@ export {
   type Readable,
   type Recorded,
   readableOf,
+  requestKey,
   type Wire,
-  wireKey,
 } from './cassette';
 export { type Container, type Cut, cut, fingerprint, sentenceSpans, type Unit } from './cut';
 export {
@@ -77,6 +77,7 @@ export {
   buildLabelling,
   DEFAULT_FAIL_AT,
   DEFAULT_LABELER_SPECS,
+  DEFAULT_MARGIN_CUT,
   DEFAULT_PASS_AT,
   type Decision,
   type LabelerSpec,
@@ -99,11 +100,19 @@ export {
 } from './user';
 export {
   askedLabels,
+  choiceDefinition,
+  choiceKey,
+  choiceOpinions,
+  choiceQuestions,
   createJevLabeler,
   createOpenAiDecisionsLabeler,
+  DEFAULT_CHOICE_UNITS,
   DEFAULT_DECISIONS_MAX_QUESTIONS,
   DEFAULT_MAX_QUESTIONS,
   DEFAULT_THRESHOLD,
+  isVector,
+  type JevOptions,
+  NONE_DEFINITION,
   type OpenAiDecisionsOptions,
   questionKey,
   type YesNoOptions,

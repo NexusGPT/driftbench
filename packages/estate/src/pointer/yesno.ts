@@ -127,17 +127,104 @@ function detailErrorText(status: number, payload: unknown): string {
   return type ? `${status} ${type}` : errorText(status, payload);
 }
 
+/** The windows of a choice labeler: units per request, measured best near 30 (a window of 30 against a whole file). */
+export const DEFAULT_CHOICE_UNITS = 30;
+
+/** What the `none` option of a choice question says: the unit has no label of the set. */
+export const NONE_DEFINITION = 'None of the other labels applies to this unit.';
+
+/** The key of the probability a choice answer gives to one label of one unit. */
+export const choiceKey = (n: number, label: string): string => `u${n}__${label}`;
+
+/** The definition of a label in a choice question: its description and its examples. */
+export function choiceDefinition(label: Label): string {
+  const examples = label.examples?.length
+    ? ` Examples: ${label.examples.map((example) => JSON.stringify(example)).join('; ')}`
+    : '';
+  return `${label.description}${examples}`;
+}
+
+/** The choice questions of a window: one per unit, the labels and `none` as options with their definitions. */
+export function choiceQuestions(asked: readonly Label[], window: Window): Record<string, unknown> {
+  const criteria: Record<string, string> = {};
+  for (const label of asked) criteria[label.name] = choiceDefinition(label);
+  criteria.none = NONE_DEFINITION;
+  const out: Record<string, unknown> = {};
+  for (const unit of window.units) {
+    out[`u${unit.n}`] = {
+      type: 'choice',
+      instructions: `Which label does unit [${unit.n}] of the numbered text have?`,
+      criteria,
+    };
+  }
+  return out;
+}
+
+/** How far the probabilities of one choice answer may sit from a sum of 1: the endpoint rounds each to two decimals. */
+export const VECTOR_TOLERANCE = 0.01;
+
+/** Whether the probabilities form a vector: each in 0 to 1, summing to 1 within the tolerance. Never normalised. */
+export function isVector(probabilities: Readonly<Record<string, number>>): boolean {
+  const values = Object.values(probabilities);
+  if (values.length === 0 || values.some((p) => !Number.isFinite(p) || p < 0 || p > 1)) return false;
+  return Math.abs(values.reduce((sum, p) => sum + p, 0) - 1) <= VECTOR_TOLERANCE + 1e-9;
+}
+
 /**
- * A system 1 labeler on the Jev service: `{ model, state, questions }` in, one `noul` answer per question out.
- * Reads `JEV_API_KEY`, `JEV_URL` or `JEV_ROUTE` (`gateway` or `typesafe`) and `JEV_MODEL` (default
- * `jev-latest`) from the environment. The endpoint reports its usage in tokens.
+ * The opinions of a choice answer: the label with the highest probability, `none` among the options. The
+ * probabilities of the options are the opinion's, so a stack can read the margin between the two likeliest.
+ * A unit missing an option has no opinion, and so has a unit whose probabilities are no vector (they do not sum
+ * to 1): it is refused with the reason, never repaired by normalising, and never guessed.
  */
-export function createJevLabeler(options: YesNoOptions = {}): Labeler {
+export function choiceOpinions(answer: Recorded, window: Window, asked: readonly Label[]): Opinions {
+  const names = [...asked.map((label) => label.name), 'none'];
+  const byUnit = new Map<number, Opinion>();
+  const refusals: string[] = [];
+  for (const unit of window.units) {
+    const probabilities: Record<string, number> = {};
+    let best: { label: string; p: number } | undefined;
+    for (const name of names) {
+      const p = answer.probabilities?.[choiceKey(unit.n, name)];
+      if (typeof p !== 'number') break;
+      probabilities[name] = p;
+      if (!best || p > best.p) best = { label: name, p };
+    }
+    if (Object.keys(probabilities).length < names.length || !best) continue;
+    if (!isVector(probabilities)) {
+      const total = Object.values(probabilities).reduce((sum, p) => sum + p, 0);
+      refusals.push(
+        `${window.id}: unit [${unit.n}] has probabilities that are no vector (they sum to ${Number(total.toFixed(4))})`,
+      );
+      continue;
+    }
+    byUnit.set(unit.index, { label: best.label, probabilities });
+  }
+  return { byUnit, refusals };
+}
+
+export type JevOptions = HttpOptions & {
+  env?: Record<string, string | undefined>;
+  /** `window`: one request per window of units. `unit`: one request per unit. */
+  state?: 'window' | 'unit';
+  /** The most units one request may hold. */
+  maxUnits?: number;
+  /** Inside a stack: leave the labels that ask for a target to the system 2 labeler. */
+  skipTargetLabels?: boolean;
+  /** Replay only: no key is read. */
+  replayOnly?: boolean;
+};
+
+/**
+ * A system 1 labeler on the Jev service: `{ model, state, questions }` in, one `choice` answer per unit out.
+ * Each question lists the labels of the set and `none` as options, with their definitions; the answer carries
+ * a probability for each option. Reads `JEV_API_KEY`, `JEV_URL` or `JEV_ROUTE` (`gateway` or `typesafe`) and
+ * `JEV_MODEL` (default `jev-latest`) from the environment. The endpoint reports its usage in tokens.
+ */
+export function createJevLabeler(options: JevOptions = {}): Labeler {
   const env = options.env ?? process.env;
   const granularity = options.state ?? 'window';
   const id = granularity === 'unit' ? 'jev-unit' : 'jev';
-  const cap = options.maxQuestions ?? DEFAULT_MAX_QUESTIONS;
-  const threshold = options.threshold ?? DEFAULT_THRESHOLD[granularity];
+  const units = options.maxUnits ?? DEFAULT_CHOICE_UNITS;
   const skip = options.skipTargetLabels === true;
   const model = env.JEV_MODEL?.trim() || 'jev-latest';
   const labeler: Labeler = {
@@ -145,23 +232,20 @@ export function createJevLabeler(options: YesNoOptions = {}): Labeler {
     cls: 'system1',
     family: 'jev',
     model,
-    settings: { threshold },
-    maxUnits: (set, wanted) =>
-      granularity === 'unit'
-        ? 1
-        : Math.max(1, Math.min(wanted, Math.floor(cap / askedLabels(set, skip).length))),
+    settings: { question: 'choice' },
+    maxUnits: (_set, wanted) => (granularity === 'unit' ? 1 : Math.max(1, Math.min(wanted, units))),
     render(set, window) {
       const asked = askedLabels(set, skip);
-      const questions: Record<string, unknown> = {};
-      for (const [key, question] of yesNoQuestions(asked, window)) {
-        questions[key] = { type: 'noul', instructions: { question } };
-      }
       return {
         labeler: id,
-        body: { model, state: { set: set.set, window: window.id, text: yesNoText(window) }, questions },
+        body: {
+          model,
+          state: { set: set.set, window: window.id, text: yesNoText(window) },
+          questions: choiceQuestions(asked, window),
+        },
       };
     },
-    opinions: (answer, set, window) => yesNoOpinions(answer, window, askedLabels(set, skip), threshold),
+    opinions: (answer, set, window) => choiceOpinions(answer, window, askedLabels(set, skip)),
   };
   if (options.replayOnly) return labeler;
   const key = env.JEV_API_KEY?.trim();
@@ -183,10 +267,14 @@ export function createJevLabeler(options: YesNoOptions = {}): Labeler {
       const payload = await postJson(url, headers, wire.body, detailErrorText, options);
       const answers = isRecord(payload) && isRecord(payload.answers) ? payload.answers : undefined;
       if (!answers) throw new ModelError('bad_response', 'jev answered without an answers object');
+      const entries: Array<[string, unknown]> = [];
+      for (const [name, answer] of Object.entries(answers)) {
+        const chances = isRecord(answer) && isRecord(answer.probabilities) ? answer.probabilities : undefined;
+        if (!chances) continue;
+        for (const [option, p] of Object.entries(chances)) entries.push([`${name}__${option}`, p]);
+      }
       return {
-        probabilities: probabilitiesOf(
-          Object.entries(answers).map(([name, answer]) => [name, isRecord(answer) ? answer.noul : undefined]),
-        ),
+        probabilities: probabilitiesOf(entries),
         returnedModel: String(isRecord(payload) && typeof payload.model === 'string' ? payload.model : model),
         stopReason: 'answered',
         usage: usageOf(payload),

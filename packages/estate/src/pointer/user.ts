@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { type HttpOptions, isRecord, postJson } from '@agent-nexus/driftbench-generate';
 import type { Recorded } from './cassette';
 import { sha } from './cut';
-import { DENSE_SYSTEM, denseLabels, denseOpinions, denseUser } from './dense';
+import { DEFAULT_RUNS, DENSE_SYSTEM, denseLabels, denseOpinions, denseUser } from './dense';
 import { type Labeler, type LabelerClass, LabelerConfigError, LabelerError, usageOf } from './labeler';
 import type { LabelSet, Window } from './labels';
 import {
@@ -35,6 +35,8 @@ export type UserOptions = {
   maxQuestions?: number;
   /** Inside a stack: leave the labels that ask for a target to the system 2 labeler. */
   skipTargetLabels?: boolean;
+  /** A system 2 labeler: how many times a window is asked; a unit takes a label only when every run agrees. */
+  runs?: number;
 };
 
 /** The body a user labeler is sent for a window. */
@@ -52,6 +54,7 @@ export function userRequest(
       description: label.description,
       ...(label.examples ? { examples: label.examples } : {}),
       ...(label.target ? { target: label.target } : {}),
+      ...(label.condition ? { condition: true } : {}),
     })),
   };
   const windowBody = {
@@ -111,6 +114,7 @@ function labelerOf(core: Core, options: UserOptions): Labeler {
     cls: core.cls,
     family: core.family,
     model: core.model,
+    ...(core.cls === 'system2' ? { runs: options.runs ?? DEFAULT_RUNS } : {}),
     settings: core.cls === 'system1' ? { threshold } : {},
     maxUnits: (set, wanted) =>
       core.cls === 'system2'

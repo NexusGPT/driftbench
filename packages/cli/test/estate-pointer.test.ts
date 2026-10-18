@@ -72,15 +72,31 @@ const services: FetchLike = async (url, init) => {
   if (url.includes('systemone')) {
     const text = String((body.state as { text: string }).text);
     const lines = new Map(unitsOf(text));
-    const answers: Record<string, { noul: number }> = {};
-    for (const key of Object.keys(body.questions as object)) {
-      const [, n, label] = /^u(\d+)__(.+)$/.exec(key) ?? [];
-      const line = lines.get(Number(n)) ?? '';
-      // Sure of a prohibition for "Never" and of a rule for a clear imperative, unsure of "Close", sure of
-      // nothing for the rest.
-      const wanted = line.startsWith('Never') ? 'prohibition' : 'rule';
-      const p = label === wanted && imperative.test(line) ? (line.startsWith('Close') ? 0.4 : 0.9) : 0.02;
-      answers[key] = { noul: p };
+    const answers: Record<string, unknown> = {};
+    for (const [key, question] of Object.entries(
+      body.questions as Record<string, { criteria: Record<string, string> }>,
+    )) {
+      const line = lines.get(Number(key.slice(1))) ?? '';
+      // Sure of a prohibition for "Never" and of a rule for a clear imperative, torn on "Close", and sure
+      // of none for the rest.
+      const wanted = line.startsWith('Never') ? 'prohibition' : imperative.test(line) ? 'rule' : 'none';
+      const close = line.startsWith('Close');
+      const options = Object.keys(question.criteria);
+      const rest = options.length - 1;
+      const probabilities: Record<string, number> = {};
+      for (const option of options) {
+        // A vector: the probabilities of the options sum to 1.
+        probabilities[option] = close
+          ? option === 'rule'
+            ? 0.45
+            : option === 'none'
+              ? 0.4
+              : 0.15 / (rest - 1)
+          : option === wanted
+            ? 0.9
+            : 0.1 / rest;
+      }
+      answers[key] = { type: 'choice', choice: wanted, confidence: 0.9, probabilities };
     }
     return json({ model: 'jev-fake', answers, usage: { input_tokens: 1000, output_tokens: 10 } });
   }
@@ -130,7 +146,7 @@ describe('driftbench estate scan --pointer', () => {
     expect(recorded.out).toMatch(
       /system 1 jev jev-latest: 3 requests, 0 in the cassette, \d+ characters to send\./,
     );
-    expect(recorded.out).toMatch(/system 2 anthropic claude-haiku-5-5: 3 requests, 0 in the cassette/);
+    expect(recorded.out).toMatch(/system 2 anthropic claude-haiku-5-5: 9 requests, 0 in the cassette/);
     expect(recorded.out).toContain(
       'Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5',
     );
@@ -139,10 +155,11 @@ describe('driftbench estate scan --pointer', () => {
     );
     expect(recorded.out).toContain('Tokens, system 1 jev jev-latest: 3000 in, 30 out, 3 requests sent.');
     expect(recorded.out).toContain(
-      'Tokens, system 2 anthropic claude-haiku-5-5: 1500 in, 150 out, 3 requests sent.',
+      'Tokens, system 2 anthropic claude-haiku-5-5: 4500 in, 450 out, 9 requests sent.',
     );
     const cassette = pointer.Cassette.parse(await readFile(join(root, 'cassette.jsonl'), 'utf8'));
-    expect(cassette.entries.size).toBe(6);
+    // Three windows for system 1, and three runs of each for system 2.
+    expect(cassette.entries.size).toBe(12);
     // The file on disk is the sorted one, whatever the order the answers arrived in.
     expect(await readFile(join(root, 'cassette.jsonl'), 'utf8')).toBe(cassette.render());
 

@@ -191,8 +191,18 @@ function follow(old: readonly LedgerEntry[], fresh: readonly Fresh[]): Map<strin
   const openOld = () => old.filter((entry) => !result.has(entry.id));
   const openNew = () => fresh.filter((item) => !used.has(item));
 
+  // A short text names little: it keeps its id across files only when it is the only unit with that text in the
+  // old estate and in the new one. A short text that repeats falls back to the scored pass in its own file.
+  const count = (list: ReadonlyArray<{ fp: string }>, fp: string): number =>
+    list.filter((item) => item.fp === fp).length;
   for (const entry of openOld()) {
-    if (entry.quote.length < LADDER.exactFloor) continue;
+    const unique =
+      count(old, entry.fp) === 1 &&
+      count(
+        fresh.map((item) => item.unit),
+        entry.fp,
+      ) === 1;
+    if (entry.quote.length < LADDER.exactFloor && !unique) continue;
     const hits = openNew().filter((item) => item.unit.fp === entry.fp);
     if (hits.length === 1 && hits[0]) {
       result.set(entry.id, { event: 'moved', to: hits });

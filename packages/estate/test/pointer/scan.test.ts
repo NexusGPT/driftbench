@@ -420,3 +420,108 @@ describe('the plan and the cassette file', () => {
     expect(seen.sort()).toEqual(['office.md#1', 'office.md#1', 'quay.md#1', 'quay.md#1']);
   });
 });
+
+describe('a labeler that answers several times', () => {
+  const order = (window: Window): Labelled[] => [{ units: `1-${window.units.length}`, label: 'order' }];
+  /** Answers `order` on every unit, except that the given run calls say `remark` for the first unit. */
+  const wavering = (differ: (call: number, window: Window) => boolean) => {
+    const calls = new Map<string, number>();
+    return plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        if (!differ(call, window) || window.units.length < 2) return order(window);
+        return [
+          { units: '1', label: 'remark' },
+          { units: `2-${window.units.length}`, label: 'order' },
+        ];
+      },
+      [],
+      { runs: 3 },
+    );
+  };
+  const duty = (labeler: Labeler, cassette: Cassette) =>
+    pointerScan(input(labeler, cassette, { sets: load(SETS).slice(0, 1) }));
+
+  it('asks every window once per run and records each run as its own answer', async () => {
+    const cassette = new Cassette();
+    const result = await duty(
+      wavering(() => false),
+      cassette,
+    );
+    // Two files, one window each, three runs.
+    expect(result.windows).toBe(6);
+    expect(cassette.entries.size).toBe(6);
+    expect(result.plan.members[0]?.windows).toBe(6);
+    expect(result.unlabeled).toBe(0);
+  });
+
+  it('takes a label only when every run gives it', async () => {
+    // The third run of the quay says remark for its first unit.
+    const result = await duty(
+      wavering((call, window) => call === 3 && window.path === 'quay.md'),
+      new Cassette(),
+    );
+    expect(result.unlabeled).toBe(1);
+    expect(result.split).toBe(1);
+    const quay = result.ledger.entries.filter((entry) => entry.path === 'quay.md');
+    expect(quay.filter((entry) => entry.labels.duty === undefined)).toHaveLength(1);
+    expect(quay.filter((entry) => entry.labels.duty?.label === 'order').length).toBe(quay.length - 1);
+  });
+
+  it('leaves a unit unlabeled when a run does not name it, and does not call that a split', async () => {
+    const calls = new Map<string, number>();
+    const labeler = plantedDense(
+      (window) => {
+        const call = (calls.get(window.path) ?? 0) + 1;
+        calls.set(window.path, call);
+        // The second run of the office leaves its last unit out.
+        const left =
+          call === 2 && window.path === 'office.md' ? window.units.length - 1 : window.units.length;
+        return [{ units: `1-${left}`, label: 'order' }];
+      },
+      [],
+      { runs: 3 },
+    );
+    const result = await duty(labeler, new Cassette());
+    expect(result.unlabeled).toBe(1);
+    expect(result.split).toBe(0);
+  });
+
+  it('replays the runs from the cassette with no call', async () => {
+    const cassette = new Cassette();
+    const first = await duty(
+      wavering(() => false),
+      cassette,
+    );
+    const second = await pointerScan(
+      input(replayOf(wavering(() => false)), Cassette.parse(cassette.render()), {
+        sets: load(SETS).slice(0, 1),
+        mode: 'replay',
+      }),
+    );
+    expect(second.calls).toBe(0);
+    expect(renderLedger(second.ledger)).toBe(renderLedger(first.ledger));
+  });
+});
+
+describe('what the cassette key holds', () => {
+  it('misses in replay when only the model of the labeler changed, which the body does not hold', async () => {
+    const recorded = new Cassette();
+    await pointerScan(input(plantedDense(byLength, [], { model: 'model-a' }), recorded));
+    await expect(
+      pointerScan(
+        input(replayOf(plantedDense(byLength, [], { model: 'model-b' })), recorded, { mode: 'replay' }),
+      ),
+    ).rejects.toThrow(/differs in: .*model/);
+  });
+
+  it('misses in replay when only the polarity of a label atom changed', async () => {
+    const recorded = new Cassette();
+    await pointerScan(input(plantedDense(byLength), recorded));
+    const edited = load(SETS.replace('polarity: obligation', 'polarity: prohibition'));
+    await expect(
+      pointerScan(input(replayOf(plantedDense(byLength)), recorded, { sets: edited, mode: 'replay' })),
+    ).rejects.toThrow(/differs in: .*setHash/);
+  });
+});

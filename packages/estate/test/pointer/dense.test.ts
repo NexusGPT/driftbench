@@ -4,6 +4,7 @@ import {
   AGENT_RULES_SET,
   createAnthropicLabeler,
   DENSE_SYSTEM,
+  denseLabels,
   denseOpinions,
   denseUser,
   LabelerError,
@@ -53,6 +54,11 @@ describe('reading a dense answer', () => {
   it('reads JSON, in one code fence or bare', () => {
     expect(parseDenseAnswer(good)).toEqual([{ units: '1-2', label: 'greeting' }]);
     expect(parseDenseAnswer(`\`\`\`json\n${good}\n\`\`\``)).toHaveLength(1);
+  });
+
+  it('keeps a target that is no number as written, so the check can refuse and count it', () => {
+    const labels = denseLabels({ labels: [{ units: '1', label: 'gate', target: '3' }] });
+    expect(labels[0]?.target).toBe('3');
   });
 
   it('refuses text that is not JSON, a missing list, and an entry without units or label', () => {

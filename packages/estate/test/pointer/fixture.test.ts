@@ -13,7 +13,13 @@ import { FIXTURE, NOW } from '../support';
  */
 async function replay(
   specs: readonly string[] = pointer.DEFAULT_LABELER_SPECS,
-  options: { cassette?: string; threshold?: number; passAt?: number; failAt?: number } = {},
+  options: {
+    cassette?: string;
+    threshold?: number;
+    passAt?: number;
+    failAt?: number;
+    marginCut?: number;
+  } = {},
 ) {
   const sets = pointer.parseLabelSets(pointer.AGENT_RULES_SET);
   if (!sets.ok) throw new Error(sets.message);
@@ -29,6 +35,7 @@ async function replay(
     ...(options.threshold === undefined ? {} : { threshold: options.threshold }),
     ...(options.passAt === undefined ? {} : { passAt: options.passAt }),
     ...(options.failAt === undefined ? {} : { failAt: options.failAt }),
+    ...(options.marginCut === undefined ? {} : { marginCut: options.marginCut }),
   });
   if (!built.ok) throw new Error(built.message);
   const cassette = pointer.Cassette.parse(
@@ -44,16 +51,20 @@ async function replay(
 }
 
 describe('the fixture through its committed cassettes', () => {
-  it('replays the default stack with no call and no miss, and leaves no unit unlabeled', async () => {
+  it('replays the default stack with no call and no miss, and accounts for every unit', async () => {
     const { result, cassette } = await replay();
     expect(result.pointer?.calls).toBe(0);
     expect(result.pointer?.failed).toEqual([]);
     expect(result.pointer?.refusals).toEqual([]);
     expect(result.pointer?.atomRefusals).toEqual([]);
-    expect(result.pointer?.unlabeled).toBe(0);
-    // Every answer of the cassette is read: one request per window and labeler.
+    // A unit is decided, or left unlabeled because system 2 did not give it one label on every run.
+    expect(result.pointer?.unlabeled).toBeGreaterThan(0);
+    expect(result.pointer?.split).toBeGreaterThan(0);
+    expect((result.pointer?.decided ?? 0) + (result.pointer?.unlabeled ?? 0)).toBe(
+      result.pointer?.plan.units,
+    );
+    // Every answer of the cassette is read: one request per window, labeler and run.
     expect(cassette.entries.size).toBe(result.pointer?.windows);
-    expect(result.pointer?.decided).toBe(result.pointer?.plan.units);
     expect(result.pointer?.decidedBy.system1).toBeGreaterThan(0);
     expect(result.pointer?.decidedBy.system2).toBeGreaterThan(0);
   });
@@ -108,29 +119,43 @@ describe('the fixture through its committed cassettes', () => {
   it('replays each class alone from the same cassette', async () => {
     const one = await replay(['system1:jev']);
     const two = await replay(['system2:anthropic']);
-    for (const run of [one, two]) {
-      expect(run.result.pointer?.calls).toBe(0);
-      expect(run.result.pointer?.unlabeled).toBe(0);
-    }
+    expect(one.result.pointer?.calls).toBe(0);
+    expect(two.result.pointer?.calls).toBe(0);
+    expect(one.result.pointer?.unlabeled).toBe(0);
+    // System 2 alone leaves unlabeled the units its runs split on, and only those.
+    expect(two.result.pointer?.unlabeled).toBeGreaterThan(0);
+    expect(two.result.pointer?.unlabeled).toBe(two.result.pointer?.split);
     expect(one.result.pointer?.decidedBy).toEqual({ system1: one.result.pointer?.decided, system2: 0 });
     expect(two.result.pointer?.decidedBy).toEqual({ system1: 0, system2: two.result.pointer?.decided });
   });
 
-  it('changes the atoms with the threshold and the bounds, from the same cassette, with no call', async () => {
-    const loose = await replay(['system1:jev'], { threshold: 0.3 });
-    const strict = await replay(['system1:jev'], { threshold: 0.9 });
-    expect(strict.result.pointer?.atoms).toBeLessThan(loose.result.pointer?.atoms ?? 0);
-    // A pass-at of 1 and a fail-at of 0 leave nothing sure: system 2 alone decides, as when it runs alone.
-    const handed = await replay(pointer.DEFAULT_LABELER_SPECS, { passAt: 1, failAt: 0 });
+  it('moves units between the classes with the margin cut, from the same cassette, with no call', async () => {
+    const stack = await replay();
+    const keepAll = await replay(pointer.DEFAULT_LABELER_SPECS, { marginCut: 0 });
+    const sendAll = await replay(pointer.DEFAULT_LABELER_SPECS, { marginCut: 1.1 });
+    // A cut of 0 leaves every unit to system 1; a cut above 1 leaves every unit to system 2, as when it runs alone.
+    expect(keepAll.result.pointer?.decidedBy.system2).toBe(0);
+    expect(sendAll.result.pointer?.decidedBy.system1).toBe(0);
+    expect(stack.result.pointer?.decidedBy.system1).toBeGreaterThan(0);
+    expect(stack.result.pointer?.decidedBy.system1).toBeLessThan(
+      keepAll.result.pointer?.decidedBy.system1 ?? 0,
+    );
     const alone = await replay(['system2:anthropic']);
-    expect(handed.result.pointer?.decidedBy.system1).toBe(0);
-    expect(handed.result.pointer?.labelled.map((item) => [item.id, item.label])).toEqual(
+    expect(sendAll.result.pointer?.labelled.map((item) => [item.id, item.label])).toEqual(
       alone.result.pointer?.labelled.map((item) => [item.id, item.label]),
     );
   });
 
+  it('decides by the probability bounds when they are given, from the same cassette', async () => {
+    const wide = await replay(pointer.DEFAULT_LABELER_SPECS, { passAt: 0.5, failAt: 0.1 });
+    const narrow = await replay(pointer.DEFAULT_LABELER_SPECS, { passAt: 1, failAt: 0 });
+    expect(narrow.result.pointer?.decidedBy.system1).toBeLessThan(
+      wide.result.pointer?.decidedBy.system1 ?? 0,
+    );
+  });
+
   it('replays the system 1 labeler asked one unit at a time: a request per unit', async () => {
-    const run = await replay(['system1:jev-unit'], { cassette: 'cassette-jev-unit.jsonl', threshold: 0.7 });
+    const run = await replay(['system1:jev-unit'], { cassette: 'cassette-jev-unit.jsonl' });
     expect(run.result.pointer?.calls).toBe(0);
     expect(run.result.pointer?.unlabeled).toBe(0);
     expect(run.cassette.entries.size).toBe(run.result.pointer?.plan.units);

@@ -21,6 +21,8 @@ const FILES = {
     '- Hang the lamp before dusk',
     "- Reply in the skipper's language",
     '- Never leave the gate open',
+    '- On foggy nights only',
+    '- And never in a gale',
     '',
   ].join('\n'),
   '.claude/skills/moorings/SKILL.md': [
@@ -58,6 +60,10 @@ const SETS = `labels:
         atom: { kind: tool }
       - name: remark
         description: A unit that states how things are.
+      - name: when
+        description: A unit that states when another unit applies.
+        target: required
+        condition: true
 `;
 
 function setsOf(text = SETS) {
@@ -200,5 +206,91 @@ describe('atoms from labels', () => {
     const { result } = await scan({});
     expect(result.chunks).toEqual([]);
     expect(result.pointer?.windows).toBeGreaterThan(0);
+  });
+
+  describe('conditions', () => {
+    // Units of CLAUDE.md: 1 heading, 2 sentence, 3-5 items (lamp, language, gate), 6-7 items (fog, gale).
+    it('puts the unit a condition label points from into the situation of the atom of its target', async () => {
+      const { result } = await scan({
+        'CLAUDE.md': [
+          { units: '3', label: 'order' },
+          { units: '6', label: 'when', target: 3 },
+        ],
+      });
+      const mine = result.map.atoms.filter((atom) => atom.fields?.extraction === 'pointer');
+      expect(mine).toHaveLength(1);
+      const atom = mine[0] as (typeof mine)[number];
+      // The quote stays the rule; the condition is the situation, and neither is a word of the labeler.
+      expect(atom.provenance.quote).toBe('Hang the lamp before dusk');
+      expect(atom.situation).toBe('On foggy nights only');
+      const units = result.pointer?.ledger.entries.filter((entry) => entry.quote === 'On foggy nights only');
+      expect(atom.fields?.condition).toEqual([units?.[0]?.id]);
+      expect(atom.evidence).toEqual([
+        {
+          type: 'custom',
+          name: 'prose_pointer',
+          options: {
+            reviewRequired: true,
+            unit: atom.fields?.unit,
+            set: 'duty',
+            label: 'order',
+            condition: [units?.[0]?.id],
+          },
+        },
+      ]);
+    });
+
+    it('builds no atom of its own from a condition', async () => {
+      const { result } = await scan({
+        'CLAUDE.md': [
+          { units: '3', label: 'order' },
+          { units: '6', label: 'when', target: 3 },
+        ],
+      });
+      expect(result.map.atoms.filter((atom) => atom.fields?.label === 'when')).toEqual([]);
+    });
+
+    it('joins several conditions of one target in file order', async () => {
+      const { result } = await scan({
+        'CLAUDE.md': [
+          { units: '3', label: 'order' },
+          { units: '7', label: 'when', target: 3 },
+          { units: '6', label: 'when', target: 3 },
+        ],
+      });
+      const atom = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      expect(atom?.situation).toBe('On foggy nights only And never in a gale');
+    });
+
+    it('gives a gate the condition of its first unit', async () => {
+      const { result } = await scan({
+        'CLAUDE.md': [
+          { units: '3', label: 'pair', target: 5 },
+          { units: '6', label: 'when', target: 3 },
+        ],
+      });
+      const atom = result.map.atoms.find((candidate) => candidate.kind === 'gate');
+      expect(atom?.situation).toBe('On foggy nights only');
+    });
+
+    it('lists a condition whose target holds no atom, and builds nothing from it', async () => {
+      const { result } = await scan({
+        'CLAUDE.md': [
+          { units: '2', label: 'remark' },
+          { units: '6', label: 'when', target: 2 },
+        ],
+      });
+      expect(result.map.atoms.some((atom) => atom.fields?.extraction === 'pointer')).toBe(false);
+      expect(result.pointer?.atomRefusals).toEqual([
+        expect.stringContaining('the condition points at a unit that holds no atom'),
+      ]);
+    });
+
+    it('leaves an atom without a situation when no condition points at it', async () => {
+      const { result } = await scan({ 'CLAUDE.md': [{ units: '3', label: 'order' }] });
+      const atom = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      expect(atom?.situation).toBeUndefined();
+      expect(atom?.fields).not.toHaveProperty('condition');
+    });
   });
 });

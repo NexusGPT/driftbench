@@ -25,6 +25,12 @@ function labelLine(label: Label): string {
 }
 
 /** The fixed text of the dense request. */
+/**
+ * The runs of a system 2 labeler. A chat model cannot be pinned to one answer, so the same window is asked this
+ * many times and a unit takes a label only when every run gives it (the stack specification: three runs, unanimous).
+ */
+export const DEFAULT_RUNS = 3;
+
 export const DENSE_SYSTEM =
   'You label numbered units of a document. For each unit give exactly one label from the list, or none. ' +
   'Answer with JSON only, no other text: {"labels": [{"units": "<n> or <a>-<b>", "label": "<name>"}]}. ' +
@@ -97,10 +103,11 @@ export function denseLabels(value: unknown): Labelled[] {
       throw new LabelerError('a label entry is not {units, label}');
     }
     const target = entry.target;
+    // A target that is no number is kept as written, so the check refuses it and the scan counts the refusal.
     out.push({
       units: String(entry.units),
       label: entry.label,
-      ...(typeof target === 'number' ? { target } : {}),
+      ...(target === undefined || target === null ? {} : { target: target as number }),
     });
   }
   return out;
@@ -128,6 +135,8 @@ export type AnthropicLabelerOptions = HttpOptions & {
   key?: string;
   baseUrl?: string;
   maxTokens?: number;
+  /** How many times a window is asked. A unit takes a label only when every run gives it the same one. */
+  runs?: number;
   /** Hidden reasoning before the answer. Off by default: labelling a numbered window needs none, and it costs output tokens. */
   thinking?: 'off' | 'default';
 };
@@ -145,6 +154,7 @@ export function createAnthropicLabeler(options: AnthropicLabelerOptions = {}): L
     cls: 'system2',
     family: 'anthropic',
     model,
+    runs: options.runs ?? DEFAULT_RUNS,
     settings: {},
     maxUnits: (_set, wanted) => wanted,
     render: (set, window) => ({

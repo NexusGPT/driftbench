@@ -4,6 +4,7 @@ import {
   Cassette,
   DEFAULT_FAIL_AT,
   DEFAULT_LABELER_SPECS,
+  DEFAULT_MARGIN_CUT,
   DEFAULT_PASS_AT,
   margin,
   type Opinion,
@@ -91,7 +92,26 @@ describe('building a labelling', () => {
     ]);
     expect(built.labelling.members.every((member) => member.call === undefined)).toBe(true);
     expect(built.labelling.describe).toContain('system 1 jev');
-    expect(built.labelling.describe).toContain(`pass at ${DEFAULT_PASS_AT}, fail at ${DEFAULT_FAIL_AT}`);
+    // A choice model gives a vector, so the default stack reads the margin between its two likeliest labels.
+    expect(built.labelling.describe).toContain(`margin cut ${DEFAULT_MARGIN_CUT}`);
+  });
+
+  it('decides by the probability bounds when the caller sets them, or when system 1 answers yes or no', async () => {
+    const bounded = await buildLabelling(specs(DEFAULT_LABELER_SPECS), {
+      env,
+      record: false,
+      cwd: '.',
+      passAt: 0.8,
+    });
+    if (!bounded.ok) throw new Error(bounded.message);
+    expect(bounded.labelling.describe).toContain(`pass at 0.8, fail at ${DEFAULT_FAIL_AT}`);
+    const yesNo = await buildLabelling(specs(['system1:openai-decisions:d-1', 'system2:anthropic']), {
+      env,
+      record: false,
+      cwd: '.',
+    });
+    if (!yesNo.ok) throw new Error(yesNo.message);
+    expect(yesNo.labelling.describe).toContain(`pass at ${DEFAULT_PASS_AT}, fail at ${DEFAULT_FAIL_AT}`);
   });
 
   it('puts system 1 first, whatever the order of the specs', async () => {
@@ -175,7 +195,7 @@ describe('building a labelling', () => {
   it('changes the hash with the bounds, the threshold and the clients, and with nothing else', async () => {
     const hash = async (
       texts: readonly string[],
-      over: { passAt?: number; failAt?: number; threshold?: number } = {},
+      over: { passAt?: number; failAt?: number; threshold?: number; marginCut?: number } = {},
     ) => {
       const built = await buildLabelling(specs(texts), { env, record: false, cwd: '.', ...over });
       if (!built.ok) throw new Error(built.message);
@@ -185,9 +205,26 @@ describe('building a labelling', () => {
     expect(await hash(DEFAULT_LABELER_SPECS)).toBe(base);
     expect(await hash(DEFAULT_LABELER_SPECS, { passAt: 0.8 })).not.toBe(base);
     expect(await hash(DEFAULT_LABELER_SPECS, { failAt: 0.2 })).not.toBe(base);
-    expect(await hash(DEFAULT_LABELER_SPECS, { threshold: 0.5 })).not.toBe(base);
+    expect(await hash(DEFAULT_LABELER_SPECS, { marginCut: 0.5 })).not.toBe(base);
+    // The threshold is a setting of a yes or no model; a choice model has none.
+    expect(await hash(DEFAULT_LABELER_SPECS, { threshold: 0.5 })).toBe(base);
+    const decisions = ['system1:openai-decisions:d-1', 'system2:anthropic'];
+    expect(await hash(decisions, { threshold: 0.5 })).not.toBe(await hash(decisions));
     expect(await hash(['system2:anthropic'])).not.toBe(base);
     expect(await hash(['system2:anthropic:claude-opus-5-5'])).not.toBe(await hash(['system2:anthropic']));
+  });
+
+  it('refuses a margin cut for a system 1 labeler that does not answer a choice question', async () => {
+    const built = await buildLabelling(specs(['system1:openai-decisions:d-1', 'system2:anthropic']), {
+      env,
+      record: false,
+      cwd: '.',
+      marginCut: 0.5,
+    });
+    expect(built).toEqual({
+      ok: false,
+      message: expect.stringContaining('needs a system 1 labeler that answers a choice question'),
+    });
   });
 });
 
@@ -250,7 +287,8 @@ describe('a stack decides as a cascade', () => {
       by: 'system2',
       fallback: true,
     });
-    expect(stack.decide([one('order', { order: 0.5, remark: 0 }), undefined], DUTY)).toMatchObject({
+    // System 1 alone decides only a unit it is sure of; the sure label is the label of a fallback.
+    expect(stack.decide([one('order', { order: 0.9, remark: 0 }), undefined], DUTY)).toMatchObject({
       label: 'order',
       by: 'system1',
       fallback: true,
@@ -260,6 +298,12 @@ describe('a stack decides as a cascade', () => {
       stack.decide([one('order', { order: 0.95, remark: 0 }), two('none')], DUTY)?.fallback,
     ).toBeUndefined();
     expect(stack.decide([undefined, undefined], DUTY)).toBeUndefined();
+  });
+
+  it('leaves a unit unlabeled when system 1 is unsure and system 2 gave no opinion', () => {
+    // 0.5 sits between the bounds: system 1's label is uncertain and is never taken in place of system 2's.
+    expect(stack.decide([one('order', { order: 0.5, remark: 0 }), undefined], DUTY)).toBeUndefined();
+    expect(stack.decide([one('none', { order: 0.3, remark: 0.1 }), undefined], DUTY)).toBeUndefined();
   });
 
   it('lists the cassette keys the label comes from', () => {
@@ -399,6 +443,32 @@ describe('a stack in a scan', () => {
   });
 });
 
+describe('a margin stack with no system 2 opinion', () => {
+  const first = plantedYesNo(() => ({}), [], { threshold: 0.4 });
+  const second = plantedDense(() => []);
+  const stack = stackedLabelling(first, second, { passAt: 0.9, failAt: 0.1, marginCut: 0.65 });
+  const choice = (p: Record<string, number>): Opinion => ({
+    label: 'order',
+    probabilities: p,
+    source: 'aaaaaaaaaaaa',
+  });
+
+  it('keeps a unit system 1 is clear about, and leaves an unclear one unlabeled', () => {
+    expect(stack.decide([choice({ order: 0.9, remark: 0.05, none: 0.05 }), undefined], DUTY)).toMatchObject({
+      label: 'order',
+      by: 'system1',
+    });
+    expect(stack.decide([choice({ order: 0.5, remark: 0.4, none: 0.1 }), undefined], DUTY)).toBeUndefined();
+  });
+
+  it('treats a vector that does not sum to 1 as unsure, and leaves the unit to system 2', () => {
+    expect(
+      stack.decide([choice({ order: 0.9, remark: 0.9, none: 0.9 }), { label: 'remark' }], DUTY),
+    ).toMatchObject({ label: 'remark', by: 'system2' });
+    expect(stack.decide([choice({ order: 0.9, remark: 0.9, none: 0.9 }), undefined], DUTY)).toBeUndefined();
+  });
+});
+
 describe('a stack that decides by margin', () => {
   const first = plantedYesNo(() => ({}), [], { threshold: 0.4 });
   const second = plantedDense(() => []);
@@ -410,28 +480,38 @@ describe('a stack that decides by margin', () => {
   });
   const two = (label: string): Opinion => ({ label, source: 'bbbbbbbbbbbb' });
 
-  it('measures the margin over the labels and an implicit none, normalised', () => {
-    // 0.9 + 0.05 asked, so none takes 0.05: the vector is 0.9, 0.05, 0.05.
-    expect(margin({ order: 0.9, remark: 0.05 })).toEqual({ label: 'order', margin: expect.closeTo(0.85, 5) });
-    // Nothing is likely: none leads with 0.96 against 0.02, a margin of 0.94.
-    expect(margin({ order: 0.02, remark: 0.02 })).toEqual({ label: 'none', margin: expect.closeTo(0.94, 5) });
-    // Two labels close together: a small margin.
-    expect(margin({ order: 0.5, remark: 0.45 }).margin).toBeCloseTo(0.05, 5);
-    // Both certain: the sum passes 1 and the vector is normalised.
-    expect(margin({ order: 1, remark: 1 }).margin).toBe(0);
+  it('measures the margin over the options, none included, and never normalises', () => {
+    expect(margin({ order: 0.9, remark: 0.05, none: 0.05 })).toEqual({
+      label: 'order',
+      margin: expect.closeTo(0.85, 5),
+    });
+    expect(margin({ order: 0.02, remark: 0.02, none: 0.96 })).toEqual({
+      label: 'none',
+      margin: expect.closeTo(0.94, 5),
+    });
+    expect(margin({ order: 0.5, remark: 0.45, none: 0.05 })?.margin).toBeCloseTo(0.05, 5);
+    // Not a vector: no margin, and no repair.
+    expect(margin({ order: 1, remark: 1, none: 0 })).toBeUndefined();
+    expect(margin({ order: 0.9, remark: 0.05 })).toBeUndefined();
   });
 
   it('lets system 1 decide a clear unit, and system 2 every unit below the cut', () => {
-    expect(stack.decide([one('order', { order: 0.9, remark: 0.05 }), two('remark')], DUTY)).toMatchObject({
+    expect(
+      stack.decide([one('order', { order: 0.9, remark: 0.05, none: 0.05 }), two('remark')], DUTY),
+    ).toMatchObject({
       label: 'order',
       by: 'system1',
     });
-    expect(stack.decide([one('none', { order: 0.5, remark: 0.45 }), two('remark')], DUTY)).toMatchObject({
+    expect(
+      stack.decide([one('none', { order: 0.5, remark: 0.45, none: 0.05 }), two('remark')], DUTY),
+    ).toMatchObject({
       label: 'remark',
       by: 'system2',
     });
     // A unit nothing fits is clear: none, decided by system 1.
-    expect(stack.decide([one('none', { order: 0.02, remark: 0.02 }), two('order')], DUTY)).toMatchObject({
+    expect(
+      stack.decide([one('none', { order: 0.02, remark: 0.02, none: 0.96 }), two('order')], DUTY),
+    ).toMatchObject({
       label: 'none',
       by: 'system1',
     });

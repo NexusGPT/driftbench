@@ -17,7 +17,13 @@ export function load(text: string): LabelSet[] {
   return parsed.sets;
 }
 
-type Options = { id?: string; fail?: (window: Window) => Error | undefined; delay?: number };
+type Options = {
+  id?: string;
+  fail?: (window: Window) => Error | undefined;
+  delay?: number;
+  runs?: number;
+  model?: string;
+};
 
 /** A system 2 labeler that answers from a table of its own, and keeps a log of the windows it was asked about. */
 export function plantedDense(
@@ -30,7 +36,8 @@ export function plantedDense(
     id,
     cls: 'system2',
     family: 'planted',
-    model: 'planted-1',
+    model: options.model ?? 'planted-1',
+    ...(options.runs ? { runs: options.runs } : {}),
     settings: {},
     maxUnits: (_set, wanted) => wanted,
     render: (set, window) => ({
