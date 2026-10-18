@@ -1,8 +1,18 @@
 import type { RunMode } from '../schema/run';
 import type { PerturbationSpec, Spec } from '../schema/spec';
 import { isPlainObject } from '../spec/normalize';
+import { parentOrder } from '../spec/parents';
 import { type Change, type ChangeManifest, changeLabel } from './change';
 import { type BlockDependencies, blockDependencies } from './depends';
+import { hasValidatedPromptNoop } from './prompt-provenance';
+import type { SectionRegistry } from './sections';
+import {
+  type ParentRef,
+  SECTION_SELECTION_ADVISORY,
+  type SectionSelection,
+  sectionChanges,
+  sectionSelection,
+} from './select';
 
 /**
  * The blast radius of a change manifest over a set of specs: the blocks the change can affect.
@@ -24,6 +34,10 @@ export type RadiusOptions = {
   modes?: readonly RunMode[];
   /** True when the spec runs in a sandbox, where a T block keeps the workspace of the block before. Default: a task spec. */
   sandbox?: (spec: Spec) => boolean;
+  /** Section registries: with them, a manifest's `prompt_section` changes get an advisory section selection. */
+  sections?: readonly SectionRegistry[];
+  /** The parent block a spec starts from, for the advisory forward closure. Default: `given.parent` of block 0. */
+  parentOf?: (spec: Spec) => ParentRef | undefined;
 };
 
 export type BlockState = 'direct' | 'forward' | 'out';
@@ -78,6 +92,11 @@ export type RadiusReport = {
   whole: { change: string; reason: string } | null;
   specs: RadiusSpecReport[];
   totals: Partial<Record<RunMode, RadiusCount>>;
+  /**
+   * What selection by section links would run for the manifest's `prompt_section` changes. Advisory: the
+   * radius above is the whole suite and nothing is skipped. Present only with `sections`.
+   */
+  advisory?: SectionSelection;
 };
 
 const deviationMatches = (carried: string | undefined, id: string): boolean =>
@@ -159,6 +178,9 @@ function matcher(change: Change): { match: Match; needs?: 'cell' | 'atoms' } | W
     case 'criterion':
       if (id === undefined) return { whole: 'a criterion change names no criterion' };
       return { match: (d) => d.criteria.includes(id) };
+    case 'prompt_section':
+      // Selection by section links is advisory (select.ts): the whole suite runs until links are verified.
+      return { whole: SECTION_SELECTION_ADVISORY };
     default:
       return { whole: `the kind ${change.kind} is not one the radius can map` };
   }
@@ -260,7 +282,7 @@ export function radiusOf(
   );
 
   let whole: RadiusReport['whole'] = null;
-  if (manifest.changes.length === 0 && manifest.from !== manifest.to) {
+  if (manifest.changes.length === 0 && manifest.from !== manifest.to && !hasValidatedPromptNoop(manifest)) {
     whole = { change: '(none)', reason: 'the manifest lists no change between two different versions' };
   }
   const selectors: { label: string; match: Match; needs?: 'cell' | 'atoms' }[] = [];
@@ -303,6 +325,14 @@ export function radiusOf(
       why: whole ? [`whole:${whole.change}`] : reasons(deps[index] as BlockDependencies),
       state: {},
     }));
+    const linked = spec.blocks.some((block) => block.parent !== undefined);
+    const inherited = new Set<number>();
+    const byId = new Map(spec.blocks.map((block, index) => [block.id, index]));
+    for (const index of parentOrder(spec).order) {
+      const parent = spec.blocks[index]?.parent;
+      const at = parent === undefined ? undefined : byId.get(parent);
+      if (at !== undefined && ((blocks[at]?.why.length ?? 0) > 0 || inherited.has(at))) inherited.add(index);
+    }
     const first = blocks.findIndex((block) => block.why.length > 0);
     const cells: RadiusCell[] = [];
     for (const mode of modes) {
@@ -311,17 +341,30 @@ export function radiusOf(
         let until = -1;
         for (const block of blocks) {
           const direct = block.why.length > 0;
-          if (direct && sandbox(spec)) until = Math.max(until, workspaceReset(spec, block.index + 1));
-          block.state.T = direct ? 'direct' : block.index < until ? 'forward' : 'out';
+          if (direct && sandbox(spec) && !linked)
+            until = Math.max(until, workspaceReset(spec, block.index + 1));
+          block.state.T = direct
+            ? 'direct'
+            : inherited.has(block.index) || block.index < until
+              ? 'forward'
+              : 'out';
         }
-        cells.push({ mode, in: first >= 0, why: first >= 0 ? (blocks[first]?.why ?? []) : [] });
+        cells.push({
+          mode,
+          in: first >= 0 || inherited.size > 0,
+          why: first >= 0 ? (blocks[first]?.why ?? []) : [],
+        });
         continue;
       }
       const origin = first >= 0 ? (blocks[first]?.why ?? []) : [];
       if (mode === 'F') {
         for (const block of blocks) {
           block.state.F =
-            block.why.length > 0 ? 'direct' : first >= 0 && block.index > first ? 'forward' : 'out';
+            block.why.length > 0
+              ? 'direct'
+              : inherited.has(block.index) || (!linked && first >= 0 && block.index > first)
+                ? 'forward'
+                : 'out';
         }
         cells.push({ mode, in: first >= 0, why: origin });
         continue;
@@ -342,7 +385,12 @@ export function radiusOf(
       }
       if (list.length === 0) cells.push({ mode, in: first >= 0, why: origin });
       for (const block of blocks) {
-        block.state.P = block.why.length > 0 ? 'direct' : block.index >= start ? 'forward' : 'out';
+        block.state.P =
+          block.why.length > 0
+            ? 'direct'
+            : inherited.has(block.index) || (!linked && block.index >= start)
+              ? 'forward'
+              : 'out';
       }
     }
     return { specId: spec.id, hash, ...(path === undefined ? {} : { path }), blocks, cells };
@@ -377,11 +425,16 @@ export function radiusOf(
     totals[mode] = count;
   }
 
+  const advisory =
+    options.sections !== undefined && sectionChanges(manifest).length > 0
+      ? sectionSelection(specs, manifest, options.sections, { parentOf: options.parentOf })
+      : undefined;
   return {
     manifest: { from: manifest.from, to: manifest.to, changes: manifest.changes.map(changeLabel) },
     modes,
     whole,
     specs: reports,
     totals,
+    ...(advisory === undefined ? {} : { advisory }),
   };
 }

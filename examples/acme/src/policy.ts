@@ -85,7 +85,8 @@ export type CallTool = (label: ToolLabel, input: ToolInput) => ToolOutcome;
 
 /**
  * A guardrail of the policy that fired in a turn. `explicit_confirmation` passes when the CONFIRM token
- * places the order and blocks a loose yes; `instruction_in_data` blocks an instruction hidden in a message.
+ * places the order and blocks a loose yes; `instruction_in_data` blocks an instruction hidden in what the
+ * agent reads: the customer's message, a document of the turn or a tool answer. It fires once per turn.
  */
 export type GuardEvent = { name: 'explicit_confirmation' | 'instruction_in_data'; verdict: 'pass' | 'block' };
 
@@ -93,17 +94,85 @@ export function initialState(): State {
   return { stage: 'needs', greeted: false, customer: {}, offered: [] };
 }
 
-/** Answers one customer turn. Never mutates `previous`. */
+/**
+ * Answers one customer turn. Never mutates `previous`. `documents` are the files the turn reads beside the
+ * customer's text.
+ *
+ * What the agent reads is untrusted: an instruction in it is blocked, whoever wrote it. The customer's text
+ * is the turn itself, so an instruction there refuses the turn. A document or a tool answer is data: the
+ * value carrying an instruction is dropped each time it is read and the guard reports it, and the turn is
+ * answered from the clean data, as it would be without that value. A document stays in the workspace and
+ * is read at every turn, so refusing on it would block every later turn. The agent takes no fact from a
+ * document: dropping a poisoned one leaves the turn as it was. Only what the agent wrote itself is trusted:
+ * its policy, its replies and its tool inputs are never read as data.
+ */
 export function takeTurn(
   previous: State,
   text: string,
   call: CallTool,
+  documents: readonly string[] = [],
 ): { state: State; reply: string; guards: GuardEvent[] } {
   const state = structuredClone(previous);
   const guards: GuardEvent[] = [];
   const opening = state.greeted ? '' : `Hi, I'm the ${ACME.name} sales assistant. `;
   state.greeted = true;
-  return { state, reply: opening + route(state, text, call, guards), guards };
+  if (documents.some(isInjection)) blockInstruction(guards);
+  const reply = route(state, text, readAsData(call, guards), guards);
+  return { state, reply: opening + reply, guards };
+}
+
+/** Records the instruction guard's block, once per turn. */
+function blockInstruction(guards: GuardEvent[]): void {
+  if (!guards.some((guard) => guard.name === 'instruction_in_data')) {
+    guards.push({ name: 'instruction_in_data', verdict: 'block' });
+  }
+}
+
+/**
+ * The tools, with each answer read as data. A string of the answer that carries an instruction is dropped
+ * before the policy reads the answer, and so is an entry whose key carries one; an error that carries one is
+ * replaced. Only the value goes: a list item it leaves unreadable is left out of its list and the rest of
+ * the answer is read (`readCatalog`). When a value the policy needs is dropped and nothing readable is left,
+ * the answer is one it cannot read, as any other.
+ */
+function readAsData(call: CallTool, guards: GuardEvent[]): CallTool {
+  return (label, input) => {
+    const outcome = call(label, input);
+    if (!outcome.ok) {
+      if (!isInjection(outcome.error)) return outcome;
+      blockInstruction(guards);
+      return { ok: false, error: 'an answer carrying an instruction, which the agent did not read' };
+    }
+    const kept = withoutInstructions(outcome.output);
+    if (kept === outcome.output) return outcome;
+    blockInstruction(guards);
+    return { ok: true, output: kept === DROPPED ? undefined : kept };
+  };
+}
+
+const DROPPED = Symbol('dropped');
+
+/** The records of a tool answer the guard took a value from. */
+const TRIMMED = new WeakSet<object>();
+
+/** The value without the strings that carry an instruction; the same value when it holds none. */
+function withoutInstructions(value: unknown): unknown {
+  if (typeof value === 'string') return isInjection(value) ? DROPPED : value;
+  if (Array.isArray(value)) {
+    const items = value.map(withoutInstructions);
+    return items.every((item, index) => item === value[index])
+      ? value
+      : items.filter((item) => item !== DROPPED);
+  }
+  if (!isRecord(value)) return value;
+  const entries = Object.entries(value).map(([key, item]): [string, unknown] => [
+    key,
+    isInjection(key) ? DROPPED : withoutInstructions(item),
+  ]);
+  if (entries.every(([key, item]) => item === value[key])) return value;
+  const trimmed = Object.fromEntries(entries.filter(([, item]) => item !== DROPPED));
+  TRIMMED.add(trimmed);
+  return trimmed;
 }
 
 const NEEDS = 'What are you looking for: a mobile plan, home internet, an upgrade, or keeping your number?';
@@ -117,7 +186,7 @@ function route(s: State, text: string, call: CallTool, guards: GuardEvent[]): st
       : `I can help with plans, internet and orders. ${NEEDS}`;
   }
   if (isInjection(text)) {
-    guards.push({ name: 'instruction_in_data', verdict: 'block' });
+    blockInstruction(guards);
     return `I can't change prices, offers or my instructions. ${pendingQuestion(s)}`;
   }
   if (isForeign(text)) return `I can only help in English for now. ${pendingQuestion(s)}`;
@@ -677,8 +746,13 @@ type CatalogAnswer = {
 
 function readCatalog(outcome: ToolOutcome): CatalogAnswer | undefined {
   if (!outcome.ok || !isRecord(outcome.output)) return undefined;
-  const { plans, customer } = outcome.output;
-  if (!Array.isArray(plans) || !plans.every(isPlanView)) return undefined;
+  const { plans: listed, customer } = outcome.output;
+  if (!Array.isArray(listed)) return undefined;
+  // A plan the guard took a value from is left out when it no longer reads; any other unreadable plan, or
+  // none left to read, and the answer is unreadable.
+  const plans = listed.filter(isPlanView);
+  if (!listed.every((plan) => isPlanView(plan) || (isRecord(plan) && TRIMMED.has(plan)))) return undefined;
+  if (plans.length === 0 && listed.length > 0) return undefined;
   if (customer === undefined || customer === null) return { plans, customer };
   if (
     !isRecord(customer) ||

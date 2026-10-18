@@ -136,7 +136,10 @@ async function evaluate(ctx: CheckContext, policy: ValuePolicy, services: ValueS
   const verdicts: Verdict[] = [];
   let argumentsExpected = 0;
   const missed: string[] = [];
-  const sources = userTexts(ctx);
+  // What the user wrote is read only by a rung that compares a value with it, so it is collected when one asks
+  // and once for the block: a block whose values all match the gold never walks the history.
+  let collected: string[] | undefined;
+  const sources = () => (collected ??= userTexts(ctx));
 
   for (const [index, tool] of expected.entries()) {
     const key = keys[index] ?? tool.label;
@@ -196,7 +199,8 @@ type ValueContext = {
   field: string;
   policy: ValuePolicy;
   services: ValueServices;
-  sources: string[];
+  /** The user texts of the block, collected on the first call. */
+  sources: () => string[];
 };
 
 /** One call's answer for an argument: its outcome, a note for the evidence, and a lint on the test. */
@@ -407,7 +411,10 @@ function valueCase(
     ...(isRecord(call.input) ? { input: call.input } : {}),
     ...(compare === undefined ? {} : { compare }),
     ...(definition === undefined ? {} : { definition }),
-    sources: { user: values.sources },
+    // A getter: the texts are collected only if a rung reads them.
+    get sources() {
+      return { user: values.sources() };
+    },
     ...(store === undefined ? {} : { world: store }),
   };
 }

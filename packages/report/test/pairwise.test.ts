@@ -1,3 +1,4 @@
+import { provenanceHash } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { comparePairwise, replyPairs, replyText } from '../src/pairwise';
 import { observed, run } from './support';
@@ -76,5 +77,50 @@ describe('comparePairwise', () => {
     const result = await comparePairwise(pairs, async () => script[calls++] as PairwiseVerdict);
     expect(result.tally).toEqual({ baseline: 1, candidate: 1, tie: 1, inconsistent: 2, positionBias: 1 });
     expect(result.rows.map((row) => row.pair.block)).toEqual([0, 1, 2]);
+  });
+});
+
+describe('realized stimuli', () => {
+  const stored = (text: string) => ({ hash: provenanceHash(text), text });
+  const hashed = (text: string) => ({ hash: provenanceHash(text) });
+  it.each([
+    ['identical stored text', stored('sent'), stored('sent'), 'sent'],
+    ['different stored text', stored('one'), stored('two'), undefined],
+    ['different hashes', hashed('one'), hashed('two'), undefined],
+    ['matching authored hashes', hashed('authored'), hashed('authored'), 'authored'],
+    ['matching unavailable text', hashed('sent'), hashed('sent'), undefined],
+    ['only one side has changed text', stored('sent'), hashed('sent'), undefined],
+    ['one stored authored text', stored('authored'), hashed('authored'), 'authored'],
+    ['legacy authored and matching hash', undefined, hashed('authored'), 'authored'],
+    ['empty stored text', stored(''), stored(''), ''],
+    ['invalid stored text hash', { hash: provenanceHash('sent'), text: 'forged' }, stored('sent'), undefined],
+  ] as const)('%s', (_name, left, right, expected) => {
+    const baseline = run({ blocks: [{ text: 'a' }] });
+    const candidate = run({ blocks: [{ text: 'b' }] });
+    const a = baseline.blocks[0];
+    const b = candidate.blocks[0];
+    if (!a || !b) throw new Error('missing fixture block');
+    if (left) a.realized = left;
+    if (right) b.realized = right;
+    let skipped = 0;
+    const pairs = replyPairs(
+      [baseline],
+      [candidate],
+      () => 'authored',
+      () => {
+        skipped += 1;
+      },
+    );
+    expect(pairs.map((pair) => pair.stimulus)).toEqual(expected === undefined ? [] : [expected]);
+    expect(skipped).toBe(expected === undefined ? 1 : 0);
+  });
+
+  it('resolves the pinned authored message on both sides, and fails closed when missing', () => {
+    const baseline = run({ blocks: [{ text: 'a' }] });
+    const candidate = run({ blocks: [{ text: 'b' }] });
+    expect(replyPairs([baseline], [candidate], (r) => (r === baseline ? 'old spec' : 'new spec'))).toEqual(
+      [],
+    );
+    expect(replyPairs([baseline], [candidate], () => undefined)).toEqual([]);
   });
 });
