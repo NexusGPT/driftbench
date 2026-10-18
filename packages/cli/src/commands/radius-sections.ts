@@ -6,6 +6,7 @@ import {
   type Reanchoring,
   reanchorRegistry,
   type SectionRegistry,
+  sectionChangeManifest,
   sectionsFromHeadings,
 } from '@agent-nexus/driftbench-core';
 import type { Command } from 'commander';
@@ -24,7 +25,9 @@ export function registerRadiusSections(radius: Command, io: Io, setExit: (code: 
 
   sections
     .command('init')
-    .description('Write a first registry: one global section per markdown heading')
+    .description(
+      'Write a first registry: one global section per CommonMark heading (ATX or setext, none inside a code fence)',
+    )
     .argument('<prompt>', 'the prompt file')
     .requiredOption('--id <prompt-id>', 'the prompt id that links name')
     .requiredOption('--prompt-version <version>', 'the prompt version the registry describes')
@@ -97,12 +100,17 @@ export function registerRadiusSections(radius: Command, io: Io, setExit: (code: 
     .requiredOption('--prompt <files...>', 'the old and new prompt files, in that order')
     .requiredOption('--to-version <version>', 'the version of the new prompt')
     .option('--out <file>', 'write the registry of the new prompt here')
+    .option(
+      '--change-out <file>',
+      'write the change manifest: a prompt_section change per stale or reordered section, a global prompt change for text outside every section',
+    )
     .option('--json', 'print one JSON document')
     .action(async (registryPath: string, _own: unknown, command: Command) => {
       const options = command.optsWithGlobals<{
         prompt: string[];
         toVersion: string;
         out?: string;
+        changeOut?: string;
         json?: boolean;
       }>();
       setExit(await reanchorCommand(registryPath, options, io));
@@ -111,7 +119,7 @@ export function registerRadiusSections(radius: Command, io: Io, setExit: (code: 
 
 export async function reanchorCommand(
   registryPath: string,
-  options: { prompt: string[]; toVersion: string; out?: string; json?: boolean },
+  options: { prompt: string[]; toVersion: string; out?: string; changeOut?: string; json?: boolean },
   io: Io,
 ): Promise<number> {
   const [oldFile, newFile] = options.prompt;
@@ -130,6 +138,11 @@ export async function reanchorCommand(
   }
   const { result } = made;
   if (options.out) await writeFile(resolve(io.cwd, options.out), registryYaml(result.registry));
+  if (options.changeOut)
+    await writeFile(
+      resolve(io.cwd, options.changeOut),
+      stringify(sectionChangeManifest(registry, result, { to: options.toVersion })),
+    );
   if (options.json) io.out(`${JSON.stringify(withoutRegistry(result), null, 2)}\n`);
   else io.out(renderReanchoring(registry, result, options.toVersion));
   const stale = result.sections.some((section) => section.status === 'stale');
