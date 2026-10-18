@@ -216,8 +216,8 @@ export type ReplyActId = z.infer<typeof ReplyActId>;
 
 /** The map can require a text segment serving as the reply or as a draft. */
 export const ReplyActEvidence = z.strictObject({
-  type: z.literal('text_segment'),
-  part: z.enum(['reply', 'draft']),
+  type: z.literal('text_segment').describe('The kind of evidence: an actual text segment of the output.'),
+  part: z.enum(['reply', 'draft']).describe('The output part that holds the segment: the reply or a draft.'),
 });
 export type ReplyActEvidence = z.infer<typeof ReplyActEvidence>;
 
