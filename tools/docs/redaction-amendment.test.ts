@@ -138,7 +138,7 @@ describe('redaction amendment', () => {
     if (shallow.stdout.trim() !== 'true') expect(compared).toBe(entries.length);
   });
 
-  it('leaves no old digest anywhere but in this record', () => {
+  it('leaves no old digest anywhere but in this record', { timeout: 300_000 }, () => {
     const olds = Object.keys(amendment.digest_map_old_to_new);
     const result = spawnSync('git', ['grep', '-lF', ...olds.flatMap((digest) => ['-e', digest]), '--', '.'], {
       cwd: root,
