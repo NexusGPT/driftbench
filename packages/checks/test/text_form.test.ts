@@ -54,6 +54,13 @@ describe('markup sql (syntax check against SQLite)', () => {
     const verdicts = await run(markup, block("SELECT 'a;b' FROM plans; SELECT 2;", { markup: 'sql' }));
     expect(outcomes(verdicts)).toEqual({ 'markup.valid': 'pass' });
   });
+  it('reads a semicolon inside a comment as text', async () => {
+    const verdicts = await run(
+      markup,
+      block('-- one; two\nSELECT 2 /* a; b */ FROM plans;', { markup: 'sql' }),
+    );
+    expect(outcomes(verdicts)).toEqual({ 'markup.valid': 'pass' });
+  });
 });
 
 describe('starts_with', () => {

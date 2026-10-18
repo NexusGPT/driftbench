@@ -25,11 +25,71 @@ import { type Check, machineVerdict, type Verdict } from '@agent-nexus/driftbenc
 
 export const READ_ONLY_LEAD = /^(select|with)\b/i;
 
+/** One statement of an SQL text: `text` without its comments, `code` the same with literal contents emptied. */
+export type SqlStatement = { text: string; code: string };
+
+const CLOSER: Record<string, string> = { "'": "'", '"': '"', '`': '`', '[': ']' };
+
+/**
+ * Splits an SQL text into its statements the way SQLite reads it: a semicolon inside a string literal, a quoted
+ * identifier (`"x"`, `` `x` `` or `[x]`) or a comment is text and ends nothing; a `--` comment runs to the end
+ * of its line and a block comment to its closing mark. Comments are dropped from `text` and `code`. A statement
+ * left empty, such as the one a doubled final semicolon leaves, is not a statement.
+ */
+export function sqlStatements(text: string): SqlStatement[] {
+  const out: SqlStatement[] = [];
+  let raw = '';
+  let code = '';
+  const flush = () => {
+    if (raw.trim() !== '') out.push({ text: raw.trim(), code: code.trim() });
+    raw = '';
+    code = '';
+  };
+  let i = 0;
+  while (i < text.length) {
+    const char = text[i] as string;
+    const closer = CLOSER[char];
+    if (closer !== undefined) {
+      let end = i + 1;
+      while (end < text.length && text[end] !== closer) end++;
+      const literal = text.slice(i, Math.min(end + 1, text.length));
+      raw += literal;
+      code += `${char}${closer}`;
+      i += literal.length;
+    } else if (char === '-' && text[i + 1] === '-') {
+      let end = i + 2;
+      while (end < text.length && text[end] !== '\n') end++;
+      raw += ' ';
+      code += ' ';
+      i = end;
+    } else if (char === '/' && text[i + 1] === '*') {
+      const end = text.indexOf('*/', i + 2);
+      raw += ' ';
+      code += ' ';
+      i = end < 0 ? text.length : end + 2;
+    } else if (char === ';') {
+      flush();
+      i++;
+    } else {
+      raw += char;
+      code += char;
+      i++;
+    }
+  }
+  flush();
+  return out;
+}
+
 /** The one statement a query holds, or undefined when it holds more than one or is not a read. */
 export function singleReadStatement(query: string): string | undefined {
-  const trimmed = query.trim().replace(/;\s*$/, '');
-  if (trimmed.includes(';')) return undefined;
-  return READ_ONLY_LEAD.test(trimmed) ? trimmed : undefined;
+  return singleRead(query)?.text;
+}
+
+function singleRead(query: string): SqlStatement | undefined {
+  const statements = sqlStatements(query);
+  const only = statements[0];
+  if (statements.length !== 1 || only === undefined) return undefined;
+  return READ_ONLY_LEAD.test(only.text) ? only : undefined;
 }
 
 function rowsOf(handle: Handle, sql: string): string[] {
@@ -68,8 +128,10 @@ export const sqlEquivalence: Check = {
     if (typeof agent !== 'string') {
       return [machineVerdict('sql', '0', 'fail', `the ${entry.tool} call has no query text in its input`)];
     }
-    const agentSql = singleReadStatement(agent);
-    const goldenSql = singleReadStatement(entry.golden);
+    const agentRead = singleRead(agent);
+    const goldenRead = singleRead(entry.golden);
+    const agentSql = agentRead?.text;
+    const goldenSql = goldenRead?.text;
     if (agentSql === undefined) {
       return [machineVerdict('sql', '0', 'fail', `not a read-only query: ${JSON.stringify(agent)}`)];
     }
@@ -95,7 +157,7 @@ export const sqlEquivalence: Check = {
       } catch (cause) {
         return [machineVerdict('sql', '0', 'fail', `the query fails: ${message(cause)}`)];
       }
-      const ordered = /\border\s+by\b/i.test(goldenSql);
+      const ordered = /\border\s+by\b/i.test(goldenRead?.code ?? goldenSql);
       const same = ordered
         ? found.length === expected.length && found.every((row, i) => row === expected[i])
         : sameMultiset(found, expected);
