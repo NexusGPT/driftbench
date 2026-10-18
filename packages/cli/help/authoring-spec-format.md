@@ -171,6 +171,22 @@ On the command line the same target is written `<adapter>:<agent>`, such as `fun
 | `judge_class` | `system1`, `system2` or `auto` | no | The judge class; `auto` lets calibration choose. |
 | `repeat_reducer` | `mode`, `median` or `at_least:<k>` | no | How the verdicts of the repeats of one spec become one verdict. |
 
+Further `criteria` keys change how the judge reads the criterion. Each is optional. A combination the schema refuses is a spec error.
+
+| Key | Type | Meaning |
+|---|---|---|
+| `assessment` | `response-relevance`, `conformance`, `answer-audit` or `fact-ledger` | An assessment kind in place of the criterion ledger. `conformance` reads only the rubric, so it takes no `pass` or `fail`, no `scope: block`, and needs `reference`. |
+| `reference` | string | The reference answer an assessment reads. Needed by `conformance` (it may be empty) and `fact-ledger` (not empty); optional for `answer-audit`. Refused with no `assessment` or with `response-relevance`. |
+| `grounding` | `strict` | `fact-ledger` only: refuses reference or reply text that is not a source quote. |
+| `requirements` | list of `{ id, requirement }`, at least one | The rubric split into requirements the judge checks one by one. `id` is the id the judge answers under; `requirement` says what it asks. Ids are unique. Not with `assessment` or `items`. |
+| `items` | list of `{ name, rubric, weight?, hard? }`, at least one | Rubric items, each scored 0 to 4 by the judge. `weight` defaults to 1. `hard: true` fails the criterion when that item is not met. Names are unique. Not with `assessment`. |
+| `threshold` | number from 0 to 1 | With `items` only: the weighted fraction a pass needs. Default 1. |
+| `repeat` | whole number from 1 to 20 | How many times the judge answers the same request. The verdict holds only when every answer agrees, else it is inconclusive. This is not the spec `repeats` of a campaign (see `repeat_reducer`). Not with `per_turn`. |
+| `per_turn` | boolean | `true` judges the transcript one customer turn at a time; any failing turn fails the criterion. Not with `repeat`. |
+| `answer_contract` | `ledger` or `legacy` | `ledger` is the default. `legacy` is the earlier prompt and parser, to replay scores recorded with them; it cannot be combined with `assessment` or `items`. |
+| `prompt_version` | `1` or `2` | The criterion prompt rules. `2` is the default; `1` replays answers recorded with the earlier rules. |
+| `decoder_version` | `1` or `2` | How a ledger answer is read. Unset uses the current default reader (topic judging-evidence). `1` rejects an ungrounded quote; `2` drops the quote and keeps the verdict. |
+
 When a spec has no `criteria` key, blocks may still name criteria; they must then come from a shared catalogue, and `spec lint` warns `CRITERION_UNRESOLVED`. A criterion is judged only when the run loads a judge council; otherwise it has no verdict and counts in no pass or fail.
 
 ### `rules`
