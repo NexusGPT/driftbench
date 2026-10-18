@@ -108,7 +108,21 @@ const sourcesOf = (...opinions: Array<Opinion | undefined>): string[] =>
   opinions.flatMap((opinion) => (opinion?.source ? [opinion.source] : []));
 
 function single(member: Labeler): Labelling {
-  throw new Error('not implemented: single');
+  return {
+    members: [member],
+    hash: sha(canonical({ rule: 'single', members: [describeMember(member)] })).slice(0, 16),
+    describe: label(member),
+    decide(opinions) {
+      const opinion = opinions[0];
+      if (!opinion) return undefined;
+      return {
+        label: opinion.label,
+        ...(opinion.target === undefined ? {} : { target: opinion.target }),
+        by: member.cls,
+        sources: sourcesOf(opinion),
+      };
+    },
+  };
 }
 
 /**
