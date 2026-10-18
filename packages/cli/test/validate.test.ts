@@ -360,7 +360,8 @@ describe('driftbench validate through main', () => {
     expect(result.out).toMatch(
       /1\s+reference values\s+fixture groups matching scipy and numpy \/ groups\s+>= 1\s+1 pass/,
     );
-    expect(result.out).toContain(`Level of the run: ${result.code} of 7, the minimum over 1 seed.`);
+    const top = registeredLadders().stats?.levels.length;
+    expect(result.out).toContain(`Level of the run: ${result.code} of ${top}, the minimum over 1 seed.`);
   }, 600_000);
 
   // One test per registered ladder, so each has its own time and a slow ladder is named. The validators
