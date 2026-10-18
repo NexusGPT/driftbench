@@ -254,7 +254,10 @@ export function pairedRateDifference(table: PairedTable, alpha = 0.05): PairedDi
   const w1 = wilson(a + b, n, z);
   const w2 = wilson(a + c, n, z);
   const product = (a + b) * (c + d) * (a + c) * (b + d);
-  const phi = product === 0 ? 0 : (a * d - b * c) / Math.sqrt(product);
+  // Newcombe's corrected phi: C = ad - bc is shifted towards 0 by n / 2 (and held at 0 within that band).
+  const cross = a * d - b * c;
+  const corrected = cross > n / 2 ? cross - n / 2 : cross >= 0 ? 0 : cross;
+  const phi = product === 0 ? 0 : corrected / Math.sqrt(product);
   const dl1 = p1 - w1.lower;
   const du1 = w1.upper - p1;
   const dl2 = p2 - w2.lower;
