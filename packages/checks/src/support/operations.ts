@@ -51,10 +51,11 @@ const COMMAND_RULES: Array<{ class: OperationClass; pattern: RegExp; needsNoDiff
   // `git checkout -- <path>`, with an optional revision before the `--`. The revision is one word that does
   // not start with a dash and holds no shell separator, so a `--` of a later command is not this one's. The
   // `--` must be followed by a path (a word that is not a shell separator): `git checkout main --` checks
-  // nothing out. A word glued to it (`--force`, `--ours`) is kept as before.
+  // nothing out. A word glued to it (`--force`, `--ours`) is kept as before. The rule is a plain literal with
+  // no lookahead, because the estate vocabulary derives its cases from it.
   {
     class: 'overwrite',
-    pattern: /\bgit\s+checkout\s+(?:[^\s;&|-][^\s;&|]*\s+)?--(?:\s+[^\s;&|]|(?=\w))/,
+    pattern: /\bgit\scheckout\s(?:[^\s;&|\-][^\s;&|]*\s)?--(?:\s+[^\s;&|]|\w)/,
     needsNoDiff: true,
   },
 ];
