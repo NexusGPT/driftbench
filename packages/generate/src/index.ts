@@ -243,6 +243,7 @@ export {
   parseProposalText,
   pendingEntries,
   promptView,
+  proposalToVariables,
   proposeRole,
   QuoteIndex,
   Recording,
@@ -277,6 +278,7 @@ export {
   validateProposal,
   valueApproved,
   verifyQuotes,
+  verifyVariableQuotes,
   viewSources,
 } from './extract';
 export {
