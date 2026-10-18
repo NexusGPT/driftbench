@@ -742,7 +742,6 @@ export function drawEstate(seed: number, profile: Profile = 'visible'): HiddenEs
       hazard === 'compaction'
         ? {
             key: 'after-compaction',
-            replyAct: { id: 'report', evidence: { type: 'text_segment', part: 'reply' } },
             section: 'rules',
             kind: 'instruction',
             polarity: 'obligation',
@@ -757,7 +756,6 @@ export function drawEstate(seed: number, profile: Profile = 'visible'): HiddenEs
           }
         : {
             key: 'after-restart',
-            replyAct: { id: 'report', evidence: { type: 'text_segment', part: 'reply' } },
             section: 'rules',
             kind: 'instruction',
             polarity: 'obligation',
@@ -813,7 +811,6 @@ export function drawEstate(seed: number, profile: Profile = 'visible'): HiddenEs
   if (citable?.label && chance(rng, 0.7)) {
     rules.push({
       hid: 'rule:cites',
-      replyAct: { id: 'refuse', evidence: { type: 'text_segment', part: 'reply' } },
       section: 'rules',
       label: `R${rules.length + 1}`,
       kind: 'instruction',
