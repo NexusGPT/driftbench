@@ -94,6 +94,23 @@ rules:
     - order.create
     - notify_sales
   one_message_per_turn: true
+perturbations:
+  - id: p1-D5_language_switch
+    class: D5_language_switch
+    inject_at: 0
+    user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: needs
+      stage_reported: true
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -119,7 +136,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-identify
-          stage: needs
+          stage: identify
         phrase:
           dimension: stage_transition
           value: needs-to-identify
@@ -129,7 +146,7 @@ metadata:
           spec: metadata.generated.cell
           stage_transition: identify-to-offer
           account_lookup: plan-not-in-catalog
-          stage: identify
+          stage: offer
         phrase:
           dimension: stage_transition
           value: identify-to-offer
