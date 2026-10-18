@@ -190,5 +190,7 @@ The run fails on `tools.coverage.check.count`, `tools.order`, `tool_f1.f1` and `
 * A spec error naming `$ref`, `format` or another keyword: that schema keyword is not supported; inline the schema or drop the keyword.
 * `tools.<label>.input.<field>` fails on a value that is the same one written differently, such as `+1 202 555 0131` against `+12025550131`: add a `normalise` rule for that field.
 * `NORMALISE_INVALID` when the spec loads: the rule names a field with no assertion, a `regex`, `nonempty` or `absent` assertion, a path that holds no expected text, or surface forms beside an assertion that names more than one value.
+* `SLOT_FIELD_NO_RULE`, a `spec validate` warning: a tool input or an end state compares a phone, an email or an address with no `normalise` rule, so another writing of the same value fails. Add the rule the message names.
+* `SURFACE_FORM_UNAPPROVED`, a `spec validate` warning: a surface form is not `approved: true`, so it never matches. Approve it once a person has checked it, or remove it.
 * `tools_offered...` gating inconclusive: the adapter reports no offered list.
 * `sql.0` inconclusive: the golden query itself failed; check it on the database.

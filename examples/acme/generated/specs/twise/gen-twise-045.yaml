@@ -4,7 +4,7 @@
 id: gen-twise-045
 version: 7a022d4e1380
 kind: conversation
-title: "t-wise row 45 of 156: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D5_language_switch at closing"
+title: "t-wise row 45 of 156: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D5_language_switch at handover"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -95,25 +95,13 @@ blocks:
         - label: coverage.check
           count: 0
       lang: EN
-  - id: b4-handover-to-closing
-    when:
-      user: Great, thank you. Bye!
-    expect:
-      stage: closing
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: notify_sales
-          count: 0
-      lang: EN
-  - id: b5-D5_language_switch
+  - id: b4-D5_language_switch
     when:
       injection:
         class: D5_language_switch
         user: Kunt u dat ook in het Nederlands uitleggen?
     expect:
-      stage: closing
+      stage: handover
       stage_reported: true
       tools:
         - label: coverage.check
@@ -125,6 +113,18 @@ blocks:
       lang: EN
       criteria:
         - deviation.D5_language_switch
+  - id: b5-handover-to-closing
+    when:
+      user: Great, thank you. Bye!
+    expect:
+      stage: closing
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
 rules:
   forbidden_tools:
     - catalog.search
@@ -168,7 +168,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address
@@ -178,7 +178,7 @@ metadata:
           spec: metadata.generated.cell
           stage_transition: address-to-callback
           coverage_result: no-service
-          stage: address
+          stage: callback
         phrase:
           dimension: stage_transition
           value: address-to-callback
@@ -189,25 +189,25 @@ metadata:
           stage_transition: callback-to-handover
           coverage_result: no-service
           callback_phone: given
-          stage: callback
-        phrase:
-          dimension: stage_transition
-          value: callback-to-handover
-      - block: b4-handover-to-closing
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: handover-to-closing
           stage: handover
         phrase:
           dimension: stage_transition
-          value: handover-to-closing
-      - block: b5-D5_language_switch
+          value: callback-to-handover
+      - block: b4-D5_language_switch
         seeder: twise
         cell:
           spec: metadata.generated.cell
           deviation: D5_language_switch
-          stage: closing
+          stage: handover
         phrase:
           dimension: deviation
           value: D5_language_switch
+      - block: b5-handover-to-closing
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: handover-to-closing
+          stage: closing
+        phrase:
+          dimension: stage_transition
+          value: handover-to-closing

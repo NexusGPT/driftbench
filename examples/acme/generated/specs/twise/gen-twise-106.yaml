@@ -4,7 +4,7 @@
 id: gen-twise-106
 version: 7a022d4e1380
 kind: conversation
-title: "t-wise row 106 of 156: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D1_off_topic at order_placed"
+title: "t-wise row 106 of 156: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D1_off_topic at closing"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -135,27 +135,7 @@ blocks:
         - label: catalog.search
           count: 0
       lang: EN
-  - id: b6-D1_off_topic
-    when:
-      injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
-    expect:
-      stage: order_placed
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Monday to Saturday
-      lang: EN
-      criteria:
-        - deviation.D1_off_topic
-  - id: b7-order_placed-to-closing
+  - id: b6-order_placed-to-closing
     when:
       user: No, that's all. Thanks!
     expect:
@@ -169,6 +149,26 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b7-D1_off_topic
+    when:
+      injection:
+        class: D1_off_topic
+        user: Are your stores open on Saturday?
+    expect:
+      stage: closing
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+      criteria:
+        - deviation.D1_off_topic
 rules:
   forbidden_tools:
     - port.check
@@ -213,7 +213,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address
@@ -223,7 +223,7 @@ metadata:
           spec: metadata.generated.cell
           stage_transition: address-to-offer
           coverage_result: 5g-only
-          stage: address
+          stage: offer
         phrase:
           dimension: stage_transition
           value: address-to-offer
@@ -232,7 +232,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: offer-to-details
-          stage: offer
+          stage: details
         phrase:
           dimension: stage_transition
           value: offer-to-details
@@ -241,7 +241,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: details-to-recap
-          stage: details
+          stage: recap
         phrase:
           dimension: stage_transition
           value: details-to-recap
@@ -252,25 +252,25 @@ metadata:
           stage_transition: recap-to-order_placed
           coverage_result: 5g-only
           customer_details: name-and-email
-          stage: recap
+          stage: order_placed
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
-      - block: b6-D1_off_topic
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: order_placed
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
-      - block: b7-order_placed-to-closing
+      - block: b6-order_placed-to-closing
         seeder: twise
         cell:
           spec: metadata.generated.cell
           stage_transition: order_placed-to-closing
-          stage: order_placed
+          stage: closing
         phrase:
           dimension: stage_transition
           value: order_placed-to-closing
+      - block: b7-D1_off_topic
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: closing
+        phrase:
+          dimension: deviation
+          value: D1_off_topic

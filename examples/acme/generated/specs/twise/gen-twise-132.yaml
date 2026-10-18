@@ -4,7 +4,7 @@
 id: gen-twise-132
 version: 7a022d4e1380
 kind: conversation
-title: "t-wise row 132 of 156: Path home-callback of new-home: needs > address > offer > callback > handover, D1_off_topic at callback"
+title: "t-wise row 132 of 156: Path home-callback of new-home: needs > address > offer > callback > handover, D1_off_topic at handover"
 channel: chat
 lang: EN
 tier: generated
@@ -97,27 +97,7 @@ blocks:
         - label: notify_sales
           count: 0
       lang: EN
-  - id: b4-D1_off_topic
-    when:
-      injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
-    expect:
-      stage: callback
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: notify_sales
-          count: 0
-      must:
-        - Monday to Saturday
-      lang: EN
-      criteria:
-        - deviation.D1_off_topic
-  - id: b5-callback-to-handover
+  - id: b4-callback-to-handover
     when:
       user: You can reach me on +1 202 555 0131.
     expect:
@@ -140,6 +120,26 @@ blocks:
         - label: catalog.search
           count: 0
       lang: EN
+  - id: b5-D1_off_topic
+    when:
+      injection:
+        class: D1_off_topic
+        user: Are your stores open on Saturday?
+    expect:
+      stage: handover
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+      criteria:
+        - deviation.D1_off_topic
 rules:
   forbidden_tools:
     - port.check
@@ -157,6 +157,27 @@ end_state:
     customer.phone:
       rule: phone_e164
       country_code: "1"
+perturbations:
+  - id: p1-D5_language_switch
+    class: D5_language_switch
+    inject_at: 0
+    user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: needs
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -183,7 +204,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address
@@ -193,7 +214,7 @@ metadata:
           spec: metadata.generated.cell
           stage_transition: address-to-offer
           coverage_result: 5g-only
-          stage: address
+          stage: offer
         phrase:
           dimension: stage_transition
           value: address-to-offer
@@ -202,20 +223,11 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: offer-to-callback
-          stage: offer
+          stage: callback
         phrase:
           dimension: stage_transition
           value: offer-to-callback
-      - block: b4-D1_off_topic
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: callback
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
-      - block: b5-callback-to-handover
+      - block: b4-callback-to-handover
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -223,7 +235,16 @@ metadata:
           coverage_result: 5g-only
           plan_choice: asks-for-callback
           callback_phone: given
-          stage: callback
+          stage: handover
         phrase:
           dimension: stage_transition
           value: callback-to-handover
+      - block: b5-D1_off_topic
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: handover
+        phrase:
+          dimension: deviation
+          value: D1_off_topic

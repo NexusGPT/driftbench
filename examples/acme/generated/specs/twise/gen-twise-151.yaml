@@ -156,7 +156,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-identify
-          stage: needs
+          stage: identify
         phrase:
           dimension: stage_transition
           value: needs-to-identify
@@ -166,7 +166,7 @@ metadata:
           spec: metadata.generated.cell
           stage_transition: identify-to-offer
           account_lookup: found
-          stage: identify
+          stage: offer
         phrase:
           dimension: stage_transition
           value: identify-to-offer
@@ -175,7 +175,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: offer-to-recap
-          stage: offer
+          stage: recap
         phrase:
           dimension: stage_transition
           value: offer-to-recap

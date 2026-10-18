@@ -69,10 +69,10 @@ rules:
 perturbations:
   - id: p1-D5_language_switch
     class: D5_language_switch
-    inject_at: 1
+    inject_at: 0
     user: Kunt u dat ook in het Nederlands uitleggen?
     expect:
-      stage: address
+      stage: needs
       stage_reported: true
       tools:
         - label: coverage.check
@@ -82,7 +82,7 @@ perturbations:
       lang: EN
     recovery:
       within_blocks: 0
-      stage_after: address
+      stage_after: needs
   - id: p2-D1_off_topic
     class: D1_off_topic
     inject_at: 0
@@ -219,7 +219,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address

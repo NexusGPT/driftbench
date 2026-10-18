@@ -246,6 +246,35 @@ The reader ignores filenames, object keys, metadata, background Given, store/fix
 Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults. See [the partial journal](SWEEP-JOURNAL.md) and [evidence](evidence/d6-world-carrier-contract.json). No historical ladder level is updated by this scoped ruling.
 
 
+## Dependent-prefix minimality maintainer ruling (2026-10-16)
+
+A matching local Then and outcome vector identifies a possible duplicate. It does not prove that either block can be removed from its stateful scenario. A map path starts at its declared first stage; later transition and tool expectations depend on that ordered setup (`docs/reference/map.md`, path and uses_tool relations).
+
+The minimality oracle now deletes each candidate in an isolated copy. It first replays the reference; a changed retained outcome proves a dependency. Otherwise it replays the configured cheaters, fault instances and persona-bound faults, requires every retained outcome vector to stay fixed, and preserves every previously established causal fault-instance kill. Ablations are cached across minimality items. There is no opening/nonterminal exemption, and no block/spec label enters the decision.
+
+Product obligation: retain the setup that makes later probes executable; remove duplicate probes only when their deletion preserves the retained tests and fault evidence. Duplicate standalone/terminal probes, removable nonterminal filler and a suite without fault-killing checks still fail. Existing persona-bound distinctions and the metamorphic-family exception remain unchanged. A repeated self-loop can still be genuinely redundant; this ruling does not promise that every old minimality failure disappears.
+
+See [the partial journal](SWEEP-JOURNAL.md), [dependent-prefix evidence](evidence/minimality-dependent-prefix.json) and [red-first output](evidence/minimality-red-first.txt). Historical journal rows and ladder levels stay unchanged.
+
+## Behaviour ownership and capacity ruling (2026-10-16)
+
+Every listed behaviour phrase remains required. The rendered map must provide an owning flow and a distinct post-read (flow, stage) slot for each phrase. A reported orphan or capacity gap does not waive coverage.
+
+The hidden constructor preserves every drawn ownership edge. An augmenting-path matching first uses the existing ownership. Only a behaviour that cannot be seated gains an edge to a flow with a free eligible slot. Slot eligibility follows the approved paths after every readonly tool used by that flow has run. Insufficient total path capacity rejects the fixture. The repair consumes no random draws.
+
+The public seed-1 fixture is refreshed. Independent exhaustive matching checks visible seeds 1–20, fresh seeds 1009, 2027, 4093 and 8191, and the commit-derived hidden map. The hidden map stays in memory; review the general construction, hand-written parcel example and public fixture diff, then run the test at the reviewed commit. The hidden-seed formula and coverage items remain unchanged.
+
+The final regression suite fails 13 cases on the unchanged constructor. The repaired constructor passes 40 tests across the new file and the existing hidden-map tests. Controls reject silently skipped owned phrases and forged capacity reports on all four fresh seeds. See [evidence](evidence/behaviour-ownership-capacity.json). This scoped measurement does not update historical ladder levels.
+
+
+### Review correction: globally minimum ownership additions (2026-10-16)
+
+The incremental seating sentence above is superseded. An early orphan can occupy a slot that a later, originally owned behaviour needs. The first repair adds two edges in the reviewer's two-behaviour example although one suffices.
+
+The constructor now completes a maximum matching over all originally drawn ownership before adding any edge. If B behaviours have a maximum original matching of M, at least B minus M edges are required: one new ownership edge increases matching cardinality by at most one. Assigning each unmatched behaviour to a free slot adds exactly B minus M edges and meets that lower bound.
+
+Both new review controls fail on the first repair. The corrected suite passes 42 tests, including the reviewer example and all 512 three-by-three ownership graphs against independent exhaustive matching. A separate comparison verifies minimal additions, full capacity, all drawn edges and every other field on 28 public maps plus the commit-derived hidden map in memory. The four fresh omission and forged-report controls still pass. See the appended correction in the existing evidence JSON and the review red output. No public seed-1 fixture change is needed.
+
 ## Integer contrast maintainer ruling (2026-10-16)
 
 Integer contrast measures the block whose approved stimulus requests the partition's concrete value. It does not aggregate earlier calls, zero-call guards or labels from the enclosing scenario. The hidden data values and phrase intents identify that request independently of generated cell metadata or block ids.
@@ -262,6 +291,38 @@ Product obligation: keep shared preparation intact; on the actual request assert
 Ruling item 14 above. `sequence.stages.<class>` owed a probe at every middle stage of the flows listing the class, filtered only by written constraints. The hidden space map also forbids the pairs no path can reach (`possible.ts`), and the coverage items already read that map. For D8 the map allows a tool failure only on a move that calls a recovered tool, so the item demanded probes the map rules out (seed 2: check, choice, details, recap). No product could satisfy both.
 
 The item now reads the same map as the coverage items: a stage the map rules out for the class is owed no probe, and a probe placed at such a stage fails the item. A reachable stage left unprobed still fails it, and a class with no reachable stage never passes. Measured on main's product: the old logic fails D8 on 18 of the 21 visible and hidden seeds; the new item fails none, and no probe sits at a ruled-out stage. See [the journal](SWEEP-JOURNAL.md) and [evidence](evidence/sequence-impossible-pairs.json). No historical ladder level is updated by this scoped ruling.
+
+## Minimality preserves map obligations: delta ruling (2026-10-16, PR 523)
+
+Execution and fault kills are necessary but insufficient evidence of removability. An approved phrase is an actual user message expressing its map value (docs/reference/map.md, ProposalPhrase); a retained Given value, Then or placement cannot replace that stimulus. On the supplied public seed-1 case, deleting gen-phrase-002#b3-value loses the sole approved returned-value request. phrases.data-out falls from 12/12 to 11/12 although retained execution still passes.
+
+A candidate deletion now preserves the ordinary map-item predicates as well as executable outcomes and causal kills. The same checks record individual satisfied obligations for phrases and carriers, bound values, behaviours/flow ownership, paths, feasible coverage cells, recovery stages, ordered edge pairs and contrasts. This preserves each satisfied obligation even if another member already makes its aggregate item fail. Passing aggregate checks preserve allocation thresholds without freezing counts. New multi-obligation map checks must record their individual predicates through SeedData.obligation; minimality observes those checks instead of defining another oracle.
+
+The retained view removes the deleted block's placement metadata and targeted perturbations, remaps later perturbation indices, and replaces the affected spec in the complete/loaded/file views. No phantom metadata witness can justify removal. Minimality, timing, report accounting, alternative-input generation and stability reruns are not invoked recursively as structural obligations. Existing reference, retained agent-vector and causal fault-kill guards still apply.
+
+Product obligation: remove a duplicate only when the retained suite keeps every established map obligation and fault test. A sole approved phrase request is necessary; a second genuine request can make the first removable. Required setup and persona-bound distinctions remain protected; redundant standalone, terminal and nonterminal probes remain detectable.
+
+The exact seed-1 regression, a hand-written parcel fixture, partial already-failing phrase coverage and fresh seeds 1009, 2027, 4093 and 8191 have positive and duplicate controls. See [delta evidence](evidence/minimality-map-obligations.json), [red-first output](evidence/minimality-map-obligations-red.txt) and [structural mutation control](evidence/minimality-structural-mutation-red.txt). This is a scoped oracle ruling; the historical journal and ladder level table are unchanged. Independent delta review is required.
+
+## Metamorphic variants in minimality (2026-10-16)
+
+Family membership comes from the hidden map and the words said, never from the metadata a product writes. Each phrase the hidden map lists has its own witness obligation, which `removable` keeps, so a block that says the only instance of a phrasing is not removable and a copy is. A rule that trusted declared family metadata was reviewed and withdrawn. See [the journal](SWEEP-JOURNAL.md).
+
+
+## Ownership fixture integration: explicit imbalance in disk parity test (2026-10-16)
+
+The generator's disk parity test imports the validator's mutable seed-5 hidden constructor. Main d37cc4c76 passes its balance-file prerequisite; ownership head 4b411d426 fails it before comparing any disk output. The minimum ownership edge B-002 to new-request changes scenario contexts: main needs three balance top-ups to bring D8 to 12 against maximum 35; the repaired fixture already gives D8 13 against maximum 35 and correctly needs none. This is not a disk/eager mismatch.
+
+The test now constructs its intended imbalance by adding approved off-topic phrases before generation, on public seeds 1 and 5 and fresh seed 1009. It keeps the assertion requiring balance files, summary/file-count equality and every non-report file's byte equality. No generator product source changes. The separate merge commit preserves both sides of the records. See [integration evidence](evidence/ownership-stream-fixture.json). Historical ladder measurements stay unchanged.
+
+Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabling the balancing iterator through a temporary test spy makes all three explicit-imbalance cases fail. The spy is removed; product source is unchanged.
+
+## Behaviours no owner can exercise: maintainer ruling (2026-10-16)
+
+A behaviour is exercised by a conversation of a flow that owns it, so one owner must call its tool and recover its class. The hidden constructor now adds one owner where none can (`behaviour-exercise.ts`), before the capacity pass. See [the journal](SWEEP-JOURNAL.md).
+
+Resolved: a behaviour that names a tool is drawn only where the map stages that tool, so the five `behaviour.list.exercised` items no longer owe an impossible cell.
+
 ## Feasibility and impossible pairs: maintainer ruling (2026-10-15)
 
 `diff.feasible.<seeder>` read only the written constraints, and only five seeders. A block in a cell no path of the hidden map can reach (`possible.ts`) passed, and blocks from the `cover` and `task` seeders were read by no item. The item now reads the hidden space map, the same map the coverage items read. It checks every seeder: `cover` and `task` have their own items, and `diff.feasible.unlisted` reads any seeder no item names. The bank grows from 2033 to 2036 items.

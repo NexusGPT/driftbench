@@ -63,11 +63,125 @@ What the store holds, one table each:
 
 A run record holds `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId`, `status` (`completed`, `failed` or `stopped`), `error`, `blocks`, `succession`, `recovery` (mode P), `endState`, `cost`, `latencyMs`, `startedAt`, `finishedAt`, `cacheHit`, `events`, `provenance`, and `carried` on a run copied by `--change`. Each block holds `index`, `blockId`, `injected`, `givenHash`, `cacheKey`, `observed`, `verdicts`, `stageObserved`, `ledgerCheck`, `drift` and `pass`.
 
+### Run record, field by field
+
+The record is JSON in the `json` column of `runs`. A field marked optional is absent when it does not apply. Every hash is the SHA-256 of canonical JSON; the record stores the hash and never the text behind it.
+
+| Field | Holds |
+|---|---|
+| `endVerdict` | `success`, `failure` or `inconclusive`: the end verdict of the driver or the spec. `inconclusive` means the run could not be judged. Optional. |
+| `endStateValue` | The end state the adapter returned for the end-state checks, as the checks saw it. `null` when its source recorded nothing. Absent when no end state was read, and on runs stored before the field existed. |
+| `blockRerun` | Present on a run that reran only some blocks (`--block-reruns`) or replayed parent blocks. `selected` lists the block indexes asked for. `downstreamNotRerun` lists the later indexes taken from the baseline instead of rerun. `reason` says why (topic authoring-parent-blocks). |
+| `provenance` | The execution stamp, below. Optional; a run without it cannot be carried or re-judged. |
+| `provenanceDigest` | A SHA-256 over the run stamp and the stamp of every block (index, `blockId`, `parent`, `specIndex`, `injected`, `realized`, `givenHash` and the block `provenance`). A change to any stamp changes it. Optional. |
+| `rejudged` | Present on a run made by `campaign rejudge`: the stamp below. |
+| `carried` | Present on a run copied by `--change`: `fromCampaign`, `fromRun`, `agentVersion` (the version that produced the result, when named) and `age` (`campaigns`, `days`). Topic running-change-carry. |
+| `succession` | Drift over the blocks: `driftCount` (failing blocks), `driftRate` (failing blocks divided by blocks that passed or failed), `firstDriftBlock` (index of the first failing block; absent when none fails), `longestClean` (longest stretch of passing blocks) and `minOverBlocks` (true when the run has blocks and every one passes). A `not_run` or `blocked` block is left out of the rate and ends a clean stretch. |
+| `recovery` | Mode P, when the perturbation writes `recovery`: `injectedAt` (index of the injected block), `turnsToRecover` (blocks after the injection until a block passes every gating check and reaches its target stage; 0 is the injected block itself; absent when it never recovered), `label` (`immediate`, `late` or `never`), `collateral` (with a free-running reference run: blocks after the injection that fail a check they passed there; without one: blocks after the recovery that fail again), `safeAction` (false when a detour block made a call the spec forbids or a consequential call it does not name) and `clarified` (true when the detour asks a question before its first consequential call). |
+
+`provenance` fields (version 2):
+
+| Field | Holds |
+|---|---|
+| `driver.idHash` | Hash of the driver id. |
+| `driver.seedsHash` | Hash of the seeds the driver declared. `null` when it declared none; a driver that uses no randomness declares `{}`. |
+| `adapter.idHash`, `adapter.versionHash` | Hashes of the adapter id and version. |
+| `adapter.cacheIdentityHash` | Hash of the adapter's cache identity. `null` when it has none. |
+| `adapter.requiresCacheIdentity` | `true` when the adapter or the target's adapter is `process`. |
+| `agentVersionHash` | Hash of the agent version taken from the target. `null` with no target. |
+| `targetVersionHash` | Hash of the target's `variant` and `prompt`. Optional. |
+| `agentVersionLabelHash` | Hash of the `--agent-version` label. `null` when none was given. Optional. |
+| `executionHash` | Hash of everything that decides what the agent receives: driver, adapter, the rest of the target, mode, repeat, perturbation id, tool policy, retry and step limit. |
+
+Each block also holds the block `provenance`: `specIndex` (the authored position), `stimulusHash` (hash of the stimulus sent), `ledgerHash` (hash of the ledger at the block), `artifacts` (`pathHash` and `sha256` of each file a check read; `sha256` is `null` when no digest is known) and `endState` (a snapshot, kept when `--record-end-state-snapshots` is on). A block taken from another run adds `carried.measuredAt`, the time it was measured, which `--max-age` reads. The block `rejudged` stamp has the same fields as the run one.
+
+The `rejudged` stamp, on a run and on a block, proves the stored observation still fits the new spec:
+
+| Field | Holds |
+|---|---|
+| `fromCampaign`, `fromRun` | The campaign and run the observation came from. |
+| `oldSpecHash`, `newSpecHash` | The content hashes of the spec before and after the change. |
+| `compatibilityHash` | The observation-compatibility hash. It is the same for the old and the new spec, which proves that nothing the agent receives or does has changed (topic judging-campaign-rejudge). |
+| `criteria` | The criteria that were judged again. |
+| `judgedAt` | When they were judged. |
+| `judgeCostUsd` | The cost of the judge calls. Optional. |
+
+### Campaign record, field by field
+
+| Field | Holds |
+|---|---|
+| `targets` | The targets of the campaign (adapter, agent, variant and so on). |
+| `repeats` | Repeats per mode, as `{ T, F, P }`. |
+| `provenance` | `version` 2; `endStateSnapshots: true` when the campaign records end-state snapshots; `realizedText: true` when it stores the text a driver sent; `adapters`, one entry per adapter with `idHash`, `versionHash`, `cacheIdentityHash`, `requiresCacheIdentity`, `targetHash` and `agentVersionHash`, hashed as in a run. |
+| `rejudged` | One stamp per re-judged run, as above. |
+| `radius` | Present on a campaign run with `--change`: `manifest` (hash of the change manifest), `fromVersion` and `toVersion` (the agent versions the manifest goes between), `changes`, `from` (the campaign the carried runs came from), `whole` (set, with the reason, when the radius was the whole suite), `fresh`, `carried` and `outside` (cell counts), `refused` (reasons a cell outside the radius ran fresh, with counts) and `audit` (`sampled`, `misses`, `seed`, `missed`). Topic running-change-carry. |
+
+### Block record: observed, verdicts and events
+
+Each block of a run holds `observed` (what the agent did) and `verdicts` (what the checks and judges made of it). The run holds `events`. A field marked optional is absent when the adapter or the runtime does not report it.
+
+| `observed` field | Holds |
+|---|---|
+| `segments` | What the agent produced, in order. A segment has a `type`: `text` (`text`), `tool_call` (`id`, `label`, `input`), `tool_result` (`id`, `label`, `output`, `error`) or `card` (`name`, `data`). Each may carry `latencyMs` and a `cost`. |
+| `text` | The reply text. |
+| `toolCalls` | One record per call: `id`, `spanId` (the trace span the call ran in, an OpenTelemetry span id, when the adapter has one), `label`, `input`, `output`, `error`, `startedAt`, `latencyMs`. |
+| `runtime` | What the runtime did around the model, below. Optional. |
+| `artifacts` | Files the agent left in its workspace: `path`, `kind`, `sha256`, `bytes`. |
+| `workspaceDiff` | What changed in the workspace during the block, as three lists of paths: `created`, `changed` and `deleted`. |
+| `executions` | One record per command the agent ran, below. |
+| `sandbox` | The sandbox of the block, when the adapter owns one: `kind`, `isolation` (`strong` or `weak`; reports say weak isolation from this field) and `root` (where it sits, optional). |
+| `cost` | `model` (the pricing key), `inputTokens`, `outputTokens`, `cachedInputTokens` (cache reads, already counted in `inputTokens`) and `usd`. Each is optional. |
+| `latencyMs` | The time the block took. |
+| `retries` | Every retry the calls of the block took, the adapter's own and the runner's, in order: `call` (which call), `attempt` (the attempt that failed, from 1), `status`, `reason`, `delayMs`, `retryAfterMs` (what the server's Retry-After asked, when it sent one) and `at`. Absent when none. |
+| `historyNormalizations` | A history turn a wire serializer left out because its text was empty: `wire` (such as `anthropic` or `google`), `historyIndex` (the turn's zero-based index in the history sent for this block, system messages included), `role` and `kind` (always `omitted-empty-turn`; no placeholder text replaces the turn). Absent when nothing was omitted. |
+| `raw` | Whatever the adapter chose to keep from its own response, as it returned it. Optional. |
+
+`observed.runtime` fields:
+
+| Field | Holds |
+|---|---|
+| `skills` | Skills loaded: `name`, `at`. |
+| `guards` | Runtime checks that fired: `name`, `verdict`, `at`, and when the runtime reports them `stdout`, `stderr`, `exitCode` and `outcome` (the runtime's own word for how the guard ended: `success`, `blocking`, `cancelled` or `no_response`). |
+| `stages` | Stages reached: `name`, `at`, and `carried: true` for a stage carried into the block instead of reported during it. |
+| `references` | Files the agent read, as `{ path, at }`. |
+| `finishReason` | Why the model stopped, such as `stop` or `length`. |
+| `offered` | The names of the tools the runtime offered the agent in the block. |
+| `subagents` | Helpers the agent dispatched: `name`, `model`, `at`. |
+
+An `executions` record holds `command`, `role` (`agent` for the agent's own process, `command` for a command it ran), `exitCode`, `stdout` and `stderr` (bounded), `startedAt`, `latencyMs`, `truncated` (true when the output was cut) and `approval`. `approval` is the decision of the approval policy on this command and its folder, and is absent when no policy is set: `decision` (`allow` or `deny`), `by` (`rule`, `default`, `approver` or `no-approver`), `match` (`command` or `path`), `subject` (what was matched) and `pattern` (the rule that matched, optional).
+
+A `verdicts` entry is one check on one block:
+
+| Field | Holds |
+|---|---|
+| `id` | The verdict id, such as `must.1` (topic authoring-blocks). |
+| `kind` | `machine` (final) or `judge` (carries its votes). |
+| `name` | The check or criterion name. |
+| `gating` | True when a fail fails the block. |
+| `outcome` | `pass`, `fail`, `inconclusive` or `not_applicable` (the run never produced the subject of the check, such as a stage check with no stage record). |
+| `score` | A number, when the check gives one. |
+| `evidence` | What the check saw. |
+| `reasoning` | The judge's reasoning. Optional. |
+| `judge` | On a judge verdict: `cls` (`system1` or `system2`) and `votes`. |
+
+A vote in `judge.votes` holds `judge` (its name), `outcome`, `winner` (on a pairwise request: `A`, `B`, `tie` or `inconclusive`; a tie differs from missing evidence), `score`, `reasoning` and `retries`, the retries of the judge call in the shape of `observed.retries`.
+
+`events` are what the runner reported as the run went, in order, when it recorded them. Every event has a `type` and an `at` time:
+
+| `type` | Other fields |
+|---|---|
+| `block_start` | `index`. |
+| `model_call` | `index`, `startedAt`, and when the adapter gives them `inputTokens`, `outputTokens`, `usd` and `latencyMs`. |
+| `tool_call` | `index`, `label`, `spanId` (optional), `error` (optional). |
+| `retry` | `index`. |
+| `block_end` | `index`, `pass`, and `status` (`not_run` or `blocked`) on an unmeasured block. |
+| `run_end` | `status`: `completed`, `failed` or `stopped`. |
+
 ## Outputs and how to read them
 
 The store prints nothing itself. Commands read it back as text or JSON (`campaign status`, `campaign status --json`, `report`, `view`). The tables are plain SQLite: any SQLite tool can read them, and each row keeps its full record as JSON in a `json` column beside the plain columns used for filters. The schema version is 2; an older store is upgraded when opened, and a store written by a newer driftbench is refused.
 
-Writes are transactional: a run and its blocks land together, and an import lands whole or not at all. A second process waits up to 5 seconds for a write lock.
+Writes are transactional: a run and its blocks land together, and an import lands whole or not at all. A second process waits up to 30 seconds for the file, a read as well as a write: a live holder that is slow is a wait, and a call fails with `database is locked` only after that.
 
 ## Worked example
 
