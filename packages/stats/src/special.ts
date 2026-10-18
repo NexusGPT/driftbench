@@ -142,6 +142,37 @@ export function incompleteBeta(x: number, a: number, b: number): number {
   return incompleteBetaPair(x, 1 - x, a, b);
 }
 
+/** log I_x(a, b), kept in log space so a tail below the smallest double is still a number. */
+function logIncompleteBeta(x: number, a: number, b: number): number {
+  if (x <= 0) return Number.NEGATIVE_INFINITY;
+  if (x >= 1) return 0;
+  const y = 1 - x;
+  const front = betaLogFront(x, y, a, b);
+  if (x < (a + 1) / (a + b + 2)) return front + Math.log(betaContinuedFraction(a, b, x) / a);
+  return Math.log1p(-Math.exp(front + Math.log(betaContinuedFraction(b, a, y) / b)));
+}
+
+/**
+ * The quantile of Beta(a, b) at probability exp(logP), by bisection on log I_x(a, b). The probability is never
+ * formed, so logP below -744 (a probability under the smallest double) is exact, as normalQuantileFromLogP is for
+ * the normal. For logP >= 0 it is 1; for -Infinity it is 0.
+ */
+export function betaQuantileFromLogP(logP: number, a: number, b: number): number {
+  if (Number.isNaN(logP)) throw new RangeError('betaQuantileFromLogP: logP must not be NaN');
+  if (logP === Number.NEGATIVE_INFINITY) return 0;
+  if (logP >= 0) return 1;
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 1075; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (mid === lo || mid === hi) break;
+    if (logIncompleteBeta(mid, a, b) < logP) lo = mid;
+    else hi = mid;
+    if (hi - lo <= 1e-15 * hi) break;
+  }
+  return (lo + hi) / 2;
+}
+
 /** Quantile of the Beta(a, b) distribution, by bisection on the regularized incomplete beta. */
 export function betaQuantile(p: number, a: number, b: number): number {
   if (Number.isNaN(p)) throw new RangeError('betaQuantile: p must not be NaN');
