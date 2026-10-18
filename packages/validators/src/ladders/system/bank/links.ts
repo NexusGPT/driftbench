@@ -12,7 +12,9 @@ import {
 import type { Flow, RawSpec } from '../plant';
 import { between, rngFor } from '../random';
 import {
+  blockId,
   failingKeys,
+  hideArgv,
   type LinkedSuite,
   linkedSuite,
   localizeDifference,
@@ -20,6 +22,7 @@ import {
   plantAt,
   type ReferenceRow,
   registryOf,
+  renamePerturbation,
   runSuite,
   type SuitePlant,
   sectionLink,
@@ -80,7 +83,17 @@ function draft(
   check: BankItem['check'],
   source: BankItem['source'] = 'combination',
 ): Draft {
-  return { id: `links/${id}`, family, tier, level: 12, component, title, cause, check, source };
+  return {
+    id: `links/${id}`,
+    family,
+    tier,
+    level: 12,
+    component,
+    title,
+    cause,
+    check: (ctx) => hideArgv(() => check(ctx)),
+    source,
+  };
 }
 
 /** The plant of one fault: spec s, block b, operator cls. */
@@ -94,7 +107,7 @@ function plantHolds(suite: LinkedSuite, runs: Parameters<typeof localizeDifferen
   for (const run of runs) {
     for (const block of run.blocks) {
       if (block.injected === true) continue;
-      const key = `${run.specId}#${block.blockId ?? `b${block.specIndex ?? block.index}`}`;
+      const key = `${run.specId}#${block.blockId ?? blockId(run.specId, block.specIndex ?? block.index)}`;
       const failing = block.status === 'fail' || (block.status === undefined && !block.pass);
       if (failing !== want.has(key))
         return `block ${key} ${failing ? 'fails' : 'passes'} against the plant: ${failingList(run)}`;
@@ -207,7 +220,7 @@ function localizePerturbed(): Draft[] {
         for (const [index, flow] of suite.flows.entries()) {
           const made = behavioursFor(flow, plant.get(index) ?? new Map());
           behaviours.set(index, made);
-          const perturbationId = withPerturbation(flow, made, k);
+          const perturbationId = renamePerturbation(flow, withPerturbation(flow, made, k), seed, id);
           for (let repeat = 0; repeat < 2; repeat += 1)
             runs.push(await runScenario(flow.spec, made, { mode: 'P', repeat, perturbationId }));
         }
@@ -244,7 +257,7 @@ function forest(flow: Flow, childFirst: boolean): { order: number[]; parents: Ma
       unknown
     >;
     const parent = parents.get(truth);
-    if (parent !== undefined) block.parent = `b${parent}`;
+    if (parent !== undefined) block.parent = blockId(flow.spec.id, parent);
     return block;
   });
   return { order, parents };
@@ -287,10 +300,12 @@ function localizeForest(): Draft[] {
                 const ancestors: string[] = [];
                 if (at === s)
                   for (let up = parents.get(b); up !== undefined; up = parents.get(up))
-                    ancestors.push(`${each.spec.id}#b${up}`);
-                else for (let a = 0; a < b; a += 1) ancestors.push(`${each.spec.id}#b${a}`);
+                    ancestors.push(`${each.spec.id}#${blockId(each.spec.id, up)}`);
+                else
+                  for (let a = 0; a < b; a += 1)
+                    ancestors.push(`${each.spec.id}#${blockId(each.spec.id, a)}`);
                 return {
-                  key: `${each.spec.id}#b${b}`,
+                  key: `${each.spec.id}#${blockId(each.spec.id, b)}`,
                   sections: [suite.own[at]?.[b] as string, suite.spec[at] as string],
                   ancestors,
                 };
@@ -501,7 +516,7 @@ function selectItems(): Draft[] {
             const registry = registryOf(suite.prompt, 'v1', [suite.global], edges);
             const flow = suite.flows[at.s] as Flow;
             const links = (flow.spec.metadata as { links: BlockLink[] }).links;
-            const own = links.find((link) => link.block === `b${at.b}`);
+            const own = links.find((link) => link.block === blockId(flow.spec.id, at.b));
             if (own) own.status = status;
             // The planted fault: the block whose link reaches the changed section fails on the run.
             const run = await runScenario(flow.spec, behavioursFor(flow, new Map([[at.b, ['X1_local']]])));
@@ -587,7 +602,7 @@ function selectEdges(): Draft[] {
       cause: 'sectionSelection selects every block with a stale link',
       build: (suite, s, b) => {
         const links = ((suite.flows[s] as Flow).spec.metadata as { links: BlockLink[] }).links;
-        links.push(sectionLink('gone-section', `b${b}`));
+        links.push(sectionLink('gone-section', blockId((suite.flows[s] as Flow).spec.id, b)));
         return {
           registry: registryOf(suite.prompt, 'v1', [suite.global]),
           changed: [suite.own[(s + 1) % suite.flows.length]?.[0] as string],
@@ -626,7 +641,7 @@ function selectEdges(): Draft[] {
       cause: 'linkHolds matches a link to its block by index',
       build: (suite, s, b) => {
         const links = ((suite.flows[s] as Flow).spec.metadata as { links: BlockLink[] }).links;
-        const own = links.find((link) => link.block === `b${b}`);
+        const own = links.find((link) => link.block === blockId((suite.flows[s] as Flow).spec.id, b));
         if (own) own.block = b;
         return {
           registry: registryOf(suite.prompt, 'v1', [suite.global]),
@@ -753,7 +768,7 @@ function selectParents(): Draft[] {
             raw.blocks = shape.order.map((truth) => {
               const block = { ...(source[truth] as Record<string, unknown>) };
               const parent = parentOf.get(truth);
-              if (parent !== undefined) block.parent = `b${parent}`;
+              if (parent !== undefined) block.parent = blockId(flow.spec.id, parent);
               return block;
             });
             // Links by index name authored positions: re-point them at the new positions.
@@ -937,7 +952,9 @@ function specItems(): Draft[] {
       level: 'error',
       code: 'LINK_TARGET_UNKNOWN',
       prepare: (suite, raw) => {
-        (raw.metadata as { links: BlockLink[] }).links.push(sectionLink('missing-section', 'b0'));
+        (raw.metadata as { links: BlockLink[] }).links.push(
+          sectionLink('missing-section', blockId(raw.id, 0)),
+        );
         return [suite.registry];
       },
     },
@@ -1001,7 +1018,7 @@ function specItems(): Draft[] {
 
   // Identity: links stay out of the spec hash, the run id and the cache key.
   const changes: Array<{ id: string; tier: Tier; change(links: BlockLink[]): void }> = [
-    { id: 'added', tier: 1, change: (links) => links.push(sectionLink('own_0_0', 'b1')) },
+    { id: 'added', tier: 1, change: (links) => links.push(sectionLink('own_0_0', 1)) },
     { id: 'promoted', tier: 2, change: (links) => ((links[0] as BlockLink).status = 'verified') },
     { id: 'refuted', tier: 2, change: (links) => ((links[0] as BlockLink).status = 'refuted') },
     { id: 'removed', tier: 2, change: (links) => links.splice(0, links.length) },

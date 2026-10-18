@@ -106,8 +106,15 @@ export function linkedSuite(
   const flows = Array.from({ length: specs }, (_, s) => plantedFlow(seed, `${tag}-s${s}`, blocks));
   // Spec and section ids are drawn from the seed, never read from the item: a product that keys on an id
   // the bank chose (a prefix, a counter) gains nothing on another seed (audit of version 6, cheater).
-  const names = neutralNames(seed, tag, specs * (blocks + 1) + specs);
-  for (const flow of flows) flow.spec.id = `s${names.pop()}`;
+  const names = neutralNames(seed, tag, specs * (blocks + 1) + specs + specs * blocks);
+  for (const flow of flows) {
+    flow.spec.id = `s${names.pop()}`;
+    const ids = (flow.spec.blocks as Array<{ id?: string }>).map(() => `k${names.pop()}`);
+    (flow.spec.blocks as Array<{ id?: string }>).forEach((block, index) => {
+      block.id = ids[index] as string;
+    });
+    BLOCK_IDS.set(flow.spec.id, ids);
+  }
   const own = flows.map(() => Array.from({ length: blocks }, () => `sec_${names.pop()}`));
   const spec = flows.map(() => `sec_${names.pop()}`);
   const global = 'tone';
@@ -118,13 +125,35 @@ export function linkedSuite(
     flow.spec.metadata = {
       links: [
         ...Array.from({ length: blocks }, (_, b) =>
-          sectionLink(own[s]?.[b] as string, form === 'id' ? `b${b}` : b),
+          sectionLink(own[s]?.[b] as string, form === 'id' ? blockId(flow.spec.id, b) : b),
         ),
         sectionLink(spec[s] as string, undefined),
       ],
     };
   });
   return { flows, registry, prompt, own, spec, global };
+}
+
+/** The block ids of each linked spec, by spec id: drawn from the seed, never `b0`, `b1`... */
+const BLOCK_IDS = new Map<string, string[]>();
+
+/** The id of block `index` of a linked spec (its authored position before any re-ordering). */
+export function blockId(specId: string, index: number): string {
+  return BLOCK_IDS.get(specId)?.[index] ?? `b${index}`;
+}
+
+/**
+ * Runs an item's check with the process arguments of a neutral program: a component that reads how it is
+ * being run (audit of version 6, cheater: argv sniffing) sees nothing of the validator.
+ */
+export async function hideArgv<T>(run: () => Promise<T>): Promise<T> {
+  const saved = process.argv;
+  process.argv = [saved[0] as string, 'app'];
+  try {
+    return await run();
+  } finally {
+    process.argv = saved;
+  }
 }
 
 /** Distinct six-digit hexadecimal names drawn from the seed and the tag. */
@@ -138,6 +167,16 @@ export function neutralNames(seed: number, tag: string, count: number): string[]
         .padStart(6, '0'),
     );
   return [...out];
+}
+
+/** Gives a perturbation a name drawn from the seed in place of the shared fixture's name; returns it. */
+export function renamePerturbation(flow: Flow, from: string, seed: number, tag: string): string {
+  const name = `q${neutralNames(seed, `${tag}-perturbation`, 1)[0]}`;
+  const found = (flow.spec.perturbations as Array<{ id: string }> | undefined)?.find(
+    (entry) => entry.id === from,
+  );
+  if (found) found.id = name;
+  return name;
 }
 
 /** Where faults are planted: spec index to the block faults of that spec. */
@@ -216,9 +255,12 @@ export function referenceOchiai(
 export function suiteRows(suite: LinkedSuite, mode: RunMode): ReferenceRow[] {
   return suite.flows.flatMap((flow, s) =>
     flow.truths.map((_, b) => ({
-      key: `${flow.spec.id}#b${b}`,
+      key: `${flow.spec.id}#${blockId(flow.spec.id, b)}`,
       sections: [suite.own[s]?.[b] as string, suite.spec[s] as string],
-      ancestors: mode === 'T' ? [] : Array.from({ length: b }, (_, a) => `${flow.spec.id}#b${a}`),
+      ancestors:
+        mode === 'T'
+          ? []
+          : Array.from({ length: b }, (_, a) => `${flow.spec.id}#${blockId(flow.spec.id, a)}`),
     })),
   );
 }
@@ -227,7 +269,10 @@ export function suiteRows(suite: LinkedSuite, mode: RunMode): ReferenceRow[] {
 export function failingKeys(suite: LinkedSuite, plant: SuitePlant): Set<string> {
   const out = new Set<string>();
   for (const [s, faults] of plant)
-    for (const [b, classes] of faults) if (classes.length > 0) out.add(`${suite.flows[s]?.spec.id}#b${b}`);
+    for (const [b, classes] of faults) {
+      const id = suite.flows[s]?.spec.id as string;
+      if (classes.length > 0) out.add(`${id}#${blockId(id, b)}`);
+    }
   return out;
 }
 
