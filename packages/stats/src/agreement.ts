@@ -1,7 +1,7 @@
 /** Agreement between judges and hand labels: Cohen's kappa and Krippendorff's alpha. */
 
 import { assertProbability, assertSameLength } from './basics';
-import { normalQuantile } from './special';
+import { normalQuantileFromLogP } from './special';
 
 export type Label = string | number | boolean;
 
@@ -115,7 +115,7 @@ export function kappaInterval(
   const observed = matches.length / n;
   const se = Math.sqrt((observed * (1 - observed)) / n) / (1 - expected);
   if (se === 0) return { kappa, se, lower: kappa, upper: kappa };
-  const z = -normalQuantile(alpha / 2);
+  const z = -normalQuantileFromLogP(Math.log(alpha) - Math.LN2);
   return { kappa, se, lower: Math.max(-1, kappa - z * se), upper: Math.min(1, kappa + z * se) };
 }
 

@@ -8,7 +8,7 @@ import {
   mulberry32,
   quantileSorted,
 } from './basics';
-import { betaQuantile, normalQuantile } from './special';
+import { betaQuantile, normalQuantileFromLogP } from './special';
 
 /** z for a two-sided 95 percent interval. */
 export const Z95 = 1.959963984540054;
@@ -256,5 +256,5 @@ export function bootstrapCI(values: readonly number[], options: BootstrapOptions
 export function zFor(alpha: number): number {
   assertProbability('zFor', 'alpha', alpha, true);
   // Work in the lower tail so subtraction from one cannot erase the significance level.
-  return -normalQuantile(alpha / 2);
+  return -normalQuantileFromLogP(Math.log(alpha) - Math.LN2);
 }

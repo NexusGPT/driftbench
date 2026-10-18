@@ -263,6 +263,29 @@ function millsRatio(t: number): number {
   return 1 / r;
 }
 
+/** Refine the lower normal tail without ever forming its possibly unrepresentable probability. */
+function refineNormalLogTail(logP: number, initial: number): number {
+  let x = initial;
+  for (let i = 0; i < 2; i += 1) {
+    const u = millsRatio(-x) - Math.sqrt(2 * Math.PI) * Math.exp(logP + (x * x) / 2);
+    x -= u / (1 + (x * u) / 2);
+  }
+  return x;
+}
+
+/**
+ * Internal normal inverse from log(p). Two-sided alpha callers pass log(alpha) - log(2),
+ * preserving half of the smallest positive binary64 alpha instead of rounding it to zero.
+ */
+export function normalQuantileFromLogP(logP: number): number {
+  if (!(logP <= 0)) throw new RangeError('normalQuantileFromLogP: logP must be at most zero');
+  if (logP === Number.NEGATIVE_INFINITY) return Number.NEGATIVE_INFINITY;
+  if (logP >= Math.log(DEEP_TAIL)) return normalQuantile(Math.exp(logP));
+  const q = Math.sqrt(-2 * logP);
+  const x = poly(ACKLAM_C, q) / (poly(ACKLAM_D, q) * q + 1);
+  return refineNormalLogTail(logP, x);
+}
+
 /** Quantile of the standard normal distribution: Acklam's approximation with one Halley refinement. */
 export function normalQuantile(p: number): number {
   if (!(p > 0 && p < 1)) {
@@ -286,11 +309,7 @@ export function normalQuantile(p: number): number {
   if (p < DEEP_TAIL) {
     // exp(x^2 / 2) overflows once |x| passes 37.68 (p about 1e-311), and cdf(x) is subnormal there. Scale the Halley
     // step by the density instead: u = (cdf(x) - p) / pdf(x) = millsRatio(-x) - p sqrt(2 pi) exp(log p + x^2 / 2).
-    for (let i = 0; i < 2; i += 1) {
-      const u = millsRatio(-x) - Math.sqrt(2 * Math.PI) * Math.exp(Math.log(p) + (x * x) / 2);
-      x -= u / (1 + (x * u) / 2);
-    }
-    return x;
+    return refineNormalLogTail(Math.log(p), x);
   }
   for (let i = 0; i < 2; i += 1) {
     // Above one half, cdf(x) - p is computed as (1 - p) - sf(x): 1 - p is exact there, and the difference of two
