@@ -1,5 +1,5 @@
+import { homedir } from 'node:os';
 import { between, rngFor } from '../blocks/harness';
-import { token } from '../blocks/kinds';
 import { need } from '../blocks/product';
 import { type BankItem, expectAll, fail, PASS, type Tier } from '../blocks/types';
 
@@ -42,8 +42,43 @@ function item(
     component,
     title: `${title} (${CONTRACT})`,
     cause,
-    check,
+    check: (context) => neutralProcess(() => check(context)),
   };
+}
+
+/**
+ * Runs a check as a neutral program sees itself: argv `node app`, no node options, the home folder as the
+ * working folder. A product that reads how it is being run (audit of links2, cheater: argv, execArgv and
+ * temporary-folder sniffing) sees nothing of the validator. Items run one at a time, so the swap is safe.
+ */
+async function neutralProcess<T>(run: () => Promise<T>): Promise<T> {
+  const argv = process.argv;
+  const execArgv = process.execArgv;
+  const cwd = process.cwd;
+  const home = homedir();
+  process.argv = [argv[0] as string, 'app'];
+  process.execArgv = [];
+  process.cwd = () => home;
+  try {
+    return await run();
+  } finally {
+    process.argv = argv;
+    process.execArgv = execArgv;
+    process.cwd = cwd;
+  }
+}
+
+/**
+ * A name drawn from the seed and the tag, with no fixed prefix and a seeded length of 5 to 9 characters:
+ * no product can tell the items' prompts, specs, blocks or sections apart from a user's by their shape
+ * (audit of links2, cheater: fixture-name and id-pattern matching).
+ */
+export function neutralName(seed: number, tag: string): string {
+  const rng = rngFor(seed, `name:${tag}`);
+  const length = 5 + Math.floor(rng() * 5);
+  let out = 'abcdefghjkmnpqrstuvwxyz'[Math.floor(rng() * 23)] as string;
+  while (out.length < length) out += 'abcdefghjkmnpqrstuvwxyz23456789_'[Math.floor(rng() * 32)];
+  return out;
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -66,21 +101,24 @@ type World = {
   own: string[][];
   wide: string[];
   global: string;
+  prompt: string;
+  agent: string;
 };
 
-const PROMPT = 'shop';
 const span = (at: number) => ({ start: at * 20, end: at * 20 + 10 });
 const hex = '0'.repeat(64);
 
 function world(seed: number, tag: string, specs: number, blocks: number): World {
   const own = Array.from({ length: specs }, (_, s) =>
-    Array.from({ length: blocks }, (_, b) => `own_${token(seed, `${tag}${s}${b}`)}`),
+    Array.from({ length: blocks }, (_, b) => neutralName(seed, `${tag}own${s}.${b}`)),
   );
-  const wide = Array.from({ length: specs }, (_, s) => `wide_${token(seed, `${tag}w${s}`)}`);
-  const global = `tone_${token(seed, `${tag}g`)}`;
+  const wide = Array.from({ length: specs }, (_, s) => neutralName(seed, `${tag}wide${s}`));
+  const global = neutralName(seed, `${tag}global`);
+  const prompt = neutralName(seed, `${tag}prompt`);
+  const agent = neutralName(seed, `${tag}agent`);
   const ids = [...own.flat(), ...wide, global];
   const registry = {
-    prompt_id: PROMPT,
+    prompt_id: prompt,
     version: 'v1',
     text_sha256: hex,
     sections: ids.map((id, at) => ({
@@ -92,8 +130,8 @@ function world(seed: number, tag: string, specs: number, blocks: number): World 
     })),
   };
   const specList = own.map((sections, s) => {
-    const id = `spec_${token(seed, `${tag}spec${s}`)}`;
-    const blockIds = sections.map((_, b) => `blk_${token(seed, `${tag}${s}b${b}`)}`);
+    const id = neutralName(seed, `${tag}spec${s}`);
+    const blockIds = sections.map((_, b) => neutralName(seed, `${tag}block${s}.${b}`));
     return {
       id,
       blocks: blockIds.map((blockId, b) => ({
@@ -105,18 +143,18 @@ function world(seed: number, tag: string, specs: number, blocks: number): World 
         links: [
           ...blockIds.map((blockId, b) => ({
             block: blockId,
-            to: { kind: 'prompt_section' as const, prompt: PROMPT, section: sections[b] as string },
+            to: { kind: 'prompt_section' as const, prompt, section: sections[b] as string },
             status: 'declared',
           })),
           {
-            to: { kind: 'prompt_section' as const, prompt: PROMPT, section: wide[s] as string },
+            to: { kind: 'prompt_section' as const, prompt, section: wide[s] as string },
             status: 'declared',
           },
         ],
       },
     };
   });
-  return { specs: specList, registry, own, wide, global };
+  return { specs: specList, registry, own, wide, global, prompt, agent };
 }
 
 /** Stored runs, mode T: `fails(s, b, repeat)` says whether block b of spec s fails on that repeat. */
@@ -137,7 +175,7 @@ function runsOf(
         specHash: specHash(spec),
         mode: 'T',
         repeat,
-        target: { adapter: 'function', agent: 'shop' },
+        target: { adapter: 'function', agent: w.agent },
         status: 'completed',
         blocks: (spec.blocks as unknown[]).map((_, b) => {
           const failed = fails(s, b, repeat);
@@ -172,13 +210,13 @@ function reference(
   ranked: (section: string) => boolean,
 ): Map<string, number> {
   const weights: Array<{ w: number; sections: string[] }> = [];
-  w.specs.forEach((spec, s) =>
+  w.specs.forEach((spec, s) => {
     spec.blocks.forEach((_, b) => {
       let failed = 0;
       for (let r = 0; r < repeats; r += 1) if (fails(s, b, r)) failed += 1;
       weights.push({ w: failed / repeats, sections: covers(s, b) });
-    }),
-  );
+    });
+  });
   const total = weights.reduce((sum, row) => sum + row.w, 0);
   const out = new Map<string, number>();
   for (const section of (w.registry.sections as Array<{ id: string }>).map((each) => each.id)) {
@@ -302,7 +340,7 @@ function localizeItems(): BankItem[] {
                 const other = b === 0 ? 1 : 0;
                 spec.metadata.links.push({
                   block: spec.blocks[other]?.id,
-                  to: { kind: 'prompt_section', prompt: PROMPT, section: target },
+                  to: { kind: 'prompt_section', prompt: w.prompt, section: target },
                   status: 'stale',
                 });
               } else if (what === 'stale-spec-wide-link') {
@@ -320,7 +358,7 @@ function localizeItems(): BankItem[] {
               } else {
                 spec.metadata.links.push({
                   block: spec.blocks[b]?.id,
-                  to: { kind: 'prompt_section', prompt: PROMPT, section: w.global },
+                  to: { kind: 'prompt_section', prompt: w.prompt, section: w.global },
                   status: 'declared',
                 });
               }
@@ -367,7 +405,7 @@ function schemaItems(): BankItem[] {
             const index = at === 'first' ? 0 : spec.metadata.links.length - 1;
             (spec.metadata.links[index] as Link).block =
               form === 'id'
-                ? `none_${token(seed, id)}`
+                ? neutralName(seed, `${id}none`)
                 : spec.blocks.length + between(rngFor(seed, id), 0, 3);
             const issues = issuesOf(product, spec);
             const hit = issues.find((issue) => issue.code === 'LINK_BLOCK_UNKNOWN');
