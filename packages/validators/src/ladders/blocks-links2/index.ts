@@ -69,16 +69,26 @@ async function neutralProcess<T>(run: () => Promise<T>): Promise<T> {
 }
 
 /**
- * A name drawn from the seed and the tag, with no fixed prefix and a seeded length of 5 to 9 characters:
- * no product can tell the items' prompts, specs, blocks or sections apart from a user's by their shape
- * (audit of links2, cheater: fixture-name and id-pattern matching).
+ * A name drawn from the seed and the tag, with no fixed prefix, a seeded length of 3 to 20 characters and
+ * every character an id may hold (a letter or digit first, then letters of both cases, digits, dots,
+ * underscores and hyphens): no product can tell the items' prompts, specs, blocks or sections apart from a
+ * user's by their shape (audit of links2, cheater rounds 1 and 2: fixture-name, id-pattern, dash and
+ * id-length matching).
  */
 export function neutralName(seed: number, tag: string): string {
   const rng = rngFor(seed, `name:${tag}`);
-  const length = 5 + Math.floor(rng() * 5);
-  let out = 'abcdefghjkmnpqrstuvwxyz'[Math.floor(rng() * 23)] as string;
-  while (out.length < length) out += 'abcdefghjkmnpqrstuvwxyz23456789_'[Math.floor(rng() * 32)];
+  const first = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const rest = `${first}._-`;
+  const length = 3 + Math.floor(rng() * 18);
+  let out = first[Math.floor(rng() * first.length)] as string;
+  while (out.length < length) out += rest[Math.floor(rng() * rest.length)];
   return out;
+}
+
+/** A spec count and a block count drawn from the seed: the inputs carry no fixed shape (cheater round 2). */
+function shapeOf(seed: number, tag: string, specs: [number, number], blocks: [number, number]) {
+  const rng = rngFor(seed, `shape:${tag}`);
+  return { specs: between(rng, specs[0], specs[1]), blocks: between(rng, blocks[0], blocks[1]) };
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -109,13 +119,24 @@ const span = (at: number) => ({ start: at * 20, end: at * 20 + 10 });
 const hex = '0'.repeat(64);
 
 function world(seed: number, tag: string, specs: number, blocks: number): World {
+  // Every name of one world is distinct, whatever its case: a drawn name already taken is drawn again.
+  const taken = new Set<string>();
+  const name = (what: string) => {
+    for (let again = 0; ; again += 1) {
+      const drawn = neutralName(seed, `${tag}${what}#${again}`);
+      if (!taken.has(drawn.toLowerCase())) {
+        taken.add(drawn.toLowerCase());
+        return drawn;
+      }
+    }
+  };
   const own = Array.from({ length: specs }, (_, s) =>
-    Array.from({ length: blocks }, (_, b) => neutralName(seed, `${tag}own${s}.${b}`)),
+    Array.from({ length: blocks }, (_, b) => name(`own${s}.${b}`)),
   );
-  const wide = Array.from({ length: specs }, (_, s) => neutralName(seed, `${tag}wide${s}`));
-  const global = neutralName(seed, `${tag}global`);
-  const prompt = neutralName(seed, `${tag}prompt`);
-  const agent = neutralName(seed, `${tag}agent`);
+  const wide = Array.from({ length: specs }, (_, s) => name(`wide${s}`));
+  const global = name('global');
+  const prompt = name('prompt');
+  const agent = name('agent');
   const ids = [...own.flat(), ...wide, global];
   const registry = {
     prompt_id: prompt,
@@ -130,8 +151,8 @@ function world(seed: number, tag: string, specs: number, blocks: number): World 
     })),
   };
   const specList = own.map((sections, s) => {
-    const id = neutralName(seed, `${tag}spec${s}`);
-    const blockIds = sections.map((_, b) => neutralName(seed, `${tag}block${s}.${b}`));
+    const id = name(`spec${s}`);
+    const blockIds = sections.map((_, b) => name(`block${s}.${b}`));
     return {
       id,
       blocks: blockIds.map((blockId, b) => ({
@@ -273,10 +294,11 @@ function localizeItems(): BankItem[] {
           'localizeRuns weighs a block by its failed rows over its rows',
           async ({ seed, product }) => {
             const rng = rngFor(seed, id);
-            const w = world(seed, id, 3, 4);
+            const size = shapeOf(seed, id, [2, 4], [3, 6]);
+            const w = world(seed, id, size.specs, size.blocks);
             const plants = Array.from({ length: shape === 'one-block' ? 1 : 2 }, () => ({
-              s: between(rng, 0, 2),
-              b: between(rng, 0, 3),
+              s: between(rng, 0, size.specs - 1),
+              b: between(rng, 0, size.blocks - 1),
               on: Array.from({ length: repeats }, () => rng() < 0.5),
             }));
             for (const plant of plants) plant.on[0] = true;
@@ -329,9 +351,10 @@ function localizeItems(): BankItem[] {
                 ? 'localizeRows leaves a stale section out of the ranking'
                 : 'localizeRuns lists a global section apart and never ranks it',
             async ({ seed, product }) => {
-              const w = world(seed, id, 2, 4);
-              const s = between(rngFor(seed, `${id}-s`), 0, 1);
-              const b = position === 'first' ? 0 : 3;
+              const size = shapeOf(seed, id, [2, 4], [3, 6]);
+              const w = world(seed, id, size.specs, size.blocks);
+              const s = between(rngFor(seed, `${id}-s`), 0, size.specs - 1);
+              const b = position === 'first' ? 0 : size.blocks - 1;
               const target = w.own[s]?.[b] as string;
               const spec = w.specs[s] as World['specs'][number];
               let covers = (cs: number, cb: number) => [w.own[cs]?.[cb] as string, w.wide[cs] as string];
@@ -400,7 +423,7 @@ function schemaItems(): BankItem[] {
           `a link whose block (${form}) names no block of the spec is refused with LINK_BLOCK_UNKNOWN at metadata.links.<i>.block (the ${at} link)`,
           'spec validate reports LINK_BLOCK_UNKNOWN at metadata.links.<i>.block',
           async ({ seed, product }) => {
-            const w = world(seed, id, 1, 3);
+            const w = world(seed, id, 1, shapeOf(seed, id, [1, 1], [3, 6]).blocks);
             const spec = structuredClone(w.specs[0]) as World['specs'][number];
             const index = at === 'first' ? 0 : spec.metadata.links.length - 1;
             (spec.metadata.links[index] as Link).block =
@@ -446,7 +469,7 @@ function schemaItems(): BankItem[] {
           `a link whose ${entry.field} is "${value}", outside the list, is refused with a path under metadata.links`,
           `spec validate refuses a ${entry.field} outside its list under metadata.links`,
           async ({ seed, product }) => {
-            const w = world(seed, id, 1, 3);
+            const w = world(seed, id, 1, shapeOf(seed, id, [1, 1], [3, 6]).blocks);
             const spec = structuredClone(w.specs[0]) as World['specs'][number];
             const index = between(rngFor(seed, id), 0, spec.metadata.links.length - 1);
             entry.set(spec.metadata.links[index] as unknown as Record<string, unknown>, value);
@@ -514,7 +537,7 @@ function schemaItems(): BankItem[] {
         'specHash leaves metadata.links out',
         async ({ seed, product }) => {
           const specHash = need<(spec: unknown) => string>(product.core, 'core', 'specHash');
-          const w = world(seed, id, 1, 3);
+          const w = world(seed, id, 1, shapeOf(seed, id, [1, 1], [3, 6]).blocks);
           const before = loadSpec(product, w.specs[0]);
           const raw = structuredClone(w.specs[0]) as World['specs'][number];
           change.change(raw.metadata.links[0] as unknown as Record<string, unknown>);
