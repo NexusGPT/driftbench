@@ -6,6 +6,7 @@ import type { Family } from './frame';
 import { coverageFamily, readsFamily, taskFamily } from './genquality';
 import { decoysFamily, hostileFamily } from './hostile';
 import { killFamily } from './kill';
+import { ledgerFamilies } from './ledger';
 import { lintCleanFamily, lintDefectFamily } from './lint';
 import { genAsksFamily, genCompleteFamily, impactFamily, mutantFamily } from './loop';
 import { maintainFixtureFamily } from './maintain-fixture';
@@ -80,6 +81,7 @@ export const BANK_LEVELS = [
   { id: 'agent-mutants', name: 'agent mutants', families: () => [mutantFamily(), killFamily()] },
   { id: 'maintenance', name: 'maintenance', families: () => [impactFamily(), maintainFixtureFamily()] },
   { id: 'scale', name: 'scale', families: () => [scaleFamily()] },
+  { id: 'ledger', name: 'the pointer reader and its ledger', families: () => ledgerFamilies() },
 ] as const satisfies ReadonlyArray<{ id: string; name: string; families: () => Family[] }>;
 
 /**

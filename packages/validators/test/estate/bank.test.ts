@@ -51,7 +51,7 @@ describe('the estate bank', () => {
     for (const [family, count] of Object.entries(shape.families))
       expect(count, family).toBeGreaterThanOrEqual(20);
     expect(Object.keys(shape.tiers).sort()).toEqual(['1', '2', '3', '4', '5']);
-    expect(Object.keys(shape.levels).sort()).toEqual(['1', '2', '3', '4', '5', '6', '7']);
+    expect(Object.keys(shape.levels).sort()).toEqual(['1', '2', '3', '4', '5', '6', '7', '8']);
     expect(BANK_LEVELS.map((level) => level.id)).toEqual([
       'reader',
       'lint',
@@ -60,6 +60,7 @@ describe('the estate bank', () => {
       'agent-mutants',
       'maintenance',
       'scale',
+      'ledger',
     ]);
   });
 

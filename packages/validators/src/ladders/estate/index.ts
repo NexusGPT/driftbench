@@ -15,6 +15,8 @@ import { BANK_LEVELS, type Family, levelMeasure, QUARANTINED } from './bank/inde
  *   5  agent mutants     every atom deleted from the rule follower fails one of its generated tests
  *   6  maintenance       every estate mutant gets the retirements, regenerations and re-approvals it should
  *   7  scale             every stage at 250 to 5000 atoms within its time budget, its result right
+ *   8  ledger            the scan through the pointer reader and its ledger, the diff and the rerun set read
+ *                        from the ledger, and both at 250 to 5000 atoms
  */
 
 export * from './bank/index';
@@ -43,6 +45,12 @@ export {
 export { type ExpectedAtom, type Rendered, renderEstate } from './render';
 export { phraseBank, sessionIndex, situationsOf } from './situations';
 
+/**
+ * The version of the estate ladder (docs/validators.md section 12.5). Version 2 adds level 8, the ledger: the
+ * scan through the pointer reader, the diff and the rerun set read from the ledger, and both at 5000 atoms.
+ */
+export const ESTATE_LADDER_VERSION = 2;
+
 export type EstateLadderOptions = {
   /** The families of each level by level id; tests replace one to plant a fault. */
   families?: Partial<Record<string, () => Family[]>>;
@@ -51,6 +59,7 @@ export type EstateLadderOptions = {
 export function estateLadder(options: EstateLadderOptions = {}): Ladder {
   return defineLadder({
     component: 'estate',
+    version: ESTATE_LADDER_VERSION,
     levels: BANK_LEVELS.map((level) => {
       const families =
         options.families?.[level.id] ??
