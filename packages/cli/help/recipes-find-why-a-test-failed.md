@@ -170,6 +170,7 @@ driftbench report --store acme.db --out failing.html --junit failing.xml --max-r
 ```text
 Margin auto: 17.0 points, ...
 Campaign c-5760c4be8d26: 10 runs, 5 pass, 5 fail, 0 did not complete.
+Suite pass rate, mode F: 50.0% [23.4%, 76.6%] (hierarchical 95% interval); 10 goldens, n_eff 9.0 runs (design effect 1.11), no drop detectable at 80% power.
 Wrote failing.html and failing.xml.
 ```
 

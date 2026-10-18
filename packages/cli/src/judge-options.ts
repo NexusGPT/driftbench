@@ -258,6 +258,12 @@ function shapingFlags(flags: JudgeFlags): string[] {
   return set.filter(([, value]) => value !== undefined).map(([name]) => name);
 }
 
+/** The refusal of flags that shape a judge given with no judge: `--verify needs ...`, `--a and --b need ...`. */
+export function judgeNeeded(flags: readonly string[]): string {
+  const verb = flags.length === 1 ? 'needs' : 'need';
+  return `${flags.join(' and ')} ${verb} --judge claude:<model>, another --judge <kind>:<model>, or --judges <cassette>`;
+}
+
 /**
  * The judge of a run (`replay`, `estate run`, `campaign rejudge`). With no judge flag every criterion a block
  * names is inconclusive and gates as the criterion does: never a pass. Undefined on bad input, reported.
@@ -270,9 +276,7 @@ export async function runJudgeFrom(
   if (!judgeAsked(options)) {
     const stray = shapingFlags(options);
     if (stray.length > 0) {
-      io.err(
-        `error: ${stray.join(' and ')} need --judge claude:<model>, another --judge <kind>:<model>, or --judges <cassette>\n`,
-      );
+      io.err(`error: ${judgeNeeded(stray)}\n`);
       return undefined;
     }
     const { noJudgeCheck } = await import('@agent-nexus/driftbench-judges');
@@ -301,9 +305,7 @@ export async function optionalJudgeFrom(
   if (!judgeAsked(options)) {
     const stray = shapingFlags(options);
     if (stray.length > 0) {
-      io.err(
-        `error: ${stray.join(' and ')} need --judge claude:<model>, another --judge <kind>:<model>, or --judges <cassette>\n`,
-      );
+      io.err(`error: ${judgeNeeded(stray)}\n`);
       return null;
     }
     return undefined;
@@ -765,15 +767,21 @@ async function liveClient(
   const J = await import('@agent-nexus/driftbench-judges');
   const { env } = context;
   switch (spec.kind) {
+    // The Claude judge of runs and calibration runs the product default policy (createDefaultJudge).
     case 'claude': {
       const script = /\.(c|m)?js$/.test(context.claudePath);
-      return J.createClaudeCliJudge({
+      return J.createDefaultJudge({
+        provider: 'claude-cli',
+        id: `claude-${spec.model}`,
         model: spec.model,
         env: { ...env, CLAUDE_JUDGE_MODEL: spec.model },
         ...(script
           ? { command: process.execPath, commandArgs: [context.claudePath] }
           : { command: context.claudePath }),
-        ...(context.budget === undefined ? {} : { maxBudgetUsd: context.budget }),
+        // The whole budget caps this client across routing, solves and comparisons; each call reserves at most 0.1.
+        ...(context.budget === undefined
+          ? {}
+          : { maxBudgetUsd: Math.min(0.1, context.budget), spendCapUsd: context.budget }),
       });
     }
     case 'openai':

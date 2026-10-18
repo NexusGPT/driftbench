@@ -171,6 +171,7 @@ blocks:
             - id: call_cov_1
               label: coverage.check
               ...
+      origin: recorded
 metadata:
   imported:
     approved: false

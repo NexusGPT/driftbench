@@ -1,8 +1,22 @@
 /**
- * The version of the store's tables and of the export bundle. Opening a database or reading a bundle
- * written by a newer version fails with a clear error; an older database is upgraded on open.
+ * The version of the store's tables, of the run records they hold and of the export bundle. Opening a
+ * database or reading a bundle written by a newer version fails with a clear error; an older database is
+ * upgraded on open. Schema 3 adds no table: its run records may hold the block verdicts not_run and blocked
+ * (`status`, `notRun`, `blocked`) and the resolution fields (`by`, `resolved`, `diagnoses`), which an older
+ * driftbench cannot read.
  */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
+
+/**
+ * The tables each schema version added: schema 1's tables, the registry with 2, none with 3. A test checks that
+ * together they are every table SCHEMA_SQL creates and that every version up to SCHEMA_VERSION is listed, so a
+ * new table or a new version is written here with its number.
+ */
+export const TABLES_BY_VERSION: Readonly<Record<number, readonly string[]>> = {
+  1: ['specs', 'campaigns', 'runs', 'blocks', 'cache', 'units'],
+  2: ['blobs', 'versions'],
+  3: [],
+};
 
 /**
  * The tables. Each row keeps its record as JSON; the plain columns are copies of record fields, kept

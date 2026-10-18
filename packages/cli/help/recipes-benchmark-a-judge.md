@@ -111,17 +111,17 @@ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/a
 ```
 
 ```text
-care_redirect [gating]: owned by jev-a (system1: jev-a, jev-b, openai-decisions; re-judge google-chat, openai-chat, anthropic-chat)
-    jev-a              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
+care_redirect [gating]: owned by s1p-a (system1: s1p-a, s1p-b, openai-decisions; re-judge google-chat, openai-chat, anthropic-chat)
+    s1p-a              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
     ...
     alpha across judges 1.00; bar: 3/3 separation and kappa 0.8
 ...
-holds_instructions [gating]: owned by google-chat (system2: google-chat, openai-chat, anthropic-chat; re-judge jev-a, jev-b, openai-decisions)
+holds_instructions [gating]: owned by google-chat (system2: google-chat, openai-chat, anthropic-chat; re-judge s1p-a, s1p-b, openai-decisions)
     openai-decisions   system1  separation 2/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  misses: separates the fixture pair 2 of 3 times
 ...
-ledger_intact: UNASSIGNED, judged but not gating: no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): jev-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8
+ledger_intact: UNASSIGNED, judged but not gating: no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): s1p-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8
 ...
-Kappa over every labelled block: jev-a 0.90 (38/40), jev-b 0.90 (38/40), openai-decisions 1.00 (40/40), openai-chat 1.00 (40/40), google-chat 0.95 (39/40), anthropic-chat 1.00 (40/40).
+Kappa over every labelled block: s1p-a 0.90 (38/40), s1p-b 0.90 (38/40), openai-decisions 1.00 (40/40), openai-chat 1.00 (40/40), google-chat 0.95 (39/40), anthropic-chat 1.00 (40/40).
 
 11 of 12 criteria assigned in mode hybrid (3 repeats, kappa at least 0.8). Unassigned, judged but never gating: ledger_intact.
 Wrote assignments.yaml.
@@ -157,7 +157,7 @@ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/a
 ```
 
 The document has `mode`, `repeats`, `kappaMin`, `criteria`, `pooled`, `excluded`, `errors`, `spentUsd` and
-`table`. The judge `jev-b` on `ledger_intact`, in part:
+`table`. The judge `s1p-b` on `ledger_intact`, in part:
 
 ```text
 "labels": { "n": 3, "agree": 2,

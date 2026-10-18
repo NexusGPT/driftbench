@@ -52,6 +52,11 @@ const jobs = [
   { name: 'innovations', src: 'innovations.html', out: 'innovations-{theme}.png' },
   { name: 'moj', src: 'moj.html', out: 'moj-{theme}.png' },
   { name: 'blast', src: 'blast.html', out: 'blast-{theme}.png' },
+  { name: 'block-sources', src: 'block-sources.html', out: 'block-sources-{theme}.png' },
+  { name: 'block-personas', src: 'block-personas.html', out: 'block-personas-{theme}.png' },
+  { name: 'block-parents', src: 'block-parents.html', out: 'block-parents-{theme}.png' },
+  { name: 'block-values', src: 'block-values.html', out: 'block-values-{theme}.png' },
+  { name: 'block-rules', src: 'block-rules.html', out: 'block-rules-{theme}.png' },
   // The charts: one page, chart.html?c=<name>, reading chart-data.js (written by tools/readme-charts.mjs).
   // The five public benchmark charts render into docs/assets, where the README and the docs site both read them.
   { name: 'judge-leads', src: 'chart.html', query: 'c=judge-leads', out: 'judge-leads-{theme}.png' },

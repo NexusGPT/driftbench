@@ -68,6 +68,12 @@ class ComparisonReproduction(unittest.TestCase):
         self.assertIn('"fresh_calls": 0', output)
         self.assert_unchanged(folder, before)
 
+    def test_default_on_readme_v7_analysis_replays_recorded_pairs(self):
+        folder = ROOT / 'comparisons/default-on/readme-v7'
+        before = self.snapshot(folder)
+        self.command(sys.executable, '-m', 'unittest', 'discover', '-s', str(folder), '-p', 'test_analyze.py')
+        self.assert_unchanged(folder, before)
+
     def test_promptfoo_python_tests_set_up_missing_runtime(self):
         with tempfile.TemporaryDirectory() as temp:
             folder = Path(temp) / 'hard'

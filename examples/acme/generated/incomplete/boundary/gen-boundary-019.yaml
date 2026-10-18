@@ -6,7 +6,7 @@ id: gen-boundary-019
 version: 7a022d4e1380
 kind: conversation
 title: "Boundary value coverage.check.out.found.false: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -78,12 +78,15 @@ metadata:
     path: porting-locked-number
     cell:
       coverage.check.out.found: coverage.check.out.found.false
+      coverage.check.out.address_id: coverage.check.out.address_id.absent
+      coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.absent
+      coverage.check.out.five_g: coverage.check.out.five_g.absent
       flow: porting
       user_type: new-customer
       port_result: locked
       plan_choice: names-one
       customer_details: name-and-email
-      channel: chat
+      channel: whatsapp
       coverage_result: none
     blocks:
       - block: b1-needs-to-port_number
@@ -91,7 +94,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-port_number
-          stage: needs
+          stage: port_number
         phrase:
           dimension: stage_transition
           value: needs-to-port_number
