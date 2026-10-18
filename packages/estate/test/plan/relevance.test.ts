@@ -105,20 +105,24 @@ describe('situation relevance follows the kinds a situation acts on and the link
       expect(crosses(rows, 'talky', dimension, value), value).toBe(false);
   });
 
-  it('reads no id or path: an opaque id and a file named after a situation change nothing', () => {
+  it('reads no id or path: an atom named and filed after a helper, a tracker and a tool is still an instruction', () => {
     const map = samples();
     map.atoms.push(
-      atom('restart.helper.language', 'instruction', 'Keep the calibration seal intact.', [
+      atom('dead.helper.tracker.tool', 'instruction', 'Keep the calibration seal intact.', [
         { type: 'custom', name: 'seal' },
       ]),
     );
-    const sealed = map.atoms.at(-1);
-    if (sealed) sealed.provenance.file = 'language/helpers/restart.md';
-    const same = cells(map).filter((row) => row.atomIds[0] === 'restart.helper.language');
-    const plain = cells(map).filter((row) => row.atomIds[0] === 'rule');
-    expect(new Set(same.map((row) => `${row.cell.estate_hazard}|${row.cell.deviation}`))).toEqual(
-      new Set(plain.map((row) => `${row.cell.estate_hazard}|${row.cell.deviation}`)),
-    );
+    const named = map.atoms.at(-1);
+    if (named) named.provenance.file = 'helpers/tracker/tool-failure.md';
+    const rows = cells(map);
+    for (const [dimension, value] of [
+      ['estate_hazard', 'dead_helper'],
+      ['session_state', 'helpers_running'],
+      ['estate_hazard', 'stale_tracker'],
+      ['deviation', 'D8_tool_failure'],
+    ] as const)
+      expect(crosses(rows, 'dead.helper.tracker.tool', dimension, value), value).toBe(false);
+    expect(rows.some((row) => row.atomIds[0] === 'dead.helper.tracker.tool')).toBe(true);
   });
 
   it('retains a situation value no table names, with a note, instead of reporting vacuous coverage', () => {
