@@ -753,3 +753,13 @@ describe('the benchmark workflows', () => {
     }
   });
 });
+
+describe('the pinned catch list', () => {
+  it('refuses an executor branch that edits a validator catch.json, and leaves other branches alone', () => {
+    expect(protectedChanges('exec/blocks-1', ['validators/blocks/catch.json'])).toEqual([
+      'validators/blocks/catch.json',
+    ]);
+    expect(protectedChanges('exec/blocks-1', ['validators/blocks/journal.jsonl'])).toEqual([]);
+    expect(protectedChanges('fix/blocks', ['validators/blocks/catch.json'])).toEqual([]);
+  });
+});

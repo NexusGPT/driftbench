@@ -25,6 +25,9 @@ export type PilotMeasure = {
   fixedPerIteration: number | null;
   /** Failing items at the end of the pilot. */
   remaining: number | null;
+  /** The same over every item, catch items included: the forecast reads the stricter of the two. */
+  allFixedPerIteration: number | null;
+  allRemaining: number | null;
 };
 
 /** A blind pilot slower than the builder's by more than this factor flags the builder pilot (section 12.7). */
@@ -131,9 +134,21 @@ function measurePilot(
         : null,
       fixedPerIteration: endRow ? (endRow.passing - baselineRow.passing) / pilotRows.length : null,
       remaining: endRow ? endRow.bankSize - endRow.passing : null,
+      allFixedPerIteration: endRow ? (allPassing(endRow) - allPassing(baselineRow)) / pilotRows.length : null,
+      allRemaining: endRow ? allSize(endRow) - allPassing(endRow) : null,
     },
   };
 }
+
+/** Every item of a row, catch items included, and those passing on every seed. */
+const allSize = (row: Pick<JournalRow, 'bankSize' | 'catchItems'>) =>
+  row.bankSize + (row.catchItems?.size ?? 0);
+const allPassing = (row: Pick<JournalRow, 'passing' | 'catchItems'>) =>
+  row.passing + (row.catchItems?.passing ?? 0);
+
+/** Iterations to 100 percent: remaining / fixed per iteration; null when the pilot fixed nothing. */
+const forecastOf = (remaining: number | null, fixed: number | null) =>
+  fixed !== null && fixed > 0 && remaining !== null ? remaining / fixed : null;
 
 /**
  * The hardness measurement from a journal whose first builder row is iteration 0 (sections 12.4 and 12.7). When
@@ -178,10 +193,13 @@ export function measureHardness(
   const source = chosen.measure.executor;
   const { fixedPerIteration, remaining, end, iterations, complete } = chosen.measure;
   const endRow = chosen.endRow;
-  const forecast =
-    fixedPerIteration !== null && fixedPerIteration > 0 && remaining !== null
-      ? remaining / fixedPerIteration
-      : null;
+  // Every term takes the stricter of its hardness-only and its all-items value (section 12.4): counting catch
+  // items apart never makes a gate easier to pass. The forecast is the smaller of the two.
+  const forecasts = [
+    forecastOf(remaining, fixedPerIteration),
+    forecastOf(chosen.measure.allRemaining, chosen.measure.allFixedPerIteration),
+  ].filter((value): value is number => value !== null);
+  const forecast = forecasts.length === 0 ? null : Math.min(...forecasts);
   const reasons: string[] = [];
   const label = source === 'blind' ? 'the blind pilot' : 'the pilot';
   if (!complete) reasons.push(`${label} holds ${iterations} of ${PILOT_ITERATIONS} iterations`);
@@ -215,14 +233,21 @@ export function measureHardness(
     );
   }
   if (!end) reasons.push('no pilot row yet');
-  for (const row of new Set([latest, endRow])) {
-    const caught = row?.catchItems;
-    if (!row || !caught) continue;
+  if (zero.catchItems && zero.catchItems.passing < zero.catchItems.size)
+    reasons.push(
+      `catch items must all pass at iteration 0: ${zero.catchItems.passing} of ${zero.catchItems.size} do; a catch item that fails is a hardness item`,
+    );
+  for (const row of rows) {
+    const caught = row.catchItems;
+    if (!caught) continue;
     const share = caught.size / (row.bankSize + caught.size);
-    if (share > HARDNESS_MAX_CATCH_SHARE)
+    if (share > HARDNESS_MAX_CATCH_SHARE) {
+      // The first row over the cap is named; later rows over it add nothing a builder can act on.
       reasons.push(
         `catch items are ${round(share * 100)} percent of the bank at iteration ${row.iteration}, over the ${HARDNESS_MAX_CATCH_SHARE * 100} percent cap (12.4)`,
       );
+      break;
+    }
   }
   const audit = options.audit === undefined ? null : parseAudit(options.audit);
   if (!audit) reasons.push('audit.md is absent: no validator merges without the audit (12.7)');

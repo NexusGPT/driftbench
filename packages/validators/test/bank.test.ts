@@ -211,5 +211,9 @@ describe('catch items', () => {
       ],
     });
     expect(() => readCatchList(root, 'roles')).toThrow(/k1 is listed twice/);
+    write({ items: [] });
+    expect(() => readCatchList(root, 'roles')).toThrow(/items/);
+    write({});
+    expect(() => readCatchList(root, 'roles')).toThrow(/items/);
   });
 });

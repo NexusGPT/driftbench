@@ -647,3 +647,52 @@ describe('driftbench validate for auditors', () => {
     expect(await validateCommand('planted', { checkHandover: true }, capture(root).io, d)).toBe(0);
   });
 });
+
+describe('driftbench validate reads the pinned catch list', () => {
+  it('counts an item as catch only when validators/<component>/catch.json pins it, in --items and in --json', async () => {
+    const root = await temp();
+    const { bankMeasure, defineLadder } = await import('@agent-nexus/driftbench-validators');
+    const ladder = defineLadder({
+      component: 'roles',
+      version: 2,
+      levels: [
+        {
+          id: 'one',
+          name: 'one',
+          metric: 'items passing / items',
+          threshold: 1,
+          compute: () =>
+            bankMeasure([
+              { id: 'h1', component: 'c', family: 'f', tier: 1, cause: 'x', pass: true },
+              { id: 'h2', component: 'c', family: 'f', tier: 2, cause: 'y', pass: false, detail: 'missed' },
+              { id: 'k1', component: 'c', family: 'f', tier: 1, cause: 'z', role: 'catch', pass: true },
+            ]),
+        },
+      ],
+    });
+    const d: ValidateDeps = { ladders: () => ({ roles: ladder }), root };
+    const before = capture(root);
+    const code = await validateCommand('roles', { seeds: '1..1', items: true, json: true }, before.io, d);
+    expect(before.output.err).toBe('');
+    expect(code).toBeTypeOf('number');
+    expect(JSON.parse(before.output.out).bank).toMatchObject({ size: 3, catch: { size: 0 } });
+    await mkdir(join(root, 'validators', 'roles'), { recursive: true });
+    await writeFile(
+      join(root, 'validators', 'roles', 'catch.json'),
+      JSON.stringify({ items: [{ id: 'k1', guards: 'bug:B01' }] }),
+    );
+    const after = capture(root);
+    await validateCommand('roles', { seeds: '1..1', items: true, json: true }, after.io, d);
+    expect(JSON.parse(after.output.out).bank).toMatchObject({
+      size: 2,
+      passing: 1,
+      catch: { size: 1, passing: 1 },
+    });
+    const text = capture(root);
+    await validateCommand('roles', { seeds: '1..1', items: true }, text.io, d);
+    expect(text.output.out).toContain(
+      'Catch items, counted apart and for no hardness: 1, 1 pass on every seed.',
+    );
+    expect(text.output.out).toContain('Catch items of f: 1 items, 0 failing');
+  });
+});
