@@ -173,6 +173,9 @@ export {
   type ToolDependency,
   ToolPart,
   thenFields,
+  UNIT_SELECTION_ADVISORY,
+  type UnitSelection,
+  unitSelection,
   utf16ToCodePoint,
   WORDING_FIELDS,
   type WordingField,
@@ -315,6 +318,7 @@ export { parameterSchema, unsupportedSchemaKeywords } from './schema/json-schema
 export {
   BlockLink,
   BlockLinks,
+  EstateUnitTarget,
   LINK_RELATIONS,
   LINK_STATUSES,
   LinkRelation,

@@ -115,5 +115,8 @@ export {
   sectionChangeManifest,
   sectionChanges,
   sectionSelection,
+  UNIT_SELECTION_ADVISORY,
+  type UnitSelection,
+  unitSelection,
 } from './select';
 export { agentVersionOf, withAgentVersion } from './version';

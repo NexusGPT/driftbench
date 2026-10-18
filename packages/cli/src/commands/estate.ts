@@ -123,8 +123,9 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--jobs <n>', 'with --pointer: requests in flight at once (default 4)')
     .option(
       '--ledger <file>',
-      'with --pointer: the ledger of unit ids beside the estate; read, then rewritten',
+      'with --pointer: the ledger of unit ids beside the estate; read, and written with --update',
     )
+    .option('--update', 'with --pointer and --ledger: write the ledger of the files as they are now')
     .option('--ledger-check', 'with --pointer: fail when the ledger is out of date; write nothing')
     .action(async (root: string, options: EstateScanOptions) => {
       setExit(await estateScanCommand(root, options, io));
@@ -209,11 +210,14 @@ export async function estateScanCommand(
     (options.cassette ||
       options.record ||
       options.ledger ||
+      options.update ||
       options.labels ||
       options.labeler?.length ||
       options.jobs)
   ) {
-    io.err('error: --cassette, --record, --ledger, --labels, --labeler and --jobs need --pointer\n');
+    io.err(
+      'error: --cassette, --record, --ledger, --update, --labels, --labeler and --jobs need --pointer\n',
+    );
     return 2;
   }
   const ceiling = parseCeiling(options.ceiling, io);
