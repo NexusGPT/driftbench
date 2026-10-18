@@ -48,7 +48,7 @@ export {
   zeroFailureBound,
   zFor,
 } from './intervals';
-export { type BenjaminiHochbergResult, benjaminiHochberg } from './multiple';
+export { type BenjaminiHochbergResult, benjaminiHochberg, type HolmResult, holm } from './multiple';
 export {
   type McNemarOptions,
   type McNemarResult,
