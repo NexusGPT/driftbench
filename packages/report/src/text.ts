@@ -105,6 +105,12 @@ export function compareText(result: CompareResult): string {
     lines.push('', 'Not paired:');
     lines.push(...textTable(result.unpaired.map((entry) => [entry.unit, entry.reason])));
   }
+  if (result.excluded) {
+    lines.push('', 'Runs left out of a pair (a block not run or blocked, no failure):');
+    lines.push(
+      ...textTable(result.excluded.map((entry) => [entry.unit, entry.side, count(entry.runs, 'run')])),
+    );
+  }
   lines.push('', `Verdict: ${VERDICT[result.verdict]}.`);
   for (const reason of result.reasons) lines.push(`  ${reason}`);
   return `${lines.join('\n')}\n`;
@@ -130,6 +136,11 @@ export function criterionRepeatsText(lines: readonly CriterionRepeat[]): string[
  * method, then what stands behind it (see headlineNote).
  */
 export function headlineText(mode: string, headline: SuiteHeadline): string {
-  const method = headline.method === 'hierarchical' ? 'hierarchical 95% interval' : 'one golden';
+  const method =
+    headline.method === 'hierarchical'
+      ? 'hierarchical 95% interval'
+      : headline.unit
+        ? 'one parent tree'
+        : 'one golden';
   return `Suite pass rate, mode ${mode}: ${pct(headline.estimate)} ${interval(headline, pct)} (${method}); ${headlineNote(headline)}.`;
 }

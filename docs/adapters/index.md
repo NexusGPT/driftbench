@@ -120,7 +120,7 @@ Any other error fails the run at once too. A failed run is recorded with status 
 | Capability | function | http | nexus | process |
 |---|---|---|---|---|
 | `variants` | no | as declared | yes | no |
-| `seedPrefix` | yes | yes | no | no |
+| `seedPrefix` | yes | yes | no | yes: the history file |
 | `toolStubs` | yes | as declared | no | no |
 | `trace` | no | no | yes | no |
 | `sandbox` | no | no | no | yes |
@@ -149,7 +149,7 @@ Any other error fails the run at once too. A failed run is recorded with status 
 
 The four SDK adapters report tokens, never a cost in USD.
 
-The runner uses `trace` and `endState` today. It does not act on the others yet: a forced tool result in `world.tools` on an adapter without `toolStubs` is not applied, and a spec's `prefix` on an adapter without `seedPrefix` is not replayed to the agent.
+The runner uses `trace`, `endState`, `seedPrefix` and `toolStubs` today. A forced tool result in `world.tools` on an adapter without `toolStubs`, and a spec's `prefix` on an adapter without `seedPrefix`, give `not_run: unsupported`: the block is not sent, it is neither a pass nor a fail, and `ci` fails with exit 3 (see [running](../running.md)). The layer is never dropped silently.
 
 ## The contract suite
 
@@ -254,3 +254,7 @@ target:
 ```
 
 The command line reaches the Acme example agents: `function:acme-sales` (or `function:acme`), the sales assistant behind the function adapter, and `process:acme-ops`, the ops agent behind the process adapter. `driftbench pilot` adds its control agent, `function:acme-random`, and `driftbench replay` runs specs on the claude-code replay adapter. The other adapters are used from code. See [running](../running.md).
+
+## Exporting parent end state
+
+A parent-linked child is opened from the parent's recorded conversation, ledger, world and variables. If an adapter owns mutable world state, implement optional `snapshotGiven(session)` to return `{ world, vars }` after each block, and restore those values in `open(given)`. The function adapter exposes the same callback over its agent state; `create(given)` restores it. Snapshots must be JSON data. A sandbox must include its changed workspace. The process adapter implements the hook: its export carries the parent's files byte for byte, text in `world.workspace.files` and every other file (xlsx, docx, pdf, png) in `world.workspace.binary` as base64. A workspace past `exportMaxBytes` (default 50 MB in all) leaves the children `not_run: setup_failed` with the reason. `.git`, `node_modules`, empty folders and file modes do not carry, and a link inside the workspace arrives as a plain copy. See [parent blocks](../concepts/given-when-then.md#parent-blocks). An adapter with a sandbox and no hook leaves its children `not_run: unsupported`. Adapters without private mutable world state inherit the runner-managed Given and recorded history directly. See [parent blocks](../concepts/given-when-then.md#parent-blocks).

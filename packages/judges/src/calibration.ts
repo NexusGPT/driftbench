@@ -526,11 +526,19 @@ async function answer(
     let result = await judge.judge({ ...request, budget: 'normal' });
     counter.spentUsd += result.costUsd ?? 0;
     if (unpriced(result)) counter.costIncomplete += 1;
+    if (result.defaultJudge?.failure) {
+      counter.errors += 1;
+      return 'inconclusive';
+    }
     if (result.unparsed) {
       counter.calls += 1;
       result = await judge.judge({ ...request, budget: 'large' });
       counter.spentUsd += result.costUsd ?? 0;
       if (unpriced(result)) counter.costIncomplete += 1;
+      if (result.defaultJudge?.failure) {
+        counter.errors += 1;
+        return 'inconclusive';
+      }
     }
     return result.unparsed ? 'inconclusive' : result.answer.outcome;
   } catch (cause) {

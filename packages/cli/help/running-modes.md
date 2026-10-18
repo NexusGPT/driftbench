@@ -21,7 +21,7 @@ Every spec, conversation or task, can run in three modes. Each answers a differe
 
 | Mode | What block k starts from | What it measures |
 |---|---|---|
-| `T`, teacher-forced | its canonical Given: the spec's own earlier blocks as written, never the agent's own replies. Each block opens its own session. | local competence: each block alone, with no earlier mistake carried in. |
+| `T`, teacher-forced | its canonical Given: the spec's own earlier blocks as written, never the agent's own replies. Each block opens its own session. The agent must be able to receive that history (`seedPrefix`): on `nexus` and the live Claude Code adapter every block after the first is `not_run`. | local competence: each block alone, with no earlier mistake carried in. |
 | `F`, free-running (the default) | the agent's own earlier replies, in one session; the user turns come from the spec (or a simulated user) | compounding: one wrong block can poison the blocks after it. |
 | `P`, perturbed | a free-running run with one deviation injected at a chosen block | recovery: whether the agent comes back, how fast, and at what cost. |
 

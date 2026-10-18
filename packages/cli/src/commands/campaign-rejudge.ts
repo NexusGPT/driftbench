@@ -1,8 +1,10 @@
 import { resolve } from 'node:path';
 import {
+  blockStatus,
+  blocksOutcome,
   type Campaign,
   completeBaselineProvenance,
-  loadChangeManifest,
+  isScored,
   loadSpecs,
   planCampaign,
   prepareRejudge,
@@ -14,6 +16,8 @@ import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { addJudgeOptions, judgeAsked, type RunJudgeOptions, runJudgeFrom } from '../judge-options';
+import { gateExit } from './gate-exit';
+import { loadRadiusChangeManifest } from './radius-change';
 
 type Options = RunJudgeOptions & {
   from: string;
@@ -50,7 +54,7 @@ export function registerCampaignRejudge(campaign: Command, io: Io, setExit: (cod
 export async function campaignRejudge(paths: string[], options: Options, io: Io): Promise<number> {
   let store: ReturnType<typeof openStore> | undefined;
   try {
-    const manifest = await loadChangeManifest(resolve(io.cwd, options.change));
+    const manifest = await loadRadiusChangeManifest(resolve(io.cwd, options.change));
     if (!manifest.ok) throw new Error(manifest.errors.join('\n'));
     const change = manifest.manifest;
     if (
@@ -150,20 +154,48 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
       runs.push(run);
     }
     await judge.save();
+    // A block not run or blocked is left as it was: no measurement to re-judge, named with its reason.
+    const unmeasured = runs.flatMap((r) =>
+      r.blocks.flatMap((b) => {
+        const status = blockStatus(b);
+        if (status !== 'not_run' && status !== 'blocked') return [];
+        const reason = b.notRun
+          ? `${b.notRun.check}: ${b.notRun.got}`
+          : `blocked by ${b.blocked?.by ?? 'an ancestor'}`;
+        return [{ spec: r.specId, mode: r.mode, repeat: r.repeat, block: b.index, status, reason }];
+      }),
+    );
+    const outcomes = runs.map(blocksOutcome);
     const summary = {
       campaign: campaign.campaignId,
       from: options.from,
       agentCalls: 0,
       rejudged: runs.flatMap((r) => r.blocks).filter((b) => b.rejudged).length,
-      carried: runs.flatMap((r) => r.blocks).filter((b) => !b.rejudged).length,
+      carried: runs.flatMap((r) => r.blocks).filter((b) => !b.rejudged && isScored(b)).length,
+      ...(unmeasured.length > 0 ? { unmeasured } : {}),
+      runs: {
+        pass: outcomes.filter((outcome) => outcome === 'pass').length,
+        fail: outcomes.filter((outcome) => outcome === 'fail').length,
+        notRun: outcomes.filter((outcome) => outcome === 'not_run').length,
+        blocked: outcomes.filter((outcome) => outcome === 'blocked').length,
+      },
       judgeCostUsd: judge.spend.usd,
     };
-    io.out(
-      options.json
-        ? `${JSON.stringify(summary, null, 2)}\n`
-        : `Campaign ${summary.campaign}: ${summary.rejudged} blocks re-judged, ${summary.carried} carried; 0 agent calls. Judge cost ${summary.judgeCostUsd.toFixed(4)} USD.\n`,
-    );
-    return runs.every((r) => r.blocks.every((b) => b.pass) && r.endState?.match !== false) ? 0 : 1;
+    if (options.json) io.out(`${JSON.stringify(summary, null, 2)}\n`);
+    else {
+      io.out(
+        `Campaign ${summary.campaign}: ${summary.rejudged} blocks re-judged, ${summary.carried} carried${unmeasured.length > 0 ? `, ${unmeasured.length} not run or blocked (left as they were)` : ''}; 0 agent calls. Judge cost ${summary.judgeCostUsd.toFixed(4)} USD.\n`,
+      );
+      io.out(
+        `Runs: ${summary.runs.pass} pass, ${summary.runs.fail} fail${summary.runs.notRun > 0 ? `, ${summary.runs.notRun} not run` : ''}${summary.runs.blocked > 0 ? `, ${summary.runs.blocked} blocked` : ''}.\n`,
+      );
+      for (const entry of unmeasured)
+        io.out(
+          `  ${entry.spec} ${entry.mode} repeat ${entry.repeat} block ${entry.block} ${entry.status === 'blocked' ? 'blocked' : 'not run'}: ${entry.reason}\n`,
+        );
+    }
+    // 1 when a run fails; 3 when none fails but a run was not run or blocked (no pass, no failure).
+    return gateExit(outcomes);
   } catch (error) {
     io.err(`${error instanceof Error ? error.message : String(error)}\n`);
     return 2;
