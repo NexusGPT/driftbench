@@ -14,6 +14,7 @@ import { parse, stringify } from 'yaml';
 import { LOOKUP } from '../family';
 import type { Flow, RawSpec } from '../plant';
 import { between, rngFor } from '../random';
+import { hideArgv } from './links-world';
 import { type BankItem, type Draft, expectAll, fail, PASS, type Tier, withCauses } from './types';
 import { adapterFor, behavioursFor, failingList, plantedFlow, runScenario } from './world';
 
@@ -44,7 +45,17 @@ function draft(
   check: BankItem['check'],
   source: BankItem['source'] = 'contract',
 ): Draft {
-  return { id: `verdicts/${id}`, family, tier, level: 13, component, title, cause, check, source };
+  return {
+    id: `verdicts/${id}`,
+    family,
+    tier,
+    level: 13,
+    component,
+    title,
+    cause,
+    check: (ctx) => hideArgv(() => check(ctx)),
+    source,
+  };
 }
 
 const POSITIONS = ['first', 'middle', 'last'] as const;

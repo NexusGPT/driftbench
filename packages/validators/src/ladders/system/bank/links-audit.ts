@@ -18,6 +18,8 @@ import type { Flow, RawSpec } from '../plant';
 import { between, rngFor } from '../random';
 import { cli, json, storeCampaign, written } from './links-chain';
 import {
+  blockId,
+  hideArgv,
   type LinkedSuite,
   linkedSuite,
   PROMPT,
@@ -67,7 +69,7 @@ function draft(
     component,
     title,
     cause,
-    check,
+    check: (ctx) => hideArgv(() => check(ctx)),
     source: 'adversarial',
   };
 }
@@ -132,11 +134,11 @@ function truthsOf(suite: LinkedSuite, runs: readonly RunResult[], plantOf: (repe
     const truth = byRepeat.get(run.repeat) ?? { failing: new Set<string>(), absent: new Set<string>() };
     const s = suite.flows.findIndex((flow) => flow.spec.id === run.specId);
     for (const [b, classes] of plantOf(run.repeat).get(s) ?? new Map())
-      if (classes.length > 0) truth.failing.add(`${run.specId}#b${b}`);
+      if (classes.length > 0) truth.failing.add(`${run.specId}#${blockId(run.specId, b)}`);
     for (const block of run.blocks) {
       const status = blockStatus(block);
       if (status === 'not_run' || status === 'blocked')
-        truth.absent.add(`${run.specId}#${block.blockId ?? `b${block.index}`}`);
+        truth.absent.add(`${run.specId}#${block.blockId ?? blockId(run.specId, block.index)}`);
     }
     byRepeat.set(run.repeat, truth);
   }
@@ -245,7 +247,7 @@ function refuted(): Draft[] {
             const at = plantAt(seed, id, suite.flows.length, 4);
             const flow = suite.flows[at.s] as Flow;
             const own = (flow.spec.metadata as { links: BlockLink[] }).links.find(
-              (link) => link.block === `b${at.b}`,
+              (link) => link.block === blockId(flow.spec.id, at.b),
             );
             if (!own) throw new Error('the bank lost the planted block link');
             own.status = 'refuted';
@@ -253,7 +255,7 @@ function refuted(): Draft[] {
             const runs = await runPlanted(suite, plantOf, mode, 2);
             const refutedSection = suite.own[at.s]?.[at.b] as string;
             const rows = suiteRows(suite, mode).map((row) =>
-              row.key === `${flow.spec.id}#b${at.b}`
+              row.key === `${flow.spec.id}#${blockId(flow.spec.id, at.b)}`
                 ? { ...row, sections: row.sections.filter((section) => section !== refutedSection) }
                 : row,
             );
@@ -301,7 +303,9 @@ function notRunInside(): Draft[] {
             const plantOf = (): SuitePlant => new Map([[at.s, new Map([[at.b, [cls]]])]]);
             const runs = await runPlanted(suite, plantOf, mode, 2);
             const truths = truthsOf(suite, runs, plantOf);
-            if (!truths.every((truth) => truth.absent.has(`${flow.spec.id}#b${at.b + 1}`)))
+            if (
+              !truths.every((truth) => truth.absent.has(`${flow.spec.id}#${blockId(flow.spec.id, at.b + 1)}`))
+            )
               return fail(
                 `block ${at.b + 1}, with an unpaired prefix call, was run: ${failingList(runs[0] as RunResult)}`,
               );
@@ -697,7 +701,7 @@ function childFirstCounter(): Draft[] {
             raw.blocks = shape.order.map((truth) => {
               const block = { ...(source[truth] as Record<string, unknown>) };
               const parent = parentOf.get(truth);
-              if (parent !== undefined) block.parent = `b${parent}`;
+              if (parent !== undefined) block.parent = blockId(flow.spec.id, parent);
               return block;
             });
             if (form === 'index')

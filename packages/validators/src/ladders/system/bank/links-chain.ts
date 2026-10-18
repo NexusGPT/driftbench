@@ -3,14 +3,18 @@ import { join } from 'node:path';
 import type { RunMode, RunResult, SectionRegistry } from '@agent-nexus/driftbench-core';
 import { openStore } from '@agent-nexus/driftbench-store';
 import { parse, stringify } from 'yaml';
+import type { Flow } from '../plant';
 import { between, rngFor } from '../random';
 import {
+  blockId,
   failingKeys,
+  hideArgv,
   type LinkedSuite,
   linkedSuite,
   PROMPT,
   plantAt,
   referenceOchiai,
+  renamePerturbation,
   runSuite,
   type SuitePlant,
   suiteRows,
@@ -61,7 +65,17 @@ function draft(
   cause: string,
   check: BankItem['check'],
 ): Draft {
-  return { id: `links/${id}`, family, tier, level: 12, component, title, cause, check, source: 'contract' };
+  return {
+    id: `links/${id}`,
+    family,
+    tier,
+    level: 12,
+    component,
+    title,
+    cause,
+    check: (ctx) => hideArgv(() => check(ctx)),
+    source: 'contract',
+  };
 }
 
 export const json = (text: string): Record<string, unknown> | undefined => {
@@ -428,6 +442,20 @@ function localizeChain(): Draft[] {
 // chain-help: docs/reference/cli.md, "-h, --help: print the usage of the program or of a command";
 // "driftbench help <command> does the same".
 
+/** The options the help topic authoring-prompt-sections documents for a command, read from its own section. */
+function documentedOptions(root: string, command: readonly string[]): string[] {
+  const text = readFileSync(join(root, 'packages/cli/help/authoring-prompt-sections.md'), 'utf8');
+  const heading = `### driftbench ${command.join(' ')}\n`;
+  const start = text.indexOf(heading);
+  if (start < 0) return [];
+  const ends = [
+    text.indexOf('\n### ', start + heading.length),
+    text.indexOf('\n## ', start + heading.length),
+  ].filter((at) => at >= 0);
+  const section = text.slice(start, ends.length > 0 ? Math.min(...ends) : undefined);
+  return [...new Set([...section.matchAll(/`(--[a-z][a-z-]*)/g)].map((match) => match[1] as string))];
+}
+
 function helpItems(): Draft[] {
   const commands = [
     ['radius', 'localize'],
@@ -453,12 +481,17 @@ function helpItems(): Draft[] {
             const argv = form === 'flag' ? [...command, '--help'] : ['help', ...command];
             const got = await cli(argv, root);
             const usage = `Usage: driftbench ${command.join(' ')}`;
+            // Every option the help topic's table of this command documents is in the usage printed.
+            const options = documentedOptions(root, command);
+            const missing = options.filter((option) => !got.out.includes(option));
             return expectAll([
               [got.code === 0, `exit ${got.code}`],
               [
                 got.out.includes(usage),
                 `the output does not start the usage "${usage}": ${got.out.slice(0, 120).replace(/\n/g, ' ')}`,
               ],
+              [options.length > 0, `the help topic documents no option of ${command.join(' ')}`],
+              [missing.length === 0, `the usage lacks the documented options ${missing.join(', ')}`],
             ]);
           },
         ),
@@ -520,7 +553,7 @@ function lintItems(): Draft[] {
       run: async (dir, suite, s, b) => {
         rewrite(dir, suite, s, (links) =>
           links.push({
-            block: `b${b}`,
+            block: blockId((suite.flows[s] as Flow).spec.id, b),
             to: { kind: 'prompt_section', prompt: PROMPT, section: 'no_such_section' },
             status: 'declared',
           }),
@@ -734,7 +767,7 @@ function localizePerturbedChain(): Draft[] {
         const runs: RunResult[] = [];
         for (const [index, flow] of suite.flows.entries()) {
           const behaviours = behavioursFor(flow, plant.get(index) ?? new Map());
-          const perturbationId = withPerturbation(flow, behaviours, k);
+          const perturbationId = renamePerturbation(flow, withPerturbation(flow, behaviours, k), seed, id);
           runs.push(await runScenario(flow.spec, behaviours, { mode: 'P', perturbationId }));
         }
         // The specs on disk carry the perturbation the runs used.
