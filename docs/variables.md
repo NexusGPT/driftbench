@@ -251,6 +251,8 @@ The strength of the cover follows the rules, with a floor of 2 across the axes. 
 | `shared` (the floor) | 2 | every combination of values of every pair of approved axes, whether or not a rule joins them, except a pair that a group of a rule holds already; a detail never makes a pair |
 | `single` | 1 | every value of the variables that no group above names: the details no rule names |
 
+Values and pairs of approved axes are never lost; triples are covered only inside rules. A triple of axes that no rule joins is not a target, so the plan holds fewer triples than the pairwise-and-triple cover of the space map (`cells` at strength 3); `no-cell-lost.test.ts` names each such triple on the worked stores. A triple floor over all axes would multiply the rows.
+
 A combination that no valid row can hold is not a target. That includes a combination a constraint forbids, and one that constraints together make impossible: with `tide: slack` forbidden at both lamps, no row holds `slack`. A value that no valid row can hold gets the warning `value_unreachable`, and it is the store that may be wrong. Rows are built one at a time. Each starts from the most common target still waiting, then takes for every other variable the value that covers the most waiting targets, among the values that keep the row completable to one no constraint forbids. The array is not minimal.
 
 ### Seeds, order and budget
