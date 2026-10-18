@@ -92,3 +92,13 @@ The focused repaired commands pass 66 agreement/comparison tests, 92 power/inter
 PR 771 remains the validator review branch and must land after the product change. Additional integration evidence belongs on that branch. These correctness runs are not a fresh hardness pilot: the expanded bank still has no fresh pilot, and its four audit checks remain pending.
 
 The documentation follow-up fixes the new evidence page's reachability and replaces a prohibited en dash. CI first reports both errors against this page; `pnpm exec vitest run --maxWorkers=2 tools/docs` then passes **50 tests across seven files**. The sparse checkout includes the exact tracked README and linked files required by those checks. No product implementation changes in this follow-up.
+
+## Extreme-alpha review follow-up
+
+The two-sided normal callers accept every positive finite alpha below one, including `Number.MIN_VALUE`. Forming `alpha / 2` loses that smallest input to zero. The product now passes `Math.log(alpha) - Math.LN2` to an internal normal inverse, retaining the existing scaled tail refinement without forming the underflowed probability. The public export index is unchanged.
+
+Red-first tests reproduce six failures at `Number.MIN_VALUE`: `zFor`, `sampleSizeForEffect`, `mde`, `wilsonEffective`, `pairedRateDifference` and `kappaInterval`. Six `1e-300` controls already pass. Independent 110-digit Decimal calculations supply the product fixtures; a separate 100-digit mpmath log-erfc inversion supplies the validator fixtures. Neither generator calls the TypeScript implementation.
+
+For effect 0.2, baseline rate 0.73 and power 0.8, the required sample sizes are 18010 at `Number.MIN_VALUE` and 16732 at `1e-300`. Interval cases require finite interior bounds, including nonzero-SE kappa intervals, so clipping infinity cannot pass.
+
+The focused command passes 78 tests. `pnpm exec vitest run --maxWorkers=2 packages/stats/test` passes 394 tests across 18 files. Six isolated mutants restore probability-space halving at one caller each; all six fail their regression test and all six unmodified controls pass. `pnpm exec tsc --noEmit` passes. All heavy commands use the shared slot wrapper.
