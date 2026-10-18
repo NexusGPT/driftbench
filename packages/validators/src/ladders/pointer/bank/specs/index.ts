@@ -9,6 +9,7 @@ import { radius } from './radius';
 import { reanchoring } from './reanchoring';
 import { replay } from './replay';
 import { scale } from './scale';
+import { stack } from './stack';
 import type { FamilySpec } from './types';
 
 export const FAMILIES: FamilySpec[] = [
@@ -17,6 +18,7 @@ export const FAMILIES: FamilySpec[] = [
   reanchoring,
   grouping,
   labels,
+  stack,
   replay,
   privacy,
   links,

@@ -10,6 +10,7 @@ const FAMILIES = [
   're-anchoring',
   'grouping',
   'labels',
+  'stack',
   'replay',
   'privacy',
   'links',

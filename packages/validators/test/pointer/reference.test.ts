@@ -8,6 +8,7 @@ const FAMILIES = [
   're-anchoring',
   'grouping',
   'labels',
+  'stack',
   'replay',
   'privacy',
   'links',
@@ -17,7 +18,7 @@ const FAMILIES = [
 ];
 
 /** Families fast enough to run on a second seed. */
-const CHEAP = new Set(['cutting', 'ids', 'grouping', 'labels', 'links', 'radius']);
+const CHEAP = new Set(['cutting', 'ids', 'grouping', 'labels', 'stack', 'links', 'radius']);
 
 /** Every item is satisfiable: the reference reader, written from the design, passes all of them. */
 describe('the reference reader passes the bank', () => {

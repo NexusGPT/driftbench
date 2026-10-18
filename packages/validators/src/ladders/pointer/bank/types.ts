@@ -51,6 +51,11 @@ export const LEVELS = [
   { id: 'ids', name: 'ids and ledger', what: 'fingerprints, ids, the canonical sidecar' },
   { id: 'anchor', name: 're-anchoring', what: 'old units find their new selves' },
   { id: 'labels', name: 'labels and atoms', what: 'windows, answers, carry-forward, ports, atoms' },
+  {
+    id: 'stack',
+    name: 'the two-class stack',
+    what: 'margin cut, system 2 votes, the person, pluggable labellers',
+  },
   { id: 'replay', name: 'cassette and replay', what: 'determinism lives in the cassette' },
   { id: 'links', name: 'links and blast radius', what: 'layer C' },
   { id: 'privacy', name: 'private estates', what: 'a secret stays in its folder' },

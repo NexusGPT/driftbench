@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import type { CutResult, Labeler, PointerSut, ScanRequest } from '../../src/ladders/pointer/sut/port';
+import type {
+  CutResult,
+  Labeler,
+  PointerSut,
+  ScanRequest,
+  StackRequest,
+} from '../../src/ladders/pointer/sut/port';
 import { tally } from './helpers';
 import { referenceSut } from './reference/index';
+import { referenceStack } from './reference/stack';
 
 /** A reader with one planted bug: the bank must lose items for it. */
 const ref = referenceSut();
@@ -81,5 +88,36 @@ describe('planted readers lose items', { timeout: 600_000 }, () => {
     });
     const out = await tally(blind, (i) => i.family === 'labels' || i.family === 'grouping');
     expect(out.failed.length).toBeGreaterThan(out.total * 0.3);
+  });
+  const stackMutant = (name: string, patch: (request: StackRequest) => StackRequest): PointerSut =>
+    mutant(name, { stack: { run: (request: StackRequest) => referenceStack.run(patch(request)) } });
+
+  it('a stack that sends everything to system 2 loses stack items', async () => {
+    const out = await tally(
+      stackMutant('send-all', (r) => ({ ...r, marginCut: 2 })),
+      (i) => i.family === 'stack',
+    );
+    expect(out.failed.length).toBeGreaterThan(5);
+  });
+
+  it('a stack that never sends to system 2 loses stack items', async () => {
+    const out = await tally(
+      stackMutant('send-none', (r) => ({ ...r, marginCut: 0, shareToSystem2: undefined })),
+      (i) => i.family === 'stack',
+    );
+    expect(out.failed.length).toBeGreaterThan(8);
+  });
+
+  it('a stack that runs system 2 once loses stack items', async () => {
+    const out = await tally(
+      stackMutant('one-run', (r) => ({ ...r, runs: 1 })),
+      (i) => i.family === 'stack',
+    );
+    expect(out.failed.length).toBeGreaterThan(5);
+  });
+
+  it('a stack with no stack at all loses every stack item', async () => {
+    const out = await tally(mutant('no-stack', { stack: undefined }), (i) => i.family === 'stack');
+    expect(out.failed.length).toBe(out.total);
   });
 });

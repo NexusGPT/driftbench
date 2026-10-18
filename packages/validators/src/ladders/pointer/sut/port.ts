@@ -205,12 +205,74 @@ export interface LinksApi {
   ): { rerun: string[]; advisory: string[] };
 }
 
+/* ----- the two-class stack (specification of the default stack, sections 2 to 9) ----- */
+
+/** One unit of a window as a stack labeller sees it. */
+export type StackUnit = { n: number; text: string; container: string };
+
+/** A window the stack sends to a labeller: a file's numbered units. */
+export type StackWindow = { id: string; file: string; units: StackUnit[] };
+
+/** A labeller's answer for one unit. System 1 must give `probabilities` (one per label); system 2 gives the label. */
+export type StackAnswer = { n: number; label: string; probabilities?: Record<string, number> };
+
+/** Both classes implement this one interface. `run` is 0-based and counts the calls to system 2 for the same window. */
+export type StackLabeller = (
+  window: StackWindow,
+  context: { role: 'system1' | 'system2'; run: number; labels: string[] },
+) => StackAnswer[] | Promise<StackAnswer[]>;
+
+export type StackRequest = {
+  labels: string[];
+  windows: StackWindow[];
+  system1: StackLabeller;
+  system2: StackLabeller;
+  /** Default 0.65. A unit whose margin is below it goes to system 2. */
+  marginCut?: number;
+  /** The lowest-margin share of units to send to system 2 (0 to 1). Used instead of the cut when given. */
+  shareToSystem2?: number;
+  /** Default off. When on, a unit is accepted only if system 1's top label equals the unanimous system 2 label. */
+  requireAgreement?: boolean;
+  /** System 2 runs per file. Default 3. */
+  runs?: number;
+};
+
+export type StackRoute = 'system1' | 'system2' | 'person';
+
+export type StackUnitResult = {
+  window: string;
+  n: number;
+  /** The accepted label, or null for a unit that goes to a person. */
+  label: string | null;
+  route: StackRoute;
+  /** System 1's top label and margin; null when system 1 gave no vector for the unit. */
+  top: string | null;
+  margin: number | null;
+  sentToSystem2: boolean;
+  /** The labels system 2 gave, one per run (null for a missing or malformed run). Empty when not sent. */
+  votes: Array<string | null>;
+};
+
+export type StackResult = {
+  ok: boolean;
+  error?: string;
+  units: StackUnitResult[];
+  /** Calls made to each class, and the windows each system 2 call carried (window id and run). */
+  system1Calls: number;
+  system2Calls: Array<{ window: string; run: number; units: number[] }>;
+};
+
+export interface StackApi {
+  run(request: StackRequest): Promise<StackResult>;
+}
+
 /** The system under test. */
 export interface PointerSut {
   readonly name: string;
   cut(file: SourceFile): Promise<CutResult>;
   scan(request: ScanRequest): Promise<ScanResult>;
   links?: LinksApi;
+  stack?: StackApi;
 }
 
 /** Thrown by the unreachable binding: the reader cannot be called from this checkout. */

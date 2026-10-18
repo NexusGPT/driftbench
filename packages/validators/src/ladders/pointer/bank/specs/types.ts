@@ -1,7 +1,7 @@
 export type Tier = 1 | 2 | 3 | 4 | 5;
 
 /** What an item needs from the reader binding (the seam of the catalogue preface). */
-export type Need = 'cut' | 'scan' | 'transport' | 'cassette' | 'prompt' | 'links' | 'child' | 'cli';
+export type Need = 'cut' | 'scan' | 'transport' | 'cassette' | 'prompt' | 'links' | 'child' | 'cli' | 'stack';
 
 /** One row of the bank: the data the catalogue prints and the code zips with its runner. */
 export type Spec = {

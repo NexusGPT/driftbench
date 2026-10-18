@@ -13,6 +13,7 @@ import { radiusRuns } from './families/radius';
 import { reanchoringRuns } from './families/reanchoring';
 import { replayRuns } from './families/replay';
 import { scaleRuns } from './families/scale';
+import { stackRuns } from './families/stack';
 import { bankLadder } from './ladder';
 import { FAMILIES } from './specs/index';
 import { fail, levelOf, type PointerItem, type Run } from './types';
@@ -28,6 +29,7 @@ const RUNNERS: Record<string, Record<string, Run>> = {
   radius: radiusRuns,
   replay: replayRuns,
   scale: scaleRuns,
+  stack: stackRuns,
   're-anchoring': reanchoringRuns,
 };
 
