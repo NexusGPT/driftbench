@@ -33,7 +33,7 @@ const EXPECTED: Record<string, Record<number, { old: number; lost: Partial<Recor
   acme: {
     1: { old: 11, lost: {} },
     2: { old: 43, lost: {} },
-    3: { old: 69, lost: { outside_rules: 53 } },
+    3: { old: 69, lost: { outside_rules: 23 } },
   },
   northwind: {
     1: { old: 12, lost: {} },

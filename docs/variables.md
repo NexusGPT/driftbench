@@ -243,13 +243,13 @@ The store never lists rules. The planner reads them from what the store keeps (`
 * A passage is a rule. It is named by the ledger id of its quote, else by the file and the words of the quote with white space folded. The variables of every value, boundary and constraint that quotes it belong to the rule; a constraint brings every variable it forbids.
 * A value with `when` or `unless` brings the variables they name into the rule of the passages it quotes. With no quote it is a rule of its own. A value with only a `polarity`, `limit`, `within` or `priority` is a rule of its own variable.
 
-The strength of the cover follows the rules:
+The strength of the cover follows the rules, with a floor of 2 across the axes. The floor keeps the plan from losing a pair of axes that the pairwise cover of the space map holds (`cells` of the space package at strength 2): the plan of a store holds every pair of values of every two approved axes that some valid row can hold.
 
 | Layer | Strength | What the rows must hold |
 |---|---|---|
 | `own` | 3 | for each rule that names n variables, every combination of values of every `min(3, n)` of them |
-| `shared` | 2 | every combination of values of every pair of axes that two or more rules name; a rule that names one variable does not count, and a detail never makes a pair |
-| `single` | 1 | every value of the variables that no group above names |
+| `shared` (the floor) | 2 | every combination of values of every pair of approved axes, whether or not a rule joins them, except a pair that a group of a rule holds already; a detail never makes a pair |
+| `single` | 1 | every value of the variables that no group above names: the details no rule names |
 
 A combination that no valid row can hold is not a target. That includes a combination a constraint forbids, and one that constraints together make impossible: with `tide: slack` forbidden at both lamps, no row holds `slack`. A value that no valid row can hold gets the warning `value_unreachable`, and it is the store that may be wrong. Rows are built one at a time. Each starts from the most common target still waiting, then takes for every other variable the value that covers the most waiting targets, among the values that keep the row completable to one no constraint forbids. The array is not minimal.
 
