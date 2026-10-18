@@ -84,6 +84,7 @@ Every page says what exists today and what is not built yet, with the phase that
 ## Research
 
 * [Budget-bounded test generation for AI agent evaluation](research/budget-bounded-tests.md): a research draft describing the budget selector and its evaluation.
+* [Block framework persona experiments](research/block-framework-persona.md): three pre-registered experiments on the persona grid, prompt unit routing and ownership refusals.
 
 ## What exists today
 
