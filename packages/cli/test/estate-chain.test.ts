@@ -42,12 +42,17 @@ const STATES = join(FIXTURE, 'live/states/library.json');
 
 /** The instruction atom the chain follows: mutated in step 6, rewritten in version 2, the radius of step 9. */
 const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
-const R2 = 'instruction.supplier-email.show-the-full-draft-and-wait';
+/** The gate the chain mutates in step 6: its file is read before any line is matched. */
+const GATE = 'gate.invoice-reconcile.read-references-matching-rules-md-before';
+/** The reference atom of the same line: deleting the line deletes it too (the mutant record lists it as collateral). */
+const GATE_REFERENCE = 'reference.invoice-reconcile.read-references-matching-rules-md';
+const FAKE_JUDGE = join(FIXTURE, 'live/fake/judge.cjs');
+/** The instructions carry no check of their own, so their specs are judged: the stand-in judge passes them. */
+const JUDGE = ['--judge', 'claude:haiku', '--judge-command', FAKE_JUDGE, '--judge-budget', '1'];
 const R12 = 'instruction.standing.r12-when-r2-applies-and-the';
 const ROUTE_PLAN = 'route.standing.an-ask-to-plan-the-delivery';
 const LEDGER_GUARD = 'guard.settings.posttooluse-bash-guard-ledger-guard-py';
 const FORCE_PUSH_GUARD = 'guard.settings.pretooluse-bash-guard-block-force-push';
-const CARRIER_CODE = 'instruction.shipment-tracker.always-pass-the-carrier-code-to';
 
 type Generated = {
   path: string;
@@ -770,12 +775,12 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
     return { code: result.code, json, results };
   }
 
-  it('step 6: inverting the instruction atom turns the specs that name it red, and no other spec moves', async () => {
+  it('step 6: deleting the gate atom turns the specs that name it red, and no other spec moves', async () => {
     await prove('6 mutate, run', 'approved.yaml, generated specs', 'mutant/, run results', async () => {
       const approved = must(chain.approved, '2');
       const generated = must(chain.specs, '5');
-      const atom = approved.atoms.find((candidate) => candidate.id === R7);
-      if (atom === undefined) throw new Error(`${R7} is not an atom of the approved map`);
+      const atom = approved.atoms.find((candidate) => candidate.id === GATE);
+      if (atom === undefined) throw new Error(`${GATE} is not an atom of the approved map`);
 
       // No model: the command is the fixture's stand-in, and a run of the real runtime is refused.
       expect(await isStandIn(FAKE)).toBe(true);
@@ -793,15 +798,15 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       expect(refused.code).toBe(2);
       expect(refused.err).toContain('claude is not a stand-in');
 
-      // The mutant: the atom's line inverted in a copy of the estate, with its own map beside it.
+      // The mutant: the atom's line deleted in a copy of the estate, with its own map beside it.
       const mutantDir = join(work, 'mutant');
       const made = await cli([
         'estate',
         'mutate',
         join(work, 'approved.yaml'),
         '--atom',
-        R7,
-        '--invert',
+        GATE,
+        '--delete',
         '--to',
         mutantDir,
         '--json',
@@ -819,15 +824,15 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       };
       const mutantMap = await loadMap(join(mutantDir, 'map.yaml'));
       expect(record).toMatchObject({
-        atom: R7,
-        op: 'invert',
+        atom: GATE,
+        op: 'delete',
         file: atom.provenance.file,
         originalMapHash: approved.hash,
       });
       expect(record.mapHash).toBe(mutantMap.hash);
       expect(mutantMap.hash).not.toBe(approved.hash);
       expect(record.before).toContain(atom.provenance.quote);
-      expect(record.after).toContain('do not tell the user');
+      expect(record.after).toBe('');
       // Only that file differs from the estate, and only on that line.
       const changedFiles: string[] = [];
       for (const path of await filesUnder(mutantDir)) {
@@ -837,7 +842,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         const now = await readFile(path, 'utf8');
         if (was === now) continue;
         changedFiles.push(name);
-        expect(now).toBe(was.replace(record.before, record.after));
+        expect(now).toBe(was.replace(`${record.before}\n`, ''));
       }
       expect(changedFiles).toEqual([atom.provenance.file]);
 
@@ -896,7 +901,13 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       const byPath = new Map(live.map((entry) => [entry.path, entry]));
       const asksChanged = (entry: Generated) =>
         entry.spec.blocks.some((block) => affected.has(block.when?.user ?? ''));
-      const naming = live.filter((entry) => atomsOf(entry).includes(R7));
+      // The specs that name the gate or its reference and ask for the work in one of the asks the stand-in plays
+      // two ways.
+      expect(made.out).toContain(GATE_REFERENCE);
+      const naming = live.filter(
+        (entry) =>
+          atomsOf(entry).some((name) => name === GATE || name === GATE_REFERENCE) && asksChanged(entry),
+      );
       const sharing = live.filter((entry) => !naming.includes(entry) && asksChanged(entry));
       const forcePush = live
         .filter(
@@ -919,9 +930,8 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       const controls = proof.filter((entry) => !naming.includes(entry) && !sharing.includes(entry));
       expect(controls.length).toBeGreaterThan(0);
       expect(naming.map((entry) => entry.spec.metadata.estate.testType)).toEqual(
-        expect.arrayContaining(['obligation', 'outside_trigger', 'twin']),
+        expect.arrayContaining(['ordered_pair', 'skip_pressure']),
       );
-      expect(sharing.length).toBeGreaterThan(0);
       const paths = [...naming, ...sharing, ...controls].map((entry) => entry.path).sort();
       expect(new Set(paths).size).toBe(paths.length);
 
@@ -938,63 +948,55 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       }
 
       // The original estate, pinned to the map this chain approved.
-      const original = await estateRun('original', FIXTURE, paths, '--map', join(work, 'approved.yaml'));
+      const original = await estateRun(
+        'original',
+        FIXTURE,
+        paths,
+        '--map',
+        join(work, 'approved.yaml'),
+        ...JUDGE,
+      );
       expect(original.code).toBe(1);
       expect(original.json.standIn).toBe(true);
-      expect(original.json.costUsd).toBe(0);
+      // Only the stand-in judge reports a cost, and a small one.
+      expect(original.json.costUsd).toBeLessThan(1);
       expect(original.json.pins).toEqual([approved.hash]);
       const before = original.results;
       expect(Object.keys(before)).toHaveLength(paths.length);
-      // Every spec that names the atom passes. The specs that fail are the two planted faults of the
-      // recorded streams, and the specs that need what the recorded stream of the shipment asks never does:
-      // the carrier-code fault, planted by design. That stream reads neither the shipment data file nor
-      // `track.sh`. So every spec that requires the carrier-code rule, a read of the shipment data or a run of
-      // `track.sh` is red on the original, and stays as red on the mutant. They are the specs of the
-      // carrier-code instruction, and the journeys that walk the data reference or the script edge.
+      // Every spec that names the atom passes. The specs that fail are the two planted faults of the recorded
+      // streams, and the specs that share the ask of the invoice stream but check what that stream never does
+      // (dispatch the auditor, read the currency table, declare the Bash tool): they are red on the original, and
+      // stay as red on the mutant.
       for (const entry of naming) expect(before[entry.spec.id]?.outcome, entry.spec.id).toBe('pass');
-      const needsMore = (atom: string) =>
-        atom === CARRIER_CODE ||
-        atom.startsWith('reference.shipment-tracker.') ||
-        atom.startsWith('script.shipment-tracker.');
-      const carrier = sharing.filter((entry) => atomsOf(entry).some(needsMore));
-      expect(carrier.length).toBeGreaterThan(0);
-      for (const entry of carrier) {
-        const result = before[entry.spec.id];
-        expect(result?.outcome, entry.spec.id).toBe('fail');
-        expect(result?.failing.length, entry.spec.id).toBeGreaterThan(0);
-        if (atomsOf(entry).includes(CARRIER_CODE)) {
-          expect(result, entry.spec.id).toEqual({
-            outcome: 'fail',
-            failing: ['block 0: custom.some_call.0'],
-          });
-        }
-      }
+      const unmet = sharing.filter((entry) => before[entry.spec.id]?.outcome === 'fail');
+      expect(unmet.length).toBeGreaterThan(0);
+      for (const entry of unmet)
+        expect(before[entry.spec.id]?.failing.length, entry.spec.id).toBeGreaterThan(0);
       expect(
         sorted(Object.entries(before).flatMap(([id, result]) => (result.outcome === 'pass' ? [] : [id]))),
-      ).toEqual(sorted([...FAULTS, ...carrier.map((entry) => entry.spec.id)]));
+      ).toEqual(sorted([...FAULTS, ...unmet.map((entry) => entry.spec.id)]));
 
       // The same specs on the mutant, pinned to the original map hash and to the mutant's own.
-      const mutant = await estateRun('mutant', mutantDir, paths);
+      const mutant = await estateRun('mutant', mutantDir, paths, ...JUDGE);
       expect(mutant.code).toBe(1);
       expect(mutant.json.standIn).toBe(true);
       expect(mutant.json.pins).toEqual([approved.hash, record.mapHash]);
       const after = mutant.results;
       expect(Object.keys(after).sort()).toEqual(Object.keys(before).sort());
 
-      // A spec that names the atom and asks what the mutant changes fails: the reply no longer says "late".
-      // The control that must not fire where the rule does not apply (its ask is a neutral one) stays green.
+      // A spec that names the gate and asks what the mutant changes fails: the file is no longer read first.
+      // The stand-in plays the recorded stream without the read when the quote is gone from the estate copy.
       const red = naming.filter((entry) => after[entry.spec.id]?.outcome === 'fail');
       expect(red.map((entry) => entry.spec.id).sort()).toEqual(
         sorted(naming.filter(asksChanged).map((entry) => entry.spec.id)),
       );
-      expect(sorted(new Set(red.map((entry) => entry.spec.metadata.estate.testType)))).toEqual([
-        'obligation',
-        'twin',
-      ]);
+      expect(red.map((entry) => entry.spec.metadata.estate.testType)).toEqual(
+        expect.arrayContaining(['ordered_pair', 'skip_pressure']),
+      );
       for (const entry of red) {
         expect(after[entry.spec.id], entry.spec.id).toEqual({
           outcome: 'fail',
-          failing: ['block 0: must.0'],
+          failing: ['block 0: references.**/.claude/skills/invoice-reconcile/references/matching-rules.md'],
         });
       }
       for (const entry of naming.filter((candidate) => !red.includes(candidate))) {
@@ -1004,7 +1006,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       for (const entry of [...sharing, ...controls]) {
         expect(after[entry.spec.id], entry.spec.id).toEqual(before[entry.spec.id]);
       }
-      return `${R7} inverted, map ${short(approved.hash)} to ${short(record.mapHash)}; ${red.length} of ${naming.length} specs that name it fail, ${sharing.length + controls.length} others unchanged`;
+      return `${GATE} deleted, map ${short(approved.hash)} to ${short(record.mapHash)}; ${red.length} of ${naming.length} specs that name it fail, ${sharing.length + controls.length} others unchanged`;
     });
   });
 
@@ -1039,37 +1041,43 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       // The changes of section 8 of docs/estate.md.
       const semantic = diff.atoms.changed.filter((change) => change.change === 'semantic');
       expect(sorted(semantic.map((change) => change.id))).toEqual(sorted([ROUTE_PLAN, R7]));
+      // The labelers read R2 as no atom, so its wrap is no change of the map.
       expect(
         diff.atoms.changed.filter((change) => change.change === 'whitespace').map((change) => change.id),
-      ).toEqual([R2]);
+      ).toEqual([]);
       expect(diff.atoms.removed.map((atom) => atom.id)).toEqual([R12]);
       expect(sorted(diff.atoms.added.map((atom) => atom.id))).toEqual(
         sorted([
-          'instruction.standing.name-the-finance-lead-on-a',
-          'instruction.standing.keep-a-credit-note-as-a',
+          'register.memory-supplier-languages.write-to-each-supplier-in-the',
+          'instruction.standing.r18-never-approve-a-credit-note',
+          'instruction.standing.r19-when-r18-applies-and-the',
         ]),
       );
-      expect(diff.atoms.moved).toHaveLength(24);
+      expect(diff.atoms.moved).toHaveLength(23);
       expect(diff.atoms.restated.map((atom) => atom.id)).toEqual([
+        'instruction.standing.r8-do-not-invent-order-numbers',
+        'instruction.standing.r11-never-paste-the-contents-of',
         'invariant.standing.the-standing-instructions-stay-under-40000',
       ]);
       expect(diff.guards.filter((guard) => guard.move !== 'unchanged')).toMatchObject([
         { guard: LEDGER_GUARD, move: 'promoted', from: 'warn', to: 'enforce' },
       ]);
       expect(diff.summary).toMatchObject({
-        added: 2,
+        added: 3,
         removed: 1,
-        whitespace: 1,
+        whitespace: 0,
         semantic: 2,
-        moved: 24,
-        restated: 1,
+        moved: 23,
+        restated: 3,
       });
+      // An atom that moved and was restated counts in both lists, and once among the atoms that are not unchanged.
       expect(diff.summary.unchanged).toBe(
         diff.old.atoms -
-          diff.atoms.removed.length -
-          diff.atoms.changed.length -
-          diff.atoms.moved.length -
-          diff.atoms.restated.length,
+          new Set(
+            [diff.atoms.removed, diff.atoms.changed, diff.atoms.moved, diff.atoms.restated].flatMap((list) =>
+              list.map((atom) => atom.id),
+            ),
+          ).size,
       );
 
       // R7: the "before" hash is the hash the scan gave the atom in step 1, the "after" hash is version 2's.
@@ -1100,7 +1108,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
     });
   });
 
-  it('step 8: impact gives 4, 2, 1, 2 on the version 1 tests, and on the generated suite it finds exactly the specs that name a changed atom', async () => {
+  it('step 8: impact gives 4, 2, 1, 3 on the version 1 tests, and on the generated suite it finds exactly the specs that name a changed atom', async () => {
     await prove('8 impact', 'diff.json, fixture-v2/tests, generated specs', 'impact.json', async () => {
       const diff = must(chain.diff, '7');
       const generated = must(chain.specs, '5');
@@ -1134,8 +1142,8 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         impact.reapprove.length,
         impact.retire.length,
         impact.new.length,
-      ]).toEqual([4, 2, 1, 2]);
-      expect(impact.needsPerson).toHaveLength(4);
+      ]).toEqual([4, 2, 1, 3]);
+      expect(impact.needsPerson).toHaveLength(5);
       expect(impact.unaffected).toEqual({ moved: diff.atoms.moved.length, tests: impact.tests.live - 4 - 1 });
       for (const entry of impact.regenerate) {
         // Each regenerated test names, in its own metadata, an atom the diff changed, for the reason given.
@@ -1194,7 +1202,12 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         sorted(retiring.map((entry) => entry.spec.id)),
       );
       expect(wide.unaffected.tests).toBe(suite.length - regenerating.length - retiring.length);
-      const respaced = suite.filter((entry) => atomsOf(entry).every((atom) => atom === R2));
+      // A moved atom touches no spec: the specs that name moved atoms only are left alone.
+      const moved = new Set(diff.atoms.moved.map((atom) => atom.id));
+      const restatedNow = new Set(restated);
+      const respaced = suite.filter((entry) =>
+        atomsOf(entry).every((atom) => moved.has(atom) && !restatedNow.has(atom)),
+      );
       expect(respaced.length).toBeGreaterThan(0);
       const touched = new Set([...wide.regenerate, ...wide.retire].map((entry) => entry.test));
       for (const entry of respaced) expect(touched.has(entry.spec.id), entry.spec.id).toBe(false);
