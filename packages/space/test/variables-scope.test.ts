@@ -98,7 +98,7 @@ describe('the scope of a variable', () => {
         '      - { id: upset, title: upset }',
         '',
       ].join('\n'),
-      'mood.yaml',
+      'yaml',
     );
     expect(result.ok && result.store.variables[0]?.scope).toBe('turn');
   });

@@ -50,11 +50,14 @@ A variable is one thing a situation varies on. A condition in the agent's files 
 | `title` | yes | what the variable varies on |
 | `kind` | yes | `stage`, `behaviour`, `deviation`, `persona`, `channel`, `data` or `task`: how a spec is placed on it, as for a space map |
 | `role` | yes | `axis` or `detail` |
+| `scope` | no | `conversation` (the default) or `turn`: whether the variable is one fact of a whole conversation or can change from turn to turn |
 | `approved` | yes | true once a person approved the variable and the values that carry no flag of their own |
 | `produced_by` | no | `code` (read from structure), `model` (read from prose) or `owner` |
 | `provenance` | no | where the variable comes from; for a variable a condition names, the quote of the condition |
 | `values` | yes | the values, at least one |
 | `boundaries` | no | the edges of the conditions that name the variable |
+
+The scope tells a reader how to read the variable from past conversations: once per conversation, or once per turn (the mood of the person can change inside one conversation, the channel cannot). A variable with no `scope` is read per conversation, and the loader does not write the default into the store. The scope is not part of the space map: `variablesToSpaceMap` leaves it out, and a space map turned into a store states none.
 
 The role is the one the map proposal uses. An axis is a dimension of the space map, crossed with the other axes. A detail stays out of the space map: the generator varies it inside a cell, as boundary values.
 
