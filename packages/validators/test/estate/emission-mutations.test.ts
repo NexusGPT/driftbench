@@ -216,8 +216,6 @@ const CLASS_PROOFS: Record<
       'packages/core/src/spec/semantics.ts: checkCount(reference.count, `${path}.references.${index}.count`, issues);',
       'packages/core/src/spec/semantics.ts: for (const [index, subagent] of (expect.subagents ?? []).entries()) {',
       'packages/core/src/spec/semantics.ts: checkCount(subagent.count, `${path}.subagents.${index}.count`, issues);',
-      // The reference spec marks each guard entry as a warning. It sets `verdict` and never reads `count`.
-      "packages/validators/test/estate/ruling-reference.ts: for (const guard of block.expect?.guards ?? []) guard.verdict = 'warn';",
     ],
     cases() {
       // Entry ids come from name, path or verdict, never count; array lengths are unchanged.
