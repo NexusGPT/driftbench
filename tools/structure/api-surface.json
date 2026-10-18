@@ -823,7 +823,6 @@
       "GuardStateEntry": "value",
       "GuardStateResult": "type",
       "GuardTransition": "value",
-      "HAZARDS": "value",
       "HelperObservation": "type",
       "INFORMATION": "value",
       "ImpactOptions": "type",
