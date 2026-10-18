@@ -21,12 +21,20 @@ export const SpanKind = z.strictObject({
 export type SpanKind = z.infer<typeof SpanKind>;
 
 /** A kind of link from a unit to an atom the request listed as a candidate. */
-export const LinkKind = z.strictObject({
-  name: z.string().regex(LABEL_NAME, { error: 'a link kind name is lower case letters, digits and hyphens' }),
-  description: z.string().min(1),
-  /** The kinds of atom a link of this kind may name. */
-  to: z.array(z.string().min(1)).min(1),
-});
+export const LinkKind = z
+  .strictObject({
+    name: z
+      .string()
+      .regex(LABEL_NAME, { error: 'a link kind name is lower case letters, digits and hyphens' }),
+    description: z.string().min(1),
+    /** The kinds of atom a link of this kind may name. */
+    to: z.array(z.string().min(1)).min(1).optional(),
+    /** Or a closed list of values the set declares, such as the names of a runtime's tools. */
+    values: z.array(z.string().min(1)).min(1).optional(),
+  })
+  .refine((kind) => (kind.to === undefined) !== (kind.values === undefined), {
+    error: 'a link kind names `to` (atom kinds) or `values` (a closed list), one of the two',
+  });
 export type LinkKind = z.infer<typeof LinkKind>;
 
 export const Label = z.strictObject({

@@ -103,7 +103,11 @@ No word list and no grammar rule decides what is a rule.
   when its target unit applies: the unit's text becomes the `situation` of the atom built from the target,
   and a condition whose target holds no atom is listed as refused.
   An `atom` mapping may also give `situation` (what the atom is about, in words), `fields` (fields put on every
-  atom of the label) and `evidence` (checks put after the review check). The shipped set `agent-rules` is data
+  atom of the label) and `evidence` (checks put after the review check). A value of those three that is exactly
+  `$link.<kind>`, `$span.<kind>`, `$code` or `$path` is filled from the unit: the value the labeller gave a link,
+  the text of the first span of that kind, the first inline code span, that code span as the file of the estate
+  it leads to. A placeholder the unit does not fill refuses the atom. A link kind names `to` (atom kinds) or
+  `values` (a closed list the set declares, such as a runtime's tool names). The shipped set `agent-rules` is data
   in this format; it has one label per hazard of a long-running agent (compaction, restart, rate limit, new
   session, helper notification, repeated nudge). `none` is reserved.
 * Each unit has a ledger id: ten characters, derived once from the file, the unit's fingerprint and its

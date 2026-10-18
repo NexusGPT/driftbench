@@ -22,6 +22,55 @@ export const POINTER_KINDS = [...PROSE_KINDS, 'hazard'] as const;
 
 const TITLE_CHARACTERS = 90;
 
+/** What a template of a mapping can take from the unit: the labeller's links and spans, the unit's own structure. */
+type Template = {
+  link(kind: string): string | undefined;
+  span(kind: string): string | undefined;
+  code(): string | undefined;
+  path(): string | undefined;
+};
+
+const UNRESOLVED = Symbol('unresolved');
+const PLACEHOLDER = /^\$(?:link\.([a-z][a-z0-9-]*)|span\.([a-z][a-z0-9-]*)|code|path)$/;
+
+/**
+ * Fills the placeholders of a value of a mapping: a string that is exactly `$link.<kind>` (the value the labeller
+ * gave a link), `$span.<kind>` (the text of the first span of that kind, an exact slice of the file), `$code` (the
+ * first inline code span of the unit) or `$path` (that code span as the file of the estate it leads to). Any other
+ * string is kept as it is. A placeholder the unit does not fill makes the whole value unresolved.
+ */
+function fill(value: unknown, template: Template): unknown {
+  if (typeof value === 'string') {
+    const match = PLACEHOLDER.exec(value);
+    if (!match) return value;
+    const found = match[1]
+      ? template.link(match[1])
+      : match[2]
+        ? template.span(match[2])
+        : value === '$code'
+          ? template.code()
+          : template.path();
+    return found === undefined ? UNRESOLVED : found;
+  }
+  if (Array.isArray(value)) {
+    const out = value.map((item) => fill(item, template));
+    return out.includes(UNRESOLVED) ? UNRESOLVED : out;
+  }
+  if (value !== null && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value)) {
+      const filled = fill(item, template);
+      if (filled === UNRESOLVED) return UNRESOLVED;
+      out[key] = filled;
+    }
+    return out;
+  }
+  return value;
+}
+
+/** The text between the first pair of backticks of a unit: a code span, by Markdown structure. */
+const codeSpanOf = (text: string): string | undefined => /`([^`\n]+)`/.exec(text)?.[1]?.trim() || undefined;
+
 function titleOf(text: string): string {
   const flat = text
     .replace(/[*`]/g, '')
@@ -108,15 +157,44 @@ export function pointerAtoms(
         to: item.unit.start - start + span.to,
       });
     }
-    // A link names an atom of the estate: one the scan does not hold is dropped with its reason.
-    const labelLinks: Array<{ kind: string; atom: string }> = [];
+    // A link names an atom of the estate (one the scan does not hold is dropped with its reason), or a value of
+    // a closed list the set declares.
+    const labelLinks: Array<{ kind: string; atom?: string; value?: string }> = [];
     for (const link of item.links ?? []) {
       if (link.to === 'none') continue;
+      if (item.set.links?.find((kind) => kind.name === link.kind)?.values) {
+        labelLinks.push({ kind: link.kind, value: link.to });
+        continue;
+      }
       if (!builder.atoms.some((other) => other.id === link.to)) {
         refusals.push(`${named}: the ${link.kind} link names ${link.to}, which is no atom of the estate`);
         continue;
       }
       labelLinks.push({ kind: link.kind, atom: link.to });
+    }
+    const template: Template = {
+      link: (kind) => {
+        const found = labelLinks.find((link) => link.kind === kind);
+        return found?.value ?? found?.atom;
+      },
+      span: (kind) => {
+        const span = labelSpans.find((entry) => entry.kind === kind);
+        return span ? text.slice(start + span.from, start + span.to) : undefined;
+      },
+      code: () => codeSpanOf(item.unit.text),
+      path: () => {
+        const code = codeSpanOf(item.unit.text);
+        return code === undefined ? undefined : builder.locate(code, item.path);
+      },
+    };
+    const situation = mapping.situation === undefined ? undefined : fill(mapping.situation, template);
+    const mappedFields = mapping.fields === undefined ? {} : fill(mapping.fields, template);
+    const mappedEvidence = mapping.evidence === undefined ? [] : fill(mapping.evidence, template);
+    if (situation === UNRESOLVED || mappedFields === UNRESOLVED || mappedEvidence === UNRESOLVED) {
+      refusals.push(
+        `${named}: the label ${item.label} needs a span, a link or a code span that the unit does not give`,
+      );
+      continue;
     }
     accepted.push(
       builder.add({
@@ -125,8 +203,8 @@ export function pointerAtoms(
         at,
         ...(conditional.length > 0
           ? { situation: conditional.map((condition) => condition.unit.text.trim()).join(' ') }
-          : mapping.situation
-            ? { situation: mapping.situation }
+          : typeof situation === 'string'
+            ? { situation }
             : {}),
         evidence: [
           {
@@ -140,11 +218,11 @@ export function pointerAtoms(
               ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
             },
           },
-          ...(mapping.evidence ?? []),
+          ...(mappedEvidence as NonNullable<typeof mapping.evidence>),
         ],
         producedBy: 'model',
         fields: {
-          ...(mapping.fields ?? {}),
+          ...(mappedFields as Record<string, unknown>),
           extraction: 'pointer',
           unit: item.id,
           labelSet: item.set.set,

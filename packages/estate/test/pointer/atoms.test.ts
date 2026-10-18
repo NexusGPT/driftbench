@@ -79,8 +79,12 @@ function table(rows: Record<string, pointer.Labelled[]>): pointer.Labeler {
   );
 }
 
-async function scan(rows: Record<string, pointer.Labelled[]>, over: Partial<pointer.PointerInput> = {}) {
-  const root = await estate(FILES);
+async function scan(
+  rows: Record<string, pointer.Labelled[]>,
+  over: Partial<pointer.PointerInput> = {},
+  files: Record<string, string> = FILES,
+) {
+  const root = await estate(files);
   const cassette = new pointer.Cassette();
   const result = await scanEstate({
     root,
@@ -442,6 +446,138 @@ describe('atoms from labels', () => {
 
     it('refuses a set whose evidence is no check', () => {
       expect(pointer.parseLabelSets(MAPPED.replace('type: custom', 'type: nosuch')).ok).toBe(false);
+    });
+  });
+
+  describe('templates in a mapping', () => {
+    const LOGS = {
+      'CLAUDE.md': '# Harbour\n\nRead `.claude/skills/logs/SKILL.md` when a log is asked for.\n',
+      '.claude/skills/logs/SKILL.md': [
+        '---',
+        'name: logs',
+        'description: Keep the harbour log.',
+        '---',
+        '',
+        '# Logs',
+        '',
+        'Keep `references/log-rules.md` close when the fog comes in.',
+        '',
+      ].join('\n'),
+      '.claude/skills/logs/references/log-rules.md': '# Rules\n\nWrite the date first.\n',
+    };
+    const GATES = `labels:
+  - set: gates
+    description: Acts the notes put in order.
+    spans:
+      - { name: weather, description: the condition that calls for it }
+    links:
+      - { name: act-tool, description: the tool the reader uses, values: [Read, Edit, Write] }
+    labels:
+      - name: keep-near
+        description: A unit that tells the reader to keep a file close in some weather.
+        spans: [weather]
+        links: [act-tool]
+        atom:
+          kind: hazard
+          situation: $span.weather
+          fields: { first: $code, path: $path, trigger: $span.weather }
+          evidence:
+            - { type: custom, name: hazard_recovery, options: { hazard: fog, tool: $link.act-tool } }
+            - { type: tool_called, label: Read, input: { file_path: { contains: $path } } }
+`;
+    const UNIT = 'Keep `references/log-rules.md` close when the fog comes in.';
+    const entry = (over: Record<string, unknown> = {}) => ({
+      label: 'keep-near',
+      spans: [{ kind: 'weather', from: UNIT.indexOf('when the fog'), to: UNIT.length - 1 }],
+      links: [{ kind: 'act-tool', to: 'Edit' }],
+      ...over,
+    });
+    /** The labeller points at the unit that holds the sentence, wherever the window numbers it. */
+    const run = (answer: Record<string, unknown>) =>
+      scan(
+        {},
+        {
+          sets: setsOf(GATES),
+          labelling: pointer.singleLabelling(
+            plantedDense((window) => {
+              const at = window.units.find((unit) => unit.text === UNIT)?.n;
+              return at === undefined
+                ? [{ units: `1-${window.units.length}`, label: 'none' }]
+                : [{ units: String(at), ...answer } as pointer.Labelled];
+            }),
+          ),
+        },
+        LOGS,
+      );
+
+    it('fills the situation, the fields and the checks from the spans, the links and the unit itself', async () => {
+      const { result } = await run(entry());
+      const gate = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      expect(gate?.kind).toBe('hazard');
+      expect(gate?.situation).toBe('when the fog comes in');
+      expect(gate?.fields).toMatchObject({
+        first: 'references/log-rules.md',
+        path: '.claude/skills/logs/references/log-rules.md',
+        trigger: 'when the fog comes in',
+      });
+      expect(gate?.evidence.slice(1)).toEqual([
+        { type: 'custom', name: 'hazard_recovery', options: { hazard: 'fog', tool: 'Edit' } },
+        {
+          type: 'tool_called',
+          label: 'Read',
+          input: { file_path: { contains: '.claude/skills/logs/references/log-rules.md' } },
+        },
+      ]);
+      expect(gate?.fields?.labelLinks).toEqual([{ kind: 'act-tool', value: 'Edit' }]);
+    });
+
+    it('refuses the atom, with the reason, when the unit gives no span, link or code span that the mapping needs', async () => {
+      const noLink = await run(entry({ links: undefined }));
+      expect(noLink.result.pointer?.atomRefusals).toEqual([
+        expect.stringContaining('needs a span, a link or a code span that the unit does not give'),
+      ]);
+      expect(noLink.result.map.atoms.some((atom) => atom.fields?.extraction === 'pointer')).toBe(false);
+      const noSpan = await run(entry({ spans: undefined }));
+      expect(noSpan.result.pointer?.atomRefusals).toHaveLength(1);
+    });
+
+    it('refuses a link value the set did not declare, as the check of the answer does', async () => {
+      const { result } = await run(entry({ links: [{ kind: 'act-tool', to: 'Fly' }] }));
+      expect(result.pointer?.refusals).toEqual([
+        expect.stringContaining('is not an atom the request listed'),
+      ]);
+    });
+
+    it('keeps a string that only starts with a dollar sign', async () => {
+      const text = GATES.replace('situation: $span.weather', 'situation: $5 a day');
+      expect(text).not.toBe(GATES);
+      const { result } = await scan(
+        {},
+        {
+          sets: setsOf(text),
+          labelling: pointer.singleLabelling(
+            plantedDense((window) => {
+              const at = window.units.find((unit) => unit.text === UNIT)?.n;
+              return at === undefined
+                ? [{ units: `1-${window.units.length}`, label: 'none' }]
+                : [{ units: String(at), ...entry() } as pointer.Labelled];
+            }),
+          ),
+        },
+        LOGS,
+      );
+      expect(result.map.atoms.find((atom) => atom.fields?.extraction === 'pointer')?.situation).toBe(
+        '$5 a day',
+      );
+    });
+
+    it('refuses a link kind that names neither atom kinds nor values, or both', () => {
+      expect(pointer.parseLabelSets(GATES.replace('values: [Read, Edit, Write]', 'to: [skill]')).ok).toBe(
+        true,
+      );
+      const both = GATES.replace('values: [Read, Edit, Write]', 'values: [Read], to: [skill]');
+      expect(pointer.parseLabelSets(both).ok).toBe(false);
+      expect(pointer.parseLabelSets(GATES.replace(', values: [Read, Edit, Write]', '')).ok).toBe(false);
     });
   });
 });
