@@ -2063,8 +2063,12 @@ export function vectorOf(block: BlockRun): string {
   return vector;
 }
 
-/** A deleted stimulus cannot leave a placement or perturbation behind as a phantom witness. */
-function removeBlock(spec: Spec, index: number): Spec {
+/**
+ * A deleted stimulus cannot leave a placement or perturbation behind as a phantom witness. Nor a link: a
+ * `metadata.links` entry of the deleted block goes with it, and a link by index to a later block moves down
+ * one, so the reduced spec stays valid (a link to a block the spec does not have is LINK_BLOCK_UNKNOWN).
+ */
+export function removeBlock(spec: Spec, index: number): Spec {
   const reduced = structuredClone(spec);
   const removed = reduced.blocks.splice(index, 1)[0];
   reduced.perturbations = reduced.perturbations?.filter((entry) => entry.inject_at !== index);
@@ -2072,6 +2076,18 @@ function removeBlock(spec: Spec, index: number): Spec {
   const metadata = reduced.metadata?.generated as { blocks?: Array<{ block?: string }> } | undefined;
   if (removed?.id !== undefined && Array.isArray(metadata?.blocks))
     metadata.blocks = metadata.blocks.filter((entry) => entry?.block !== removed.id);
+  const links = reduced.metadata?.links;
+  if (reduced.metadata && Array.isArray(links)) {
+    reduced.metadata.links = links.flatMap((link) => {
+      const block = (link as { block?: unknown }).block;
+      if (block === undefined) return [link];
+      if (typeof block === 'number') {
+        if (block === index) return [];
+        return [block > index ? { ...(link as object), block: block - 1 } : link];
+      }
+      return removed?.id !== undefined && block === removed.id ? [] : [link];
+    });
+  }
   return reduced;
 }
 
