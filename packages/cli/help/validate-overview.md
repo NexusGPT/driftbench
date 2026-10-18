@@ -166,8 +166,8 @@ with neither, it is `Validator <component>`. Each seed cell is the observed valu
 * `Level per seed: 1 = 7, hidden = 7`: the highest level passed on each seed, 0 when level 1 fails.
 * `Level of the run: <level> of <top>, the minimum over <n> seeds.`
 * `Floor: <n>. At or above the floor.` or `Floor: <n>. BELOW THE FLOOR.` A component with no floor shows
-  `Floor: 0.` A line follows when the file holds a floor for another ladder version:
-  `The floor 7 belongs to ladder version 1; version 2 has no floor yet.`
+  `Floor: 0.` A line follows when the file holds a floor for an older ladder version than the registered one,
+  such as `The floor 7 belongs to ladder version 1; version 2 has no floor yet.` No component prints it at present.
 * `No level failed.`, or `Items of the first failing level:` then, per seed, the failing level and its
   items grouped by family. Each item line is
   `<id>  [tier <t>]  [<file it points at>]  <detail>`. How to act on one is in `validate-reading-items`.

@@ -1,6 +1,6 @@
 ---
 title: Opt-in judge settings
-summary: "Every judging setting that is off by default on main, how to turn it on and what it changes: response relevance, the reader-first pair judge (it prefers the longer complete reply), conformance, answer audit, the pointwise fact ledger, verification, reference consensus, rubric items, prompt rules version 2, decoder version 2, canonical presentation, repeated and turn-by-turn judging, prompt budgets and rubric lint."
+summary: "Optional judging settings and explicit historical versions, how to turn it on and what it changes: response relevance, the reader-first pair judge (it prefers the longer complete reply), conformance, answer audit, the pointwise fact ledger, verification, reference consensus, rubric items, historical prompt and decoder versions, canonical presentation, repeated and turn-by-turn judging, prompt budgets and rubric lint."
 commands: []
 see_also:
   - judging-default-judge
@@ -15,9 +15,9 @@ next:
 
 ## What it is
 
-The default judge (see `judging-default-judge`) is what every command uses. The settings below change the question, the contract or the procedure, and each must be turned on on purpose. Each one that changes what the model reads has its own prompt fingerprint, so its recordings never replay under the default prompt, and opting in never invalidates default cassettes.
+The default judge (see `judging-default-judge`) is what every command uses. The settings below change the question, the contract or the procedure, and explicit historical versions preserve earlier behavior. Prompt version 2 and decoder version 3 are already the defaults. Each one that changes what the model reads has its own prompt fingerprint, so its recordings never replay under the default prompt, and opting in never invalidates default cassettes.
 
-On main, none of these settings has a command line option or a spec field, except `repeat_reducer` (a criterion field). They are fields of a judge request (`JudgeRequest`) or wrappers in `@agent-nexus/driftbench-judges`, used from code.
+These settings are fields of a judge request (`JudgeRequest`) or wrappers in `@agent-nexus/driftbench-judges`. Criteria in specs and criteria files expose settings including `prompt_version` and `decoder_version`; prompt version 2 is the default, and unset `decoder_version` uses decoder 3. See `judging-default-judge` and the spec reference.
 
 ## When to use it
 
@@ -38,8 +38,8 @@ On main, none of these settings has a command line option or a spec field, excep
 | Verification | `withVerification(client, { enabled: true, sandbox })`, with `arithmeticSandbox()` | A sandbox checks explicit arithmetic in the data first and adds its results as tool evidence. The built-in sandbox evaluates numeric equations with the four operations and parentheses, with no eval, file, process or network access. A failure or timeout is inconclusive. |
 | Reference consensus | `withReferenceConsensus(client, { solve, samples, route })` | Blind solves of the user question (never the candidate, rubric or label). An answer agreed by at least 0.8 of `samples` (default 5) becomes the `reference`. `samples: 1` uses one solve, with no agreement check. `route: 'auto'` first asks whether the question has one checkable answer and skips solving otherwise. An explicit caller reference is kept. |
 | Rubric items | `judgeRubric(client, request, items, { threshold })`, or `rubricItems` in pairwise | Per item scores 0 to 4 (or null) for caller-named requirements, with optional `weight` and `hard`. Code computes the weighted fraction; a hard failure cannot be offset; the default threshold is full fulfilment. |
-| Prompt rules version 2 | `criterionPromptVersion: 2` | Three extra rules in the default system prompt: exact identifiers, numbers and units; stated facts as expected values; the named record decides. Own fingerprint. |
-| Decoder version 2 | `criterionDecoderVersion: 2` | A string evidence quote not in the data becomes null (`grounded: false`) instead of voiding the whole ledger; `met` is kept. Parser only. |
+| Historical prompt rules version 1 | `criterionPromptVersion: 1` (`prompt_version: 1` in a criterion) | Selects the earlier prompt and fingerprint. Version 2 is the default and adds exact identifiers, stated facts and named-record rules. Explicit version 2 is equivalent to leaving it unset. |
+| Historical decoder versions | `criterionDecoderVersion: 1` or `2` (`decoder_version` in a criterion) | Version 1 rejects an ungrounded quote. Version 2 drops an ungrounded string and keeps `met`, but retains its historical span rules. Version 3 is the default; see `judging-evidence`. Parser only. |
 | Canonical presentation | `presentation: 'canonical'` in `judgePairwise` | One pairwise call in a hash-sorted order instead of two orders; position bias is not measured. |
 | Repeated judging | `judgeRepeated(client, request, k)` | Asks one judge the same request k times; consistent only when all k outcomes are equal and decisive. |
 | Turn-by-turn judging | `judgeTurns(judge, request)` | One call per user turn on the prefix that ends there; returns each turn's outcome, the first failing turn and the first later turn that passes again. |

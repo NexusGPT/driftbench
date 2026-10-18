@@ -1,3 +1,4 @@
+import { blockStatus } from '../runner/verdicts';
 import type { RunResult } from '../schema/run';
 import type { CarriedCell } from './carry';
 
@@ -79,10 +80,9 @@ export function auditVerdict(fresh: RunResult, carried: RunResult): AuditVerdict
         );
       }
     }
-    if (now.pass !== before.pass && !differing.some((line) => line.startsWith(`block ${before.index} `))) {
-      differing.push(
-        `block ${before.index}: ${before.pass ? 'pass' : 'fail'} then ${now.pass ? 'pass' : 'fail'}`,
-      );
+    const [statusBefore, statusNow] = [blockStatus(before), blockStatus(now)];
+    if (statusBefore !== statusNow && !differing.some((line) => line.startsWith(`block ${before.index} `))) {
+      differing.push(`block ${before.index}: ${statusBefore} then ${statusNow}`);
     }
   }
   if (fresh.endState?.match !== carried.endState?.match) {

@@ -1,11 +1,14 @@
 import {
   agentVersionOf,
   type BlockResult,
+  blockStatus,
   type Campaign,
   canonicalJson,
+  isScored,
   type LoadedSpec,
   RunMode,
   type RunResult,
+  runOutcome,
   runsByCell,
   type Spec,
   type Store,
@@ -96,13 +99,26 @@ function sortRuns(
 
 /** A run passes when it completed, ran a block, every block passed and the end state matched (the runner's rule). */
 export function runPassed(run: RunResult): boolean {
-  return (
-    run.status === 'completed' &&
-    (run.endVerdict === undefined || run.endVerdict === 'success') &&
-    run.blocks.length > 0 &&
-    run.blocks.every((block) => block.pass) &&
-    run.endState?.match !== false
-  );
+  return runOutcome(run) === 'pass';
+}
+
+/**
+ * The recovery record of a run, when it measured one: a run whose injected block was not run or blocked sent the
+ * agent nothing, so a recovery stored on it is no measurement. Every reader of a recovery goes through this.
+ */
+export function measuredRecovery(run: RunResult): RunResult['recovery'] {
+  return run.blocks.every((block) => !block.injected || isScored(block)) ? run.recovery : undefined;
+}
+
+/**
+ * The runs a pass rate counts: those that passed or failed. A run with a block not run or blocked, and no
+ * failure, is neither: it is left out of every rate, and its count is printed beside the rate.
+ */
+export function scoredRuns(runs: readonly RunResult[]): RunResult[] {
+  return runs.filter((run) => {
+    const outcome = runOutcome(run);
+    return outcome === 'pass' || outcome === 'fail';
+  });
 }
 
 /** What a campaign merges: its fresh runs, and the runs it carried from earlier campaigns. */
@@ -186,10 +202,11 @@ export function carriedSummary(runs: readonly RunResult[]): CarriedSummary | und
   };
 }
 
-/** The share of a run's blocks that pass; 0 for a run with no block. */
+/** The share of a run's scored blocks that pass; 0 for a run with no scored block. */
 export function blockScore(run: RunResult): number {
-  if (run.blocks.length === 0) return 0;
-  return run.blocks.filter((block) => block.pass).length / run.blocks.length;
+  const scored = run.blocks.filter(isScored);
+  if (scored.length === 0) return 0;
+  return scored.filter((block) => blockStatus(block) === 'pass').length / scored.length;
 }
 
 /** `adapter:agent`, with the variant and the deployment when the target names them. */

@@ -1,4 +1,4 @@
-/** Statistics: intervals, reliability, paired tests, multiple comparisons, power, non-inferiority, drift, agreement, variance components and coverage. */
+/** Statistics: intervals, clustered and hierarchical intervals, reliability, paired tests, multiple comparisons, power, non-inferiority, drift, agreement, variance components and coverage. */
 export const packageName = '@agent-nexus/driftbench-stats';
 
 export {
@@ -33,6 +33,18 @@ export {
   type PageHinkleyResult,
   pageHinkley,
 } from './drift';
+export {
+  type ClusterCount,
+  type EffectiveWilson,
+  type EffectiveWilsonOptions,
+  wilsonEffective,
+} from './effective';
+export {
+  type HierarchicalInterval,
+  type HierarchicalOptions,
+  hierarchicalBetaBinomial,
+  type TreeCount,
+} from './hierarchical';
 export {
   type BootstrapInterval,
   type BootstrapOptions,
@@ -69,6 +81,17 @@ export {
 export { type MdeInput, type MdeResult, mde } from './power';
 export { passAtK, passK, unreliability } from './reliability';
 export { parseRepeatReducer, type RepeatReducer, reduceRepeats } from './repeat-reducers';
+export {
+  type CoverageCell,
+  type CoverageMethod,
+  type CoverageOptions,
+  type CoverageResult,
+  type FamilyCoverageCell,
+  type FamilyCoverageMethod,
+  type FamilyCoverageResult,
+  simulateCoverage,
+  simulateFamilyCoverage,
+} from './simulate';
 export {
   betaQuantile,
   binomialCdf,

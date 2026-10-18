@@ -3,11 +3,13 @@ import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   agentVersionOf,
   bindObjectContext,
+  blockStatus,
+  blocksOutcome,
   type Campaign,
   type CliOverrides,
   checkSpecObjects,
   completeBaselineProvenance,
-  loadChangeManifest,
+  isScored,
   loadSpecs,
   objectContextFor,
   objectContextOfSpec,
@@ -27,6 +29,8 @@ import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { addJudgeOptions, judgeAsked, type RunJudgeOptions, runJudgeFrom } from '../judge-options';
+import { gateExit } from './gate-exit';
+import { loadRadiusChangeManifest } from './radius-change';
 
 type Options = RunJudgeOptions & {
   from: string;
@@ -38,6 +42,7 @@ type Options = RunJudgeOptions & {
   maxCarry?: string;
   maxAge?: string;
   json?: boolean;
+  recordRealizedText?: boolean;
 };
 export function registerCampaignRejudge(campaign: Command, io: Io, setExit: (code: number) => void): void {
   addJudgeOptions(
@@ -61,6 +66,7 @@ export function registerCampaignRejudge(campaign: Command, io: Io, setExit: (cod
       )
       .option('--max-carry <n>', 'maximum consecutive carries', '5')
       .option('--max-age <days>', 'maximum age of the observations', '7')
+      .option('--record-realized-text', 'keep available driver text in this new campaign')
       .option('--json', 'print the re-judge summary as JSON'),
   ).action(async (paths: string[], options: Options) => {
     setExit(await campaignRejudge(paths, options, io));
@@ -86,7 +92,7 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
   if (rescoring) return campaignRescore(paths, options, io);
   let store: ReturnType<typeof openStore> | undefined;
   try {
-    const manifest = await loadChangeManifest(resolve(io.cwd, options.change as string));
+    const manifest = await loadRadiusChangeManifest(resolve(io.cwd, options.change as string));
     if (!manifest.ok) throw new Error(manifest.errors.join('\n'));
     const change = manifest.manifest;
     if (
@@ -161,6 +167,13 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
       specs: data.campaign.specs.map((p) => ({ ...p, hash: specs.get(p.id)?.hash ?? p.hash })),
       rejudged: prepared.map((p) => p.stamp),
     };
+    if (campaign.provenance) {
+      const { realizedText: _sourceOptIn, ...provenance } = campaign.provenance;
+      campaign.provenance = {
+        ...provenance,
+        ...(options.recordRealizedText === true ? { realizedText: true } : {}),
+      };
+    }
     delete campaign.radius;
     if (campaign.sources) campaign.sources = campaign.sources.filter((source) => source.kind === 'prompt');
     // Preflight above completes before any call or write. Store the new campaign so a failed judge
@@ -174,26 +187,55 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
         item,
         judge.check,
         () => judge.spend.usd,
-        ...(next === undefined ? [] : [objectContextOfSpec(next.spec) ?? objectContextFor(next.path)]),
+        options.recordRealizedText === true,
+        next === undefined ? undefined : (objectContextOfSpec(next.spec) ?? objectContextFor(next.path)),
       );
       await store.putRun(campaign.campaignId, run);
       runs.push(run);
     }
     await judge.save();
+    // A block not run or blocked is left as it was: no measurement to re-judge, named with its reason.
+    const unmeasured = runs.flatMap((r) =>
+      r.blocks.flatMap((b) => {
+        const status = blockStatus(b);
+        if (status !== 'not_run' && status !== 'blocked') return [];
+        const reason = b.notRun
+          ? `${b.notRun.check}: ${b.notRun.got}`
+          : `blocked by ${b.blocked?.by ?? 'an ancestor'}`;
+        return [{ spec: r.specId, mode: r.mode, repeat: r.repeat, block: b.index, status, reason }];
+      }),
+    );
+    const outcomes = runs.map(blocksOutcome);
     const summary = {
       campaign: campaign.campaignId,
       from: options.from,
       agentCalls: 0,
       rejudged: runs.flatMap((r) => r.blocks).filter((b) => b.rejudged).length,
-      carried: runs.flatMap((r) => r.blocks).filter((b) => !b.rejudged).length,
+      carried: runs.flatMap((r) => r.blocks).filter((b) => !b.rejudged && isScored(b)).length,
+      ...(unmeasured.length > 0 ? { unmeasured } : {}),
+      runs: {
+        pass: outcomes.filter((outcome) => outcome === 'pass').length,
+        fail: outcomes.filter((outcome) => outcome === 'fail').length,
+        notRun: outcomes.filter((outcome) => outcome === 'not_run').length,
+        blocked: outcomes.filter((outcome) => outcome === 'blocked').length,
+      },
       judgeCostUsd: judge.spend.usd,
     };
-    io.out(
-      options.json
-        ? `${JSON.stringify(summary, null, 2)}\n`
-        : `Campaign ${summary.campaign}: ${summary.rejudged} blocks re-judged, ${summary.carried} carried; 0 agent calls. Judge cost ${summary.judgeCostUsd.toFixed(4)} USD.\n`,
-    );
-    return runs.every((r) => r.blocks.every((b) => b.pass) && r.endState?.match !== false) ? 0 : 1;
+    if (options.json) io.out(`${JSON.stringify(summary, null, 2)}\n`);
+    else {
+      io.out(
+        `Campaign ${summary.campaign}: ${summary.rejudged} blocks re-judged, ${summary.carried} carried${unmeasured.length > 0 ? `, ${unmeasured.length} not run or blocked (left as they were)` : ''}; 0 agent calls. Judge cost ${summary.judgeCostUsd.toFixed(4)} USD.\n`,
+      );
+      io.out(
+        `Runs: ${summary.runs.pass} pass, ${summary.runs.fail} fail${summary.runs.notRun > 0 ? `, ${summary.runs.notRun} not run` : ''}${summary.runs.blocked > 0 ? `, ${summary.runs.blocked} blocked` : ''}.\n`,
+      );
+      for (const entry of unmeasured)
+        io.out(
+          `  ${entry.spec} ${entry.mode} repeat ${entry.repeat} block ${entry.block} ${entry.status === 'blocked' ? 'blocked' : 'not run'}: ${entry.reason}\n`,
+        );
+    }
+    // 1 when a run fails; 3 when none fails but a run was not run or blocked (no pass, no failure).
+    return gateExit(outcomes);
   } catch (error) {
     io.err(`${error instanceof Error ? error.message : String(error)}\n`);
     return 2;
@@ -278,7 +320,7 @@ async function campaignRescore(paths: string[], options: Options, io: Io): Promi
     for (const item of prepared) {
       const context = objects.get(item.source.specId);
       if (!context) throw new Error(`Missing resolved objects for ${item.source.specId}`);
-      const run = await rescoreRun(item, defaultChecks(), context);
+      const run = await rescoreRun(item, defaultChecks(), context, options.recordRealizedText === true);
       await store.putRun(campaign.campaignId, run);
       runs.push(run);
     }
@@ -295,7 +337,9 @@ async function campaignRescore(paths: string[], options: Options, io: Io): Promi
         ? `${JSON.stringify(summary, null, 2)}\n`
         : `Re-scored; observations from ${summary.from}.\nCampaign ${summary.campaign}: ${summary.rescored} blocks re-scored under ${[...summary.use, ...summary.set].join(', ')}; 0 agent calls, 0 judge calls.\n`,
     );
-    return runs.every((r) => r.blocks.every((b) => b.pass) && r.endState?.match !== false) ? 0 : 1;
+    // 1 when a run fails or its end state does not match; 3 when none fails but a block was not run or blocked.
+    if (runs.some((r) => r.endState?.match === false)) return 1;
+    return gateExit(runs.map(blocksOutcome));
   } catch (error) {
     io.err(`${error instanceof Error ? error.message : String(error)}\n`);
     return 2;

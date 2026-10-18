@@ -147,6 +147,13 @@ export async function rescoreCarriedRun(
   const refuse = (reason: string): never => {
     throw new Error(`cannot re-score carried run: ${reason}; run the cell fresh`);
   };
+  // A child of a parent-linked run was measured with the history, the previous stage and the Given of its ancestors
+  // (the run's ancestorResults rule). Rebuilding them from the block order would hand it the blocks of unrelated
+  // trees, so such a run is not re-scored: the cell runs fresh.
+  if (spec.blocks.some((block) => block.parent !== undefined))
+    refuse(
+      "a parent-linked run takes each child's history from its ancestors, which a re-score does not rebuild",
+    );
   if (source.mode === 'P' || source.blocks.some((block) => block.injected || block.realized))
     refuse('the realized driver stimulus cannot be reconstructed');
   if (source.blocks.some((block) => blockNeedsArtifactReplay(spec.blocks[block.index], block)))

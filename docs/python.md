@@ -24,16 +24,17 @@ cell.state, cell.target            # ("pass", "function:acme")
 [block.passed for block in cell.blocks]
 ```
 
-`run_specs(specs, *, target=None, agent=None, python_path=(), mode="F", repeats=1, store=None, concurrency=None, cli=None, cwd=None, timeout=None)` runs spec files or folders and returns a `CampaignResult`. Exit codes 0 and 1 of the command line give a result; any other code raises `DriftbenchError` with the command line's message, such as an unknown target.
+`run_specs(specs, *, target=None, agent=None, python_path=(), mode="F", repeats=1, store=None, concurrency=None, cli=None, cwd=None, timeout=None)` runs spec files or folders and returns a `CampaignResult`. Exit codes 0, 1 and 3 of the command line give a result (3: nothing failed but a cell was not run or blocked; `verdict_of(result)` reads it as `not_run` or `blocked`, never a pass); any other code raises `DriftbenchError` with the command line's message, such as an unknown target.
 
 | Type | Holds |
 |---|---|
 | `CampaignResult` | `campaign_id`, `checks`, `cells`, `summary`, `exit_code`, and `passed` when every cell passes |
-| `Cell` | `cell_id`, `spec_id`, `target` (such as `function:acme`), `mode`, `repeat`, `perturbation_id`, `state` (pass, fail, failed, stopped or pending), `failing`, `error`, `run_id`, `blocks`, `end_state`, and `passed` |
-| `Block` | `index`, `block_id`, `passed`, `stage`, `injected`, `verdicts`, and `failing`: the gating verdicts that did not pass |
+| `Cell` | `cell_id`, `spec_id`, `target` (such as `function:acme`), `mode`, `repeat`, `perturbation_id`, `state` (pass, fail, failed, stopped, pending, not_run or blocked), `failing`, `error`, `run_id`, `blocks`, `end_state`, `passed`, and `scored` (false for not_run and blocked: no measurement) |
+| `Block` | `index`, `block_id`, `passed`, `stage`, `injected`, `verdicts`, `failing` (the gating verdicts that did not pass), `status` (not_run or blocked, else None), `not_run` and `blocked` (the reason records), `scored`, and `reason` |
 | `Verdict` | `id`, `outcome`, `gating`, `evidence`, and `passed` |
 | `EndState` | `match` and `diff`, one entry per field that does not hold |
-| `Summary` | `cells`, `passed`, `failed_checks` (a gating verdict did not pass), `failed` (the run broke), `stopped_by_budget`, `pending` |
+| `verdict_of(block, cell or campaign result)` | the one reader of a block's pass and status, a cell's state and a campaign's cells: `pass`, `fail`, `not_run` or `blocked` |
+| `Summary` | `cells`, `passed`, `failed_checks` (a gating verdict did not pass), `failed` (the run broke), `stopped_by_budget`, `pending`, `not_run`, `blocked` |
 
 ## A Python function as the agent
 
@@ -57,7 +58,7 @@ A process agent has no tool calls: the adapter records its standard output as th
 
 ## pytest
 
-The package registers a pytest plugin. With `--driftbench`, pytest collects every YAML file that holds a spec (a top-level `id:` and `blocks:`) under the paths it is given, as one test item per spec. The item runs the spec through the command line and fails when a cell does not pass; the failure names each failing block and the evidence of each gating verdict that did not pass.
+The package registers a pytest plugin. With `--driftbench`, pytest collects every YAML file that holds a spec (a top-level `id:` and `blocks:`) under the paths it is given, as one test item per spec. The item runs the spec through the command line and fails when a cell does not pass; the failure names each failing block and the evidence of each gating verdict that did not pass. A spec whose cells were only not run or blocked (no cell failed) is skipped, never passed, and the skip names each block not run with its reason.
 
 | Option | Meaning |
 |---|---|

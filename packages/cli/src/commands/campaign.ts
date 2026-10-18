@@ -11,6 +11,7 @@ import {
   auditSample,
   auditVerdict,
   type BlockReuse,
+  blockStatus,
   type Campaign,
   type CampaignPlan,
   type CellOutcome,
@@ -27,8 +28,8 @@ import {
   DEFAULT_MAX_AGE_DAYS,
   DEFAULT_MAX_CARRY,
   type DriftClass,
+  isScored,
   type LoadedSpec,
-  loadChangeManifest,
   loadSpecs,
   type MinimumDetectableEffect,
   mdeLine,
@@ -101,7 +102,9 @@ import { pricesFromConfig } from '../token-prices';
 import { carriedBlocksAgree, planCellBlockReruns } from './campaign-blocks';
 import { campaignProvenance } from './campaign-provenance';
 import { registerCampaignRejudge } from './campaign-rejudge';
+import { gateExit } from './gate-exit';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
+import { loadRadiusChangeManifest } from './radius-change';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
 export type CampaignScope = {
@@ -384,7 +387,9 @@ export function registerCampaignCommands(
 
   const run = campaign
     .command('run')
-    .description('Run every cell and print pass or fail per cell. Exit 1 on any failed or failing cell.')
+    .description(
+      'Run every cell and print pass or fail per cell. Exit 1 on any failed or failing cell, 3 when none failed but a cell was not run.',
+    )
     .argument('[paths...]', 'spec files or folders; none when --dataset gives the specs')
     .option('--dataset <name[@version]>', 'run the specs of this dataset version of the store, and record it')
     .option(
@@ -1243,7 +1248,7 @@ async function executeCampaign(
     if (campaign.radius) io.out(radiusSummary(campaign.radius, outcomes));
     if (!flags.kept) io.out('The runs are not kept: pass --store <file> to keep them.\n');
   }
-  return outcomes.every((outcome) => outcome.state === 'pass') ? 0 : 1;
+  return gateExit(outcomes.map((outcome) => outcome.state));
 }
 
 /**
@@ -1273,7 +1278,7 @@ async function radiusPlan(
     );
     return null;
   }
-  const manifest = await loadChangeManifest(resolve(io.cwd, options.change));
+  const manifest = await loadRadiusChangeManifest(resolve(io.cwd, options.change));
   if (!manifest.ok) {
     io.err(`✗ ${options.change}\n`);
     for (const error of manifest.errors) io.err(`    ${error}\n`);
@@ -1937,6 +1942,8 @@ export async function loadValidSpecs(paths: string[], io: Io): Promise<LoadedSpe
 const MARK: Record<CellOutcome['state'], string> = {
   pass: '✓',
   fail: '✗',
+  not_run: '-',
+  blocked: '-',
   failed: '!',
   stopped: '!',
   pending: '·',
@@ -1970,7 +1977,7 @@ function cellLine(outcome: CellOutcome): string {
     ...(run?.cacheHit && !outcome.reused ? ['replayed from the cache'] : []),
   ];
   let detail = '';
-  if (outcome.state === 'fail') {
+  if (outcome.state === 'fail' || outcome.state === 'not_run' || outcome.state === 'blocked') {
     detail = `  ${outcome.failing.length > 0 ? outcome.failing.join(', ') : 'no block ran'}`;
   } else if (outcome.budgetStop) {
     const { budgetUsd, spentUsd } = outcome.budgetStop;
@@ -1995,6 +2002,8 @@ function summaryLine(outcomes: readonly CellOutcome[]): string {
   const parts = [
     `${states('pass')} pass`,
     `${states('fail')} fail`,
+    ...(states('not_run') > 0 ? [`${states('not_run')} not run`] : []),
+    ...(states('blocked') > 0 ? [`${states('blocked')} blocked`] : []),
     `${states('failed') + states('stopped') - budgetStops} failed`,
     ...(budgetStops > 0 ? [`${budgetStops} stopped by the budget`] : []),
     ...(states('pending') > 0 ? [`${states('pending')} pending`] : []),
@@ -2003,6 +2012,13 @@ function summaryLine(outcomes: readonly CellOutcome[]): string {
     .filter((outcome) => outcome.run && !outcome.reused && !outcome.run.cacheHit)
     .reduce((sum, outcome) => sum + (outcome.run?.cost ?? 0), 0);
   return `${count(outcomes.length, 'cell')}: ${parts.join(', ')}${reused > 0 ? `, ${reused} reused` : ''}${carried > 0 ? `, ${carried} carried` : ''}${rescored.length > 0 ? `, ${rescored.length} re-scored` : ''}.${sources.map((source) => ` Re-scored; observations from ${source}.`).join('')} Spent ${usd(spent)}.`;
+}
+
+/** The cells neither passed nor failed, by state, each count only when it is above 0. */
+function unscoredCells(outcomes: readonly CellOutcome[]): { notRun?: number; blocked?: number } {
+  const notRun = outcomes.filter((outcome) => outcome.state === 'not_run').length;
+  const blocked = outcomes.filter((outcome) => outcome.state === 'blocked').length;
+  return { ...(notRun > 0 ? { notRun } : {}), ...(blocked > 0 ? { blocked } : {}) };
 }
 
 /** Blocks a radius campaign sent to the agent, and blocks it carried without sending them. */
@@ -2058,7 +2074,10 @@ function report(campaignId: string, outcomes: readonly CellOutcome[], kept: bool
               index: block.index,
               ...(block.blockId === undefined ? {} : { blockId: block.blockId }),
               ...(block.injected ? { injected: true } : {}),
-              pass: block.pass,
+              pass: blockStatus(block) === 'pass',
+              ...(isScored(block) ? {} : { status: blockStatus(block) }),
+              ...(block.notRun === undefined ? {} : { notRun: block.notRun }),
+              ...(block.blocked === undefined ? {} : { blocked: block.blocked }),
               ...(block.stageObserved === undefined ? {} : { stage: block.stageObserved }),
               verdicts: block.verdicts.map(({ id, outcome, gating, evidence }) => ({
                 id,
@@ -2074,6 +2093,8 @@ function report(campaignId: string, outcomes: readonly CellOutcome[], kept: bool
       cells: outcomes.length,
       pass: outcomes.filter((outcome) => outcome.state === 'pass').length,
       fail: outcomes.filter((outcome) => outcome.state === 'fail').length,
+      // Present only when a cell holds one: a campaign with none prints the summary it always printed.
+      ...unscoredCells(outcomes),
       failed: outcomes.filter(
         (outcome) => (outcome.state === 'failed' || outcome.state === 'stopped') && !outcome.budgetStop,
       ).length,
