@@ -259,3 +259,20 @@ export const askable = (_text: string): string => 'no structured map act supplie
 export const workFault = askable;
 export const workable = (_text: string): boolean => false;
 export const situationProblem = (_text: string): string => 'no structured context supplied';
+
+/** A path basename supplies its subject structurally; no English filename vocabulary is consulted. */
+export function fileSubjectDerivation(path: unknown): string | undefined {
+  if (typeof path !== 'string' || /\s/.test(path)) return undefined;
+  const stem =
+    path
+      .replace(/\\/g, '/')
+      .split('/')
+      .pop()
+      ?.replace(/\.[A-Za-z0-9]+$/, '') ?? '';
+  if (stem === '') return undefined;
+  const parts = stem
+    .split(/[._-]+/)
+    .filter((part) => part !== '')
+    .map((part) => part.toLowerCase());
+  return parts.some((part) => /\p{L}{2,}/u.test(part)) ? parts.join(' ') : undefined;
+}

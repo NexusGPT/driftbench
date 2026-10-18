@@ -1,6 +1,7 @@
 /** Exhaustive generation and recorded-trace diagnostics on the fictional fixture only. */
+import { createHash } from 'node:crypto';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import type { Observed } from '@agent-nexus/driftbench-core';
 import { parse } from 'yaml';
 import { fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
@@ -15,6 +16,16 @@ await mkdir(scratch, { recursive: true });
 process.env.TMPDIR = scratch;
 const suite = await fixtureSuite();
 const env = await envOfSuite(suite);
+const specFingerprints = Object.fromEntries(
+  await Promise.all(
+    suite.specs.map(async (spec) => [
+      relative(join(suite.work, 'suite'), spec.path),
+      createHash('sha256')
+        .update(await readFile(spec.path))
+        .digest('hex'),
+    ]),
+  ),
+);
 const report = JSON.parse(await readFile(join(suite.work, 'suite/estate-generate-report.json'), 'utf8'));
 const plan = parse(await readFile(join(suite.work, 'plan.yaml'), 'utf8')) as {
   rows: Array<{ id: string; atomIds: string[]; testType: string; mode: string }>;
@@ -119,6 +130,7 @@ const traced = traceResults.map((entry) => ({
 }));
 const artifact = {
   fixture: 'examples/estates/fixture',
+  specFingerprints,
   work: suite.work,
   scope: staticOnly
     ? 'All generator incomplete rows, native-unit omissions and static checkAsk verdicts. Traces are explicitly untested by this run.'

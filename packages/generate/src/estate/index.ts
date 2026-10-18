@@ -10,6 +10,7 @@ export {
   DEVIATION_ASKS,
   type DeclaredAsk,
   declaredAskOf,
+  fileSubjectDerivation,
   imperative,
   OUTSIDE_ASK,
   plain,
@@ -39,6 +40,8 @@ export {
   renderAsk,
   SLOT,
   STRUCTURED_ACT_SHAPES,
+  SUBJECT_SHAPE,
+  SUBJECT_TAIL,
   VERBATIM,
 } from './frames';
 export {

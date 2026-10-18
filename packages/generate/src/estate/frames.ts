@@ -68,9 +68,14 @@ export const STRUCTURED_ACT_SHAPES = {
 
 /** The shapes of an act: how the pieces join into what is asked, each piece shown as a slot. */
 const TOOL_PHRASES = [...new Set(Object.values(TOOL_ACTS))];
+/** Write-only subject forms shared with the file-subject validator. */
+export const SUBJECT_TAIL = `, including the ${SLOT}`;
+export const SUBJECT_SHAPE = `${SLOT}${SUBJECT_TAIL}`;
 export const ACT_SHAPES: readonly string[] = [
   SLOT,
   ...Object.values(STRUCTURED_ACT_SHAPES),
+  SUBJECT_SHAPE,
+  `help me with ${SLOT}${SUBJECT_TAIL}`,
   `help me with ${SLOT}`,
   `help with ${SLOT}`,
   `have a helper agent ${SLOT}`,

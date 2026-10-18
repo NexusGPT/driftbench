@@ -9,6 +9,7 @@ import {
   renderAsk,
   SLOT,
   STRUCTURED_ACT_SHAPES,
+  SUBJECT_TAIL,
   TOOL_ACTS,
   VERBATIM,
 } from '@agent-nexus/driftbench-generate';
@@ -244,8 +245,14 @@ function pieceReasons(
     if (id === cited.id || enforced.includes(id)) actFields.push(...own);
   }
   const actSlots = shape.split(SLOT).length - 1;
+  // The file subject comes from the row reference; other act pieces retain their cited source.
   for (const [index, piece] of list.entries())
-    if (!isClauseOf(piece, index < actSlots ? actFields : fields))
+    if (
+      !isClauseOf(
+        piece,
+        index < actSlots && !(shape.endsWith(SUBJECT_TAIL) && index === actSlots - 1) ? actFields : fields,
+      )
+    )
       reasons.push(`the piece "${piece}" is no whole clause of the text of ${cited.id}`);
   return reasons;
 }

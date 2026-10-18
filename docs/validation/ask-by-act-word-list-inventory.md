@@ -123,3 +123,9 @@ Tests retain all case IDs and failure expectations. Targeted run results are rec
 - Literal diagnostic regexes become equivalent literal substring assertions. No negated assertion is dropped without a stronger exact-output assertion.
 - Planted no-order mutant still requires at least one passing complete test, non-equivalence, and the exact completed-replay diagnostic.
 - Source census uses an exact source string; the Please-prefix mutation uses an exact rendering-template prefix.
+
+## File-subject integration
+
+The validator hunks from #640 commits `bf066c744` and `e1f0dca59` are integrated into the wordless implementation: `fieldsOf` includes structural path subjects, and the final subject-tail piece is checked against the row's atoms. The import retains `askClausesOf`; none of the old English extraction regexes returns.
+
+At #640 head `ed3468abf`, `packages/generate/src/estate/asks.ts:309,324` uses `GENERIC_FILE_NAMES` to suppress skill/readme/index/agents/claude/memory/notes. That reading vocabulary is deliberately omitted from the imported helper. `fileSubjectDerivation` splits a path basename and extension structurally; it does not classify filenames by English words. `SUBJECT_TAIL` and `SUBJECT_SHAPE` remain write-only render templates with exact re-render checks.

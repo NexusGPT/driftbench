@@ -1,5 +1,5 @@
 import type { Atom } from '@agent-nexus/driftbench-estate';
-import { askClausesOf } from '@agent-nexus/driftbench-generate';
+import { askClausesOf, fileSubjectDerivation } from '@agent-nexus/driftbench-generate';
 
 /** Pieces are complete structural clauses or explicitly declared ask fields, never English prefixes. */
 
@@ -32,7 +32,10 @@ export function fieldsOf(atom: Atom): Field[] {
     // The documented rule of a guard is the rule it enforces.
     if (name === 'ruleText') own.push(value);
   }
-  const derived = askClausesOf(atom);
+  const derived = [
+    ...askClausesOf(atom),
+    ...texts.map(fileSubjectDerivation).filter((part): part is string => part !== undefined),
+  ];
   // A stage's title is a labelled value, not a clause cut from its JSON provenance.
   if (atom.kind === 'stage' && atom.title.includes(': '))
     derived.push(atom.title.slice(atom.title.indexOf(': ') + 2));
