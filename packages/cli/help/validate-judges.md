@@ -79,6 +79,31 @@ audit and provisional hardness terms are in `validators/judges/v3/`.
 `--hardness`, `--brief`, `--journal` and `--check-handover` select those files
 when combined with `--ladder-version 3`. `validate all` uses default versions.
 
+### Pointer labellers, opt-in version 4
+
+`driftbench validate judges --ladder-version 4 --items` runs version 3 and a sixth level, `pointer-labellers`,
+that judges the labellers of the estate pointer reader (`packages/estate/src/pointer`) like judges: 43 items,
+nine families. No model is called: every labeller is a table.
+
+* `units`: a unit number or range, and what is refused.
+* `set-hash`: the hash of a label set from its canonical form; any edit of a label or its order changes it,
+  the order of keys does not, and another set is untouched.
+* `answer`: every refusal of an answer (unknown label, units that are no range, outside the window, named twice,
+  a bad, missing, extra or none-target), and that a refused entry leaves the rest standing.
+* `label-file`: the rules of a label file (names, duplicates, conditions, shape, YAML).
+* `yes-no` and `choice`: the threshold, ties, an unanswered question (no opinion, never a guess), and a choice
+  answer that is no vector (refused, never normalised).
+* `stack`: the margin, the cascade between system 1 and system 2 (bounds, unsure units, fallback, labels that
+  ask for a target), the margin rule and a lone labeller.
+* `recording`: the hash of a labelling and the cassette key: a changed set, model, run, cut, prompt, unit text or
+  labeller gives another key.
+* `gold-set`: twelve fictional units through the stack and through the whole scan; the labels, who decided and the
+  kappa against the gold labels are checked.
+
+Expected values come from `packages/validators/fixtures/judges/pointer.json`, made by `make_pointer.py` from the
+documented rules with the standard library only. `DRIFTBENCH_POINTER_IMPL` names another build of the module
+(its `index.ts`), for a pilot on a degraded copy. Version 2 stays the default and version 3 is unchanged.
+
 ## When to use it
 
 * After a change to `packages/judges`: the prompt renderer, the answer contract and its parser, the
