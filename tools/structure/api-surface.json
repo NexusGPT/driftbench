@@ -751,6 +751,7 @@
       "specParentRecord": "value",
       "specParentRef": "value",
       "stageSignatures": "value",
+      "stemOf": "value",
       "stimulusMessages": "value",
       "succession": "value",
       "thenFields": "value",

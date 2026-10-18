@@ -39,11 +39,23 @@ export type StemForest = {
   saved: number;
 };
 
+/** How the forest reads a spec, beyond its group. */
+export type StemForestOptions = {
+  /** How many leading blocks of the spec may be shared; the rest stay its own. Default: every block. */
+  limitOf?: (spec: Spec) => number;
+  /** What two blocks must share to be one node. Default: the block without its id. */
+  blockKey?: (spec: Spec, block: BlockSpec) => unknown;
+};
+
 /**
  * Builds the forest. `groupOf` says which specs may share an opening (the same group) and which may not
  * (undefined: the spec keeps every block of its own).
  */
-export function stemForest(specs: readonly Spec[], groupOf: (spec: Spec) => string | undefined): StemForest {
+export function stemForest(
+  specs: readonly Spec[],
+  groupOf: (spec: Spec) => string | undefined,
+  options: StemForestOptions = {},
+): StemForest {
   const roots: StemNode[] = [];
   const byKey = new Map<string, StemNode>();
   const placed: Array<{ spec: Spec; nodes: StemNode[] }> = [];
@@ -56,9 +68,10 @@ export function stemForest(specs: readonly Spec[], groupOf: (spec: Spec) => stri
     const nodes: StemNode[] = [];
     let parent: StemNode | undefined;
     let chain: unknown[] = [group];
-    spec.blocks.forEach((block, depth) => {
+    const limit = Math.min(spec.blocks.length, options.limitOf?.(spec) ?? spec.blocks.length);
+    spec.blocks.slice(0, limit).forEach((block, depth) => {
       const { id: _id, ...content } = block;
-      chain = [...chain, content];
+      chain = [...chain, options.blockKey ? options.blockKey(spec, block) : content];
       const key = contentHash(chain);
       let node = byKey.get(key);
       if (!node) {

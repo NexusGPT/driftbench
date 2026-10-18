@@ -1,7 +1,6 @@
-import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadSpecFile, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import { loadSpecs, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { stemForest } from '../../src/stems/trie';
 
@@ -62,22 +61,13 @@ describe('the stem finder', () => {
     expect(forest.rows.map((row) => row.sharedBy)).toEqual([2, 1, 2, 1]);
   });
 
-  it('counts the shared blocks of the generated Acme suite under a header-equality group', async () => {
-    const files: string[] = [];
-    const walk = (dir: string) => {
-      for (const name of readdirSync(dir)) {
-        const path = join(dir, name);
-        if (statSync(path).isDirectory()) walk(path);
-        else if (name.endsWith('.yaml')) files.push(path);
-      }
-    };
-    walk(join(ROOT, 'examples/acme/generated/specs'));
-    const specs: Spec[] = [];
-    for (const file of files) {
-      const loaded = await loadSpecFile(file);
-      if (loaded.ok) specs.push(loaded.spec);
-    }
-    expect(specs.length).toBe(files.length);
+  it('counts the shared blocks of the generated Acme suite, written back out, under a header-equality group', async () => {
+    // The committed suite holds stems; loaded as a folder, every spec is written back out whole.
+    const loaded = await loadSpecs([join(ROOT, 'examples/acme/generated/specs')]);
+    expect(loaded.filter((entry) => !entry.ok)).toEqual([]);
+    const specs = loaded
+      .flatMap((entry) => (entry.ok ? [entry.spec] : []))
+      .filter((entry) => !entry.id.startsWith('stem-'));
     const cosmetic = new Set([
       'id',
       'title',

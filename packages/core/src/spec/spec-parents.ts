@@ -171,3 +171,13 @@ function mergeCriteria(
   }
   return merged;
 }
+
+/**
+ * The specs a stem opens, when this spec is a stem: an opening written once for the specs that start from it
+ * (`metadata.stem.specs`). A stem is run and scored as a spec of its own; it is no conversation of the map, so
+ * coverage counts the specs it opens, never the stem.
+ */
+export function stemOf(spec: Spec): string[] | undefined {
+  const specs = (spec.metadata?.stem as { specs?: unknown } | undefined)?.specs;
+  return Array.isArray(specs) && specs.every((entry) => typeof entry === 'string') ? specs : undefined;
+}

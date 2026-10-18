@@ -47,6 +47,7 @@ export type GenerateCommandOptions = {
   tasks?: string;
   baseline?: string[];
   force?: boolean;
+  stems?: boolean;
   json?: boolean;
   model?: boolean;
   proposals?: string;
@@ -89,6 +90,7 @@ export function registerGenerateCommand(
     .option('--tasks <n>', `instances built per task family the map names (default ${DEFAULT_TASKS})`)
     .option('--baseline <path>', 'specs to measure on the same map for comparison; repeat it', collect)
     .option('--force', 'replace the output of an earlier run in the folder')
+    .option('--no-stems', 'write every spec whole: no shared openings written once as stems')
     .option('--json', 'print the report as JSON')
     .option('--model', 'also ask the model port for specs; each counts only once the gate accepts it (paid)')
     .option('--proposals <n>', 'with --model: how many specs to ask for (default 3)')
@@ -221,6 +223,7 @@ export async function generateCommand(
         : {}),
       mapPath: portable(relative(outPath, mapPath)),
       ...(baseline ? { baseline } : {}),
+      ...(options.stems === false ? { stems: false } : {}),
     });
   } catch (cause) {
     io.err(`Cannot generate: ${cause instanceof Error ? cause.message : String(cause)}\n`);

@@ -413,6 +413,7 @@ export {
   type SpecParentRef,
   specParentRecord,
   specParentRef,
+  stemOf,
 } from './spec/spec-parents';
 export {
   type GivenFinding,
