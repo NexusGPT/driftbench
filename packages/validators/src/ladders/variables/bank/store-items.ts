@@ -1,4 +1,4 @@
-import { accepted, fixture, planCase, rejected } from './fixture';
+import { accepted, fixture, hash, planCase, rejected } from './fixture';
 import type { BankItem, Case, Tier } from './types';
 
 const variants = {
@@ -29,6 +29,114 @@ const variants = {
   boundaries: ['strict-gt', 'strict-lt', 'inclusive-ge', 'inclusive-le', 'distinct-sides', 'unknown-edge'],
   weights: ['incomplete', 'all-zero', 'negative', 'nonfinite', 'relative-normalization', 'zero-share'],
 } as const;
+
+/**
+ * A quote item asks the same question in several independent scenes. Each scene has its own store, its own file
+ * layout (depth, lines before and after the quoted line, a longer line around it), its own words, and a different
+ * way for the quote to be wrong. A scene is three requests: the quote is in the file, the quote is not, the file
+ * is missing. What is right for a request follows from the file and the quote, never from a name: removing the
+ * fixture's nonce still leaves every request of every scene different from every other, and a guess from the
+ * request alone is right on all of them only by chance (one in three to the power of the number of requests).
+ */
+const quoteScenes = 4;
+const consonants = 'bdfgklmnprstvz';
+const vowels = 'aeiou';
+
+/** A pronounceable fictional word of this length, made from the key and nothing else. */
+function pseudo(key: string, length: number): string {
+  let word = '';
+  for (let i = 0; i < length; i++) {
+    const letters = i % 2 === 0 ? consonants : vowels;
+    word += letters[hash(`${key}:${i}`) % letters.length];
+  }
+  return word;
+}
+
+function quoteScene(variant: number, tier: Tier, seed: number, scene: number): Case[] {
+  const { store, files, nonce } = fixture(seed, `quotes:${variant}:${scene}`, tier);
+  const key = `${seed}:quotes:${variant}:${tier}:${scene}`;
+  const word = (n: number) => pseudo(`${key}:w${n}`, 4 + (hash(`${key}:n${n}`) % 3));
+  const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+  const position = (tier - 1) % store.variables.length;
+  const variable = store.variables[position]!;
+  const value = variable.values[0]!;
+  const path = `variables.${position}.values.0`;
+  const sourcePath = `fiction/${nonce}/${'deeper/'.repeat(hash(`${key}:depth`) % 3)}file.md`;
+  const stem = `Fictional ${nonce}: `;
+  const [a, b] = [word(0), word(1)];
+  const forms = [
+    { source: `${a}\n\t  ${b}.`, quote: `${a} ${b}.` },
+    { source: `say “${a}” or ‘${b}’.`, quote: `say "${a}" or '${b}'.` },
+    { source: `${a}e\u0301 ${b}.`, quote: `${a}\u00e9 ${b}.` },
+    { source: `a \\*${a}\\* mark.`, quote: `a *${a}* mark.` },
+    { source: `Accept only ${capital(a)}.`, quote: `Accept only ${capital(a)}.` },
+    { source: `${capital(a)}, then ${b}.`, quote: `${capital(a)}, then ${b}.` },
+  ] as const;
+  const form = forms[variant]!;
+  const lines = (n: number, side: string) =>
+    Array.from({ length: n }, (_, i) => `Fictional ${side} line ${pseudo(`${key}:${side}${i}`, 6)}.\n`).join(
+      '',
+    );
+  files[sourcePath] = `${tier === 5 ? 'x'.repeat(100_000) : '# Fictional source\n'}${lines(
+    hash(`${key}:before`) % 4,
+    'before',
+  )}${stem}${form.source}\n${lines(hash(`${key}:after`) % 3, 'after')}`;
+  // Exercise all documented provenance locations as well as later list positions.
+  const evidence = { kind: 'quote', path: sourcePath, quote: stem + form.quote };
+  let issuePath = `${path}.provenance.0`;
+  if (tier === 2) {
+    variable.provenance = [evidence];
+    issuePath = `variables.${position}.provenance.0`;
+  } else if (tier === 3) {
+    variable.boundaries = [
+      {
+        holds: variable.values[0]!.id,
+        fails: variable.values[1]!.id,
+        edge: variable.values[1]!.id,
+        provenance: [evidence],
+      },
+    ];
+    issuePath = `variables.${position}.boundaries.0.provenance.0`;
+  } else if (tier === 4) {
+    store.constraints.push({
+      forbid: { [variable.id]: value.id },
+      reason: 'Fictional exclusion',
+      approved: true,
+      provenance: [evidence],
+    });
+    issuePath = 'constraints.0.provenance.0';
+  } else value.provenance = [evidence];
+  const good: Case = {
+    request: { operation: 'quotes', store: structuredClone(store), files: { ...files } },
+    truth: { kind: 'quotes', issues: [] },
+  };
+  // Case and punctuation variants are wrong by their own rule; the others are wrong in a way the scene picks.
+  const wrong = form.quote;
+  const mutations = [
+    () => wrong.replace(' ', ` ${word(2)} `),
+    () => wrong.slice(wrong.indexOf(' ') + 1),
+    () => `${wrong.slice(0, -2)}${wrong.at(-2) === 'z' ? 'q' : 'z'}.`,
+    () => `${wrong} ${wrong.slice(wrong.lastIndexOf(' ') + 1)}`,
+  ];
+  evidence.quote =
+    stem +
+    (variant === 4
+      ? wrong.replace(capital(a), a)
+      : variant === 5
+        ? wrong.replace(',', ';')
+        : mutations[scene % mutations.length]!());
+  const bad: Case = {
+    request: { operation: 'quotes', store: structuredClone(store), files: { ...files } },
+    truth: { kind: 'quotes', issues: [{ code: 'VARIABLES_QUOTE_NOT_FOUND', path: `${issuePath}.quote` }] },
+  };
+  // A file other than the cited one does not make the cited one readable.
+  const elsewhere = scene % 2 === 1 ? { [`fiction/${nonce}/other.md`]: '# Fictional other\n' } : {};
+  const missing: Case = {
+    request: { operation: 'quotes', store, files: elsewhere },
+    truth: { kind: 'quotes', issues: [{ code: 'VARIABLES_SOURCE_UNREADABLE', path: `${issuePath}.path` }] },
+  };
+  return [good, bad, missing];
+}
 
 function cases(family: keyof typeof variants, variant: number, tier: Tier, seed: number): Case[] {
   const { store, files, nonce } = fixture(seed, `${family}:${variant}`, tier);
@@ -63,71 +171,8 @@ function cases(family: keyof typeof variants, variant: number, tier: Tier, seed:
     ][variant]!;
     return [good, rejected(store, code, `${path}.provenance.0${field ? `.${field}` : ''}`)];
   }
-  if (family === 'quotes') {
-    const sourcePath = `fiction/${nonce}/file.md`;
-    const stem = `Fictional ${nonce}: `;
-    const source = [
-      'two\n\t  settings.',
-      'say “yes” or ‘no’.',
-      'cafe\u0301 approved.',
-      'a \\*literal\\* mark.',
-      'Accept only Yes.',
-      'Accept, then stop.',
-    ][variant]!;
-    const quote = [
-      'two settings.',
-      'say "yes" or \'no\'.',
-      'café approved.',
-      'a *literal* mark.',
-      'Accept only Yes.',
-      'Accept, then stop.',
-    ][variant]!;
-    files[sourcePath] = `${tier === 5 ? 'x'.repeat(100_000) : '# Fictional source\n'}${stem}${source}\n`;
-    // Exercise all documented provenance locations as well as later list positions.
-    const evidence = { kind: 'quote', path: sourcePath, quote: stem + quote };
-    let issuePath = `${path}.provenance.0`;
-    if (tier === 2) {
-      variable.provenance = [evidence];
-      issuePath = `variables.${position}.provenance.0`;
-    } else if (tier === 3) {
-      variable.boundaries = [
-        {
-          holds: variable.values[0]!.id,
-          fails: variable.values[1]!.id,
-          edge: variable.values[1]!.id,
-          provenance: [evidence],
-        },
-      ];
-      issuePath = `variables.${position}.boundaries.0.provenance.0`;
-    } else if (tier === 4) {
-      store.constraints.push({
-        forbid: { [variable.id]: value.id },
-        reason: 'Fictional exclusion',
-        approved: true,
-        provenance: [evidence],
-      });
-      issuePath = 'constraints.0.provenance.0';
-    } else value.provenance = [evidence];
-    const good: Case = {
-      request: { operation: 'quotes', store: structuredClone(store), files: { ...files } },
-      truth: { kind: 'quotes', issues: [] },
-    };
-    evidence.quote =
-      variant === 4
-        ? evidence.quote.replace('Yes', 'yes')
-        : variant === 5
-          ? evidence.quote.replace(',', ';')
-          : `${evidence.quote} absent-${nonce}`;
-    const bad: Case = {
-      request: { operation: 'quotes', store: structuredClone(store), files: { ...files } },
-      truth: { kind: 'quotes', issues: [{ code: 'VARIABLES_QUOTE_NOT_FOUND', path: `${issuePath}.quote` }] },
-    };
-    const missing: Case = {
-      request: { operation: 'quotes', store, files: {} },
-      truth: { kind: 'quotes', issues: [{ code: 'VARIABLES_SOURCE_UNREADABLE', path: `${issuePath}.path` }] },
-    };
-    return [good, bad, missing];
-  }
+  if (family === 'quotes')
+    return Array.from({ length: quoteScenes }, (_, scene) => quoteScene(variant, tier, seed, scene)).flat();
   if (family === 'values') {
     const good = accepted(store);
     if (variant === 0) {

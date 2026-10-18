@@ -98,6 +98,18 @@ The review's original quote-only reproducer is also retained on seeds 1, 20 and 
 Additional tests reject always-invalid and always-empty quote-success responses. Valid/invalid paired
 cases prevent an item from passing merely because an adapter always rejects or always accepts.
 
+### Quote scenes
+
+A quote item asks its question in four independent scenes, each of three requests (the quote is in the file, it
+is not, the file is missing): twelve different requests per item. A scene has its own store, a file of its own
+depth with a seed-chosen number of lines before and after the cited line, its own pronounceable fictional words
+(built from the seed, not taken from a list), and its own way for the quote to be wrong (a word inserted, the first
+word dropped, the last letter changed, the last word repeated; for the case and punctuation variants the rule
+itself). Which answer is right follows from the file and the quote. Removing the fixture version and the fixture's
+nonce still leaves all twelve requests different from each other and from those of any other seed, so a guess made
+from the request alone, such as the review's SHA-256 of the normalized request, is right on every request of an item
+only by chance: one in three to the twelfth power, which the tests exercise for all eight digest words on every seed.
+
 ### Case scheduling
 
 Item order is shuffled within each tier with an `item-order` seed domain. Answer positions use a separate

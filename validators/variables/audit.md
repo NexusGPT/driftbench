@@ -40,3 +40,18 @@ with global and per-item counters and otherwise-valid canned replies across all 
 Budget-prefix comparisons are checked with either result arriving first.
 
 This is a harness repair. The independent cheater re-review and real-component pilot remain outstanding.
+
+## Request-hash correction
+
+The second review (head 8ca988569) found a guess from the request alone: SHA-256 of the quote request, minus the
+fixture version and the agent nonce, modulo three, chosen as success, quote-not-found or unreadable. It passed 2 of
+330 items on every seed, because a quote item had only three different requests once the nonce was removed and
+every seed sent the same three. The cheater verdict stays **fail**: only an independent re-review may change it.
+
+What changed in the bank: a quote item now asks in four independent scenes (twelve different requests), each with
+its own file layout, words and way of being wrong, so the normalized requests differ inside an item and across
+seeds. The guess is retained as a regression for all eight digest words: it passes zero quote items on seeds 1 to
+20, 820020691 and the commit-derived hidden seed (before the change it passed 2 on each seed for word 0). A second
+test asserts twelve different normalized requests per quote item and none shared between two seeds. No item was
+dropped or weakened; the scripted adapter still passes all 330 items on every seed.
+

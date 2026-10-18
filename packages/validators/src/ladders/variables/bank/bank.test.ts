@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { fixture, passage, planCase } from './fixture';
 import { items, measure, runItem } from './index';
@@ -336,6 +337,91 @@ describe('blind variables bank', () => {
     },
     120_000,
   );
+
+  /**
+   * The review's request-hash guess: no store or file is read. It answers a quote request from one word of the
+   * SHA-256 of the request, taken after the fixture version and the agent's nonce (the suffix every fictional name
+   * of a fixture shares) are removed, so a hidden seed that only renames a fixture leaves the guess unchanged.
+   */
+  function requestHashGuess(word: number): VariablesAdapter {
+    function quotePath(request: Request): string | undefined {
+      let found: string | undefined;
+      function walk(value: unknown, path = '') {
+        if (found !== undefined || !value || typeof value !== 'object') return;
+        if ('kind' in value && value.kind === 'quote') {
+          found = path;
+          return;
+        }
+        for (const [key, child] of Object.entries(value)) walk(child, path ? `${path}.${key}` : key);
+      }
+      if (request.operation === 'quotes') walk(request.store);
+      return found;
+    }
+    return {
+      execute(request) {
+        if (request.operation !== 'quotes') return undefined;
+        const copy = { ...request, store: { ...request.store, version: '' } };
+        const suffix = request.store.agent.split('-').at(-1);
+        let signature = JSON.stringify(copy);
+        if (suffix) signature = signature.split(suffix).join('NONCE');
+        const choice =
+          createHash('sha256')
+            .update(signature)
+            .digest()
+            .readUInt32LE(4 * word) % 3;
+        const path = quotePath(request);
+        return {
+          errors:
+            choice === 0
+              ? []
+              : [
+                  {
+                    code: choice === 1 ? 'VARIABLES_QUOTE_NOT_FOUND' : 'VARIABLES_SOURCE_UNREADABLE',
+                    path: `${path}.${choice === 1 ? 'quote' : 'path'}`,
+                  },
+                ],
+        };
+      },
+    };
+  }
+
+  it.each(Array.from({ length: 8 }, (_, word) => word))(
+    'a request-hash guess (digest word %s) passes zero quote items on every seed',
+    async (word) => {
+      const quotes = items.filter((item) => item.family === 'quotes');
+      expect(quotes).toHaveLength(30);
+      const passing: string[] = [];
+      for (const seed of seeds)
+        for (const item of quotes)
+          if ((await runItem(item, seed, requestHashGuess(word))).pass) passing.push(`${seed}:${item.id}`);
+      expect(passing).toEqual([]);
+    },
+    300_000,
+  );
+
+  it('varies the quote requests in content, not in names: twelve different ones per item, none shared across seeds', () => {
+    // What a guess from the request alone can see: the request without the fixture version and without the
+    // nonce every fictional name of a fixture carries. Only content that is really different survives that.
+    const unnamed = (request: Request) => {
+      if (request.operation !== 'quotes') throw new Error('not a quote request');
+      const suffix = request.store.agent.split('-').at(-1)!;
+      return JSON.stringify({ ...request, store: { ...request.store, version: '' } })
+        .split(suffix)
+        .join('NONCE');
+    };
+    const requests = (item: BankItem, seed: number) =>
+      new Set(item.generate(seed).map((test) => unnamed(test.request)));
+    for (const item of items.filter((entry) => entry.family === 'quotes')) {
+      const one = requests(item, 1);
+      const two = requests(item, 2);
+      expect(one.size, item.id).toBeGreaterThanOrEqual(12);
+      expect(two.size, item.id).toBeGreaterThanOrEqual(12);
+      expect(
+        [...one].filter((request) => two.has(request)),
+        item.id,
+      ).toEqual([]);
+    }
+  });
 
   it('also rejects canned invalid responses and empty quote successes', async () => {
     for (const response of [{ ok: false, errors: [] }, { errors: [] }]) {
