@@ -49,7 +49,7 @@ export function checkPlanted(
       const count = have.get(key) ?? 0;
       if (count === 0) {
         throw new Problem(
-          `the scan of ${file.path} holds no entry for the planted ${unit.container} ${JSON.stringify(unit.text.slice(0, 40))}`,
+          `positive witness: the scan of ${file.path} holds no entry for the planted ${unit.container} ${JSON.stringify(unit.text.slice(0, 40))}`,
         );
       }
       have.set(key, count - 1);
@@ -97,7 +97,7 @@ export async function verifyScan(
   result: Pick<ScanResult, 'ok' | 'ledger' | 'error'>,
 ): Promise<void> {
   const control = await cutControl(sut);
-  if (control) throw new Problem(`the reader does not cut the control file: ${control}`);
+  if (control) throw new Problem(`positive witness: the reader does not cut the control file: ${control}`);
   checkPlanted(files, result);
 }
 

@@ -42,7 +42,7 @@ async function digestOf(ctx: ItemContext, text: string): Promise<{ cut: CutResul
   const truth = truthOf(text);
   if (truth) {
     const problem = compareCut(text, cut, truth);
-    if (problem) throw new Problem(problem);
+    if (problem) throw new Problem(`positive witness: ${problem}`);
   }
   return { cut, digest: cut.cutDigest };
 }
@@ -590,7 +590,7 @@ export const cuttingRuns: Record<string, Run> = {
     const { value: got, ms } = await timed(() => ctx.sut.cut({ path: 'doc.md', text: doc.text }));
     if (ms > 2000) return fail(`the cut took ${Math.round(ms)} ms`);
     const lead = compareCut(doc.text, { ...got, units: got.units.slice(0, 2) }, doc.units.slice(0, 2));
-    if (lead) return fail(`the two sentences before the nested tags: ${lead}`);
+    if (lead) return fail(`positive witness: the two sentences before the nested tags: ${lead}`);
     const containing = got.units.filter((u) => doc.text.slice(u.start, u.end).includes(inner));
     if (containing.length !== 1) return fail(`the text ${show(inner)} is inside ${containing.length} units`);
     if (!containing.some((u) => u.text === doc.text.slice(u.start, u.end) && u.text.includes(inner)))

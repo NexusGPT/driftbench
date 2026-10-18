@@ -128,28 +128,11 @@ export const adversarialRuns: Record<string, Run> = {
   },
   'bold-decoy': async (ctx) => {
     const p = prose(ctx);
-    const bold = p.many(6).map((t) => `**${t.split(' ').slice(0, 2).join(' ')}**`);
-    const boldFull = bold.map((b, _i) =>
-      `${b} ${p.next().replace(/^./, (c) => c.toLowerCase())}`.replace(
-        /^(\*\*[^*]+\*\*) (.)/,
-        (_m, a, c) => `${a} ${c.toUpperCase()}`,
-      ),
-    );
+    // A sentence that opens with bold words is one unit. The bold ones are labelled none, the plain ones rule.
+    const boldFull = p.many(6).map((t) => t.replace(/^(\S+ \S+)/, '**$1**'));
     const plain = p.many(6);
-    // a bold lead is cut as its own unit: the bold units are the leads
-    const blocks: Block[] = [
-      ...boldFull.map(
-        (t) =>
-          ({
-            kind: 'paragraph',
-            sentences: [bold[boldFull.indexOf(t)] as string, t.replace(/^\*\*[^*]+\*\*\s*/, '')],
-          }) as Block,
-      ),
-      ...plain.map(para),
-    ];
-    const picks: Pick[] = [...bold.map((text) => ({ text, label: 'none' })), ...rules(plain)];
-    const noneTexts = boldFull.map((t) => t.replace(/^\*\*[^*]+\*\*\s*/, ''));
-    return decoy(ctx, blocks, [...picks, ...rules(noneTexts, 'none')]);
+    const blocks: Block[] = [...boldFull, ...plain].map(para);
+    return decoy(ctx, blocks, [...rules(boldFull, 'none'), ...rules(plain)]);
   },
   'position-decoy': async (ctx) => {
     const p = prose(ctx);
