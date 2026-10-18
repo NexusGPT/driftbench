@@ -3,9 +3,9 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  provenanceHash as evidenceHash,
   loadChangeManifest,
   parseChangeManifest,
-  provenanceHash as evidenceHash,
   type RadiusReport,
   radiusOf,
   type Spec,
@@ -190,9 +190,9 @@ it('maps a real estate rule edit to its atom while retaining unrelated nested qu
   expect(result.manifest.changes[0].note).toContain('CLAUDE.md');
   const report = radiusOf(ruleSpecs, result.manifest);
   expect(report.whole).toBeNull();
-  expect(report.specs.filter((spec) => spec.cells.some((cell) => cell.in)).map((spec) => spec.specId)).toEqual([
-    'R7',
-  ]);
+  expect(
+    report.specs.filter((spec) => spec.cells.some((cell) => cell.in)).map((spec) => spec.specId),
+  ).toEqual(['R7']);
 });
 
 it('keeps every atom of identical and nested quotes when their shared text changes', async () => {
@@ -305,9 +305,9 @@ it('still selects only the changed rule’s tests after a one-word edit', async 
   expect(result.manifest.changes.length).toBeGreaterThan(0);
   const report = radiusOf(ruleSpecs, result.manifest);
   expect(report.whole).toBeNull();
-  expect(report.specs.filter((spec) => spec.cells.some((cell) => cell.in)).map((spec) => spec.specId)).toEqual([
-    'R7',
-  ]);
+  expect(
+    report.specs.filter((spec) => spec.cells.some((cell) => cell.in)).map((spec) => spec.specId),
+  ).toEqual(['R7']);
   expect(report.specs.find((spec) => spec.specId === 'R3')?.cells.every((cell) => !cell.in)).toBe(true);
 });
 

@@ -6,6 +6,7 @@ import {
   isPlainObject,
   type PromptAnchor,
   promptChangeManifest,
+  provenanceHash,
 } from '@agent-nexus/driftbench-core';
 import { validateEstateMap } from '@agent-nexus/driftbench-estate';
 import { Proposal } from '@agent-nexus/driftbench-generate';
@@ -122,8 +123,9 @@ export function registerRadiusAuto(radius: Command, io: Io, setExit: (code: numb
         const estateMap = estate?.ok ? estate.map : undefined;
         const map = proposal?.success ? proposal.data : undefined;
         const oldPath = resolve(io.cwd, oldFile);
+        const newPath = resolve(io.cwd, newFile);
         const before = await readFile(oldPath, 'utf8');
-        const after = await readFile(resolve(io.cwd, newFile), 'utf8');
+        const after = await readFile(newPath, 'utf8');
         const source = options.source ?? relative(dirname(mapPath), oldPath).split('\\').join('/');
         const hasSource = estateMap
           ? estateMap.atoms.some((atom) => atom.provenance.file === source)
@@ -140,6 +142,15 @@ export function registerRadiusAuto(radius: Command, io: Io, setExit: (code: numb
         const manifest = estateMap
           ? estatePromptManifest(estateMap, source, before, after, versions)
           : promptChangeManifest(before, after, map ? promptAnchors(map, source) : [], versions);
+        if (estateMap && manifest.changes.length === 0) {
+          manifest.promptProvenance = {
+            kind: 'radius-auto-estate',
+            source,
+            map: { path: mapPath, hash: provenanceHash(rawMap) },
+            before: { path: oldPath, hash: provenanceHash(before), version: versions.from },
+            after: { path: newPath, hash: provenanceHash(after), version: versions.to },
+          };
+        }
         const text = stringify(manifest);
         if (options.out) await writeFile(resolve(io.cwd, options.out), text);
         else io.out(text);

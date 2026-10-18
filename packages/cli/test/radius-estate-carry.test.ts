@@ -50,7 +50,12 @@ it('carries every verdict for a proved estate no-op, but reruns an unproved empt
             id: atom.id,
             kind: 'conversation',
             metadata: { estate: { atoms: [atom.id] } },
-            blocks: [{ when: { user: 'Check this fictional rule.' }, expect: { must: [index === 0 ? '^good$' : '^blocked$'] } }],
+            blocks: [
+              {
+                when: { user: 'Check this fictional rule.' },
+                expect: { must: [index === 0 ? '^good$' : '^blocked$'] },
+              },
+            ],
           }),
         ),
       ),
@@ -60,8 +65,21 @@ it('carries every verdict for a proved estate no-op, but reruns an unproved empt
       autoErr = '';
     const autoCode = await main(
       [
-        'radius', 'auto', '--prompt', 'old.md', 'new.md', '--map', 'map.json', '--source', 'CLAUDE.md',
-        '--from-version', 'v1', '--to-version', 'v2', '--out', 'proved.yaml',
+        'radius',
+        'auto',
+        '--prompt',
+        'old.md',
+        'new.md',
+        '--map',
+        'map.json',
+        '--source',
+        'CLAUDE.md',
+        '--from-version',
+        'v1',
+        '--to-version',
+        'v2',
+        '--out',
+        'proved.yaml',
       ],
       {
         cwd: dir,
@@ -116,9 +134,26 @@ it('carries every verdict for a proved estate no-op, but reruns an unproved empt
       );
       await program.parseAsync(
         [
-          'campaign', 'run', 'R3.json', 'R2.json', '--target', 'function:fictional-estate',
-          '--agent-version', version, '--campaign', id, '--store', storePath, '--mode', 'F',
-          '--repeats', '1', '--concurrency', '1', '--no-cache', '--json',
+          'campaign',
+          'run',
+          'R3.json',
+          'R2.json',
+          '--target',
+          'function:fictional-estate',
+          '--agent-version',
+          version,
+          '--campaign',
+          id,
+          '--store',
+          storePath,
+          '--mode',
+          'F',
+          '--repeats',
+          '1',
+          '--concurrency',
+          '1',
+          '--no-cache',
+          '--json',
           ...(change ? ['--change', change, '--from', 'base'] : []),
         ],
         { from: 'user' },
@@ -142,7 +177,9 @@ it('carries every verdict for a proved estate no-op, but reruns an unproved empt
     expect(baseline.report.summary).toMatchObject({ pass: 1, fail: 1, failed: 0, pending: 0 });
     expect(baseline.runs).toHaveLength(2);
     expect(baseline.runs.every((run) => run.carried === undefined)).toBe(true);
-    expect(baseline.runs.flatMap((run) => run.blocks.flatMap((block) => block.verdicts)).length).toBeGreaterThan(0);
+    expect(
+      baseline.runs.flatMap((run) => run.blocks.flatMap((block) => block.verdicts)).length,
+    ).toBeGreaterThan(0);
     const original = new Map(baseline.runs.map((run) => [run.specId, run]));
 
     const carried = await campaign('proved-noop', 'v2', 'proved.yaml');
