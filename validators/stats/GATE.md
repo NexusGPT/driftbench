@@ -6,6 +6,8 @@ The gate is **not met**. The expanded bank has **no fresh pilot**. The journal s
 
 This review stacks PR 743 (`ff414718c`), PR 744 (`4e317a4d`, including the compiled-child follow-up to `68e1bc046`) and PR 749 (`25f32ea12`) on main. It adds real capabilities before considering a provisional bar: six items for family coverage simulation and custom-statistic cluster bootstraps. They extend `exact-estimators`, with three shared implementation causes, and preserve every existing item and cause. See [NEEDS.md](NEEDS.md#batch-12-documented-capabilities-before-the-gate-review).
 
+PR 777 (`36b4abe6d`) supplies the product capabilities and numerical repairs before this validator branch lands. Correctness runs reach level 7 with zero failing items on visible seeds 1, 2 and 3 and hidden seed 119902070. These runs do not replace a fresh hardness pilot or any independent audit.
+
 The live bank grows from 904 to 910 items. Every family has at least 20 items and tiers 1 through 5 are present. Those are bank inventory measurements, **not** a fresh pilot, a new forecast or a measured count of failing causes.
 
 ## Both bars against the same historical journal

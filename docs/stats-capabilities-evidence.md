@@ -76,7 +76,7 @@ All commands below run through the shared `slots/run.sh` wrapper. Every Vitest r
 The following **19 isolated mutants are caught**. No mutation run edits the shared product source:
 
 - Holm running maximum; kappa chance-agreement denominator, exact match counting and zero-SE return; exact p-value substituted for mid-p; paired upper-tail subtraction: **6 mutants**.
-- Sample-size strict boundary verification, integer output and correlation metadata; restored upper-tail subtraction in `zFor`, `wilsonEffective`, `mde` and Clopper–Pearson: **7 mutants**.
+- Sample-size strict boundary verification, integer output and correlation metadata; restored upper-tail subtraction in `zFor`, `wilsonEffective`, `mde` and Clopper-Pearson: **7 mutants**.
 - Beta inverse iteration limit, beta prefactor cancellation, gamma prefactor cancellation, binomial PMF summation and erfc overflow guard: **5 mutants**.
 - Restore the prior Hill-number power sum: **1 mutant**, rejected by 20 tests.
 
@@ -90,3 +90,5 @@ The focused repaired commands pass 66 agreement/comparison tests, 92 power/inter
 `pnpm exec tsc --noEmit` passes. `node tools/structure/api-surface.mjs --build --write` builds the stable source tree and records **2515 exports across 17 packages**, adding the four functions and six supporting types. The initial API attempt detected an edit during its build and refused its stamp; this final run succeeds after all source edits finish.
 
 PR 771 remains the validator review branch and must land after the product change. Additional integration evidence belongs on that branch. These correctness runs are not a fresh hardness pilot: the expanded bank still has no fresh pilot, and its four audit checks remain pending.
+
+The documentation follow-up fixes the new evidence page's reachability and replaces a prohibited en dash. CI first reports both errors against this page; `pnpm exec vitest run --maxWorkers=2 tools/docs` then passes **50 tests across seven files**. The sparse checkout includes the exact tracked README and linked files required by those checks. No product implementation changes in this follow-up.
