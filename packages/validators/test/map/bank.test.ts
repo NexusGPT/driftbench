@@ -87,6 +87,13 @@ describe('the map bank under section 12', () => {
         'semantics',
         'roles',
         'scale',
+        'cutter-slices',
+        'cutter-anchors',
+        'cutter-containers',
+        'cutter-invariance',
+        'cutter-ledger',
+        'cutter-scale',
+        'cutter-hostile',
       ]),
     );
   });
