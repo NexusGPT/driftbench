@@ -94,6 +94,11 @@ describe('the map bank under section 12', () => {
         'cutter-ledger',
         'cutter-scale',
         'cutter-hostile',
+        'cutter-sentences',
+        'cutter-structure',
+        'cutter-masks',
+        'cutter-ledger-follow',
+        'cutter-growth',
       ]),
     );
   });

@@ -3,6 +3,7 @@ import type { Ladder } from '../../../ladder';
 import { adversarialItems } from './families/adversarial';
 import { containerItems } from './families/containers';
 import { cutterItems } from './families/cutter';
+import { cutterAuditItems } from './families/cutter-audit';
 import { formatItems } from './families/formats';
 import { hostileItems } from './families/hostile';
 import { inventoryItems } from './families/inventory';
@@ -77,6 +78,7 @@ function allItems(): BankItem[] {
     ...roleItems(),
     ...scaleItems(),
     ...cutterItems(),
+    ...cutterAuditItems(),
   ];
   return items.sort((a, b) => a.level - b.level);
 }

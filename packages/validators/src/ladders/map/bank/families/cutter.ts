@@ -316,7 +316,6 @@ function invariance(): BankItem[] {
               const out = new Map<string, string>();
               for (const entry of r.planted) {
                 const anchor = anchorOf(entry);
-                if (anchor.includes('\n') && pair.id.startsWith('wrapped')) continue;
                 const at = r.prompt.indexOf(anchor);
                 const holder = units.find((unit) => unit.start <= at && at + anchor.length <= unit.end);
                 if (holder) out.set(anchor.replace(/\s+/g, ' '), holder.fp);
