@@ -10,6 +10,7 @@ see_also:
   - validate-estate-loop
   - validate-estate-plan
   - validate-estate-maintain
+  - validate-estate-settings
 next:
   - validate-estate-plan
 ---
