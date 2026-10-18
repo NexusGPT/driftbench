@@ -116,6 +116,67 @@ The `rejudged` stamp, on a run and on a block, proves the stored observation sti
 | `rejudged` | One stamp per re-judged run, as above. |
 | `radius` | Present on a campaign run with `--change`: `manifest` (hash of the change manifest), `fromVersion` and `toVersion` (the agent versions the manifest goes between), `changes`, `from` (the campaign the carried runs came from), `whole` (set, with the reason, when the radius was the whole suite), `fresh`, `carried` and `outside` (cell counts), `refused` (reasons a cell outside the radius ran fresh, with counts) and `audit` (`sampled`, `misses`, `seed`, `missed`). Topic running-change-carry. |
 
+### Block record: observed, verdicts and events
+
+Each block of a run holds `observed` (what the agent did) and `verdicts` (what the checks and judges made of it). The run holds `events`. A field marked optional is absent when the adapter or the runtime does not report it.
+
+| `observed` field | Holds |
+|---|---|
+| `segments` | What the agent produced, in order. A segment has a `type`: `text` (`text`), `tool_call` (`id`, `label`, `input`), `tool_result` (`id`, `label`, `output`, `error`) or `card` (`name`, `data`). Each may carry `latencyMs` and a `cost`. |
+| `text` | The reply text. |
+| `toolCalls` | One record per call: `id`, `spanId` (the trace span the call ran in, an OpenTelemetry span id, when the adapter has one), `label`, `input`, `output`, `error`, `startedAt`, `latencyMs`. |
+| `runtime` | What the runtime did around the model, below. Optional. |
+| `artifacts` | Files the agent left in its workspace: `path`, `kind`, `sha256`, `bytes`. |
+| `workspaceDiff` | What changed in the workspace during the block, as three lists of paths: `created`, `changed` and `deleted`. |
+| `executions` | One record per command the agent ran, below. |
+| `sandbox` | The sandbox of the block, when the adapter owns one: `kind`, `isolation` (`strong` or `weak`; reports say weak isolation from this field) and `root` (where it sits, optional). |
+| `cost` | `model` (the pricing key), `inputTokens`, `outputTokens`, `cachedInputTokens` (cache reads, already counted in `inputTokens`) and `usd`. Each is optional. |
+| `latencyMs` | The time the block took. |
+| `retries` | Every retry the calls of the block took, the adapter's own and the runner's, in order: `call` (which call), `attempt` (the attempt that failed, from 1), `status`, `reason`, `delayMs`, `retryAfterMs` (what the server's Retry-After asked, when it sent one) and `at`. Absent when none. |
+| `historyNormalizations` | A history turn a wire serializer left out because its text was empty: `wire` (such as `anthropic` or `google`), `historyIndex` (the turn's zero-based index in the history sent for this block, system messages included), `role` and `kind` (always `omitted-empty-turn`; no placeholder text replaces the turn). Absent when nothing was omitted. |
+| `raw` | Whatever the adapter chose to keep from its own response, as it returned it. Optional. |
+
+`observed.runtime` fields:
+
+| Field | Holds |
+|---|---|
+| `skills` | Skills loaded: `name`, `at`. |
+| `guards` | Runtime checks that fired: `name`, `verdict`, `at`, and when the runtime reports them `stdout`, `stderr`, `exitCode` and `outcome` (the runtime's own word for how the guard ended: `success`, `blocking`, `cancelled` or `no_response`). |
+| `stages` | Stages reached: `name`, `at`, and `carried: true` for a stage carried into the block instead of reported during it. |
+| `references` | Files the agent read, as `{ path, at }`. |
+| `finishReason` | Why the model stopped, such as `stop` or `length`. |
+| `offered` | The names of the tools the runtime offered the agent in the block. |
+| `subagents` | Helpers the agent dispatched: `name`, `model`, `at`. |
+
+An `executions` record holds `command`, `role` (`agent` for the agent's own process, `command` for a command it ran), `exitCode`, `stdout` and `stderr` (bounded), `startedAt`, `latencyMs`, `truncated` (true when the output was cut) and `approval`. `approval` is the decision of the approval policy on this command and its folder, and is absent when no policy is set: `decision` (`allow` or `deny`), `by` (`rule`, `default`, `approver` or `no-approver`), `match` (`command` or `path`), `subject` (what was matched) and `pattern` (the rule that matched, optional).
+
+A `verdicts` entry is one check on one block:
+
+| Field | Holds |
+|---|---|
+| `id` | The verdict id, such as `must.1` (topic authoring-blocks). |
+| `kind` | `machine` (final) or `judge` (carries its votes). |
+| `name` | The check or criterion name. |
+| `gating` | True when a fail fails the block. |
+| `outcome` | `pass`, `fail`, `inconclusive` or `not_applicable` (the run never produced the subject of the check, such as a stage check with no stage record). |
+| `score` | A number, when the check gives one. |
+| `evidence` | What the check saw. |
+| `reasoning` | The judge's reasoning. Optional. |
+| `judge` | On a judge verdict: `cls` (`system1` or `system2`) and `votes`. |
+
+A vote in `judge.votes` holds `judge` (its name), `outcome`, `winner` (on a pairwise request: `A`, `B`, `tie` or `inconclusive`; a tie differs from missing evidence), `score`, `reasoning` and `retries`, the retries of the judge call in the shape of `observed.retries`.
+
+`events` are what the runner reported as the run went, in order, when it recorded them. Every event has a `type` and an `at` time:
+
+| `type` | Other fields |
+|---|---|
+| `block_start` | `index`. |
+| `model_call` | `index`, `startedAt`, and when the adapter gives them `inputTokens`, `outputTokens`, `usd` and `latencyMs`. |
+| `tool_call` | `index`, `label`, `spanId` (optional), `error` (optional). |
+| `retry` | `index`. |
+| `block_end` | `index`, `pass`, and `status` (`not_run` or `blocked`) on an unmeasured block. |
+| `run_end` | `status`: `completed`, `failed` or `stopped`. |
+
 ## Outputs and how to read them
 
 The store prints nothing itself. Commands read it back as text or JSON (`campaign status`, `campaign status --json`, `report`, `view`). The tables are plain SQLite: any SQLite tool can read them, and each row keeps its full record as JSON in a `json` column beside the plain columns used for filters. The schema version is 2; an older store is upgraded when opened, and a store written by a newer driftbench is refused.

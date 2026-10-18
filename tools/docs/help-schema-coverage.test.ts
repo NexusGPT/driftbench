@@ -119,6 +119,17 @@ const RECORD_OBJECTS = [
   'endState',
 ];
 
+/** The objects a block reports: what the agent did, what judged it, and what the run announced. */
+const OUTPUT_TOPICS = [
+  'running-store',
+  'running-retries',
+  'running-tool-history',
+  'running-process-and-sandboxes',
+  'judging-evidence',
+  'judging-council',
+];
+const OUTPUT_OBJECTS = [/^blocks\[\]\.(observed|verdicts)/, /^events/];
+
 describe('stored record help', () => {
   it('documents every key of the run record and of the block, carry, rejudge and provenance objects', () => {
     const text = topics
@@ -128,6 +139,19 @@ describe('stored record help', () => {
     const missing: string[] = [];
     for (const { path, keys } of schemaObjects(RunResult)) {
       if (!RECORD_OBJECTS.includes(path)) continue;
+      for (const key of keys) if (!documentsKey(text, key)) missing.push(`run.${path}.${key}`);
+    }
+    expect(missing).toEqual([]);
+  });
+
+  it('documents every key of the observed record, the verdicts and the events of a run', () => {
+    const text = topics
+      .filter((t) => OUTPUT_TOPICS.includes(t.id))
+      .map((t) => t.body)
+      .join('\n');
+    const missing: string[] = [];
+    for (const { path, keys } of schemaObjects(RunResult)) {
+      if (!OUTPUT_OBJECTS.some((pattern) => pattern.test(path))) continue;
       for (const key of keys) if (!documentsKey(text, key)) missing.push(`run.${path}.${key}`);
     }
     expect(missing).toEqual([]);

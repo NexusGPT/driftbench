@@ -1334,6 +1334,7 @@ class from the live Zod schema, so a key added later is listed without a hand-ke
 | spec key (292 keys in 56 objects) | `Spec` | `authoring-spec-format`, `authoring-blocks`, `authoring-prefixes`, `authoring-parent-blocks`, `authoring-perturbations`, the `judging-check-*` topics | 4 | 0 |
 | run record key | `RunResult`: root, block, provenance, rejudged, carried, blockRerun, succession, recovery, endState | `running-store` and the topics of each feature | 35 | 0 |
 | campaign record key | `Campaign`: root, provenance, rejudged, radius | `running-store`, `running-change-carry` | 16 | 0 |
+| block output key (138 keys in 23 objects of `observed`, `verdicts`, `events`) | `RunResult` | `running-store`, `running-retries`, `running-tool-history`, `running-process-and-sandboxes`, `judging-evidence`, `judging-council` | 37 | 0 |
 | block status, `not_run` kind, link status, relation and creator | the enums | `running-not-run`, `running-outcomes`, `authoring-block-links` | 0 | 0 |
 
 A key counts as documented when a topic of its owner names it in code: a code span or a fenced block.
@@ -1346,7 +1347,9 @@ Gaps closed in this pass:
 * Run record: `endVerdict`, `endStateValue`, `blockRerun.downstreamNotRerun`, `provenanceDigest`, the nine `provenance` fields, the block `provenance` and `carried.measuredAt`, the `rejudged` stamp, all five `succession` fields and the five `recovery` fields that had none.
 * Campaign record: `targets`, `repeats`, `provenance.endStateSnapshots`, `provenance.adapters[]`, `rejudged[]`, `radius.fromVersion`, `radius.toVersion`.
 
-Not read by this pass: the `observed`, `verdicts` and `events` objects of a block, which belong to the run output topics.
+* Block output: `observed` (segments, tool calls, runtime, workspace diff, executions and their approval, sandbox, cost, retries, history normalizations, raw), `verdicts` with their judge votes, and the six `events` types, in "Block record: observed, verdicts and events" of `running-store`.
+
+Total gaps before this pass: 92 (55 and 37). After: 0.
 
 ## Verification contract
 
