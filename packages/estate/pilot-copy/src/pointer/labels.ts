@@ -39,7 +39,16 @@ const LabelFile = z.strictObject({ labels: z.array(LabelSet).min(1) });
 
 /** Sorted-key JSON: the same value always gives the same bytes. */
 export function canonical(value: unknown): string {
-  throw new Error('not implemented: canonical');
+  const sorted = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(sorted);
+    if (node !== null && typeof node === 'object') {
+      const out: Record<string, unknown> = {};
+      for (const key of Object.keys(node).sort()) out[key] = sorted((node as Record<string, unknown>)[key]);
+      return out;
+    }
+    return node;
+  };
+  return JSON.stringify(sorted(value));
 }
 
 export type LabelSetsResult = { ok: true; sets: LabelSet[] } | { ok: false; message: string };
@@ -50,7 +59,7 @@ export function parseLabelSets(text: string): LabelSetsResult {
 }
 
 /** The hash of a set's canonical form: editing one label changes only that set's hash. */
-export const setHash = (set: LabelSet): string => { throw new Error('not implemented: setHash'); };
+export const setHash = (set: LabelSet): string => sha(canonical(set)).slice(0, 16);
 
 /** One unit as the labeler sees it: a number valid in this window only. */
 export type WindowUnit = { n: number; text: string; index: number };
