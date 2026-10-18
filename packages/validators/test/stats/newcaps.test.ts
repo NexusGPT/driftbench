@@ -77,7 +77,8 @@ describe('the new-capability fixtures', () => {
     if (only !== undefined && !only.includes('descriptive')) return;
     // median as docs/statistics/descriptive.md defines it, with the RangeError of the shared conventions.
     const median = (xs: number[]): number => {
-      if (xs.length === 0 || xs.some((x) => !Number.isFinite(x))) throw new RangeError('median of no finite values');
+      if (xs.length === 0 || xs.some((x) => !Number.isFinite(x)))
+        throw new RangeError('median of no finite values');
       const s = [...xs].sort((a, b) => a - b);
       const h = Math.floor(s.length / 2);
       return s.length % 2 === 1 ? (s[h] as number) : ((s[h - 1] as number) + (s[h] as number)) / 2;

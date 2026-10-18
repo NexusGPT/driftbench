@@ -9,7 +9,7 @@ import { type BankItem, fail, ok, show } from './item';
  * arithmetic (fractions and 120-digit decimals, standard library only, no driftbench code). The functions are
  * defined on the group's page, docs/statistics/<group>.md. A function gives two items:
  * - `newcap.<fn>.values`: every case gives the expected value within the tolerance of the function;
- * - `newcap.<fn>.domain`: every domain case throws a RangeError.
+ * - `newcap.<fn>.domain`: every value case returns and every domain case throws a RangeError.
  * Both share one cause, the absence of the function, so a function is one cause however many cases it has.
  */
 
@@ -131,6 +131,18 @@ function itemsOf(group: string, entry: FunctionEntry): BankItem[] {
     component,
     cause,
     check: ({ s }) => {
+      // Refusing is checking only when valid input is accepted: a function that throws on everything fails here.
+      for (const [i, c] of entry.values.entries()) {
+        try {
+          call(s, entry.fn, ...(revive(c.args) as unknown[]));
+        } catch (cause) {
+          const error = cause instanceof Error ? cause : new Error(String(cause));
+          if (missing(error)) return fail(`${entry.fn} does not exist in the statistics package. ${where}.`);
+          return fail(
+            `${entry.fn} throws on valid input, so its refusals check nothing: value case ${i} ${show(c.args)} threw ${error.name}: ${error.message}; see ${entry.doc}`,
+          );
+        }
+      }
       const misses: string[] = [];
       for (const [i, c] of entry.domain.entries()) {
         try {
