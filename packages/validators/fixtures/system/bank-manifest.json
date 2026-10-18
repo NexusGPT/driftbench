@@ -23465,6 +23465,852 @@
       "cause": "driftbench help <command> prints the usage of a subcommand of radius"
     },
     {
+      "id": "audit/soft-repeats/x1-local",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns weighs a block by its failed rows over its rows, not by whether it ever failed"
+    },
+    {
+      "id": "audit/soft-repeats/x2-contradiction",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns weighs a block by its failed rows over its rows, not by whether it ever failed"
+    },
+    {
+      "id": "audit/soft-repeats/x3-flow",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns weighs a block by its failed rows over its rows, not by whether it ever failed"
+    },
+    {
+      "id": "audit/soft-repeats/x4-format",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns weighs a block by its failed rows over its rows, not by whether it ever failed"
+    },
+    {
+      "id": "audit/soft-repeats/x5-tool",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns weighs a block by its failed rows over its rows, not by whether it ever failed"
+    },
+    {
+      "id": "audit/soft-repeats/d2-goal-shift",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns weighs a block by its failed rows over its rows, not by whether it ever failed"
+    },
+    {
+      "id": "audit/soft-repeats/d4-loose-confirmation",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns weighs a block by its failed rows over its rows, not by whether it ever failed"
+    },
+    {
+      "id": "audit/soft-repeats/d6-instruction-in-data",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns weighs a block by its failed rows over its rows, not by whether it ever failed"
+    },
+    {
+      "id": "audit/soft-repeats/d8-tool-failure",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns weighs a block by its failed rows over its rows, not by whether it ever failed"
+    },
+    {
+      "id": "audit/soft-repeats/d9-out-of-scope",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns weighs a block by its failed rows over its rows, not by whether it ever failed"
+    },
+    {
+      "id": "audit/refuted/x1-local/F",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows leaves a refuted link out of the sections a block covers"
+    },
+    {
+      "id": "audit/refuted/x1-local/T",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows leaves a refuted link out of the sections a block covers"
+    },
+    {
+      "id": "audit/refuted/x2-contradiction/F",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows leaves a refuted link out of the sections a block covers"
+    },
+    {
+      "id": "audit/refuted/x2-contradiction/T",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows leaves a refuted link out of the sections a block covers"
+    },
+    {
+      "id": "audit/refuted/x3-flow/F",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows leaves a refuted link out of the sections a block covers"
+    },
+    {
+      "id": "audit/refuted/x3-flow/T",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows leaves a refuted link out of the sections a block covers"
+    },
+    {
+      "id": "audit/refuted/x4-format/F",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows leaves a refuted link out of the sections a block covers"
+    },
+    {
+      "id": "audit/refuted/x4-format/T",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows leaves a refuted link out of the sections a block covers"
+    },
+    {
+      "id": "audit/refuted/x5-tool/F",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows leaves a refuted link out of the sections a block covers"
+    },
+    {
+      "id": "audit/refuted/x5-tool/T",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows leaves a refuted link out of the sections a block covers"
+    },
+    {
+      "id": "audit/not-run-inside/x1-local/F",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/not-run-inside/x1-local/T",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/not-run-inside/x2-contradiction/F",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/not-run-inside/x2-contradiction/T",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/not-run-inside/x3-flow/F",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/not-run-inside/x3-flow/T",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/not-run-inside/x4-format/F",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/not-run-inside/x4-format/T",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/not-run-inside/x5-tool/F",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/not-run-inside/x5-tool/T",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/not-run-inside/d2-goal-shift/F",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/not-run-inside/d2-goal-shift/T",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRuns leaves a block not run or blocked out of the rows"
+    },
+    {
+      "id": "audit/adjacent-t/x1-local-x4-format",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows gives a block of mode T no ancestors"
+    },
+    {
+      "id": "audit/adjacent-t/x2-contradiction-x5-tool",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows gives a block of mode T no ancestors"
+    },
+    {
+      "id": "audit/adjacent-t/x3-flow-d2-goal-shift",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows gives a block of mode T no ancestors"
+    },
+    {
+      "id": "audit/adjacent-t/x4-format-d4-loose-confirmation",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows gives a block of mode T no ancestors"
+    },
+    {
+      "id": "audit/adjacent-t/x5-tool-d6-instruction-in-data",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows gives a block of mode T no ancestors"
+    },
+    {
+      "id": "audit/adjacent-t/d2-goal-shift-d8-tool-failure",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows gives a block of mode T no ancestors"
+    },
+    {
+      "id": "audit/adjacent-t/d4-loose-confirmation-d9-out-of-scope",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows gives a block of mode T no ancestors"
+    },
+    {
+      "id": "audit/adjacent-t/d6-instruction-in-data-x1-local",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows gives a block of mode T no ancestors"
+    },
+    {
+      "id": "audit/adjacent-t/d8-tool-failure-x2-contradiction",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows gives a block of mode T no ancestors"
+    },
+    {
+      "id": "audit/adjacent-t/d9-out-of-scope-x3-flow",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/localize.ts",
+      "cause": "localizeRows gives a block of mode T no ancestors"
+    },
+    {
+      "id": "audit/chain-counting/x1-local/flat",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize passes --counting to the localisation"
+    },
+    {
+      "id": "audit/chain-counting/x1-local/grouped",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize passes --counting to the localisation"
+    },
+    {
+      "id": "audit/chain-counting/x5-tool/flat",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize passes --counting to the localisation"
+    },
+    {
+      "id": "audit/chain-counting/x5-tool/grouped",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize passes --counting to the localisation"
+    },
+    {
+      "id": "audit/chain-counting/d4-loose-confirmation/flat",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize passes --counting to the localisation"
+    },
+    {
+      "id": "audit/chain-counting/d4-loose-confirmation/grouped",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize passes --counting to the localisation"
+    },
+    {
+      "id": "audit/chain-counting/d9-out-of-scope/flat",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize passes --counting to the localisation"
+    },
+    {
+      "id": "audit/chain-counting/d9-out-of-scope/grouped",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/radius-localize.ts",
+      "cause": "radius localize passes --counting to the localisation"
+    },
+    {
+      "id": "audit/two-registries/select/id",
+      "family": "link-audit",
+      "tier": 2,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/links.ts",
+      "cause": "registriesByPrompt refuses two registries that describe one prompt"
+    },
+    {
+      "id": "audit/two-registries/cli/id",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/links.ts",
+      "cause": "registriesByPrompt refuses two registries that describe one prompt"
+    },
+    {
+      "id": "audit/two-registries/select/index",
+      "family": "link-audit",
+      "tier": 2,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/links.ts",
+      "cause": "registriesByPrompt refuses two registries that describe one prompt"
+    },
+    {
+      "id": "audit/two-registries/cli/index",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/links.ts",
+      "cause": "registriesByPrompt refuses two registries that describe one prompt"
+    },
+    {
+      "id": "audit/anchor-twice/word-of-every-section/function",
+      "family": "link-audit",
+      "tier": 2,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/sections.ts",
+      "cause": "checkSectionRegistry requires each anchor quote to be found once in the prompt"
+    },
+    {
+      "id": "audit/anchor-twice/word-of-every-section/command",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/sections.ts",
+      "cause": "checkSectionRegistry requires each anchor quote to be found once in the prompt"
+    },
+    {
+      "id": "audit/anchor-twice/quote-of-another-section/function",
+      "family": "link-audit",
+      "tier": 2,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/sections.ts",
+      "cause": "checkSectionRegistry requires each anchor quote to be found once in the prompt"
+    },
+    {
+      "id": "audit/anchor-twice/quote-of-another-section/command",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/sections.ts",
+      "cause": "checkSectionRegistry requires each anchor quote to be found once in the prompt"
+    },
+    {
+      "id": "audit/anchor-twice/heading-mark/function",
+      "family": "link-audit",
+      "tier": 2,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/sections.ts",
+      "cause": "checkSectionRegistry requires each anchor quote to be found once in the prompt"
+    },
+    {
+      "id": "audit/anchor-twice/heading-mark/command",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/sections.ts",
+      "cause": "checkSectionRegistry requires each anchor quote to be found once in the prompt"
+    },
+    {
+      "id": "audit/provenance/added/hash",
+      "family": "link-audit",
+      "tier": 2,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/identity.ts",
+      "cause": "specHash and the cache key leave metadata.provenance out"
+    },
+    {
+      "id": "audit/provenance/added/cache",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/identity.ts",
+      "cause": "specHash and the cache key leave metadata.provenance out"
+    },
+    {
+      "id": "audit/provenance/changed/hash",
+      "family": "link-audit",
+      "tier": 2,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/identity.ts",
+      "cause": "specHash and the cache key leave metadata.provenance out"
+    },
+    {
+      "id": "audit/provenance/changed/cache",
+      "family": "link-audit",
+      "tier": 3,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/identity.ts",
+      "cause": "specHash and the cache key leave metadata.provenance out"
+    },
+    {
+      "id": "audit/help-whole/localize",
+      "family": "link-audit",
+      "tier": 2,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/main.ts",
+      "cause": "driftbench help <command> prints the usage of a subcommand of radius"
+    },
+    {
+      "id": "audit/help-whole/sections-init",
+      "family": "link-audit",
+      "tier": 2,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/main.ts",
+      "cause": "driftbench help <command> prints the usage of a subcommand of radius"
+    },
+    {
+      "id": "audit/help-whole/sections-check",
+      "family": "link-audit",
+      "tier": 2,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/main.ts",
+      "cause": "driftbench help <command> prints the usage of a subcommand of radius"
+    },
+    {
+      "id": "audit/help-whole/sections-reanchor",
+      "family": "link-audit",
+      "tier": 2,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/cli/src/main.ts",
+      "cause": "driftbench help <command> prints the usage of a subcommand of radius"
+    },
+    {
+      "id": "audit/child-first-counter/root-first/id",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "audit/child-first-counter/root-first/index",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "audit/child-first-counter/other-root-between/id",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "audit/child-first-counter/other-root-between/index",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "audit/child-first-counter/other-child-first/id",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "audit/child-first-counter/other-child-first/index",
+      "family": "link-audit",
+      "tier": 4,
+      "level": 12,
+      "source": "adversarial",
+      "component": "packages/core/src/radius/select.ts",
+      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+    },
+    {
+      "id": "audit/whole-tokens/inside-a-number/F",
+      "family": "verdict-audit",
+      "tier": 3,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "verifyGiven matches a shared fact on whole tokens of the message it names"
+    },
+    {
+      "id": "audit/whole-tokens/inside-a-number/T",
+      "family": "verdict-audit",
+      "tier": 3,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "verifyGiven matches a shared fact on whole tokens of the message it names"
+    },
+    {
+      "id": "audit/whole-tokens/prefix-of-a-word/F",
+      "family": "verdict-audit",
+      "tier": 3,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "verifyGiven matches a shared fact on whole tokens of the message it names"
+    },
+    {
+      "id": "audit/whole-tokens/prefix-of-a-word/T",
+      "family": "verdict-audit",
+      "tier": 3,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "verifyGiven matches a shared fact on whole tokens of the message it names"
+    },
+    {
+      "id": "audit/canonical-unpaired/F/first",
+      "family": "verdict-audit",
+      "tier": 3,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "verifyGiven makes an unpaired call of a canonical prefix a warning, not a Given error"
+    },
+    {
+      "id": "audit/canonical-unpaired/F/last",
+      "family": "verdict-audit",
+      "tier": 3,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "verifyGiven makes an unpaired call of a canonical prefix a warning, not a Given error"
+    },
+    {
+      "id": "audit/canonical-unpaired/T/first",
+      "family": "verdict-audit",
+      "tier": 3,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "verifyGiven makes an unpaired call of a canonical prefix a warning, not a Given error"
+    },
+    {
+      "id": "audit/canonical-unpaired/T/last",
+      "family": "verdict-audit",
+      "tier": 3,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/core/src/spec/verify-given.ts",
+      "cause": "verifyGiven makes an unpaired call of a canonical prefix a warning, not a Given error"
+    },
+    {
+      "id": "audit/gate-exit/pass",
+      "family": "verdict-audit",
+      "tier": 1,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
+      "id": "audit/gate-exit/pass-pass-pass",
+      "family": "verdict-audit",
+      "tier": 2,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
+      "id": "audit/gate-exit/blocked",
+      "family": "verdict-audit",
+      "tier": 1,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
+      "id": "audit/gate-exit/pass-blocked",
+      "family": "verdict-audit",
+      "tier": 1,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
+      "id": "audit/gate-exit/not_run",
+      "family": "verdict-audit",
+      "tier": 1,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
+      "id": "audit/gate-exit/pass-not_run-blocked",
+      "family": "verdict-audit",
+      "tier": 2,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
+      "id": "audit/gate-exit/fail",
+      "family": "verdict-audit",
+      "tier": 1,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
+      "id": "audit/gate-exit/pass-fail-not_run",
+      "family": "verdict-audit",
+      "tier": 2,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
+      "id": "audit/gate-exit/blocked-fail",
+      "family": "verdict-audit",
+      "tier": 1,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
+      "id": "audit/gate-exit/failed-pass",
+      "family": "verdict-audit",
+      "tier": 1,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
+      "id": "audit/gate-exit/stopped-not_run",
+      "family": "verdict-audit",
+      "tier": 1,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
+      "id": "audit/gate-exit/pass-blocked-failed",
+      "family": "verdict-audit",
+      "tier": 2,
+      "level": 13,
+      "source": "adversarial",
+      "component": "packages/cli/src/commands/gate-exit.ts",
+      "cause": "gateExit gives 0 when every cell passes, 3 when nothing failed but a cell was not run or blocked, else 1"
+    },
+    {
       "id": "verdicts/capability/tools/F/first",
       "family": "verdict-not-run",
       "tier": 2,

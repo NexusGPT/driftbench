@@ -104,8 +104,12 @@ export function linkedSuite(
   const blocks = options.blocks ?? 4;
   const form = options.form ?? 'id';
   const flows = Array.from({ length: specs }, (_, s) => plantedFlow(seed, `${tag}-s${s}`, blocks));
-  const own = flows.map((_, s) => Array.from({ length: blocks }, (_, b) => `own_${s}_${b}`));
-  const spec = flows.map((_, s) => `spec_${s}`);
+  // Spec and section ids are drawn from the seed, never read from the item: a product that keys on an id
+  // the bank chose (a prefix, a counter) gains nothing on another seed (audit of version 6, cheater).
+  const names = neutralNames(seed, tag, specs * (blocks + 1) + specs);
+  for (const flow of flows) flow.spec.id = `s${names.pop()}`;
+  const own = flows.map(() => Array.from({ length: blocks }, () => `sec_${names.pop()}`));
+  const spec = flows.map(() => `sec_${names.pop()}`);
   const global = 'tone';
   const ids = shuffled(rngFor(seed, `${tag}-order`), [...own.flat(), ...spec, global]);
   const prompt = plantedPrompt(seed, ids, tag);
@@ -121,6 +125,19 @@ export function linkedSuite(
     };
   });
   return { flows, registry, prompt, own, spec, global };
+}
+
+/** Distinct six-digit hexadecimal names drawn from the seed and the tag. */
+export function neutralNames(seed: number, tag: string, count: number): string[] {
+  const rng = rngFor(seed, `${tag}-names`);
+  const out = new Set<string>();
+  while (out.size < count)
+    out.add(
+      Math.floor(rng() * 0xffffff)
+        .toString(16)
+        .padStart(6, '0'),
+    );
+  return [...out];
 }
 
 /** Where faults are planted: spec index to the block faults of that spec. */

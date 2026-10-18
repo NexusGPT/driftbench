@@ -16,6 +16,7 @@ import { cliItems } from './cli';
 import { comboItems } from './combos';
 import { fieldItems } from './fields';
 import { linkItems } from './links';
+import { auditItems } from './links-audit';
 import { linkChainItems } from './links-chain';
 import { precisionItems } from './precision';
 import { reachItems } from './reach';
@@ -58,6 +59,7 @@ export function systemBank(): BankItem[] {
     ...scaleItems(),
     ...linkItems(),
     ...linkChainItems(),
+    ...auditItems(),
     ...verdictItems(),
   ];
   return items.sort((a, b) => a.level - b.level);

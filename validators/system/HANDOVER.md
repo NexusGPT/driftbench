@@ -5,16 +5,24 @@
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 11 |
+| 1 | 13 |
+| hidden | 13 |
 <!-- level-table:end -->
+
+Ladder version 6, 2026-10-18: the table above is the last builder row, iteration 6, measured on the pilot branch `exec/system-links-pilot` at `a5cfcfcd2`, which carries six product fixes. On main and on this validator branch the product has none of them: the level is 11, with 38 of the 319 new items failing (iteration 0, `daa04791c`, seeds 1 and hidden for levels 1 to 11, seeds 1 to 20 and hidden for levels 12 and 13). The version 5 journal is `journal-v5.jsonl`; `journal.jsonl` starts at version 6.
 
 Measured 2026-10-15: unchanged main `14034c6ca` and product `4170c016e` both reach 11 of 11 on local seed 1. The current bank is Bank version 5 (2385 items), all passing; level 10 has 867 items and level 11 has 76. This supersedes the historical local state in journal rows 0–2. Seeds 2, 3 and the hidden seed still require the current CI result.
 
 ## Floor
 
-9, ladder version 5, in `validators/floors.json`. No floor changed.
+9, ladder version 5, in `validators/floors.json`. No floor changed. Version 6 has no floor yet: a floor of ladder version 5 is history and `--check-floor` prints it as a note. A version 6 floor is its own commit, with a `--json` run of seed 1 and the hidden seed as evidence (iteration 0 reached 11 on both).
 
 ## Open items
+
+- Version 6, the hardness gate (docs/validators.md section 12.4) is not met: the builder pilot topped levels 12 and 13 in 6 iterations (2669 of 2707 to 2707 of 2707). Forecast 0, score after the pilot 1, 0 distinct failing causes. The new levels are too simple by the section 12 rule; extend them (section 12.2) before a floor above 11 is claimed.
+- Version 6, the audit (validators/system/audit.md): cheater fail, planted bugs fail (13 of 20), cause review pass (38 of 38, 5 causes), blind pilot 5 iterations at 7.6 items each. Each cheat and each missed bug is owed as a new item before the audit runs again.
+- Version 6, levels 1 to 11 after the pilot: a full seed-1 run at `a5cfcfcd2` passes 2707 of 2707, level 13 (an earlier attempt failed on a full disk and is void).
+- Version 6, the six product causes the new items found, each fixed on `exec/system-links-pilot` with a red-first test: mode P run positions in `localizeRuns`; `specIndex` of a block run out of authored order; forest ancestors in `localizeRows`; parent edges in `sectionSelection`; the `radius --mode` default leaking into `radius localize`; `driftbench help <command> <subcommand>`. They are not on main.
 
 - CI before: run 38780677540 on `14034c6ca` reports 9 of 11 and no failure because `--check-floor` sets `maxLevel` to the floor. The log explicitly marks levels 10 and 11 not run for all four seeds. This is a configured cap, not a timeout.
 - CI wiring: PR #504, `fix/system-validator-full-ci`, head `93da8da9c`, adds an independent full-system job. It runs seeds 1–3 and the commit-derived hidden seed with `--all-levels`, and requires exit 11. Existing floors and banks remain unchanged. Run 38785996109 is executing the full command.
@@ -44,11 +52,15 @@ The limit remains 25. The samples retain the bank's own rule: fastest of three m
 
 ## Next actions
 
-1. Read the latest `system all 11 levels` CI job on #506. Require all four seed columns through level 11; if any item fails, reproduce its exact seed and fix the product.
-2. Read #504's full-system result separately. Keep CI wiring and product changes in their separate PRs; retarget #506 to main when #504 merges.
-3. After the final push, remove this job's node_modules and sole worktree. Do not remove another job's files or worktrees.
+1. Version 6: land the six product fixes of `exec/system-links-pilot` through their own reviewed PR, then measure levels 12 and 13 on main. Extend levels 12 and 13 (section 12.2) until a pilot cannot top them; the audit (section 12.7) is owed before merge.
+2. Read the latest `system all 11 levels` CI job on #506. Require all four seed columns through level 11; if any item fails, reproduce its exact seed and fix the product.
+3. Read #504's full-system result separately. Keep CI wiring and product changes in their separate PRs; retarget #506 to main when #504 merges.
+4. After the final push, remove this job's node_modules and sole worktree. Do not remove another job's files or worktrees.
 
 ## Pitfalls
+
+- Version 6: section ids written by `radius sections init` slug a heading's hyphens to underscores (`own-0-0` becomes `own_0_0`). A bank item that names a section the registry slugged passes vacuously; `localizeDifference` and the selection items now throw on a section the registry does not hold.
+- Version 6: a child of a failing parent is blocked, not passing; a forest reference must leave it out of the rows (found by pilot iteration 3).
 
 - A local seed-1 pass is not four-seed CI proof. The hidden seed changes with the checked-out commit, including GitHub's PR merge commit.
 - `--check-floor` intentionally caps measurement at the floor, even with `--all-levels`. The full job uses a plain run and expects exit 11.
@@ -71,6 +83,6 @@ A full pass exits 11, not 0. For one item, filter `systemBank()` by its exact id
 
 - `packages/validators/fixtures/system/bank-manifest.json`: item inventory.
 - `packages/validators/fixtures/system/design.json`: Monte Carlo design.
-- `packages/validators/src/ladders/system/bank/`: generated items; scale timing in `scale.ts`.
+- `packages/validators/src/ladders/system/bank/`: generated items; scale timing in `scale.ts`. Version 6: `links.ts`, `links-world.ts` (the reference Ochiai and the linked suite), `links-chain.ts` (the command-line chain) and `verdicts.ts` (not run and blocked).
 - `examples/acme/faults/`: fault family; unchanged.
 - `packages/store/test/campaign-write-scaling.test.ts`: product regression and policy/corruption checks.

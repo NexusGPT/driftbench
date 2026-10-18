@@ -34,7 +34,7 @@ const LOCALIZE_CMD = 'packages/cli/src/commands/radius-localize.ts';
 
 type Cli = { code: number; out: string; err: string };
 
-async function cli(argv: string[], cwd: string): Promise<Cli> {
+export async function cli(argv: string[], cwd: string): Promise<Cli> {
   const { main } = (await import('../../../../../cli/src/main')) as {
     main: (argv: string[], io: unknown) => Promise<number>;
   };
@@ -64,7 +64,7 @@ function draft(
   return { id: `links/${id}`, family, tier, level: 12, component, title, cause, check, source: 'contract' };
 }
 
-const json = (text: string): Record<string, unknown> | undefined => {
+export const json = (text: string): Record<string, unknown> | undefined => {
   try {
     return JSON.parse(text) as Record<string, unknown>;
   } catch {
@@ -73,7 +73,10 @@ const json = (text: string): Record<string, unknown> | undefined => {
 };
 
 /** Writes the suite's prompt and specs under a folder and the registry through `radius sections init`. */
-async function written(suite: LinkedSuite, dir: string): Promise<{ registry: SectionRegistry } | string> {
+export async function written(
+  suite: LinkedSuite,
+  dir: string,
+): Promise<{ registry: SectionRegistry } | string> {
   mkdirSync(join(dir, 'specs'), { recursive: true });
   writeFileSync(join(dir, 'v1.md'), suite.prompt);
   for (const flow of suite.flows)
@@ -267,7 +270,7 @@ function selectChain(): Draft[] {
 // ---------------------------------------------------------------------------------------------------------
 // chain-localize: a stored campaign of the plant, ranked by the command.
 
-async function storeCampaign(
+export async function storeCampaign(
   path: string,
   campaignId: string,
   runs: readonly RunResult[],
