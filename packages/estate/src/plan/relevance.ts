@@ -10,9 +10,9 @@ import type { Atom, EstateMap } from '../schema';
  * combinations stay in the plan, with a note. A space the user wrote is authoritative and infers nothing: its
  * own constraints say what its values cannot meet.
  */
-type Concern = { kinds: readonly Atom['kind'][]; helperRoutes?: true };
+export type Concern = { kinds: readonly Atom['kind'][]; helperRoutes?: true };
 
-const CONCERNS: Readonly<Record<string, Concern>> = {
+export const SITUATION_CONCERNS: Readonly<Record<string, Concern>> = {
   'estate_hazard=dead_helper': { kinds: ['subagent'], helperRoutes: true },
   'session_state=helpers_running': { kinds: ['subagent'], helperRoutes: true },
   'estate_hazard=stale_tracker': { kinds: ['stage'] },
@@ -72,7 +72,7 @@ export function situationSpace(map: EstateMap, space: SpaceMap): { space: SpaceM
     for (const [index, value] of dimension.values.entries()) {
       // The first value is the axis's baseline, and long is an unperturbed session as well.
       if (index === 0 || (dimension.id === 'session_state' && value.id === 'long')) continue;
-      const concern = CONCERNS[`${dimension.id}=${value.id}`];
+      const concern = SITUATION_CONCERNS[`${dimension.id}=${value.id}`];
       const relevant = concern ? actedOn(concern, approved, map.edges) : new Set<string>();
       const inTargets = targets.flatMap((target) => target.values.filter((atom) => relevant.has(atom.id)));
       if (inTargets.length === 0) {

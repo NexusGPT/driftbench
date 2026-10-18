@@ -432,6 +432,33 @@ Pairwise: a covering array of strength t (default 2) over the situation axes, un
 
 The default plan crosses each event value only with the atoms it can act on. It reads no word, id or path of an atom. A table keyed by the dimension and value ids of the axes of `estate map` names, for each value, the kinds of atom it acts on: a language switch acts on output rules (`register`) and instructions, a tool failure on tools, scripts, guards, helpers, skills and routes, a stale tracker on stages, and so on. A helper event (a dead helper, helpers running) also acts on the routes the map links to a helper, by a `route` or `dispatch` edge to a helper or by `targetKind: subagent`.
 
+The table, which a test compares with the one the planner holds, is:
+
+| Dimension | Value | Kinds it acts on | Also helper routes |
+|---|---|---|---|
+| `estate_hazard` | `dead_helper` | subagent | yes |
+| `session_state` | `helpers_running` | subagent | yes |
+| `estate_hazard` | `stale_tracker` | stage | no |
+| `deviation` | `D5_language_switch` | register, instruction | no |
+| `owner_signal` | `language_switch` | register, instruction | no |
+| `deviation` | `D8_tool_failure` | tool, script, guard, subagent, skill, route | no |
+| `deviation` | `D6_instruction_in_data` | instruction, gate, guard, register | no |
+| `deviation` | `D4_loose_confirmation` | instruction, gate, guard | no |
+| `estate_hazard` | `rate_wave` | tool, script, subagent, instruction, stage | no |
+| `estate_hazard` | `process_restart` | stage, subagent, instruction, gate | no |
+| `estate_hazard` | `compaction_mid_task` | instruction, gate, register, stage, skill, route | no |
+| `session_state` | `after_compaction` | instruction, gate, register, stage, skill, route | no |
+| `session_state` | `after_restart` | stage, subagent, instruction, gate | no |
+| `session_state` | `resumed` | stage, instruction, gate, skill, route | no |
+| `owner_signal` | `stop` | instruction, stage, subagent, guard | no |
+| `owner_signal` | `no_questions` | instruction, gate, register | no |
+| `deviation` | `D2_goal_shift` | route, skill, stage, instruction | no |
+| `deviation` | `D1_off_topic` | route, skill, instruction, register, stage | no |
+| `deviation` | `D9_out_of_scope` | route, skill, subagent, instruction | no |
+| `deviation` | `D7_silence_or_burst` | instruction, register, guard, subagent | no |
+
+A value the table does not name stays unresolved (below).
+
 For the event axes (`session_state`, `owner_signal`, `deviation`, `estate_hazard`), the baseline of each axis and an unperturbed long session remain available. When a value has targets, inferred constraints exclude its combinations with the other targets before the covering array runs. Coverage counts only tuples feasible under those constraints. Mandatory contract rows and journeys keep their own obligations. A value the table does not name, or one with no target in the estate, stays unresolved: its combinations remain in the plan, with an explicit note. A missing match never removes an entire situation to obtain vacuous coverage.
 
 A kind is a coarse declaration: a rule that mentions a tool is an instruction and is crossed with a tool failure only if the table says instructions are. Supplying `--space` makes that space authoritative: its values and constraints are used without inferred exclusions, and a value it adds is unresolved unless its own constraints say what it cannot meet. The summary exposes every inferred exclusion in `relevanceConstraints` and explains unresolved situations in `notes`. These are proposed rows, subject to approval like the rest of the plan.
