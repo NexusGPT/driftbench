@@ -21,6 +21,8 @@ From `driftbench validate blocks --hardness`, journal `validators/blocks/journal
 
 The bank grew by 149 items before this pilot: 77 for rules main's own docs state and main does not meet (`blocks-growth/docgaps`), and 72 for cases of `docs/reference/block-contracts.md` no item tested (`blocks-growth/contracts2`). They come from two inventories of every documented rule main lacks: 244 rules in 108 causes, about 283 cases not yet in the bank, of which these items take the testable ones.
 
+After trial6 the bank took 44 link items (`blocks-links2`, families links2-localize and links2-schema, merged from `fix/validators-blocks-links` at 41955e719): 8 fail on main on one cause the bank already holds (a stale link still counts in `radius localize`). The bank is now 3,352 items, 103 families and 826 causes. The journal still measures the 3,308 items of the pilot; the 44 items are not in its rows. Ladder version 2 is kept, as for every growth since trial3.
+
 ## The rounds (trial6)
 
 Every round fixed what its commit claimed and broke nothing. Iteration 4 and iteration 8 reached CI between two polls of the dispatch loop, so each was measured on a ref of its own (`train/blocks-trial6-i4`, `train/blocks-trial6-715310048`).
