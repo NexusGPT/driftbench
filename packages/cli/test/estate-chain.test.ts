@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { claudeCodeLiveAdapter, loadStateLibrary } from '@agent-nexus/driftbench-adapters';
 import { contentHash, type RunResult } from '@agent-nexus/driftbench-core';
 import {
+  copyEstate,
   type EstateMap,
   loadEstateMap,
   loadPlan,
@@ -52,6 +53,12 @@ const R2 = 'instruction.standing.never-send-a-supplier-email-without';
 const R12 = 'instruction.standing.keep-an-unconfirmed-draft-unsent';
 const ROUTE_PLAN = 'route.standing.an-ask-to-plan-the-delivery';
 const LEDGER_GUARD = 'guard.settings.posttooluse-bash-guard-ledger-guard-py';
+/** The agent versions of the chain: the estate as scanned, and the estate with its prompt edited. */
+const AGENT_V1 = 'northwind-v1';
+const AGENT_V2 = 'northwind-v2';
+/** The edit of version 2 to the standing file: the wording of the committed fixture-v2 on this line. */
+const EDIT_FROM = 'late by more than two days';
+const EDIT_TO = 'late by more than one day';
 const FORCE_PUSH_GUARD = 'guard.settings.pretooluse-bash-guard-block-force-push';
 const CARRIER_CODE = 'instruction.shipment-tracker.always-pass-the-carrier-code-to';
 
@@ -143,7 +150,13 @@ const chain: {
     mutantHash: string;
   };
   /** What step 9 wrote and read: the change manifest and the radius report over the generated suite. */
-  radius?: { manifest: string; report: RadiusJson };
+  radius?: {
+    manifest: string;
+    report: RadiusJson;
+    /** The standing file as edited for version 2, and the estate copy that holds it. */
+    editedPrompt: string;
+    estate: string;
+  };
   /** The baseline campaign of step 10. */
   baseline?: { runs: RunResult[]; calls: number };
 } = {};
@@ -1099,75 +1112,114 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
     });
   });
 
-  it('step 9: the radius of a prompt change to the instruction atom is the generated specs that name it, not the whole suite', async () => {
-    await prove('9 radius', 'generated specs, change manifest', 'radius report', async () => {
-      const generated = must(chain.specs, '5');
-      const manifest = join(work, 'change.yaml');
-      await writeFile(
-        manifest,
-        [
-          'from: northwind-v1',
-          'to: northwind-v2',
-          'changes:',
-          '  - kind: prompt',
-          `    id: ${R7}`,
-          '    note: R7 tells the user after one late day instead of two',
-          '',
-        ].join('\n'),
-      );
-      const result = await cli(['radius', join(work, 'generated', 'specs'), '--change', manifest, '--json']);
-      expect(result.err).toBe('');
-      const report = JSON.parse(result.out) as RadiusJson;
-      // The radius being the whole suite is a failure, and the reason the command gives is printed with it.
-      expect(report.whole, `the radius is the whole suite: ${JSON.stringify(report.whole)}`).toBeNull();
-      expect(result.code).toBe(0);
-      expect(report.manifest).toMatchObject({
-        from: 'northwind-v1',
-        to: 'northwind-v2',
-        changes: [`prompt:${R7}`],
-      });
+  it('step 9: radius auto derives the change from the edited prompt, and its radius is the generated specs that name the atom', async () => {
+    await prove(
+      '9 radius',
+      'prompt edit, approved.yaml, generated specs',
+      'change.yaml, radius report',
+      async () => {
+        const generated = must(chain.specs, '5');
+        const approved = must(chain.approved, '2');
+        // The edit: one line of the standing file, as a person would change it. Version 2 of the estate is the
+        // fixture with that edit, and nothing else.
+        const standing = await readFile(join(FIXTURE, 'CLAUDE.md'), 'utf8');
+        expect(standing.split(EDIT_FROM).length - 1, 'the edited wording is in the file once').toBe(1);
+        const edited = standing.replace(EDIT_FROM, EDIT_TO);
+        const estate = join(work, 'estate-v2');
+        await copyEstate(FIXTURE, estate, approved);
+        await writeFile(join(estate, 'CLAUDE.md'), edited);
+        const editedPrompt = join(estate, 'CLAUDE.md');
+        // The change manifest is derived from the edit and the approved map, not written by hand.
+        const manifest = join(work, 'change.yaml');
+        const auto = await cli([
+          'radius',
+          'auto',
+          '--prompt',
+          join(FIXTURE, 'CLAUDE.md'),
+          editedPrompt,
+          '--map',
+          join(work, 'approved.yaml'),
+          '--source',
+          'CLAUDE.md',
+          '--from-version',
+          AGENT_V1,
+          '--to-version',
+          AGENT_V2,
+          '--out',
+          manifest,
+        ]);
+        expect(auto.err).toBe('');
+        expect(auto.code).toBe(0);
+        const derived = parseYaml(await readFile(manifest, 'utf8')) as {
+          from: string;
+          to: string;
+          changes: Array<{ kind: string; id?: string; global?: boolean }>;
+        };
+        // It names the atom whose quote the edit touched, and no other: not the whole suite. The edit has two
+        // regions ("two" to "one", "days" to "day"), and both belong to the quote of the same atom.
+        expect([derived.from, derived.to]).toEqual([AGENT_V1, AGENT_V2]);
+        expect(derived.changes.length).toBeGreaterThan(0);
+        for (const change of derived.changes) {
+          expect(change, 'a change of the manifest').toMatchObject({ kind: 'prompt', id: R7 });
+          expect(change.global).toBeUndefined();
+        }
+        const result = await cli([
+          'radius',
+          join(work, 'generated', 'specs'),
+          '--change',
+          manifest,
+          '--json',
+        ]);
+        expect(result.err).toBe('');
+        const report = JSON.parse(result.out) as RadiusJson;
+        // The radius being the whole suite is a failure, and the reason the command gives is printed with it.
+        expect(report.whole, `the radius is the whole suite: ${JSON.stringify(report.whole)}`).toBeNull();
+        expect(result.code).toBe(0);
+        expect(report.manifest).toMatchObject({ from: AGENT_V1, to: AGENT_V2 });
+        // One label for each region of the edit, all naming the same atom.
+        expect(report.manifest.changes.length).toBeGreaterThan(0);
+        expect(new Set(report.manifest.changes)).toEqual(new Set([`prompt:${R7}`]));
 
-      const suite = generated.filter((entry) => entry.folder.startsWith('specs/'));
-      const namingR7 = new Set(
-        suite.filter((entry) => atomsOf(entry).includes(R7)).map((entry) => entry.spec.id),
-      );
-      expect(report.specs.map((spec) => spec.specId).sort()).toEqual(
-        sorted(suite.map((entry) => entry.spec.id)),
-      );
-      let inside = 0;
-      let outside = 0;
-      for (const spec of report.specs) {
-        for (const block of spec.blocks) {
-          if (namingR7.has(spec.specId)) {
-            // Every block of a spec that names the atom is in the radius, for that atom.
-            expect(block.state.F, `${spec.specId}/${block.id}`).toBe('direct');
-            expect(block.why, `${spec.specId}/${block.id}`).toEqual([`prompt:${R7}`]);
-            inside++;
-          } else {
-            expect(block.state.F, `${spec.specId}/${block.id}`).toBe('out');
-            outside++;
+        const suite = generated.filter((entry) => entry.folder.startsWith('specs/'));
+        const namingR7 = new Set(
+          suite.filter((entry) => atomsOf(entry).includes(R7)).map((entry) => entry.spec.id),
+        );
+        expect(report.specs.map((spec) => spec.specId).sort()).toEqual(
+          sorted(suite.map((entry) => entry.spec.id)),
+        );
+        let inside = 0;
+        let outside = 0;
+        for (const spec of report.specs) {
+          for (const block of spec.blocks) {
+            if (namingR7.has(spec.specId)) {
+              // Every block of a spec that names the atom is in the radius, for that atom.
+              expect(block.state.F, `${spec.specId}/${block.id}`).toBe('direct');
+              expect(new Set(block.why), `${spec.specId}/${block.id}`).toEqual(new Set([`prompt:${R7}`]));
+              inside++;
+            } else {
+              expect(block.state.F, `${spec.specId}/${block.id}`).toBe('out');
+              outside++;
+            }
           }
         }
-      }
-      expect(inside).toBeGreaterThan(0);
-      // At least one block that does not name the atom is out.
-      expect(outside).toBeGreaterThan(0);
-      expect(report.totals.F).toMatchObject({ in: inside, direct: inside, forward: 0, out: outside });
+        expect(inside).toBeGreaterThan(0);
+        // At least one block that does not name the atom is out.
+        expect(outside).toBeGreaterThan(0);
+        expect(report.totals.F).toMatchObject({ in: inside, direct: inside, forward: 0, out: outside });
 
-      // The radius, the impact of step 8 and the metadata of step 5 name the same specs.
-      const impact = must(chain.suiteImpact, '8');
-      expect(sorted(impact.reapprove.find((entry) => entry.atom === R7)?.tests ?? [])).toEqual(
-        sorted(namingR7),
-      );
-      chain.radius = { manifest, report };
-      return `manifest ${report.manifest.hash} names ${R7}; ${inside} of ${inside + outside} blocks in the radius, ${outside} out`;
-    });
+        // The radius, the impact of step 8 and the metadata of step 5 name the same specs.
+        const impact = must(chain.suiteImpact, '8');
+        expect(sorted(impact.reapprove.find((entry) => entry.atom === R7)?.tests ?? [])).toEqual(
+          sorted(namingR7),
+        );
+        chain.radius = { manifest, report, editedPrompt, estate };
+        return `manifest ${report.manifest.hash} names ${R7}; ${inside} of ${inside + outside} blocks in the radius, ${outside} out`;
+      },
+    );
   });
 
   // Steps 10 and 11 run campaigns of the stand-in through the live adapter, in this process, as the radius
   // tests of the Acme suite do: the agent version labels the estate, and a radius run carries the stored runs.
-  const AGENT_V1 = 'northwind-v1';
-  const AGENT_V2 = 'northwind-v2';
   const outcomeOf = (run: RunResult): string =>
     run.status !== 'completed' ? run.status : run.blocks.every((block) => block.pass) ? 'pass' : 'fail';
   const failingOf = (run: RunResult): string[] =>
@@ -1230,10 +1282,10 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
   }
   /**
    * The calls of the stand-in that answered an ask: one per block sent. The log holds other lines, such as
-   * the wave of overloaded answers a planted hazard makes the run retry.
+   * the wave of overloaded answers a planted hazard makes the run retry. A stand-in never called writes no log.
    */
   const callsIn = async (path: string): Promise<number> =>
-    (await readFile(path, 'utf8'))
+    (await readFile(path, 'utf8').catch(() => ''))
       .split('\n')
       .filter((line) => line !== '')
       .filter((line) => (JSON.parse(line) as { played?: string }).played !== undefined).length;
@@ -1289,7 +1341,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
   });
 
   it('step 11: only the radius subset is run against the changed prompt, and the rest is carried with its verdict', async () => {
-    await prove('11 subset run', 'radius, change manifest, mutant estate', 'campaigns.db c-v2', async () => {
+    await prove('11 subset run', 'change.yaml, radius, estate v2', 'campaigns.db c-v2', async () => {
       const approved = must(chain.approved, '2');
       const universe = must(chain.universe, '6');
       const radius = must(chain.radius, '9');
@@ -1307,9 +1359,11 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       expect(subset).toEqual(sorted(universe.naming));
       expect(subset.length).toBeLessThan(ids.length);
 
-      // The changed prompt is version 2: the mutant estate of step 6. The agent is the stand-in again.
+      // The changed prompt is version 2: the estate of step 9 with its standing file edited. The agent is the
+      // stand-in again. It plays its recorded alternative when the quote of the atom is gone from the estate
+      // copy, so the edit reads to it as the inversion of step 6 does: the same specs are predicted red.
       const calls = join(work, 'calls-v2.jsonl');
-      const result = await runCampaign(universe.mutantDir, [approved.hash, universe.mutantHash], calls, [
+      const result = await runCampaign(radius.estate, [approved.hash], calls, [
         ...paths,
         '--target',
         'claude-code:northwind',
@@ -1378,7 +1432,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       expect(stored2?.radius).toMatchObject({
         fromVersion: AGENT_V1,
         toVersion: AGENT_V2,
-        changes: [`prompt:${R7}`],
+        changes: radius.report.manifest.changes,
         from: 'c-v1',
         fresh: subset.length,
         carried: carried.length,
@@ -1386,7 +1440,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       expect(stored2?.radius?.manifest).toBe(radius.report.manifest.hash);
       expect(stored2?.radius?.whole).toBeUndefined();
       expect(result.out).toContain(
-        `Blast radius of ${AGENT_V1} to ${AGENT_V2} (manifest ${radius.report.manifest.hash}): prompt:${R7}.`,
+        `Blast radius of ${AGENT_V1} to ${AGENT_V2} (manifest ${radius.report.manifest.hash}): ${radius.report.manifest.changes.join(', ')}.`,
       );
       expect(result.out).toContain(
         `${subset.length} of ${ids.length} cells in the radius. ${subset.length} cells run fresh, ${carried.length} carried from c-v1.`,
@@ -1398,13 +1452,115 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       }
       const why = radius.report.specs.filter((spec) => subset.includes(spec.specId));
       for (const spec of why) {
-        for (const block of spec.blocks) expect(block.why, spec.specId).toEqual([`prompt:${R7}`]);
+        for (const block of spec.blocks)
+          expect(new Set(block.why), spec.specId).toEqual(new Set([`prompt:${R7}`]));
       }
       return `${subset.length} of ${ids.length} specs run (${sent} blocks sent, ${baseline.calls - sent} saved), ${carried.length} carried from c-v1; ${red.length} red on the changed ${R7}`;
     });
   });
 
-  it('step 12: every hand-off above is verified, and the table lists them', () => {
+  it('step 12: an edit that changes no rule selects no spec and runs no cell', async () => {
+    await prove(
+      '12 no-rule edit',
+      'CRLF prompt, approved.yaml, c-v1',
+      'empty change.yaml, c-v1-crlf',
+      async () => {
+        const approved = must(chain.approved, '2');
+        const universe = must(chain.universe, '6');
+        const baseline = must(chain.baseline, '10');
+        const ids = universe.entries.map((entry) => entry.spec.id);
+        const paths = universe.entries.map((entry) => entry.path).sort();
+
+        // The edit: the standing file with its line endings turned from LF to CRLF. No word changes.
+        const standing = await readFile(join(FIXTURE, 'CLAUDE.md'), 'utf8');
+        expect(standing.includes('\r')).toBe(false);
+        const estate = join(work, 'estate-crlf');
+        await copyEstate(FIXTURE, estate, approved);
+        await writeFile(join(estate, 'CLAUDE.md'), standing.replace(/\n/g, '\r\n'));
+        const manifest = join(work, 'change-crlf.yaml');
+        // The agent version does not change: the same prompt text in another line ending is the same agent.
+        const auto = await cli([
+          'radius',
+          'auto',
+          '--prompt',
+          join(FIXTURE, 'CLAUDE.md'),
+          join(estate, 'CLAUDE.md'),
+          '--map',
+          join(work, 'approved.yaml'),
+          '--source',
+          'CLAUDE.md',
+          '--from-version',
+          AGENT_V1,
+          '--to-version',
+          AGENT_V1,
+          '--out',
+          manifest,
+        ]);
+        expect(auto.err).toBe('');
+        expect(auto.code).toBe(0);
+        const derived = parseYaml(await readFile(manifest, 'utf8')) as { changes: unknown[] };
+        expect(derived.changes).toEqual([]);
+
+        // The radius of that manifest over the whole generated suite is empty: every block is outside it.
+        const selected = await cli([
+          'radius',
+          join(work, 'generated', 'specs'),
+          '--change',
+          manifest,
+          '--json',
+        ]);
+        expect(selected.err).toBe('');
+        expect(selected.code).toBe(0);
+        const report = JSON.parse(selected.out) as RadiusJson;
+        expect(report.whole).toBeNull();
+        expect(report.totals.F).toMatchObject({ in: 0, direct: 0, forward: 0 });
+        expect(report.totals.F?.out).toBeGreaterThan(0);
+
+        // And the campaign runs no cell: every spec is carried from c-v1 and the stand-in is never called.
+        const calls = join(work, 'calls-crlf.jsonl');
+        const result = await runCampaign(estate, [approved.hash], calls, [
+          ...paths,
+          '--target',
+          'claude-code:northwind',
+          '--agent-version',
+          AGENT_V1,
+          '--campaign',
+          'c-v1-crlf',
+          '--change',
+          manifest,
+          '--from',
+          'c-v1',
+          '--store',
+          join(work, 'campaigns.db'),
+          '--no-cache',
+          '--concurrency',
+          '1',
+        ]);
+        expect(result.err).toBe('');
+        // Exit 1: the carried runs of the planted faults are still red.
+        expect(result.code).toBe(1);
+        const runs = await runsOf('c-v1-crlf');
+        expect(runs.map((run) => run.specId).sort()).toEqual([...ids].sort());
+        expect(runs.filter((run) => run.carried === undefined)).toEqual([]);
+        const stored = new Map(baseline.runs.map((run) => [run.specId, run]));
+        for (const run of runs) {
+          expect(run.carried, run.specId).toMatchObject({ fromCampaign: 'c-v1', agentVersion: AGENT_V1 });
+          expect(run.blocks, run.specId).toEqual(stored.get(run.specId)?.blocks);
+        }
+        expect(await callsIn(calls)).toBe(0);
+        const db = await openStore(join(work, 'campaigns.db'));
+        const record = (await db.getCampaign('c-v1-crlf'))?.radius;
+        await db.close();
+        expect(record).toMatchObject({ changes: [], fresh: 0, carried: ids.length, from: 'c-v1' });
+        expect(result.out).toContain(
+          `0 of ${ids.length} cells in the radius. 0 cells run fresh, ${ids.length} carried from c-v1.`,
+        );
+        return `a CRLF edit of the standing file: ${derived.changes.length} changes, 0 of ${ids.length} specs selected, 0 cells run, ${ids.length} carried`;
+      },
+    );
+  });
+
+  it('step 13: every hand-off above is verified, and the table lists them', () => {
     // The table is printed even when a step failed, so the failing step shows as NO.
     console.log(`\n${table()}\n`);
     expect(rows.map((row) => row.step.split(' ')[0])).toEqual([
@@ -1419,6 +1575,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
       '9',
       '10',
       '11',
+      '12',
     ]);
     expect(rows.filter((row) => row.verified !== 'yes')).toEqual([]);
   });
