@@ -210,7 +210,8 @@ function holds(quote: string, passage: string): boolean {
  * passage it quotes counts (`holds`); a string in the source is only circumstantial, so a part of the rule
  * counts only when it reaches past the situation the rule declares. A message that quotes the situation alone
  * ("the user asks to stop" for the rule "When the user asks to stop, stop all work") repeats when the rule
- * applies, not the rule. The situation is the one the reader or the model gave the atom: no word is read.
+ * applies, not the rule. The situation is the one the reader or the model gave the atom: no word is read. A
+ * situation that is the whole rule, directive included, separates nothing and marks no part as the condition alone.
  */
 function repeats(rule: Atom, literal: string): boolean {
   if (!holds(rule.provenance.quote, literal)) return false;
@@ -218,7 +219,11 @@ function repeats(rule: Atom, literal: string): boolean {
   const part = plain(literal);
   if (part.length >= quote.length || !quote.includes(part)) return true;
   const situation = plain(rule.situation ?? '');
-  return situation === '' || !situation.includes(part);
+  if (situation === '' || !situation.includes(part)) return true;
+  // A situation that runs to the end of the rule (the reader gave the whole clause) tells the condition from the
+  // directive nowhere, so a part of it cannot be the condition alone.
+  const at = quote.indexOf(situation);
+  return at >= 0 && !/[\p{L}\p{N}]/u.test(quote.slice(at + situation.length));
 }
 
 /** Identifier-bearing entity classes, independent of a particular estate's subject domain. */
