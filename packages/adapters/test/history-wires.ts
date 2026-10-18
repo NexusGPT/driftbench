@@ -1,4 +1,4 @@
-import type { Message } from '@agent-nexus/driftbench-core';
+import type { HistoryNormalization, Message } from '@agent-nexus/driftbench-core';
 import { historyOutput, outputText, readToolText, ToolLabels, WireNames } from '../src/anthropic/common';
 import { ANTHROPIC_NAME, type AnthropicBlockParam, toAnthropicMessages } from '../src/anthropic/messages';
 import { toGoogleContents } from '../src/google/contents';
@@ -211,16 +211,32 @@ type Carried = { role: 'user' | 'assistant' | 'system'; content: string; calls?:
  * an empty assistant turn is nothing, an assistant turn that only called tools and the text right after it
  * are one turn, an absent input is `{}`, and a result is the text the model reads. On Responses, call turns
  * in a row with no text between them are one run of items, so they read back as one turn. Chat keeps an
- * empty assistant message as one.
+ * empty assistant message as one. Block-based wires explicitly omit empty text-only turns; their
+ * expectations include a separate normalization record, never a blanket relaxation of read-back.
  */
 export function carried(
   history: readonly Message[],
-  options: { system: 'inline' | 'apart'; mergeCallTurns?: boolean; keepEmpty?: boolean },
-): Carried[] {
+  options: {
+    system: 'inline' | 'apart';
+    mergeCallTurns?: boolean;
+    keepEmpty?: boolean;
+    omitEmptyText?: 'anthropic' | 'google';
+  },
+): { messages: Carried[]; normalizations: HistoryNormalization[] } {
   const out: Carried[] = [];
-  for (const message of history) {
-    if (message.role === 'system' && options.system === 'apart') continue;
+  const normalizations: HistoryNormalization[] = [];
+  for (const [historyIndex, message] of history.entries()) {
     const calls = message.role === 'assistant' ? (message.tool_calls ?? []) : [];
+    if (options.omitEmptyText && message.content === '' && calls.length === 0) {
+      normalizations.push({
+        wire: options.omitEmptyText,
+        historyIndex,
+        role: message.role,
+        kind: 'omitted-empty-turn',
+      });
+      continue;
+    }
+    if (message.role === 'system' && options.system === 'apart') continue;
     const role = message.role === 'tool' ? 'user' : message.role;
     const last = out.at(-1);
     if (role === 'assistant' && calls.length === 0 && message.content === '' && !options.keepEmpty) continue;
@@ -244,7 +260,7 @@ export function carried(
     }
     out.push({ role, content: message.content, ...(calls.length > 0 ? { calls: mapped } : {}) });
   }
-  return out;
+  return { messages: out, normalizations };
 }
 
 /** Anthropic messages read back: one message per text block, calls with the results that answer them. */

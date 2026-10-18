@@ -12,6 +12,7 @@ import {
   type SqliteStore,
   StoreError,
 } from '../src/index';
+import { SCHEMA_SQL, TABLES_BY_VERSION } from '../src/schema';
 import { campaign, observed, run, storeError, tempDir } from './fixtures';
 
 const ID = 'acme-2026-10-11';
@@ -249,13 +250,20 @@ describe('opening a store', () => {
     expect(pushed.version.version).toBe(1);
   });
 
+  it('lists every table SCHEMA_SQL creates under the version that added it, and every version', () => {
+    const created = [...SCHEMA_SQL.matchAll(/CREATE TABLE IF NOT EXISTS (\w+)/g)].map((match) => match[1]);
+    expect(Object.values(TABLES_BY_VERSION).flat().sort()).toEqual(created.sort());
+    expect(Object.keys(TABLES_BY_VERSION).map(Number)).toEqual(
+      Array.from({ length: SCHEMA_VERSION }, (_, index) => index + 1),
+    );
+  });
+
   it('upgrades every older schema to the current one, whatever the current number', async () => {
-    // The tables each schema added (schema.ts): the registry came with 2; 3 added none.
-    const added: Record<number, string[]> = { 2: ['versions', 'blobs'] };
     for (let version = 1; version < SCHEMA_VERSION; version += 1) {
       const stored = await seed();
       await store.close();
-      const dropped = Object.entries(added)
+      // The tables the versions after this one added, from the schema's own list.
+      const dropped = Object.entries(TABLES_BY_VERSION)
         .filter(([since]) => Number(since) > version)
         .flatMap(([, tables]) => tables);
       raw.exec(

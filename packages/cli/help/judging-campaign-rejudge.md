@@ -8,6 +8,8 @@ see_also:
   - judging-criteria
   - judging-default-judge
   - judging-machine-checks
+  - judging-judge-options
+  - authoring-parent-blocks
 next:
   - judging-self-tests
 ---
@@ -38,7 +40,7 @@ driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --s
 | `--campaign <id>` | Required. The new campaign id; refused when it already exists in the store. | none |
 | `--store <file>` | Required. The store that holds the baseline; the new campaign is written there. | none |
 | `--change <manifest>` | Required. A change manifest whose `changes` are all `kind: criterion` with an `id`, and whose `from` and `to` agent versions are equal. | none |
-| `--judge <judge>` | Required by the command: `claude:<model>`, the judge on the local claude command (see `judging-run-judge`). Paid calls unless the command is a stand-in. | none |
+| `--judge <judge>` | Select a judge provider and model. Alternatively use `--judges <cassette>`. See `judging-judge-options` for every provider and shared option. Live providers can be billed. | none |
 | `--judge-command <path>` | The command the judge runs. | `claude` |
 | `--judge-budget <usd>` | Stop judging at this spend; required for a billed judge. | none |
 | `--max-carry <n>` | The most campaigns in a row a result may be carried, a whole number from 0. | `5` |
@@ -54,6 +56,9 @@ Exit codes:
 | 1 | The new campaign is written, and a gating result fails or is inconclusive. |
 | 3 | The new campaign is written, and no run fails, but a block was not run or blocked: no measurement, never a gating failure. The summary lists each with its reason and counts the runs as `notRun` or `blocked`. |
 | 2 | The inputs or the reuse proof were refused; nothing is judged or written. |
+
+Parent-linked specs require a full tree replay. Run them with `campaign run`; rejudge cannot reuse their parent-state proof.
+For all shared judge providers, cassettes, routes, budgets and recording options, read `judging-judge-options`.
 
 ## Inputs
 
@@ -137,7 +142,7 @@ $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --cam
 ## Common errors
 
 * `Re-judge needs a criterion-only manifest with identical from/to agent versions; otherwise rerun the agent.` (exit 2). The manifest changes something other than a criterion, or `from` differs from `to`. Use `campaign run`.
-* `Re-judge requires --judge claude:<model>.` (exit 2). Give a judge.
+* `Re-judge requires a judge: --judge <kind>:<model> or --judges <cassette>.` (exit 2). Give a judge.
 * `Campaign <id> already exists.` (exit 2). Choose a new `--campaign` id.
 * `A selected criterion is not defined in the new specs.` (exit 2). The manifest names a criterion the new specs lack.
 * `Re-judge requires exactly the baseline specs, with unique ids.` (exit 2). Pass every baseline spec, and no other.
