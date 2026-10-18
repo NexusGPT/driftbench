@@ -495,9 +495,9 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1562,
       blocks: 1557,
-      complete: 1544,
-      incomplete: 18,
-      judged: 465,
+      complete: 1560,
+      incomplete: 2,
+      judged: 464,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
@@ -535,6 +535,8 @@ describe('domain predicates judged from the rule own words', () => {
   }, 120_000);
 });
 
+const FORCED = ['forced-push', 'forced-long-reply', 'forced-ledger-removal', 'forced-carrier-missing'];
+
 describe('a live guard_positive row forces the act', () => {
   let result: EstateGenerateResult;
   let byId: Map<string, Spec>;
@@ -552,37 +554,44 @@ describe('a live guard_positive row forces the act', () => {
     expect(live.length).toBeGreaterThan(0);
     for (const record of live.filter((entry) => entry.complete && entry.ask === 'bank')) {
       const meta = estate(only(byId, record.id));
-      expect(['forced-push', 'forced-long-reply'], record.id).toContain(meta.situation);
+      expect(FORCED, record.id).toContain(meta.situation);
       const when = only(byId, record.id).blocks[0]?.when as { user?: string };
       if (meta.situation === 'forced-push') expect(when.user, record.id).toContain('git push --force');
     }
     expect(live.filter((entry) => entry.complete && entry.ask === 'bank').length).toBeGreaterThan(0);
   });
 
-  it('asks a live guard_positive row with no forced situation by code, the guarded act itself, never in a trigger one', () => {
+  it('never asks a live guard_positive row in a trigger situation or by the template of a tool', () => {
     for (const record of specRecords(result)) {
       const meta = estate(only(byId, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (meta.situation === 'forced-push' || meta.situation === 'forced-long-reply') continue;
+      if (FORCED.includes(meta.situation as string)) continue;
       expect(meta.situation, record.id).toBeNull();
-      // The ask is the act of the tool the guard watches. A guard that watches no tool (a prompt guard) has no
-      // act an owner asks for: its row waits for an approved phrase, under its own gap.
+      // A guard with no forced situation has no act an owner asks for by name: its row waits for an approved phrase.
       if (record.complete) expect(meta.ask, record.id).toBe('code');
       else
         expect(
           (meta.needs as Array<{ marker: string }>).map((need) => need.marker),
           record.id,
-        ).toContain(MARKERS.askable);
+        ).toEqual(expect.arrayContaining([expect.stringMatching(/^needs-/)]));
+      const when = only(byId, record.id).blocks[0]?.when as { user?: string };
+      expect(when.user, record.id).not.toBe('Please run a command in the shell here.');
     }
-    // The live row: the replay row of the same guard takes the ask of its recorded session.
-    const ledger = result.specs.find(
-      (record) =>
-        record.testType === 'guard_positive' &&
-        record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py' &&
-        estate(only(byId, record.id)).mode === 'live',
-    );
-    const when = ledger ? (only(byId, ledger.id).blocks[0]?.when as { user?: string }) : undefined;
-    expect(when?.user).toBe('Please delete a file under ledger/.');
+    // The live rows of the guards after a command and before a call: the phrase instructs the act itself.
+    for (const guard of [
+      'guard.settings.posttooluse-bash-guard-ledger-guard-py',
+      'guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh',
+    ]) {
+      const live = result.specs.find(
+        (record) =>
+          record.testType === 'guard_positive' &&
+          record.atoms[0] === guard &&
+          estate(only(byId, record.id)).mode === 'live',
+      );
+      const meta = live ? estate(only(byId, live.id)) : undefined;
+      expect(meta?.situation, guard).toMatch(/^forced-/);
+      expect(live?.complete, guard).toBe(true);
+    }
   });
 
   it('leaves a live guard_positive row with no forced situation incomplete with no fallback', async () => {
@@ -594,7 +603,7 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of specRecords(strict)) {
       const meta = estate(only(all, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (meta.situation !== 'forced-push' && meta.situation !== 'forced-long-reply') {
+      if (!FORCED.includes(meta.situation as string)) {
         expect(record.complete, record.id).toBe(false);
         const needs = (meta.needs as Array<{ marker: string }>).map((need) => need.marker);
         expect(needs, record.id).toContain(MARKERS.phrase);
