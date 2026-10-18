@@ -32,12 +32,12 @@ type Reason =
 const EXPECTED: Record<string, Record<number, { old: number; lost: Partial<Record<Reason, number>> }>> = {
   acme: {
     1: { old: 11, lost: {} },
-    2: { old: 43, lost: { outside_rules: 21 } },
+    2: { old: 43, lost: {} },
     3: { old: 69, lost: { outside_rules: 53 } },
   },
   northwind: {
     1: { old: 12, lost: {} },
-    2: { old: 33, lost: { outside_rules: 27 } },
+    2: { old: 33, lost: {} },
   },
 };
 
