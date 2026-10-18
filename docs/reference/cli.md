@@ -1097,28 +1097,91 @@ On the fixture estate:
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --no-model --out _captures/docs3/cli/estate-map.yaml
-Wrote _captures/docs3/cli/estate-map.yaml: 68 atoms (68 read by code and approved, 0 split from prose by the model and waiting for approval), 47 edges.
+Wrote _captures/docs3/cli/estate-map.yaml: 120 atoms (69 read by code and approved, 51 code-found candidates waiting for approval, 0 split from prose by the model and waiting for approval), 56 edges.
   Atoms per kind:
-    gate         4
-    route       13
-    skill        4
-    reference    9
-    script       2
-    subagent     3
-    guard        6
-    tool        12
-    setting      4
-    stage        5
-    hazard       2
-    invariant    4
-  No model call: structured atoms only (--no-model).
+    instruction   47
+    gate           4
+    route         13
+    skill          4
+    reference     10
+    script         2
+    subagent       3
+    guard          6
+    tool          12
+    setting        4
+    stage          5
+    register       4
+    hazard         2
+    invariant      4
+  No model call: structured atoms and code-found prose candidates (--no-model).
+  Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
+  Unanswered prose chunks (no model call): 14, 6835 characters.
+    CLAUDE.md  2782 characters
+    .claude/agents/inbox-triager.md  169 characters
+    .claude/agents/ledger-auditor.md  519 characters
+    .claude/agents/route-planner.md  301 characters
+    .claude/memory/MEMORY.md  236 characters
+    .claude/memory/supplier-languages.md  271 characters
+    .claude/skills/invoice-reconcile/SKILL.md  547 characters
+    .claude/skills/invoice-reconcile/references/currency-table.md  143 characters
+    .claude/skills/invoice-reconcile/references/matching-rules.md  261 characters
+    .claude/skills/invoice-reconcile/references/old-tolerances.md  144 characters
+    .claude/skills/shipment-tracker/SKILL.md  400 characters
+    .claude/skills/supplier-email/SKILL.md  507 characters
+    .claude/skills/weekly-report/SKILL.md  419 characters
+    .claude/skills/shipment-tracker/data/shipments.txt  136 characters
   Refused: none.
+  Ignored: none.
   Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
-  Unenforced: 3 of 4 rules have no guard.
+  Unenforced: 47 of 55 rules have no guard.
     gate.standing.read-git-status-before-commit-to
     gate.invoice-reconcile.read-references-matching-rules-md-before
     gate.weekly-report.read-templates-report-md-before-writing
+    register.standing.always-answer-in-the-language-of
+    instruction.standing.never-send-an-email-to-a
+    instruction.standing.when-a-shipment-is-late-by
+    instruction.standing.do-not-invent-order-numbers-prices
+    instruction.standing.when-a-value-is-missing-ask
+    instruction.standing.ask-at-most-one-question-per
+    instruction.standing.never-paste-the-contents-of-env
+    instruction.standing.when-r2-applies-and-the-user
+    instruction.standing.do-not-send-it
+    instruction.standing.before-you-dispatch-a-helper-agent
+    instruction.standing.if-a-tool-fails-twice-in
+    instruction.standing.report-a-number-only-when-you
+    instruction.standing.never-report-a-task-as-done
+    instruction.standing.lead-with-the-result-in-the
+    instruction.standing.use-a-bullet-list-for-three
+    instruction.standing.never-use-the-words-obviously-or
+    instruction.standing.write-amounts-with-the-currency-code
+    register.inbox-triager.never-answer-a-message-yourself
+    instruction.inbox-triager.never-delete-one
+    instruction.ledger-auditor.you-never-edit-a-file-you
+    instruction.ledger-auditor.when-either-is-missing-answer-with
+    register.ledger-auditor.answer-with-one-json-object-and
+    instruction.route-planner.read-the-open-orders-and-the
+    instruction.route-planner.never-put-more-than-the-van
+    instruction.route-planner.never-plan-a-delivery-on-a
+    register.route-planner.answer-with-a-table-van-stops
+    instruction.memory-memory.never-schedule-a-delivery-on-a
+    instruction.memory-supplier-languages.write-to-each-supplier-in-the
+    instruction.memory-supplier-languages.when-a-supplier-is-not-in
+    instruction.invoice-reconcile.never-change-an-amount-on-an
+    instruction.invoice-reconcile.report-the-difference-instead
+    instruction.invoice-reconcile.when-the-total-difference-is-above
+    instruction.invoice-reconcile.end-with-one-line-per-invoice
+    instruction.shipment-tracker.ask-for-the-tracking-number-when
+    instruction.shipment-tracker.when-the-carrier-answers-with-an
+    instruction.shipment-tracker.never-guess-a-status
+    instruction.supplier-email.keep-a-draft-under-120-words
+    instruction.supplier-email.show-the-full-draft-and-wait
+    instruction.supplier-email.never-copy-a-price-or-a
+    instruction.weekly-report.fill-the-template-in-this-order
+    instruction.weekly-report.count-only-what-the-ledger-and
+    instruction.weekly-report.read-references-kpi-definitions-md-when
+    instruction.weekly-report.save-the-report-as-reports-year
+    instruction.weekly-report.never-overwrite-an-earlier-week
 Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench estate approve _captures/docs3/cli/estate-map.yaml --kind instruction
 ```
 
