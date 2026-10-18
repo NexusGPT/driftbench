@@ -57,7 +57,9 @@ function labelLine(label: Label): string {
   const examples = label.examples?.length
     ? ` Examples: ${label.examples.map((example) => JSON.stringify(example)).join('; ')}`
     : '';
-  const target = label.target ? ' (also give "target": the number of the unit that holds the other end)' : '';
+  const target = label.target
+    ? ' (also give "target": the number of the unit that holds the other end, as a JSON number)'
+    : '';
   const spans = label.spans ? ` (may carry spans of kind ${label.spans.join(', ')})` : '';
   const links = label.links ? ` (may carry links of kind ${label.links.join(', ')})` : '';
   return `- ${label.name}: ${label.description}${examples}${target}${spans}${links}`;
