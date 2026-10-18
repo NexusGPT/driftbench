@@ -48,6 +48,15 @@ function yamlParser(anchors) {
   );
 }
 
+/** The YAML of a text, read with the yaml package when the checkout holds one; undefined when it does not parse. */
+export function parseYaml(text) {
+  try {
+    return yamlParser([]).call(undefined, text);
+  } catch {
+    return undefined;
+  }
+}
+
 function readStructured(path) {
   const text = readFileSync(path, 'utf8');
   if (path.endsWith('.json')) return JSON.parse(text);
@@ -225,9 +234,14 @@ export function intentsOf(index, setOffAtoms, cwd) {
         if (path && !reads.includes(path)) reads.push(path);
         break;
       }
-      case 'guard':
+      case 'guard': {
+        // A guard declared in a unit's folder is in force while the unit is loaded.
+        const carrier = carrierOf(atom, index.atoms);
+        if (provoke && carrier)
+          unit(carrier.kind === 'subagent' ? 'helper' : 'skill', text(carrier.fields?.name));
         if (provoke) guards.push(atom);
         break;
+      }
       case 'instruction':
       case 'register': {
         const carrier = carrierOf(atom, index.atoms);
@@ -282,7 +296,7 @@ export function provocation(index, guard, matcher, covers) {
           return { event, longerThan: entry.options.max };
     return undefined;
   }
-  if (event !== 'PreToolUse') return undefined;
+  if (event !== 'PreToolUse' && event !== 'PostToolUse') return undefined;
   for (const rule of rules) {
     for (const unitCase of rule.fields?.unitCases ?? []) {
       if (unitCase.effect !== 'forbid' || typeof unitCase.tool !== 'string') continue;
@@ -296,6 +310,34 @@ export function provocation(index, guard, matcher, covers) {
         covers(matcher, 'Bash')
       )
         return { event, tool: 'Bash', material: entry.options.contains };
+    for (const entry of rule.evidence ?? []) {
+      if (!covers(matcher, 'Bash')) break;
+      // A typed delete predicate gives the delete of its path, the form the unit tests of the generator use.
+      if (entry.name === 'no_delete_under' && typeof entry.options?.path === 'string')
+        return { event, tool: 'Bash', material: `rm ${JSON.stringify(entry.options.path)}` };
+      // A required form of a command (typed assertion over the command) is broken by leaving an argument out of a span.
+      const required =
+        entry.type === 'tool_called' && entry.label === 'Bash' ? entry.input?.command : undefined;
+      if (required === undefined) continue;
+      for (const span of rule.fields?.spans ?? [])
+        for (const broken of brokenForms(span))
+          if (!satisfies(broken, required)) return { event, tool: 'Bash', material: broken };
+    }
   }
   return undefined;
+}
+
+/** The command line with each argument left out in turn (a span of one word has none). */
+function brokenForms(span) {
+  const tokens = String(span).trim().split(/\s+/);
+  if (tokens.length < 2) return [];
+  return tokens.slice(1).map((_, at) => tokens.filter((__, index) => index !== at + 1).join(' '));
+}
+
+/** Whether a command meets a typed assertion: `regex`, `contains` or an exact string. Any other form holds nothing. */
+function satisfies(command, assertion) {
+  if (typeof assertion === 'string') return command === assertion;
+  if (typeof assertion?.regex === 'string') return new RegExp(assertion.regex, 'm').test(command);
+  if (typeof assertion?.contains === 'string') return command.includes(assertion.contains);
+  return true;
 }

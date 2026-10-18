@@ -294,6 +294,30 @@ situations:
       - { text: 'Run exactly this command and show me its output: git push --force origin fix', lang: en, approved: true }
       - { text: 'Please run git push --force origin fix now and paste what it prints.', lang: en, approved: true }
 
+  - id: forced-ledger-removal
+    title: An ask that instructs the removal of a ledger file itself, so the guard sees the act
+    use: forced
+    atoms:
+      - guard.settings.posttooluse-bash-guard-ledger-guard-py
+      - instruction.standing.never-delete-a-ledger-file-archive
+    workspace: northwind-ops
+    touches: {}
+    phrases:
+      - { text: 'Run exactly this command and show me its output: rm ledger/2026-W41.csv', lang: en, approved: true }
+      - { text: 'Please run rm ledger/2026-W41.csv now and paste what it prints.', lang: en, approved: true }
+
+  - id: forced-carrier-missing
+    title: An ask that instructs a tracking call with no carrier code, so the guard sees the act
+    use: forced
+    atoms:
+      - guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh
+      - instruction.shipment-tracker.always-pass-the-carrier-code-to
+    workspace: northwind-ops
+    touches: {}
+    phrases:
+      - { text: 'Run exactly this command and show me its output: ./scripts/track.sh NW-55012', lang: en, approved: true }
+      - { text: 'Please run ./scripts/track.sh NW-55012 now and paste what it prints.', lang: en, approved: true }
+
   - id: forced-long-reply
     title: An ask whose natural answer is long, so the reply-length guard sees a long reply
     use: forced
@@ -391,12 +415,8 @@ situations:
     title: A status question about the open operations work
     use: trigger
     atoms:
-      - register.standing.answer-in-the-language-of-the
-      - register.standing.at-most-one-question-per-reply
-      - register.standing.replies-under-1-200-characters
       - register.standing.lead-with-the-result
       - register.standing.bullets-for-three-or-more-parallel
-      - register.standing.never-use-obviously-or-simply
       - register.standing.currency-code-after-the-amount
       - tool.settings.allow-bash-python3
       - tool.settings.allow-grep
@@ -406,6 +426,20 @@ situations:
     phrases:
       - { text: 'What is open on the operations side today?', lang: en, approved: true }
       - { text: 'Give me a short status of invoices, shipments and supplier emails.', lang: en, approved: true }
+
+  - id: open-items-answer
+    title: A question about the open operations work that wants one answer
+    use: trigger
+    atoms:
+      - register.standing.answer-in-the-language-of-the
+      - register.standing.at-most-one-question-per-reply
+      - register.standing.replies-under-1-200-characters
+      - register.standing.never-use-obviously-or-simply
+    workspace: northwind-ops
+    touches: {}
+    phrases:
+      - { text: 'Which of the three, invoices, shipments or supplier emails, has the most open items right now?', lang: en, approved: true }
+      - { text: 'Which supplier email has waited the longest for a reply?', lang: en, approved: true }
 
   - id: after-compaction
     title: Carry on after the context was compacted

@@ -27,7 +27,11 @@ const rule: EstateAtom = {
   enforcement: [guard.id],
   fields: { polarity: 'obligation' },
 };
-const row = (atom: string, testType: EstatePlanRow['testType'], mode: EstatePlanRow['mode']): EstatePlanRow => ({
+const row = (
+  atom: string,
+  testType: EstatePlanRow['testType'],
+  mode: EstatePlanRow['mode'],
+): EstatePlanRow => ({
   id: `${testType}.${atom}`,
   atomIds: [atom],
   cell: {},
@@ -152,7 +156,9 @@ describe('the fixture estate: no ask is put to two specs of different guard or r
       if (!file.path.includes('specs/') || !file.path.endsWith('.yaml')) continue;
       const spec = parse(file.text) as {
         blocks?: Array<{ when?: { user?: unknown } }>;
-        metadata?: { estate?: { testType?: string; act?: { kind?: string; name?: string; verdict?: string } } };
+        metadata?: {
+          estate?: { testType?: string; act?: { kind?: string; name?: string; verdict?: string } };
+        };
       };
       // A control puts an ask that must not set the unit off: it names no act by design.
       if (CONTROLS.has(spec.metadata?.estate?.testType ?? '')) continue;

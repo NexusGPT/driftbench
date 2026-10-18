@@ -116,6 +116,27 @@ function siblingSituation(
   return best;
 }
 
+/**
+ * The reply acts a situation serves besides the row's own, when the row's act is a reply act. A phrase put to the
+ * rows of two reply acts shows the agent no way to tell them apart, so the situation must be split per act.
+ */
+export function rivalReplyActs(
+  situation: Situation,
+  head: EstateAtom,
+  ctx: Pick<Context, 'atoms' | 'owners'>,
+): string[] {
+  const actOf = (atom: EstateAtom) => actRecord(atom, ctx.atoms.get(ctx.owners.get(atom.id) ?? ''));
+  const own = actOf(head);
+  if (own.kind !== 'reply' || own.name === undefined) return [];
+  const names = new Set<string>();
+  for (const id of situation.atoms) {
+    const atom = ctx.atoms.get(id);
+    const act = atom ? actOf(atom) : undefined;
+    if (act?.kind === 'reply' && act.name !== undefined && act.name !== own.name) names.add(act.name);
+  }
+  return names.size === 0 ? [] : [own.name, ...[...names].sort()];
+}
+
 /** The atoms a code-written ask reads: the row's, and the unit that owns the rule by folder when the row lacks it. */
 function askAtomsOf(atoms: readonly EstateAtom[], ctx: Context): readonly EstateAtom[] {
   const first = atoms[0] as EstateAtom;
@@ -253,7 +274,7 @@ export function build(
       }
     | undefined;
   if (use !== 'none') {
-    let missing: { marker: Marker; detail: string } | undefined;
+    let missing: { marker: Marker; detail: string; shared?: true } | undefined;
     if (!situation) {
       missing = { marker: MARKERS.phrase, detail: `a ${use} situation for ${first.id}` };
     } else if (session) {
@@ -269,7 +290,17 @@ export function build(
         variant !== undefined && order.length > 0
           ? order[variant % order.length]
           : order[row.testType === 'twin' ? 1 : 0];
-      if (!phrase) {
+      const rivals = phrase ? rivalReplyActs(situation, first, ctx) : [];
+      if (rivals.length > 0) {
+        // A phrase the situation shares with a row of another reply act names neither act.
+        missing = {
+          marker: MARKERS.phrase,
+          detail: `${situation.id} serves the reply acts ${rivals.join(' and ')}; one phrase cannot name both`,
+          shared: true,
+        };
+        phrase = undefined;
+        phraseIndex = undefined;
+      } else if (!phrase) {
         missing = {
           marker: row.testType === 'twin' ? MARKERS.secondPhrase : MARKERS.phrase,
           detail: `${situation.id} has ${order.length} approved phrase${order.length === 1 ? '' : 's'}`,
@@ -278,9 +309,18 @@ export function build(
     }
     if (missing && ctx.fallback) {
       const written = codeAskOf(row, use, askAtoms, ctx, variant);
-      if (written.text === undefined) {
+      if (use === 'forced' && written.tool !== undefined) {
+        // The template of a tool names the tool and not the guarded act: the row waits for a phrase that instructs it.
+        gap(
+          then,
+          MARKERS.phrase,
+          first,
+          `a forced situation whose phrase instructs the act of ${first.id}; the template of ${written.tool} names no act`,
+        );
+      } else if (written.text === undefined) {
         // Never a nonsense ask: the row waits for an approved phrase, under its own gap.
-        gap(then, MARKERS.askable, first, written.refused ?? 'the atom gives no task');
+        if (missing.shared) gap(then, missing.marker, first, missing.detail);
+        else gap(then, MARKERS.askable, first, written.refused ?? 'the atom gives no task');
       } else {
         phrase = { text: written.text, lang: written.lang, approved: false };
         phraseIndex = undefined;
