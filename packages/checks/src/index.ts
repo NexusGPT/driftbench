@@ -127,7 +127,7 @@ export type { ReplayOutcome, ToolDeclaration, ToolReplayer } from './value-check
 export { type Computation, evaluateFormula, type RecomputeCase } from './value-check/recompute';
 export type { StateDiffCase } from './value-check/state-diff';
 
-// The shipped policy/blame and policy/placement objects join the object registry when the package loads, as
-// every package registers its builtins: a project object can then extend them by id.
+// The shipped policy/blame and policy/placement objects join the object registry with initializeShippedObjects(),
+// as the value-check policy does: a project object can then extend them by id.
 
 export const packageName = '@agent-nexus/driftbench-checks';
