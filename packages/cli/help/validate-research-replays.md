@@ -19,7 +19,7 @@ and evidence:
 
 | Replay | Folder | What it compares |
 |---|---|---|
-| default decoder, ungrounded evidence | `research/default-decoder-ungrounded` | decoder version 2 (opt-in with `criterionDecoderVersion: 2`, which nulls an evidence string that does not ground in the data and keeps the verdict) against the strict version 1 |
+| default decoder, ungrounded evidence | `research/default-decoder-ungrounded` | historical decoder version 2 (selected with `criterionDecoderVersion: 2`, which nulls an ungrounded evidence string and keeps the verdict) against strict version 1; the current default decoder is version 3 |
 | input-source alias | `research/evidence-source-alias` | the decoder's alias rule (a bare input path resolves to the single declared input when the canonical source is absent, and the quote must still ground in it) against strict decoding |
 
 Each replay feeds the public decoder the raw judge answers recorded at commit
