@@ -10,7 +10,7 @@ Two terms are used throughout. `Phi` is the cumulative distribution function of 
 
 The functions of this section live in `packages/stats/src/sample-size.ts`.
 
-The four functions that return a sample size give a whole number: the smallest integer that is not below the exact value of the formula. A computation in doubles may land a few units in the last place away from an integer that the exact value hits. The function therefore rounds the computed value to 9 decimals and takes the ceiling of the rounded value. A result is never below 1, because every formula gives a positive value.
+The four functions that return a sample size give a whole number: the smallest integer that is not below the exact value of the formula. A computation in doubles may land a few units in the last place away from an integer that the exact value hits. The function therefore rounds the computed value to 9 decimals and takes the ceiling of the rounded value. A result is never below 1, because every formula gives a positive value: a value that rounds to 0 is returned as 1. A value of 1e15 or more is returned as its ceiling without the rounding step, since 9 decimals are finer than one unit in the last place there.
 
 ### `sampleSizeTwoMeans`
 
@@ -96,7 +96,7 @@ powerOneSampleZ(delta: number, sd: number, n: number, zAlpha: number): number
 
 * **File.** `packages/stats/src/design-power.ts`.
 * **Definition.** The power of a two-sided z test of a mean when the true shift from the null value is `delta`. With `se = sd / sqrt(n)`, the power is `Phi(delta / se - zAlpha) + Phi(-delta / se - zAlpha)`. `zAlpha` is the normal quantile for the two-sided level (1.959963984540054 for 5 percent). Both tails count. The sign of `delta` does not matter. When `delta` is 0 the power is the level of the test.
-* **Returns.** A number in (0, 1].
+* **Returns.** A number in (0, 1], capped at 1 (the two terms can add to a hair above 1 through rounding).
 * **Throws.** A `RangeError` when `sd` is not positive, when `n` is 0 (it must be a positive whole number), or when `zAlpha` is not positive.
 * **Example.** `powerOneSampleZ(0.5, 1, 32, 1.959963984540054)` is 0.8074304194325571. `powerOneSampleZ(-0.5, 1, 32, 1.959963984540054)` is the same value. `powerOneSampleZ(0, 1, 50, 1.959963984540054)` is 0.05 (to 15 digits).
 
@@ -108,7 +108,7 @@ powerTwoSampleZ(delta: number, sd: number, nPerArm: number, zAlpha: number): num
 
 * **File.** `packages/stats/src/design-power.ts`.
 * **Definition.** The power of a two-sided z test of the difference between two means, with `nPerArm` units in each arm and a common standard deviation `sd`. With `se = sd * sqrt(2 / nPerArm)`, the power is `Phi(delta / se - zAlpha) + Phi(-delta / se - zAlpha)`. The sign of `delta` does not matter. When `delta` is 0 the power is the level of the test.
-* **Returns.** A number in (0, 1].
+* **Returns.** A number in (0, 1], capped at 1 (the two terms can add to a hair above 1 through rounding).
 * **Throws.** A `RangeError` when `sd` is not positive, when `nPerArm` is 0 (it must be a positive whole number), or when `zAlpha` is not positive.
 * **Example.** `powerTwoSampleZ(0.5, 1, 64, 1.959963984540054)` is 0.8074304194325571. `powerTwoSampleZ(5, 15, 100, 1.96)` is 0.6543325113771309. `powerTwoSampleZ(1, 1, 1, 1.959963984540054)` is 0.10895461755061552.
 
@@ -218,5 +218,5 @@ iccTwoWayAgreement(matrix: number[][]): number
 
   The result is `(MSR - MSE) / (MSR + (k - 1) * MSE + k * (MSC - MSE) / n)`. It is negative when the raters disagree more than the subjects differ. It is not clamped.
 * **Returns.** A number. It can be negative, and for a small matrix it can be below -1.
-* **Throws.** A `RangeError` when the matrix has fewer than 2 rows, when a row has fewer than 2 entries, when the rows do not all have the same length, or when the denominator is 0 in exact arithmetic. The denominator is 0 when every entry is equal, and for a matrix of 2 rows and 2 columns whose row means are equal and whose column means are equal.
+* **Throws.** A `RangeError` when the matrix has fewer than 2 rows, when a row has fewer than 2 entries, when the rows do not all have the same length, or when the denominator is 0 in exact arithmetic. The denominator is 0 when every entry is equal, and for a matrix of 2 rows and 2 columns whose row means are equal and whose column means are equal. For inputs that are not exact, "equal" means equal within 64 units in the last place of the largest entry.
 * **Example.** For the six subjects and four raters `[[9, 2, 5, 8], [6, 1, 3, 2], [8, 4, 6, 8], [7, 1, 2, 6], [10, 5, 6, 9], [6, 2, 4, 7]]`, `iccTwoWayAgreement` is 0.28976377952755905. `iccTwoWayAgreement([[1, 1], [2, 2], [3, 3]])` is 1, because the two raters agree on every subject. `iccTwoWayAgreement([[4, 4, 5], [4, 5, 4], [5, 4, 4]])` is -1.

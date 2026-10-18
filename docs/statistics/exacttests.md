@@ -109,7 +109,7 @@ mannWhitneyUExactP(a: number[], b: number[]): number
 permutationTestMeanDifference(a: number[], b: number[]): number
 ```
 
-* **Definition.** Let m be the length of `a` and n the length of `b`, and let N = m + n. The observed difference is d0 = mean(a) - mean(b). Pool the N values and list every way to choose m of the N positions for the first group. There are C(N, m) such partitions, and equal values at different positions give different partitions. For each partition, d is the mean of the first group minus the mean of the second group. A partition counts when |d| >= |d0| * (1 - 1e-12). The result is the count divided by C(N, m). The result is 1 when d0 = 0.
+* **Definition.** Let m be the length of `a` and n the length of `b`, and let N = m + n. The observed difference is d0 = mean(a) - mean(b). Pool the N values and list every way to choose m of the N positions for the first group. There are C(N, m) such partitions, and equal values at different positions give different partitions. For each partition, d is the mean of the first group minus the mean of the second group. A partition counts when |d| >= |d0| * (1 - 1e-12). The result is the count divided by C(N, m). The result is 1 when d0 is exactly 0, which the function tests on the computed difference itself (a difference of 1e-17 left by rounding is not 0 and goes through the rule above).
 * **Returns.** A number in (0, 1].
 * **Throws.** A `RangeError` when an array is empty or when C(N, m) is greater than 1,000,000.
 * **Example.** `permutationTestMeanDifference([1, 2, 3], [4, 5, 6])` is 0.1. `permutationTestMeanDifference([3.1, 4.2, 5.3], [1.0, 2.0, 2.5, 3.0])` is 0.02857142857142857. `permutationTestMeanDifference([5, 1], [2, 3, 4])` is 1, because both means are 3.
@@ -196,7 +196,7 @@ chiSquareGoodnessOfFitStatistic(observed: number[], expectedProportions: number[
 
 * **Definition.** The observed counts are O_i with n as their sum. Let S be the sum of the proportions p_i. The expected count is E_i = n * p_i / S. The statistic is the sum of (O_i - E_i)^2 / E_i. The degrees of freedom are the number of categories minus 1.
 * **Returns.** An object with the fields `statistic` (a number, zero or larger) and `df` (an integer).
-* **Throws.** A `RangeError` when there are fewer than 2 categories, when a proportion is 0, when S differs from 1 by more than 1e-9, or when n is 0.
+* **Throws.** A `RangeError` when there are fewer than 2 categories, when a proportion is 0 or is outside (0, 1], when S differs from 1 by more than 1e-9, or when n is 0.
 * **Example.** `chiSquareGoodnessOfFitStatistic([18, 22, 20, 40], [0.25, 0.25, 0.25, 0.25])` is `{ statistic: 12.32, df: 3 }`. `chiSquareGoodnessOfFitStatistic([26, 24], [0.5, 0.5])` is `{ statistic: 0.08, df: 1 }`.
 
 ### `gTestStatistic`

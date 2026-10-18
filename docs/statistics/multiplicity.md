@@ -2,7 +2,7 @@
 
 A report that compares many criteria, or runs many suites, makes many tests at once. The chance that at least one of them looks significant by luck grows with their number. This page defines functions that control that chance, estimate how many nulls are true, give the error-rate formulas, and combine several p-values into one statement. The conventions of the [shared page](capabilities.md#conventions) apply to every function here.
 
-The package already has `holm` and `benjaminiHochberg` ([statistics](../concepts/statistics.md)). The adjustments below add the Bonferroni, Sidak, Holm-Sidak, Hochberg, Hommel and Benjamini-Yekutieli forms. For the same p-values, each adjusted value obeys this order: Hommel, then Hochberg, then Holm, then Bonferroni, from smallest to largest. Holm-Sidak is never larger than Holm.
+The [statistics page](../concepts/statistics.md) defines `holm` and `benjaminiHochberg`; this page does not redefine them. The adjustments below add the Bonferroni, Sidak, Holm-Sidak, Hochberg, Hommel and Benjamini-Yekutieli forms. For the same p-values, each adjusted value obeys this order: Hommel, then Hochberg, then Holm, then Bonferroni, from smallest to largest. Holm-Sidak is never larger than Holm.
 
 Words used in the sections:
 
