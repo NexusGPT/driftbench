@@ -35,7 +35,7 @@ export type CassetteEntry = { key: string; readable: Readable; answer: Recorded 
  * the model, the set hash, the prompt and schema versions, the cut, the run). A model the body does not hold, a
  * label's polarity, a second run of the same request all change the key, so a hit is the full match.
  */
-export const requestKey = (wire: Wire, readable: Readable): string => { throw new Error('not implemented: requestKey'); };
+export const requestKey = (wire: Wire, readable: Readable): string => sha(canonical({ wire, readable }));
 
 /** Fields kept beside the key, so a miss can say what differs. `part.*` is a hash per top-level key of the request. */
 export function readableOf(
@@ -54,7 +54,11 @@ export function readableOf(
     run: string;
   },
 ): Readable {
-  throw new Error('not implemented: readableOf');
+  const parts: Readable = {};
+  for (const [name, value] of Object.entries(wire.body)) {
+    parts[`part.${name}`] = sha(canonical(value)).slice(0, 12);
+  }
+  return { ...meta, labeler: wire.labeler, ...parts };
 }
 
 export class CassetteMiss extends Error {
