@@ -44,7 +44,9 @@ What the agent reads of such a call depends on the adapter:
 |---|---|
 | `function` | the call as it is, with no output. The Acme agent then reads that tool again from its own store. |
 | `anthropic`, `google`, `http`, `litellm`, `langgraph`, `openai-agents`, `pydantic-ai`, `vercel-ai` | a text result that says the result was not recorded, quoted below. It is never `null`. |
-| `process`, `nexus`, live Claude Code | nothing: these adapters do not hand a prefix to the agent (no `seedPrefix` capability). |
+| `crewai`, `process` | the call as it is, with no output and no note. `crewai` hands the crew the history as JSON; `process` writes it to `driftbench-history.json`. |
+| `claude-code` replay | nothing a model reads: it replays a recorded session and makes no model call. |
+| `nexus`, live Claude Code | nothing: these adapters do not hand a prefix to the agent (no `seedPrefix` capability). |
 
 The text the model reads as the call's result:
 
@@ -56,9 +58,9 @@ Three more rules:
 
 * A recorded output is sent as it is, `null` included. Only a call with neither an output nor an error gets the note.
 * The call's arguments are only the input fields the spec pins to an exact value. A field pinned with a pattern (`regex`, `contains`) or with `absent` is left out. Such a call goes out with fewer arguments, or none.
-* The same rule applies outside mode T to any history call with neither an output nor an error. An SDK adapter's own loop always records one of the two. So in modes F and P it happens only when an http endpoint returns a `tool_call` segment with no matching `tool_result`. The next request of that run then carries the note.
+* The same rule applies outside mode T to any history call with neither an output nor an error. An SDK adapter's own loop always records one of the two. So in modes F and P it happens only on the http adapter, when the endpoint returns a `tool_call` segment with no matching `tool_result`, or an Observed whose `toolCalls` hold a call with neither an output nor an error. The next request of that run then carries the note.
 
-The canonical history itself does not change. The Given hash, the cache keys and the spec hash stay as they were. Only what a model adapter sends for such a call changed.
+The canonical history itself does not change, so the Given hash and the spec hash stay as they were. The 8 model adapters of the note moved to version 0.1.1, and the block cache key holds the adapter version. So every block cached on them before is a cache miss and runs again.
 
 ## When to use it
 
@@ -84,7 +86,7 @@ The mode is an option of the commands that run cells. Their other options are in
 
 `smoke` and `simulate` always run in mode F. `campaign resume` runs the modes the campaign was created with.
 
-The note for a call with no recorded result has no option. It is on for every adapter in the table above. To give the agent a real result, the spec forces one:
+The note for a call with no recorded result has no option. It is on for the 8 model adapters of the table above. To give the agent a real result, the spec forces one:
 
 | Spec key | Where | Effect on the canonical history |
 |---|---|---|
@@ -178,7 +180,7 @@ const { prefix } = canonicalGiven(loaded.spec, Number(index));
 for (const message of toChatMessages(prefix)) console.log(JSON.stringify(message));
 ```
 
-The same spec, with the catalog result forced for every block:
+A shorter copy of the spec, its first three blocks, with the catalog result forced for every block:
 
 ```yaml file=out/running-modes/forced.yaml
 # Fictional data only. The plan-upgrade conversation with the catalog result forced.
@@ -246,5 +248,5 @@ In the first history, the `tool` message after the `catalog.search` call holds t
 | In mode T, a model agent calls a tool again that an earlier block already called | the earlier call has no forced result, so the model read the "Not recorded" note | force the tool's `result` in `world.tools`, or accept the second call in the block's `expect` |
 | In mode T, a model agent says it does not know a fact an earlier tool call would give | the same: the history states the call but not its result | force the result in `world.tools` from the block that makes the call |
 | A past call goes out with fewer arguments than the real agent sent | the spec pins those input fields with a pattern or `absent`, not an exact value | pin the field with an exact value when the arguments matter to the later block |
-| An http run in F or P shows the "Not recorded" note in a later request | the endpoint answered with an Observed holding a `tool_call` segment and no matching `tool_result` | return the tool result in the Observed with the call |
-| A store made before this change replays mode T cells of a model adapter | cache keys did not change, so old cells replay the old `null` result | run those cells again on a fresh store, or with `--no-cache` |
+| An http run in F or P shows the "Not recorded" note in a later request | the endpoint answered with a `tool_call` segment and no matching `tool_result`, or a `toolCalls` entry with neither an output nor an error | return the tool result in the Observed with the call |
+| Mode T cells of a model adapter run again on a store made before this change, where they replayed before | the 8 model adapters moved to version 0.1.1, and the block cache key holds the adapter version | nothing to fix: the new run records what the model reads now |
