@@ -489,3 +489,88 @@ describe('the JSON run record of a helper run alone', () => {
     expect(helperUnitTestOf(helper, { task: '  ', files: {} }, 'h', 'i', at)).toMatch(/no task/);
   });
 });
+
+describe('material by the polarity the atom carries', () => {
+  const withPolarity = (id: string, quote: string, polarity: string): EstateAtom => ({
+    ...rule(id, quote),
+    fields: { polarity },
+  });
+  const textGuard = (atom: string) => guard({ event: 'UserPromptSubmit', enforces: [{ atom, by: 'id' }] });
+
+  it('takes every span of a prohibition, whatever words or language the quote uses', () => {
+    expect(materialOf('Keep `jq` out of this pipeline.', 'prohibition')).toEqual(['jq']);
+    expect(materialOf('Jamais de `git push --force` ici.', 'prohibition')).toEqual(['git push --force']);
+    expect(materialOf('Never run `git push --force` or `rm -rf` on any branch.', 'prohibition')).toEqual([
+      'git push --force',
+      'rm -rf',
+    ]);
+  });
+
+  it('takes no span of an obligation, even when a clause holds a negation or a stop word', () => {
+    expect(
+      materialOf(
+        'When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.',
+        'obligation',
+      ),
+    ).toEqual([]);
+    expect(
+      materialOf('Save the report as `reports/w.md` and never overwrite an earlier week.', 'obligation'),
+    ).toEqual([]);
+  });
+
+  it('reads the marks of a quote as structure, over the polarity of the atom', () => {
+    expect(materialOf('✗ `2>/dev/null` swallows the error; ✓ `2>&1`', 'obligation')).toEqual(['2>/dev/null']);
+    expect(materialOf('✗ `2>/dev/null` swallows the error; ✓ `2>&1`', 'prohibition')).toEqual([
+      '2>/dev/null',
+    ]);
+  });
+
+  it('reads a gate as a clause that neither forbids nor shows a form', () => {
+    expect(clausesOf('Do not commit until you have read `git status`.', 'gate')).toEqual([
+      { forbids: false, obliges: false, act: 'read', spans: ['git status'] },
+    ]);
+    expect(clausesOf('Always pass the carrier, as in `./track.sh NWX 123`.', 'obligation')).toEqual([
+      { forbids: false, obliges: true, spans: ['./track.sh NWX 123'] },
+    ]);
+  });
+
+  it('keeps the word split of a quote with several unmarked clauses until their spans carry labels', () => {
+    expect(materialOf('Read `a.md` first. Never use `sed -i` on a drive.', 'prohibition')).toEqual([
+      'sed -i',
+    ]);
+    expect(materialOf('No `npx`, no raw `curl`.\nUse `nexus` instead.', 'prohibition')).toEqual([
+      'npx',
+      'curl',
+    ]);
+  });
+
+  it('sends a text guard the quoted phrase an obligation reacts to, and a prohibition its forbidden words', () => {
+    const stop = new Map([
+      ['s', withPolarity('s', 'When the user says "stop", stop all work and confirm.', 'obligation')],
+    ]);
+    const positive = unitTestOf(row('guard_positive'), textGuard('s'), stop, 'h', 'x');
+    if (typeof positive === 'string') throw new Error(positive);
+    expect(positive.cases.map((entry) => entry.material)).toEqual(['stop']);
+    const words = new Map([['w', withPolarity('w', 'Never say "obviously" in a reply.', 'prohibition')]]);
+    const forbidden = unitTestOf(row('guard_positive'), textGuard('w'), words, 'h', 'x');
+    if (typeof forbidden === 'string') throw new Error(forbidden);
+    expect(forbidden.cases.map((entry) => entry.material)).toEqual(['obviously']);
+  });
+
+  it('gives a Bash guard linked by a repeated quote no forbidden material from an obligation with a negation', () => {
+    const atoms = new Map([
+      [
+        'o',
+        withPolarity(
+          'o',
+          'When the invoice is not in EUR, read `references/currency-table.md` first.',
+          'obligation',
+        ),
+      ],
+    ]);
+    const bash = guard({ event: 'PreToolUse', matcher: 'Bash', enforces: [{ atom: 'o', by: 'quote' }] });
+    expect(unitTestOf(row('guard_positive'), bash, atoms, 'h', 'x')).toBe(
+      'guard.settings.g enforces no rule whose quote gives material for a payload',
+    );
+  });
+});
