@@ -89,6 +89,23 @@ function pointerOf(text: string, at: AtomPlace): { pointer: string } | { reason:
     : { pointer: pointerOfPath((best as { path: Array<string | number> }).path) };
 }
 
+/**
+ * The text a quote entry keeps. The store takes a quote of at most 1,000 characters; the ledger id names the
+ * whole unit, so a longer quote is kept as its first words: the longest prefix of at most 1,000 characters that
+ * ends at a word. A prefix of text that is in the file is in the file.
+ */
+function excerpt(quote: string): string {
+  if (quote.length <= MAX_QUOTE) return quote;
+  const text = quote.trim();
+  if (text.length <= MAX_QUOTE) return text;
+  const head = text.slice(0, MAX_QUOTE);
+  if (/\s/.test(text[MAX_QUOTE] ?? '')) return head.trimEnd();
+  const space = head.search(/\s\S*$/);
+  if (space > 0) return head.slice(0, space).trimEnd();
+  // One word longer than the limit: its first characters, without half of a surrogate pair.
+  return /[\uD800-\uDBFF]$/.test(head) ? head.slice(0, -1) : head;
+}
+
 /** The resolver for the estate files in `texts` (path to text). */
 export function provenanceResolver(
   texts: ReadonlyMap<string, string>,
@@ -101,12 +118,12 @@ export function provenanceResolver(
     if (text === undefined) return refuse(`${at.file} was not read: no pointer or lines to give`);
 
     if (PROSE.test(at.file)) {
-      if (at.quote.length > MAX_QUOTE) {
-        return refuse(`the quote is longer than ${MAX_QUOTE} characters`);
-      }
       const found = ledger(at.file, at.quote, { startLine: at.startLine, endLine: at.endLine });
       if (!found.ok) return refuse(found.reason);
-      return { ok: true, entry: { kind: 'quote', path: at.file, quote: at.quote, ledger: found.id } };
+      return {
+        ok: true,
+        entry: { kind: 'quote', path: at.file, quote: excerpt(at.quote), ledger: found.id },
+      };
     }
 
     const lines = text.replace(/\r\n/g, '\n').split('\n');

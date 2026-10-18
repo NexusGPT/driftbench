@@ -4,7 +4,8 @@ import { parse } from 'yaml';
 /**
  * The places a `structure` provenance entry names, and the hash of what each holds. A JSON or YAML file is
  * read as data and a pointer (RFC 6901) names one value of it; any other file is read as lines. The hash of a
- * value is the SHA-256 of its canonical JSON (keys sorted, no white space), so a reformatted file or another
+ * value is the SHA-256 of its canonical JSON (keys sorted, no white space; the three numbers JSON cannot write and
+ * `-0` are kept apart from null and from 0), so a reformatted file or another
  * order of keys is the same value; the hash of lines is the SHA-256 of the lines joined by a line feed, so a
  * changed line is found out. The store checks only the shape of an entry; `verifyVariableQuotes` in the
  * generate package reads the file and calls `resolveStructure`.
@@ -25,7 +26,20 @@ export function pointerOfPath(path: ReadonlyArray<string | number>): string {
   return path.map((step) => `/${escapePointerToken(String(step))}`).join('');
 }
 
+/**
+ * The canonical text of a number. JSON has no way to write a non-finite number and turns each into null, so a
+ * YAML value that became `.inf`, `-.inf` or `.nan` would keep the hash of `null`. These are written as bare
+ * tokens, which no JSON string or number can look like, and `-0` apart from `0`.
+ */
+function canonicalNumber(value: number): string {
+  if (Number.isNaN(value)) return 'NaN';
+  if (value === Number.POSITIVE_INFINITY) return 'Infinity';
+  if (value === Number.NEGATIVE_INFINITY) return '-Infinity';
+  return Object.is(value, -0) ? '-0' : JSON.stringify(value);
+}
+
 function canonicalJson(value: unknown): string {
+  if (typeof value === 'number') return canonicalNumber(value);
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
   if (value !== null && typeof value === 'object') {
     const record = value as Record<string, unknown>;

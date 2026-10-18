@@ -100,6 +100,18 @@ describe('a long quote of a prose atom that the ledger resolves is valid at any 
     expect(entry.quote).toBe('x'.repeat(1000));
   });
 
+  it('keeps the whole last word when the character after the first 1,000 is a space', () => {
+    const quote = `ab ${'c'.repeat(997)} ${'d'.repeat(50)}`;
+    expect(quoteEntry(feedOf(quote)).quote).toBe(`ab ${'c'.repeat(997)}`);
+  });
+
+  it('never ends on half of a character: a long word cut inside a surrogate pair drops the half', () => {
+    const quote = `${'x'.repeat(999)}${'\u{1F6A4}'.repeat(10)}`;
+    const kept = quoteEntry(feedOf(quote)).quote;
+    expect(kept).toBe('x'.repeat(999));
+    expect([...kept].every((char) => char.codePointAt(0) !== undefined)).toBe(true);
+  });
+
   it('is found in its file by the check of the quotes, and the store validates', async () => {
     const files = filesOf(long(60));
     const root = await hallFolder(files);
