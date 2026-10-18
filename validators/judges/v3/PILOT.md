@@ -1,14 +1,14 @@
 # Stub-start scoring pilot
 
 This pilot measures the scoring and replay implementation. It does not measure
-a model's ability to read prose. The bank supplies its recorded labeller; only
-`scoreLabeller`, `labelSetHash`, `labellerRequestKey` and
-`createLabellerReplay` start unimplemented.
+a model's ability to read prose. The bank supplies its recorded labeller.
+The four base scoring/replay functions and all ten functions in the
+[advanced scoring contract](ADVANCED.md) start unimplemented.
 
 ## Isolation and feedback
 
 Each executor starts in a fresh session with the same public TypeScript
-interfaces and minimal stub. The stub returns zero scoring counters, constant
+interfaces, documented mathematical methods and minimal stub. The stub returns zero scoring counters, constant
 identity strings and an unimplemented replay error. It contains no deliberately
 incorrect algorithm. Executors own separate candidate files and local git
 histories. They cannot edit the bank or inspect the finished implementation,
@@ -26,7 +26,7 @@ counted as an additional fix or a newly discovered failure.
 
 `packages/validators/test/judges/v3/pilot.ts` snapshots the candidate and starts
 a fresh process whose TypeScript alias points the judges package at that
-snapshot. The child asserts function identity for all four exports before
+snapshot. The child asserts function identity for all fourteen exports before
 running the actual bank. A constant stub cannot silently fall through to the
 finished scorer. Snapshots cannot be overwritten.
 
@@ -48,4 +48,6 @@ directory, the recorded source snapshot and the recorded bank revision.
 
 The former measurements against the finished implementation are superseded.
 They establish repeatability only and contribute no observations to this
-pilot's forecast. Git history retains those original records.
+pilot's forecast. The subsequent 300-item stub pilot reaches full score after
+two repairs and stops before round 3. Both experiments remain in `history/`;
+neither contributes rounds to the expanded bank's pilot.

@@ -23,6 +23,15 @@ set, request text, optional context and labeller identity. It does not classify
 prose with word lists. A system-1, system-2 or stacked labeller can implement
 the same port; this bank calls only recorded or scripted implementations.
 
+The [advanced scoring contract](ADVANCED.md) adds kappa uncertainty, binary
+PABAK, ordinal weighted kappa, multi-rater nominal alpha with missing ratings,
+per-label confusion and precision/recall, selective coverage, cross-version
+label mappings, kappa precision planning and exact small-sample permutation
+tests. Each advanced item requires both its statistical check and a seeded
+classification anchor to pass. A math implementation cannot rescue a cheating
+labeller. Statistical expected values use independent finite differences,
+pairwise sums, closed forms or exhaustive enumeration.
+
 The bank contains paired batches across agreement, abstain, none, label-set
 change, near-miss labels, order and position, length, adversarial label mentions,
 replay determinism and cache identity. Every item tests classification as well
@@ -45,6 +54,8 @@ reports its raw agreement, kappa, abstention and invalid counts.
 | 5 | 0.94 | 0.96 |
 
 Each level requires every item to pass. An all-abstaining labeller fails.
+Advanced numerical oracles require absolute error at most `1e-7`; discrete
+counts, category identities and validation outcomes must match exactly.
 Single-class perfect agreement has kappa 1 by the scorer's explicit finite
 convention; the bank's paired batches contain multiple gold classes, so this
 convention cannot reward constant-label cheats.
@@ -68,6 +79,11 @@ record measured scores, genuine fixes and shared causes; passing fixtures are
 not broken deliberately to create a forecast. A perfect scripted recording
 proves the validator's mechanics, not a real model's semantic accuracy.
 
+The [stub-start protocol](PILOT.md) isolates the scoring and replay functions
+from the finished implementation. Fresh executors receive only interfaces and
+the bank's failing-item feedback. The original completed-scorer measurements
+are retained under `history/` and excluded from the new forecast.
+
 The owner's task clarification permits a normal PR with a **provisional**
 per-version lower bar when the measured bank does not meet the original gate.
 The evidence and rationale belong in `GATE.md`; a provisional exception does
@@ -75,10 +91,12 @@ not turn an unmeasured check into a passing one.
 
 ## Bank inventory
 
-Each row below contributes six structural variants in each of five tiers:
+The base bank contributes six structural variants in each of five tiers:
 30 items per family, 60 per tier, 300 total. Higher tiers increase the number
-of labels and batch size. The author declares ten shared cause groups; this
-inventory does not claim 300 independent fixes.
+of labels and batch size. The additional 34 statistical items bring the total
+to 334. The author declares ten base cause groups and 33 advanced cause groups;
+two CI cases share one variance calculation. This inventory does not claim
+334 independent fixes or certify the independent review's cause count.
 
 | Family | Structural variants |
 |---|---|
@@ -93,8 +111,50 @@ inventory does not claim 300 independent fixes.
 | replay | same object, cloned object, interleaved, fifth repeat, reverse batch, context round trip |
 | cache-key | text, context, label name, definition, label order, labeller identity |
 
+| Family | Base | Advanced | Total |
+|---|---:|---:|---:|
+| agreement | 30 | 17 | 47 |
+| abstain | 30 | 9 | 39 |
+| none | 30 | 2 | 32 |
+| label-set-change | 30 | 4 | 34 |
+| near-miss | 30 | 1 | 31 |
+| order-bias | 30 | 1 | 31 |
+| length-bias | 30 | 0 | 30 |
+| adversarial-label | 30 | 0 | 30 |
+| replay | 30 | 0 | 30 |
+| cache-key | 30 | 0 | 30 |
+
+| Tier | Items |
+|---|---:|
+| 1 | 60 |
+| 2 | 63 |
+| 3 | 69 |
+| 4 | 74 |
+| 5 | 68 |
+
+The advanced checks include four CI, three PABAK, four weighted-kappa, four
+alpha, four confusion, four coverage/threshold, four mapping, three sample-size
+and four exact-test cases. Their numerical edge inputs remain fixed while the
+classification anchor varies by seed. The 34 checks are not multiplied across
+tiers to increase the item count.
+
 The optional `JudgesV3Options.labellerFactory` receives only copied requests.
 Neither fixture gold, pair identifiers, item identifiers nor the seed crosses
 that boundary. Arbitrary JavaScript still shares the process and filesystem;
 this is an evaluation interface, not a security sandbox. The built-in scripted
 recording is trusted fixture machinery, not a claim of model understanding.
+
+## Position-cycle resistance
+
+The generator checks the emitted requests and gold sequence against block
+periods 1 through 8, including every phase offset. A period of 2 is the
+reviewer's pair-aware counterexample. Offsets span the least common multiple
+of the request label counts, including changed label sets. A schedule that
+reaches 0.9 raw agreement is redrawn deterministically, preserving the base
+category counts and semantic transforms. Exhausting 128 draws is an explicit
+fixture error. This finite check does not claim resistance to arbitrary
+programs or cycles outside that tested family.
+
+The bank regression checks all items on visible seeds 1 through 20 and the
+current hidden seed. The independent cheater audit fails on any passing
+item-seed observation, even when that item fails on other seeds.

@@ -217,6 +217,30 @@ export {
   labelSetHash,
   scoreLabeller,
 } from './labeller';
+export {
+  binaryLabellerPabak,
+  exactLabellerKappaTest,
+  type LabellerAlphaResult,
+  type LabellerClassMetrics,
+  type LabellerConfusion,
+  type LabellerCoveragePoint,
+  type LabellerExactTest,
+  type LabellerKappaInterval,
+  type LabellerLabelMapping,
+  type LabellerMappingOptions,
+  type LabellerPredictionColumn,
+  type LabellerSamplePlan,
+  type LabellerThresholdOptions,
+  labellerConfusion,
+  labellerCoverageCurve,
+  labellerKappaInterval,
+  labellerNominalAlpha,
+  planLabellerKappaSample,
+  type ScoredLabellerObservation,
+  scoreMappedLabeller,
+  selectLabellerThreshold,
+  weightedLabellerKappa,
+} from './labeller-analysis';
 export { labelFilePath, readLabelFile, saveLabel } from './labels';
 export {
   PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT,

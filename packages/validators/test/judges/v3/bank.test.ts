@@ -4,6 +4,7 @@ import { runLadder } from '../../../src/ladder';
 import {
   buildLabellerFixture,
   judgesLadderV3,
+  judgesV3Bank,
   labellerBank,
   runLabellerItem,
   scriptedLabeller,
@@ -109,7 +110,7 @@ describe('judges version 3 labeller bank', () => {
     'no period 1..8 or phase offset can reach even the lowest agreement bar on seed %i',
     (seed) => {
       const exploitable: string[] = [];
-      for (const item of bank) {
+      for (const item of judgesV3Bank()) {
         const { units } = buildLabellerFixture(item, seed);
         const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
         const labelCount = [...new Set(units.map((unit) => unit.request.labelSet.labels.length))].reduce(
@@ -179,8 +180,8 @@ describe('judges version 3 labeller bank', () => {
   });
 
   it('reports metrics on every passing ladder entry and is repeatable', async () => {
-    const first = await runLadder(judgesLadderV3(), { seed: 3, full: true });
-    const second = await runLadder(judgesLadderV3(), { seed: 3, full: true });
+    const first = await runLadder(judgesLadderV3({ bank }), { seed: 3, full: true });
+    const second = await runLadder(judgesLadderV3({ bank }), { seed: 3, full: true });
     expect(first).toEqual(second);
     expect(first.level).toBe(5);
     expect(first.rows.flatMap((row) => row.bank ?? [])).toHaveLength(300);

@@ -1,0 +1,92 @@
+import { createHash } from 'node:crypto';
+
+/** One nominal class. Names are compared exactly; descriptions participate in replay identity. */
+export interface LabelDefinition {
+  readonly name: string;
+  readonly description: string;
+}
+
+export interface LabelSet {
+  readonly name: string;
+  readonly labels: readonly LabelDefinition[];
+}
+
+export interface LabellerRequest {
+  readonly text: string;
+  readonly labelSet: LabelSet;
+  readonly context?: string;
+}
+
+/** `none` is a valid class; only null abstains. Other strings can be recorded but score invalid. */
+export type LabellerAnswer = string | null;
+
+export interface Labeller {
+  readonly id: string;
+  label(request: LabellerRequest): Promise<LabellerAnswer> | LabellerAnswer;
+}
+
+export interface LabellerScore {
+  readonly total: number;
+  readonly correct: number;
+  readonly agreement: number;
+  readonly kappa: number;
+  readonly abstentions: number;
+  readonly invalid: number;
+  /** Valid class answers / all observations, including the implicit `none` class. */
+  readonly coverage: number;
+}
+
+export interface LabellerReplayEntry {
+  readonly request: LabellerRequest;
+  readonly labellerId: string;
+  readonly answer: LabellerAnswer;
+}
+
+export function labelSetHash(set: LabelSet): string {
+  return createHash('sha256').update(JSON.stringify([set.name, set.labels.map(label => [label.name, label.description])])).digest('hex');
+}
+export function labellerRequestKey(request: LabellerRequest, labellerId: string): string {
+  return createHash('sha256').update(JSON.stringify([labellerId, request.text, labelSetHash(request.labelSet), request.context ?? null])).digest('hex');
+}
+export function scoreLabeller(gold: readonly string[], answers: readonly LabellerAnswer[], labelSet: LabelSet): LabellerScore {
+  if (gold.length !== answers.length) throw new Error('Gold and answer lengths differ');
+  const total = gold.length;
+  if (total === 0) return { total: 0, correct: 0, agreement: 0, kappa: 0, abstentions: 0, invalid: 0, coverage: 0 };
+  const valid = new Set(['none', ...labelSet.labels.map(label => label.name)]);
+  const goldCounts = new Map<string, number>();
+  const answerCounts = new Map<string, number>();
+  let correct = 0, abstentions = 0, invalid = 0, covered = 0;
+  for (let i = 0; i < total; i++) {
+    const truth = gold[i];
+    const answer = answers[i];
+    goldCounts.set(truth, (goldCounts.get(truth) ?? 0) + 1);
+    if (answer === null) { abstentions++; continue; }
+    if (!valid.has(answer)) { invalid++; continue; }
+    covered++;
+    answerCounts.set(answer, (answerCounts.get(answer) ?? 0) + 1);
+    if (answer === truth) correct++;
+  }
+  const agreement = correct / total;
+  let expected = 0;
+  for (const [name, count] of goldCounts) expected += count * (answerCounts.get(name) ?? 0) / (total * total);
+  const kappa = expected === 1 ? (agreement === 1 ? 1 : 0) : (agreement - expected) / (1 - expected);
+  return { total, correct, agreement, kappa, abstentions, invalid, coverage: covered / total };
+}
+export function createLabellerReplay(entries: readonly LabellerReplayEntry[], id: string): Labeller {
+  const recordings = new Map<string, { answers: LabellerAnswer[]; next: number }>();
+  for (const entry of entries) {
+    const key = labellerRequestKey(entry.request, entry.labellerId);
+    const recording = recordings.get(key);
+    if (recording) recording.answers.push(entry.answer);
+    else recordings.set(key, { answers: [entry.answer], next: 0 });
+  }
+  return {
+    id,
+    label(request) {
+      const key = labellerRequestKey(request, id);
+      const recording = recordings.get(key);
+      if (!recording || recording.next >= recording.answers.length) throw new Error('No replay answer remains for this request');
+      return recording.answers[recording.next++];
+    },
+  };
+}

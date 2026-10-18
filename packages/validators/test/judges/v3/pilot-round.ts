@@ -2,16 +2,11 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
-import {
-  createLabellerReplay,
-  labellerRequestKey,
-  labelSetHash,
-  scoreLabeller,
-} from '@agent-nexus/driftbench-judges';
+import * as scoring from '@agent-nexus/driftbench-judges';
 import { allFailingItems, blindReport } from '../../../src/audit';
 import { bankSummary } from '../../../src/bank';
 import { runSeeds } from '../../../src/ladder';
@@ -21,15 +16,33 @@ import { hiddenSeed, seedSpecs } from '../../../src/seeds';
 const [snapshot, output, roundText] = process.argv.slice(2);
 assert(snapshot && output && roundText);
 const candidate = await import(pathToFileURL(snapshot).href);
-const boundScorer = { scoreLabeller, labelSetHash, labellerRequestKey, createLabellerReplay };
-for (const name of ['scoreLabeller', 'labelSetHash', 'labellerRequestKey', 'createLabellerReplay'] as const) {
-  assert.equal(boundScorer[name], candidate[name], `${name} did not bind to the candidate`);
+const scoringExports = [
+  'scoreLabeller',
+  'labelSetHash',
+  'labellerRequestKey',
+  'createLabellerReplay',
+  'labellerKappaInterval',
+  'binaryLabellerPabak',
+  'weightedLabellerKappa',
+  'labellerNominalAlpha',
+  'labellerConfusion',
+  'labellerCoverageCurve',
+  'selectLabellerThreshold',
+  'scoreMappedLabeller',
+  'planLabellerKappaSample',
+  'exactLabellerKappaTest',
+] as const;
+for (const name of scoringExports) {
+  assert.equal(typeof candidate[name], 'function', `${name} is missing from the candidate`);
+  assert.equal(scoring[name], candidate[name], `${name} did not bind to the candidate`);
 }
 const digest = (value: string | Buffer) => createHash('sha256').update(value).digest('hex');
 const root = process.cwd();
 const hidden = hiddenSeed(root);
 const sourceHash = digest(readFileSync(snapshot));
-const bankFiles = ['bank.ts', 'fixtures.ts', 'index.ts'];
+const bankFiles = readdirSync(join(root, 'packages/validators/src/ladders/judges/v3'))
+  .filter((file) => file.endsWith('.ts'))
+  .sort();
 const bankHash = digest(
   bankFiles
     .map((file) => readFileSync(join(root, 'packages/validators/src/ladders/judges/v3', file), 'utf8'))
@@ -58,6 +71,8 @@ const summary = {
   candidateHash: sourceHash,
   bankHash,
   candidateBindingVerified: true,
+  scoringExports,
+  bankFiles,
   durationMinutes: (performance.now() - start) / 60000,
   level: report.level,
   bankSize: bank.size,

@@ -1,10 +1,10 @@
 import { writeFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
-import { labellerBank, runLabellerItem } from '../../../src/ladders/judges/v3/bank.js';
+import { judgesV3Bank } from '../../../src/ladders/judges/v3/index.js';
 import { hiddenSeed } from '../../../src/seeds.js';
 
 // Black-box audit: no generator, oracle, scorer, or builder handoff is read.
-type Factory = NonNullable<Parameters<typeof runLabellerItem>[2]>;
+type Factory = NonNullable<Parameters<ReturnType<typeof judgesV3Bank>[number]['run']>[1]>;
 type Request = Parameters<Factory>[0][number];
 type Guess = (request: Request, index: number, total: number) => string | null;
 const asFactory =
@@ -20,12 +20,11 @@ const nameMatches = (request: Request) =>
 
 test('position-cycle regression covers formerly gameable interleaved items', async () => {
   const seeds = [...Array.from({ length: 20 }, (_, index) => index + 1), hiddenSeed(process.cwd()).seed];
-  const items = labellerBank().filter((item) => item.id.startsWith('labeller/replay/interleaved/'));
+  const items = judgesV3Bank().filter((item) => item.id.startsWith('labeller/replay/interleaved/'));
   expect(items.length).toBeGreaterThan(0);
   for (const item of items) {
     for (const seed of seeds) {
-      const result = await runLabellerItem(
-        item,
+      const result = await item.run(
         seed,
         asFactory('cycle-regression', (request, index) => label(request, index)),
       );
@@ -37,7 +36,15 @@ test('position-cycle regression covers formerly gameable interleaved items', asy
 test('independent CHEATER audit of the public labeller request boundary', async () => {
   const hidden = hiddenSeed(process.cwd());
   const seeds = [...Array.from({ length: 20 }, (_, index) => index + 1), hidden.seed];
-  const bank = labellerBank();
+  const bank = judgesV3Bank();
+  expect(bank.length).toBeGreaterThan(0);
+  expect(new Set(bank.map((item) => item.id)).size).toBe(bank.length);
+  const familyCounts = new Map<string, number>();
+  const tierCounts = new Map<number, number>();
+  for (const item of bank) {
+    familyCounts.set(item.family, (familyCounts.get(item.family) ?? 0) + 1);
+    tierCounts.set(item.tier, (tierCounts.get(item.tier) ?? 0) + 1);
+  }
   const boundaryProblems = new Set<string>();
   const observedKeys = new Set<string>();
   const prototypes = new Set<string>();
@@ -208,18 +215,34 @@ test('independent CHEATER audit of the public labeller request boundary', async 
     required: boolean;
     passingItems: number;
     passingRuns: number;
+    passingCases: string[];
+    uninvokedRuns: number;
+    uninvokedIds: string[];
     ids: string[];
   }> = [];
   for (const attack of attacks) {
     const ids: string[] = [];
+    const passingCases: string[] = [];
+    const uninvokedIds = new Set<string>();
     let passingRuns = 0;
+    let uninvokedRuns = 0;
     for (const item of bank) {
       let passesEverySeed = true;
       for (const seed of seeds) {
-        const result = await runLabellerItem(item, seed, attack.factory);
+        let invoked = false;
+        const result = await item.run(seed, (requests) => {
+          invoked = true;
+          return attack.factory(requests);
+        });
+        if (!invoked) {
+          uninvokedRuns++;
+          uninvokedIds.add(item.id);
+        }
         expect(typeof result.pass).toBe('boolean');
-        if (result.pass) passingRuns++;
-        else passesEverySeed = false;
+        if (result.pass) {
+          passingRuns++;
+          if (passingCases.length < 20) passingCases.push(`${item.id} @ seed ${seed}`);
+        } else passesEverySeed = false;
       }
       if (passesEverySeed) ids.push(item.id);
     }
@@ -228,32 +251,58 @@ test('independent CHEATER audit of the public labeller request boundary', async 
       required: attack.required ?? false,
       passingItems: ids.length,
       passingRuns,
+      passingCases,
+      uninvokedRuns,
+      uninvokedIds: [...uninvokedIds],
       ids,
     });
   }
-  const verdict = rows.some((row) => row.passingRuns > 0) || boundaryProblems.size > 0 ? 'fail' : 'pass';
+  const verdict =
+    rows.some((row) => row.passingRuns > 0 || row.uninvokedRuns > 0) || boundaryProblems.size > 0
+      ? 'fail'
+      : 'pass';
   writeFileSync(
     '/tmp/astra-judges-cheater-audit.md',
     [
-      '# Independent CHEATER audit: labeller judges v3',
+      '# Independent CHEATER audit: combined judges v3 bank',
       '',
       '| Check | Verdict | Note |',
       '|---|---|---|',
       `| cheater | ${verdict} | ${attacks.length} attacks; ${bank.length} items; seeds 1..20 plus hidden ${hidden.seed}. |`,
       '',
       `Measured: ${new Date().toISOString()}. Hidden seed source: ${hidden.source}; commit: ${hidden.head ?? 'unavailable'}.`,
-      'Only docs/validators.md section 12 and the public labeller API were used. No bank generator, gold, production scorer, or builder handoff was read.',
-      'Initial observation, 2026-10-17T23:14:53.970Z: position-cycle passed 4/300 items and 84/6300 item-seed runs: labeller/replay/interleaved/tier-1, tier-2, tier-3, tier-5. All other tested attacks passed zero. This finding was sent to the maintainer before the current rerun.',
+      'The audit uses the combined public bank API, the public request boundary, and the hidden-seed helper. The advanced API contract was read; no generator, gold, or production scorer source was read.',
+      'Earlier audits found position-cycle and pair-aware shortcuts. The measured matrix below describes the current combined bank only.',
       '',
-      '| Attack | Items passing every seed | Passing item-seed runs |',
-      '|---|---:|---:|',
+      '| Family | Items |',
+      '|---|---:|',
+      ...[...familyCounts]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([family, count]) => `| ${family} | ${count} |`),
+      '',
+      '| Tier | Items |',
+      '|---|---:|',
+      ...[...tierCounts].sort(([a], [b]) => a - b).map(([tier, count]) => `| ${tier} | ${count} |`),
+      '',
+      '| Attack | Items passing every seed | Passing item-seed runs | Uninvoked factory runs |',
+      '|---|---:|---:|---:|',
       ...rows.map(
         (row) =>
-          `| ${row.name} | ${row.passingItems}/${bank.length} | ${row.passingRuns}/${bank.length * seeds.length} |`,
+          `| ${row.name} | ${row.passingItems}/${bank.length} | ${row.passingRuns}/${bank.length * seeds.length} | ${row.uninvokedRuns}/${bank.length * seeds.length} |`,
       ),
       '',
       'Passing item IDs:',
       ...rows.filter((row) => row.ids.length).map((row) => `${row.name}: ${row.ids.join(', ')}`),
+      '',
+      'First twenty passing item-seed examples per attack (counts above are complete):',
+      ...rows
+        .filter((row) => row.passingCases.length)
+        .map((row) => `${row.name}: ${row.passingCases.join(', ')}`),
+      '',
+      'Items whose supplied candidate factory was not invoked:',
+      ...rows
+        .filter((row) => row.uninvokedIds.length)
+        .map((row) => `${row.name}: ${row.uninvokedIds.join(', ')}`),
       '',
       `Inspected ${requestCount} requests. Observed fields: ${[...observedKeys].sort().join(', ')}.`,
       `Observed object prototypes: ${[...prototypes].sort().join(', ')}. Unexpected fields/accessors/prototypes: ${[...boundaryProblems].join(', ') || 'none'}.`,
@@ -261,6 +310,7 @@ test('independent CHEATER audit of the public labeller request boundary', async 
       'Accepted writes alone do not fail this audit: readonly is a TypeScript boundary, and mutable request copies can remain isolated from the oracle. The mutation attack is judged by its score gain.',
       '',
       'The factory receives requests only; this audit does not give a cheat the seed or item ID. The numeric-token attack treats visible digits as a seed hint.',
+      'Every item-seed run must invoke its supplied candidate factory. A passing item-seed or an uninvoked factory fails the audit, including advanced statistical items.',
       'Payload-name attacks select names appearing in text with fixed-position fallbacks. Position and length attacks ignore classification semantics.',
       'Threat-model limit: arbitrary JavaScript can read repository files. This audit covers only the inspected request boundary, not oracle confidentiality against filesystem access, globals, monkey-patching, or arbitrary process instrumentation.',
       'No live models, external word lists, private data, or paid calls were used.',
@@ -272,4 +322,5 @@ test('independent CHEATER audit of the public labeller request boundary', async 
   for (const row of rows.filter((entry) => entry.required)) expect(row.passingItems, row.name).toBe(0);
   expect([...boundaryProblems]).toEqual([]);
   expect(rows.filter((row) => row.passingRuns > 0)).toEqual([]);
+  expect(rows.filter((row) => row.uninvokedRuns > 0)).toEqual([]);
 }, 600_000);

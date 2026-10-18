@@ -31,3 +31,48 @@ The mutation audit tests the actual bank with independently compiled source
 copies. It includes raw-agreement substitution for kappa, wrong chance
 marginals, abstention/invalid denominators, negative and degenerate kappa,
 and omitted identity fields. No production defect is planted for the pilot.
+
+## Pair-aware position-cycle counterexample
+
+The reviewer supplies `labels[Math.floor(callIndex++ / 2) % labels.length].name`.
+Before the fix, agreement/conjunction/tier-1 at seed 10 and
+agreement/direct/tier-1 at seed 18 both report 36/40 raw agreement and kappa
+0.8. The regression observes both passes before the generator changes.
+
+Source: the reviewer's counterexample and the red regression log. The previous
+shuffle is insufficient: a seed can still produce a predictable ordering.
+The generator now rejects schedules that admit block periods 1 through 8 at
+any phase. The regression independently checks the actual predictions. All
+38 bank tests pass at the corrected source checkpoint. The independent cheat
+audit also checks any passing item on any seed, closing an aggregate-only
+assertion that missed these seed-specific passes.
+
+The replacement pilot starts from an unimplemented scoring/replay module,
+not the finished scorer. Its executors use failure feedback only, as the
+owner explicitly requests; they do not consume the earlier research or code.
+
+## Expansion after the first stub pilot
+
+The first genuine stub pilot reaches 300/300 after two source-changing rounds
+in both independent executions. It stops before round 3 when the owner requests
+more scoring capabilities. The snapshots and measured results are retained in
+`history/two-repair-stub/`; they are excluded from the expanded forecast.
+
+The owner's requested capabilities become 34 additional checks: multinomial
+kappa confidence intervals, binary PABAK, ordinal weighted kappa, nominal
+Krippendorff alpha with missing ratings, imbalanced class confusion and ratios,
+selective coverage and accuracy, explicit mappings across label vocabularies,
+kappa precision planning, and exact fixed-margin permutation tests. Their
+mathematical contract and primary sources are in [ADVANCED.md](ADVANCED.md).
+
+The scoring author and bank author are separate. The bank uses finite-difference
+variance, pairwise coincidence sums, normalized ordinal distances and exhaustive
+small permutations as independent references. Validation cases include positive
+controls, so throwing on every input cannot satisfy them. Every statistical
+item also requires a seeded text-classification anchor, preserving cheat rejection.
+
+The author groups the added checks under 33 repair causes. A second CI case
+tests unequal marginals and confidence levels but shares the first case's
+variance calculation. Item count and authored tags alone do not establish
+hardness; the expanded stub pilot and independent cause review provide that
+measurement.

@@ -1,20 +1,21 @@
 import { bankMeasure, defineLadder, type Ladder } from '../../../ladder';
-import {
-  LABELLER_TIER_BARS,
-  type LabellerBankItem,
-  type LabellerFactory,
-  labellerBank,
-  runLabellerItem,
-} from './bank';
+import { advancedLabellerBank } from './advanced-bank';
+import { LABELLER_TIER_BARS, type LabellerBankItem, type LabellerFactory, labellerBank } from './bank';
 
+export * from './advanced-bank';
 export * from './bank';
 export * from './fixtures';
 
 export type JudgesV3Options = { bank?: LabellerBankItem[]; labellerFactory?: LabellerFactory };
 
+/** Base classification plus independently specified advanced analysis capabilities. */
+export function judgesV3Bank(): LabellerBankItem[] {
+  return [...labellerBank(), ...advancedLabellerBank()];
+}
+
 /** Additive opt-in version: the default version-2 judge bank is unchanged. */
 export function judgesLadderV3(options: JudgesV3Options = {}): Ladder {
-  const bank = options.bank ?? labellerBank();
+  const bank = options.bank ?? judgesV3Bank();
   return defineLadder({
     component: 'judges',
     version: 3,
@@ -23,13 +24,13 @@ export function judgesLadderV3(options: JudgesV3Options = {}): Ladder {
       const bars = LABELLER_TIER_BARS[tier];
       return {
         id: `labellers-tier-${tier}`,
-        name: `labeller tier ${tier}: agreement, robustness and recording integrity`,
-        metric: `items passing raw agreement >= ${bars.agreement}, Cohen kappa >= ${bars.kappa} and their pair relations / ${own.length} items`,
+        name: `labeller tier ${tier}: agreement, robustness, recording integrity and analysis`,
+        metric: `items passing raw agreement >= ${bars.agreement}, Cohen kappa >= ${bars.kappa}, pair relations and applicable analysis checks / ${own.length} items`,
         threshold: 1,
         async compute({ seed }) {
           const results = [];
           for (const item of own) {
-            const result = await runLabellerItem(item, seed, options.labellerFactory);
+            const result = await item.run(seed, options.labellerFactory);
             results.push({
               id: item.id,
               family: item.family,
