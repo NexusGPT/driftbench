@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { clopperPearson } from '../src/intervals';
+import { betaQuantile, betaQuantileFromLogP } from '../src/special';
 import reference from './reference/clopper-pearson-tail.json';
 
 /**
@@ -15,7 +16,10 @@ function close(actual: number, expected: number): void {
     expect(actual).toBe(expected);
     return;
   }
-  expect(Math.abs(actual - expected)).toBeLessThanOrEqual(Math.abs(expected) * 1e-11);
+  // A subnormal limit has fewer than 52 bits: one or two steps of the grid, Number.MIN_VALUE each, are the same number.
+  expect(Math.abs(actual - expected)).toBeLessThanOrEqual(
+    Math.max(Math.abs(expected) * 1e-11, 2 * Number.MIN_VALUE),
+  );
 }
 
 describe('clopperPearson against the exact tails at extreme alpha', () => {
@@ -50,5 +54,33 @@ describe('clopperPearson against the exact tails at extreme alpha', () => {
     const interval = clopperPearson(3, 20, 0.05);
     expect(interval.lower).toBeCloseTo(0.0321, 3);
     expect(interval.upper).toBeCloseTo(0.3789, 3);
+  });
+});
+
+describe('betaQuantileFromLogP', () => {
+  it('agrees with betaQuantile where the probability is a double', () => {
+    for (const [p, a, b] of [
+      [0.9, 3, 4],
+      [0.5, 1, 1],
+      [0.025, 5, 6],
+      [1e-10, 2, 30],
+      [0.999, 40, 2],
+    ] as const) {
+      const expected = betaQuantile(p, a, b);
+      expect(Math.abs(betaQuantileFromLogP(Math.log(p), a, b) - expected)).toBeLessThanOrEqual(
+        expected * 1e-12,
+      );
+    }
+  });
+
+  it('answers the end of the range for logP of 0 and minus infinity, and refuses NaN', () => {
+    expect(betaQuantileFromLogP(0, 2, 3)).toBe(1);
+    expect(betaQuantileFromLogP(Number.NEGATIVE_INFINITY, 2, 3)).toBe(0);
+    expect(() => betaQuantileFromLogP(Number.NaN, 2, 3)).toThrow(RangeError);
+  });
+
+  it('takes a tail below the smallest double without a NaN: exp(-1000) rounds to 0, exp(-740) does not', () => {
+    expect(betaQuantileFromLogP(-1000, 1, 1)).toBe(0);
+    expect(betaQuantileFromLogP(-740, 1, 1)).toBeCloseTo(Math.exp(-740), 320);
   });
 });

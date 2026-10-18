@@ -8,7 +8,7 @@ import {
   mulberry32,
   quantileSorted,
 } from './basics';
-import { betaQuantile, normalQuantileFromLogP } from './special';
+import { betaQuantile, betaQuantileFromLogP, normalQuantileFromLogP } from './special';
 
 /** z for a two-sided 95 percent interval. */
 export const Z95 = 1.959963984540054;
@@ -43,9 +43,11 @@ export function clopperPearson(k: number, n: number, alpha = 0.05): Interval {
   assertProbability('clopperPearson', 'alpha', alpha, true);
   if (n === 0) throw new RangeError('clopperPearson: n must be at least 1');
   if (k > n) throw new RangeError(`clopperPearson: k (${k}) exceeds n (${n})`);
-  const lower = k === 0 ? 0 : betaQuantile(alpha / 2, k, n - k + 1);
+  // The tail is taken in log space: alpha / 2 underflows to 0 at Number.MIN_VALUE and loses bits in the subnormals.
+  const logTail = Math.log(alpha) - Math.LN2;
+  const lower = k === 0 ? 0 : betaQuantileFromLogP(logTail, k, n - k + 1);
   // Beta symmetry preserves a tiny tail probability that 1 - alpha / 2 would round to one.
-  const upper = k === n ? 1 : 1 - betaQuantile(alpha / 2, n - k, k + 1);
+  const upper = k === n ? 1 : 1 - betaQuantileFromLogP(logTail, n - k, k + 1);
   return { estimate: k / n, lower, upper };
 }
 
