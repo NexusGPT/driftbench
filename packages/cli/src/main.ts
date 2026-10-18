@@ -42,6 +42,16 @@ export async function main(argv: string[], io: Io = processIo, options: MainOpti
       io.err(`driftbench: ${run.message}\n`);
       return 2;
     }
+    // `help <command> <subcommand>...` is the subcommand's usage, as `<command> <subcommand> --help` prints
+    // it: the parser's own help command reads one command word only.
+    const words = run.argv.slice(1);
+    if (
+      run.argv[0] === 'help' &&
+      words.length >= 2 &&
+      COMMAND_NAMES.has(words[0] as string) &&
+      words.every((word) => !word.startsWith('-'))
+    )
+      run.argv = [...words, '--help'];
     // `help` alone and `help <topic>` print the help topics; `help <command>` stays the command's usage.
     const topics = runHelpTopics(run.argv, io, COMMAND_NAMES);
     if (topics !== undefined) return topics;
