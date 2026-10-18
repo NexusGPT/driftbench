@@ -23,7 +23,7 @@ function failsAtEnd(spec: Spec): boolean {
  * block already written says the same turn, expects the same and is said from the same stage in the same
  * language and under the same rules, and when the suite keeps every obligation without it: each coverage tuple the walk placed is
  * placed by a spec already written, each ordered pair of consecutive moves it walked is walked by one, the
- * stage and class allocation is no further from balance. A perturbation declared on the block goes with it. The first block written stays; later repeats go. Exactly one walk
+ * stage and class allocation is no further from balance. A block a perturbation declaration names, and the ones before it, stay. The first block written stays; later repeats go. Exactly one walk
  * ends on a given block: a cut that would leave a walk ending, with more than one block, on the block another written
  * walk ends on is taken back to the deepest cut that ends elsewhere. A block is the same
  * test on any channel and for any persona; the first twin of a written walk, per path and context axis, stays whole. A block that injects
@@ -93,7 +93,7 @@ export class TerminalSubsumption {
       const again = validateSpec(shorter.spec);
       if (again.ok) spec = again.spec;
     } else if (followed === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
-      const states = [{ blocks: draft.blocks, perturbations: draft.perturbations, spec }];
+      const states = [{ blocks: draft.blocks, spec }];
       // The Then must hold across channels and across personas, and that is read off a pair of whole walks that
       // differ only there (a twin). Each path keeps one such pair per axis; a twin beyond it is a repeat.
       const twin = this.keepsPair(spec);
@@ -115,7 +115,7 @@ export class TerminalSubsumption {
         if (!this.allocationHolds(draft, last)) break;
         draft.blocks = draft.blocks.slice(0, last);
         spec = reduced.spec;
-        states.push({ blocks: draft.blocks, perturbations: draft.perturbations, spec });
+        states.push({ blocks: draft.blocks, spec });
       }
       // Exactly one walk ends on a given block: a cut that stops, with more than one block left, on the block
       // another written walk ends on is taken back to the deepest cut that ends elsewhere, or to the whole walk.
@@ -128,7 +128,6 @@ export class TerminalSubsumption {
         );
       const chosen = settled ?? (states[0] as (typeof states)[number]);
       draft.blocks = chosen.blocks;
-      draft.perturbations = chosen.perturbations;
       spec = chosen.spec;
     }
     if (spec.blocks.length < original.blocks.length) {

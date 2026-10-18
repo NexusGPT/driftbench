@@ -4,7 +4,7 @@ import type { SpecDraft } from '../../src/seed/assemble';
 import { renderDraft } from '../../src/seed/assemble';
 import { TerminalSubsumption } from '../../src/seed/minimal';
 import { type SeedContext, scenarioDraft } from '../../src/seed/seed-drafts';
-import { fixture, split, twoChannels, twoPersonas } from './desk';
+import { desk, fixture, split, twoChannels, twoPersonas } from './desk';
 
 const run = { seed: 1031, mapPath: '../desk.yaml' };
 
@@ -498,5 +498,84 @@ describe('terminal subsumption and the persona a walk is written for', () => {
     const length = again.blocks.length;
     for (const draft of [written, holder, again]) minimal.reduce(draft);
     expect(again.blocks.length).toBeLessThan(length);
+  });
+});
+
+describe('terminal subsumption and the block a walk ends on', () => {
+  // A walk probes a class at the second stage: the block that injects it stays, so a cut stops on it.
+  const probe = (prepared: ReturnType<typeof fixture>, path: PathRelation, id: string) => {
+    const context: SeedContext = { seed: 1031, t: 2, max: 100 };
+    const built = scenarioDraft(
+      prepared,
+      context,
+      id,
+      'twise',
+      id,
+      [],
+      { preferred: [path], others: [] },
+      { probe: { classId: 'D5_language_switch', stage: 'address' } },
+    );
+    if (!('draft' in built)) throw new Error(`${id} did not build`);
+    return built.draft;
+  };
+  const injectedAt = (draft: ReturnType<typeof probe>) => draft.blocks.findIndex((block) => block.injection);
+
+  it('takes a cut back to the deepest cut that ends elsewhere when another walk already ends on the block it stops at', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const [first, second, third] = ['first', 'second', 'third'].map((id) => probe(prepared, path, id));
+    if (!first || !second || !third) throw new Error('missing probes');
+    const length = first.blocks.length;
+    for (const draft of [first, second, third]) minimal.reduce(draft);
+    const injected = injectedAt(second);
+    expect(injected).toBeGreaterThan(0);
+    expect(first.blocks).toHaveLength(length);
+    // The second walk is cut to the block that injects the class, and ends there: one walk ends on that block.
+    expect(second.blocks).toHaveLength(injected + 1);
+    // The third would end there too: it keeps one block more, which ends on a block no walk ends on.
+    expect(third.blocks).toHaveLength(injected + 2);
+    expect(third.blocks.map((block) => block.id)).toEqual(
+      first.blocks.slice(0, injected + 2).map((block) => block.id),
+    );
+  });
+
+  it('keeps a walk whole when every cut of it ends on a block another walk ends on', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const drafts = ['first', 'second', 'third', 'fourth'].map((id) => probe(prepared, path, id));
+    const [first, second, third, fourth] = drafts;
+    if (!first || !second || !third || !fourth) throw new Error('missing probes');
+    const length = first.blocks.length;
+    for (const draft of drafts) minimal.reduce(draft);
+    const injected = injectedAt(second);
+    expect([second.blocks.length, third.blocks.length]).toEqual([injected + 1, injected + 2]);
+    // Its cuts end on the blocks the second and the third walk end on, and its whole walk on the first walk's.
+    expect(fourth.blocks).toHaveLength(length);
+  });
+
+  it('never cuts a walk to end on the request that follows a restated value', () => {
+    const prepared = desk([
+      {
+        id: 'parcel',
+        stages: ['welcome', 'address', 'packing', 'weighing', 'receipt'],
+        classes: ['D5_language_switch'],
+      },
+    ]);
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const whole = walk(prepared, 'whole', path);
+    const again = walk(prepared, 'again', path);
+    // The second block asks the value again: the move after it is the test of the latest value.
+    const restated = again.blocks[1];
+    if (!restated) throw new Error('missing second block');
+    restated.id = `${restated.id}-restated`;
+    for (const draft of [whole, again]) minimal.reduce(draft);
+    // Without the guard the walk is cut to its first block; with it, it stops on the move after the restated request.
+    expect(again.blocks).toHaveLength(3);
   });
 });
