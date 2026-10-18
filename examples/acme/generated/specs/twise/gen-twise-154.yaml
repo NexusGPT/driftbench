@@ -196,7 +196,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-identify
-          stage: needs
+          stage: identify
         phrase:
           dimension: stage_transition
           value: needs-to-identify
@@ -215,7 +215,7 @@ metadata:
           spec: metadata.generated.cell
           stage_transition: identify-to-offer
           account_lookup: found
-          stage: identify
+          stage: offer
         phrase:
           dimension: stage_transition
           value: identify-to-offer
@@ -224,7 +224,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: offer-to-recap
-          stage: offer
+          stage: recap
         phrase:
           dimension: stage_transition
           value: offer-to-recap
@@ -234,7 +234,7 @@ metadata:
           spec: metadata.generated.cell
           stage_transition: recap-to-order_placed
           account_lookup: found
-          stage: recap
+          stage: order_placed
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
@@ -243,7 +243,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: order_placed-to-closing
-          stage: order_placed
+          stage: closing
         phrase:
           dimension: stage_transition
           value: order_placed-to-closing
