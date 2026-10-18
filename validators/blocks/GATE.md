@@ -1,6 +1,6 @@
 # Blocks validator: where the gate stands
 
-Status, 2026-10-18: the gate is not met. The fresh blind pilot on the grown bank (trial5) meets the forecast and the distinct causes of section 12, and misses the score. The lead ruled that the lower bar stands only if this pilot still misses section 12. It misses on the score alone, so only the score line of the lower bar is kept, and it is still not met. The forecast line is dropped: the bar of section 12 (100) holds. The gate also waits for `audit.md` (section 12.7).
+Status, 2026-10-18: the gate is not met. The fresh blind pilot on the grown bank (trial5) meets the forecast and the distinct causes of section 12 and misses the score. The lead's ruling after trial5: the blocks validator has no lower bar; every term is the bar of section 12, and the score must fall to 0.4 or below. The score is high because the bank lacks items main fails, so the bank grows with items tied to capabilities main does not have, until a pilot shows the score at or below 0.4. The gate also waits for `audit.md` (section 12.7).
 
 ## The numbers (trial5)
 
@@ -10,7 +10,7 @@ From `driftbench validate blocks --hardness`, journal `validators/blocks/journal
 |---|---|---|
 | Bank | 3,159 items, 95 families, tiers 1 to 5 | 300 items, no family under 20, every tier: holds |
 | Score at iteration 0 | 0.754 (2,382 of 3,159) | |
-| Score after the pilot | 0.7629 (2,410 of 3,159) | at most 0.4: not met; at most 0.65 (the line below): not met |
+| Score after the pilot | 0.7629 (2,410 of 3,159) | at most 0.4: not met |
 | Items fixed per iteration | 2.8 | |
 | Forecast | 267.5 iterations (749 failing / 2.8) | at least 100: met |
 | Distinct failing causes | 155 (167 at iteration 0, 1.2 fewer per round: 129 rounds by causes) | at least 100: met |
@@ -39,19 +39,17 @@ Round 10 fixed `bk.limits.safety.command-overwrite-forms` and lost `gr.checks.sc
 
 Still failing at level 1 after the pilot: `bg.stage.flow.no-flow-verdict.reported-in-a-block-that-expects-none`, `gr.checks.data.email-include.include-flags-localhost`, `scale/run-F/100x`, `scale/run-T/100x`.
 
-## The recorded bar
+## The bar
 
-Max score after the pilot: 0.65
+The bar of section 12, with no line lowering it:
 
-The forecast and the distinct failing causes keep the bar of section 12: at least 100 each.
+| Term | Section 12 | Measured after trial5 |
+|---|---|---|
+| Max score after the pilot | 0.4 | 0.7629: not met |
+| Min forecast | 100 | 267.5: met |
+| Min distinct failing causes | 100 | 155: met |
 
-| Term | Section 12 | Blocks bar | Measured after trial5 |
-|---|---|---|---|
-| Max score after the pilot | 0.4 | 0.65 | 0.7629 |
-| Min forecast | 100 | 100 | 267.5 |
-| Min distinct failing causes | 100 | 100 | 155 |
-
-The 0.65 line was set after trial4, from that pilot's numbers. Whether it changes after trial5 is the lead's ruling; this file does not lower it further.
+With 2,410 items passing, a score of 0.4 needs a bank of at least 6,025 items: about 2,866 more items that main fails, each tied to a capability main does not have.
 
 ## The audit
 
