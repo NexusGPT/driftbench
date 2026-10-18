@@ -12,6 +12,7 @@ import { defectItems } from './exact-defects';
 import { logAlphaItems } from './exact-log-alpha';
 import { userCapabilityItems } from './exact-user-capabilities';
 import { attempt, BANK_LEVELS, type BankItem, type BankLevel, type ItemOutcome, itemRng } from './item';
+import { newcapItems } from './newcaps';
 import { productItems } from './product';
 import { rateItems } from './rates';
 import { referenceItems } from './reference';
@@ -72,6 +73,7 @@ export function statsBank(root: string): BankItem[] {
     ...defectItems(),
     ...logAlphaItems(),
     ...clopperAlphaItems(),
+    ...newcapItems(root),
     ...capabilityItems(),
     ...userCapabilityItems(),
     ...edgeItems(root),
