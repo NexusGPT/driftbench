@@ -222,6 +222,7 @@ export {
   parseProposalText,
   pendingEntries,
   promptView,
+  proposalToVariables,
   proposeRole,
   QuoteIndex,
   Recording,
@@ -256,6 +257,7 @@ export {
   validateProposal,
   valueApproved,
   verifyQuotes,
+  verifyVariableQuotes,
   viewSources,
 } from './extract';
 export {
@@ -589,6 +591,18 @@ export {
   runPilot,
   type WordingSensitivity,
 } from './pilot';
+export {
+  type PlanSeedRow,
+  type PlanV2,
+  type PlanV2Layer,
+  type PlanV2Options,
+  type PlanV2Row,
+  type PlanV2Warning,
+  planV2,
+  renderPlanV2,
+  type StoreRule,
+  storeRules,
+} from './plan-v2';
 export { mapDigest, type ProposeOptions, parseProposals, proposeSpecs, type SpecProposal } from './propose';
 export { buildTaskInputs, type TaskInput, type TaskVariant, taskSpecs } from './seed/tasks';
 export {
