@@ -1,8 +1,8 @@
 {
   "iteration": 0,
-  "at": "2026-10-18T10:30:31.119Z",
+  "at": "2026-10-18T11:50:42.379Z",
   "result": "measured-default-adapter-baseline",
-  "sourceSha256": "8f35dc8664388097ef3ac47b6545d3492f8bd121db308717ebaf5cd49d4f8a89",
+  "sourceSha256": "297fd5ce1fe02374a0997fe28ac92ba1ae67a6384bd02ab49b3bb259c80c802b",
   "adapter": "packages/validators/src/ladders/variables/adapter.ts",
   "providedOperations": [],
   "bankSize": 536,
@@ -428,9 +428,9 @@
       }
     }
   ],
-  "measuredHead": "c49ef62a0ac7cadc57f3c10cfeeb1f3637b0254a",
+  "measuredHead": "9be4cbd6313992bba8c9351fd2c6a3578fe02f45",
   "hiddenSeedSource": "head",
-  "canonicalHiddenSeed": 299752042,
+  "canonicalHiddenSeed": 616462870,
   "command": "pnpm exec tsx validators/variables/baseline.ts",
   "candidateCauses": 196,
   "distinctFixCount": null,
