@@ -182,6 +182,27 @@ end_state:
       subset:
         name: Jo Okafor
         email: jo.okafor@example.com
+perturbations:
+  - id: p1-D5_language_switch
+    class: D5_language_switch
+    inject_at: 0
+    user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: needs
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: needs
 metadata:
   generated:
     by: driftbench generate
@@ -208,7 +229,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: needs-to-address
-          stage: needs
+          stage: address
         phrase:
           dimension: stage_transition
           value: needs-to-address
@@ -218,7 +239,7 @@ metadata:
           spec: metadata.generated.cell
           stage_transition: address-to-offer
           coverage_result: 5g-only
-          stage: address
+          stage: offer
         phrase:
           dimension: stage_transition
           value: address-to-offer
@@ -227,7 +248,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: offer-to-details
-          stage: offer
+          stage: details
         phrase:
           dimension: stage_transition
           value: offer-to-details
@@ -236,7 +257,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: details-to-recap
-          stage: details
+          stage: recap
         phrase:
           dimension: stage_transition
           value: details-to-recap
@@ -256,7 +277,7 @@ metadata:
           stage_transition: recap-to-order_placed
           coverage_result: 5g-only
           customer_details: name-and-email
-          stage: recap
+          stage: order_placed
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
@@ -265,7 +286,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: order_placed-to-closing
-          stage: order_placed
+          stage: closing
         phrase:
           dimension: stage_transition
           value: order_placed-to-closing

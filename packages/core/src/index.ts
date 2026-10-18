@@ -171,14 +171,23 @@ export {
   completeBaselineProvenance,
   DEFAULT_MAX_AGE_DAYS,
   DEFAULT_MAX_CARRY,
+  defaultParentOf,
   deviationOf,
   generatedMeta,
+  type Localization,
+  type LocalizeCampaign,
+  type LocalizeRow,
+  type LocalizeRun,
   linkHolds,
   loadChangeManifest,
   loadSectionRegistry,
+  localizeRows,
+  localizeRuns,
   OBSERVED_FIELDS,
   type ObservedField,
   observationCompatibilityHash,
+  ochiaiLocalize,
+  type ParentRef,
   type ParsedManifest,
   type PreparedRejudge,
   type PromptAnchor,
@@ -208,12 +217,21 @@ export {
   rejudgeRun,
   SECTION_KINDS,
   SECTION_NORMALISATION,
+  SECTION_SELECTION_ADVISORY,
+  type SectionBlockState,
   SectionRegistry,
+  type SectionSelection,
+  type SectionSelectionBlock,
+  type SectionSelectionSpec,
+  type SectionSuspicion,
   sameCarryContext,
+  sectionChangeManifest,
+  sectionChanges,
   sectionDocument,
   sectionEntry,
   sectionLinkStatus,
   sectionOfCitation,
+  sectionSelection,
   sectionsFromHeadings,
   sha256Hex,
   specLinks,
@@ -446,6 +464,7 @@ export {
   RetentionExpect,
   Rules,
   SafetyExpect,
+  SharedFact,
   SimilarityExpect,
   SkillExpect,
   SPEC_SCHEMA_VERSION,
@@ -461,7 +480,7 @@ export { anyGlobMatches, globMatches } from './spec/glob';
 export { canonicalJson, cloneJson, contentHash } from './spec/hash';
 export { IDENTITY_EXCLUDED_METADATA, specHash, specIdentity } from './spec/identity';
 export { error, type Issue, type IssueCode, IssueCodes, warning } from './spec/issues';
-export { lintSpec } from './spec/lint';
+export { givenIssues, lintSpec } from './spec/lint';
 export {
   checkSpec,
   findSpecFiles,
@@ -476,6 +495,12 @@ export {
 } from './spec/load';
 export { isPlainObject, normalizeSpec } from './spec/normalize';
 export { checkSemantics, isZero, parseCriterionRef, patternError } from './spec/semantics';
+export {
+  type GivenFinding,
+  type VerifyGivenOptions,
+  valueInText,
+  verifyGiven,
+} from './spec/verify-given';
 export { type DenseEmbedderOptions, denseEmbedder, localEmbedder } from './text/embedder';
 export {
   charGrams,
