@@ -365,3 +365,448 @@ out/authoring-map/space.yaml already exists. The map is never overwritten: remov
 | `SCHEMA_*` | a key or value the schema refuses: an unknown key, a bad id, an unknown kind, a missing `constraints` or `prior` |
 
 Common mistakes that load but mislead: a stage the specs use but the map does not list (`UNKNOWN_VALUE` warnings, and the spec places nowhere on that dimension); a map with no `none` deviation value (blocks without a deviation then place nowhere on it).
+
+### The variable store
+
+The variable store (docs/variables.md) is checked when it is loaded, and its quotes when they are checked against their files. Each code below has a store that triggers it (fictional data), what it means and how to fix it. A test runs every store of this section and checks that it reports its code.
+
+#### `VARIABLES_PARSE`
+
+The file cannot be read, or is not valid YAML or JSON. A key written twice is not valid either.
+
+```yaml
+format: 1
+agent: hall
+agent: dock
+version: '1'
+```
+
+Fix: Remove the repeated key (here, one of the two `agent` lines) or fix the syntax the message names.
+
+#### `VARIABLES_NOT_OBJECT`
+
+The file holds something other than one mapping, such as a list.
+
+```yaml
+- format: 1
+- agent: hall
+```
+
+Fix: Write the keys of the store (`format`, `agent`, `version`, `variables`) at the top level, with no leading dash.
+
+#### `VARIABLES_DUPLICATE`
+
+A variable id, a value id inside one variable, or a combination in `constraints` is written twice.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+      - id: phone
+        title: Phone
+  - id: channel
+    title: Channel
+    kind: data
+    role: axis
+    approved: true
+    values:
+      - id: small
+        title: Small
+      - id: large
+        title: Large
+```
+
+Fix: Give the second `channel` its own id, or remove it. A value id repeated inside one variable, and a forbidden combination written twice (in any key order), are fixed the same way.
+
+#### `VARIABLES_KIND_REPEATED`
+
+Two axes are of kind `stage`, `deviation` or `channel`. A spec names these three on a field of its own, so each can be one axis only.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+      - id: phone
+        title: Phone
+  - id: medium
+    title: Medium
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: mail
+        title: Mail
+      - id: post
+        title: Post
+```
+
+Fix: Merge the two axes into one, or make one of them a `detail` (details are exempt), or give it another kind.
+
+#### `VARIABLES_AMBIGUOUS_VALUE`
+
+The same value id is in two axes of the same kind among `behaviour`, `persona`, `data` and `task`. A spec names such a value without its variable, so the id must belong to one axis. The value `none` is exempt.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: visitor
+    title: Visitor
+    kind: persona
+    role: axis
+    approved: true
+    values:
+      - id: new
+        title: New
+      - id: returning
+        title: Returning
+  - id: buyer
+    title: Buyer
+    kind: persona
+    role: axis
+    approved: true
+    values:
+      - id: new
+        title: New
+      - id: repeat
+        title: Repeat
+```
+
+Fix: Rename one of the two values (`new_visitor`, `new_buyer`), or make one of the variables a `detail`.
+
+#### `VARIABLES_UNKNOWN_DEVIATION`
+
+An axis of kind `deviation` holds a value that is neither `none` nor one of the twelve deviation classes.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: deviation
+    title: Deviation
+    kind: deviation
+    role: axis
+    approved: true
+    values:
+      - id: none
+        title: None
+      - id: rain
+        title: Rain
+```
+
+Fix: Use `none` and the classes `D1_off_topic` to `D12_prompt_extraction` (see the recovery page), or give the axis another kind.
+
+#### `VARIABLES_EMPTY_CONSTRAINT`
+
+A constraint forbids nothing: its `forbid` map is empty.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+      - id: phone
+        title: Phone
+constraints:
+  - forbid: {}
+    reason: Nothing is forbidden here.
+    approved: true
+```
+
+Fix: Name at least one variable and value in `forbid`, or remove the constraint.
+
+#### `VARIABLES_UNKNOWN_VARIABLE`
+
+A constraint, or a `when` or `unless` of a value, names a variable the store does not have.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+      - id: phone
+        title: Phone
+constraints:
+  - forbid: { channel: phone, tide: high }
+    reason: The phone line closes at high tide.
+    approved: true
+```
+
+Fix: Add the variable (here `tide`), or correct its name in the constraint.
+
+#### `VARIABLES_UNKNOWN_VALUE`
+
+A constraint, a `when`, an `unless` or a boundary names a value its variable does not have.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+      - id: phone
+        title: Phone
+constraints:
+  - forbid: { channel: radio }
+    reason: Nobody calls by radio.
+    approved: true
+```
+
+Fix: Add the value to the variable (here `radio` to `channel`), or correct the name.
+
+#### `VARIABLES_WEIGHT_INCOMPLETE`
+
+A variable gives a weight to some of its values and not to all. Give a weight to every value or to none.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+        weight: 0.7
+      - id: phone
+        title: Phone
+```
+
+Fix: Add a weight to `phone`, or remove the weight of `web`.
+
+#### `VARIABLES_WEIGHT_ZERO`
+
+Every weight of a variable is 0, so no value can occur.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+        weight: 0
+      - id: phone
+        title: Phone
+        weight: 0
+```
+
+Fix: Give at least one value a weight above 0.
+
+#### `VARIABLES_PRIOR_SOURCE`
+
+The prior is `fitted` (fitted from consented conversations) and has no `source` text.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+prior:
+  kind: fitted
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+      - id: phone
+        title: Phone
+```
+
+Fix: Write `source:` with the conversations the weights were fitted on, or use `kind: declared` when the owner wrote the weights.
+
+#### `VARIABLES_GRID_EMPTY`
+
+The constraints forbid every cell of the axes, so no situation can occur.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+      - id: phone
+        title: Phone
+constraints:
+  - forbid: { channel: web }
+    reason: The web chat is closed.
+    approved: true
+  - forbid: { channel: phone }
+    reason: The phone line is closed.
+    approved: true
+```
+
+Fix: Remove or narrow a constraint until at least one cell is left.
+
+#### `VARIABLES_BOUNDARY`
+
+The two sides of a boundary are the same value, or the edge is on the wrong side. A strict comparison (`gt`, `lt`) leaves the limit on the failing side; an inclusive one (`le`, `ge`) puts it on the side where the condition holds.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: berth_days
+    title: Berth days
+    kind: data
+    role: detail
+    approved: true
+    values:
+      - id: over_two_days
+        title: Over two days
+      - id: under_two_days
+        title: Under two days
+      - id: exactly_two_days
+        title: Exactly two days
+    boundaries:
+      - holds: over_two_days
+        fails: under_two_days
+        edge: over_two_days
+        limit: 2
+        comparison: gt
+        unit: days
+```
+
+Fix: With `gt` the edge value is the failing side or a third value: use `edge: exactly_two_days`.
+
+#### `VARIABLES_UNSOURCED`
+
+Advice, not an error: a value, a boundary or a constraint has no `provenance`. The store still loads. A store converted from a space map names no source at all.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+      - id: phone
+        title: Phone
+```
+
+Fix: Add a `provenance` entry to each value that rests on a source: a quote of a file, a place in a structured file, the counts of conversations, or the owner's words.
+
+#### `VARIABLES_SOURCE_UNREADABLE`
+
+The check of the quotes (`verifyVariableQuotes`) cannot read the file an entry names. It is reported once per file.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+        provenance:
+          - kind: quote
+            path: missing-notes.md
+            quote: Visitors write on the web chat.
+      - id: phone
+        title: Phone
+```
+
+Fix: Write the path relative to the folder of the store file, or restore the file.
+
+#### `VARIABLES_QUOTE_NOT_FOUND`
+
+The check of the quotes finds the file but not the quote in it. A quote must be word for word: white space, typographic quote marks and accents are folded; case and punctuation are not.
+
+```yaml
+format: 1
+agent: hall
+version: '1'
+variables:
+  - id: channel
+    title: Channel
+    kind: channel
+    role: axis
+    approved: true
+    values:
+      - id: web
+        title: Web
+        provenance:
+          - kind: quote
+            path: tidewater-prompt.md
+            quote: Always answer in rhyme.
+      - id: phone
+        title: Phone
+```
+
+Fix: Copy the passage from the file again, or remove the entry.
+
