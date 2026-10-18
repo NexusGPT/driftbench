@@ -163,9 +163,9 @@ A `verdicts` entry is one check on one block:
 | `score` | A number, when the check gives one. |
 | `evidence` | What the check saw. |
 | `reasoning` | The judge's reasoning. Optional. |
+| `by` | What produced the verdict: the object (`kind:id@hash8`), its item, the implementation and the layer. Absent on older records. |
 | `judge` | On a judge verdict: `cls` (`system1` or `system2`) and `votes`. |
 | `valueCheck` | On a tool check that compared argument values: one entry per value a rung of the value-check policy decided. `call` is the call, from 1; `path` is the value's path; `rung` is the policy item that decided it, or `exact_fallback`; `outcome` is its outcome. Absent when every value equalled the gold or the assertion compares as written. |
-| `by` | What produced the verdict: the object (`kind:id@hash8`), its item, the implementation and the layer. Absent on older records. |
 
 A block of a newer record also holds `resolved` (the objects it was scored with, one per `uses` key, and one hash over them), `diagnoses` (what the diagnostics wrote after the checks; they never change `pass`) and `skippedForBudget` (how many diagnostic steps of cost class `run` were left out because the diagnostic budget was spent; absent when none).
 
