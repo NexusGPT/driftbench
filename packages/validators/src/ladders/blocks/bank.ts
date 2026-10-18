@@ -7,6 +7,7 @@ import { growthChecksItems } from '../blocks-growth/checks/index';
 import { growthContracts2Items } from '../blocks-growth/contracts2/index';
 import { growthDocgapsItems } from '../blocks-growth/docgaps/index';
 import { growthRunItems } from '../blocks-growth/run/index';
+import { links2Items } from '../blocks-links2/index';
 import { CONTRACTS } from './contracts';
 import { releaseAgents } from './kinds';
 import { adversarialItems } from './levels/adversarial';
@@ -67,6 +68,7 @@ export function blocksBank(): BankItem[] {
     ...growthRunItems(),
     ...growthDocgapsItems(),
     ...growthContracts2Items(),
+    ...links2Items(),
   ];
   return items
     .map((item) => {
