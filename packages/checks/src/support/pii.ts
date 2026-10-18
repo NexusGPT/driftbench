@@ -183,7 +183,7 @@ export function emailMatches(text: string): { value: string; index: number }[] {
   return found;
 }
 
-const ALLOWED_EMAIL_DOMAINS = new Set(['example.com', 'example.org', 'example.net', 'localhost']);
+const ALLOWED_EMAIL_DOMAINS = new Set(['example.com', 'example.org', 'example.net']);
 const ALLOWED_EMAIL_SUFFIXES = ['.example', '.test', '.invalid', '.localhost', 'users.noreply.github.com'];
 const ALLOWED_EMAILS = new Set(['git@github.com']);
 
