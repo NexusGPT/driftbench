@@ -6,7 +6,7 @@ The bank is not merge-ready under docs/validators.md §12.7. These are pending i
 |---|---|---|
 | blind pilot | pending | Ten executor iterations after real component integration and adapter mapping; no executor iteration is claimed by the bank repair. |
 | cheater | pending | Builder tests reject the constant empty implementation and targeted mutants; an independent helper must attempt new cheats. |
-| cause review | pending | 141 candidate labels are metadata, not 141 independently proved repairs. An independent helper must sample thirty failures and regroup by actual fixes. |
+| cause review | pending | 141 candidate labels are an upper bound on the number of distinct repairs, not a count of them: one defect fails several stems (an ignored impossible pair loses stems of the counter, planner and strength families; a wrong edge sample loses many boundary stems) and some stems bundle two fixes. The measured number will be lower. An independent helper must sample thirty failures and regroup by actual fixes. |
 | planted bugs | pending | Independent helper must plant at least twenty implementation defects after real components are integrated. |
 
 ## Measured baseline
@@ -24,3 +24,7 @@ The bank is not merge-ready under docs/validators.md §12.7. These are pending i
 All remaining candidate labels need the independent thirty-failure audit and actual executor repair evidence. The minimum of one hundred independent fixes and the ten-iteration hardness forecast are unverified, not inferred from stem or label counts.
 
 The all-bad item still checks rejection of every invalid value before empty-variable cleanup. C142 names the cleanup hypothesis, not a certified atomic fix; those rejection prerequisites remain composite checks for the independent cause review.
+
+## Rules of the page
+
+Every stem names the rules of `docs/variables.md` it checks (the Page line of each stem in `CATALOGUE.md`, from `bank/manifest/docs.ts`), and the page lists the rules of each family in its section Rules by bank family. `test/variables/docs-anchors.test.ts` fails when a stem has no rule, cites a rule the page lacks, or cites a rule outside its family row. Where the bank is stricter than the file format, the page now says so: a reader writes three distinct samples for a numeric edge (R3), and a reader-produced value carries provenance (R1) while the file loader only advises (Provenance). The equality, inequality and range stems rest on R3.

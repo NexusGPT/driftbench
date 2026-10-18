@@ -1,5 +1,6 @@
 /** Writes validators/variables/CATALOGUE.md: `pnpm tsx packages/validators/src/ladders/variables/catalogue.ts > validators/variables/CATALOGUE.md`. */
 import { readFileSync } from 'node:fs';
+import { docAnchors } from './bank/manifest/docs';
 import {
   ASSUMPTIONS,
   CLAUSES,
@@ -119,7 +120,7 @@ export function renderCatalogue(interfaceText: string, stems: readonly StemDef[]
   out.push('## 5. Stems');
   out.push('');
   out.push(
-    'Each stem: its component (the one place the fix goes), the clauses it serves, how its input is built (generator), how the answer is known without the component (oracle), and the one change that makes it pass (cause). Items are listed with their tier.',
+    'Each stem: its component (the one place the fix goes), the clauses it serves, the rules of docs/variables.md it checks (Page), how its input is built (generator), how the answer is known without the component (oracle), and the one change that makes it pass (cause). Items are listed with their tier.',
   );
   for (const f of FAMILIES) {
     out.push('');
@@ -131,6 +132,7 @@ export function renderCatalogue(interfaceText: string, stems: readonly StemDef[]
       out.push(
         `* Component: \`${s.component}\` (${COMPONENTS[s.component as keyof typeof COMPONENTS]}). Serves: ${s.need}.${s.assumption ? ` Assumes: ${s.assumption.join(', ')}.` : ''}`,
       );
+      out.push(`* Page: ${docAnchors(s.id).join('; ')}.`);
       out.push(`* Generator: ${s.generator}`);
       out.push(`* Oracle: ${s.oracle}`);
       out.push(`* Candidate cause C${causeNo.get(s.cause)}: ${s.cause}.`);

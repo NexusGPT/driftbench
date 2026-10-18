@@ -253,13 +253,14 @@ export type VariablesImpl = {
 
 ## 5. Stems
 
-Each stem: its component (the one place the fix goes), the clauses it serves, how its input is built (generator), how the answer is known without the component (oracle), and the one change that makes it pass (cause). Items are listed with their tier.
+Each stem: its component (the one place the fix goes), the clauses it serves, the rules of docs/variables.md it checks (Page), how its input is built (generator), how the answer is known without the component (oracle), and the one change that makes it pass (cause). Items are listed with their tier.
 
 ### Family sources (level store): 61 items
 
 #### `sources.estate.numeric-condition`
 
 * Component: `store/estate` (reading condition spans and tool evidence of the estate into variables). Serves: P2.
+* Page: docs/variables.md#reader-rules R3; docs/variables.md#boundaries.
 * Generator: Renders a rule sentence ("When the <noun> is over <N> <unit>, <action>.") among filler lines of a CLAUDE.md-like file; the condition span is the fragment from the noun to the unit. Noun, comparator word, N and unit come from the seed.
 * Oracle: Exactly one variable has values that cite the span, the store has no refusal, and the variable holds three values (their shape is checked by the boundaries family).
 * Candidate cause C1: buildStore turns a numeric condition span of the estate into one variable.
@@ -268,6 +269,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.estate.boolean-condition`
 
 * Component: `store/estate` (reading condition spans and tool evidence of the estate into variables). Serves: P2. Assumes: A12.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: Renders boolean conditions ("the draft is signed", "the draft is not signed", "no reference is attached") in a file; the span is the clause.
 * Oracle: One variable cites the span; it holds exactly two values whose samples are the booleans true and false; each cites the span.
 * Candidate cause C2: a boolean condition span becomes a variable with a true and a false value.
@@ -276,6 +278,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.estate.membership-condition`
 
 * Component: `store/estate` (reading condition spans and tool evidence of the estate into variables). Serves: P2. Assumes: A12.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: Renders a membership condition ("the channel is email or chat", "the channel is email, chat or phone", "the channel is one of a, b, c") with 2 or 3 listed members.
 * Oracle: One variable cites the span; one value has a sample that is a listed member and one has a sample that is not; no more than members plus one values; each cites the span.
 * Candidate cause C3: a membership condition span becomes a variable with an in-list side and an out-of-list side.
@@ -284,6 +287,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.estate.no-condition-no-variable`
 
 * Component: `store/estate` (reading condition spans and tool evidence of the estate into variables). Serves: P2.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: Lists spans that state no condition: an unconditional rule ("Always greet the user."), a number without a comparator ("Use the 500 euro template."), a past fact ("The limit was 500 last year."), beside real conditions.
 * Oracle: No variable cites a decoy span; the real conditions still give their variables. A refusal entry for a decoy is allowed.
 * Candidate cause C4: the estate source returns no variable for a span that states no condition.
@@ -292,6 +296,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.estate.same-quantity-merges`
 
 * Component: `store/estate` (reading condition spans and tool evidence of the estate into variables). Serves: P2.
+* Page: docs/variables.md#reader-rules R4.
 * Generator: Two or three spans over the same quantity noun with thresholds at least 10 apart, in one file or two; one variant changes the case of the noun.
 * Oracle: One variable; each span is cited by exactly three values; the variable holds three values per span and no duplicate sample.
 * Candidate cause C5: spans that name the same quantity merge into one variable.
@@ -300,6 +305,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.estate.different-quantities-split`
 
 * Component: `store/estate` (reading condition spans and tool evidence of the estate into variables). Serves: P2.
+* Page: docs/variables.md#reader-rules R4.
 * Generator: Spans over different quantity nouns: unrelated nouns, nouns that share a word ("invoice total", "invoice age"), a noun that is the prefix of another ("total", "total tax").
 * Oracle: One variable per distinct noun; no value cites spans of two nouns; each variable holds three values.
 * Candidate cause C6: spans that name different quantities stay different variables.
@@ -308,6 +314,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.estate.rule-own-variables`
 
 * Component: `store/estate` (reading condition spans and tool evidence of the estate into variables). Serves: P5.
+* Page: docs/variables.md#reader-rules R4; docs/variables.md#planner-rules R6.
 * Generator: Rules with 0 to 2 condition spans and 0 to 2 tool evidence fields (a tool, a field, listed values with their quotes in a tools file); one variant has two rules whose spans name the same quantity.
 * Oracle: The store lists one rule per input rule, and its variables are exactly the variables whose values cite that rule's spans and tool quotes; a quantity named by two rules is one variable listed by both.
 * Candidate cause C7: each rule lists the variables its condition spans and tool evidence name.
@@ -316,6 +323,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.estate.tool-field-variable`
 
 * Component: `store/estate` (reading condition spans and tool evidence of the estate into variables). Serves: P2.
+* Page: docs/variables.md#reader-rules R4.
 * Generator: Tool evidence {tool, field, source, values}: 3, 2 or 1 listed values, each with an id and a quote found in a tools reference file.
 * Oracle: One variable holds one value per listed id, each citing its own quote with the right source path.
 * Candidate cause C8: tool evidence input fields become variables with one value per listed value.
@@ -324,6 +332,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.conversations.counts`
 
 * Component: `store/conversations` (counting the values seen in past conversations (counts only)). Serves: P2.
+* Page: docs/variables.md#reader-rules R5.
 * Generator: Builds a base store from tool evidence, reads its ids, then draws sessions (a variable to a value) from a planted mix; the sessions go in with the same estate.
 * Oracle: Each value carries a conversations provenance whose count equals the planted count and whose total equals the sessions that observe its variable, with a set_hash of 64 hexadecimal characters; the counts of a variable add up to its total.
 * Candidate cause C9: the conversation source counts, per value, the sessions that show it and those that observe its variable.
@@ -332,6 +341,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.conversations.partial-sessions`
 
 * Component: `store/conversations` (counting the values seen in past conversations (counts only)). Serves: P2.
+* Page: docs/variables.md#reader-rules R5.
 * Generator: Sessions that observe only some of the variables; one variable no session observes.
 * Oracle: of counts only the sessions that observe the variable; a variable no session observes gets no conversations provenance.
 * Candidate cause C10: the total of a variable counts only the sessions that observe it.
@@ -340,6 +350,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.conversations.new-value`
 
 * Component: `store/conversations` (counting the values seen in past conversations (counts only)). Serves: P2. Assumes: A5.
+* Page: docs/variables.md#reader-rules R5.
 * Generator: Sessions that show a value id the base store lacks, on a variable it has.
 * Oracle: The variable gains the value with a conversations provenance (count, total) and approved false: it is a proposal until a person approves it; the other values keep their provenance.
 * Candidate cause C11: a value seen in conversations and absent from the store is added as an unapproved proposal with its counts as provenance.
@@ -348,6 +359,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.conversations.set-hash`
 
 * Component: `store/conversations` (counting the values seen in past conversations (counts only)). Serves: P14.
+* Page: docs/variables.md#reader-rules R5; docs/variables.md#provenance.
 * Generator: A set of 30 sessions, built twice; the same set with one session's value changed; the same set in another order.
 * Oracle: Every conversations entry carries a set_hash of 64 lowercase hexadecimal characters; the same set gives the same hash; a changed session gives another hash; the order of the sessions does not matter; the hash is not the session text or id.
 * Candidate cause C12: the conversation source hashes the private set of sessions into set_hash.
@@ -356,6 +368,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.conversations.privacy`
 
 * Component: `store/conversations` (counting the values seen in past conversations (counts only)). Serves: P14.
+* Page: docs/variables.md#reader-rules R5; docs/variables.md#provenance.
 * Generator: Sessions that carry an id and a free-text field holding unique canary tokens; one variant has 1,000 sessions.
 * Oracle: The serialised store holds no canary token and no session id: counts only.
 * Candidate cause C13: the conversation source keeps counts only: no session id or text reaches the store.
@@ -364,6 +377,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.owner.missing-value`
 
 * Component: `store/owner` (taking missing values, impossible pairs and weights from the owner). Serves: P2.
+* Page: docs/variables.md#reader-rules R5.
 * Generator: Owner entries (variable, value, words) on variables of a base store.
 * Oracle: Each variable gains the value with an owner provenance equal to the words and the day; nothing else changes.
 * Candidate cause C14: the owner source adds a missing value with the owner's words as provenance.
@@ -372,6 +386,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.owner.impossible-pair`
 
 * Component: `store/owner` (taking missing values, impossible pairs and weights from the owner). Serves: P2.
+* Page: docs/variables.md#reader-rules R5.
 * Generator: Owner pairs (a variable and value on each side, words) over values of a base store.
 * Oracle: The store lists each pair, in either order, with an owner provenance equal to the words and the day, and nothing more.
 * Candidate cause C15: the owner source records an impossible pair with the owner's words.
@@ -380,6 +395,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.owner.weight`
 
 * Component: `store/owner` (taking missing values, impossible pairs and weights from the owner). Serves: P2.
+* Page: docs/variables.md#reader-rules R5.
 * Generator: Owner weights (variable, value, weight, words, day) on every value of a variable of a base store: a relative scale (60, 15, 25), a distribution (0.5, 0.3, 0.2), one weight of 0.
 * Oracle: Each value carries the declared weight (exactly) and an owner provenance equal to the words and the day.
 * Candidate cause C16: the owner source records a declared weight with the owner's words.
@@ -388,6 +404,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.owner.words-verbatim`
 
 * Component: `store/owner` (taking missing values, impossible pairs and weights from the owner). Serves: P3.
+* Page: docs/variables.md#reader-rules R5; docs/variables.md#provenance.
 * Generator: Owner words with accents, line breaks, 1,000 characters (the format's limit), emoji and right-to-left text.
 * Oracle: The stored provenance words equal the given words byte for byte.
 * Candidate cause C17: the owner's words are stored byte for byte.
@@ -396,6 +413,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.owner.date-and-statement`
 
 * Component: `store/owner` (taking missing values, impossible pairs and weights from the owner). Serves: P3.
+* Page: docs/variables.md#reader-rules R5; docs/variables.md#provenance.
 * Generator: Owner entries (a value) with the day 2025-12-31, with an unreal day (2026-02-30), with a day written 31/12/2025, and with blank words.
 * Oracle: A real day is stored as given; an entry with an unreal or badly written day, or with blank words, is refused with a reason and changes nothing.
 * Candidate cause C18: the owner source keeps the day the owner spoke and refuses an unreal day or a blank statement.
@@ -404,6 +422,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.merge.provenance-union`
 
 * Component: `store/merge` (merging the three sources and keeping every provenance). Serves: P3.
+* Page: docs/variables.md#reader-rules R1.
 * Generator: A value that two or three sources name: the estate (a quote), the conversations (counts) and the owner (words).
 * Oracle: The value carries one provenance entry per source, each of its own kind.
 * Candidate cause C19: a value known to several sources keeps one provenance entry per source.
@@ -412,6 +431,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.order-independent`
 
 * Component: `store/merge` (merging the three sources and keeping every provenance). Serves: H3.
+* Page: docs/variables.md#reader-rules R4.
 * Generator: The same sources with the rules, the sessions or the owner entries in another order (the file map keys too).
 * Oracle: The two stores are equal after sorting variables, values and provenance entries by id.
 * Candidate cause C20: the store content does not depend on the order of the source entries.
@@ -420,6 +440,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `sources.empty-sources`
 
 * Component: `store/merge` (merging the three sources and keeping every provenance). Serves: H7.
+* Page: docs/variables.md#reader-rules R1; docs/variables.md#reader-rules R5.
 * Generator: No source, an empty estate, an empty session list, an empty owner object.
 * Oracle: buildStore returns a store with no variable, no pair, no rule and no refusal, and does not throw.
 * Candidate cause C21: buildStore accepts empty sources.
@@ -430,6 +451,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.accept.exact`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: P4.
+* Page: docs/variables.md#reader-rules R2; docs/variables.md#provenance.
 * Generator: A source file of 10 to 40 lines and tool evidence whose value quotes are verbatim runs of it: at the start, in the middle, at the end, or the whole file.
 * Oracle: Every value is in the store with its quote and source path; the store has no refusal.
 * Candidate cause C22: a value whose quote appears verbatim in its source file is kept.
@@ -438,6 +460,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.refuse.absent`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: P4.
+* Page: docs/variables.md#reader-rules R2.
 * Generator: A value whose quote is not in its file: unrelated text, text that sits in another file, or a findable quote with one extra word appended.
 * Oracle: The value is not in the store and the refusal list names it.
 * Candidate cause C23: a value whose normalized quote is absent from its named source is refused.
@@ -446,6 +469,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.refuse.unknown-source`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: P4.
+* Page: docs/variables.md#reader-rules R2.
 * Generator: A value whose quote is findable in file A but whose source path is a file the estate does not hold: a missing path, a path that differs only in case, an empty path.
 * Oracle: The value is not in the store and the refusal list names it.
 * Candidate cause C24: a quote cited from a source path the estate does not hold is refused.
@@ -454,6 +478,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.refuse.empty-quote`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: P4.
+* Page: docs/variables.md#reader-rules R2; docs/variables.md#provenance.
 * Generator: A value whose quote is the empty string, or only spaces and a tab.
 * Oracle: The value is refused although the empty string occurs in every file.
 * Candidate cause C25: an empty or blank quote is refused although every file contains it.
@@ -462,6 +487,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.refuse.inexact`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: P4.
+* Page: docs/variables.md#reader-rules R2; docs/variables.md#provenance.
 * Generator: A findable quote changed a little: written in capitals, first letter in another case, one character inserted, deleted or substituted, two neighbours swapped, one word skipped, or the end of line 1 joined to the start of line 3.
 * Oracle: After the documented normalization the quote is still absent; case, punctuation and word order remain significant.
 * Candidate cause C23: a value whose normalized quote is absent from its named source is refused.
@@ -470,6 +496,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.accept.multiline`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: P4.
+* Page: docs/variables.md#reader-rules R2; docs/variables.md#provenance.
 * Generator: A quote that spans two or three lines of a file with LF line ends, or CRLF line ends and the CRLF in the quote.
 * Oracle: The value is kept with its quote.
 * Candidate cause C27: quote matching folds whitespace runs while keeping the stored quote unchanged.
@@ -478,6 +505,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.plain-text-matching`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: H7.
+* Page: docs/variables.md#reader-rules R2; docs/variables.md#provenance.
 * Generator: Quotes made of pattern characters that occur literally in the file (".*", "(a|b)+", "[0-9]{3}", "\d+"), and quotes that look like patterns matching the file but are not literally in it ("invoice.*total", "a|b").
 * Oracle: The literal ones are kept; the lookalikes are refused.
 * Candidate cause C28: quotes are matched as plain text, never as patterns.
@@ -486,6 +514,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.accept.unicode`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: H7.
+* Page: docs/variables.md#reader-rules R2; docs/variables.md#provenance.
 * Generator: Quotes with accents, CJK text, emoji above the basic plane, and right-to-left text, verbatim in the file.
 * Oracle: The value is kept with its quote unchanged.
 * Candidate cause C29: quote matching applies the documented Unicode and typography normalization.
@@ -494,6 +523,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.per-value-granularity`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: P4.
+* Page: docs/variables.md#reader-rules R2.
 * Generator: A tool field with 3 values where one, two, the first, or all of them have an unfindable quote.
 * Oracle: Only the values with an unfindable quote are missing; the others stay; a variable left with no value is not stored.
 * Candidate cause C30: refusing a value preserves its valid sibling values.
@@ -503,6 +533,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.refusal-report`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: P4.
+* Page: docs/variables.md#reader-rules R2.
 * Generator: One or two refused values with distinct ids.
 * Oracle: The refusal list holds one entry per refused value, naming its id, with a reason that is not empty.
 * Candidate cause C31: every refused value is listed with a reason that names it.
@@ -511,6 +542,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.owner-conversation-exempt`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: P3.
+* Page: docs/variables.md#reader-rules R2.
 * Generator: An owner value, a value seen in conversations, and an owner value whose words look like a quote that no file holds.
 * Oracle: Each is kept with its own provenance; none is refused for lacking a file quote.
 * Candidate cause C32: values from the owner and from conversations are kept without a file quote.
@@ -519,6 +551,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.condition-span-unfindable`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: P4.
+* Page: docs/variables.md#reader-rules R2.
 * Generator: A condition span that is not in its file: edited wording, text of another file, or one character off.
 * Oracle: No variable cites the span and the refusal list names it.
 * Candidate cause C33: a condition span whose text is not in its source file yields no variable and a refusal.
@@ -527,6 +560,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.stored-verbatim`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: P3.
+* Page: docs/variables.md#reader-rules R2.
 * Generator: Findable quotes with leading and trailing spaces, or a trailing newline.
 * Oracle: The stored quote and source path are the given ones, byte for byte.
 * Candidate cause C34: the stored quote and source path are the given ones, byte for byte.
@@ -535,6 +569,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.never-reads-disk`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: H7.
+* Page: docs/variables.md#reader-rules R2.
 * Generator: A quote ("localhost") with the source path "/etc/hosts", a path with "../" segments, and an absolute path, none of them among the given files.
 * Oracle: The value is refused: quotes are looked up in the given files only.
 * Candidate cause C35: quotes are looked up in the given files only, never on disk.
@@ -543,6 +578,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `quotes.large-files`
 
 * Component: `store/quotes` (checking that a quote is findable in its source file). Serves: H4.
+* Page: docs/variables.md#reader-rules R2; docs/variables.md#product-capacity-requirements R15.
 * Generator: A 100 KB file and a 1 MB file with the quote near the end, and 2,000 values quoted from one 1 MB file.
 * Oracle: Every value is kept and the call takes at most 3 s of processor time.
 * Candidate cause C36: quote verification stays linear in file size and in values.
@@ -553,6 +589,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `values.ids.variable-grammar`
 
 * Component: `store/ids` (turning names into ids and keeping ids unique). Serves: M1. Assumes: A9.
+* Page: docs/variables.md#reader-rules R4; docs/variables.md#loading-checking-and-converting.
 * Generator: Condition spans whose quantity noun has capitals and spaces ("Invoice Total"), punctuation ("Customer's age (days)"), a leading digit ("24h response window"), or non-ASCII letters.
 * Oracle: Every variable id matches ^[A-Za-z0-9][A-Za-z0-9._-]*$ (the format's id rule) and the variable still cites its span.
 * Candidate cause C37: variable ids are normalised to the id grammar of the variable store format.
@@ -561,6 +598,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `values.ids.value-grammar`
 
 * Component: `store/ids` (turning names into ids and keeping ids unique). Serves: M1. Assumes: A9.
+* Page: docs/variables.md#reader-rules R4; docs/variables.md#loading-checking-and-converting.
 * Generator: Owner values and tool values whose given ids contain spaces, a leading symbol, slashes or quotes ("very high!", "/etc/x").
 * Oracle: Every value id matches ^[A-Za-z0-9][A-Za-z0-9_.-]*$ and the value keeps its provenance (the owner's words, the quote).
 * Candidate cause C38: value ids are normalised to the value id grammar.
@@ -569,6 +607,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `values.ids.stable`
 
 * Component: `store/ids` (turning names into ids and keeping ids unique). Serves: P9.
+* Page: docs/variables.md#reader-rules R4.
 * Generator: The same sources built twice in a row, and built again after an unrelated store was built in between.
 * Oracle: Every variable and value id of the first store appears in the second, for the same span or quote.
 * Candidate cause C39: ids derive from the text alone, with no counter shared between calls.
@@ -577,6 +616,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `values.ids.collisions`
 
 * Component: `store/ids` (turning names into ids and keeping ids unique). Serves: P1.
+* Page: docs/variables.md#reader-rules R4.
 * Generator: Two value ids that normalise to the same id ("very high", "very-high"), two quantity nouns that normalise to the same id ("Order #", "order"), and three-way collisions.
 * Oracle: Every input still has its own value or variable (found by its quote), and ids are unique inside their scope.
 * Candidate cause C40: colliding ids are disambiguated, never merged or dropped.
@@ -585,6 +625,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `values.owner-adds-to-existing`
 
 * Component: `store/owner` (taking missing values, impossible pairs and weights from the owner). Serves: P2.
+* Page: docs/variables.md#reader-rules R5.
 * Generator: A base store with 2 to 4 values on a variable; the owner adds one or two values to it.
 * Oracle: The new values are on that variable; the old values and their provenance are unchanged; no other variable changed.
 * Candidate cause C41: an owner value joins its variable and leaves the other values unchanged.
@@ -593,6 +634,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `values.owner-value-already-present`
 
 * Component: `store/owner` (taking missing values, impossible pairs and weights from the owner). Serves: P3.
+* Page: docs/variables.md#reader-rules R5.
 * Generator: The owner names a value id the variable already has, once or twice.
 * Oracle: The variable holds that value once; it carries its earlier provenance and an owner provenance for each owner entry.
 * Candidate cause C42: an owner value that exists gains the owner provenance instead of a duplicate.
@@ -601,6 +643,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `values.hostile-names`
 
 * Component: `store/ids` (turning names into ids and keeping ids unique). Serves: H7.
+* Page: docs/variables.md#reader-rules R4.
 * Generator: A tool field called "constructor", "toString" or "hasOwnProperty", a value called "constructor", and a quantity noun that reads "__proto__".
 * Oracle: The store holds the variable or value as an ordinary entry (or a grammar-valid id for the noun), no prototype is polluted, and nothing throws.
 * Candidate cause C43: variable and value tables are built without prototype keys.
@@ -609,6 +652,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `values.large-variable`
 
 * Component: `store/ids` (turning names into ids and keeping ids unique). Serves: H4.
+* Page: docs/variables.md#product-capacity-requirements R15.
 * Generator: A variable that the owner extends with 2,000 or 10,000 values.
 * Oracle: All values are kept with unique ids and the call takes at most 3 s of processor time.
 * Candidate cause C44: a variable can hold thousands of values without quadratic work.
@@ -617,6 +661,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `values.unapproved-not-planned`
 
 * Component: `planner/constraints` (impossible pairs in the plan and in the required tuples). Serves: P2. Assumes: A5.
+* Page: docs/variables.md#reader-rules R5; docs/variables.md#planner-rules R6; docs/variables.md#approval.
 * Generator: A hand-built store of shared axes and a rule, plus a value or a variable a machine proposed (approved false, conversations counts as provenance); the same value flagged approved true; a proposed value that an impossible pair names.
 * Oracle: No plan row holds the proposed value or assigns the proposed variable, and no required tuple names them; once approved the value is in rows and every tuple that names it is covered.
 * Candidate cause C45: the planner uses only approved values and variables (the machine proposes, a person approves).
@@ -625,6 +670,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `values.fresh-objects`
 
 * Component: `store/merge` (merging the three sources and keeping every provenance). Serves: H7.
+* Page: docs/variables.md#planner-rules R11.
 * Generator: A store is built, written to, then the same sources are built again.
 * Oracle: Writing to the first result changes neither the sources nor the second result: nothing is shared.
 * Candidate cause C46: buildStore returns objects that share nothing with its input or with an earlier result.
@@ -633,6 +679,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `values.input-not-mutated`
 
 * Component: `store/merge` (merging the three sources and keeping every provenance). Serves: P9.
+* Page: docs/variables.md#planner-rules R11.
 * Generator: Deeply frozen estate input, session list or owner input.
 * Oracle: The call does not throw and the input is unchanged.
 * Candidate cause C47: buildStore never writes to its input.
@@ -643,6 +690,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.greater-than`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2. Assumes: A11.
+* Page: docs/variables.md#reader-rules R3; docs/variables.md#boundaries.
 * Generator: Renders "<the quantity> <greater-than wording> <N><unit>" for over, more than, exceeds, greater than and >, with the threshold N from the seed.
 * Oracle: One variable cites the span; it holds exactly three values whose samples satisfy s1 < N, s2 = N, s3 > N (integers when N is an integer); each cites the span. For gt, ge, lt and le the variable carries a boundaries entry with limit N, the comparison, and holds, fails and edge naming three distinct values: the edge has the sample N, holds a sample where the condition holds, fails one where it does not (docs/variables.md).
 * Candidate cause C48: the estate source reads the greater-than wordings (over, more than, exceeds, greater than, >).
@@ -651,6 +699,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.at-least`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2. Assumes: A11.
+* Page: docs/variables.md#reader-rules R3; docs/variables.md#boundaries.
 * Generator: Renders "<the quantity> <at-least wording> <N><unit>" for at least, no less than, N or more and >=, with the threshold N from the seed.
 * Oracle: One variable cites the span; it holds exactly three values whose samples satisfy s1 < N, s2 = N, s3 > N (integers when N is an integer); each cites the span. For gt, ge, lt and le the variable carries a boundaries entry with limit N, the comparison, and holds, fails and edge naming three distinct values: the edge has the sample N, holds a sample where the condition holds, fails one where it does not (docs/variables.md).
 * Candidate cause C49: the estate source reads the at-least wordings (at least, no less than, N or more, >=).
@@ -659,6 +708,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.less-than`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2. Assumes: A11.
+* Page: docs/variables.md#reader-rules R3; docs/variables.md#boundaries.
 * Generator: Renders "<the quantity> <less-than wording> <N><unit>" for under, below, fewer than and <, with the threshold N from the seed.
 * Oracle: One variable cites the span; it holds exactly three values whose samples satisfy s1 < N, s2 = N, s3 > N (integers when N is an integer); each cites the span. For gt, ge, lt and le the variable carries a boundaries entry with limit N, the comparison, and holds, fails and edge naming three distinct values: the edge has the sample N, holds a sample where the condition holds, fails one where it does not (docs/variables.md).
 * Candidate cause C50: the estate source reads the less-than wordings (under, below, fewer than, <).
@@ -667,6 +717,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.at-most`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2. Assumes: A11.
+* Page: docs/variables.md#reader-rules R3; docs/variables.md#boundaries.
 * Generator: Renders "<the quantity> <at-most wording> <N><unit>" for at most, no more than, N or fewer and <=, with the threshold N from the seed.
 * Oracle: One variable cites the span; it holds exactly three values whose samples satisfy s1 < N, s2 = N, s3 > N (integers when N is an integer); each cites the span. For gt, ge, lt and le the variable carries a boundaries entry with limit N, the comparison, and holds, fails and edge naming three distinct values: the edge has the sample N, holds a sample where the condition holds, fails one where it does not (docs/variables.md).
 * Candidate cause C51: the estate source reads the at-most wordings (at most, no more than, N or fewer, <=).
@@ -675,6 +726,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.equal`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2. Assumes: A11.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: Renders "<the quantity> <equal wording> <N><unit>" for exactly, equals and ==, with the threshold N from the seed.
 * Oracle: One variable cites the span; it holds exactly three values whose samples satisfy s1 < N, s2 = N, s3 > N (integers when N is an integer); each cites the span. For gt, ge, lt and le the variable carries a boundaries entry with limit N, the comparison, and holds, fails and edge naming three distinct values: the edge has the sample N, holds a sample where the condition holds, fails one where it does not (docs/variables.md).
 * Candidate cause C52: the estate source reads the equality wordings (exactly, equals, ==).
@@ -683,6 +735,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.not-equal`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2. Assumes: A11.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: Renders "<the quantity> <not-equal wording> <N><unit>" for not equal to, other than and !=, with the threshold N from the seed.
 * Oracle: One variable cites the span; it holds exactly three values whose samples satisfy s1 < N, s2 = N, s3 > N (integers when N is an integer); each cites the span. For gt, ge, lt and le the variable carries a boundaries entry with limit N, the comparison, and holds, fails and edge naming three distinct values: the edge has the sample N, holds a sample where the condition holds, fails one where it does not (docs/variables.md).
 * Candidate cause C53: the estate source reads the inequality wordings (not equal to, other than, !=).
@@ -691,6 +744,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.range`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: Renders "between A and B", "from A to B" and a range of negative numbers, with A < B from the seed.
 * Oracle: One variable cites the span; its samples include one below A, A itself, one strictly between, B itself and one above B.
 * Candidate cause C54: a range condition yields both edges and a value inside and outside.
@@ -699,6 +753,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.decimal`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: Thresholds written with decimals: 0.5, 12.75, 3.0, 0.3.
 * Oracle: The boundary sample equals the written threshold exactly (Number of the text); s1 < t < s3.
 * Candidate cause C55: decimal thresholds are read exactly.
@@ -707,6 +762,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.negative`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: Thresholds below zero: "below -5 degrees", "more than -0.5".
 * Oracle: The boundary sample is the negative threshold; s1 < t < s3.
 * Candidate cause C56: a negative threshold keeps its sign.
@@ -715,6 +771,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.zero`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: "more than 0 attempts" and "no more than 0 retries".
 * Oracle: The boundary sample is 0; s1 < 0 < s3 (a falsy threshold is still a threshold).
 * Candidate cause C57: a zero threshold is a threshold.
@@ -723,6 +780,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.thousands-separator`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: Thresholds written "1,000", "10,000,000" and "1 000" with a no-break space.
 * Oracle: The boundary sample equals the number without separators.
 * Candidate cause C58: thousands separators belong to the number.
@@ -731,6 +789,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.large-number`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: Thresholds 1000000000, 2147483648 and 1000000000000.
 * Oracle: The boundary sample equals the threshold; s1 < t < s3 (no wrap at 32 bits).
 * Candidate cause C59: thresholds beyond 32 bits are read without overflow.
@@ -739,6 +798,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.units`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: The same threshold with a unit word ("500 euros", "5 minutes"), a percent sign ("80%"), or a currency sign ("EUR 500", "$500").
 * Oracle: The boundary sample is the number; the unit does not change it.
 * Candidate cause C60: unit words and currency signs around the number do not change the threshold.
@@ -747,6 +807,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.number-words`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: "at least three retries", "more than twenty-five items", "over one hundred pages".
 * Oracle: The boundary sample is the number the words name.
 * Candidate cause C61: number words are read as numbers.
@@ -755,6 +816,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.merge-thresholds`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2.
+* Page: docs/variables.md#reader-rules R4.
 * Generator: Two spans over one quantity: thresholds far apart; thresholds one apart so their samples overlap; one threshold in two spans with different comparators.
 * Oracle: One variable; the samples are the union of the samples each span requires, with no duplicate sample; every span's three requirements hold.
 * Candidate cause C62: values from several spans of one variable are merged without duplicate samples.
@@ -763,6 +825,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.integer-samples`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P2. Assumes: A11.
+* Page: docs/variables.md#reader-rules R3.
 * Generator: Integer thresholds on counts ("3 retries"), money ("500 euros") and percentages ("80%").
 * Oracle: All three samples are integers.
 * Candidate cause C63: an integer threshold gets integer samples on both sides.
@@ -771,6 +834,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `boundaries.cites-span`
 
 * Component: `store/boundaries` (the two sides and the boundary of a condition). Serves: P3.
+* Page: docs/variables.md#reader-rules R1; docs/variables.md#reader-rules R3.
 * Generator: One numeric span in a file with a source path.
 * Oracle: Each of the three values has a quote provenance whose source path is the file and whose quote is findable in it and overlaps the span.
 * Candidate cause C64: the quote of a boundary value is the span text copied from its file, with the path of the file.
@@ -781,6 +845,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `impossible.rows-avoid-pairs`
 
 * Component: `planner/constraints` (impossible pairs in the plan and in the required tuples). Serves: P8.
+* Page: docs/variables.md#planner-rules R7.
 * Generator: A space of 2 to 8 variables with 1 to 3 impossible pairs, on plain variables, on shared axes, or inside a rule's variables.
 * Oracle: No plan row holds both values of any impossible pair.
 * Candidate cause C65: plan rows never hold two values the store marks impossible.
@@ -789,6 +854,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `impossible.required-tuples-skip-pairs`
 
 * Component: `planner/constraints` (impossible pairs in the plan and in the required tuples). Serves: P8. Assumes: A2.
+* Page: docs/variables.md#planner-rules R6.
 * Generator: A pair that sits inside one rule group, inside the shared axes, or between two groups; and six variables of arity 3 to 4 where 30, 50 or 70 percent of the pairs among non-universal values are impossible.
 * Oracle: Every allowed required tuple (tuples with no impossible pair) is covered, checked by exhaustive enumeration; the plan ends; no row holds a pair.
 * Candidate cause C66: required tuples exclude those that hold an impossible pair.
@@ -797,6 +863,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `impossible.unordered`
 
 * Component: `planner/constraints` (impossible pairs in the plan and in the required tuples). Serves: P8.
+* Page: docs/variables.md#planner-rules R7.
 * Generator: The same pair declared as (a, b) and as (b, a), alone and mixed with other pairs.
 * Oracle: The plan equals the plan of the store that declares the pair the other way round.
 * Candidate cause C67: an impossible pair is unordered.
@@ -805,6 +872,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `impossible.duplicates-count-once`
 
 * Component: `planner/constraints` (impossible pairs in the plan and in the required tuples). Serves: P8.
+* Page: docs/variables.md#planner-rules R6; docs/variables.md#planner-rules R7.
 * Generator: A pair declared three times, and in both orders.
 * Oracle: The plan equals the plan of the store that declares the pair once.
 * Candidate cause C68: repeated impossible pairs count once.
@@ -813,6 +881,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `impossible.same-variable-pair`
 
 * Component: `planner/constraints` (impossible pairs in the plan and in the required tuples). Serves: P8.
+* Page: docs/variables.md#planner-rules R7.
 * Generator: A pair of two values of one variable, on a plain variable and on a variable of a rule.
 * Oracle: The plan equals the plan without the pair: one variable never holds two values in a row.
 * Candidate cause C69: a pair of two values of one variable changes nothing.
@@ -821,6 +890,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `impossible.unknown-reference`
 
 * Component: `store/owner` (taking missing values, impossible pairs and weights from the owner). Serves: P2. Assumes: A10.
+* Page: docs/variables.md#reader-rules R5.
 * Generator: Owner pairs that name an unknown variable, an unknown value of a known variable, or both.
 * Oracle: The pair is not in the store and the refusal list names it with a reason.
 * Candidate cause C70: an owner pair that names an unknown variable or value is refused with a reason.
@@ -829,6 +899,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `impossible.forced-out-value`
 
 * Component: `planner/constraints` (impossible pairs in the plan and in the required tuples). Serves: P8. Assumes: A2.
+* Page: docs/variables.md#planner-rules R6.
 * Generator: A value that every value of another variable forbids: directly, through a chain of two pairs, or inside a rule group.
 * Oracle: The value is in no row; no tuple that holds it is required; every other allowed required tuple is covered.
 * Candidate cause C71: a value that no partner value allows is never used and never required.
@@ -837,6 +908,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `impossible.unsatisfiable-space`
 
 * Component: `planner/constraints` (impossible pairs in the plan and in the required tuples). Serves: P8. Assumes: A6.
+* Page: docs/variables.md#planner-rules R7.
 * Generator: Two single-valued variables whose only values are forbidden together; a cycle of pairs with no valid row.
 * Oracle: The plan has no new row, or the call throws an error that names a conflicting variable; it ends within 10 s.
 * Candidate cause C72: a space with no valid row yields no rows or a named error, never an invalid row.
@@ -845,6 +917,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `impossible.tight-chain`
 
 * Component: `planner/constraints` (impossible pairs in the plan and in the required tuples). Serves: H7. Assumes: A2.
+* Page: docs/variables.md#planner-rules R6; docs/variables.md#planner-rules R7.
 * Generator: Spaces where few rows are valid: eight binary variables whose neighbours must differ (2 valid rows), five ternary variables whose neighbours must differ, six variables of which exactly one is on; a hub value compatible with one partner of every other variable; a value that excludes all but one value of another variable.
 * Oracle: Every row is valid and every allowed required tuple is covered (the required set comes from the valid rows).
 * Candidate cause C73: row construction completes tightly constrained rows by search, not by chance.
@@ -853,6 +926,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `impossible.with-seeds`
 
 * Component: `planner/constraints` (impossible pairs in the plan and in the required tuples). Serves: P6.
+* Page: docs/variables.md#planner-rules R7; docs/variables.md#planner-rules R8.
 * Generator: Valid seed rows, some of them one value away from an impossible pair, on a constrained space.
 * Oracle: Seeds lead the plan unchanged; no new row holds a pair; the allowed required tuples are covered.
 * Candidate cause C74: new rows next to seeds still avoid impossible pairs.
@@ -863,6 +937,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.relative-frequency`
 
 * Component: `store/weights` (weights and their 95 percent intervals). Serves: P2.
+* Page: docs/variables.md#reader-rules R5; docs/variables.md#values.
 * Generator: Sessions drawn from a planted mix on 1 to 10 variables of a base store built from tool evidence; the counts are known.
 * Oracle: Each value's weight is within 1 / (of + 2) of seen / of, where of counts the sessions that observe its variable (so smoothing is allowed, a wrong denominator is not).
 * Candidate cause C75: a value's weight is its share of the sessions that observe its variable.
@@ -871,6 +946,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.complete-and-relative`
 
 * Component: `store/weights` (weights and their 95 percent intervals). Serves: P2. Assumes: A5.
+* Page: docs/variables.md#reader-rules R5; docs/variables.md#values.
 * Generator: Sessions on a variable whose values are all seen, one value never seen, and one value added by the sessions.
 * Oracle: Every value of the variable has a weight (the format: all values or none), the weights are not all 0, the shares weight over total weight add up to 1, and each share agrees with the value's conversations count over total within 1 over (total + 2).
 * Candidate cause C76: a variable seen in conversations weighs every one of its values, in proportion to the counts.
@@ -879,6 +955,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.interval-holds-estimate`
 
 * Component: `store/weights` (weights and their 95 percent intervals). Serves: P11.
+* Page: docs/variables.md#counter-and-interval-rules R13.
 * Generator: weightInterval(count, total) for (7, 50), (25, 50), (1, 50), (49, 50), (333, 1000); for (0, 1) and (1, 1); for (20, 20), (0, 20), (1000, 1000).
 * Oracle: For every call, 0 <= lower <= count / total <= upper <= 1 and all are finite.
 * Candidate cause C77: the weight interval is clamped to 0..1 and holds the weight.
@@ -887,6 +964,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.interval-coverage`
 
 * Component: `store/weights` (weights and their 95 percent intervals). Serves: P11.
+* Page: docs/variables.md#counter-and-interval-rules R13.
 * Generator: Replicate draws (400 to 600 per design) of the count of n sessions that show a value of planted share p, then weightInterval(count, n): (p, n) = (0.5, 100), (0.5, 20), (0.1, 50), (0.02, 100), (0.02, 1000), (0.005, 500), (0.95, 40), (0.998, 300).
 * Oracle: The count of replicates whose interval holds p is at least the threshold set from the exact Wilson coverage at (p, n) minus 0.03 minus 5.5 standard deviations.
 * Candidate cause C78: the weight interval formula keeps rare shares covered (a score or exact interval, not the normal approximation).
@@ -895,6 +973,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.interval-width`
 
 * Component: `store/weights` (weights and their 95 percent intervals). Serves: P11.
+* Page: docs/variables.md#counter-and-interval-rules R13.
 * Generator: weightInterval at counts that match the share exactly: 50 of 100, 100 of 1000, 6 of 30; and 18 of 60 against 180 of 600.
 * Oracle: The width is at most 1.5 times the Wilson width and at least 0.6 times it; ten times the sessions narrow it by a factor between 2.2 and 4.5.
 * Candidate cause C79: the weight interval is computed from the counts, so it narrows as sessions grow.
@@ -903,6 +982,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.interval-level`
 
 * Component: `store/weights` (weights and their 95 percent intervals). Serves: P11.
+* Page: docs/variables.md#counter-and-interval-rules R13.
 * Generator: weightInterval(200, 400) and weightInterval(200, 2000).
 * Oracle: The half-width is within 15 percent of the 95 percent Wilson half-width.
 * Candidate cause C80: the weight interval uses the 95 percent critical value 1.96.
@@ -911,6 +991,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.zero-count`
 
 * Component: `store/weights` (weights and their 95 percent intervals). Serves: P11.
+* Page: docs/variables.md#reader-rules R5; docs/variables.md#counter-and-interval-rules R13.
 * Generator: A value of the store that no session shows, among 20, 60 or 1,000 sessions, alone or beside seen values.
 * Oracle: Its share of the variable's weight is at most 1 / (n + 2); its conversations entry reads 0 of n; weightInterval(0, n) has a lower bound of 0 and an upper bound above 0.
 * Candidate cause C81: a value never seen keeps a share near 0 and an interval from 0 to a bound above 0.
@@ -919,6 +1000,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.all-sessions-one-value`
 
 * Component: `store/weights` (weights and their 95 percent intervals). Serves: P11.
+* Page: docs/variables.md#reader-rules R5; docs/variables.md#counter-and-interval-rules R13.
 * Generator: 10 or 1,000 sessions that all show the same value.
 * Oracle: Its share is at least 1 - 1 / (n + 2); weightInterval(n, n) has an upper bound of 1 and a lower bound below 1.
 * Candidate cause C82: a value seen in every session has an upper bound of 1 and a lower bound below 1.
@@ -927,6 +1009,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.no-observation`
 
 * Component: `store/weights` (weights and their 95 percent intervals). Serves: H7.
+* Page: docs/variables.md#reader-rules R5; docs/variables.md#counter-and-interval-rules R13.
 * Generator: No session at all, sessions that never observe one variable, and owner weights on every value of a variable no session shows.
 * Oracle: No weight is NaN, infinite or negative; a variable no session observes has no weight or equal weights; owner weights stay as declared; weightInterval(0, 1) is a finite interval with width inside 0 to 1.
 * Candidate cause C83: a variable with no observation gets no NaN weight and no made-up weights.
@@ -935,6 +1018,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.recovered-mix`
 
 * Component: `store/weights` (weights and their 95 percent intervals). Serves: P11.
+* Page: docs/variables.md#reader-rules R5; docs/variables.md#counter-and-interval-rules R13.
 * Generator: 400 replicate draws of n sessions from a planted mix of 4 values, of 12 skewed values, and of 15 sessions.
 * Oracle: The mean weight of each value over the replicates is within 5.5 standard errors (plus 0.003) of the planted share.
 * Candidate cause C84: weights are not biased away from the planted mix.
@@ -943,6 +1027,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.owner-kept-exactly`
 
 * Component: `store/owner` (taking missing values, impossible pairs and weights from the owner). Serves: P2.
+* Page: docs/variables.md#reader-rules R5.
 * Generator: Owner weights for every value of a variable: (0.25, 0.5, 0.25), three thirds (1/3), (1e-9, 0.5, 0.5), and (60, 15, 25), a relative scale.
 * Oracle: Each stored weight equals the declared one exactly (weights are relative, so 60 is valid).
 * Candidate cause C85: an owner weight is stored exactly as declared.
@@ -951,6 +1036,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `weights.owner-invalid-refused`
 
 * Component: `store/owner` (taking missing values, impossible pairs and weights from the owner). Serves: M1.
+* Page: docs/variables.md#reader-rules R5.
 * Generator: Owner weights -0.1, null, NaN, Infinity and the string "0.5".
 * Oracle: The weight is not stored and the refusal list names it with a reason.
 * Candidate cause C86: an owner weight that is not a finite number from 0 up is refused with a reason.
@@ -961,6 +1047,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.others-at-one`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: P5.
+* Page: docs/variables.md#planner-rules R6.
 * Generator: Variables in no rule and no shared axis: 3 binary, 10 of arity 2 to 5, a single variable, a variable of arity 1.
 * Oracle: Every value of every variable is held by some row (brute force over the rows).
 * Candidate cause C98: variables outside every rule and axis are covered at strength 1.
@@ -969,6 +1056,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.others-economy`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: P5.
+* Page: docs/variables.md#product-capacity-requirements R14.
 * Generator: 30 or 100 variables of arity 5, none in a rule or an axis.
 * Oracle: The plan has at most 2 x 5 rows (strength 1 needs 5): pairs on these variables are not required.
 * Candidate cause C99: variables outside the rules and axes cost rows by arity only.
@@ -977,6 +1065,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.axes-at-two`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: P5.
+* Page: docs/variables.md#planner-rules R6.
 * Generator: Shared axes only: 3 axes of arity 2, 3, 4; 6 axes; 6 axes with one of arity 1; 12 binary axes; one axis of 7, 1 or 20 values beside three binary axes.
 * Oracle: Every allowed pair of values of every pair of axes is held by some row; rows are within the greedy bound.
 * Candidate cause C100: shared axes are covered at strength 2.
@@ -985,6 +1074,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.rule-at-three`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: P5.
+* Page: docs/variables.md#planner-rules R6.
 * Generator: One rule with 3 variables; 4 binary; 5 ternary; 7 binary; 4 of mixed arity; 12 binary; 4 quaternary.
 * Oracle: Every allowed triple of values of every 3 of the rule's variables is held by some row; rows are within the greedy bound.
 * Candidate cause C101: each rule's own variables are covered at strength 3.
@@ -993,6 +1083,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.small-groups`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: P5. Assumes: A8.
+* Page: docs/variables.md#planner-rules R6.
 * Generator: A rule with 2 variables of arity 3 and 4, a rule with 1 variable, a rule with none.
 * Oracle: The full cross product of the rule's variables is covered; a rule with no variable changes nothing; no call throws.
 * Candidate cause C102: a group smaller than its strength is covered in full.
@@ -1001,6 +1092,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.overlapping-rules`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: P5.
+* Page: docs/variables.md#planner-rules R6.
 * Generator: Two rules of 4 variables that share 2 variables, and two rules that share 3.
 * Oracle: The triples of both rules are covered, each shared triple once; rows are within the bound of the union.
 * Candidate cause C103: rules that share variables are covered on the union of their triples.
@@ -1009,6 +1101,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.axis-in-rule`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: P5.
+* Page: docs/variables.md#planner-rules R6.
 * Generator: A rule whose variables include one shared axis, and a rule made only of shared axes.
 * Oracle: The pairs of the axes and the triples of the rule are all covered.
 * Candidate cause C104: a variable that is both an axis and a rule variable meets both strengths.
@@ -1017,6 +1110,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.no-uniform-explosion`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: P5.
+* Page: docs/variables.md#planner-rules R6; docs/variables.md#product-capacity-requirements R14.
 * Generator: 10, then 40 rules of 4 binary variables each, plus 10 shared axes and 20 other variables.
 * Oracle: Every required tuple is covered and the rows stay within 1.25 x the greedy bound of the required set: strength 3 across all variables would need many times more.
 * Candidate cause C105: strength 3 applies only inside a rule's own variables.
@@ -1025,6 +1119,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.row-economy`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: P5.
+* Page: docs/variables.md#product-capacity-requirements R14.
 * Generator: One rule of 6 binary, 5 ternary, 4 quaternary or 8 binary variables.
 * Oracle: The rows are fewer than 0.6 of the full product and within the greedy bound: a covering array, not the product.
 * Candidate cause C106: rows are chosen to cover many uncovered tuples at once, not by taking the full product.
@@ -1033,6 +1128,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.rows-complete-and-valid`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: P5.
+* Page: docs/variables.md#planner-rules R6; docs/variables.md#planner-rules R7.
 * Generator: Small spaces, spaces with rules and axes, spaces of mixed arity.
 * Oracle: Every new row has exactly the store's variables as keys, each with one of its listed values.
 * Candidate cause C107: each new row holds exactly one valid value for every variable.
@@ -1041,6 +1137,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.report-matches-counter`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: P12.
+* Page: docs/variables.md#counter-and-interval-rules R12.
 * Generator: Spaces of axes only, of rules only, and of both with seeds.
 * Oracle: The plan report's allowed and covered counts equal the independent brute-force counts of the required tuples and of the tuples the plan covers.
 * Candidate cause C108: the plan report counts allowed and covered tuples exactly.
@@ -1049,6 +1146,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `strength.any-seed-integer`
 
 * Component: `planner/strength` (variable-strength covering: strength 3, 2 and 1). Serves: H7.
+* Page: docs/variables.md#planner-rules R11.
 * Generator: The seed option 0, -1, 2147483648 and 9007199254740991 on a space with rules and axes.
 * Oracle: The plan covers every allowed required tuple under each seed.
 * Candidate cause C109: any integer seed gives a complete array.
@@ -1059,6 +1157,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `seeds.lead-the-plan`
 
 * Component: `planner/seeds` (seed rows first and new rows only for what the seeds miss). Serves: P6.
+* Page: docs/variables.md#planner-rules R8.
 * Generator: 1, 5 or 30 seed rows; partial seeds that leave variables out; seeds whose traffic weights would reorder them; seeds whose keys come in another order.
 * Oracle: The first rows of the plan are the seeds, in the order given, marked as seeds, with the very values given (no key added, none dropped); every later row is marked new.
 * Candidate cause C110: seed rows lead the plan, in the order given, unchanged, marked as seeds.
@@ -1067,6 +1166,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `seeds.new-rows-for-missing`
 
 * Component: `planner/seeds` (seed rows first and new rows only for what the seeds miss). Serves: P6.
+* Page: docs/variables.md#planner-rules R8.
 * Generator: Seeds that cover about 30, 50 or 90 percent of the required tuples, or all but the rare tuples; 3 random seeds; seeds that already cover every required tuple (all valid rows of a small space of binary axes, of a rule, of a mixed space).
 * Oracle: Seeds plus new rows cover every required tuple; each new row holds at least one required tuple that no seed holds (so full seeds give no new row); the new rows number at most 1.25 x the greedy bound of the tuples the seeds miss, plus one, and fewer than the plan without seeds.
 * Candidate cause C111: new rows are added only for tuples the seeds miss, each covering at least one.
@@ -1075,6 +1175,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `seeds.partial-rows-credit`
 
 * Component: `planner/seeds` (seed rows first and new rows only for what the seeds miss). Serves: P6.
+* Page: docs/variables.md#planner-rules R8.
 * Generator: Partial seeds that assign only some variables; a seed that assigns two of the three variables of a rule.
 * Oracle: A seed credits only the tuples whose variables it assigns: the tuples it cannot hold are covered by new rows.
 * Candidate cause C112: a seed row covers only the tuples whose variables it assigns.
@@ -1083,6 +1184,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `seeds.empty-list`
 
 * Component: `planner/seeds` (seed rows first and new rows only for what the seeds miss). Serves: P6.
+* Page: docs/variables.md#planner-rules R8.
 * Generator: The seed option as an empty array, and absent.
 * Oracle: The plan equals the plan of the same call without the option.
 * Candidate cause C113: an empty seed list changes nothing.
@@ -1091,6 +1193,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `seeds.credit-at-every-strength`
 
 * Component: `planner/seeds` (seed rows first and new rows only for what the seeds miss). Serves: P6.
+* Page: docs/variables.md#planner-rules R8.
 * Generator: Seeds that hold every value of every variable but few pairs; seeds that hold all axis pairs but few rule triples; seeds that miss one value only.
 * Oracle: New rows exist exactly for the tuples missing at each strength: the plan covers all of them and each new row holds a missing tuple.
 * Candidate cause C114: seed coverage is credited at every group strength.
@@ -1099,6 +1202,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `seeds.row-ids-unique`
 
 * Component: `planner/seeds` (seed rows first and new rows only for what the seeds miss). Serves: P6.
+* Page: docs/variables.md#planner-rules R7.
 * Generator: Plans with seeds and new rows, and with 200 rows.
 * Oracle: Every plan row has a non-empty string id and the ids are unique.
 * Candidate cause C115: every plan row has an id and the ids are unique.
@@ -1107,6 +1211,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `seeds.no-duplicate-rows`
 
 * Component: `planner/seeds` (seed rows first and new rows only for what the seeds miss). Serves: P6.
+* Page: docs/variables.md#planner-rules R8.
 * Generator: A small space where one new row would equal a seed, and a space where two new rows could be equal.
 * Oracle: No new row repeats a seed or another new row.
 * Candidate cause C116: no new row repeats a seed or another new row.
@@ -1115,6 +1220,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `seeds.many-seeds`
 
 * Component: `planner/seeds` (seed rows first and new rows only for what the seeds miss). Serves: H4.
+* Page: docs/variables.md#planner-rules R8; docs/variables.md#product-capacity-requirements R15.
 * Generator: 500 and 3,000 random seed rows over 20 shared axes with skewed weights.
 * Oracle: Seeds lead the plan; every required tuple is covered; new rows are at most 1.25 x the bound of the missing tuples; at most 8 s of processor time.
 * Candidate cause C117: seed credit stays linear in the number of seeds.
@@ -1123,6 +1229,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `seeds.pure-copy`
 
 * Component: `planner/seeds` (seed rows first and new rows only for what the seeds miss). Serves: P9.
+* Page: docs/variables.md#planner-rules R8; docs/variables.md#planner-rules R11.
 * Generator: Seed objects passed in, the plan read, then a plan row written to.
 * Oracle: The caller's seed objects are never the plan's row objects, and writing to the plan leaves them unchanged.
 * Candidate cause C118: plan seed rows are copies, not the caller's objects.
@@ -1133,6 +1240,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `budget.prefix-of-full-plan`
 
 * Component: `planner/budget` (row order by traffic weight and the budget cut). Serves: P7. Assumes: A4.
+* Page: docs/variables.md#planner-rules R9.
 * Generator: A space with skewed shares; the plan without a budget, then with a budget at the middle, 1, all but one, above the total, and with seeds; nested budgets (3, or every budget from 0 to the total plus 2); a budget of 0 with no seeds.
 * Oracle: The plan with budget B is the first min(B, total) rows of the plan without a budget (same ids, kinds, values), so its length is exact and no padding row is invented; a larger budget extends a smaller one; a budget of 0 without seeds gives no row.
 * Candidate cause C119: a budget keeps the first rows of the unbudgeted plan.
@@ -1141,6 +1249,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `budget.new-rows-common-first`
 
 * Component: `planner/budget` (row order by traffic weight and the budget cut). Serves: P7. Assumes: A1, A3.
+* Page: docs/variables.md#planner-rules R9.
 * Generator: Spaces of 4 and 10 variables with skewed shares, and a space with equal shares; a budget that keeps a tenth, a half, or all but the last third of the plan, with and without seeds.
 * Oracle: After the seeds, the log weight of the new rows never increases along the plan (most common first; equal weights may sit in any order); every new row a budget drops is at most as common as every new row it keeps, so the rarest rows are cut first and seed rows are always kept.
 * Candidate cause C120: new rows are ordered by traffic weight, most common first, so a budget cuts the rarest rows first.
@@ -1149,6 +1258,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `budget.invalid-values`
 
 * Component: `planner/budget` (row order by traffic weight and the budget cut). Serves: H7. Assumes: A7.
+* Page: docs/variables.md#planner-rules R10.
 * Generator: A budget of -1, NaN, 1.5, and the string "10".
 * Oracle: The call throws a RangeError whose message names the budget.
 * Candidate cause C121: a budget that is not a non-negative whole number is refused with a RangeError that names it.
@@ -1157,6 +1267,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `budget.log-space-weights`
 
 * Component: `planner/budget` (row order by traffic weight and the budget cut). Serves: H7. Assumes: A3.
+* Page: docs/variables.md#planner-rules R9.
 * Generator: Rows of 200 variables whose shares are about 0.01 (the product underflows to 0 in doubles) and 100 skewed variables.
 * Oracle: The log weight of the new rows never increases along the plan.
 * Candidate cause C122: row weights are compared in log space so long rows keep their order.
@@ -1165,6 +1276,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `budget.weights-from-store`
 
 * Component: `planner/budget` (row order by traffic weight and the budget cut). Serves: P7. Assumes: A3.
+* Page: docs/variables.md#planner-rules R9.
 * Generator: The same space whose shares come from owner weights, or from a store built from conversations; the ordering is checked against those shares.
 * Oracle: The order of the new rows follows the shares in the store, whatever their provenance.
 * Candidate cause C123: the traffic weight of a row reads the store's weights, whatever their source.
@@ -1173,6 +1285,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `budget.uniform-without-weights`
 
 * Component: `planner/budget` (row order by traffic weight and the budget cut). Serves: P7.
+* Page: docs/variables.md#planner-rules R9.
 * Generator: A store with no weight at all, and a store where only some variables have weights.
 * Oracle: The prefix property holds; with no weights the rows are ordered consistently with equal weights; with some weights, a variable without weights counts as uniform.
 * Candidate cause C124: variables without weights count as uniform.
@@ -1181,6 +1294,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `budget.weight-reported`
 
 * Component: `planner/budget` (row order by traffic weight and the budget cut). Serves: P7. Assumes: A3.
+* Page: docs/variables.md#planner-rules R9.
 * Generator: Rows of 3 to 6 variables with shares that sum to 1 and are all above 0.
 * Oracle: Each new row reports weight equal to the product of its value shares within 1e-9 relative.
 * Candidate cause C125: each plan row reports its traffic weight as the product of its value shares.
@@ -1191,6 +1305,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `counter.closed-form`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: P13.
+* Page: docs/variables.md#counter-and-interval-rules R12; docs/variables.md#product-capacity-requirements R15.
 * Generator: Variables of one arity v: (k, v, t) = (5, 3, 2), (12, 4, 3), (50, 7, 1), (6, 2, 9) with t above k, (200, 2, 3); and mixed arities: (2, 3, 5) at t = 2, 30 variables of arity 1 to 9 at t = 3, arities that include 1, arities up to 100000 at t = 3. One group, no rows.
 * Oracle: allowed = e_m of the arities, with m = min(t, k) the strength capped at the group size, computed exactly with big integers (C(k, m) v^m when all arities equal v); covered = 0.
 * Candidate cause C87: the counter sums the products of arities over every subset of min(t, k) variables.
@@ -1199,6 +1314,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `counter.constraints-matching`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: H6.
+* Page: docs/variables.md#planner-rules R6; docs/variables.md#counter-and-interval-rules R12.
 * Generator: Impossible pairs on disjoint variable pairs (a matching): 5 pairs among 20 variables at t = 2 and 3; 100 pairs among 200 variables at t = 3.
 * Oracle: allowed = the coefficient of z^t in the product of (1 + (a+b) z + (ab - f) z^2) over matched pairs and (1 + a z) over the rest, with f the pairs between the two variables.
 * Candidate cause C88: the counter removes tuples that hold an impossible pair.
@@ -1207,6 +1323,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `counter.brute-force-weak-equals-strict`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: P13. Assumes: A2.
+* Page: docs/variables.md#planner-rules R6; docs/variables.md#counter-and-interval-rules R12.
 * Generator: Random spaces of 4 to 6 variables of arity 2 to 4 with random pairs among non-universal values, so a tuple without a pair always extends; groups of strength 1, 2 or 3.
 * Oracle: allowed equals the number of distinct tuples that appear in a valid full row, by exhaustive enumeration of the product.
 * Candidate cause C89: the counter agrees with exhaustive enumeration on random small spaces.
@@ -1215,6 +1332,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `counter.strict-extendable`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: P13. Assumes: A2.
+* Page: docs/variables.md#planner-rules R6; docs/variables.md#counter-and-interval-rules R12.
 * Generator: Random constraints that can make a tuple pairwise fine but impossible to extend: dense pairs, several groups of different strength, one group over all variables; and designed spaces: a triangle of pairs, a forced-out value, a two-step chain, a space with no valid row.
 * Oracle: allowed equals the number of distinct tuples that appear in some valid full row, by exhaustive enumeration; a space with no valid row has allowed 0.
 * Candidate cause C90: a tuple counts as allowed only when some valid full row holds it.
@@ -1223,6 +1341,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `counter.covered-complete-rows`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: P13.
+* Page: docs/variables.md#counter-and-interval-rules R12.
 * Generator: 5 or 30 random valid rows on a small space, and every valid row.
 * Oracle: covered equals the number of distinct allowed tuples held by the rows, by enumeration.
 * Candidate cause C91: the counter counts the distinct allowed tuples the rows hold.
@@ -1231,6 +1350,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `counter.covered-partial-rows`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: P6.
+* Page: docs/variables.md#planner-rules R8; docs/variables.md#counter-and-interval-rules R12.
 * Generator: Rows that leave some variables out, on spaces of 4 to 6 variables.
 * Oracle: A row covers a tuple only when it assigns every variable of the tuple; covered equals the enumerated count.
 * Candidate cause C92: a partial row covers only tuples inside its assigned variables.
@@ -1239,6 +1359,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `counter.overlapping-groups`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: P13.
+* Page: docs/variables.md#counter-and-interval-rules R12.
 * Generator: Two groups over the same variables; a group nested in another; groups of strength 2 and 3 on shared variables.
 * Oracle: allowed and covered count each distinct tuple once, by enumeration of the union.
 * Candidate cause C93: a tuple shared by overlapping groups counts once.
@@ -1247,6 +1368,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `counter.exact-beyond-2-53`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: H7.
+* Page: docs/variables.md#counter-and-interval-rules R12.
 * Generator: 40 variables of arity 1000 at t = 6; mixed arities up to 5000 at t = 5.
 * Oracle: The count equals the exact big-integer value; a number result is accepted only below 2^53.
 * Candidate cause C94: counts beyond 2 to the 53 are exact (bigint).
@@ -1255,6 +1377,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `counter.uncovered-list`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: P13.
+* Page: docs/variables.md#counter-and-interval-rules R12.
 * Generator: Rows that cover part of a small space; a limit of 5, a limit larger than the uncovered set, and rows that cover everything.
 * Oracle: The listed tuples are distinct, allowed and uncovered; their number is min(limit, uncovered); with a sufficiently large limit they are all of them.
 * Candidate cause C95: the counter lists the uncovered tuples, up to a limit.
@@ -1263,6 +1386,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `counter.invalid-arguments`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: H7. Assumes: A7.
+* Page: docs/variables.md#planner-rules R10.
 * Generator: A group that names an unknown variable, a strength of 0, a strength of 1.5, and a group that lists a variable twice.
 * Oracle: The call throws a RangeError whose message names the argument at fault.
 * Candidate cause C96: the counter refuses an unknown variable or a strength that is not a positive whole number.
@@ -1271,6 +1395,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `counter.no-enumeration`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: H4.
+* Page: docs/variables.md#product-capacity-requirements R15.
 * Generator: 200 and 500 binary variables at strength 3 with no rows.
 * Oracle: The count is exact and the call takes at most 50 ms of processor time.
 * Candidate cause C97: the allowed count comes from a formula, not from enumerating tuples.
@@ -1281,6 +1406,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `scale.pairwise-binary`
 
 * Component: `planner/scale` (bounded rows and time at hundreds of variables). Serves: P10.
+* Page: docs/variables.md#product-capacity-requirements R14; docs/variables.md#product-capacity-requirements R15.
 * Generator: n shared binary axes, n = 20, 50, 100, 200, 400 (the same cause covers ternary and arity-eight axes below).
 * Oracle: Every pair of values of every pair of axes is held by some row (a scan over the pairs); rows <= 1.25 x ceil(ln T / -ln(3/4)); processor time within the budget (10 s at 200, 30 s at 400).
 * Candidate cause C134: the planner builds a pairwise array over hundreds of binary variables with a bounded row count.
@@ -1289,6 +1415,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `scale.many-rules`
 
 * Component: `planner/scale` (bounded rows and time at hundreds of variables). Serves: H4.
+* Page: docs/variables.md#product-capacity-requirements R15.
 * Generator: 20, then 100 rules of 6 binary variables drawn from a pool of 60, 160 variables; one variant draws the rules from a pool of 20 so they overlap heavily.
 * Oracle: Every required triple is held by some row (a scan over the triples of each rule); rows within 1.25 x the greedy bound; processor time within 30 s.
 * Candidate cause C135: the planner covers many rule groups at strength 3 with a bounded row count.
@@ -1297,6 +1424,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `scale.thousand-others`
 
 * Component: `planner/scale` (bounded rows and time at hundreds of variables). Serves: H4.
+* Page: docs/variables.md#product-capacity-requirements R15.
 * Generator: 1,000 and 5,000 variables of arity 3 in no rule and no axis.
 * Oracle: The plan has at most 6 rows (strength 1 needs 3) and takes at most 10 s of processor time.
 * Candidate cause C136: variables outside rules and axes cost rows by arity, not by count.
@@ -1305,6 +1433,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `scale.many-impossible-pairs`
 
 * Component: `planner/scale` (bounded rows and time at hundreds of variables). Serves: H4.
+* Page: docs/variables.md#product-capacity-requirements R15.
 * Generator: 2,000 and 20,000 impossible pairs among 200 variables of arity 4 (the first 30 are shared axes) that keep a universal value each.
 * Oracle: No row holds a pair; every allowed required tuple is held; rows within 4 x the greedy bound (the pairs make rows hold fewer tuples than random rows would); at most 30 s of processor time.
 * Candidate cause C137: impossible pairs are looked up in constant time.
@@ -1313,6 +1442,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `scale.estate-spans`
 
 * Component: `store/estate` (reading condition spans and tool evidence of the estate into variables). Serves: H4.
+* Page: docs/variables.md#product-capacity-requirements R15.
 * Generator: 200, 2,000 and 10,000 condition spans with distinct nouns, spread over 20 files of 100 KB.
 * Oracle: The store holds one variable per noun with three values each, no refusal; at most 10 s of processor time at 2,000 spans, 30 s at 10,000.
 * Candidate cause C138: reading the estate is linear in spans and file size.
@@ -1321,6 +1451,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `scale.conversations`
 
 * Component: `store/conversations` (counting the values seen in past conversations (counts only)). Serves: H4.
+* Page: docs/variables.md#product-capacity-requirements R15.
 * Generator: 10,000 and 100,000 sessions over 8 variables of 5 values from a planted mix.
 * Oracle: The counts equal the planted counts; at most 5 s of processor time at 100,000.
 * Candidate cause C139: counting conversations is linear in sessions.
@@ -1329,6 +1460,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `scale.counter-big-plan`
 
 * Component: `planner/counter` (counting allowed and covered tuples). Serves: H4.
+* Page: docs/variables.md#product-capacity-requirements R15.
 * Generator: A plan of about 30 rows on 100 binary variables at strength 3, and on 200 at strength 2, counted by the component.
 * Oracle: covered and allowed equal the bank's own scan; at most 20 s of processor time.
 * Candidate cause C140: coverage counting stays linear in rows times tuples per row.
@@ -1337,6 +1469,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `scale.big-arity-axis`
 
 * Component: `planner/scale` (bounded rows and time at hundreds of variables). Serves: H4.
+* Page: docs/variables.md#product-capacity-requirements R15.
 * Generator: One axis of 200 values beside three binary axes.
 * Oracle: Every value of the big axis meets every value of each other axis; rows within the bound; at most 10 s.
 * Candidate cause C141: the planner handles an axis with hundreds of values.
@@ -1347,6 +1480,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `determinism.same-seed-same-bytes`
 
 * Component: `planner/determinism` (same seed, same plan, byte for byte). Serves: P9.
+* Page: docs/variables.md#planner-rules R11.
 * Generator: A tiny space; a space with rules, seeds and a budget; heavy constraints; equal weights (many ties); 200 binary axes. The plan is built twice with the same store, options and seed.
 * Oracle: The two serialised plans are identical byte for byte.
 * Candidate cause C126: the same store, options and seed give byte-identical plans.
@@ -1355,6 +1489,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `determinism.interleaved-calls`
 
 * Component: `planner/determinism` (same seed, same plan, byte for byte). Serves: P9.
+* Page: docs/variables.md#planner-rules R11.
 * Generator: A plan, then a plan of another store (or another budget) in between, then the first plan again.
 * Oracle: The first and the third plan are identical byte for byte.
 * Candidate cause C127: a plan does not depend on earlier calls.
@@ -1363,6 +1498,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `determinism.across-processes`
 
 * Component: `planner/determinism` (same seed, same plan, byte for byte). Serves: P9.
+* Page: docs/variables.md#planner-rules R11.
 * Generator: The plan built in this process and in a new Node.js process: default environment; another time zone; a Turkish locale; valid ASCII IDs with mixed case and accented Unicode titles (the legacy item ID is unchanged).
 * Oracle: The serialised plans are identical byte for byte.
 * Candidate cause C128: a plan does not depend on the process, its locale or its time zone.
@@ -1371,6 +1507,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `determinism.no-ambient-randomness`
 
 * Component: `planner/determinism` (same seed, same plan, byte for byte). Serves: P9.
+* Page: docs/variables.md#planner-rules R11.
 * Generator: The plan built with Math.random replaced by a function that throws, with the clock set to two different instants, with the crypto random functions throwing, and with all three.
 * Oracle: The call does not throw and the plan equals the plan built in the normal environment.
 * Candidate cause C129: planning draws randomness only from the seed.
@@ -1379,6 +1516,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `determinism.key-order`
 
 * Component: `planner/determinism` (same seed, same plan, byte for byte). Serves: P9.
+* Page: docs/variables.md#planner-rules R11.
 * Generator: The same store with object keys in another order (weights, provenance), and seed rows with keys in another order.
 * Oracle: The plans are equal after sorting object keys.
 * Candidate cause C130: a plan does not depend on the key order of the objects it reads.
@@ -1387,6 +1525,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `determinism.json-round-trip`
 
 * Component: `planner/determinism` (same seed, same plan, byte for byte). Serves: P9.
+* Page: docs/variables.md#planner-rules R11.
 * Generator: The store and the options passed through JSON.stringify and JSON.parse.
 * Oracle: The plan equals the plan of the original objects.
 * Candidate cause C131: a plan depends only on the JSON content of its inputs.
@@ -1395,6 +1534,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `determinism.inputs-not-written`
 
 * Component: `planner/determinism` (same seed, same plan, byte for byte). Serves: P9.
+* Page: docs/variables.md#planner-rules R11.
 * Generator: A deeply frozen store, deeply frozen seed rows, and deeply frozen options.
 * Oracle: The call does not throw and returns the same plan as with unfrozen inputs.
 * Candidate cause C132: planning never writes to its inputs.
@@ -1403,6 +1543,7 @@ Each stem: its component (the one place the fix goes), the clauses it serves, ho
 #### `determinism.store-bytes`
 
 * Component: `planner/determinism` (same seed, same plan, byte for byte). Serves: P9.
+* Page: docs/variables.md#planner-rules R11.
 * Generator: The same sources built twice in a row; built with the object keys of the sources in another order; built in a second Node.js process.
 * Oracle: The serialised stores are identical byte for byte.
 * Candidate cause C133: buildStore gives byte-identical stores for the same sources.
