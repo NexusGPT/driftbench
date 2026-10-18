@@ -119,7 +119,11 @@ function single(member: Labeler): Labelling {
 export function margin(
   probabilities: Readonly<Record<string, number>>,
 ): { label: string; margin: number } | undefined {
-  throw new Error('not implemented: margin');
+  if (!('none' in probabilities) || !isVector(probabilities)) return undefined;
+  const ranked = Object.entries(probabilities).sort((a, b) => b[1] - a[1]);
+  const [top, second] = ranked;
+  if (!top) return undefined;
+  return { label: top[0], margin: top[1] - (second?.[1] ?? 0) };
 }
 
 function stacked(
