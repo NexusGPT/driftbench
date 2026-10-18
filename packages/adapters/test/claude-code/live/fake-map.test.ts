@@ -194,6 +194,33 @@ describe('a guard is provoked only when the ask instructs the act it guards', ()
   });
 });
 
+describe('a forced ask provokes the guard of a rule from the typed evidence of the rule', () => {
+  const exit = (played: ReturnType<typeof play>, name: string) =>
+    played.hooks.filter((row) => row.hook_name === name).map((row) => row.exit_code);
+
+  it('breaks the required form of a command, under a guard the skill declares for itself', async () => {
+    const dir = await copyOfEstate();
+    const played = play(dir, 'Run exactly this command and show me its output: ./scripts/track.sh NW-55012');
+    expect(played.skills).toEqual(['shipment-tracker']);
+    expect(played.calls.find((call) => call.name === 'Bash')?.input.command).toBe('./scripts/track.sh 123');
+    expect(exit(played, 'PreToolUse:Bash')).toContain(2);
+  });
+
+  it('removes a file under the path a typed delete predicate names, and the guard after it speaks', async () => {
+    const dir = await copyOfEstate();
+    const played = play(dir, 'Run exactly this command and show me its output: rm ledger/2026-W41.csv');
+    expect(played.calls.find((call) => call.name === 'Bash')?.input.command).toBe('rm "ledger/"');
+    expect(exit(played, 'PostToolUse:Bash')).toContain(1);
+  });
+
+  it('does not provoke a guard of a skill for an ask that only lands in its trigger', async () => {
+    const dir = await copyOfEstate();
+    const played = play(dir, 'Where is shipment NW-55020 from carrier DPX, and is it late?');
+    expect(played.skills).toEqual(['shipment-tracker']);
+    expect(exit(played, 'PreToolUse:Bash')).not.toContain(2);
+  });
+});
+
 describe('what the copy says still decides', () => {
   it('sets an atom off only while the copy holds its quote', async () => {
     const dir = await copyOfEstate();
