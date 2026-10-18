@@ -209,6 +209,7 @@ describe('the counts file is numbers and fixed keys', () => {
       (c) => Object.assign(c.variables[0]?.values[0] as object, { upper: SECRET }),
       (c) => Object.assign(c.variables[0]?.values[0] as object, { id: SECRET }),
     ];
+    await expect(writePrivateCounts(counts(), { dir: await tmp() })).resolves.toMatch(/\.json$/);
     for (const [i, inject] of leaves.entries()) {
       const c = counts();
       inject(c);
@@ -216,6 +217,26 @@ describe('the counts file is numbers and fixed keys', () => {
       await expect(writePrivateCounts(c as never, { dir }), `injection ${i}`).rejects.toThrow(/counts/);
       expect(await readdir(dir), `injection ${i} left a file`).toEqual([]);
     }
+  });
+
+  it('does not store an agent name that looks like a plain name either', async () => {
+    // The old writer accepted any plain-name pattern up to 64 characters; text that looks like a name must not be stored.
+    const population = new Population(32);
+    const conversations = Array.from({ length: 60 }, (_, i) => ({
+      id: `c${i}`,
+      text: population.conversation().text,
+    }));
+    const store = fixtureStore();
+    store.agent = 'SECRET_CONVERSATION';
+    const { report } = await feedVariables({
+      store,
+      conversations,
+      reader: simulatedReader(population, { accuracy: 1, unsure: 0, seed: 32 }),
+    });
+    const dir = await tmp();
+    const file = await writePrivateCounts(privateCountsOf(report), { dir });
+    expect(await readFile(file, 'utf8')).not.toContain('SECRET_CONVERSATION');
+    expect(basename(file)).not.toContain('SECRET');
   });
 
   it('refuses an agent hash or a set hash that is not a SHA-256', async () => {
