@@ -2,7 +2,7 @@
 // Two references: the baseline main wrote (hf1-baseline.tsv, one row per example spec file, compared where the
 // file is unchanged since), and the schema without the framework keys, over every example spec.
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, extname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -93,12 +93,17 @@ describe('HF1: backward compatibility over examples/', () => {
     expect(rows.length).toBe(2351);
     expect(rows.reduce((sum, row) => sum + Number(row[4]), 0)).toBe(4453);
     const byFile = new Map(loaded.map((entry) => [entry.file, entry]));
-    // Every spec main loaded still loads: a refusal of any of them fails here with its path and its error.
+    // A file main deleted after the baseline is not a spec the framework lost: it is gone from the disk.
+    const deleted = rows.filter(
+      ([file]) => !byFile.has(file) && !refused.has(file) && !existsSync(join(ROOT, file)),
+    );
+    // Every spec main loaded still loads: a refusal of any of them, or a file that vanished without being
+    // deleted, fails here with its path and its error.
     const lost = rows
-      .filter(([file]) => !byFile.has(file))
+      .filter(([file]) => !byFile.has(file) && !deleted.some(([gone]) => gone === file))
       .map(([file]) => `${file}: ${refused.get(file) ?? 'no longer found under examples/'}`);
     expect(lost).toEqual([]);
-    expect(rows.filter(([file]) => byFile.has(file)).length).toBe(2351);
+    expect(rows.filter(([file]) => byFile.has(file)).length).toBe(rows.length - deleted.length);
     let compared = 0;
     let blocks = 0;
     const changed: string[] = [];
