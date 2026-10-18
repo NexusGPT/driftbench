@@ -69,6 +69,8 @@ export function checkSemantics(spec: Spec): Issue[] {
   const ctx: Context = { stages: spec.stages ? new Set(spec.stages) : undefined, defined, forbidden };
 
   const facts = factsOf(spec);
+  // Once per spec: asking it per fact would scan every block for every block.
+  const linked = spec.blocks.some((entry) => entry.parent !== undefined);
   const blockIds = new Set<string>();
   spec.blocks.forEach((block, index) => {
     if (block.id !== undefined) {
@@ -93,10 +95,7 @@ export function checkSemantics(spec: Spec): Issue[] {
       checkRetention(
         block.expect,
         `blocks.${index}.expect`,
-        (fact) =>
-          spec.blocks.some((entry) => entry.parent !== undefined)
-            ? parentFact(spec, index, fact)
-            : (facts.block.get(fact) ?? Infinity) <= index,
+        (fact) => (linked ? parentFact(spec, index, fact) : (facts.block.get(fact) ?? Infinity) <= index),
         issues,
       );
   });
