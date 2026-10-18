@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 export type ChildResult = {
@@ -23,8 +24,10 @@ export function runPointerChild(
     const child = spawn(process.execPath, ['--import', 'tsx', CHILD, String(seed), root], {
       cwd: root,
       env,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
+    const token = randomBytes(16).toString('hex');
+    child.stdin.end(token);
     let out = '';
     let err = '';
     child.stdout.on('data', (chunk: Buffer) => {
@@ -43,7 +46,11 @@ export function runPointerChild(
     });
     child.on('close', (code) => {
       clearTimeout(timer);
-      const line = out.split('\n').filter(Boolean).pop();
+      const line = out
+        .split('\n')
+        .filter((l) => l.startsWith(`${token} `))
+        .pop()
+        ?.slice(token.length + 1);
       if (code !== 0 || !line)
         return reject(
           new Error(`the pointer child exited ${code}: ${err.split('\n').slice(0, 6).join(' | ')}`),

@@ -591,4 +591,33 @@ describe('cheats of the audit gain nothing', () => {
     });
     expect(lost).toContain('pointer/source/reads-files');
   });
+
+  it('an inherited then or toJSON on a built-in, a hook on the output and an exit before the items all fail', async () => {
+    const cases: Array<[string, string]> = [
+      ['c-then', 'Object.getPrototypeOf([]).then = (r: (v: unknown) => void) => r([]);'],
+      ['c-tojson', 'Object.getPrototypeOf([]).toJSON = () => [];'],
+      ['c-exit', 'process.exit(0);'],
+      [
+        'c-exit-late',
+        "(process as unknown as { on: (e: string, f: () => void) => void }).on('exit', () => {});",
+      ],
+      ['c-stdout', 'process.stdout.write = (() => true) as never;'],
+      ['c-species', 'Object.getPrototypeOf([]).constructor = { [Symbol.species]: Array };'],
+    ];
+    for (const [name, code] of cases) {
+      const lost = await scoreCheat(name, (dir) => append(dir, 'cassette.ts', code));
+      expect(lost.length, name).toBe(bank.length);
+    }
+  });
+
+  it('a module that rewrites its own file while it runs is seen', async () => {
+    const lost = await scoreCheat('c-self', (dir) =>
+      append(
+        dir,
+        'cassette.ts',
+        "import('node:fs').then((fs) => fs.appendFileSync(import.meta.url.slice(7), '// x'));",
+      ),
+    );
+    expect(lost.length).toBeGreaterThan(0);
+  });
 });

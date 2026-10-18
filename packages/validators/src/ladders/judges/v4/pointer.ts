@@ -1431,7 +1431,6 @@ function sourcesOf(dir: string, shipped: string): Array<{ file: string; text: st
   if (!existsSync(dir)) return found;
   const walk = (current: string) => {
     for (const name of readdirSync(current)) {
-      if (name === 'node_modules') continue;
       const path = join(current, name);
       if (statSync(path).isDirectory()) {
         walk(path);
@@ -1469,7 +1468,7 @@ const SOURCE_GUARDS: Source[] = [
     what: 'the arguments, the working folder or the main module of its process',
     cause: 'the pointer module reads the arguments, the working folder or the main module of its process',
     patterns: [
-      /\bprocess\s*\.\s*(?:argv|execArgv|cwd|binding|mainModule|title|pid)\b/,
+      /\bprocess\s*\.\s*(?:argv|execArgv|cwd|binding|mainModule|title|pid|exit|reallyExit|on|once|off|emit|stdout|stderr|stdin|kill|abort|dlopen|send)\b/,
       /\bglobalThis\b/,
       /\bglobal\s*\./,
       /DRIFTBENCH/,
