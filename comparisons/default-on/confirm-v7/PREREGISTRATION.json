@@ -1,0 +1,63 @@
+{
+  "title": "default-on-v7 held-out verify confirmation, preregistered before any call",
+  "declaredAt": "2026-10-15T13:05:51.602432+00:00",
+  "product": {
+    "commit": "6f9cebbc8",
+    "policy": "default-on-v7",
+    "note": "packages/judges/src at 6f9cebbc8 equals the PR head; the run uses that tree"
+  },
+  "runFreeze": "9fdf45b0c776dff3b42d2d6d3997582b250495a40b6b631ff27386045314a07c",
+  "population": {
+    "name": "verify-confirm536",
+    "items": 536,
+    "goldPass": 185,
+    "goldFail": 351,
+    "manifestSha256": "5add4859f6c99d963257f01f295fab5c435dcc19d44b14e4b52241a484a2f645",
+    "source": "VerifyBench-Hard, pinned file sha256 1b405149e8e7307dc04e2b35dc1fcceec371ab8e7c68af9f74e5918503c0298d (huggingface ZJU-REAL/VerifyBench rev 05017ea8)",
+    "split": "origin/feat/verify-lead examples/verify-lead/data/confirmation-index.json confirm split (544) minus the 8 ids in confirmation-exclusions.json (questions shared with practice or dev)",
+    "exposure": "Used once before (2026-10-14) to confirm the benchmark-only verify-lead v5 candidate. No default-on tuning, diagnosis or result read touched it.",
+    "builder": "build_confirm_manifest.py (this folder); item text is the public dataset text"
+  },
+  "model": "claude-haiku-5-5, Anthropic Messages API, unchanged default-on runtime settings",
+  "variants": {
+    "new": "default-on-v7",
+    "baseline": "shipped default (frozen baseline source), run live in the same freeze"
+  },
+  "endpoint": "One verdict per item; correct when it equals the official label; inconclusive, blocked, truncated, refused or missing verdicts count wrong. Official labels only, no audit relabeling.",
+  "peers": {
+    "promptfoo": {
+      "file": "origin/feat/verify-lead examples/verify-lead/cells/confirm/promptfoo/decisions.jsonl",
+      "sha256": "aecf22752f2cf1fecd411bfa81768efcdd3bf125d000e7c91b3762beaf76c33f"
+    },
+    "deepeval": {
+      "file": "origin/feat/verify-lead examples/verify-lead/cells/confirm/deepeval/decisions.jsonl",
+      "sha256": "c78e9facf54fff42ced4d30ecf756aa5a1818ddd327c773bee2002c9f6ca8b5a"
+    },
+    "inspect": {
+      "file": "origin/feat/verify-lead examples/verify-lead/cells/confirm/inspect/decisions.jsonl",
+      "sha256": "909ede6ff51f92a0769c9d6af67681f4c8313ae0fa662433068e09742bcca777"
+    },
+    "langfuse": {
+      "file": "origin/feat/verify-lead examples/verify-lead/cells/confirm/langfuse/decisions.jsonl",
+      "sha256": "2579fd041faf6b9f633f0ace87afbd5bcf3903623f5a2bf3a73d6316b0543ec8"
+    },
+    "langwatch": {
+      "file": "origin/feat/verify-lead examples/verify-lead/cells/confirm/langwatch/decisions.jsonl",
+      "sha256": "5e3fb4928145bc0d5a1859f2bf6eabbb3dfd6ae7f842f6b71aedab2dcb7028d0"
+    }
+  },
+  "peerQualification": "Recorded decisions, Claude Haiku 5.5 through claude -p; unverified historical (lane report).",
+  "primaryAnalysis": "Exact two-sided McNemar (sign test on discordant items), v7 against each of the 5 peers; Holm across the 5 peers; alpha 0.05. WIN: v7 higher and Holm p < 0.05. LOSS: peer higher and uncorrected p < 0.05 (the registered family rule). Otherwise TIE.",
+  "sectionFourFiveConditions": {
+    "1": "zero LOSS among the 5 peer comparisons",
+    "2": "the primary comparison against promptfoo is in our favour with exact p < 0.05",
+    "3": "at least half of the peer comparisons (3 of 5) WIN",
+    "4": "not applicable: no MM-Eval or hard-row cell in this population (reported as N/A)"
+  },
+  "secondaryAnalysis": {
+    "shippedDefault": "exact McNemar, v7 against the shipped default run live",
+    "verifyLeadV5": "exact McNemar against recorded driftbench-v5 decisions (sha256 381e62e7cd8ddde8325a079ad98c4b2781d8c570ca5bd07cd537b3d5e3c26b34); Holm across these 2"
+  },
+  "budget": "5 USD for this run inside the 75 USD lane cap; the run drains gracefully if its own spend reaches 4.8 USD",
+  "rerunPolicy": "One execution. Items interrupted by transport failure rerun under the same freeze (no verdict existed). No returned verdict is rerun; no item is excluded; results are reported as they come."
+}

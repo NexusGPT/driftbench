@@ -1,6 +1,8 @@
 import type { Store } from '../contracts/store';
 import type { PlannedCell } from '../runner/campaign';
 import { provenanceDigest } from '../runner/provenance';
+import { applyRealizedTextPolicy } from '../runner/realized-text';
+import { isScored } from '../runner/verdicts';
 import type { TargetRef } from '../schema/common';
 import type { Campaign, CampaignRadius, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
@@ -37,6 +39,8 @@ export const DEFAULT_MAX_AGE_DAYS = 7;
 export type CarriedCell = {
   cell: PlannedCell;
   source: RunResult;
+  /** The immediate baseline, distinct from the original measurement after repeated carries. */
+  sourceCampaign?: string;
   carried: NonNullable<RunResult['carried']>;
   provenance?: RunResult['provenance'];
 };
@@ -174,6 +178,11 @@ export function planRadiusCampaign(
       refuse(`its run in campaign ${baseline.campaignId} did not complete`);
       continue;
     }
+    // A block not run or blocked is no measurement to carry: the cell runs fresh, where it may now run.
+    if (!source.blocks.every(isScored)) {
+      refuse(`its run in campaign ${baseline.campaignId} has a block not run or blocked`);
+      continue;
+    }
     const sourceVersion = agentVersionOf(source);
     if (sourceVersion !== manifest.from) {
       refuse(
@@ -195,21 +204,31 @@ export function planRadiusCampaign(
       refuse(origin.reason);
       continue;
     }
-    plan.carried.push({ cell, source, provenance, carried: origin.carried });
+    plan.carried.push({
+      cell,
+      source,
+      sourceCampaign: baseline.campaignId,
+      provenance,
+      carried: origin.carried,
+    });
   }
   return plan;
 }
 
 /** The run a carried cell stores: the baseline run under the cell's own id and target, stamped. */
-export function carriedRun(entry: CarriedCell): RunResult {
-  return {
-    ...entry.source,
+export function carriedRun(entry: CarriedCell, recordRealizedText = false): RunResult {
+  const source = applyRealizedTextPolicy(entry.source, recordRealizedText, {
+    fromRun: entry.source.runId,
+    ...(entry.sourceCampaign === undefined ? {} : { fromCampaign: entry.sourceCampaign }),
+  });
+  const carried = {
+    ...source,
     runId: entry.cell.cellId,
     target: entry.cell.target,
     provenance: entry.provenance,
-    provenanceDigest: provenanceDigest({ provenance: entry.provenance, blocks: entry.source.blocks }),
     carried: entry.carried,
   };
+  return { ...carried, provenanceDigest: provenanceDigest(carried) };
 }
 
 /** Writes the carried copies under the carrying campaign. `resume` and `status` then find a completed run for each. */
@@ -218,7 +237,9 @@ export async function carryRuns(
   campaignId: string,
   carried: readonly CarriedCell[],
 ): Promise<void> {
-  for (const entry of carried) await store.putRun(campaignId, carriedRun(entry));
+  const campaign = await store.getCampaign(campaignId);
+  for (const entry of carried)
+    await store.putRun(campaignId, carriedRun(entry, campaign?.provenance?.realizedText === true));
 }
 
 /** What the campaign record keeps of a radius plan. */

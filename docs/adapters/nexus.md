@@ -71,7 +71,7 @@ A call of `send_message` or `display_html` adds a `card` segment of that name af
 
 ## Capabilities
 
-`variants`, `trace` and `endState` are on. `seedPrefix` is off: the public API cannot store an agent turn without generating it, and generating runs the tools live, so the agent never sees a spec's prefix. `toolStubs` is off: the platform cannot force a tool result, so `world.tools` does not reach the agent. `deterministic` and `sandbox` are off.
+`variants`, `trace` and `endState` are on. `seedPrefix` is off: the public API cannot store an agent turn without generating it, and generating runs the tools live, so the agent could never see a spec's prefix: a block with one is `not_run`. `toolStubs` is off: the platform cannot force a tool result, so a block with a forced result in `world.tools` is `not_run` too. `deterministic` and `sandbox` are off.
 
 The version is `0.1.0+` and a hash of the base URL.
 

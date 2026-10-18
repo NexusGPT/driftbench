@@ -24,6 +24,7 @@ const PRINT = process.argv.includes('--print')
   : undefined;
 
 const SOURCES = {
+  readmeV7: 'comparisons/default-on/readme-v7/ANALYSIS.json',
   promptfoo: 'comparisons/promptfoo/hard/recorded/summary.json',
   deepeval: 'comparisons/deepeval/hard/baseline-heldout-scores.json',
   deepevalReceipts: 'comparisons/deepeval/hard/baseline-task-receipts-heldout-scores.json',
@@ -50,7 +51,7 @@ const BANKS = [
   { id: 'map', file: 'validators/map/GATE.md', pattern: /Measured on that bank \((\d+) items/ },
 ];
 
-const read = (path) => readFileSync(join(ROOT, path), 'utf8');
+const read = (path) => readFileSync(resolve(ROOT, path), 'utf8');
 const json = (path) => JSON.parse(read(path));
 const facts = [];
 const fact = (chart, what, value, source) => facts.push({ chart, what, value, source });
@@ -97,12 +98,13 @@ function judgeRows(chart = 'judge-heldout') {
         : oursCi[1] < theirsCi[0]
           ? 'deficit'
           : 'close';
-    fact(
-      chart,
-      `${label}: driftbench ${ours} of ${n}, other ${theirs} of ${n}, ${standing}`,
-      [ours, theirs, n],
-      source,
-    );
+    if (chart)
+      fact(
+        chart,
+        `${label}: driftbench ${ours} of ${n}, other ${theirs} of ${n}, ${standing}`,
+        [ours, theirs, n],
+        source,
+      );
     return {
       label,
       n,
@@ -116,113 +118,57 @@ function judgeRows(chart = 'judge-heldout') {
     };
   };
 
-  const deepeval = json(SOURCES.deepeval);
-  const receipts = json(SOURCES.deepevalReceipts);
-  const fresh = json(SOURCES.deepevalFresh);
-  const names = {
-    'turn relevancy': 'Turn relevancy',
-    'G-Eval strict': 'G-Eval, strict',
-    DAG: 'DAG, one node',
-    'role adherence': 'Role adherence',
-    'conversation completeness': 'Completeness',
-    'task completion': 'Task completion',
-    hallucination: 'Hallucination',
-    faithfulness: 'Faithfulness',
-    'knowledge retention': 'Knowledge retention',
-  };
-  groups.push({
-    // Row sizes differ (72, or the fresh set for a renewed row): each chart states them in its note.
-    header: 'DeepEval 4.2.8, default metrics',
-    rows: deepeval.map((entry) => {
-      const renewed = fresh.find((r) => r.row === entry.row);
-      const used =
-        renewed ?? (entry.row === 'task completion' ? receipts.find((r) => r.row === entry.row) : entry);
-      const source = renewed
-        ? SOURCES.deepevalFresh
-        : entry.row === 'task completion'
-          ? SOURCES.deepevalReceipts
-          : SOURCES.deepeval;
-      const setting = renewed && renewed.setting !== 'default' ? renewed.setting : undefined;
-      return row(
-        names[entry.row],
-        used.n,
-        used.ours,
-        used.theirs,
-        source,
-        { ours: used.ours_ci, theirs: used.theirs_ci },
-        setting,
-        renewed
-          ? { raw: renewed.paired_p, adjusted: renewed.paired_p_holm, missing: renewed.excluded_missing ?? 0 }
-          : undefined,
-      );
-    }),
-  });
-
-  const promptfoo = json(SOURCES.promptfoo);
-  const pick = (list, name) =>
-    list.find((r) => r.set === 'heldout' && r.side === 'shipped' && r.row === name);
-  groups.push({
-    header: 'promptfoo, default graders, 72 cases each',
-    rows: [
-      ['LLM rubric', pick(promptfoo.rows, 'rubric')],
-      ['Factuality', pick(promptfoo.rows, 'factuality')],
-      ['Personal data', pick(promptfoo.rows, 'pii')],
-      ['Goal success', pick(promptfoo.ablations, 'goal-equal-evidence')],
-    ].map(([label, r]) =>
-      row(label, r.n, r.ours, r.theirs, SOURCES.promptfoo, { ours: r.ours_ci, theirs: r.theirs_ci }),
-    ),
-  });
-
-  const ours = json(SOURCES.langfuseOurs).summary['heldout-cases.json'];
-  const theirs = json(SOURCES.langfuseTheirs).variants.theirs;
-  groups.push({
-    header: 'Langfuse, Correctness template, 120 cases',
-    rows: [
-      row(
-        'Reference correctness',
-        ours.total,
-        ours.correct,
-        theirs.at_half_correct,
-        `${SOURCES.langfuseOurs} and ${SOURCES.langfuseTheirs}`,
-        { ours: ours.ci95 },
-      ),
-    ],
-  });
-
-  const inspect = json(SOURCES.inspect);
-  const inspectNames = {
-    qa: 'Model-graded QA',
-    fact: 'Model-graded fact',
-    panel: 'Grader panel',
-    borderline: 'Panel, borderline',
-  };
-  groups.push({
-    header: 'Inspect 0.3.278, default graders, 60 cases each',
-    rows: inspect.rows
-      .filter((r) => inspectNames[r.row])
-      .map((r) => {
-        const held = r.records.heldout;
-        return row(
-          inspectNames[r.row],
-          held.ours.items,
-          held.ours.right,
-          held.theirs.right,
-          SOURCES.inspect,
-          {
-            ours: [held.ours.ci95.lower, held.ours.ci95.upper],
-            theirs: [held.theirs.ci95.lower, held.theirs.ci95.upper],
-          },
-        );
-      }),
-  });
+  const analysis = json(SOURCES.readmeV7);
+  const preregistration = json('comparisons/default-on/readme-v7/PREREGISTRATION.json');
+  const freeze = preregistration.amendments.at(-1).runFreeze;
+  if (analysis.frozen !== freeze || analysis.rows.length !== preregistration.rows.length)
+    throw new Error(`${SOURCES.readmeV7}: run freeze or row population differs from preregistration`);
+  const definitions = [
+    ['DeepEval 4.2.8, default metrics', 'deepeval'],
+    ['promptfoo, default graders, 72 cases each', 'promptfoo-langfuse'],
+    ['Langfuse, Correctness template, 120 cases', 'langfuse'],
+    ['Inspect 0.3.278, default graders, 60 cases each', 'inspect'],
+  ];
+  for (const [header, lane] of definitions) {
+    groups.push({
+      header,
+      rows: analysis.rows
+        .filter((r) =>
+          lane === 'langfuse'
+            ? r.row === 'Reference correctness'
+            : r.lane === lane && r.row !== 'Reference correctness',
+        )
+        .map((r) => {
+          const registered = preregistration.rows.find((p) => p.row === r.row);
+          if (!registered || r.n !== registered.n || r.peer !== registered.recordedPeer)
+            throw new Error(`${SOURCES.readmeV7}: ${r.row} differs from preregistered population`);
+          const built = row(
+            r.row === 'G-Eval strict' ? 'G-Eval, strict' : r.row,
+            r.n,
+            r.v7,
+            r.peer,
+            SOURCES.readmeV7,
+            { ours: r.v7Ci, theirs: r.peerCi },
+            r.setting,
+            r.pairedHolmP === undefined
+              ? undefined
+              : { raw: r.pairedP, adjusted: r.pairedHolmP, missing: r.n - r.pairedN },
+          );
+          if (built.standing !== r.standing)
+            throw new Error(`${SOURCES.readmeV7}: ${r.row} standing differs from the README rule`);
+          return built;
+        }),
+    });
+  }
 
   for (const group of groups)
     group.rows.sort((a, b) => b.ours / b.n - b.theirs / b.n - (a.ours / a.n - a.theirs / a.n));
   return groups;
 }
 
-function costRows() {
+function costRows(record = true) {
   const rows = [];
+  const v7 = json(SOURCES.readmeV7).rows;
   const inspect = json(SOURCES.inspect);
   const labels = {
     qa: 'Inspect, model-graded QA',
@@ -235,22 +181,36 @@ function costRows() {
     const held = r.records.heldout;
     rows.push({
       label: labels[r.row],
-      ours: (held.ours.costUsd / held.ours.items) * 100,
+      ours: v7.find(
+        (entry) =>
+          entry.row ===
+          {
+            qa: 'Model-graded QA',
+            fact: 'Model-graded fact',
+            panel: 'Grader panel',
+            borderline: 'Panel, borderline',
+          }[r.row],
+      ).v7UsdPer100,
       theirs: (held.theirs.costUsd / held.theirs.items) * 100,
-      source: SOURCES.inspect,
+      source: `${SOURCES.readmeV7} and ${SOURCES.inspect}`,
     });
   }
-  const ours = json(SOURCES.langfuseOurs).summary['heldout-cases.json'];
   const theirs = json(SOURCES.langfuseTheirs).variants.theirs;
   rows.push({
     label: 'Langfuse, Correctness template',
-    ours: ours.usd_per_100,
+    ours: v7.find((r) => r.row === 'Reference correctness').v7UsdPer100,
     theirs: (theirs.evaluation_cost_usd / theirs.total) * 100,
-    source: `${SOURCES.langfuseOurs} and ${SOURCES.langfuseTheirs}`,
+    source: `${SOURCES.readmeV7} and ${SOURCES.langfuseTheirs}`,
   });
   rows.sort((a, b) => a.ours / a.theirs - b.ours / b.theirs);
   for (const r of rows)
-    fact('judge-cost', `${r.label}: USD per 100 cases, driftbench then other`, [r.ours, r.theirs], r.source);
+    if (record)
+      fact(
+        'judge-cost',
+        `${r.label}: USD per 100 cases, driftbench then other`,
+        [r.ours, r.theirs],
+        r.source,
+      );
   return rows;
 }
 
@@ -395,7 +355,7 @@ function judgeData(leadsOnly) {
     title: leadsOnly
       ? `Cases correct of ${all[0].n}, driftbench against DeepEval's default.`
       : `${total} judge tests, cases correct.`,
-    key: ['driftbench, shipped judge', "the other tool's default"],
+    key: ['driftbench default-on-v7', "the other tool's default"],
     min: 0,
     max: 100,
     ticks: [0, 25, 50, 75, 100],
@@ -414,7 +374,7 @@ function costData() {
     kind: 'pairs',
     kicker: 'Judge cost · US dollars per 100 cases · Claude Haiku 5.5',
     title: 'Cost per 100 judged cases.',
-    key: ['driftbench, shipped judge', "the other tool's default"],
+    key: ['driftbench default-on-v7', "the other tool's default"],
     min: 0,
     max: 0.15,
     ticks: [0, 0.05, 0.1, 0.15],
@@ -432,7 +392,7 @@ function costData() {
         })),
       },
     ],
-    note: '60 to 120 cases per row · recorded spend',
+    note: '60 to 120 cases per row · v7: Messages API; peers: recorded spend',
   };
 }
 
@@ -555,6 +515,32 @@ function matrixData() {
 // ---------------------------------------------------------------------------------------------
 
 const SEALED = 'docs/assets/data/sealed';
+// A published frozen-default set replaces all five primary sources together. Tests can use
+// an isolated directory, including a missing directory to exercise the historical branch.
+const DEFAULT_RESULTS = process.env.DRIFTBENCH_DEFAULT_RESULTS_DIR ?? 'docs/assets/data/default-on-v6';
+const DEFAULT_FILES = [
+  'judgebench.json',
+  'mm-eval.json',
+  'rubricbench-haiku.json',
+  'verify.json',
+  'writing.json',
+];
+const HAS_DEFAULT = existsSync(resolve(ROOT, DEFAULT_RESULTS));
+if (HAS_DEFAULT) {
+  for (const name of DEFAULT_FILES) {
+    const file = join(DEFAULT_RESULTS, name);
+    if (!existsSync(resolve(ROOT, file))) {
+      throw new Error(`incomplete default result set: missing ${name}`);
+    }
+    const { metadata } = json(file);
+    if (metadata?.policy !== 'default-on-v6' || metadata?.model !== 'claude-haiku-5-5') {
+      throw new Error(`${file}: expected default-on-v6 on claude-haiku-5-5`);
+    }
+  }
+}
+const primaryFile = (name) => join(HAS_DEFAULT ? DEFAULT_RESULTS : SEALED, name);
+const measuredModel = (model) => !HAS_DEFAULT || model === 'claude-haiku-5-5';
+
 // The models of the benchmark runs, in the order of the README. Gemini 3.8 Flash is not charted.
 const MODELS = ['claude-haiku-5-5', 'gpt-6-luna', 'gemini-3.5-flash-lite'];
 const MODEL = {
@@ -667,6 +653,7 @@ const ranked = ({ chart, bench, kicker, title, key, panels, note }) => {
   const labels = {};
   const peers = addPeers(chart, bench, panels, labels);
   const drawn = [PROMPTFOO, ...peers].join(', ');
+  const defaultSize = panels.find((panel) => panel.name === 'Claude Haiku 5.5')?.model;
   // which models have no driftbench result, read from the panels as drawn
   const unrun = panels.filter((p) => p.bars.find((b) => b.ours)?.score === null).map((p) => p.name);
   const missing = unrun.length
@@ -680,19 +667,23 @@ const ranked = ({ chart, bench, kicker, title, key, panels, note }) => {
       ...key.filter((k) => k.style !== 'other'),
       ...key.filter((k) => k.style === 'other').map((k) => ({ ...k, pattern: PATTERNS[PROMPTFOO] })),
       ...peers.map((n) => ({ label: labels[n], style: 'other', pattern: PATTERNS[n] })),
-    ],
+    ].map((entry) =>
+      HAS_DEFAULT && entry.style === 'ours' ? { ...entry, label: 'driftbench default-on-v6' } : entry,
+    ),
     axis: 'score out of 100: correct, % of items',
     panels: orderPanels(panels),
-    note: `Competitors with a recorded result on this benchmark in this repository: ${drawn}. ${note}${missing}`.trim(),
+    note: HAS_DEFAULT
+      ? `Frozen default-on-v6 on Claude Haiku 5.5: ${defaultSize}. Other default models: not run. Recorded peers (${drawn}): unverified historical (lane report).`
+      : `Competitors with a recorded result on this benchmark in this repository: ${drawn}. ${note}${missing}`.trim(),
   };
 };
 const notRun = (ours, competitor) => [bar(ours, null, { ours: true }), bar(competitor, null)];
 
 function sealedJudgeBench() {
-  const file = `${SEALED}/judgebench.json`;
+  const file = primaryFile('judgebench.json');
   const cells = json(file).cells.filter((c) => c.status === 'MEASURED');
   const panels = MODELS.map((model) => {
-    const c = cells.find((x) => x.model === model);
+    const c = measuredModel(model) && cells.find((x) => x.model === model);
     return c
       ? modelPanel(
           'bench-judgebench-models',
@@ -721,10 +712,10 @@ function sealedJudgeBench() {
 }
 
 function sealedMmEval() {
-  const file = `${SEALED}/mm-eval.json`;
+  const file = primaryFile('mm-eval.json');
   const data = json(file);
   const panels = MODELS.map((model) => {
-    const c = data.models[inFile(model)]?.primary;
+    const c = measuredModel(model) && data.models[inFile(model)]?.primary;
     // a model whose run covers under 98 percent of the planned items is not charted as a result
     if (!c || c.matched < data.planned * 0.98)
       return modelPanel('bench-mm-eval-models', model, null, notRun('driftbench', PROMPTFOO), file);
@@ -751,20 +742,29 @@ function sealedMmEval() {
 }
 
 function sealedRubricBench() {
-  const cells = {
-    'claude-haiku-5-5': [
-      json(`${SEALED}/rubricbench-haiku.json`).cells.find((c) => c.model === 'claude-haiku-5-5'),
-      `${SEALED}/rubricbench-haiku.json`,
-    ],
-    'gpt-6-luna': [
-      { model: 'gpt-6-luna', ...json(`${SEALED}/rubricbench-luna.json`), coverage: { complete: true } },
-      `${SEALED}/rubricbench-luna.json`,
-    ],
-    'gemini-3.5-flash-lite': [
-      json(`${SEALED}/rubricbench-flash-lite.json`).cells.find((c) => c.model === 'gemini-3.5-flash-lite'),
-      `${SEALED}/rubricbench-flash-lite.json`,
-    ],
-  };
+  const haikuFile = primaryFile('rubricbench-haiku.json');
+  const cells = HAS_DEFAULT
+    ? {
+        'claude-haiku-5-5': [json(haikuFile).cells.find((c) => c.model === 'claude-haiku-5-5'), haikuFile],
+        'gpt-6-luna': [null, haikuFile],
+        'gemini-3.5-flash-lite': [null, haikuFile],
+      }
+    : {
+        'claude-haiku-5-5': [
+          json(`${SEALED}/rubricbench-haiku.json`).cells.find((c) => c.model === 'claude-haiku-5-5'),
+          `${SEALED}/rubricbench-haiku.json`,
+        ],
+        'gpt-6-luna': [
+          { model: 'gpt-6-luna', ...json(`${SEALED}/rubricbench-luna.json`), coverage: { complete: true } },
+          `${SEALED}/rubricbench-luna.json`,
+        ],
+        'gemini-3.5-flash-lite': [
+          json(`${SEALED}/rubricbench-flash-lite.json`).cells.find(
+            (c) => c.model === 'gemini-3.5-flash-lite',
+          ),
+          `${SEALED}/rubricbench-flash-lite.json`,
+        ],
+      };
   const panels = MODELS.map((model) => {
     const [c, file] = cells[model];
     if (!c?.coverage?.complete)
@@ -795,11 +795,11 @@ function sealedRubricBench() {
 }
 
 function sealedVerify() {
-  const file = `${SEALED}/verify.json`;
+  const file = primaryFile('verify.json');
   const data = json(file);
   const fail = data.cheaters.alwaysFailOfficial * 100;
   const panels = MODELS.map((model) => {
-    const c = data.cells.find((x) => x.model === inFile(model) && x.official);
+    const c = measuredModel(model) && data.cells.find((x) => x.model === inFile(model) && x.official);
     const baseline = bar('always fail', fail, { baseline: true });
     if (!c)
       return modelPanel(
@@ -823,7 +823,9 @@ function sealedVerify() {
     chart: 'bench-verify-models',
     bench: 'verify',
     kicker: 'LongJudgeBench verify · test split · is the final answer correct',
-    title: 'Verify: above promptfoo, below a judge that always says fail.',
+    title: HAS_DEFAULT
+      ? `Verify: driftbench scores ${versus(panels, PROMPTFOO)}.`
+      : 'Verify: above promptfoo, below a judge that always says fail.',
     key: [
       { label: 'driftbench verify cascade', style: 'ours' },
       { label: 'promptfoo llm-rubric', style: 'other' },
@@ -835,12 +837,12 @@ function sealedVerify() {
 }
 
 function sealedWriting() {
-  const file = `${SEALED}/writing.json`;
+  const file = primaryFile('writing.json');
   const cells = json(file).cells;
   const longer = cells.find((c) => c.contestant === 'longer-wins');
   const panels = MODELS.map((model) => {
     const key = inFile(model);
-    const ours = cells.find((c) => c.model === key && c.contestant === 'pair-ledger');
+    const ours = measuredModel(model) && cells.find((c) => c.model === key && c.contestant === 'pair-ledger');
     const peer = cells.find((c) => c.model === key && c.contestant === 'promptfoo');
     const baseline = bar('longer reply', longer.accuracy, { baseline: true });
     if (ours?.status !== 'complete' || peer?.status !== 'complete') {
@@ -864,7 +866,9 @@ function sealedWriting() {
     chart: 'bench-writing-models',
     bench: 'writing',
     kicker: 'LongJudgeBench writing preference · test split · both orders',
-    title: `Writing: driftbench scores ${versus(panels, PROMPTFOO)}; picking the longer reply beats both.`,
+    title: HAS_DEFAULT
+      ? `Writing: driftbench scores ${versus(panels, PROMPTFOO)}.`
+      : `Writing: driftbench scores ${versus(panels, PROMPTFOO)}; picking the longer reply beats both.`,
     key: [
       { label: 'driftbench pair ledger', style: 'ours' },
       { label: 'promptfoo select-best', style: 'other' },
@@ -920,7 +924,7 @@ function hardPerTool(tool) {
       kind: 'hbars',
       kicker,
       title: `${name}: ${r.ours} of ${r.n} correct, against ${r.theirs}.`,
-      key: ['driftbench, shipped judge', `${name} default`],
+      key: ['driftbench default-on-v7', `${name} default`],
       min: 0,
       max: 100,
       ticks: [0, 25, 50, 75, 100],
@@ -954,7 +958,7 @@ function hardPerTool(tool) {
   return columns(`hard-${tool}`, {
     kicker: `${kicker} · bars labelled with cases correct`,
     title,
-    key: [settings.length ? 'driftbench' : 'driftbench, shipped judge', `${name} default`],
+    key: [settings.length ? 'driftbench' : 'driftbench default-on-v7', `${name} default`],
     groups,
     note: [
       group.rows.some((r) => r.paired)
@@ -1020,6 +1024,55 @@ const BEST = [
 ];
 const TOOL_NAME = { promptfoo: 'promptfoo', ...PEER_NAME };
 
+const DEFAULT_FILE = {
+  judgebench: 'judgebench.json',
+  mmeval: 'mm-eval.json',
+  rubricbench: 'rubricbench-haiku.json',
+  verify: 'verify.json',
+  writing: 'writing.json',
+};
+/** The frozen default's Claude Haiku 5.5 score for one benchmark, out of 100. The default report scores the
+ *  recorded promptfoo answers again on the same population; a promptfoo score that differs from the
+ *  all-competitors file means the two populations differ, so the chart refuses to set them side by side. */
+function defaultHaiku(bench, chart, peerModel, recordedPromptfoo) {
+  if (peerModel !== 'claude-haiku-5-5') {
+    throw new Error(
+      `${chart}: the competitor file is on ${peerModel}; the frozen default ran on claude-haiku-5-5`,
+    );
+  }
+  const source = join(DEFAULT_RESULTS, DEFAULT_FILE[bench]);
+  const d = json(source);
+  let ours;
+  let peer;
+  if (bench === 'judgebench') {
+    const c = d.cells.find((x) => x.model === 'claude-haiku-5-5' && x.status === 'MEASURED');
+    ours = (c.ledger.correct / c.n) * 100;
+    peer = (c.promptfoo.correct / c.n) * 100;
+  } else if (bench === 'mmeval') {
+    const s = d.models.haiku.primary.scores;
+    ours = s.ledger * 100;
+    peer = s.promptfoo * 100;
+  } else if (bench === 'rubricbench') {
+    const c = d.cells.find((x) => x.model === 'claude-haiku-5-5');
+    ours = c.stats.ours.estimate * 100;
+    peer = c.stats.peer.estimate * 100;
+  } else if (bench === 'verify') {
+    const c = d.cells.find((x) => x.model === 'haiku' && x.official);
+    ours = (c.official.correct[0] / c.official.matchedItems) * 100;
+    peer = (c.official.correct[1] / c.official.matchedItems) * 100;
+  } else {
+    const c = (k) => d.cells.find((x) => x.model === 'haiku' && x.contestant === k);
+    ours = c('pair-ledger').accuracy;
+    peer = c('promptfoo').accuracy;
+  }
+  if (Math.abs(peer - recordedPromptfoo) > 1e-6) {
+    throw new Error(
+      `${chart}: promptfoo scores ${peer} in the default result and ${recordedPromptfoo} in the competitor file; the populations differ`,
+    );
+  }
+  return { ours, source };
+}
+
 /** One chart per benchmark from the all-competitors file: driftbench and every competitor on the model that
  *  file was run on, highest to lowest, scores out of 100, no baseline bars. Every competitor was run on that
  *  one model only, so it is the only model where driftbench can be set against all of them. */
@@ -1029,8 +1082,12 @@ function bestCase({ chart, bench, name, unit, kicker }) {
   const cohort = bench === 'mmeval' ? 'primary' : 'all';
   const model = MODEL[file.model] ?? file.model;
   const row = (id) => file.contestants.find((c) => c.contestant === id);
+  // With a frozen default result set, the driftbench bar is that default; the recorded rows are older settings.
+  const frozen = HAS_DEFAULT
+    ? defaultHaiku(bench, chart, file.model, row(PROMPTFOO)[cohort].score * 100)
+    : null;
   // A footnote where driftbench used an opt-in setting: the writing bar is the reader-first setting.
-  const optIn = row('driftbench-reader-first');
+  const optIn = frozen ? undefined : row('driftbench-reader-first');
   const ours = optIn ?? row('driftbench');
   const bars = [{ id: 'driftbench', row: ours, ours: true }];
   for (const c of file.contestants) {
@@ -1041,38 +1098,43 @@ function bestCase({ chart, bench, name, unit, kicker }) {
   for (const b of bars) if (!b.ours && b.row.grader) labelOf[TOOL_NAME[b.id]] = b.row.grader;
   const drawn = bars.map((b) => {
     const cell = b.row[cohort];
-    const refused = b.row.transportMissing ?? 0;
+    const refused = b.ours && frozen ? 0 : (b.row.transportMissing ?? 0);
     const label = b.ours ? 'driftbench' : (TOOL_NAME[b.id] ?? b.id);
-    const out = bar(label, cell ? cell.score * 100 : null, {
+    const score = b.ours && frozen ? frozen.ours : cell ? cell.score * 100 : null;
+    const out = bar(label, score, {
       ...(b.ours ? { ours: true } : {}),
       ...(refused > 0 ? { refused } : {}),
     });
-    fact(
-      chart,
-      `${label}, percent${refused > 0 ? ', refused items counted wrong' : ''}`,
-      out.score === null ? 'not run' : refused > 0 ? [out.score, refused] : out.score,
-      path,
-    );
+    if (chart)
+      fact(
+        chart,
+        `${label}, percent${refused > 0 ? ', refused items counted wrong' : ''}`,
+        out.score === null ? 'not run' : refused > 0 ? [out.score, refused] : out.score,
+        b.ours && frozen ? frozen.source : path,
+      );
     return out;
   });
-  const n = ours[cohort].n;
+  const n = row(PROMPTFOO)[cohort].n;
   const others = drawn.filter((b) => !b.ours && b.score !== null);
   const top = others.reduce((a, b) => (b.score > a.score ? b : a));
   const tenth = (v) => Math.round(v * 10);
   const mine = drawn[0].score;
   const title = `${name}: driftbench scores ${p1(mine)}.`;
-  let note = `${model}, ${n.toLocaleString('en-US')} ${unit}. Every competitor ran on this model only. A refused item counts as wrong.`;
+  let note = frozen
+    ? `${model}, ${n.toLocaleString('en-US')} ${unit}. driftbench: the frozen default-on-v6 product default. Competitors: recorded runs on this model only, unverified historical (lane report). A refused item counts as wrong.`
+    : `${model}, ${n.toLocaleString('en-US')} ${unit}. Every competitor ran on this model only. A refused item counts as wrong.`;
   if (optIn) {
     const plain = row('driftbench')[cohort];
     readerFirstDefault = plain.score * 100;
     const longer = json(`${SEALED}/writing.json`).cells.find((c) => c.contestant === 'longer-wins');
     longerReply = longer.accuracy;
-    fact(
-      chart,
-      'driftbench default, reader-first setting, rule that picks the longer reply, percent',
-      [round(plain.score * 100), round(ours[cohort].score * 100), round(longer.accuracy)],
-      `${path}, ${SEALED}/writing.json`,
-    );
+    if (chart)
+      fact(
+        chart,
+        'driftbench default, reader-first setting, rule that picks the longer reply, percent',
+        [round(plain.score * 100), round(ours[cohort].score * 100), round(longer.accuracy)],
+        `${path}, ${SEALED}/writing.json`,
+      );
     const same = Math.abs(ours[cohort].score * 100 - longer.accuracy) < 0.005;
     note += ` The driftbench bar uses its opt-in reader-first setting (default ${p1(plain.score * 100)}).${same ? ` It scores the same as a rule that always picks the longer reply, ${p1(longer.accuracy)}.` : ''}`;
   }
@@ -1131,13 +1193,20 @@ function summaryData() {
     };
   });
   const writing = data['bench-writing'];
-  const notes = [
-    `Reader-first setting: ${one(rows.at(-1).cells[0].score)} shown; default ${one(readerFirstDefault)}.`,
-    `Same score as a rule that always picks the longer reply (${one(longerReply)}).`,
-  ];
+  const notes = HAS_DEFAULT
+    ? [
+        'driftbench: frozen default-on-v6.',
+        'Competitors: recorded runs, unverified historical (lane report).',
+      ]
+    : [
+        `Reader-first setting: ${one(rows.at(-1).cells[0].score)} shown; default ${one(readerFirstDefault)}.`,
+        `Same score as a rule that always picks the longer reply (${one(longerReply)}).`,
+      ];
   void writing;
   const model = data['bench-judgebench'].panels[0].name;
-  const sources = 'docs/comparison/benchmarks/*-all-peers.json';
+  const sources = HAS_DEFAULT
+    ? `${DEFAULT_RESULTS}/*.json and docs/comparison/benchmarks/*-all-peers.json`
+    : 'docs/comparison/benchmarks/*-all-peers.json';
   const SUMMARY_TITLE = 'Judge accuracy on public benchmarks';
   const args = { rows, title: SUMMARY_TITLE, model, sources, notes };
   const alt = `${SUMMARY_TITLE}, ${model}, scores out of 100, bars ranked within each benchmark, driftbench the only coloured bar and each competitor grey with its own pattern, with an axis break from 30 to 50. ${rows
@@ -1443,7 +1512,10 @@ function benefit(chart) {
   const below = rest.filter((b) => tenth(b.score) < tenth(ours.score));
   const list = below.map((b) => `${b.name} (${one(b.score)})`);
   const gap = one(next.score - ours.score);
-  return `driftbench ${TASK[chart]} ${one(ours.score)} times in 100, within ${gap} points of the top score (${next.name}, ${one(next.score)}) and above ${list.slice(0, -1).join(', ')} and ${list.at(-1)}.`;
+  // "A", "A and B", "A, B and C": a one-name list must not print an empty name before "and".
+  const joined = list.length > 1 ? `${list.slice(0, -1).join(', ')} and ${list.at(-1)}` : (list[0] ?? '');
+  const above = joined ? ` and above ${joined}` : '';
+  return `driftbench ${TASK[chart]} ${one(ours.score)} times in 100, within ${gap} points of the top score (${next.name}, ${one(next.score)})${above}.`;
 }
 
 function readmeCharts() {
@@ -1460,11 +1532,14 @@ function readmeCharts() {
       const panel = c.panels[0];
       const alt = `${c.title} ${panel.name}, ${panel.model}, percent correct, highest to lowest: ${panel.bars.map((b) => `${b.name} ${one(b.score)}`).join(', ')}.`;
       const writing =
-        chart === 'bench-writing'
+        chart === 'bench-writing' && !HAS_DEFAULT
           ? ` The driftbench bar uses its opt-in reader-first setting (long-structured), which scores the same as a rule that always picks the longer reply, ${one(panel.bars.find((b) => b.ours).score)}; the default setting scores ${one(readerFirstDefault)}.`
           : '';
       const refused = panel.bars.filter((b) => b.refused).map((b) => `${b.name} ${b.refused}`);
-      const foot = `${panel.name}, ${panel.model}. Each judge runs its default settings; driftbench runs its opt-in ${mode}. A refused item counts as wrong${refused.length ? ` (refused: ${refused.join(', ')})` : ''}.${writing}`;
+      const setting = HAS_DEFAULT
+        ? 'driftbench runs its frozen default-on-v6 product default; competitor results are recorded, unverified historical (lane report)'
+        : `driftbench runs its opt-in ${mode}`;
+      const foot = `${panel.name}, ${panel.model}. Each judge runs its default settings; ${setting}. A refused item counts as wrong${refused.length ? ` (refused: ${refused.join(', ')})` : ''}.${writing}`;
       return `**${label}.** ${benefit(chart)}\n\n<a href="docs/assets/bench-${file}-light.png">\n  <picture>\n    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-${file}-dark.png">\n    <img alt="${alt}" src="docs/assets/bench-${file}-light.png" width="100%">\n  </picture>\n</a>\n<p align="center"><sub>${foot}</sub></p>\n`;
     })
     .join('\n');
@@ -1480,14 +1555,66 @@ function readmeTable() {
     ['bench-writing', 'LongJudgeBench writing'],
   ].map(([chart, label]) => {
     const panel = data[chart].panels[0];
-    const reader = chart === 'bench-writing' ? ' (footnote)' : '';
+    const reader = chart === 'bench-writing' && !HAS_DEFAULT ? ' (footnote)' : '';
     const cells = names.map((n) => {
       const b = panel.bars.find((x) => x.name === n);
       return b && b.score !== null ? one(b.score) : 'not run';
     });
     return `| ${label}, ${panel.model}${reader} | ${cells.join(' | ')} |`;
   });
-  return `| Benchmark | ${names.join(' | ')} |\n|---|${names.map(() => '---:').join('|')}|\n${rows.join('\n')}\n\nFootnote: the driftbench figure for writing uses its opt-in reader-first setting (long-structured); the default setting scores ${one(readerFirstDefault)}.`;
+  const footnote = HAS_DEFAULT
+    ? 'Footnote: driftbench figures are the frozen default-on-v6 product default on Claude Haiku 5.5; competitor figures are recorded, unverified historical (lane report).'
+    : `Footnote: the driftbench figure for writing uses its opt-in reader-first setting (long-structured); the default setting scores ${one(readerFirstDefault)}.`;
+  return `| Benchmark | ${names.join(' | ')} |\n|---|${names.map(() => '---:').join('|')}|\n${rows.join('\n')}\n\n${footnote}`;
+}
+
+function readmeV7() {
+  const analysis = json(SOURCES.readmeV7);
+  const returned = [...new Map(analysis.rows.map((r) => [r.dataset, r.returned])).values()].reduce(
+    (sum, n) => sum + n,
+    0,
+  );
+  const panel = analysis.rows.find((r) => r.row === 'Grader panel');
+  const missing = analysis.rows
+    .filter((r) => r.n !== r.verdicts)
+    .map((r) => `${r.row}: ${r.n - r.verdicts}`)
+    .join('; ');
+  const image = (name, alt) => `<a href=".github/readme/${name}-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/${name}-dark.png">
+    <img alt="${alt}" src=".github/readme/${name}-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>`;
+  const groups = judgeRows(null);
+  const alt = (rows) =>
+    rows.map((r) => `${r.label}: ${r.ours} against ${r.theirs} of ${r.n}, ${r.standing}.`).join(' ');
+  const leads = groups.flatMap((g) => g.rows).filter((r) => r.standing === 'lead' && !r.setting);
+  const rows = analysis.rows.map(
+    (r) =>
+      `| ${r.row}${r.setting ? ' *' : ''} | ${r.n.toLocaleString('en-US')} | ${r.v7.toLocaleString('en-US')} | ${r.peer.toLocaleString('en-US')} | ${r.standing} |`,
+  );
+  return [
+    '### The shipped judge against DeepEval',
+    image('judge-leads', `default-on-v7 against the recorded DeepEval default. ${alt(leads)}`),
+    'On hallucination, faithfulness, turn relevancy, completeness and role adherence, default-on-v7 scores above DeepEval beyond the separate 95% intervals.',
+    '### Hard cases, framework by framework',
+    `The v7 run returns ${returned.toLocaleString('en-US')} items across ${analysis.rows.length} rows on Claude Haiku 5.5. Peers keep their recorded answers. Earlier driftbench rows used \`claude -p\` with old prompts (knowledge retention mostly used the Messages API); v7 uses \`createDefaultJudge\` over the Anthropic Messages API. The transport difference is part of this comparison.`,
+    ...['deepeval', 'promptfoo', 'langfuse'].map((tool) =>
+      image(
+        `hard-${tool}`,
+        `default-on-v7 against the recorded ${tool} default. ${alt(groups.find((g) => g.header.toLowerCase().startsWith(tool)).rows)}`,
+      ),
+    ),
+    [
+      '| Judge row | Cases | driftbench v7 correct | Recorded peer correct | Standing |',
+      '|---|---:|---:|---:|---|',
+      ...rows,
+    ].join('\n'),
+    '* G-Eval strict retains the explicit `response-relevance` setting. G-Eval strict and knowledge retention use exact paired tests, Holm over those two rows. Other standings use separate Wilson 95% intervals. Close means no separation under that rule.',
+    `Inconclusive answers count wrong (${missing}). They stay in the score denominator and leave the peer paired tests. Grader panel falls from ${panel.earlierJudge} to ${panel.v7} correct against the earlier driftbench answers; this is included in the secondary analysis.`,
+    '[Results, analysis and reproduction](comparisons/default-on/readme-v7/RESULT.md). Historical public benchmark rows below retain their recorded judge versions and settings.',
+  ].join('\n\n');
 }
 
 function readmeText() {
@@ -1499,10 +1626,23 @@ function readmeText() {
     if (a < 0 || b < 0) throw new Error(`${README}: the markers ${start} and ${end} are missing`);
     return `${text.slice(0, a + start.length)}\n${body}\n${text.slice(b)}`;
   };
-  return swap(
-    swap(swap(read(README), 'readme-charts', readmeCharts()), 'readme-table', readmeTable()),
-    'readme-summary',
-    readmeSummary(),
+  let text = swap(swap(read(README), 'readme-charts', readmeCharts()), 'readme-table', readmeTable());
+  text = swap(text, 'readme-summary', readmeSummary());
+  text = swap(text, 'readme-v7', readmeV7());
+  const costs = costRows(false);
+  const panelCost = costs.find((r) => r.label === 'Inspect, grader panel');
+  const panelScore = json(SOURCES.readmeV7).rows.find((r) => r.row === 'Grader panel');
+  text = text.replace(
+    /^On Inspect's grader panel,.*$/m,
+    `On Inspect's grader panel, default-on-v7 spends $${panelCost.ours.toFixed(3)} per 100 cases against $${panelCost.theirs.toFixed(3)}, and scores ${panelScore.v7} of ${panelScore.n} against ${panelScore.peer}. Lower cost does not establish equal accuracy.`,
+  );
+  return text.replace(
+    /alt="[^"]*"(?= src="\.github\/readme\/judge-cost-light\.png")/,
+    `alt="Recorded USD per 100 cases, default-on-v7 over the Messages API against the recorded peer. ${costRows(
+      false,
+    )
+      .map((r) => `${r.label}: ${r.ours.toFixed(3)} against ${r.theirs.toFixed(3)}.`)
+      .join(' ')}"`,
   );
 }
 

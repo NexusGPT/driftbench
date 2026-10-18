@@ -1,8 +1,15 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import type { RunMode, RunResult, Stimulus, Store } from '@agent-nexus/driftbench-core';
+import {
+  type RunMode,
+  type RunResult,
+  type Store,
+  specBlocks,
+  stimulusMessages,
+} from '@agent-nexus/driftbench-core';
 import {
   createAnthropicJudge,
+  createDefaultJudge,
   createGoogleJudge,
   createOpenAiJudge,
   createReaderFirstJudge,
@@ -25,10 +32,18 @@ import {
   type PairwiseCall,
   ReportInputError,
   replyPairs,
+  scoredRuns,
 } from '@agent-nexus/driftbench-report';
 import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import {
+  addJudgeOptions,
+  clientJudgeFrom,
+  familyRefusal,
+  type JudgeFlags,
+  judgeAsked,
+} from '../judge-options';
 import { optionNumber } from '../number';
 import { pluginPairwiseJudge } from '../plugins';
 import { noStoreAt } from '../store-path';
@@ -43,9 +58,8 @@ export type ReportDeps = {
 
 /** The provider judges a `--pairwise-judge` name stands for. Keys are read from the environment. */
 export function defaultPairwiseClient(kind: string): JudgeClient {
-  if (kind === 'openai') return createOpenAiJudge({ id: 'pairwise-openai' });
-  if (kind === 'anthropic') return createAnthropicJudge({ id: 'pairwise-anthropic' });
-  if (kind === 'google') return createGoogleJudge({ id: 'pairwise-google' });
+  if (kind === 'openai' || kind === 'anthropic' || kind === 'google')
+    return createDefaultJudge({ provider: kind, id: `pairwise-${kind}` });
   const registered = pluginPairwiseJudge(kind);
   if (registered !== undefined) return registered;
   throw new Error(`unknown pairwise judge ${kind}: use openai, anthropic or google`);
@@ -79,7 +93,7 @@ type CompareCommandOptions = {
   judgeMargin?: string;
   featureMargin?: string;
   minFailures?: string;
-};
+} & JudgeFlags;
 
 /** Registers `driftbench compare`. */
 export function registerCompareCommand(
@@ -88,7 +102,7 @@ export function registerCompareCommand(
   setExit: (code: number) => void,
   deps: ReportDeps = defaultReportDeps,
 ): void {
-  program
+  const compare = program
     .command('compare')
     .description(
       'Compare a candidate campaign with a baseline on the goldens both ran. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input.',
@@ -153,10 +167,10 @@ export function registerCompareCommand(
     .option(
       '--pairwise-preference <preference>',
       'long-structured: a declared preference for the longer structured reply, applied after the ledger verdict; needs --pairwise-contract ledger',
-    )
-    .action(async (options: CompareCommandOptions) => {
-      setExit(await compareCommand(options, io, deps));
-    });
+    );
+  addJudgeOptions(compare, { council: false }).action(async (options: CompareCommandOptions) => {
+    setExit(await compareCommand(options, io, deps));
+  });
 }
 
 /** `driftbench compare`: 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. */
@@ -182,6 +196,12 @@ export async function compareCommand(
   const q = parseRate(options.q, '--q', io);
   const modes = options.mode === undefined ? undefined : parseModes(options.mode, io);
   if (gate === undefined || q === undefined || modes === null) return 2;
+  if (judgeAsked(options) && options.pairwise === undefined) {
+    io.err(
+      '--judge, --judges and --judge-route choose the pairwise judge: they go with --pairwise <criterion.yaml>.\n',
+    );
+    return 2;
+  }
   if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
@@ -337,14 +357,6 @@ async function readItems(path: string): Promise<RubricItem[]> {
   });
 }
 
-/** The stimulus a block sent, as the text the pairwise judge reads it against. Empty when it has none. */
-function stimulusText(when: Stimulus | undefined): string {
-  if (when === undefined) return '';
-  if ('user' in when) return when.user;
-  if ('burst' in when) return when.burst.join(' / ');
-  return when.injection.user;
-}
-
 /**
  * Judges each reply pair of the two campaigns with the criterion, in both orders unless canonical. A judge
  * that gives no answer fails the command with its reason; it is never counted as a tie.
@@ -359,6 +371,7 @@ async function runPairwise(
 ): Promise<PairwiseLine | undefined> {
   let criterion: Awaited<ReturnType<typeof readPairwiseCriterion>>;
   let judge: JudgeClient;
+  let configured: Awaited<ReturnType<typeof clientJudgeFrom>>;
   let reference: string | undefined;
   let items: RubricItem[] | undefined;
   let readerFirst: ReturnType<typeof createReaderFirstJudge> | undefined;
@@ -368,18 +381,50 @@ async function runPairwise(
       reference = (await readFile(resolve(io.cwd, options.pairwiseReference), 'utf8')).trim();
     }
     if (settings.itemsFile !== undefined) items = await readItems(resolve(io.cwd, settings.itemsFile));
-    judge = (deps.pairwiseClient ?? defaultPairwiseClient)(options.pairwiseJudge ?? 'openai');
+    if (!judgeAsked(options)) {
+      judge = (deps.pairwiseClient ?? defaultPairwiseClient)(options.pairwiseJudge ?? 'openai');
+    } else {
+      const chosen = await clientJudgeFrom(options, io);
+      if (!chosen?.client) return undefined;
+      judge = chosen.client;
+      configured = chosen;
+    }
     if (settings.readerFirst !== undefined)
       readerFirst = createReaderFirstJudge(judge, { configuration: 'reader-first', ...settings.readerFirst });
   } catch (cause) {
     io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
     return undefined;
   }
-  const stimulusOf = (run: RunResult, index: number): string => {
-    const loaded = baseline.specs.get(`${run.specId}@${run.specHash}`);
-    return stimulusText(loaded?.ok ? loaded.spec.blocks[index]?.when : undefined);
+  // Every pairwise judge, by --judge or by --pairwise-judge and its default, meets the agent family here,
+  // before any call.
+  const agentFamily = options.agentFamily?.trim();
+  if (agentFamily) {
+    const refused = await familyRefusal(judge, agentFamily);
+    if (refused !== undefined) {
+      io.err(`error: ${refused}\n`);
+      return undefined;
+    }
+  }
+  const stimulusOf = (run: RunResult, index: number): string | undefined => {
+    const data = baseline.runs.includes(run) ? baseline : candidate;
+    const loaded = data.specs.get(`${run.specId}@${run.specHash}`);
+    if (!loaded?.ok) return undefined;
+    const mapped = specBlocks(run, loaded.spec).find((entry) => entry.result.index === index);
+    const when =
+      mapped === undefined
+        ? undefined
+        : loaded.spec.blocks[mapped.result.provenance?.specIndex ?? mapped.block]?.when;
+    return when === undefined
+      ? undefined
+      : stimulusMessages(when)
+          .map((message) => message.content)
+          .join('\n');
   };
-  const pairs = replyPairs(baseline.runs, candidate.runs, stimulusOf);
+  let differentStimulus = 0;
+  const pairs = replyPairs(baseline.runs, candidate.runs, stimulusOf, () => {
+    differentStimulus += 1;
+  });
+  const skipped = ` Skipped ${differentStimulus} pairs: different stimulus.`;
   const pairOptions: PairwiseOptions = {
     ...(reference === undefined ? {} : { reference }),
     ...(items === undefined ? {} : { rubricItems: items }),
@@ -391,7 +436,7 @@ async function runPairwise(
   const judgeOne = async (pair: (typeof pairs)[number]): Promise<PairwiseCall> => {
     const transcript = pair.stimulus === '' ? [] : [{ role: 'user' as const, text: pair.stimulus }];
     if (readerFirst !== undefined) {
-      const read = await readerFirst.judgePair(pair.stimulus || criterion.rubric, pair.first, pair.second);
+      const read = await readerFirst.judgePair(pair.stimulus, pair.first, pair.second);
       return single(read.choice === 'A' ? 'first' : read.choice === 'B' ? 'second' : 'tie');
     }
     const verdict = await judgePairwise(judge, criterion, transcript, pair.first, pair.second, pairOptions);
@@ -405,6 +450,8 @@ async function runPairwise(
   try {
     const report = await comparePairwise(pairs, judgeOne);
     const { tally } = report;
+    await configured?.save();
+    const spent = configured ? ` Judge ${configured.label}, ${configured.spend.usd.toFixed(4)} USD.` : '';
     const how =
       readerFirst !== undefined
         ? 'reader-first'
@@ -418,13 +465,13 @@ async function runPairwise(
     const measured =
       readerFirst === undefined && settings.contract === 'winner' && settings.presentation === 'both-orders';
     if (measured && settings.itemsFile === undefined && settings.audit) {
-      const line = `Pairwise: ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}.`;
-      return { line, json: { ...tally, pairs: pairs.length } };
+      const line = `Pairwise: ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}.${skipped}${spent}`;
+      return { line, json: { ...tally, pairs: pairs.length, differentStimulus } };
     }
     const line = `Pairwise (${how}): ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}${
       measured ? `, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}` : ''
-    }.`;
-    return { line, json: { ...tally, pairs: pairs.length, how } };
+    }.${skipped}${spent}`;
+    return { line, json: { ...tally, pairs: pairs.length, differentStimulus, how } };
   } catch (cause) {
     io.err(`pairwise judge gave no answer: ${cause instanceof Error ? cause.message : String(cause)}\n`);
     return undefined;
@@ -497,6 +544,21 @@ export function parseGate(
 }
 
 /**
+ * Whether a campaign holds a run of its own that passed or failed, in the given modes or in every mode. A campaign
+ * whose every run is not run, blocked or carried from an earlier campaign measured nothing itself: a carried run is
+ * skipped by the pairing, so the campaign pairs no golden with itself and no margin can be read off it.
+ */
+export function hasScoredRun(campaign: CampaignData, modes?: readonly RunMode[]): boolean {
+  return (
+    scoredRuns(
+      campaign.runs.filter(
+        (run) => run.carried === undefined && (modes === undefined || modes.includes(run.mode)),
+      ),
+    ).length > 0
+  );
+}
+
+/**
  * The margin a comparison runs at: the one given, or with auto the smallest margin at which the baseline
  * compared with itself is non-inferior. With `io`, the auto margin and any warning are printed.
  */
@@ -516,6 +578,14 @@ export function resolveMargin(
   if (baseline.runs.length === 0) {
     // Nothing to measure the margin on: a campaign with no runs keeps the 2 point default and says so.
     io?.out('Margin auto: the campaign has no runs to measure it on; 2.0 points.\n');
+    return 0.02;
+  }
+  if (!hasScoredRun(baseline, options.modes)) {
+    // Every run is not run or blocked: nothing passed or failed, so the baseline compared with itself pairs no
+    // golden and no margin can be read off it. The 2 point default stands and the report says why.
+    io?.out(
+      'Margin auto: the campaign has no scored golden to measure it on (no run passed or failed); 2.0 points.\n',
+    );
     return 0.02;
   }
   const auto = autoMargin(baseline, options);

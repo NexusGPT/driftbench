@@ -217,12 +217,13 @@ export function preferByStatedLength(
 
 /**
  * The opt-in custom check `stated_length`: register it, then name it under `rules.custom`. It reads the request
- * from `options.request`, else from the block's user message, and judges the whole reply. Options:
+ * from `options.request`, else from the user message the agent received in the block, and judges the whole reply. Options:
  * `request`, `under_floor`, `over_ceiling`. No stated length: no verdict.
  */
 export const statedLength: CustomCheckFunction = (ctx, options) => {
   const settings = (options && typeof options === 'object' ? options : {}) as Record<string, unknown>;
-  const request = typeof settings.request === 'string' ? settings.request : userMessage(ctx.block?.when);
+  const request =
+    typeof settings.request === 'string' ? settings.request : userMessage(ctx.stimulus ?? ctx.block?.when);
   if (request === undefined) return [];
   const result = statedLengthVerdict(request, ctx.observed.text, {
     ...(typeof settings.under_floor === 'number' ? { underFloor: settings.under_floor } : {}),

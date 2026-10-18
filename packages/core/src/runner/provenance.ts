@@ -78,15 +78,35 @@ export function runProvenance(options: RunOptions): NonNullable<RunResult['prove
 }
 
 /** Canonical integrity envelope. Whole stamps are hashed, so new fields cannot escape the digest. */
-export function provenanceDigest(run: Pick<RunResult, 'provenance' | 'blocks'>): string {
+export function provenanceDigest(
+  run: Pick<RunResult, 'provenance' | 'blocks' | 'realizedTextStripped'>,
+): string {
   return provenanceHash({
     run: run.provenance,
-    blocks: run.blocks.map(({ index, blockId, injected, givenHash, provenance }) => ({
-      index,
-      blockId,
-      injected,
-      givenHash,
-      provenance,
-    })),
+    ...(run.realizedTextStripped === undefined ? {} : { realizedTextStripped: run.realizedTextStripped }),
+    // `realized` joins only when present, so the digest of a block without it is the one it always was.
+    blocks: run.blocks.map(
+      ({
+        index,
+        blockId,
+        parent,
+        specIndex,
+        injected,
+        realized,
+        realizedTextStripped,
+        givenHash,
+        provenance,
+      }) => ({
+        index,
+        blockId,
+        ...(parent === undefined ? {} : { parent }),
+        ...(specIndex === undefined ? {} : { specIndex }),
+        injected,
+        ...(realized === undefined ? {} : { realized }),
+        ...(realizedTextStripped === undefined ? {} : { realizedTextStripped }),
+        givenHash,
+        provenance,
+      }),
+    ),
   });
 }

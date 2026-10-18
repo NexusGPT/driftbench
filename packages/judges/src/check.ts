@@ -1,11 +1,12 @@
 import {
-  type BlockSpec,
   type Check,
   type CheckContext,
   type CriterionDef,
   type Message,
   type Observed,
   parseCriterionRef,
+  type Stimulus,
+  sentStimulus,
   type Verdict,
 } from '@agent-nexus/driftbench-core';
 import { taskArtifactText } from './artifacts';
@@ -105,7 +106,7 @@ export function requestFor(
     scope === 'conversation' ? prefix : prefix.slice(Math.max(0, prefix.length - contextMessages));
   const transcript: TranscriptEntry[] = [
     ...earlier.flatMap(messageEntries),
-    ...stimulusEntries(ctx.block),
+    ...stimulusEntries(sentStimulus(ctx)),
     ...observedEntries(ctx.observed),
   ];
   return withCriterionSettings(
@@ -202,8 +203,8 @@ function messageEntries(message: Message): TranscriptEntry[] {
   return entries;
 }
 
-function stimulusEntries(block: BlockSpec): TranscriptEntry[] {
-  const when = block.when;
+/** The user turn the agent received, which the reply is judged against. */
+function stimulusEntries(when: Stimulus): TranscriptEntry[] {
   if ('user' in when) return [{ role: 'user', text: when.user }];
   if ('burst' in when) return when.burst.map((text) => ({ role: 'user' as const, text }));
   return [{ role: 'user', text: when.injection.user }];

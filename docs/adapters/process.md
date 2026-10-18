@@ -161,7 +161,7 @@ Bounds, so a runaway agent cannot exhaust the run:
 
 ## Capabilities
 
-`sandbox` is on, and so is `readArtifact`. `deterministic` is as declared. `variants`, `seedPrefix`, `toolStubs`, `trace` and `endState` are off: the adapter reads no end state, so a task checks its outcome through `artifacts`, `workspace` and `execution`. The version is `0.1.0`.
+`sandbox` is on, and so is `readArtifact`. `seedPrefix` is on: the agent receives the session history, the prefix included (and in mode T the canonical history), in `driftbench-history.json`. `deterministic` is as declared. `variants`, `toolStubs`, `trace` and `endState` are off: the adapter reads no end state, so a task checks its outcome through `artifacts`, `workspace` and `execution`. The version is `0.1.0`.
 
 ## Target
 
@@ -171,4 +171,4 @@ target:
   agent: office-agent
 ```
 
-The adapter reads no field of the target: the command and its arguments are set in code. The command line reaches one process target, `process:acme-ops`: the Acme ops agent (`examples/acme/ops/agent.mjs`), run by the CLI's own Node.js in a local sandbox, one temporary folder per run, declared deterministic. Any other process agent is used from code. See [running](../running.md#runspec).
+The adapter takes its command and arguments from its configuration. The CLI includes `process:acme-ops`: the Acme ops agent (`examples/acme/ops/agent.mjs`), run by the CLI's own Node.js in a local sandbox, one temporary folder per run, declared deterministic. For another process agent, pass `--target process:my-agent --process-command '["python3","/absolute/path/to/agent.py"]'` to `campaign run`, or set that process target in the spec. `campaign resume` and `ci` also accept `--process-command`. The command runs in the sandbox workspace, so use absolute script paths. The command does not override the built-in `process:acme-ops` target. See [running](../running.md#runspec).

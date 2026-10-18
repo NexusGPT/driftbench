@@ -41,6 +41,8 @@ export const RunProvenance = z.strictObject({
 export const CampaignProvenance = z.strictObject({
   version: z.literal(2),
   endStateSnapshots: z.literal(true).optional(),
+  /** The campaign stores the text a driver sent where it differs from the spec (`realized.text`). */
+  realizedText: z.literal(true).optional(),
   adapters: z.array(AdapterIdentity.extend({ targetHash: Digest, agentVersionHash: Digest.nullable() })),
 });
 
