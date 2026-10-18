@@ -10,6 +10,12 @@ PR 777 (`36b4abe6d`) supplies the product capabilities and numerical repairs bef
 
 The live bank grows from 904 to 910 items. Every family has at least 20 items and tiers 1 through 5 are present. Those are bank inventory measurements, **not** a fresh pilot, a new forecast or a measured count of failing causes.
 
+## Extreme-alpha review follow-up
+
+The current bank has 922 items. Twelve new cases check six normal-quantile callers at `Number.MIN_VALUE` and `1e-300`, using independent 100-digit log-erfc references. They share one cause; no existing item, cause, tolerance or floor changes. Product PR 777 at `dbfede4b2` repairs the six callers.
+
+A fresh seed-1 `--items --json` run passes all 922 items at level 7. The measured bank hash is `f7aa0436f8bf4e387b557c054ae550e350bddc79304df6b0a945ee2604ebd4e0`. This is a correctness run, not the requested ten-round pilot. The historical comparison below stays unchanged.
+
 ## Both bars against the same historical journal
 
 `pnpm driftbench validate stats --hardness` reads `journal.jsonl`. Its builder pilot contains iterations 0 through 10, all on 651 items. The baseline is 418 passing; iteration 10 has 446 passing. The mean improvement is `(446 - 418) / 10 = 2.8` items per iteration. The forecast is `(651 - 446) / 2.8 = 73.2142857` iterations. There are no blind pilot rows. The latest row, iteration 42, records 651 passing; it does not replace the pilot-end measurement.

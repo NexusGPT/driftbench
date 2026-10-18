@@ -8,6 +8,7 @@ import { exactItems } from './exact';
 import { branchItems } from './exact-branches';
 import { capabilityItems } from './exact-capabilities';
 import { defectItems } from './exact-defects';
+import { logAlphaItems } from './exact-log-alpha';
 import { userCapabilityItems } from './exact-user-capabilities';
 import { attempt, BANK_LEVELS, type BankItem, type BankLevel, type ItemOutcome, itemRng } from './item';
 import { productItems } from './product';
@@ -68,6 +69,7 @@ export function statsBank(root: string): BankItem[] {
     ...branchItems(),
     ...sourceGuardItems(),
     ...defectItems(),
+    ...logAlphaItems(),
     ...capabilityItems(),
     ...userCapabilityItems(),
     ...edgeItems(root),

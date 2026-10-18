@@ -424,3 +424,22 @@ The owner requires real capability additions before any provisional gate decisio
 | `bootstrapCI` custom statistic | `docs/concepts/statistics.md`, Intervals: callers supply a statistic and clusters must remain whole during resampling | `exact.bootstrapCI.user-one-cluster-percentile`, `exact.bootstrapCI.user-one-cluster-basic`, `exact.bootstrapCI.user-resampled-clusters-percentile`, `exact.bootstrapCI.user-resampled-clusters-basic` | Independently resample a custom sum over unequal clusters. One shared point-estimate cause and one shared resampling cause. |
 
 The six items pass on the product on four seeds. Each rejects a changed 0.2 percent output and a throw. Source mutants check ignored callbacks, flattened clusters, swapped grouping, ignored seeds and ignored child-size pools. These are capability checks, not new pilot measurements. The expanded bank has no fresh pilot; the historical 651-item pilot remains labelled as historical in `GATE.md`.
+
+## Batch 13: positive significance levels whose half underflows
+
+The six normal-quantile callers accept a significance level strictly between zero and one. At `Number.MIN_VALUE`, the level is valid but computing `alpha / 2` in binary64 rounds it to zero. The finite two-sided quantile is instead the root of `log(erfc(z / sqrt(2)) / 2) = log(alpha) - log(2)`. This extends the earlier alpha-complement checks to a remaining valid-input boundary; no earlier item, tolerance or cause changes.
+
+`exact-log-alpha.ts` adds two cases for each caller: `log-alpha-min` at `Number.MIN_VALUE` and `log-alpha-small-normal` at `1e-300`. All twelve items share one cause: losing the half-alpha tail before evaluating the normal quantile.
+
+| Function | Capability checked |
+|---|---|
+| `zFor` | A finite two-sided quantile: `38.48540833556734` at the smallest positive binary64 level. |
+| `sampleSizeForEffect` | The smallest positive integer sample count: `18010` for effect `0.2`, baseline `0.73` and power `0.8` at that level. |
+| `mde` | The finite effect from the same two-proportion power equation with `20000` independent specs. |
+| `wilsonEffective` | Finite normal-quantile bounds over unequal clusters, with effective counts and design effect retained. |
+| `pairedRateDifference` | Finite Newcombe method 10 bounds with its corrected correlation. |
+| `kappaInterval` | Finite, unclipped bounds on a table with nonzero standard error; clipping an infinite width to `[-1, 1]` cannot satisfy this case. |
+
+`make_exact_log_alpha.py` computes the references with mpmath at 100 decimal digits, using log-erfc inversion and the documented formulas. It never reads product outputs. The fixture stores the kappa contingency table compactly; the item expands its paired labels. Sample-size items require `Number.isInteger(n)` and compare `n` exactly.
+
+The red-first run on product `7e3dfc80377863ea485c89bf99fba6bb200a9610` fails all six minimum-alpha cases and passes all six `1e-300` controls. The test suite also requires each item to reject an actual 0.2 percent output change and a throw, plus a fractional sample count. This is capability evidence, not a pilot measurement.

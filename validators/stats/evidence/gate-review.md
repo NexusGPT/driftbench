@@ -131,3 +131,13 @@ The final relevant command, `pnpm exec vitest run --maxWorkers=2 packages/valida
 The targeted floor command, `pnpm exec vitest run --maxWorkers=2 packages/cli/test/validate.test.ts -t 'runs the registered stats ladder|holds the committed floor of the stats ladder'`, passes **2 tests with 29 unrelated tests skipped**. It supersedes the earlier level-3 floor failures above. The floor remains 7. Full `pnpm exec tsc --noEmit` also passes on the merged branch.
 
 `node tools/structure/api-surface.mjs --build --check` passes on the merged branch with **2517 exports**. The public API snapshot includes both the product additions and the validator exports. The final `pnpm --silent driftbench validate stats --hardness --json` still exits **1**: forecast **73.21428571428572**, pilot score **0.685099846390169**, and **62** causes remain historical 651-item measurements. The live hash remains `51f9969dc376c14def5a482b82d41f65e62e3a4e347fdb97b573d5b76006d2d0`; all **43** historical rows lack a hash and all **four** audit checks remain pending. The expanded bank has no fresh pilot, and neither numerical bar is an overall passing gate.
+
+## Extreme-alpha follow-up
+
+Product PR 777 adds log-probability normal inversion for six callers. Twelve new bank items exercise `Number.MIN_VALUE` and `1e-300` against a separate 100-digit mpmath log-erfc calculation. The cases share one cause. Existing items remain unchanged.
+
+Red-first: the new positive tests fail all six minimum-alpha cases and pass all six normal-alpha controls. After the product repair, `exact-log-alpha.test.ts` passes 27 tests, including 12 changed 0.2 percent outputs, 12 throws, and two fractional sample-size mutants. The existing one-sided `zFor` source mutant initially fails to apply to the new helper; its replacement now omits `Math.LN2` in log space and retains the same required failing and passing item lists.
+
+The combined command runs `exact`, `exact-branches`, `exact-capabilities`, `exact-user-capabilities`, `exact-log-alpha`, `export-sensitivity` and `validate-bank-freshness` tests with `--maxWorkers=2`: 457 tests pass in seven files. `pnpm exec tsc --noEmit` passes. Biome reports only the existing non-null assertion warning in `exact-branches.test.ts`.
+
+`pnpm --silent driftbench validate stats --seed 1 --items --json` measures 922 of 922 passing, level 7, zero failing causes, and bank hash `f7aa0436f8bf4e387b557c054ae550e350bddc79304df6b0a945ee2604ebd4e0`. All heavy commands run through the shared slot wrapper. No pilot result is inferred from these checks.
