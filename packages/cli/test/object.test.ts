@@ -1,4 +1,4 @@
-import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -185,6 +185,36 @@ describe('driftbench object explain', () => {
     });
   });
 
+  it('exits 1, as documented, when an object the spec names does not resolve, and 2 for a spec it cannot read', async () => {
+    const dir = await project();
+    const spec = (uses: string) =>
+      `id: names-nothing-real\nuses: { value_check: ${uses} }\nblocks:\n  - user: hello\n`;
+    await writeFile(join(dir, 'specs', 'unresolved.yaml'), spec('does-not-exist'));
+    const explained = await run(
+      ['object', 'explain', 'policy/value-check', '--at', 'specs/unresolved.yaml'],
+      dir,
+    );
+    expect(explained.code).toBe(1);
+    expect(explained.out).toBe('');
+    expect(explained.err).toContain('does-not-exist');
+    // The same spec through `object graph`, which documents the same exit.
+    const graphed = await run(['object', 'graph', 'specs/unresolved.yaml'], dir);
+    expect(graphed.code).toBe(1);
+    expect(graphed.err).toContain('does-not-exist');
+    // A spec that is not a spec, a missing file and a spec invalid for another reason stay input errors.
+    await writeFile(join(dir, 'specs', 'broken.yaml'), 'id: broken\nblocks: not-a-list\n');
+    expect(
+      (await run(['object', 'explain', 'policy/value-check', '--at', 'specs/broken.yaml'], dir)).code,
+    ).toBe(2);
+    expect(
+      (await run(['object', 'explain', 'policy/value-check', '--at', 'specs/missing.yaml'], dir)).code,
+    ).toBe(2);
+    // An unresolved object does not hide a block the spec lacks: that is still the input error.
+    expect(
+      (await run(['object', 'explain', 'policy/value-check', '--at', 'specs/unresolved.yaml#b9'], dir)).code,
+    ).toBe(2);
+  });
+
   it('refuses a block the spec does not hold, and a kind that does not exist', async () => {
     expect(
       await run(['object', 'explain', 'policy/value-check', '--at', 'specs/refund-late-order.yaml#b9']),
@@ -349,6 +379,106 @@ describe('driftbench object validate', () => {
     expect(shipped.out).toContain(
       'check-set:default is shipped and immutable; write an object with another id that extends it',
     );
+  });
+});
+
+describe('driftbench object validate and the folder load', () => {
+  const WRONG = 'driftbench/policy/value-check/wrong-name.yaml';
+  const COPY = 'driftbench/policy/value-check/acme-copy.yaml';
+
+  it('refuses, by path, by folder and without paths, a file at the wrong place', async () => {
+    const cwd = await project();
+    await writeFile(join(cwd, WRONG), 'kind: policy/value-check\nid: acme2\nextends: default\nitems: []\n');
+    for (const argv of [
+      ['object', 'validate', WRONG],
+      ['object', 'validate', 'driftbench'],
+      ['object', 'validate'],
+    ]) {
+      const result = await run(argv, cwd);
+      expect(result.code, argv.join(' ')).toBe(1);
+      expect(result.out, argv.join(' ')).toContain(
+        'holds policy/value-check:acme2, so it belongs at policy/value-check/acme2.yaml',
+      );
+    }
+  });
+
+  it('refuses, by path and by folder, a second file for an id another file holds', async () => {
+    const cwd = await project();
+    await writeFile(join(cwd, COPY), 'kind: policy/value-check\nid: acme\nextends: default\nitems: []\n');
+    for (const argv of [
+      ['object', 'validate', COPY],
+      ['object', 'validate', 'driftbench'],
+    ]) {
+      const result = await run(argv, cwd);
+      expect(result.code, argv.join(' ')).toBe(1);
+      expect(result.out, argv.join(' ')).toContain(
+        'acme-copy.yaml: holds policy/value-check:acme, so it belongs at policy/value-check/acme.yaml',
+      );
+    }
+    // The file the copy sorts before is refused too, as the folder load refuses it: the project does not load.
+    const first = await run(['object', 'validate', 'driftbench/policy/value-check/acme.yaml'], cwd);
+    expect(first.code).toBe(1);
+    expect(first.out).toContain('is defined twice');
+  });
+
+  it('passes a uses.yaml that loads, by path and by folder, and refuses one that does not', async () => {
+    const cwd = await project();
+    await writeFile(join(cwd, 'driftbench/uses.yaml'), 'value_check: acme\n');
+    for (const argv of [
+      ['object', 'validate', 'driftbench/uses.yaml'],
+      ['object', 'validate', 'driftbench'],
+    ]) {
+      const result = await run(argv, cwd);
+      expect(result.code, argv.join(' ')).toBe(0);
+      expect(result.out, argv.join(' ')).not.toContain('✗');
+    }
+    await writeFile(join(cwd, 'driftbench/uses.yaml'), 'value_chek: acme\n');
+    const broken = await run(['object', 'validate', 'driftbench/uses.yaml'], cwd);
+    expect(broken.code).toBe(1);
+    expect(broken.out).toContain('✗');
+  });
+});
+
+describe('driftbench object init, list and explain, edges', () => {
+  it('writes the parent it was given as extends, a shipped object or a project one', async () => {
+    const cwd = await project();
+    expect(
+      (
+        await run(
+          ['object', 'init', 'policy/value-check', 'mine', '--from', 'acme', '--out', 'mine.yaml'],
+          cwd,
+        )
+      ).code,
+    ).toBe(0);
+    expect(await readFile(join(cwd, 'mine.yaml'), 'utf8')).toContain('\nextends: acme\n');
+    expect(
+      (await run(['object', 'init', 'check-set', 'lean', '--from', 'no-accuracy', '--out', 'lean.yaml'], cwd))
+        .code,
+    ).toBe(0);
+    expect(await readFile(join(cwd, 'lean.yaml'), 'utf8')).toContain('\nextends: no-accuracy\n');
+  });
+
+  it('counts the weaker objects a stronger one hides in list', async () => {
+    const cwd = await project();
+    await mkdir(join(cwd, '_driftbench/policy/value-check'), { recursive: true });
+    await cp(
+      join(cwd, 'driftbench/policy/value-check/acme.yaml'),
+      join(cwd, '_driftbench/policy/value-check/acme.yaml'),
+    );
+    const listed = await run(['object', 'list', 'policy/value-check'], cwd);
+    expect(listed.code).toBe(0);
+    expect(listed.out).toMatch(/^policy\/value-check {2}acme +suite .*\(over 1 weaker\)$/m);
+  });
+
+  it('refuses the block at the count of blocks, not only one far beyond it', async () => {
+    const acme = fileURLToPath(
+      new URL('../../../examples/acme/specs/conversations/plan-upgrade.yaml', import.meta.url),
+    );
+    const last = await run(['object', 'explain', 'check-set', '--at', `${acme}#blocks.4`]);
+    expect(last.code).toBe(0);
+    const beyond = await run(['object', 'explain', 'check-set', '--at', `${acme}#blocks.5`]);
+    expect(beyond).toMatchObject({ code: 2, out: '' });
+    expect(beyond.err).toContain('has no block blocks.5');
   });
 });
 

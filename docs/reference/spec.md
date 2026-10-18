@@ -38,6 +38,7 @@ The loader rewrites these forms before it validates a spec.
 * [Message](#message)
 * [PrefixToolCall](#prefixtoolcall)
 * [GivenOrigin](#givenorigin)
+* [SharedFact](#sharedfact)
 * [Expect](#expect)
 * [ToolExpect](#toolexpect)
 * [Count](#count)
@@ -67,6 +68,7 @@ The loader rewrites these forms before it validates a spec.
 * [Uses](#uses)
 * [ObjectRef](#objectref)
 * [ItemPatch](#itempatch)
+* [AppliesTo](#appliesto)
 * [Spec end](#spec-end)
 * [Rules](#rules)
 * [EndState](#endstate)
@@ -84,6 +86,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
+| `schema_version` | integer, 1 to 1 | no |  | The spec format version the spec is written for. A driftbench that reads a lower version refuses the spec and says to upgrade. Absent means version 1. |
 | `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes |  | The spec id: letters, digits, dots, underscores and hyphens. |
 | `version` | string | no |  | A free label. The content hash, not this label, is the cache key. |
 | `kind` | `conversation` or `task` | yes | `conversation`, set by the loader | conversation or task. The loader sets conversation when it is absent. |
@@ -104,7 +107,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 | `end_state` | [EndState](#endstate) | no |  | The expected end state of the world after the run. |
 | `perturbations` | list of [Perturbation](#perturbation) | no |  | Deviations to inject in perturbed mode. |
 | `uses` | [Uses](#uses) | no |  | The objects every block uses (policies, check set, diagnostics), by id or inline. Left out of the block cache key. |
-| `metadata` | map of string to any value | no |  | Free metadata. |
+| `metadata` | map of string to any value | no |  | Free metadata. `links` holds the links of the blocks to prompt sections, spec clauses and past turns; it and `provenance` stay out of the spec hash. |
 
 ## TargetRef
 
@@ -152,6 +155,7 @@ Initial conditions set on the whole spec.
 | `ledger` | map of string to any value | no |  | Facts the agent must hold from the start. |
 | `world` | [WorldState](#worldstate) | no |  | The world at the start. |
 | `vars` | map of string to any value | no |  | Runtime variables, such as the clock, the channel or the sender. |
+| `summary` | string, not empty | no |  | What a named state (vars.session_state) holds, in words. spec lint --summaries warns when a named state has none. |
 
 ## WorldState
 
@@ -182,6 +186,8 @@ The files the agent starts from.
 |---|---|---|---|---|
 | `from` | string, not empty | no |  | A folder the workspace starts from. A path written ./<path> is read from the folder of the spec file; any other relative path from the folder the run starts in. |
 | `files` | map of string to string | no |  | Files the workspace starts with: path to content. |
+| `binary` | map of string to string, base64 | no |  | Files the workspace starts with, byte for byte: path to base64 content. For files that are not text, such as the xlsx a parent block left. A path may not be in both files and binary. |
+| `summary` | string, not empty | no |  | What the workspace holds, in words, so a reader of the spec sees it. spec lint --summaries warns when a folder named by from has none. |
 
 ## CriterionDef
 
@@ -198,8 +204,8 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 | `inputs` | list of strings, each not empty | no |  | Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace. |
 | `judge_class` | one of `system1`, `system2`, `auto` | no |  | system1, system2, or auto: calibration assigns the class, ties go to system1. |
 | `repeat_reducer` | string matching `^(mode\|median\|at_least:[1-9][0-9]*)$` | no |  | How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>. |
-| `prompt_version` | `1` or `2` | no |  | The criterion prompt rules the judge reads. 1, the default; 2 adds the exact-identifier, stated-facts and stated-scope rules. |
-| `decoder_version` | `1` or `2` | no |  | How a criterion ledger answer is read. 1, the default, rejects an ungrounded quote; 2 drops the quote and keeps the verdict. |
+| `prompt_version` | `1` or `2` | no |  | The criterion prompt rules the judge reads. 2, the default, adds the exact-identifier, stated-facts and stated-scope rules; 1 is the earlier rule set, to replay answers recorded with it. |
+| `decoder_version` | `1` or `2` | no |  | How a criterion ledger answer is read. Unset, the default reader drops an ungrounded quote and keeps the verdict; 1 rejects an ungrounded quote; 2 drops the quote and keeps the verdict. |
 | `answer_contract` | `ledger` or `legacy` | no |  | ledger, the default, or legacy: the earlier prompt and parser, to replay scores recorded with them. |
 | `assessment` | one of `response-relevance`, `conformance`, `answer-audit`, `fact-ledger` | no |  | An assessment kind in place of the criterion ledger: response-relevance (the reply answers the latest ask), conformance (to reference), answer-audit (the submitted answer, optionally against reference), or fact-ledger (every fact of reference in the reply). |
 | `reference` | string | no |  | The reference answer an assessment reads: needed by conformance (may be empty) and fact-ledger, optional for answer-audit. |
@@ -230,9 +236,12 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 
 One block: a stimulus, its initial conditions and its expectations.
 
+A block may name `parent: <block id>` in the same spec. The runner starts it from that parent’s recorded end state, then applies its own Given. Dependencies run first; missing parents and cycles are errors. A failed or unrun parent blocks descendants, which the report lists under the original cause. See [parent blocks](../concepts/given-when-then.md#parent-blocks) and the [Acme example](../../examples/acme/parents/README.md).
+
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `id` | string, not empty | no |  | An id, unique in the spec. |
+| `parent` | string, not empty | no |  | The id of a block in this spec whose recorded end state supplies this block's Given. A failed or unrun parent blocks this block. |
 | `when` | [Stimulus](#stimulus) | yes |  | The stimulus. |
 | `given` | [Given](#given) | no |  | Initial conditions for this block. |
 | `expect` | [Expect](#expect) | no |  | The expected output and state delta. |
@@ -290,6 +299,8 @@ Initial conditions set on one block. A prefix lets the block start without repla
 | `ledger` | map of string to any value | no |  | Facts the agent must hold at this block. They merge into the ledger from here on. |
 | `world` | [WorldState](#worldstate) | no |  | Changes to the world from this block onwards. |
 | `vars` | map of string to any value | no |  | Runtime variables from this block onwards. |
+| `shared` | list of [SharedFact](#sharedfact) | no |  | Where each ledger fact was stated in the prefix: a fact said by the user or the agent must appear in the message it names. |
+| `summary` | string, not empty | no |  | What a named state (vars.session_state) holds from this block onwards, in words. |
 
 ## Message
 
@@ -325,6 +336,16 @@ Used by `blocks[].given.origin`, beside a `prefix`. The origin enters the Given 
 | `authored` | A person wrote the prefix. |
 | `recorded` | The prefix is copied from a real run: its tool calls carry the results the tools really returned. `import traces` writes it. |
 | `canonical` | The prefix is the replay of a spec as it is written, such as a teacher-forced history: the calls the blocks expect, with the results the world forces. |
+
+## SharedFact
+
+Where a ledger fact was stated before the block, checked by spec lint and before the block runs.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `fact` | string, not empty | yes |  | The ledger key of the fact. |
+| `by` | one of `user`, `agent`, `record` | yes |  | Who stated it: user or agent in a prefix message, record when it comes from a system of record and was never said. |
+| `in` | integer, at least 0 | no |  | The index of the prefix message that states it, from 0. Needed for user and agent. |
 
 ## Expect
 
@@ -668,8 +689,19 @@ An operation on one item of the parent object, or a new item with add: true.
 | `params` | map of string to any value | no |  | Params to set: maps merge, lists replace, +key appends, -key removes. |
 | `impl` | string matching `^(builtin\|plugin):\S+$` | no |  | Another implementation for the same rule. |
 | `cites` | string | no |  | A source for the reader. |
+| `applies_to` | [AppliesTo](#appliesto) | no |  | Where the rule applies: maps merge, lists replace. |
 | `before` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | no |  | Moves the item just before this one. |
 | `after` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | no |  | Moves the item just after this one. |
+
+## AppliesTo
+
+Where an item applies: skills, tools or unit patterns. Absent means everywhere.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `skills` | list of strings, each not empty | no |  | Skill names the evidence must name one of. |
+| `tools` | list of strings, each not empty | no |  | Tool labels the failing call must have one of. |
+| `units` | list of strings, each not empty | no |  | Unit patterns, such as R#41/*, a unit must match one of. |
 
 ## Spec end
 

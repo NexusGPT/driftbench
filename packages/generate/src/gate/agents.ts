@@ -5,6 +5,7 @@ import {
   type ArtifactReaderRegistry,
   type CheckSet,
   canonicalJson,
+  isScored,
   type Message,
   type Observed,
   type RunResult,
@@ -217,6 +218,12 @@ export function blockOutcome(run: RunResult, index: number): BlockOutcome {
   if (verdicts.some((verdict) => verdict.outcome === 'fail')) return 'fail';
   if (verdicts.length === 0 || verdicts.some((verdict) => verdict.outcome !== 'pass')) return 'unjudged';
   return 'pass';
+}
+
+/** True when the runner did not send block `index` (not_run or blocked): the run measured nothing there. */
+export function blockNotRun(run: RunResult, index: number): boolean {
+  const block = run.blocks.find((entry) => entry.index === index);
+  return block !== undefined && !isScored(block);
 }
 
 /** The failing gating verdict ids of block `index`'s Then, for the report. */

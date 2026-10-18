@@ -316,6 +316,33 @@ it('stops when an ordering clause cannot identify its action', async () => {
   expect(JSON.stringify(records)).toContain('actions cannot be resolved');
 });
 
+it('does not read the earlier action of an ordering clause as the thing its later part describes', async () => {
+  // "the policy check" shares a word with the file just named and with the script: only the script is left.
+  const work = await estate(
+    'invoice-audit',
+    'Run `node scripts/check.mjs`.\nRead `references/policy.md` before the policy check.',
+  );
+  expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash']);
+});
+
+it('stops as unresolved, not contradictory, when the later part describes no action but the earlier one', async () => {
+  const work = await estate('invoice-audit', 'Read `references/policy.md` before applying any policy line.');
+  const records = play(work.dir);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(JSON.stringify(records)).toContain('actions cannot be resolved');
+  expect(JSON.stringify(records)).not.toContain('contradictory ordering obligations');
+});
+
+it('still stops as contradictory when a clause quotes one action on both sides', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Read `references/policy.md` before reading `references/policy.md`.',
+  );
+  const records = play(work.dir);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(JSON.stringify(records)).toContain('contradictory ordering obligations');
+});
+
 it.each([
   'Run `node scripts/check.mjs`.\nNever run the check before reading `references/policy.md`.',
   'Run `node scripts/check.mjs`.\nBefore reading `references/policy.md`, do not run the check.',
