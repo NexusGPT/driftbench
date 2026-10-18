@@ -54,10 +54,10 @@ An atom is one place where the estate says what the agent must do, with a quote 
 | Kind | Where it lives | Extracted by | Evidence in a trace |
 |---|---|---|---|
 | Instruction (a rule: obligation or prohibition with a situation) | CLAUDE.md, skill bodies, agent bodies, memory files [standing instructions] | code or model proposes, person approves | a required act happens (a tool call, a skill load, a card, a read) or a forbidden act does not |
-| Gate (order: before X do Y) | "Before X: Read Y" lines, plan-mode rules, read-before-write rules | code for the fixed forms, model for the rest | an ordered pair: Y before X |
+| Gate (order: before X do Y) | "Before X: Read Y" lines, plan-mode rules, read-before-write rules | the pointer reader (a label, two spans and a link); code locates the file | an ordered pair: Y before X |
 | Route (trigger: an ask of class X loads skill or agent Y) | skill descriptions, routing tables, agent descriptions | code (frontmatter and routing tables) | the Skill tool call or the Agent dispatch |
 | Skill (the unit) | SKILL.md: trigger, instructions, references, scripts, its own guards [capability bundle] | code | the load, then its instruction atoms |
-| Reference | a file a skill names, with its "read when" | code | the Read of that file at the moment named |
+| Reference | a file a skill names, with its "read when" | the pointer reader (a label); code locates the file | the Read of that file at the moment named |
 | Script | an executable shipped with a skill, inputs and outputs | code | the command run, its exit code, its output |
 | Subagent | agent file: name, description, tools allowed, model, effort, skills, brief fields, output shape, must-not [helper contract] | code (frontmatter), model (body) | an Agent dispatch with the brief fields; the helper's typed output; no forbidden act by the helper |
 | Guard | the guards of the settings file (event, matcher, command) and of skill frontmatter, the guard source, a check registry when present | code | a guard record: name, verdict, at |
@@ -65,7 +65,7 @@ An atom is one place where the estate says what the agent must do, with a quote 
 | Setting | the model, the default permission mode, environment keys (never a value) | code | the run's configuration |
 | Stage | the step list the estate defines (plan, do, verify, report; a step allowed at any point) [stage catalogue] | code | stages reached, in order |
 | Register (output rules) | language, length, format, forbidden words, tone | code or model proposes, person approves | the reply text: counts, language, words |
-| Hazard | a passage of the estate that names a runtime hazard (compaction, a new session) | code | recovery after the event |
+| Hazard | a passage of the estate that names a runtime hazard (compaction, a new session) | the pointer reader (a hazard label) | recovery after the event |
 | Invariant (static) | the size ceiling of the standing instructions, no orphan file, anchored guard paths, a complete check registry | code | a property of the estate's files, no run |
 
 Every atom carries: an id (`kind.scope.slug`, stable and valid as a space value id; a skill's files take their scope from the skill's declared name, so a skill folder renamed with its name kept keeps every id, and two skills that declare one name keep their folder names as scopes), its kind, its title, its provenance (file, line span, quote, and a SHA-256 hash of file, span and quote), `producedBy` (code or model), its role (axis or detail), `approved`, the situation it applies in, its evidence predicates (typed: `skill_loaded`, `skill_not_loaded`, `guard`, `tool_called` with input fields, `tool_not_called`, `reference_not_read`, `subagent_not_dispatched`, `guard_not_fired`, `stage_not_reached`, `artifact_not_created`, `file_not_written`, `ordered`, `stage_reached`, `workspace`, `artifact`, `text`, `static`, `custom`), and its enforcement: the guards that already check it. Empty enforcement means "trusted", which is a finding of its own.
@@ -76,7 +76,7 @@ Guard atoms also retain their rule descriptions in `fields.ruleText`. `ruleSourc
 
 A registry description is independent of its rule-label links. Markdown description and watch columns, and JSON or YAML description, meaning, purpose or summary fields, retain their text. Structured check mappings can be found without a registry filename, including id-only rows whose id occurs in a configured guard's source. A command row uses the same source-and-usage dispatcher resolution as a configured guard. `fields.rules` keeps each matched registry description with its check id, declared verdict, enforcement state and source. The guard's existing evidence keeps its selected registry verdict; a description alone never invents one.
 
-Not read yet: MCP server files, deferred tools and plugin folders. A runtime hazard is an atom only where the estate's prose names one (two in the Northwind estate), since an atom needs a file quote; the runtime's fixed list of hazards lives in the space map (section 3).
+Not read yet: MCP server files, deferred tools and plugin folders. A runtime hazard is an atom only where the estate's prose names one (one in the Northwind estate), since an atom needs a file quote; the runtime's fixed list of hazards lives in the space map (section 3).
 
 ### Reading the estate: `estate scan`
 
@@ -86,17 +86,15 @@ The reader batches independent filesystem metadata checks and file reads with bo
 
 Scanner lookups index atoms, registry rows, file names and line offsets, and reuse chunk lines within a scan. These indexes preserve atom IDs, source spans, candidate order and lint findings; each scan reads its files anew.
 
-Code reads skills, helpers, guards (settings and skill frontmatter), permissions, settings (environment keys only, never a value), the check registry, the step list, references with their "read when" line, scripts, routing table rows, gates (read prerequisites), passages that name a runtime hazard, and the four invariants. Structured code atoms are approved as read; the atoms of the prose (the model pass or the pointer reader) wait for a person. Routing tables are classified from cell content, not header words. A column naming declared skills or helpers pairs with a column of distinct free multi-word request descriptions to give routes, in either direction and in any language. English grammatical evidence can strengthen that decision but is never required. Target cells may use any wording and name several units. Scalar categories, quantities, paths, dates, names and code lists are attribute values; short values repeated across rows also identify inventories. Attribute columns give no routes. A mixed attribute/request column or conflicting request/target columns gives no code route when the roles cannot be decided. Such a table is recorded as ambiguous in reader notes and flagged in the model's prose request. Only that flagged table can yield a model-proposed route; its quoted span and declared target are validated, and approval remains required. These decisions do not inspect the header labels, with one exception: a cell or header that states what a unit does not do gives no route, because a route states when to use it. A header that holds a negation ("It cannot do", "Does not handle"), a column whose cells mostly open with a declarative negation ("Cannot book a berth", "Does not take payments", "Won't send") and a single such cell are limits; the other columns of the table are read as before, and a table of limits only gives no route and is not ambiguous. A prohibition addressed to the agent ("Do not share the key", "Never move the shift") is a rule and stays a request a table may bind to a unit, and a negation inside the situation described ("a tide that has not come in") changes nothing. English grammar only marks a limit; in a language it cannot parse a cell is read as before.
+Code reads skills, helpers, guards (settings and skill frontmatter), permissions, settings (environment keys only, never a value), the check registry, the step list, scripts, routing table rows and the four invariants. Structured code atoms are approved as read; the atoms of the prose (the model pass or the pointer reader) wait for a person. References, gates and runtime hazards are read from the prose by the pointer reader, never by a word list in code; code only locates the file a labelled unit names (see "Names that fit several files" below). Routing tables are classified from cell content, not header words. A column naming declared skills or helpers pairs with a column of distinct free multi-word request descriptions to give routes, in either direction and in any language. English grammatical evidence can strengthen that decision but is never required. Target cells may use any wording and name several units. Scalar categories, quantities, paths, dates, names and code lists are attribute values; short values repeated across rows also identify inventories. Attribute columns give no routes. A mixed attribute/request column or conflicting request/target columns gives no code route when the roles cannot be decided. Such a table is recorded as ambiguous in reader notes and flagged in the model's prose request. Only that flagged table can yield a model-proposed route; its quoted span and declared target are validated, and approval remains required. These decisions do not inspect the header labels, with one exception: a cell or header that states what a unit does not do gives no route, because a route states when to use it. A header that holds a negation ("It cannot do", "Does not handle"), a column whose cells mostly open with a declarative negation ("Cannot book a berth", "Does not take payments", "Won't send") and a single such cell are limits; the other columns of the table are read as before, and a table of limits only gives no route and is not ambiguous. A prohibition addressed to the agent ("Do not share the key", "Never move the shift") is a rule and stays a request a table may bind to a unit, and a negation inside the situation described ("a tide that has not come in") changes nothing. English grammar only marks a limit; in a language it cannot parse a cell is read as before.
 
 The user-level skill layer is a second skill layer beside the project's. An agent loads the skills of the current user as well as those of the project, but the layer is opt-in: the reader never reads a home folder on its own, so a scan gives the same map on every machine. It reads the user skill folder (usually `~/.claude/skills`) only when one is named: the `--user-skills <folder>` option, the `userSkills` key of the configuration file (relative to the estate root), or `userSkills` of the reader in code; the option wins over the file. Without one, a populated home folder changes nothing. A folder of the layer that holds a `SKILL.md` is a skill. A folder that holds none is a container, such as a folder of synced skills, and the folders one level inside it are looked at the same way. A link to a folder elsewhere is followed. A folder whose name starts with a dot (a repository, an archive), a dependency folder (`node_modules`) and a container named `Trash` or `trash` (any case) are not read; a folder named trash that holds a `SKILL.md` is a skill. An empty `--user-skills` value is refused (exit 2) and so is an empty `userSkills` reader option (a `RangeError`), since an empty path would name the working folder; `~` and `~/x` are expanded against the home folder. A relative `--user-skills` folder is relative to where the command is typed, a relative `userSkills` of the configuration to the estate. Precedence: the project layer wins. A user folder that is a project skill's own folder (a link into the project) is the same skill and is read once; a user skill with the name of a project skill is left out with a note. Within the layer the first folder, by name, keeps a name. The files of the layer carry the path `~/.claude/skills/<folder>/...` in the map whatever folder they were read in, so a map holds no private path; the layer is no part of the project, so a copy of the estate (for a unit run or a mutant) holds none of it, and an atom read from it has no mutant. A scan that read a layer records `userSkills: true` in the map. `estate lint` needs the folder again (`--user-skills <folder>` or the configuration) and refuses a map that records a layer when it is given none (exit 2), because the layer's atoms cannot be checked without it. A folder that was named and cannot be read is a note. The layer feeds the graph (its skills, rules and references are atoms) but the lint reports on the project: a file of the layer is never an orphan or unreachable, a reference or script of the layer that does not exist is no finding, and the invariant "no file of the estate is an orphan" is measured on the project's files. The scan prints how many skills it read from the layer.
 
-Recovery hazards follow the participants of each event. Restart and resumption refer to the agent's runtime; rate limits affect the agent or its outgoing calls. An explicit unrelated participant or an outgoing API policy is not a recovery hazard.
+A runtime hazard is an atom where the pointer reader gives a unit a hazard label (compaction, a new session, a restart, a rate limit, a notification, a nudge). The label descriptions say that the runtime brings the event, so a sentence that quotes an error message as a sample, or names an unrelated participant or an outgoing API policy, is not labelled a hazard.
 
-Gates are read as clauses, not as fixed strings. Each inline code span, markdown link and quotation is one opaque token, so a file name such as `docs/release.v2.md` or `release notes.md`, a quoted command, or a sentence quoted as an example is never split or read as a rule. A line is cut into clauses at sentence ends, semicolons and coordinated directives (", and read ..."). A clause is a gate in these forms: "Before X: read Y", "Before X, read Y", "Prior to X, read Y", "Read Y before X", "Read Y first, then X", "Do not X until you have read Y", "Never X without reading Y", "X only after reading Y" and "X? Read Y first". Any polite, modal or adverbial lead-in may stand before read ("Please", "You must", "It is essential to", "If a fix is asked for,"). A negated, optional or conditional lead-in gives no gate ("Do not read", "You need not read", "Optionally, read", "If you read"); a negation in a leading condition ("If no objection is raised,") or in the act itself does not cancel the read. X must be an act (a verb such as edit, commit or send), never a time, a meal or a past event.
+A gate is a unit the labelers call a gate. The reader gives the act the rule governs as a span (the words of the clause, located by code), the tool that act uses as a link, and the file to read first is the first inline code span of the unit, located by the estate's own places (aliases, base folders, the folder of the naming file, the root). Each file a unit names also gives a reference atom. A gate that gives no act, or whose file the estate cannot locate, is refused with its reason and is not guessed.
 
-No marker is required. The same parser accepts "Before X read Y", "To/for/when/if X, read Y first", "Read Y first when X", "X requires reading Y", "X requires Y loaded", "Before X, Y must be read/loaded" and "Never X until Y is loaded/has been read". A declared skill name in a loaded prerequisite gives `skill_loaded` evidence and a `skill:<name>` ordering anchor; a file gives a Read anchor. Unknown bare names in a loaded prerequisite are unresolved and yield no code gate. A leading condition stays in the gate's situation, while its action determines the ordering endpoint. Negated requirements, optional reads, hypothetical requirements and quoted examples yield no gate. A standalone "read Y first" inherits its nearest action heading, ending at the next heading; the source span includes that heading. Without a stated action or action heading, it gives no ordered pair. Action grammar admits imperative verbs beyond the built-in tool vocabulary.
-
-Lines that look like what code reads and are not. A hazard word inside a quotation that the line offers as a sample of how some text reads ("an error reads like \"rate limit exceeded\"", "for example, `restart pending`") names no hazard; so does a quotation introduced as an example, a sample, a phrase or a literal, or as what a message says or shows. Inside a condition ("if the API answers \"rate limit exceeded\", wait") or defined as a signal ("treat \"rate limit exceeded\" as a signal to wait") it does, and so does a hazard named outside the quotation on the same line. A script anchors on the body line that runs it: a run, execute, use or call directive and every command of that directive (the executable after assignments, `exec`, `env` and an interpreter's flags), a whole-line command, or a link to the file. A mention in passing, an argument passed to another script, an inline interpreter program or a forbidden run anchors nothing; with no such line the script anchors on its own file. File history is read per occurrence and per clause. A completed active removal, retirement, rename or replacement affects its direct file object: in "`new.md` replaced `old.md`", only `old.md` is past. A passive affects its file subject: in "`old.md` was replaced by `new.md`", only `old.md` is past. Object and subject lists can coordinate files, while coordinated predicates have separate scopes: "retired `a.md` and kept `b.md`" keeps `b.md`. A passive auxiliary can carry into a coordinated passive ("`a.md` was retired and `b.md` deleted"). Complements introduced by with, by, to, from, about or other prepositions are not the affected file. Negated, conditional and future removals stay references. An active history predicate needs a stated actor or a changelog entry with an omitted actor. A history word used as a file modifier ("read retired `guide.md`") is not a removal predicate. Unknown grammatical roles stay references. Each occurrence is independent, so "`notes.md` was removed; read `notes.md`" retains the later read. Whole reference tokens, including path and extension, are matched; `old-rules.md` never makes `rules.md` historical.
+Lines that look like what code reads and are not. A script anchors on the body line that runs it: a run, execute, use or call directive and every command of that directive (the executable after assignments, `exec`, `env` and an interpreter's flags), a whole-line command, or a link to the file. A mention in passing, an argument passed to another script, an inline interpreter program or a forbidden run anchors nothing; with no such line the script anchors on its own file.
 
 Names that fit several files. A body often names a file by its bare name, `guide.md`, and an estate can hold several files of that name. A user needs the reference to land on the file the author meant, or to be told that it is ambiguous, never bound to one at random. The rule: a name is looked up in the naming file's folder, then in the folders below it, then from the estate root. The first place that holds the file wins. When a bare name fits no file there and several files elsewhere, the reference atom keeps every candidate in `fields.candidates`, sorted, and `estate lint` reports `AMBIGUOUS_REFERENCE`. Files under the ignored folders (`node_modules`, test folders of the guards, `.trash`, `skills/synced`, `__pycache__`) are never candidates. A name that holds a folder (`references/guide.md`) is resolved from the naming file's folder and is never ambiguous.
 
@@ -114,105 +112,119 @@ The Northwind command captures below precede the pre-call estimate; their histor
 
 The model only splits prose chunks (the standing file, memory files, skill and helper bodies) into instruction, gate and register atoms, one call per chunk, with a strict JSON answer. Every quote is located in its file, inside its chunk, and checked at its span; an atom whose quote cannot be placed is refused and listed with its reason. A model atom that repeats an atom code already read is skipped and listed. An unreadable answer gets one retry. Model atoms wait for a person.
 
-The scan of the Northwind estate, with the recorded answers:
+The scan of the Northwind estate, with the recorded labels of the pointer reader (the cassette of the fixture: no key, no network). It exits 1 because the checks refused some recorded answers, and each refusal is listed:
 
 ```
-$ pnpm -s driftbench estate scan examples/estates/fixture --runtime claude-code --replay examples/estates/fixture/answers.yaml --out _captures/docs3/estate/map.yaml --force
-Wrote _captures/docs3/estate/map.yaml: 122 atoms (68 read by code and approved, 54 split from prose by the model and waiting for approval), 54 edges.
+$ pnpm -s driftbench estate scan examples/estates/fixture --runtime claude-code --pointer --cassette examples/estates/fixture/cassette.jsonl --out _captures/docs3/estate/map.yaml --force
+Wrote _captures/docs3/estate/map.yaml: 125 atoms (53 read by code and approved, 72 split from prose by the model and waiting for approval), 53 edges.
   Atoms per kind:
-    instruction   40  (40 by the model)
-    gate           8  (4 by the model)
+    instruction   46  (46 by the model)
+    gate           5  (5 by the model)
     route         13
     skill          4
-    reference      9
+    reference      9  (9 by the model)
     script         2
     subagent       3
     guard          6
     tool          12
     setting        4
     stage          5
-    register      10  (10 by the model)
-    hazard         2
+    register      11  (11 by the model)
+    hazard         1  (1 by the model)
     invariant      4
-  Model lane claude-opus-5-5 as the estate lane, by hand: 10 prose chunks, 10 calls.
-  Refused: none.
-  Skipped 2 atoms code had already read:
-    CLAUDE.md: atom #5 (gate: Read the matching rules before editing an invoice) repeats gate.standing.read-claude-skills-invoice-reconcile-references
-    CLAUDE.md: atom #14 (gate: Read git status before committing) repeats instruction.standing.r14-do-not-commit-to-git
+  Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
+  Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
+  Units: 151 in 14 files; 0 kept from the ledger, 148 labelled by this run (52 by system 1, 96 by system 2), 3 unlabeled; the runs of one labeler disagreed on 2 units; the runs drew the spans of 3 units differently, and the first run's spans stand; 72 atoms.
+  Requests: 73 answered, 0 sent, 0 recorded.
+  Units since the last ledger: new 151.
+    refused: .claude/skills/supplier-email/SKILL.md#1: the label condition needs a target unit inside the window
+    refused: CLAUDE.md#1: unit [10] span {"from":-1,"kind":"governed-action","to":-1}: offsets leave the unit (length 110) or are empty
+    refused: CLAUDE.md#1: unit [10] span {"from":-1,"kind":"governed-action","to":-1}: offsets leave the unit (length 110) or are empty
+    refused: CLAUDE.md unit 6juqj4iyft (gate): the label gate needs a span, a link or a code span that the unit does not give
+    refused: CLAUDE.md unit 6juqj4iyft (gate): the label gate locates a file, and the unit names none
+    refused: CLAUDE.md unit cku6elyza2 (condition): the condition points at a unit that holds no atom
+    refused: CLAUDE.md unit bt4ppn3ukn (condition): the condition points at a unit that holds no atom
+    refused: CLAUDE.md unit umxazowctg (condition): the condition points at a unit that holds no atom
+    refused: CLAUDE.md unit exnaqevdtv (condition): the condition points at a unit that holds no atom
+    refused: CLAUDE.md unit d3pn74rs46 (condition): the condition points at a unit that holds no atom
+    refused: CLAUDE.md unit bmndxkevkn (condition): the condition points at a unit that holds no atom
+  Ignored: none.
   Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
-  Unenforced: 51 of 58 rules have no guard.
-    instruction.standing.r14-do-not-commit-to-git
+  Unenforced: 56 of 62 rules have no guard.
+    instruction.inbox-triager.you-sort-messages-into-three-folders
+    instruction.inbox-triager.a-message-that-fits-none-goes
+    instruction.inbox-triager.never-answer-a-message-yourself-and
+    instruction.ledger-auditor.audits-the-ledger-for-duplicate-payments
+    instruction.ledger-auditor.you-never-edit-a-file-you
+    instruction.ledger-auditor.when-either-is-missing-answer-with
+    instruction.ledger-auditor.look-for-the-same-invoice-number
+    register.ledger-auditor.answer-with-one-json-object-and
+    instruction.route-planner.plans-tomorrow-s-delivery-routes-from
+    instruction.route-planner.never-put-more-than-the-van
+    instruction.route-planner.never-plan-a-delivery-on-a
+    register.route-planner.answer-with-a-table-van-stops
+    instruction.memory-memory.the-operations-team-wants-the-weekly
+    instruction.memory-memory.never-schedule-a-delivery-on-a
+    instruction.memory-supplier-languages.when-a-supplier-is-not-in
+    instruction.invoice-reconcile.a-line-on-the-invoice-with
+    instruction.invoice-reconcile.reconcile-a-supplier-invoice-against-its
     gate.invoice-reconcile.read-references-matching-rules-md-before
+    gate.invoice-reconcile.read-references-currency-table-md-before
+    instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
+    instruction.invoice-reconcile.never-change-an-amount-on-an
+    instruction.invoice-reconcile.when-the-total-difference-is-above
+    register.invoice-reconcile.end-with-one-line-per-invoice
+    instruction.shipment-tracker.look-up-where-a-shipment-is
+    instruction.shipment-tracker.ask-for-the-tracking-number-when
+    instruction.shipment-tracker.when-the-carrier-answers-with-an
+    instruction.supplier-email.draft-answer-or-chase-an-email
+    gate.supplier-email.read-claude-memory-supplier-languages-md
+    register.supplier-email.every-draft-has-a-subject-with
+    register.supplier-email.keep-a-draft-under-120-words
+    instruction.supplier-email.show-the-full-draft-and-wait
+    instruction.supplier-email.a-looks-fine-or-a-thumbs
+    instruction.supplier-email.never-copy-a-price-or-a
+    instruction.weekly-report.prepare-the-weekly-operations-report-from
     gate.weekly-report.read-templates-report-md-before-before
+    instruction.weekly-report.fill-the-template-in-this-order
+    instruction.weekly-report.count-only-what-the-ledger-and
+    instruction.weekly-report.save-the-report-as-reports-year
     register.standing.r1-always-answer-in-the-language
-    instruction.standing.never-send-a-supplier-email-without
     instruction.standing.r7-when-a-shipment-is-late
     instruction.standing.r8-do-not-invent-order-numbers
     instruction.standing.r9-ask-at-most-one-question
     instruction.standing.r11-never-paste-the-contents-of
     instruction.standing.r12-when-r2-applies-and-the
     instruction.standing.r13-before-you-dispatch-a-helper
-    hazard.standing.r15-after-a-compaction-re-read
+    instruction.standing.r14-do-not-commit-to-git
     instruction.standing.r16-if-a-tool-fails-twice
     instruction.standing.r17-report-a-number-only-when
+    instruction.standing.every-task-follows-the-step-list
     instruction.standing.a-tracker-note-may-be-written
+    instruction.standing.never-report-a-task-as-done
     register.standing.lead-with-the-result-in-the
     register.standing.use-a-bullet-list-for-three
     register.standing.never-use-the-words-obviously-or
     register.standing.write-amounts-with-the-currency-code
     gate.standing.read-claude-memory-memory-md-before
-    instruction.inbox-triager.you-sort-messages-into-three-folders
-    instruction.inbox-triager.never-answer-a-message-yourself-and
-    instruction.ledger-auditor.you-never-edit-a-file-you
-    instruction.ledger-auditor.when-either-is-missing-answer-with
-    instruction.ledger-auditor.look-for-the-same-invoice-number
-    register.ledger-auditor.answer-with-one-json-object-and
-    instruction.route-planner.never-put-more-than-the-van
-    instruction.route-planner.never-put-more-than-the-van
-    register.route-planner.answer-with-a-table-van-stops
-    instruction.memory-memory.the-operations-team-wants-the-weekly
-    instruction.memory-memory.never-schedule-a-delivery-on-a
-    instruction.memory-supplier-languages.write-to-each-supplier-in-its
-    instruction.memory-supplier-languages.when-a-supplier-is-not-in
-    gate.invoice-reconcile.read-references-currency-table-md-before
-    instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
-    instruction.invoice-reconcile.never-change-an-amount-on-an
-    instruction.invoice-reconcile.when-the-total-difference-is-above
-    register.invoice-reconcile.end-with-one-line-per-invoice
-    instruction.shipment-tracker.ask-for-the-tracking-number-when
-    instruction.shipment-tracker.late-means-past-the-promised-date
-    instruction.shipment-tracker.when-the-carrier-answers-with-an
-    instruction.shipment-tracker.when-the-carrier-answers-with-an
-    gate.supplier-email.read-claude-memory-supplier-languages-md
-    register.supplier-email.every-draft-has-a-subject-with
-    register.supplier-email.every-draft-has-a-subject-with
-    instruction.supplier-email.show-the-full-draft-and-wait
-    instruction.supplier-email.show-the-full-draft-and-wait
-    instruction.supplier-email.never-copy-a-price-or-a
-    instruction.weekly-report.fill-the-template-in-this-order
-    instruction.weekly-report.count-only-what-the-ledger-and
-    instruction.weekly-report.save-the-report-as-reports-year
 Next: driftbench estate lint _captures/docs3/estate/map.yaml; driftbench estate approve _captures/docs3/estate/map.yaml --kind instruction
 ```
 
-The written map equals the committed `examples/estates/fixture/map.yaml` but for the root it records and the time of the scan. With `--no-model` it holds the structured atoms only:
+The written map equals the committed `examples/estates/fixture/map.yaml` but for the root it records and the time of the scan. With `--no-model` it holds the structured atoms only, and the files that only the prose names are listed as orphans, since code does not read a sentence:
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --no-model --out _captures/docs3/estate/map-nomodel.yaml --force
-Wrote _captures/docs3/estate/map-nomodel.yaml: 69 atoms (69 read by code and approved, 0 split from prose by the model and waiting for approval), 48 edges.
+Wrote _captures/docs3/estate/map-nomodel.yaml: 53 atoms (53 read by code and approved, 0 split from prose by the model and waiting for approval), 41 edges.
   Atoms per kind:
-    gate         4
     route       13
     skill        4
-    reference   10
     script       2
     subagent     3
     guard        6
     tool        12
     setting      4
     stage        5
-    hazard       2
     invariant    4
   No model call: structured atoms only (--no-model).
   Prose: 14 chunks, 6835 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).
@@ -223,12 +235,9 @@ Wrote _captures/docs3/estate/map-nomodel.yaml: 69 atoms (69 read by code and app
     ...
   Refused: none.
   Ignored: none.
-  Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
+  Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/matching-rules.md, .claude/skills/invoice-reconcile/references/old-tolerances.md, .claude/skills/shipment-tracker/data/shipments.txt, .claude/skills/weekly-report/templates/report.md, .claude/steps.json.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
-  Unenforced: 3 of 4 rules have no guard.
-    instruction.standing.r14-do-not-commit-to-git
-    gate.invoice-reconcile.read-references-matching-rules-md-before
-    gate.weekly-report.read-templates-report-md-before-before
+  Unenforced: 0 of 0 rules have no guard.
 Next: driftbench estate lint _captures/docs3/estate/map-nomodel.yaml; driftbench estate approve _captures/docs3/estate/map-nomodel.yaml --kind instruction
 ```
 

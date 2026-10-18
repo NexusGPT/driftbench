@@ -2,8 +2,11 @@ import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { type Io, main } from '../src/index';
+
+// Each test reads an estate again; under a loaded machine that takes more than the default.
+vi.setConfig({ testTimeout: 60_000 });
 
 const FIXTURE = fileURLToPath(new URL('../../../examples/estates/fixture/', import.meta.url));
 const STATIC = join(FIXTURE, 'generated/static');

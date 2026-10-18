@@ -145,7 +145,7 @@ driftbench estate plan approve plan.yaml --all
 driftbench estate generate --map examples/estates/fixture/approved.yaml --plan plan.yaml --out suite # exit 1
 driftbench estate generate --map examples/estates/fixture/approved.yaml --plan plan.yaml --out suite # exit 2
 driftbench estate generate --map examples/estates/fixture/approved.yaml --plan plan.yaml --out strict --no-fallback # exit 1
-driftbench estate static suite/static --estate examples/estates/fixture # exit 1
+driftbench estate static suite/static --estate examples/estates/fixture --map examples/estates/fixture/approved.yaml # exit 1
 driftbench spec lint suite/specs --strict
 ```
 
@@ -153,41 +153,38 @@ The waiting run, the end of the `suite` run, the refusal, the gaps of the `--no-
 tests and the last line of the lint:
 
 ```text
-Plan ../plan.yaml: 1568 rows, 0 approved, 1568 waiting, 0 struck.
-Waiting for approval: 1568 rows.
+Plan ../plan.yaml: 1051 rows, 0 approved, 1051 waiting, 0 struck.
+Waiting for approval: 1051 rows.
 Wrote 2 files to waiting.
-register_sample      200    200       187          13
-hazard_recovery        2      2         2           0
+register_sample      154    154       154           0
+hazard_recovery        1      1         1           0
 invariant              4      4         4           0
 setting                4      4         4           0
-journey               10     10         9           1
-total                      1568      1360         208
+journey               11     11        11           0
+total                      1044      1026          18
 
-Asks of the complete specs: 433 approved phrases, 919 written by code, 0 recorded sessions, 8 with no ask.
-Judged by a criterion from the rule's own words (no code checks it): 201 complete specs.
-Outcomes of the complete specs: 981 bank, 2 no-change:denied, 27 no-change:guard, 58 no-change:negative, 17 no-change:read-only, 267 no-delete, 8 static.
+Asks of the complete specs: 306 approved phrases, 706 written by code, 6 recorded sessions, 8 with no ask.
+Judged by a criterion from the rule's own words (no code checks it): 477 complete specs.
+Outcomes of the complete specs: 626 bank, 14 no-change:guard, 59 no-change:negative, 95 no-change:read-only, 224 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
-Unit tests: 26 in unit/ (6 guards, 2 scripts, 54 payloads), run by driftbench estate unit: --record on the original first, then on any copy.
+Unit tests: 26 in unit/ (6 guards, 2 scripts, 3 helpers, 50 cases), run by driftbench estate unit: --record on the original first, then on any copy.
 Catalogue checks: 0 tested through their host hook, 0 need a trigger, 0 need a host hook.
+Complete share: 98.28%; distinct asks: 114 in 1018 complete asked tests (11.20 per 100).
+Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
+Missing pieces: 18 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
-  needs-askable-act          185 specs
-  needs-existing-file        2 specs
-  needs-ordered-anchor       15 specs
-  needs-recorded-session     6 specs
-  needs-registered-check     1 spec
-Wrote 1596 files to suite.
+  needs-askable-act          18 specs
+Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
+Wrote 1072 files to suite.
 suite/estate-generate-report.json already exists: an earlier run wrote this folder. Pass --force to replace its output.
 Gaps (what keeps a spec incomplete):
-  needs-approved-phrase      562 specs
-  needs-deviation-phrase     829 specs
-  needs-existing-file        2 specs
-  needs-ordered-anchor       15 specs
-  needs-recorded-session     6 specs
-  needs-registered-check     1 spec
-  needs-second-phrase        3 specs
-  needs-workspace-outcome    560 specs
-Wrote 1596 files to strict.
+  needs-approved-phrase      412 specs
+  needs-deviation-phrase     496 specs
+  needs-second-phrase        2 specs
+  needs-workspace-outcome    410 specs
+Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
+Wrote 1072 files to strict.
 ✗ estate.invariant.invariant.registry.the-check-registry-lists-every-guard  registry_complete does not hold: {"guardsWithoutRow":["reply-length.py"],"rowsWithoutGuard":["G6"]}
 ✗ estate.invariant.invariant.settings.every-guard-finds-its-script-from  guard_paths_anchored does not hold: {"unanchored":["python3 .claude/guards/ledger-guard.py"]}
 ✗ estate.invariant.invariant.standing.no-file-of-the-estate-is  no_orphans does not hold: {"orphans":[".claude/skills/invoice-reconcile/references/old-tolerances.md"]}
@@ -197,7 +194,7 @@ Wrote 1596 files to strict.
 ✓ estate.setting.setting.settings.setting-model-is-opus  model is opus
 ✓ estate.setting.setting.settings.setting-permissions-defaultmode-is-default  permissions.defaultMode is default
 5 of 8 static tests pass.
-Checked 1352 specs: 1352 valid, 0 invalid, 0 warnings.
+Checked 1018 specs: 1018 valid, 0 invalid, 0 warnings.
 ```
 
 Three static tests fail by design: the Northwind estate carries the planted defects that `estate lint` also
