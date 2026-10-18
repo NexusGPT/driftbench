@@ -163,6 +163,7 @@ A `verdicts` entry is one check on one block:
 | `evidence` | What the check saw. |
 | `reasoning` | The judge's reasoning. Optional. |
 | `judge` | On a judge verdict: `cls` (`system1` or `system2`) and `votes`. |
+| `valueCheck` | On a tool check that compared argument values: one entry per value a rung of the value-check policy decided. `call` is the call, from 1; `path` is the value's path; `rung` is the policy item that decided it, or `exact_fallback`; `outcome` is its outcome. Absent when every value equalled the gold or the assertion compares as written. |
 
 A vote in `judge.votes` holds `judge` (its name), `outcome`, `winner` (on a pairwise request: `A`, `B`, `tie` or `inconclusive`; a tie differs from missing evidence), `score`, `reasoning` and `retries`, the retries of the judge call in the shape of `observed.retries`.
 
