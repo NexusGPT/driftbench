@@ -248,7 +248,7 @@ describe('catch items never make a gate easier to pass', () => {
     const h = hard(labelled);
     expect(h.gate.holds).toBe(false);
     expect(h.gate.reasons).toContain(
-      'catch items must all pass at iteration 0: 0 of 100 do; a catch item that fails is a hardness item',
+      'catch items must all pass on every journal row: at iteration 0, 0 of 100 do; a catch item that fails is a hardness item',
     );
     // The forecast is the stricter of the hardness-only and the all-items forecast: 540 / 6 = 90, under 100.
     expect(h.forecast).toBe(90);
@@ -271,6 +271,20 @@ describe('catch items never make a gate easier to pass', () => {
       expect(on.pilot.end?.score ?? 0).toBeGreaterThanOrEqual((off.pilot.end?.score ?? 0) - 1e-9);
       expect(on.iteration0.score).toBeGreaterThanOrEqual(off.iteration0.score - 1e-9);
     }
+  });
+
+  it('fails the gate when catch items lose passes during the pilot, whatever the hardness items gain', () => {
+    // The reviewer's case (377 hardness items there; 375 here, a bank the tier helper splits in five): 74 passing
+    // at +1 per round, 43 catch items falling 2 per round.
+    // Main counts every item and finds the pilot fixed nothing; labels must not turn that into a holding gate.
+    const falling = pilot(375, 74, 1, 43, 43, -2);
+    const on = hard(falling);
+    expect(on.gate.holds).toBe(false);
+    expect(on.gate.reasons).toContain(
+      'catch items must all pass on every journal row: at iteration 1, 41 of 43 do; a catch item that fails is a hardness item',
+    );
+    const off = hard(unlabelled(falling));
+    expect(off.gate.holds).toBe(false);
   });
 
   it('checks the catch share on every row, not only the last', () => {

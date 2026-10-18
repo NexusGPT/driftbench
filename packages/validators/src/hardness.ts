@@ -233,9 +233,12 @@ export function measureHardness(
     );
   }
   if (!end) reasons.push('no pilot row yet');
-  if (zero.catchItems && zero.catchItems.passing < zero.catchItems.size)
+  // A catch item guards a capability the product already has: one that fails on any row, at the start or after a
+  // pilot round broke it, is a hardness item, and the hardness gain beside it would be bought with that break.
+  const lost = rows.find((row) => row.catchItems && row.catchItems.passing < row.catchItems.size);
+  if (lost?.catchItems)
     reasons.push(
-      `catch items must all pass at iteration 0: ${zero.catchItems.passing} of ${zero.catchItems.size} do; a catch item that fails is a hardness item`,
+      `catch items must all pass on every journal row: at iteration ${lost.iteration}, ${lost.catchItems.passing} of ${lost.catchItems.size} do; a catch item that fails is a hardness item`,
     );
   for (const row of rows) {
     const caught = row.catchItems;
