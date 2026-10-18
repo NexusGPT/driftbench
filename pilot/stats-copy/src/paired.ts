@@ -5,7 +5,7 @@
 
 import { assertCount, assertFiniteValues, assertProbability, assertSameLength } from './basics';
 import { wilson } from './intervals';
-import { binomialCdf, chiSquareSf, normalQuantile, normalSf } from './special';
+import { binomialCdf, chiSquareSf, logChoose, normalQuantile, normalSf } from './special';
 
 export interface McNemarResult {
   /** The exact test reports min(b, c); the chi-square test reports the corrected chi-square. */
@@ -39,6 +39,34 @@ export function mcnemar(b: number, c: number, options: McNemarOptions = {}): McN
   const diff = Math.max(0, Math.abs(b - c) - 1);
   const statistic = (diff * diff) / n;
   return { statistic, pValue: chiSquareSf(statistic, 1), method: 'chi-square', b, c };
+}
+
+export interface McNemarMidPResult {
+  readonly pValue: number;
+  readonly b: number;
+  readonly c: number;
+}
+
+/**
+ * The mid-p McNemar test on the discordant counts: 2 P(X < k) + P(X = k), capped at 1, with X
+ * binomial(b + c, 0.5) and k = min(b, c). No discordant pair gives 1. Less conservative than the exact test.
+ */
+export function mcnemarMidP(b: number, c: number): McNemarMidPResult {
+  assertCount('mcnemarMidP: b', b);
+  assertCount('mcnemarMidP: c', c);
+  const n = b + c;
+  // Tied sides (and no pair at all): the distribution is symmetric about k, so 2 P(X < k) + P(X = k) = 1.
+  if (b === c) return { pValue: 1, b, c };
+  const k = Math.min(b, c);
+  // P(X = k) from the log mass, then P(X < k) by the downward recurrence pmf(i - 1) = pmf(i) i / (n - i + 1).
+  let pmf = Math.exp(logChoose(n, k) - n * Math.LN2);
+  const atK = pmf;
+  let below = 0;
+  for (let i = k; i >= 1; i -= 1) {
+    pmf = (pmf * i) / (n - i + 1);
+    below += pmf;
+  }
+  return { pValue: Math.min(1, 2 * below + atK), b, c };
 }
 
 export type WilcoxonMethod = 'exact' | 'permutation' | 'asymptotic';

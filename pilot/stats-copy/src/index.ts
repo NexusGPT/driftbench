@@ -53,6 +53,8 @@ export {
   type McNemarOptions,
   type McNemarResult,
   mcnemar,
+  type McNemarMidPResult,
+  mcnemarMidP,
   type NonInferiorityInput,
   type NonInferiorityResult,
   nonInferiority,
