@@ -681,7 +681,7 @@ function childFirstCounter(): Draft[] {
           4,
           SELECT,
           `a change to a parent selects its descendant authored before it and leaves out a block authored before it that does not descend from it (${shape.id.replace(/-/g, ' ')}, links by ${form})`,
-          'sectionSelection follows block-level parent edges to every descendant, whatever the authored order',
+          'sectionSelection in a parent forest selects along parent edges only: explicit forest roots remain independent (docs/concepts/blast-radius.md, Parent blocks)',
           async ({ seed }) => {
             const suite = linkedSuite(seed, id, { specs: 2, form });
             const s = between(rngFor(seed, `${id}-spec`), 0, 1);

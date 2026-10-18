@@ -24083,7 +24083,7 @@
       "level": 12,
       "source": "adversarial",
       "component": "packages/core/src/radius/select.ts",
-      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+      "cause": "sectionSelection in a parent forest selects along parent edges only: explicit forest roots remain independent (docs/concepts/blast-radius.md, Parent blocks)"
     },
     {
       "id": "audit/child-first-counter/root-first/index",
@@ -24092,7 +24092,7 @@
       "level": 12,
       "source": "adversarial",
       "component": "packages/core/src/radius/select.ts",
-      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+      "cause": "sectionSelection in a parent forest selects along parent edges only: explicit forest roots remain independent (docs/concepts/blast-radius.md, Parent blocks)"
     },
     {
       "id": "audit/child-first-counter/other-root-between/id",
@@ -24101,7 +24101,7 @@
       "level": 12,
       "source": "adversarial",
       "component": "packages/core/src/radius/select.ts",
-      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+      "cause": "sectionSelection in a parent forest selects along parent edges only: explicit forest roots remain independent (docs/concepts/blast-radius.md, Parent blocks)"
     },
     {
       "id": "audit/child-first-counter/other-root-between/index",
@@ -24110,7 +24110,7 @@
       "level": 12,
       "source": "adversarial",
       "component": "packages/core/src/radius/select.ts",
-      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+      "cause": "sectionSelection in a parent forest selects along parent edges only: explicit forest roots remain independent (docs/concepts/blast-radius.md, Parent blocks)"
     },
     {
       "id": "audit/child-first-counter/other-child-first/id",
@@ -24119,7 +24119,7 @@
       "level": 12,
       "source": "adversarial",
       "component": "packages/core/src/radius/select.ts",
-      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+      "cause": "sectionSelection in a parent forest selects along parent edges only: explicit forest roots remain independent (docs/concepts/blast-radius.md, Parent blocks)"
     },
     {
       "id": "audit/child-first-counter/other-child-first/index",
@@ -24128,7 +24128,7 @@
       "level": 12,
       "source": "adversarial",
       "component": "packages/core/src/radius/select.ts",
-      "cause": "sectionSelection follows block-level parent edges to every descendant, whatever the authored order"
+      "cause": "sectionSelection in a parent forest selects along parent edges only: explicit forest roots remain independent (docs/concepts/blast-radius.md, Parent blocks)"
     },
     {
       "id": "audit/whole-tokens/inside-a-number/F",
