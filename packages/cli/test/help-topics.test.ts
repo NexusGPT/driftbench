@@ -37,12 +37,6 @@ const ROOT = fileURLToPath(new URL('../../..', import.meta.url));
 const DIR = helpDir();
 const TOPICS = loadHelpTopics(DIR);
 
-/**
- * Switch to true once every help lane has landed: then each uncovered command fails instead of standing as
- * a todo item.
- */
-const REQUIRE_EVERY_COMMAND = false;
-
 function capture(cwd = ROOT): Io & { stdout: () => string; stderr: () => string } {
   const out: string[] = [];
   const err: string[] = [];
@@ -311,11 +305,7 @@ describe('driftbench help', () => {
 
 describe('every command is covered by a help topic', () => {
   for (const path of COMMANDS) {
-    if (COVERED.has(path) || REQUIRE_EVERY_COMMAND) {
-      it(path, () => expect(COVERED.has(path), `no topic lists "${path}" in its commands`).toBe(true));
-    } else {
-      it.todo(path);
-    }
+    it(path, () => expect(COVERED.has(path), `no topic lists "${path}" in its commands`).toBe(true));
   }
 });
 
