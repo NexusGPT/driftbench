@@ -1609,7 +1609,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         await copyEstate(FIXTURE, estate, approved);
         await writeFile(join(estate, 'CLAUDE.md'), standing.replace(/\n/g, '\r\n'));
         const manifest = join(work, 'change-crlf.yaml');
-        // The agent version does not change: the same prompt text in another line ending is the same agent.
+        // The edit is a new version of the agent, as a person would label it. It changes no word.
         const auto = await cli([
           'radius',
           'auto',
@@ -1623,7 +1623,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
           '--from-version',
           AGENT_V1,
           '--to-version',
-          AGENT_V1,
+          AGENT_V2,
           '--out',
           manifest,
         ]);
@@ -1654,7 +1654,7 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
           '--target',
           'claude-code:northwind',
           '--agent-version',
-          AGENT_V1,
+          AGENT_V2,
           '--campaign',
           'c-v1-crlf',
           '--change',
@@ -1682,7 +1682,14 @@ describe('the Northwind estate chain, from scan to radius, with no model call', 
         const db = await openStore(join(work, 'campaigns.db'));
         const record = (await db.getCampaign('c-v1-crlf'))?.radius;
         await db.close();
-        expect(record).toMatchObject({ changes: [], fresh: 0, carried: ids.length, from: 'c-v1' });
+        expect(record).toMatchObject({
+          fromVersion: AGENT_V1,
+          toVersion: AGENT_V2,
+          changes: [],
+          fresh: 0,
+          carried: ids.length,
+          from: 'c-v1',
+        });
         expect(result.out).toContain(
           `0 of ${ids.length} cells in the radius. 0 cells run fresh, ${ids.length} carried from c-v1.`,
         );
