@@ -20,6 +20,8 @@ Measured 2026-10-15: unchanged main `14034c6ca` and product `4170c016e` both rea
 ## Open items
 
 - Version 6, the hardness gate (docs/validators.md section 12.4) is not met: the builder pilot topped levels 12 and 13 in 6 iterations (2669 of 2707 to 2707 of 2707). Forecast 0, score after the pilot 1, 0 distinct failing causes. The new levels are too simple by the section 12 rule; extend them (section 12.2) before a floor above 11 is claimed.
+- Version 6, the audit (validators/system/audit.md): cheater fail, planted bugs fail (13 of 20), cause review pass (38 of 38, 5 causes), blind pilot 5 iterations at 7.6 items each. Each cheat and each missed bug is owed as a new item before the audit runs again.
+- Version 6, levels 1 to 11 after the pilot: a full seed-1 run at `a5cfcfcd2` passes 2707 of 2707, level 13 (an earlier attempt failed on a full disk and is void).
 - Version 6, the six product causes the new items found, each fixed on `exec/system-links-pilot` with a red-first test: mode P run positions in `localizeRuns`; `specIndex` of a block run out of authored order; forest ancestors in `localizeRows`; parent edges in `sectionSelection`; the `radius --mode` default leaking into `radius localize`; `driftbench help <command> <subcommand>`. They are not on main.
 
 - CI before: run 38780677540 on `14034c6ca` reports 9 of 11 and no failure because `--check-floor` sets `maxLevel` to the floor. The log explicitly marks levels 10 and 11 not run for all four seeds. This is a configured cap, not a timeout.
