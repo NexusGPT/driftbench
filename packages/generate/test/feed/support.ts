@@ -111,9 +111,10 @@ export class Population {
     for (const variable of FIXTURE_VARIABLES) {
       const value = forced[variable.id] ?? this.draw(variable.values);
       truth[variable.id] = value;
-      const bank = SENTENCES[value] as string[];
       lines.push(FILLER[Math.floor(this.rng() * FILLER.length)] as string);
-      lines.push(bank[Math.floor(this.rng() * bank.length)] as string);
+      // A conversation can show none of the values of a variable: only filler is said about it.
+      const bank = SENTENCES[value];
+      if (bank) lines.push(bank[Math.floor(this.rng() * bank.length)] as string);
     }
     const text = lines.join('\n');
     this.truth.set(text, truth);

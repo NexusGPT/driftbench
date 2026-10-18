@@ -6,11 +6,13 @@ describe('the questions of a variable', () => {
   const store = fixtureStore();
   const by = (id: string) => variableOf(store, id);
 
-  it('asks one yes or no question about the first value of a variable with two values', () => {
+  it('asks one choice question of a variable with two values, with an option for neither', () => {
     const q = questionFor(by('session_state'));
-    expect(q).toMatchObject({ kind: 'yesno', name: 'session_state', yes: 'first_time', no: 'returning' });
-    expect(q?.text).toContain('a first-time user');
-    expect(q?.text).toContain('whether the person has used the service before');
+    expect(q).toMatchObject({ kind: 'choice', name: 'session_state' });
+    if (q?.kind !== 'choice') return;
+    expect(q.options.map((o) => o.id)).toEqual(['first_time', 'returning', NOT_SHOWN]);
+    expect(q.options[0]?.description).toBe('a first-time user');
+    expect(q.text).toContain('whether the person has used the service before');
   });
 
   it('asks one choice question for three or more values, with an option for none of them', () => {
@@ -48,9 +50,15 @@ describe('the questions of a variable', () => {
 
 describe('a decision from a probability', () => {
   const store = fixtureStore();
-  const yesno = questionFor(variableOf(store, 'session_state'));
+  const yesno = {
+    name: 'session_state',
+    kind: 'yesno' as const,
+    text: 'a yes or no question a reader of another kind may ask',
+    yes: 'first_time',
+    no: 'returning',
+  };
   const choice = questionFor(variableOf(store, 'channel'));
-  if (!yesno || !choice) throw new Error('fixture questions are missing');
+  if (!choice) throw new Error('fixture questions are missing');
 
   it('turns a yes or no probability into a value, or unsure between the thresholds', () => {
     expect(decide(yesno, { yes: 0.9 })).toEqual({ kind: 'value', value: 'first_time' });

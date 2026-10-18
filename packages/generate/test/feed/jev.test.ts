@@ -3,7 +3,16 @@ import { createJevReader, questionsFor } from '../../src/feed';
 import { fakeFetch, headersOf, json, recordSleep } from '../model/support';
 import { fixtureStore } from './support';
 
-const questions = questionsFor(fixtureStore(), ['session_state', 'channel']);
+// A yes or no question is a kind a reader may be asked; the feed itself asks two-value variables a choice with an
+// option for neither, so the yes or no question is written by hand here.
+const yesNo = {
+  name: 'session_state',
+  kind: 'yesno' as const,
+  text: 'Does the conversation show a first-time user? Answer yes only when it shows it.',
+  yes: 'first_time',
+  no: 'returning',
+};
+const questions = [yesNo, ...questionsFor(fixtureStore(), ['channel'])];
 const KEY = 'jev-test-key-0123456789';
 const env = { JEV_API_KEY: KEY, JEV_ROUTE: 'typesafe' };
 
@@ -43,6 +52,32 @@ describe('the Jev reader', () => {
     });
     expect(out.session_state).toEqual({ yes: 0.9 });
     expect(out.channel).toMatchObject({ probabilities: { email: 0.9 } });
+  });
+
+  it('sends a variable with two values as a choice with an option for neither, and reads its probabilities', async () => {
+    const two = questionsFor(fixtureStore(), ['session_state']);
+    const { fetch, calls } = fakeFetch(
+      json({
+        answers: {
+          session_state: {
+            type: 'choice',
+            choice: 'not_shown',
+            probabilities: { first_time: 0.05, returning: 0.05, not_shown: 0.9 },
+          },
+        },
+      }),
+    );
+    const out = await createJevReader({ env, fetch }).read('the conversation text', two);
+    const body = calls[0]?.body as { questions: Record<string, Record<string, unknown>> };
+    expect(body.questions.session_state).toMatchObject({
+      type: 'choice',
+      criteria: {
+        first_time: 'a first-time user',
+        returning: 'a returning user',
+        not_shown: expect.any(String),
+      },
+    });
+    expect(out.session_state).toMatchObject({ probabilities: { not_shown: 0.9 } });
   });
 
   it('sums the tokens the service reports', async () => {

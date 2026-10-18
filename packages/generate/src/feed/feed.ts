@@ -7,8 +7,8 @@ import { type ConversationReader, NOT_SHOWN, type ReaderQuestion } from './reade
 
 /**
  * Fills the value weights of a variable store from past conversations. For each variable with two or more
- * values a reader answers one question about each conversation: a yes or no question for a variable with two
- * values, a choice question for more. The decisions are counted, corrected for the reader's errors when a
+ * values a reader answers one choice question about each conversation, with an option for each value and one
+ * for "none of these". The decisions are counted, corrected for the reader's errors when a
  * calibration set is given, and turned into value shares: the weights of the store, with an interval for each.
  *
  * The store that comes out holds counts and a hash of the set, never a line of text. The report holds counts

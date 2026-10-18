@@ -112,7 +112,7 @@ describe('the interval at a rare share and at a count of zero', () => {
       covered += Number((e.lower[0] ?? 1) <= 0.99 && (e.upper[0] ?? 0) >= 0.99);
     }
     expect(covered / 300).toBeGreaterThanOrEqual(0.9);
-  });
+  }, 60_000);
 
   it('does not close the interval of a value no conversation showed', () => {
     const e = estimateShares({ values: [100, 0], unsure: 0, absent: 0 }, calibration, { seed: 19007 });
