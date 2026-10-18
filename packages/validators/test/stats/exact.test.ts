@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { describe, expect, it } from 'vitest';
 import { capabilityItems } from '../../src/ladders/stats/bank/exact-capabilities';
+import { clopperAlphaItems } from '../../src/ladders/stats/bank/exact-clopper-alpha';
 import { runItem, statsBank } from '../../src/ladders/stats/bank/index';
 import type { BankItem } from '../../src/ladders/stats/bank/item';
 import type { StatsImpl } from '../../src/ladders/stats/reference';
@@ -20,8 +21,11 @@ const REPORT_FUNCTIONS = ['suiteHeadline', 'clusterRate'];
 // Only the explicitly registered planned capabilities have a separate positive/missing-export suite.
 // Unknown or accidentally missing inherited exports must still fail the availability test below.
 const plannedIds = new Set(capabilityItems().map((item) => item.id));
+// The clopperPearson extreme-alpha items pass once the beta tail is taken in log space (the statistics change
+// that goes with them). exact-clopper-alpha.test.ts runs them against the product, expecting each state.
+const pendingIds = new Set(clopperAlphaItems().map((item) => item.id));
 const items: BankItem[] = statsBank(ROOT).filter(
-  (item) => item.id.startsWith('exact.') && !plannedIds.has(item.id),
+  (item) => item.id.startsWith('exact.') && !plannedIds.has(item.id) && !pendingIds.has(item.id),
 );
 const byFunction = new Map<string, BankItem[]>();
 for (const item of items.filter((item) => !item.id.startsWith('exact.source.'))) {

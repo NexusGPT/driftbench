@@ -7,6 +7,7 @@ import { designBoundItems, edgeItems, ruleItems } from './edges';
 import { exactItems } from './exact';
 import { branchItems } from './exact-branches';
 import { capabilityItems } from './exact-capabilities';
+import { clopperAlphaItems } from './exact-clopper-alpha';
 import { defectItems } from './exact-defects';
 import { logAlphaItems } from './exact-log-alpha';
 import { userCapabilityItems } from './exact-user-capabilities';
@@ -70,6 +71,7 @@ export function statsBank(root: string): BankItem[] {
     ...sourceGuardItems(),
     ...defectItems(),
     ...logAlphaItems(),
+    ...clopperAlphaItems(),
     ...capabilityItems(),
     ...userCapabilityItems(),
     ...edgeItems(root),
