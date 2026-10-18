@@ -161,3 +161,15 @@ describe('the fingerprint', () => {
     expect(fingerprint('café')).toBe(fingerprint('café'));
   });
 });
+
+describe('a link is masked whole', () => {
+  it('ends no sentence at a stop inside the text of a link', () => {
+    const text =
+      'Read [the crate guide. Then the shelf notes](https://example.org/guide) first. Lift slowly.\n';
+    const units = cut(text).units.map((unit) => unit.text);
+    expect(units).toEqual([
+      'Read [the crate guide. Then the shelf notes](https://example.org/guide) first.',
+      'Lift slowly.',
+    ]);
+  });
+});

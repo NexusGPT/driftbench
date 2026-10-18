@@ -59,6 +59,7 @@ function mask(text: string): string {
   const spaces = (match: string) => ' '.repeat(match.length);
   return text
     .replace(/`+[^`]*`+/g, letters)
+    .replace(/\[[^\]\n]*\]\([^)]*\)/g, letters)
     .replace(/\]\([^)]*\)/g, letters)
     .replace(/https?:\/\/\S+/g, letters)
     .replace(/\*+/g, spaces)
