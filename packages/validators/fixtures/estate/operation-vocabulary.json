@@ -1,29 +1,63 @@
 {
   "source": {
     "path": "packages/checks/src/support/operations.ts",
-    "sha256": "8d0982b01069fc5462faf64f84a046eb4e733da36c7588703497d15651a9a22d"
+    "sha256": "adefd5ecbfa5921b483c0f5176e3821fabd0bae928a60a4813cfb625e37e0f80"
   },
   "grammar": "Literal branch expansion; repetition boundaries 0, 1, 2; unsupported syntax listed in gaps.",
   "toolWords": [
     {
       "class": "delete",
-      "words": ["delete", "remove", "erase", "purge", "drop", "destroy", "wipe"]
+      "words": [
+        "delete",
+        "remove",
+        "erase",
+        "purge",
+        "drop",
+        "destroy",
+        "wipe"
+      ]
     },
     {
       "class": "pay",
-      "words": ["pay", "payment", "charge", "refund", "transfer", "purchase", "checkout", "buy"]
+      "words": [
+        "pay",
+        "payment",
+        "charge",
+        "refund",
+        "transfer",
+        "purchase",
+        "checkout",
+        "buy"
+      ]
     },
     {
       "class": "send",
-      "words": ["send", "email", "mail", "sms", "message", "notify", "reply", "post"]
+      "words": [
+        "send",
+        "email",
+        "mail",
+        "sms",
+        "message",
+        "notify",
+        "reply",
+        "post"
+      ]
     },
     {
       "class": "push",
-      "words": ["push", "deploy", "publish", "release", "merge"]
+      "words": [
+        "push",
+        "deploy",
+        "publish",
+        "release",
+        "merge"
+      ]
     },
     {
       "class": "overwrite",
-      "words": ["overwrite"]
+      "words": [
+        "overwrite"
+      ]
     }
   ],
   "readWords": [
@@ -39,8 +73,15 @@
     "view",
     "query"
   ],
-  "orderVerbs": ["create", "place", "submit"],
-  "orderNouns": ["order", "orders"],
+  "orderVerbs": [
+    "create",
+    "place",
+    "submit"
+  ],
+  "orderNouns": [
+    "order",
+    "orders"
+  ],
   "orderClass": "pay",
   "commandRules": [
     {
@@ -48,7 +89,10 @@
       "source": "\\bgit\\s+push\\b",
       "flags": "",
       "needsNoDiff": false,
-      "witnesses": ["git push", "git  push"],
+      "witnesses": [
+        "git push",
+        "git  push"
+      ],
       "gaps": []
     },
     {
@@ -71,7 +115,10 @@
       "source": "\\bdocker\\s+push\\b",
       "flags": "",
       "needsNoDiff": false,
-      "witnesses": ["docker push", "docker  push"],
+      "witnesses": [
+        "docker push",
+        "docker  push"
+      ],
       "gaps": []
     },
     {
@@ -172,7 +219,12 @@
       "source": "\\bgit\\s+(?:rm|clean)\\b",
       "flags": "",
       "needsNoDiff": true,
-      "witnesses": ["git rm", "git clean", "git  rm", "git  clean"],
+      "witnesses": [
+        "git rm",
+        "git clean",
+        "git  rm",
+        "git  clean"
+      ],
       "gaps": []
     },
     {
@@ -208,23 +260,51 @@
     },
     {
       "class": "overwrite",
-      "source": "\\bgit\\s+(?:reset\\s+--hard|checkout\\s+--|restore)\\b",
+      "source": "\\bgit\\s+(?:reset\\s+--hard|restore)\\b",
       "flags": "",
       "needsNoDiff": true,
       "witnesses": [
         "git reset --hard",
         "git reset  --hard",
-        "git checkout --x",
-        "git checkout  --x",
         "git restore",
         "git  reset --hard",
         "git  reset  --hard",
-        "git  checkout --x",
-        "git  checkout  --x",
         "git  restore"
       ],
       "gaps": []
+    },
+    {
+      "class": "overwrite",
+      "source": "\\bgit\\s+checkout\\s+(?:[^\\s;&|-][^\\s;&|]*\\s+)?--(?=\\s|$|\\w)",
+      "flags": "",
+      "needsNoDiff": true,
+      "witnesses": [],
+      "gaps": [
+        "30:unsupported-character-range",
+        "48:unsupported-group",
+        "57:unconsumed-pattern",
+        "57:unresolved-branch-boundary:0",
+        "57:unresolved-branch-boundary:1",
+        "57:unresolved-branch-boundary:2",
+        "57:unresolved-branch-boundary:3",
+        "57:unresolved-branch-boundary:4",
+        "57:unresolved-branch-boundary:5",
+        "57:unresolved-branch-boundary:6",
+        "57:no-matching-witness"
+      ]
     }
   ],
-  "gaps": []
+  "gaps": [
+    "COMMAND_RULES.8:30:unsupported-character-range",
+    "COMMAND_RULES.8:48:unsupported-group",
+    "COMMAND_RULES.8:57:unconsumed-pattern",
+    "COMMAND_RULES.8:57:unresolved-branch-boundary:0",
+    "COMMAND_RULES.8:57:unresolved-branch-boundary:1",
+    "COMMAND_RULES.8:57:unresolved-branch-boundary:2",
+    "COMMAND_RULES.8:57:unresolved-branch-boundary:3",
+    "COMMAND_RULES.8:57:unresolved-branch-boundary:4",
+    "COMMAND_RULES.8:57:unresolved-branch-boundary:5",
+    "COMMAND_RULES.8:57:unresolved-branch-boundary:6",
+    "COMMAND_RULES.8:57:no-matching-witness"
+  ]
 }
