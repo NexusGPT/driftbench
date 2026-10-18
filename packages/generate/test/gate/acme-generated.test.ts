@@ -31,6 +31,27 @@ function sales(): AgentAdapter {
   });
 }
 
+/** The reference agent with one mutation: every text segment of its reply is sent twice. */
+function doubled(): AgentAdapter {
+  return functionAdapter({
+    create: () => {
+      const store = createStore();
+      return { store, agent: createAcmeAgent(store) };
+    },
+    respond: async (messages, world, _vars, session) => {
+      const observed = await session.agent.respond(messages, world);
+      return {
+        ...observed,
+        segments: observed.segments.flatMap((segment): (typeof segment)[] =>
+          segment.type === 'text' ? [segment, segment] : [segment],
+        ),
+      };
+    },
+    payloads: (session) => session.store.payloads,
+    deterministic: true,
+  });
+}
+
 function ops(): AgentAdapter {
   return processAdapter({
     command: process.execPath,
@@ -48,7 +69,7 @@ beforeAll(async () => {
 
 describe('the generated Acme suite on the real agent', () => {
   it('passes every block of every complete spec on the reference agent', async () => {
-    expect(specs.length).toBe(332);
+    expect(specs.length).toBe(437);
     const failing: string[] = [];
     for (const spec of specs) {
       // A price-sheet task runs on the ops agent its family names, as the gate routes it.
@@ -59,6 +80,15 @@ describe('the generated Acme suite on the real agent', () => {
       });
     }
     expect(failing).toEqual([]);
+  }, 300_000);
+
+  it('turns every conversation spec red on the agent that sends its reply twice', async () => {
+    const survivors: string[] = [];
+    for (const spec of specs.filter((entry) => entry.kind === 'conversation')) {
+      const run = await runOnce(spec, doubled(), 1, ctx);
+      if (!spec.blocks.some((_block, index) => blockOutcome(run, index) === 'fail')) survivors.push(spec.id);
+    }
+    expect(survivors).toEqual([]);
   }, 300_000);
 
   it('turns each deviation probe red on the fault that mishandles its class', async () => {

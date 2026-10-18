@@ -85,7 +85,7 @@ describe('generator items on task family specs', () => {
     expect(await check({ generate: relabelled })).toMatchObject({ pass: false });
   }, 300000);
 
-  it('adequacy passes the oracle Then and fails a task block the product weakened or extended', async () => {
+  it('adequacy tests the task blocks by their fixed checks and fails a product that drops them', async () => {
     const generated = await reference();
     const classes = [
       'X2.fact-invent',
@@ -107,21 +107,33 @@ describe('generator items on task family specs', () => {
     const verdicts = async (input: Generation) => {
       const runs = await runAll(input, parts);
       expect(runs.errors).toEqual([]);
-      const out: Record<string, boolean> = {};
-      for (const id of classes)
-        out[id] = (await item(`adequacy.${id}`).check(withGenerated(input, runs))).pass;
+      const task = taskOf(input).id;
+      const out: Record<string, { pass: boolean; taskBlock?: number }> = {};
+      for (const id of classes) {
+        const record = runs.faults.find((entry) => entry.fault.class === id);
+        out[id] = {
+          pass: (await item(`adequacy.${id}`).check(withGenerated(input, runs))).pass,
+          ...(record?.firstChange[task] === undefined ? {} : { taskBlock: record.firstChange[task] }),
+        };
+      }
       return out;
     };
-    expect(Object.values(await verdicts(generated)).every(Boolean)).toBe(true);
-    // The product drops the stage the family's catalogue gives block 0.
-    const weakened = structuredClone(generated);
-    delete taskOf(weakened).blocks[0]?.expect?.stage;
-    expect(Object.values(await verdicts(weakened)).some((pass) => !pass)).toBe(true);
-    // The product asserts on block 0 a reply the oracle never states.
-    const extended = structuredClone(generated);
-    const open = taskOf(extended).blocks[0];
-    if (!open?.expect) throw new Error('no block 0 Then');
-    open.expect.must_not = ['nothing the oracle states'];
-    expect(Object.values(await verdicts(extended)).some((pass) => !pass)).toBe(true);
+    // The reference: every fault first changes the task spec at its opening block, and that block fails.
+    const baseline = await verdicts(generated);
+    for (const id of classes) expect(baseline[id], id).toEqual({ pass: true, taskBlock: 0 });
+    // A product that keeps the oracle's Then and drops the family's fixed checks, and the map's reply rule a
+    // task spec holds too (one reply per turn, which also fails an empty reply), fails every item.
+    const dropped = structuredClone(generated);
+    delete taskOf(dropped).rules;
+    for (const block of taskOf(dropped).blocks) {
+      if (!block.expect) continue;
+      for (const key of ['lang', 'stage_reported', 'tools', 'must_not'] as const) delete block.expect[key];
+      block.expect.must = (block.expect.must ?? []).filter((pattern) => !pattern.endsWith('\\?'));
+    }
+    for (const [id, verdict] of Object.entries(await verdicts(dropped))) expect(verdict.pass, id).toBe(false);
+    // A product that drops only the stage report check fails the item for a fault that reports no stage.
+    const unreported = structuredClone(generated);
+    for (const block of taskOf(unreported).blocks) delete block.expect?.stage_reported;
+    expect((await verdicts(unreported))['X3.no-report']?.pass).toBe(false);
   }, 600000);
 });

@@ -3,6 +3,7 @@
 import type { PerturbationSpec } from '@agent-nexus/driftbench-core';
 import { NONE } from '@agent-nexus/driftbench-space';
 import type { PathRelation, ProposalPhrase } from '../extract/proposal';
+import type { Allocation } from './allocation';
 import {
   type BlockDraft,
   choosePhrase,
@@ -31,6 +32,10 @@ export type SeedContext = {
   seed: number;
   t: number;
   max: number;
+  /** Generation-local path indices, shared by seeders of the same immutable map snapshot. */
+  pathValues?: ReadonlyMap<PathRelation, ReadonlyMap<string, readonly number[]>>;
+  dimensionIndex?: ReadonlyMap<string, number>;
+  allocation?: Allocation;
   /** Consume each completed draft immediately instead of retaining the seeder output. */
   emit?: (draft: SpecDraft) => void;
   /** Replayable disk rows: their final count keeps the existing "row X of N" titles exact. */
@@ -79,11 +84,15 @@ export function scenarioDraft(
   candidates: { preferred: PathRelation[]; others: PathRelation[] },
   options: {
     probe?: ProbeRequest;
+    /** Reject ineligible paths after seeded ordering, preserving draws on an already eligible choice. */
+    pathAllowed?: (path: PathRelation) => boolean;
     force?: ProposalPhrase;
     rngLabel?: string;
     turn?: ScenarioRequest['turn'];
     aside?: ScenarioRequest['aside'];
+    before?: ScenarioRequest['before'];
     perturbEvery?: boolean;
+    allocationOnly?: boolean;
     perturb?: ScenarioRequest['perturb'];
   } = {},
 ): PathTry {
@@ -91,14 +100,21 @@ export function scenarioDraft(
   const order = [...shuffle(rng, candidates.preferred), ...shuffle(rng, candidates.others)];
   const reasons: string[] = [];
   for (const path of order) {
+    if (options.pathAllowed && !options.pathAllowed(path)) continue;
     const built = buildScenario(prepared, rng, {
       path,
       fixed,
+      pathValues: context.pathValues?.get(path),
+      dimensionIndex: context.dimensionIndex,
+      // A metamorphic family keeps its walks identical but for the phrasing, so the running counts shape none.
+      allocation: seeder === 'metamorphic' ? undefined : context.allocation,
       ...(options.probe ? { probe: options.probe } : {}),
       ...(options.force ? { force: options.force } : {}),
       ...(options.turn ? { turn: options.turn } : {}),
       ...(options.aside ? { aside: options.aside } : {}),
+      ...(options.before ? { before: options.before } : {}),
       ...(options.perturbEvery ? { perturbEvery: true } : {}),
+      ...(options.allocationOnly ? { allocationOnly: true } : {}),
       ...(options.perturb ? { perturb: options.perturb } : {}),
     });
     if (!built.ok) {
@@ -282,32 +298,41 @@ export function contextAxes(
     if (dimension?.kind === 'task' && empty !== undefined && !base.some(([at]) => at === index))
       base.push([index, empty]);
   }
+  const otherBases = also.map((entry) => base.filter(([at]) => at !== entry[0]));
+  const axes = [...prepared.axes]
+    .sort((a, b) => a - b)
+    .filter((index) => CONTEXT_KINDS.has(prepared.space.dimensions[index]?.kind ?? ''))
+    .filter((index) => !base.some(([at]) => at === index));
+  const fits = (candidate: readonly Pick[]) => {
+    if (!prepared.feasibility.allowed([...base, ...candidate])) return false;
+    for (let index = 0; index < also.length; index += 1) {
+      const entry = also[index] as Pick;
+      if (!prepared.feasibility.allowed([...(otherBases[index] as Pick[]), ...candidate, entry]))
+        return false;
+    }
+    return true;
+  };
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const full = prepared.feasibility.complete(base, rng);
     if (!full) return [];
-    const picks: Pick[] = [...prepared.axes]
-      .sort((a, b) => a - b)
-      .filter((index) => CONTEXT_KINDS.has(prepared.space.dimensions[index]?.kind ?? ''))
-      .filter((index) => !base.some(([at]) => at === index))
-      .map((index) => [index, full[index] ?? 0]);
-    const fits = (candidate: readonly Pick[]) =>
-      prepared.feasibility.allowed([...base, ...candidate]) &&
-      also.every((entry) =>
-        prepared.feasibility.allowed([...base.filter(([at]) => at !== entry[0]), ...candidate, entry]),
-      );
+    const picks: Pick[] = axes.map((index) => [index, full[index] ?? 0]);
     if (!fits(picks)) continue;
     if (usage) {
       // The draw stands unless another allowed value of the axis has been placed on less: then that one.
-      picks.forEach(([index, drawn], at) => {
+      for (let at = 0; at < picks.length; at += 1) {
+        const original = picks[at] as Pick;
+        const [index, drawn] = original;
         const placed = usage.get(index);
-        const count = (value: number) => placed?.get(value) ?? 0;
         let best = drawn;
-        prepared.space.dimensions[index]?.values.forEach((entry, value) => {
-          if (entry.id === NONE || count(value) >= count(best)) return;
-          if (fits(picks.map((pick, other) => (other === at ? [index, value] : pick)))) best = value;
-        });
+        const values = prepared.space.dimensions[index]?.values ?? [];
+        for (let value = 0; value < values.length; value += 1) {
+          if (values[value]?.id === NONE || (placed?.get(value) ?? 0) >= (placed?.get(best) ?? 0)) continue;
+          picks[at] = [index, value];
+          if (fits(picks)) best = value;
+          picks[at] = original;
+        }
         picks[at] = [index, best];
-      });
+      }
     }
     return picks;
   }
@@ -470,7 +495,8 @@ function failingTool(prepared: PreparedMap, rng: Rng, cell: Pick[]): string | un
  * covers. Every value of the cell is fixed in the scenario's cell except the stage and the deviation: a
  * deviation is a probe, at the cell's stage when the cell names one; a stage alone is reached by a path that
  * passes it. The start stage is placed only by an event said there, so a stage-only cell on a start stage
- * takes a probe of a class a first message can carry. Returns the draft, or every reason no path fits.
+ * takes a probe of a class a first message can carry. Every behaviour must belong to the path's flow;
+ * a path annotation only ranks those eligible paths. Returns the draft, or every reason no path fits.
  */
 export function coverDraft(
   prepared: PreparedMap,
@@ -510,11 +536,20 @@ export function coverDraft(
     if (deviation !== undefined) return position >= 0;
     return position >= 0;
   });
+  const eligible = paths.filter((path) =>
+    fixed.every(
+      ([dimension, value]) =>
+        dimension === prepared.transition ||
+        prepared.space.dimensions[dimension]?.kind !== 'behaviour' ||
+        flowsOfBehaviour(prepared, valueId(prepared, dimension, value)).includes(path.flow),
+    ),
+  );
+  const pathAllowed = (path: PathRelation) => eligible.includes(path);
   const startOnly =
     stage !== undefined &&
     deviation === undefined &&
-    paths.length > 0 &&
-    paths.every((path) => path.stages.indexOf(stage as string) === 0);
+    eligible.length > 0 &&
+    eligible.every((path) => path.stages.indexOf(stage as string) === 0);
   const classes =
     deviation !== undefined
       ? [deviation]
@@ -557,6 +592,7 @@ export function coverDraft(
       [...fixed, ...extra],
       preferring(paths, behaviour),
       {
+        pathAllowed,
         ...(classId === undefined ? {} : { probe: { classId, ...(stage ? { stage } : {}) } }),
       },
     );
@@ -571,7 +607,8 @@ export function coverDraft(
   }
   // A class said on the first turn whose recovery stays there is no block (an idle reply passes it): a clean
   // walk in the cell declares it as its perturbation instead, and a perturbed run checks the recovery.
-  const start = stage !== undefined && paths.length > 0 && paths.every((path) => path.stages[0] === stage);
+  const start =
+    stage !== undefined && eligible.length > 0 && eligible.every((path) => path.stages[0] === stage);
   if (start && stage !== undefined) {
     for (const { classId, extra } of attempts) {
       if (classId === undefined) continue;
@@ -583,12 +620,13 @@ export function coverDraft(
         `Cell ${key}`,
         [...fixed, ...extra],
         preferring(paths, behaviour),
-        { perturb: { classId, stage } },
+        { pathAllowed, perturb: { classId, stage } },
       );
       if ('draft' in built) return built;
       reasons.push(...built.reasons);
     }
   }
-  if (paths.length === 0) reasons.push(`no approved path passes the stage ${stage}`);
+  if (eligible.length === 0)
+    reasons.push(`no approved path of a flow listing the behaviours fits the cell ${key}`);
   return { reasons: reasons.length > 0 ? reasons : [`no approved path fits the cell ${key}`] };
 }

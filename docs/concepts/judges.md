@@ -1,5 +1,7 @@
 # Judges
 
+For the task-based product policy, see [the default judge](../default-judge.md). It combines normalization, criterion judging, answer verification, relevance checks and pair comparison.
+
 Every block gets two kinds of verdict. They stay apart and are both reported.
 
 * Machine checks: deterministic, no model. A machine fail is a fail; no judge can overturn it. See [checks](../reference/checks.md).
@@ -43,6 +45,39 @@ criteria:
 * `judge_class` is `system1`, `system2` or `auto`. With `auto` or no class, the council gives the criterion to system 1 until calibration earns it a class. A calibrated assignment overrides the class the spec states.
 
 A reference to a name the spec does not define is an error. A spec with no `criteria` list may name criteria from a shared catalogue; `spec lint` warns that they must come from there.
+
+### Judge settings a criterion carries
+
+A criterion in a spec or a criteria file can carry its own judge settings. A criterion without them gets the default judge's settings: criterion prompt version 2 and ledger decoder version 3. A recorded answer replays only under the settings it was recorded with; setting `prompt_version: 1` or `decoder_version: 1` selects the earlier rules, and settings that change the effective request change its cassette key. Explicit `prompt_version: 2` sends the same request as leaving it unset.
+
+```yaml
+criteria:
+  - name: ship_day
+    rubric: Does the reply give the ship day the order record states?
+    prompt_version: 2
+    decoder_version: 2
+  - name: matches_policy
+    rubric: Does the reply state the refund policy?
+    assessment: fact-ledger
+    reference: Refunds are paid within 14 days to the card used.
+    grounding: strict
+  - name: complete_answer
+    rubric: Does the reply answer the customer fully?
+    items:
+      - { name: day, rubric: Names the ship day., hard: true }
+      - { name: carrier, rubric: Names the carrier., weight: 0.5 }
+    threshold: 0.8
+    repeat: 3
+```
+
+* `prompt_version: 2`, the default, has the exact-identifier, stated-facts and stated-scope rules in the criterion prompt; `prompt_version: 1` is the earlier prompt without them. The default decoder is version 3; it also accepts source-local symbol spans and input-label aliases, and drops criterion-only spans. `decoder_version: 1` rejects an ungrounded quote; `decoder_version: 2` drops an ungrounded string and keeps the verdict, preserving its historical span rules; `answer_contract: legacy` replays scores recorded with the earlier prompt and parser.
+* `assessment` replaces the criterion ledger: `response-relevance` (the reply answers the latest ask), `conformance` (to `reference`, which may be empty), `answer-audit` (the submitted answer, against `reference` when given) or `fact-ledger` (every fact of `reference` in the reply; `grounding: strict` refuses text that is not a source quote). The first three read the transcript only, so a run leaves the Given summary out of their request. Conformance reads the rubric alone over the whole supplied slice: it takes no `pass` or `fail` picture (a criteria file of it needs none) and no `scope: block`. Response relevance and conformance take no separate artifact: on a task block the produced file text joins the end of their transcript as a context line.
+* `items` score a rubric item by item, from 0 to 4, with optional `weight` and `hard`; `threshold` is the weighted fraction a pass needs (default 1). `requirements` instead split the criterion ledger into named requirements.
+* `repeat: <k>` asks the judge the same request k times: the verdict holds only when all k agree, else it is inconclusive. It is not the spec repeats (`repeat_reducer`). `per_turn: true` judges a conversation one customer turn at a time ([turn-by-turn judging](#additional-judge-apis)). They apply to the judge of a run (`--judge`) and to `judge run`.
+
+`spec lint` and `judge check` refuse a setting that cannot work and name the fix, such as `assessment fact-ledger needs a nonempty reference` or `threshold needs items`. The field reference is in [the spec reference](../reference/spec.md).
+
+Two settings apply to a whole run, as flags: `--verify arithmetic` and `--prompt-budget <chars>` (see [the CLI](../reference/cli.md#driftbench-judge)).
 
 ## Criteria folders and fixture pairs
 
@@ -103,7 +138,7 @@ The 12 Acme criteria declare nine system 1 and three system 2; nine are gating. 
 
 For each criterion a block names, the judge check builds one request:
 
-* The transcript: for `scope: block`, the last 2 messages of the Given prefix as context, then the block's user turn, then what the agent did in the block (replies, tool calls and results, cards). For `scope: conversation`, the whole prefix, then the block.
+* The transcript: for `scope: block`, the last 2 messages of the Given prefix as context, then the block's user turn as the agent received it (a simulated user's or an attacker's own words when the driver wrote them, not the spec's `when`), then what the agent did in the block (replies, tool calls and results, cards). For `scope: conversation`, the whole prefix, then the block.
 * The Given summary: the stage the block expects and the ledger.
 * The criterion: its rubric, its FAIL and PASS pictures, its scope.
 
@@ -148,7 +183,7 @@ Without its catalog, a real judge cannot answer `sheet_matches_catalog`: haiku a
 * An evidence quote can include its entry's rendered role prefix. It must match that entry's actual role and text. A role alone, tool name alone, wrong role or invented passage is not grounded.
 * `parseAnswerText` and `parseAnswerValue` remain explicit binary parsing utilities. Their public answer shape is `outcome`, `reasoning`, optional `score` and optional `evidence`; they are distinct from the default model-facing ledger contract.
 * `answerContract: 'legacy'` reproduces main `a97cb65e` rendering and parsing, including literal entry separators and its original quote repair. Additional repair forms and guard hardening do not change legacy playback.
-* `criterionPromptVersion: 2` on a request is opt-in. It sends the default criterion prompt plus three rules: compare named identifiers, numbers and units exactly; treat facts the criterion states as the expected values, so `met` is not null for want of an outside source; let the record the question names decide, over the scope line and a contradicting reply. It has its own prompt fingerprint, so its recordings are separate. The default stays version 1 with unchanged bytes and keys. Version 2 does not apply to legacy, assessment or caller-supplied system prompts.
+* Criterion prompt version 2 is the default: compare named identifiers, numbers and units exactly; treat criterion-stated facts as expected values; let the record named by the question decide. `criterionPromptVersion: 1` selects the earlier prompt and fingerprint for historical replay. Versions do not replace legacy, explicit assessment or caller-supplied system prompts.
 * Council and calibration paths retry an unparseable normal-budget answer once with the large budget. A single judge re-asks an invalid criterion ledger once. A split council can still run its existing additional round. A provider refusal or unresolved check remains inconclusive.
 
 ## Two classes of judge
@@ -177,7 +212,8 @@ Every judge is a `JudgeClient`: an `id`, a model `family`, a class `cls`, an opt
 * A judge that a platform offers is listed on the page of that platform's adapter, such as the [Nexus adapter](../adapters/nexus.md).
 * No model is hardcoded for the provider clients: the model comes from its variable or the `model` option. A missing key or model is a `config` error that names the variable, never a value.
 * Keys come from the environment only (the `env` option, `process.env` by default). A key lives inside the client and is never a field of it, so printing a client never shows it.
-* A call is retried twice, with a growing wait, on 408, 409, 429, 500, 502, 503, 504, 529, a network failure or a timeout (120 seconds per attempt by default). A 4xx the request caused is never retried. Redirects are refused.
+* A call is retried under the [shared retry policy](../retries.md): up to 4 attempts in all, the first included, with a growing wait, on a 408, a 429, any 5xx (529 included), a network failure or a timeout (120 seconds per attempt by default). Any other 4xx, 409 included, is never retried. Redirects are refused.
+* A chat judge sends temperature 0. When a model answers a 400 that names the temperature, the OpenAI and Anthropic clients ask once more without it and stop sending it for that client.
 * An error names the URL and the status and quotes at most 200 characters of the provider's error body. Any header value the provider echoes back is replaced by `[redacted]`.
 * A client throws only when it got no answer at all. In a council, that judge votes inconclusive and the error is counted.
 
@@ -215,7 +251,7 @@ The repository ships three cassettes of scripted answers, each for the same six 
 | `examples/acme/criteria/calibration/cassette.json` | 387 | `judge calibrate`, and `judge run --assignments` |
 | `examples/acme/criteria/calibration/campaign.cassette.json` | 38 | the Acme campaign with the judge check |
 
-The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-decisions`, cost 2) and three of system 2 (`openai-chat` and `google-chat`, cost 10, and `anthropic-chat`, cost 12). The cassette files name the first two after the system 1 judge of the Nexus platform (see the [Nexus adapter](../adapters/nexus.md#judge)). This page shows them as `s1p-a` and `s1p-b`, in prose and in every output below; that substitution is the only change to the output. The answers are written by a test script: every judge tells the truth except 7 scripted misses, each with a note in the cassette.
+The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-decisions`, cost 2) and three of system 2 (`openai-chat` and `google-chat`, cost 10, and `anthropic-chat`, cost 12). The first two have neutral scripted IDs; see the [Nexus adapter](../adapters/nexus.md#judge) for the platform judge they model. The prose and output below use those same cassette names. The answers are written by a test script: every judge tells the truth except 7 scripted misses, each with a note in the cassette.
 
 ## The council
 
@@ -444,7 +480,7 @@ On the Claude council recording, every criterion goes to haiku, at 0.0002 to 0.0
 
 ### A cascade: the costly judges only where the cheap one is unsure
 
-`judge calibrate --cascade` takes the judges in order: the first answers every fixture (each repeat) and every labelled block; the others answer only the items where the first is unsure (inconclusive, or a score between 0.2 and 0.8) or disagrees with the truth (the fixture's side or the label). An escalated item takes the majority of every judge that answered it, two agreeing votes needed. `--only <criterion>` limits the run; the report, written as JSON to `--out`, gives per criterion the separation, the kappa, the escalated items with the reason, and the cost.
+`judge calibrate --cascade` takes the judges in order: the first answers every fixture (each repeat) and every labelled block; the others answer only the items where the first is unsure (inconclusive, or a score between 0.2 and 0.8) or disagrees with the truth (the fixture's side or the label). An escalated item takes the majority of every judge that answered it, two agreeing votes needed. `--only <criterion>` limits the run; the report, written as JSON to `--out`, gives per criterion the separation, the kappa, the escalated items with the reason, and the cost. `--agent-family` applies as it does to the council: a judge of the agent's family, first or escalated, is refused before any call. The cascade writes no assignment table, so an `--assign` or a `--mode` other than the default is refused with it.
 
 Escalating on disagreement uses the label, which a run does not have: it measures whether the costly judges fix the cheap judge's errors. The report also gives `unsureOnly`, from the same answers, which escalates only the unsure items, as a deployed cascade could.
 
@@ -597,10 +633,10 @@ These APIs are available in the package. The judge validator checks their behavi
 * Structured output. The OpenAI chat client asks for a JSON schema of the answer contract (`response_format: json_schema`), and the Google client gives it as `responseSchema`.
 * Token usage. `usageFromResponse(provider, body)` reads input and output token counts from OpenAI, Anthropic and Google response bodies.
 * Retry-After. On a 429 or a 503 carrying a `Retry-After` header, a client uses its seconds or HTTP date, capped by its configured maximum delay.
+* Label hygiene. Each criterion of the calibration report names labelled blocks with the same slice and opposite labels in `labelConflicts`, labelled blocks equal to a fixture in `fixtureLeaks`, and carries `few-labels` in its `warnings` when a label class has fewer than 5 blocks.
 
 ## Remaining planned capabilities
 
-* Label hygiene. Calibration names labelled blocks with the same slice and opposite labels, labelled blocks equal to a fixture, and warns when a label class has fewer than 5 blocks.
 * The repair mark on the verdict. The judge verdict built from repaired votes says so, as the votes and cassette entries do today.
 
 ## The judge check in a run
@@ -636,7 +672,7 @@ The public `JudgeAnswer` remains `{ outcome, reasoning, evidence?, score? }`. `p
 
 Select `answerContract: 'legacy'` on a request to use main `a97cb65e` rendering and parsing byte for byte. This includes literal entry separators, the original data-tag guard, object extraction and the original single syntax repair. This keeps existing cassettes and old scores reproducible. Cassette players also accept that option; recordings made before the ledger contract select legacy automatically. A new ledger recording identifies its contract explicitly and cannot silently replay under a different prompt. No existing cassette needs to be re-recorded to keep using legacy.
 
-`criterionDecoderVersion` picks how code reads a criterion ledger; the model-facing prompt is the same for both. Version 1, the default, is strict: a string evidence quote that is not in the supplied data makes the whole ledger unparseable. Version 2 is opt-in: such a quote becomes `evidence: null` with `grounded: false` on its check, and the check keeps the `met` value the model gave, so the rest of the ledger still counts. An ungrounded list of `{ source, quote }` spans stays unparseable under both. Version 2 is a request field of the library only: no CLI option and no spec field sets it.
+`criterionDecoderVersion` picks how code reads a criterion ledger without changing the model-facing prompt. Version 1 is strict: an ungrounded string quote makes the whole ledger unparseable. Versions 2 and 3 drop that string to `evidence: null` with `grounded: false`, preserving the check's `met` value. Version 3 is the default and additionally grounds source-local symbol quotes and input-label spellings such as `input/<path>`. Explicit version 2 preserves its historical span behavior. Invalid span lists remain unparseable in every version. Each decoder has a separate recording identity; historical recordings retain their recorded version.
 
 Under the new default, an old binary model response is unparseable. Council, calibration and single-judge paths re-ask an invalid criterion ledger once with the large budget, then abstain if it remains invalid. A split council can still run its existing additional round. An unparseable response cannot become a fail or pass from its explanation. A parsed row still depends on the model judging that requirement correctly.
 
@@ -725,6 +761,27 @@ const result = await judgePairwise(client, criterion, transcript, first, second,
 Item names are stable caller-owned requirement ids, not model-assigned row positions. Code ignores unknown names before validating scores and retains them in `ignoredRequirementIds`. Every requested name must still appear exactly once; missing, duplicate or malformed requested rows are unparseable. Code then computes the weighted fulfillment fraction from only the requested items. A candidate that fully meets every hard item outranks one that fails a hard item. Otherwise the fractions decide. A null score leaves the assessment inconclusive. The swapped pass reverses the rubric presentation order as well as the candidates; names preserve aggregation identity. Reasoning prose cannot replace a structured score, even when they conflict.
 
 `judgeRubric(client, request, items, { threshold })` performs the pointwise version in one batched call. An invalid ledger gets one re-ask with the same caller requirements and the large budget, then remains inconclusive if still invalid. Reported `costUsd` includes both calls. Valid scores, including null, do not trigger a re-ask. Explicit legacy requests retain their previous one-call behavior. Its default threshold is full fulfillment. The result carries the individual scores and aggregate in `rubric`; a hard failure cannot be offset by soft points. No rubric is generated or applied to creative writing automatically. These APIs are code options; they do not add fields to the spec YAML schema.
+
+### Declared preference: long-structured (opt-in)
+
+`judgePairLedger(client, request, { preference: 'long-structured' })` declares that the caller prefers longer, well-structured replies. It is off by default; without it the ledger verdict is unchanged. It is a stated preference of the user, not a measure of quality.
+
+After the ledger verdict, code decides in this order:
+
+* An explicit request row (a hard requirement that decided a reading, such as a stated word limit or form) wins: `preference.hard-row`.
+* Otherwise the longer reply wins when it is structured, or when the shorter reply is not structured either: `preference.long-structured`. Length is words for English and Han characters for Chinese, from the reader-first features.
+* Otherwise the ledger choice stands: `preference.ledger`. Equal lengths also keep the ledger choice.
+
+A reply is structured (`isStructured`) when it has paragraphs, headings or lists rather than one long block (the reader-first structure flag), and does not repeat itself (repeated sentences at most 8 percent, repeated four-grams at most 15 percent). The result keeps the ledger `verdict` and adds `preference` with the rule id, both lengths and both structure readings. The setting makes no extra model call.
+
+The setting prefers the longer reply. Use it only when longer, structured answers are what you want. Measured with Claude Haiku 5.5 on WritingPreferenceBench pairs ([results](../../examples/writing-heldout/results/RESULTS.md)):
+
+| Pool | Accuracy | Picks the longer reply | Right when the human chose the longer reply | Right when the human chose the shorter reply |
+|---|---:|---:|---:|---:|
+| Recorded TEST, 173 pairs (346 games) | 65.3 | 96.5 | 95.7 | 1.8 |
+| Fresh pool, 144 pairs (288 games) | 66.0 | 93.8 | 96.7 | 11.5 |
+
+It scores well where the human labels favour longer replies, and it is almost always wrong where they favour the shorter one. A rule that always picks the longer reply scores 67.6 on the TEST and 63.9 on the fresh pool. The default judge scores 61.3 on the same TEST and picks the longer reply in 58.4 percent of games. Results with the setting are labelled "driftbench, long-structured setting" and never reported as the default judge.
 
 ### Reader-first configuration (length-aware, opt-in)
 

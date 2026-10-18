@@ -124,6 +124,7 @@ export default defineConfig({
           { text: 'Drift', link: '/concepts/drift' },
           { text: 'Recovery', link: '/concepts/recovery' },
           { text: 'Judges', link: '/concepts/judges' },
+          { text: 'Default judge', link: '/default-judge' },
           { text: 'Statistics', link: '/concepts/statistics' },
         ],
       },
@@ -134,6 +135,7 @@ export default defineConfig({
           { text: 'CLI plugins', link: '/plugins' },
           { text: 'Generating tests', link: '/generating' },
           { text: 'Testing an estate', link: '/estate' },
+          { text: 'The variable store', link: '/variables' },
           { text: 'Datasets and prompts', link: '/datasets' },
           { text: 'Validators', link: '/validators' },
           { text: 'Benchmark floors', link: '/benchmarks' },
@@ -180,7 +182,7 @@ export default defineConfig({
     search: { provider: 'local' },
     outline: { level: [2, 3] },
     footer: {
-      message: 'Apache 2.0. driftbench is made by Nexus.',
+      message: 'MIT. driftbench is made by Nexus.',
     },
   },
 });

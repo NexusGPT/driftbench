@@ -58,15 +58,15 @@ export function normalizeSpec(raw: unknown): { value: unknown; issues: Issue[] }
   return { value: spec, issues };
 }
 
-const SHORTHANDS = ['user', 'burst'] as const;
-
 function normalizeBlock(block: unknown, path: string, issues: Issue[]): unknown {
   if (!isPlainObject(block)) return block;
   const out: Record<string, unknown> = { ...block };
-  const present = SHORTHANDS.filter((key) => key in out);
+  const hasUser = 'user' in out;
+  const hasBurst = 'burst' in out;
   const hasWhen = 'when' in out;
 
-  if (present.length + (hasWhen ? 1 : 0) > 1) {
+  if (Number(hasUser) + Number(hasBurst) + Number(hasWhen) > 1) {
+    const present = [...(hasUser ? ['user'] : []), ...(hasBurst ? ['burst'] : [])];
     issues.push(
       error(
         'BLOCK_STIMULUS_AMBIGUOUS',
@@ -76,11 +76,11 @@ function normalizeBlock(block: unknown, path: string, issues: Issue[]): unknown 
     );
     return out;
   }
-  if (present.length === 0 && !hasWhen) {
+  if (!hasUser && !hasBurst && !hasWhen) {
     issues.push(error('BLOCK_STIMULUS_MISSING', path, 'a block needs `user`, `burst` or `when`'));
     return out;
   }
-  const key = present[0];
+  const key = hasUser ? 'user' : hasBurst ? 'burst' : undefined;
   if (key !== undefined) {
     out.when = { [key]: out[key] };
     delete out[key];

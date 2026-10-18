@@ -108,16 +108,26 @@ export function boundarySeeder(
         if (shown.kind === 'value') concrete[value.id] = shown.value;
         else if (shown.kind === 'absent') concrete[value.id] = '(absent)';
         else unsupported.push(`${value.id}: ${shown.why}`);
-        if (found.direction === 'out') {
-          const full = prepared.feasibility.complete([target], rng);
+        // The values a run of the tool returns, completed with the cell: they join the cell.
+        const returned = (tool: string) => {
+          const full = prepared.feasibility.complete(cell, rng);
           for (const [other, otherValue] of full?.entries() ?? []) {
             const sibling = prepared.toolDimensions.get(other);
-            if (other !== index && sibling?.tool.name === found.tool.name && sibling.direction === 'out') {
+            if (other !== index && sibling?.tool.name === tool && sibling.direction === 'out') {
               cell.push([other, otherValue]);
             }
           }
-          // Asked to run the tool and report a returned value: one run, as a map's call is made once.
-          tools.push({ label: found.tool.name, count: 1 });
+        };
+        if (found.direction === 'out') {
+          returned(found.tool.name);
+          // Asked to run the tool and report a returned value: one run, as a map's call is made once, with
+          // each argument the user does not name at its schema default; closed when that names every one.
+          const defaults = schemaDefaults(found.tool);
+          tools.push({
+            label: found.tool.name,
+            count: 1,
+            ...(Object.keys(defaults).length > 0 ? { input: defaults, input_closed: true } : {}),
+          });
         } else if (INVALID_PARTITIONS.has(partition)) {
           tools.push({ label: found.tool.name, count: 0 });
         } else {
@@ -126,6 +136,9 @@ export function boundarySeeder(
           // every argument of the schema (assemble.ts closeKnownInputs).
           const assertion = inputAssertion(found.path, found.schema, partition);
           const name = found.path[0];
+          // The run answers from the Given: the tool's returned values join the cell, so its reply has
+          // facts a Then reads.
+          returned(found.tool.name);
           tools.push({
             label: found.tool.name,
             count: 1,
@@ -151,7 +164,9 @@ export function boundarySeeder(
       const forbidsOnly = found !== undefined && tools.length > 0 && tools.every((tool) => tool.count === 0);
       const asked = tools.find((tool) => tool.label === found?.tool.name && tool.count !== 0);
       const field = found?.path[0];
-      if (found && asked?.input && field !== undefined && hasPaths(prepared)) {
+      // Only an argument value is said after the move that calls the tool; a returned-value request carries
+      // the schema defaults, which name no value of its own.
+      if (found?.direction === 'in' && asked?.input && field !== undefined && hasPaths(prepared)) {
         // A request that makes a call is said right after the walk's move that calls the tool: the call
         // carries the arguments that move gives it, with this value in its field, and is made once.
         const calling = new Set(
@@ -196,9 +211,26 @@ export function boundarySeeder(
           id,
           'boundary',
           `Boundary value ${value.id}`,
-          [target],
+          // The tool's returned values go with the value, so the run answers with them.
+          [
+            target,
+            ...cell.filter(
+              ([at]) =>
+                at !== index &&
+                prepared.toolDimensions.get(at)?.tool.name === found.tool.name &&
+                prepared.toolDimensions.get(at)?.direction === 'out',
+            ),
+          ],
           { preferred: prepared.relations.paths.filter((path) => path.stages.length >= 3), others: [] },
-          { turn: { stimulus: choosePhrase(prepared, rng, [target]), carries: [target], tools } },
+          {
+            turn: {
+              stimulus: choosePhrase(prepared, rng, [target]),
+              carries: [target],
+              tools,
+              // A turn that runs the tool: its reply states the tool's returned fields.
+              ...(asked ? { report: found.tool.name } : {}),
+            },
+          },
         );
         if ('draft' in built) {
           if (Object.keys(concrete).length > 0) built.draft.concrete = concrete;

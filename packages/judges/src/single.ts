@@ -2,6 +2,7 @@ import { type Check, parseCriterionRef, type Verdict } from '@agent-nexus/driftb
 import { taskArtifactText } from './artifacts';
 import { JUDGE_CHECK, readInputs, requestFor, safeId } from './check';
 import type { JudgeClient } from './client';
+import { criterionJudge } from './criterion-settings';
 
 /**
  * One judge for the judged criteria of a run, when a council cannot be formed: an estate run on a
@@ -44,8 +45,9 @@ export function singleJudgeCheck(client: JudgeClient, options: SingleJudgeOption
           ...requestFor(ctx, def, artifact),
           ...(def.inputs && def.inputs.length > 0 ? { inputs: await readInputs(ctx, def.inputs) } : {}),
         };
+        const judge = criterionJudge(client, def);
         try {
-          let result = await client.judge(request);
+          let result = await judge.judge(request);
           let spent = result.costUsd;
           if (result.costUsd !== undefined) options.onCost?.(result.costUsd);
           if (
@@ -55,7 +57,7 @@ export function singleJudgeCheck(client: JudgeClient, options: SingleJudgeOption
             (result.answer.reasoning.startsWith('invalid criterion ledger:') ||
               result.answer.reasoning.startsWith('answer breaks the assessment contract:'))
           ) {
-            result = await client.judge({ ...request, budget: 'large' });
+            result = await judge.judge({ ...request, budget: 'large' });
             if (result.costUsd !== undefined) {
               options.onCost?.(result.costUsd);
               spent = (spent ?? 0) + result.costUsd;

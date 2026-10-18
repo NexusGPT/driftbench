@@ -26,6 +26,10 @@ export const FROZEN_BENCHMARK_REASONING = Object.freeze({
 
 export type DialectCompletionRequest = {
   readonly quotedMaterial?: boolean;
+  /** Per-call native CLI spend ceiling, including retries. Omitted uses the transport default. */
+  readonly maxBudgetUsd?: number;
+  /** Per-request HTTP output limit. Omitted uses the transport default; native CLI owns its token ceiling. */
+  readonly maxTokens?: number;
   readonly system: string;
   readonly user: string;
   /** Absent: plain output, with no injected schema, JSON instructions or judge contract. */
@@ -83,6 +87,13 @@ export function buildDialectRequest(
   payload: Record<string, unknown>;
   fingerprint: string;
 } {
+  if (request.maxTokens !== undefined && (!Number.isSafeInteger(request.maxTokens) || request.maxTokens <= 0))
+    throw new RangeError('maxTokens must be a positive safe integer');
+  if (
+    request.maxBudgetUsd !== undefined &&
+    (!Number.isFinite(request.maxBudgetUsd) || request.maxBudgetUsd <= 0)
+  )
+    throw new RangeError('maxBudgetUsd must be positive and finite');
   request = quoteAssessmentMaterial(request, request.quotedMaterial);
   const dialect = JUDGE_DIALECTS[provider].id;
   if (request.reasoning !== undefined && provider !== 'openai' && provider !== 'google')
@@ -134,7 +145,18 @@ export function buildDialectRequest(
         ? { system: request.system, user }
         : { system: request.system, messages: [{ role: 'user', content: user }] };
   }
-  return { dialect, payload, fingerprint: promptFingerprint({ version: 1, provider, dialect, payload }) };
+  return {
+    dialect,
+    payload,
+    fingerprint: promptFingerprint({
+      version: 1,
+      provider,
+      dialect,
+      payload,
+      ...(request.maxTokens === undefined ? {} : { maxTokens: request.maxTokens }),
+      ...(request.maxBudgetUsd === undefined ? {} : { maxBudgetUsd: request.maxBudgetUsd }),
+    }),
+  };
 }
 
 /** Raw text transport for any prompt or schema, including pointwise uncertainty cascades. No verdict parser runs. */
@@ -194,6 +216,8 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
     ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
     base,
     ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
+    ...(options.maxBudgetUsd === undefined ? {} : { maxBudgetUsd: options.maxBudgetUsd }),
+    ...(options.retryMaxCostUsd === undefined ? {} : { retryMaxCostUsd: options.retryMaxCostUsd }),
     ...(provider !== 'claude-cli'
       ? {}
       : { command: options.command ?? 'claude', args: options.commandArgs ?? [], settings: CLAUDE_SETTINGS }),
@@ -205,12 +229,15 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
     fingerprint,
     async complete(original) {
       const reasoning = original.reasoning ?? options.reasoning;
+      const maxBudgetUsd = original.maxBudgetUsd ?? options.maxBudgetUsd;
       const request = {
         ...original,
+        ...(maxBudgetUsd === undefined ? {} : { maxBudgetUsd }),
         quotedMaterial: original.quotedMaterial ?? options.quotedMaterial,
         ...(reasoning === undefined ? {} : { reasoning }),
       };
       const built = buildDialectRequest(provider, request);
+      const outputLimit = request.maxTokens ?? maxTokens;
       const identity = {
         dialect,
         fingerprint: promptFingerprint({ transport: fingerprint, request: built.fingerprint }),
@@ -229,11 +256,12 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
             '--system-prompt',
             built.payload.system as string,
             ...CLAUDE_JUDGE_FLAGS,
-            ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
+            ...(maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(maxBudgetUsd)]),
           ],
           built.payload.user as string,
           {
             ...options,
+            ...(maxBudgetUsd === undefined ? {} : { maxBudgetUsd }),
             cwd: folder,
             env,
             timeoutMs: options.timeoutMs ?? 120_000,
@@ -280,13 +308,15 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
               ...built.payload,
               generationConfig: {
                 ...((built.payload.generationConfig ?? {}) as Record<string, unknown>),
-                maxOutputTokens: maxTokens,
+                maxOutputTokens: outputLimit,
               },
             }
           : {
               model,
               ...built.payload,
-              ...(provider === 'openai' ? { max_completion_tokens: maxTokens } : { max_tokens: maxTokens }),
+              ...(provider === 'openai'
+                ? { max_completion_tokens: outputLimit }
+                : { max_tokens: outputLimit }),
             };
       const value = await postJson(url, headers, body, options);
       return { ...identity, ...readCompletion(provider, value) };
@@ -329,6 +359,9 @@ function readCompletion(
     finish = record.stop_reason;
     if (finish === 'refusal') refusal = finish;
   }
+  // The shared classifier also recognizes blocked finish reasons without a separate refusal field.
+  // Retain their text for audit, but never expose it as an ordinary successful completion.
+  if (block && !(typeof refusal === 'string' && refusal)) refusal = block.reason;
   return {
     text,
     raw,

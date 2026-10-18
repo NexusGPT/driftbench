@@ -1,0 +1,76 @@
+{
+  "frozenAt": "2026-10-14T11:37:20.395Z",
+  "harnessCommit": "bff7b2894cae9c12fe1586a548f63b0e9fd9baac",
+  "judgeSha256AtFreeze": "5d8f9fb571cdb0e9ae404770b55cf1c86223f60fdef111d232639a773a2881b4",
+  "casesPerRow": {
+    "panel": 480
+  },
+  "rowsLeftOut": ["qa", "fact", "borderline"],
+  "preRegistration": {
+    "primary": "Panel row, paired by case: driftbench default judge with the rendered record read into role-separated entries and the candidate data rule (split-r2), judge package at commit 6b879c8ac (tool-name grounding), against Inspect default. Exact two-sided McNemar test on discordant cases. Unscored or incomplete counts as wrong.",
+    "descriptive": "Per-row counts and intervals, without a test.",
+    "runs": "One run per procedure. No change to the judge, the requests or the set after this freeze."
+  },
+  "perFamilyAndLabel": {
+    "qa": 0,
+    "fact": 0,
+    "panel": 20,
+    "borderline": 0
+  },
+  "seedRanges": {
+    "panel": [960001, 960046]
+  },
+  "selection": "Seeds walked upward from 960001 (QA, fact), 960001 (panel), 960001 (borderline). Items taken in generator order when the request of every procedure (default, split, split-conv, split-r2, rendered, audit, theirs) is new and unique and the submission is in no earlier set, until each family and label cell holds its count (qa 0, fact 0, panel 20, borderline 0). No model outcome is read.",
+  "procedures": {
+    "default": "driftbench default judge, the whole rendered record as one agent entry (the registered wiring of the shipped comparison)",
+    "split": "driftbench default judge, the rendered record read into role-separated entries, inputs and artifact (fable/record.ts), block scope",
+    "split-conv": "the same, with the criterion scoped to the whole conversation",
+    "rendered": "driftbench default judge plus the rendered-record rule (fable/request.ts), one agent entry",
+    "audit": "driftbench answer-audit (opt-in)",
+    "theirs": "Inspect default: verbatim inspect_ai model_graded_qa and model_graded_fact templates pinned at a1dbea8"
+  },
+  "judge": "Each run records the judge commit and the SHA-256 of packages/judges/src it ran under. A judge that runs on this set is frozen (committed) before its first call on it; one run per procedure and judge.",
+  "model": "haiku",
+  "votes": {
+    "qa": 1,
+    "fact": 1,
+    "panel": 3,
+    "borderline": 3
+  },
+  "sha256": {
+    "comparisons/inspect/hard/fable/heldout-panel/panel.json": "c939f69e40f013da52f2f4542496a2e15cc835fe2f35f0f0d6c7f9cb6e708e82",
+    "comparisons/inspect/hard/generate.mts": "1c39b4b9adf554acef4ced1a352a3510c88591e74a9056f3e87305ef976ba61f",
+    "comparisons/inspect/hard/harness.ts": "53bcf51e1bb7251d0eadc1772822b19dfdfb14d36e6fe9d8cffe12d53710ac61",
+    "comparisons/inspect/hard/recordings.ts": "ca6a65577b3ab3d30fe0abca290c5bca02ee85f9869a2ed7abb5e8592cc9f246",
+    "comparisons/inspect/hard/qa-template.txt": "f07b32e50b33596a2db845ab8dfd11f64a17270a9162c828a42b8ed1d566d02a",
+    "comparisons/inspect/hard/fact-template.txt": "384298b3a412e9cee138ef7bbdb21c9a3e669fc9416eecdbb7c26fe24e13dda5",
+    "comparisons/inspect/hard/instructions.txt": "7c6cdf15888e0f2173e623fb52ba2d0b75aeb575a9937b0e3e66c9f4370afd5a",
+    "comparisons/inspect/hard/shipped/stats.ts": "823e5f02a11075e1b1a9552fad470468db7f0dfe1cc27cb51aa7b6cfaa4c789d",
+    "comparisons/inspect/hard/fable/record.ts": "8a68584e47fcdc534913f3dccef875371d352a5a236d97de4f0bca2d6499a924",
+    "comparisons/inspect/hard/fable/request.ts": "6d5a8c1eb30892a6c382b577c1e9e4297f6d4b5e8a7ff5cbbddee1efafc76bc7",
+    "comparisons/inspect/hard/fable/run.mts": "c25d0eb1bba16af7217a71c6989ec05bf79017f3aef297bf3070a0c9c0b0747e",
+    "comparisons/inspect/hard/fable/report.mts": "1a300e8eeb207a0534646040a47c8ae2101cf4ad2435cfbcead23e8be2474dcf",
+    "comparisons/inspect/hard/fable/freeze.mts": "42bf1ea311d35f1e606db8dbde558ebabcac94b23877acfedd136829d921fcbf"
+  },
+  "candidate": {
+    "judgeCommit": "6b879c8ac9becc7315866542d084861",
+    "procedure": "split-r2",
+    "practice": "practice-panel: split-r2 239/240, split 237/240, split without the tool-name grounding 228/240, Inspect 240/240"
+  },
+  "amendments": [
+    {
+      "at": "2026-10-14T11:50:12.076Z",
+      "file": "comparisons/inspect/hard/fable/report.mts",
+      "from": "2a2c74e5ade51de2fc5c4bcfddef4129109fb01d240590d351e1959bda2886d7",
+      "to": "0b50f548295380fcad407b17297e1042da85a20e249205b0c5afc1143794fea2",
+      "reason": "report.mts lists the split-r2 procedure and names both transports in its header, after every run on this set was complete. The report reads result files; it decides no verdict."
+    },
+    {
+      "at": "2026-10-14T11:59:54.408Z",
+      "file": "comparisons/inspect/hard/fable/report.mts",
+      "from": "0b50f548295380fcad407b17297e1042da85a20e249205b0c5afc1143794fea2",
+      "to": "1a300e8eeb207a0534646040a47c8ae2101cf4ad2435cfbcead23e8be2474dcf",
+      "reason": "Post-hoc reporting correction after all runs: pool by exact submission clusters because QA/fact reuse split answers; retain nominal and per-row tests, disclose panel question overlap, and point to SHA-256-checked recording export and complete transport provenance. No frozen input, registration, request or recorded answer changes."
+    }
+  ]
+}

@@ -136,7 +136,7 @@ export function approvePlanRows(text: string, selection: PlanSelection): PlanApp
       if (!isMap(item)) continue;
       const id = String(item.get('id'));
       const status = item.get('status') ?? 'proposed';
-      const chosen = ids.includes(id) || (selection.all === true && status === 'proposed');
+      const chosen = ids.includes(id) || (selection.all === true && (status === 'proposed' || status === to));
       if (!chosen) continue;
       if (status === to) unchanged++;
       else {

@@ -1,13 +1,20 @@
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readFile as readFileCallback } from 'node:fs';
+import { readdir, stat } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
+import { promisify } from 'node:util';
 import { parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
-import { Spec } from '../schema/spec';
-import { contentHash } from './hash';
+import { SPEC_SCHEMA_VERSION, type Spec } from '../schema/spec';
+import { parseBlockYaml } from './block-yaml';
+import { parseSpecSchema } from './compiled-schema';
+import { specHash } from './identity';
 import { error, type Issue } from './issues';
 import { lintSpec } from './lint';
 import { normalizeSpec } from './normalize';
 import { checkSemantics } from './semantics';
+
+// The callback reader avoids FileHandle wrapper overhead for the many small spec files.
+const readFile = promisify(readFileCallback);
 
 export type LoadResult =
   | { ok: true; path: string; spec: Spec; hash: string; warnings: Issue[] }
@@ -19,18 +26,40 @@ export type LoadedSpec = Extract<LoadResult, { ok: true }>;
 export function parseSpecText(text: string, format: 'yaml' | 'json', path = '<inline>'): LoadResult {
   let raw: unknown;
   try {
-    raw = format === 'json' ? JSON.parse(text) : parseYaml(text, { prettyErrors: true, uniqueKeys: true });
+    raw =
+      format === 'json'
+        ? JSON.parse(text)
+        : (parseBlockYaml(text)?.value ?? parseYaml(text, { prettyErrors: true, uniqueKeys: true }));
   } catch (cause) {
     return { ok: false, path, errors: [error('SPEC_PARSE', '', describe(cause))], warnings: [] };
   }
   return validateSpec(raw, path);
 }
 
-/** Normalises and validates an already parsed value. */
+/** The full schema, semantic and lint result, for callers that do not consume a content hash. */
+export type SpecValidationResult = Omit<LoadedSpec, 'hash'> | Extract<LoadResult, { ok: false }>;
+
+/** Normalises, validates and hashes an already parsed value. */
 export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
+  const checked = checkSpec(raw, path);
+  if (!checked.ok) return checked;
+  return {
+    ok: true,
+    path: checked.path,
+    spec: checked.spec,
+    hash: specHash(checked.spec),
+    warnings: checked.warnings,
+  };
+}
+
+/** Runs the same checks as validateSpec without computing an unused content digest. */
+export function checkSpec(raw: unknown, path = '<inline>'): SpecValidationResult {
+  // A spec written for a newer format is refused first, with the fix, before its newer keys read as unknown.
+  const newer = newerSchema(raw);
+  if (newer) return { ok: false, path, errors: [newer], warnings: [] };
   const normalized = normalizeSpec(raw);
   const errors = normalized.issues.filter((issue) => issue.level === 'error');
-  const parsed = Spec.safeParse(normalized.value);
+  const parsed = parseSpecSchema(normalized.value);
 
   if (!parsed.success) {
     for (const zodIssue of parsed.error.issues) {
@@ -51,9 +80,22 @@ export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
     ok: true,
     path,
     spec: parsed.data,
-    hash: contentHash(parsed.data),
     warnings: lintSpec(parsed.data),
   };
+}
+
+/** The refusal of a spec whose `schema_version` is a whole number above the version this driftbench reads. */
+function newerSchema(raw: unknown): Issue | undefined {
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+  const version = (raw as { schema_version?: unknown }).schema_version;
+  if (typeof version !== 'number' || !Number.isInteger(version) || version <= SPEC_SCHEMA_VERSION) {
+    return undefined;
+  }
+  return error(
+    'SPEC_SCHEMA_VERSION',
+    'schema_version',
+    `the spec is written for spec format version ${version}; this driftbench reads version ${SPEC_SCHEMA_VERSION} and older: upgrade driftbench`,
+  );
 }
 
 /** Reads one file. `.json` is parsed as JSON, anything else as YAML. */
@@ -86,7 +128,7 @@ function anchorWorkspace(result: LoadResult): LoadResult {
   const from = resolve(dirname(result.path), workspace.from);
   const world = { ...result.spec.given?.world, workspace: { ...workspace, from } };
   const spec = { ...result.spec, given: { ...result.spec.given, world } } as Spec;
-  return { ...result, spec, hash: contentHash(spec) };
+  return { ...result, spec, hash: specHash(spec) };
 }
 
 /** Expands files and folders into spec files: `*.yaml`, `*.yml` and `*.spec.json`, sorted. */

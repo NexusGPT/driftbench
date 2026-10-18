@@ -1,6 +1,8 @@
-import type { Assertion, Count } from '../schema/common';
-import type { Expect, Spec } from '../schema/spec';
+import type { Assertion, Count, WorldState } from '../schema/common';
+import type { BlockSpec, Expect, Spec } from '../schema/spec';
 import { error, type Issue } from './issues';
+import { isPlainObject } from './normalize';
+import { parentOrder } from './parents';
 
 const CRITERION_REF = /^([A-Za-z0-9][A-Za-z0-9_.-]*)(@gating)?$/;
 
@@ -11,10 +13,18 @@ export function parseCriterionRef(ref: string): { name: string; gating: boolean 
   return { name: match[1], gating: match[2] === '@gating' };
 }
 
+// Cache only the immutable success result, bounded independently of suite size.
+const validPatterns = new Set<string>();
+
 /** Compiles a spec pattern the way checks will use it. Returns the error message, or undefined. */
 export function patternError(source: string): string | undefined {
+  if (validPatterns.has(source)) return undefined;
   try {
     new RegExp(source, 'm');
+    if (source.length <= 1024) {
+      if (validPatterns.size >= 4096) validPatterns.clear();
+      validPatterns.add(source);
+    }
     return undefined;
   } catch (cause) {
     return cause instanceof Error ? cause.message : String(cause);
@@ -29,7 +39,14 @@ type Context = {
 
 /** Rules a schema cannot express. Every issue returned is an error. */
 export function checkSemantics(spec: Spec): Issue[] {
-  const issues: Issue[] = [];
+  const issues: Issue[] = parentOrder(spec).issues;
+  checkWorkspace(spec.given?.world, 'given.world', issues);
+  spec.blocks.forEach((block, index) => {
+    checkWorkspace(block.given?.world, `blocks.${index}.given.world`, issues);
+  });
+  spec.perturbations?.forEach((perturbation, index) => {
+    checkWorkspace(perturbation.world, `perturbations.${index}.world`, issues);
+  });
 
   const defined = spec.criteria ? new Set<string>() : undefined;
   spec.criteria?.forEach((criterion, index) => {
@@ -52,6 +69,8 @@ export function checkSemantics(spec: Spec): Issue[] {
   const ctx: Context = { stages: spec.stages ? new Set(spec.stages) : undefined, defined, forbidden };
 
   const facts = factsOf(spec);
+  // Once per spec: asking it per fact would scan every block for every block.
+  const linked = spec.blocks.some((entry) => entry.parent !== undefined);
   const blockIds = new Set<string>();
   spec.blocks.forEach((block, index) => {
     if (block.id !== undefined) {
@@ -62,12 +81,21 @@ export function checkSemantics(spec: Spec): Issue[] {
       }
       blockIds.add(block.id);
     }
+    if (block.given?.origin !== undefined && block.given.prefix === undefined) {
+      issues.push(
+        error(
+          'GIVEN_ORIGIN_WITHOUT_PREFIX',
+          `blocks.${index}.given.origin`,
+          'origin says where a prefix comes from, and this block writes no prefix: add given.prefix or remove origin',
+        ),
+      );
+    }
     if (block.expect) checkExpect(block.expect, `blocks.${index}.expect`, ctx, issues);
     if (block.expect)
       checkRetention(
         block.expect,
         `blocks.${index}.expect`,
-        (fact) => (facts.block.get(fact) ?? Infinity) <= index,
+        (fact) => (linked ? parentFact(spec, index, fact) : (facts.block.get(fact) ?? Infinity) <= index),
         issues,
       );
   });
@@ -144,6 +172,26 @@ export function checkSemantics(spec: Spec): Issue[] {
     }
   });
 
+  const links = spec.metadata?.links;
+  if (Array.isArray(links)) {
+    links.forEach((link: unknown, index) => {
+      const block = isPlainObject(link) ? link.block : undefined;
+      const known =
+        block === undefined ||
+        (typeof block === 'number' && block < spec.blocks.length) ||
+        (typeof block === 'string' && blockIds.has(block));
+      if (!known) {
+        issues.push(
+          error(
+            'LINK_BLOCK_UNKNOWN',
+            `metadata.links.${index}.block`,
+            `the link names block ${JSON.stringify(block)}, which the spec does not have`,
+          ),
+        );
+      }
+    });
+  }
+
   return issues;
 }
 
@@ -154,6 +202,13 @@ function checkExpect(expect: Expect, path: string, ctx: Context, issues: Issue[]
       if (problem) issues.push(error('REGEX_INVALID', `${path}.${key}.${index}`, problem));
     });
   }
+  expect.regex?.forEach((pattern, index) => {
+    const problem = patternError(pattern);
+    if (problem) issues.push(error('REGEX_INVALID', `${path}.regex.${index}`, problem));
+  });
+  expect.json?.paths?.forEach((entry, index) => {
+    checkAssertion(entry.assert, `${path}.json.paths.${index}.assert`, issues);
+  });
   const mustNot = new Set(expect.must_not ?? []);
   expect.must?.forEach((pattern, index) => {
     if (mustNot.has(pattern)) {
@@ -310,4 +365,39 @@ function checkRetention(
       if (problem) issues.push(error('REGEX_INVALID', `${at}.ask`, problem));
     }
   });
+}
+
+/** A linked block can retain only default, own Given, or ancestor facts. */
+function parentFact(spec: Spec, index: number, fact: string): boolean {
+  if (Object.hasOwn(spec.given?.ledger ?? {}, fact)) return true;
+  const ids = new Map(spec.blocks.map((block, at) => [block.id, at]));
+  const seen = new Set<number>();
+  let at: number | undefined = index;
+  while (at !== undefined && !seen.has(at)) {
+    seen.add(at);
+    const block: BlockSpec | undefined = spec.blocks[at];
+    if (
+      Object.hasOwn(block?.given?.ledger ?? {}, fact) ||
+      (at !== index && Object.hasOwn(block?.expect?.ledger_add ?? {}, fact))
+    )
+      return true;
+    at = block?.parent === undefined ? undefined : ids.get(block.parent);
+  }
+  return false;
+}
+
+/** A path written both as text and as bytes is ambiguous: refused, never resolved one way or the other. */
+function checkWorkspace(world: WorldState | undefined, at: string, issues: Issue[]): void {
+  const files = world?.workspace?.files ?? {};
+  for (const path of Object.keys(world?.workspace?.binary ?? {})) {
+    if (Object.hasOwn(files, path)) {
+      issues.push(
+        error(
+          'WORKSPACE_PATH_TWICE',
+          `${at}.workspace.binary.${path}`,
+          `workspace path "${path}" is in both files and binary`,
+        ),
+      );
+    }
+  }
 }

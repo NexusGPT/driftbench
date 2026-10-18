@@ -12,7 +12,7 @@ function manifest(dir, overrides = {}) {
     version: '0.1.0',
     description: 'A fictional package.',
     type: 'module',
-    license: 'Apache-2.0',
+    license: 'MIT',
     keywords: ['evaluation'],
     repository: { type: 'git', url: REPO, directory: `packages/${dir}` },
     homepage: 'https://github.com/achammah/driftbench#readme',
@@ -62,7 +62,7 @@ describe('checkManifest', () => {
     const bad = manifest('core', {
       name: 'core',
       private: true,
-      license: 'MIT',
+      license: 'Apache-2.0',
       keywords: [],
       engines: undefined,
       types: undefined,

@@ -20,7 +20,7 @@
     "url": "git+https://github.com/achammah/driftbench.git",
     "directory": "packages/vitest"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -34,6 +34,8 @@
     }
   },
   "files": [
+    "NOTICE",
+    "THIRD_PARTY_LICENSES.md",
     "dist"
   ],
   "scripts": {

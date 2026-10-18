@@ -1,0 +1,34 @@
+{
+ "sources": {
+  "mmlu-pro": {
+   "url": "https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/resolve/b189ec765aa7ed75c8acfea42df31fdae71f97be/data/test-00000-of-00001.parquet",
+   "license": "MIT",
+   "sha256": "0e24a191921c2f453518a537a8b2117bd137e7714d4ef1565e9ba06c1ecb9ad8",
+   "rows": 12032
+  },
+  "livebench-math": {
+   "url": "https://huggingface.co/datasets/livebench/math/resolve/bb66571c8ccf32d3df9e6f48b920d3770ff4aacb/data/test-00000-of-00001.parquet",
+   "license": "see the LiveBench dataset card",
+   "sha256": "3d365cad1f9b8d7c5416d63866653d6854b270d9c93b51323d405ed5fd51df54",
+   "rows": 368
+  },
+  "livebench-reasoning": {
+   "url": "https://huggingface.co/datasets/livebench/reasoning/resolve/6fc6498a5dfba553f69f4413feabade1f1a2d384/data/test-00000-of-00001.parquet",
+   "license": "see the LiveBench dataset card",
+   "sha256": "4204bb94c812690ef8ba5f4c1f10b5b1082ca0b7bc532166834f798aa56e2a3c",
+   "rows": 200
+  }
+ },
+ "judgebench": {
+  "gpt": {
+   "url": "https://raw.githubusercontent.com/ScalerLab/JudgeBench/main/data/dataset%3Djudgebench%2Cresponse_model%3Dgpt-4o-2024-05-13.jsonl",
+   "sha256": "d5106306b38dead1b2e964ecf5534a3e7b2fc4b8d3b8da327599edfcebd76042",
+   "rows": 350
+  },
+  "claude": {
+   "url": "https://raw.githubusercontent.com/ScalerLab/JudgeBench/main/data/dataset%3Djudgebench%2Cresponse_model%3Dclaude-3-5-sonnet-20240620.jsonl",
+   "sha256": "3b70504588e400613bf5744a20a345da8701b7150be9a30c9db0e6f3d7b70a62",
+   "rows": 270
+  }
+ }
+}

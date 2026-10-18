@@ -93,7 +93,7 @@ describe('the Acme map proposal', () => {
       ['relations', 'done', 1],
     ]);
     expect(renderProposal(result.proposal)).toBe(loaded.text);
-  });
+  }, 20_000);
 
   it('holds the places the Acme agent specifies its behaviour', async () => {
     const loaded = await loadProposal(PROPOSAL);

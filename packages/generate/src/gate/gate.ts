@@ -1,7 +1,14 @@
-import type { AgentAdapter, Observed, RunResult, Spec } from '@agent-nexus/driftbench-core';
+import {
+  type AgentAdapter,
+  canonicalJson,
+  type Observed,
+  type RunResult,
+  type Spec,
+} from '@agent-nexus/driftbench-core';
 import { mulberry32, passK, wilson } from '@agent-nexus/driftbench-stats';
 import { streamSeed } from '../seed/random';
 import {
+  blockNotRun,
   blockOutcome,
   failingIds,
   projectObserved,
@@ -53,7 +60,8 @@ export type GateInput = {
   onProgress?: (line: string) => void;
 };
 
-export type FaultRun = { outcome: BlockOutcome; changed: boolean; failing: string[] };
+/** One fault agent on one block. `notRun`: the runner did not send the block to it (no measurement). */
+export type FaultRun = { outcome: BlockOutcome; notRun?: true; changed: boolean; failing: string[] };
 
 /** Everything the gate learned about one block. */
 export type BlockRecord = {
@@ -75,6 +83,12 @@ export type BlockRecord = {
   reference: BlockOutcome[];
   trivial: Partial<Record<TrivialAgent, BlockOutcome>>;
   faults: Record<string, FaultRun>;
+  /**
+   * The agents whose run did not send this block (not_run or blocked), by role: the reference, trivial agents by
+   * name, faults by id. They measured nothing, so they are out of the difficulty and the kill counts. Keyed by
+   * role, so a fault id never stands for the reference or a trivial agent. Absent when none.
+   */
+  notRun?: { reference?: true; trivial?: TrivialAgent[]; faults?: string[] };
   /** pass^k on the reference, from the k repeats. */
   passK?: number;
   /** The share of agents (reference, trivial agents, non-equivalent faults) that pass the block. */
@@ -105,6 +119,8 @@ export type FaultSummary = {
 
 export type KillCount = {
   targeting: number;
+  /** Targeting blocks the fault's adapter did not run (not_run): out of `targeting` and the rate. Absent when 0. */
+  notRun?: number;
   red: number;
   killed: boolean;
   /** The share of targeting blocks that go red, with its Wilson 95% interval; absent with no block. */
@@ -221,13 +237,20 @@ export async function runGate(input: GateInput): Promise<GateResult> {
     if (!specRuns) continue;
     const spec = specOf.get(record.spec) as Spec;
     record.reference = specRuns.reference.map((run) => blockOutcome(run, record.index));
+    const notRun: NonNullable<BlockRecord['notRun']> = {};
+    if (specRuns.reference.some((run) => blockNotRun(run, record.index))) notRun.reference = true;
     for (const name of TRIVIAL_AGENTS) {
       const run = specRuns.trivial.get(name);
       if (run) record.trivial[name] = blockOutcome(run, record.index);
+      if (run && blockNotRun(run, record.index)) notRun.trivial = [...(notRun.trivial ?? []), name];
     }
+    for (const [id, run] of specRuns.faults)
+      if (blockNotRun(run.result, record.index)) notRun.faults = [...(notRun.faults ?? []), id];
+    if (Object.keys(notRun).length > 0) record.notRun = notRun;
     for (const [id, run] of specRuns.faults) {
       record.faults[id] = {
         outcome: blockOutcome(run.result, record.index),
+        ...(blockNotRun(run.result, record.index) ? { notRun: true } : {}),
         changed: run.changed,
         failing: failingIds(run.result, record.index),
       };
@@ -375,19 +398,7 @@ function contrastStage(record: BlockRecord, spec: Spec, ctx: ContrastContext): S
         ...ownRuns.map((run) => ({ run, index: record.index })),
         ...otherRuns.map((run) => ({ run, index: index as number })),
       ];
-      const projections = outcomes.map(({ run, index }) => {
-        const block = run.blocks.find((entry) => entry.index === index);
-        return block && run.status === 'completed' && blockOutcome(run, index) === 'pass'
-          ? contrastProjection(block.observed, record.fields)
-          : undefined;
-      });
-      if (
-        ownRuns.length > 0 &&
-        otherRuns.length > 0 &&
-        record.fields.every((field) => CONTRAST_FIELDS.has(field)) &&
-        projections[0] !== undefined &&
-        projections.every((projection) => projection === projections[0])
-      )
+      if (ownRuns.length > 0 && otherRuns.length > 0 && sameReferenceOutcome(outcomes, record.fields))
         continue;
       const changed = Object.entries(record.cell)
         .filter(([slot, value]) => blockCell(other as Spec, index as number)[slot] !== value)
@@ -411,6 +422,28 @@ function contrastStage(record: BlockRecord, spec: Spec, ctx: ContrastContext): S
   };
 }
 
+/**
+ * True when every reference run passes the block and they all show the same observed result on what the
+ * Then reads. A Then on the end state compares the end state each run recorded (`endStateValue`); a run
+ * that recorded none, such as one stored before the field existed, keeps the conservative answer: false.
+ */
+export function sameReferenceOutcome(
+  outcomes: ReadonlyArray<{ run: RunResult; index: number }>,
+  fields: readonly ThenField[],
+): boolean {
+  const readsEnd = fields.includes('end_state');
+  const endsRecorded = outcomes.every(({ run }) => run.endStateValue !== undefined);
+  if (!fields.every((field) => CONTRAST_FIELDS.has(field) || (field === 'end_state' && endsRecorded)))
+    return false;
+  const projections = outcomes.map(({ run, index }) => {
+    const block = run.blocks.find((entry) => entry.index === index);
+    if (!block || run.status !== 'completed' || blockOutcome(run, index) !== 'pass') return undefined;
+    const end = readsEnd ? `|${canonicalJson(run.endStateValue)}` : '';
+    return `${contrastProjection(block.observed, fields)}${end}`;
+  });
+  return projections[0] !== undefined && projections.every((projection) => projection === projections[0]);
+}
+
 // These fields have complete reference evidence in the captured block. Final stores, artifact
 // bytes and custom raw state can be read out of band, so they cannot use this equivalence shortcut.
 const CONTRAST_FIELDS: ReadonlySet<ThenField> = new Set([
@@ -426,13 +459,19 @@ const CONTRAST_FIELDS: ReadonlySet<ThenField> = new Set([
 /** Behavioural contrast ignores reply phrasing when the Then also asserts observed state.
  * Refusals can quote different invalid values while correctly making no call and staying put.
  * Keep message boundaries, tools and their arguments, runtime, artifacts and workspace changes;
- * a wording-only Then still compares the complete reply. */
+ * a wording-only Then still compares the complete reply. A workspace diff that lists no file is no
+ * workspace change: a run whose world supplies files and a run without a workspace changed nothing alike. */
 function contrastProjection(observed: Observed, fields: readonly ThenField[]): string {
-  if (!fields.some(isObservedField)) return projectObserved(observed);
+  const diff = observed.workspaceDiff;
+  const unchanged =
+    diff !== undefined && diff.created.length + diff.changed.length + diff.deleted.length === 0;
+  const { workspaceDiff: _empty, ...withoutDiff } = observed;
+  const compared: Observed = unchanged ? withoutDiff : observed;
+  if (!fields.some(isObservedField)) return projectObserved(compared);
   return projectObserved({
-    ...observed,
+    ...compared,
     text: '',
-    segments: observed.segments.map((segment) =>
+    segments: compared.segments.map((segment) =>
       segment.type === 'text' ? { ...segment, text: '' } : segment,
     ),
   });
@@ -514,22 +553,33 @@ function difficultyStage(
   faults: GateInput['faults'],
   equivalent: ReadonlySet<string>,
 ): { verdict: StageVerdict; probability: number; agents: number } {
+  // An agent whose run did not send the block (not_run or blocked) measured nothing: it is out of the difficulty
+  // and named in the detail. A block that ran and has no verdict stays `unjudged` and counts, as before.
+  const skipped = record.notRun ?? {};
+  const excluded: string[] = [];
   const outcomes: BlockOutcome[] = [];
-  if (record.reference[0] !== undefined) outcomes.push(record.reference[0]);
-  for (const name of TRIVIAL_AGENTS) {
-    const outcome = record.trivial[name];
-    if (outcome !== undefined) outcomes.push(outcome);
-  }
+  const add = (unsent: boolean, shown: string, outcome: BlockOutcome | undefined) => {
+    if (outcome === undefined) return;
+    if (unsent) excluded.push(shown);
+    else outcomes.push(outcome);
+  };
+  add(skipped.reference === true, 'the reference', record.reference[0]);
+  for (const name of TRIVIAL_AGENTS)
+    add(skipped.trivial?.includes(name) ?? false, `trivial ${name}`, record.trivial[name]);
   for (const fault of faults) {
     if (fault.def.kind === 'control' || fault.def.target !== record.target || equivalent.has(fault.def.id))
       continue;
-    const run = record.faults[fault.def.id];
-    if (run) outcomes.push(run.outcome);
+    add(
+      record.faults[fault.def.id]?.notRun === true,
+      `fault ${fault.def.id}`,
+      record.faults[fault.def.id]?.outcome,
+    );
   }
-  const passes = outcomes.filter((outcome) => outcome === 'pass').length;
-  const probability = outcomes.length === 0 ? 0 : passes / outcomes.length;
-  const detail = `${passes} of ${outcomes.length} agents pass it`;
-  if (passes === 0 || passes === outcomes.length) {
+  const measured = outcomes;
+  const passes = measured.filter((outcome) => outcome === 'pass').length;
+  const probability = measured.length === 0 ? 0 : passes / measured.length;
+  const detail = `${passes} of ${measured.length} agents pass it${excluded.length > 0 ? ` (not run: ${excluded.join(', ')})` : ''}`;
+  if (passes === 0 || passes === measured.length) {
     return {
       verdict: {
         status: 'mark',
@@ -537,10 +587,10 @@ function difficultyStage(
         detail: `${detail}: ${passes === 0 ? 'every' : 'no'} agent fails it`,
       },
       probability,
-      agents: outcomes.length,
+      agents: measured.length,
     };
   }
-  return { verdict: { status: 'pass', detail }, probability, agents: outcomes.length };
+  return { verdict: { status: 'pass', detail }, probability, agents: measured.length };
 }
 
 /** Stage 8: a seeded sample of each family's accepted blocks goes to a person. */
@@ -657,14 +707,18 @@ function killCount(
   equivalent: ReadonlySet<string>,
 ): KillCount {
   // A control is counted on every block of its target: each red one is a control the gate failed to keep green.
-  const targeting = blocks.filter((record) =>
+  const all = blocks.filter((record) =>
     fault.kind === 'control'
       ? record.target === fault.target && record.faults[fault.id] !== undefined
       : targets(record, fault, equivalent),
   );
+  // A block the fault's adapter did not run measured nothing: it is out of the targeting count and the rate.
+  const targeting = all.filter((record) => record.faults[fault.id]?.notRun !== true);
+  const notRun = all.length - targeting.length;
   const red = targeting.filter((record) => record.faults[fault.id]?.outcome === 'fail').length;
   return {
     targeting: targeting.length,
+    ...(notRun > 0 ? { notRun } : {}),
     red,
     killed: red > 0,
     ...(targeting.length > 0 ? { rate: interval(red, targeting.length) } : {}),
@@ -675,7 +729,13 @@ function killCount(
 export function classScores(faults: readonly FaultSummary[]): ClassScore[] {
   const byClass = groupBy(faults, (fault) => fault.class);
   return [...byClass.entries()].map(([name, members]) => {
-    const scored = members.filter((fault) => !fault.equivalent && fault.kind !== 'control');
+    // A fault whose every targeting block was not run measured nothing: it is not scored.
+    const scored = members.filter(
+      (fault) =>
+        !fault.equivalent &&
+        fault.kind !== 'control' &&
+        !(fault.suite.targeting === 0 && (fault.suite.notRun ?? 0) > 0),
+    );
     const killed = scored.filter((fault) => fault.suite.killed).length;
     return {
       class: name,

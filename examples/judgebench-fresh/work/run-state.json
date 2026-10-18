@@ -1,0 +1,41 @@
+{
+ "visited": {
+  "mmlu-pro-business": 596,
+  "mmlu-pro-law": 284,
+  "mmlu-pro-psychology": 778,
+  "mmlu-pro-biology": 701,
+  "mmlu-pro-chemistry": 506,
+  "mmlu-pro-history": 351,
+  "mmlu-pro-other": 480,
+  "mmlu-pro-health": 676,
+  "mmlu-pro-economics": 812,
+  "mmlu-pro-math": 554,
+  "mmlu-pro-physics": 462,
+  "mmlu-pro-computer science": 389,
+  "mmlu-pro-philosophy": 400,
+  "mmlu-pro-engineering": 290,
+  "livebench-math": 88,
+  "livebench-reasoning": 78
+ },
+ "pairs": {
+  "mmlu-pro-business": 90,
+  "mmlu-pro-law": 90,
+  "mmlu-pro-psychology": 81,
+  "mmlu-pro-biology": 55,
+  "mmlu-pro-chemistry": 90,
+  "mmlu-pro-history": 54,
+  "mmlu-pro-other": 90,
+  "mmlu-pro-health": 90,
+  "mmlu-pro-economics": 90,
+  "mmlu-pro-math": 90,
+  "mmlu-pro-physics": 90,
+  "mmlu-pro-computer science": 56,
+  "mmlu-pro-philosophy": 90,
+  "mmlu-pro-engineering": 90,
+  "livebench-math": 33,
+  "livebench-reasoning": 32
+ },
+ "spentUsd": 2.1348185500000003,
+ "capUsd": 5.0,
+ "complete": true
+}

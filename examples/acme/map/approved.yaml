@@ -2363,6 +2363,7 @@ phrases:
     value: new-home
     text: Hi, do you have home internet at 3 Orchard Way, Acmeville?
     lang: en
+    binds: { address: "3 Orchard Way, Acmeville" }
     evidence:
       source: ../README.md
       quote: Hi, do you have home internet at 3 Orchard Way, Acmeville?

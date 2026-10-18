@@ -169,12 +169,12 @@ describe('calibrate on the committed Acme cassette', () => {
     });
     expect(assignmentOf(report, 'care_redirect')).toMatchObject({
       status: 'assigned',
-      owner: 'jev-a',
+      owner: 's1p-a',
       cls: 'system1',
     });
-    // jev-b mislabels one plain_language block: system 1 keeps two judges at the bar, system 2 takes it.
-    expect(row(report, 'plain_language', 'jev-b')).toMatchObject({ meetsBar: false });
-    expect(row(report, 'plain_language', 'jev-b').labels.kappa).toBeCloseTo(0.4, 10);
+    // s1p-b mislabels one plain_language block: system 1 keeps two judges at the bar, system 2 takes it.
+    expect(row(report, 'plain_language', 's1p-b')).toMatchObject({ meetsBar: false });
+    expect(row(report, 'plain_language', 's1p-b').labels.kappa).toBeCloseTo(0.4, 10);
     expect(assignmentOf(report, 'plain_language')).toMatchObject({
       status: 'assigned',
       owner: 'google-chat',
@@ -189,7 +189,7 @@ describe('calibrate on the committed Acme cassette', () => {
     expect(assignmentOf(report, 'holds_instructions')).toMatchObject({ cls: 'system2' });
     // The task criterion: anthropic-chat reads the reply, not the changed cell, and never separates.
     expect(row(report, 'sheet_matches_catalog', 'anthropic-chat').separation.separated).toBe(0);
-    expect(assignmentOf(report, 'sheet_matches_catalog')).toMatchObject({ owner: 'jev-a', cls: 'system1' });
+    expect(assignmentOf(report, 'sheet_matches_catalog')).toMatchObject({ owner: 's1p-a', cls: 'system1' });
   });
 
   it('leaves a criterion unassigned when no class seats three judges at the bar, and says why', async () => {
@@ -202,7 +202,7 @@ describe('calibrate on the committed Acme cassette', () => {
     const ledger = assignmentOf(report, 'ledger_intact');
     expect(ledger?.status).toBe('unassigned');
     expect(ledger && 'reason' in ledger ? ledger.reason : '').toMatch(
-      /system1 has 2 of 3 judges at the bar, system2 has 2 of 3.*jev-b kappa 0\.40.*google-chat kappa 0\.50/,
+      /system1 has 2 of 3 judges at the bar, system2 has 2 of 3.*s1p-b kappa 0\.40.*google-chat kappa 0\.50/,
     );
   });
 
@@ -213,13 +213,13 @@ describe('calibrate on the committed Acme cassette', () => {
       criteria,
       labels,
     });
-    const agreement = row(report, 'care_redirect', 'jev-a').labels;
+    const agreement = row(report, 'care_redirect', 's1p-a').labels;
     expect(agreement).toMatchObject({ n: 4, agree: 4, kappa: 1 });
     expect(agreement.agreement.lower).toBeCloseTo(0.5101, 3);
     expect(agreement.agreement.upper).toBe(1);
     expect(report.criteria.find((c) => c.criterion === 'care_redirect')?.alpha).toBe(1);
     expect(report.criteria.find((c) => c.criterion === 'plain_language')?.alpha).toBeLessThan(1);
-    const pooled = report.pooled.find((p) => p.judge === 'jev-a');
+    const pooled = report.pooled.find((p) => p.judge === 's1p-a');
     expect(pooled).toMatchObject({ n: 40, agree: 38 });
   });
 });
@@ -228,20 +228,20 @@ describe('calibrate with a cassette that makes one judge fail the bar', () => {
   it('assigns every criterion to the cheapest system 1 judge when every judge tells the truth', async () => {
     const report = await scripted([]);
     for (const criterion of report.criteria) {
-      expect(criterion.assignment, criterion.criterion).toMatchObject({ status: 'assigned', owner: 'jev-a' });
+      expect(criterion.assignment, criterion.criterion).toMatchObject({ status: 'assigned', owner: 's1p-a' });
     }
   });
 
-  it('moves care_redirect to system 2 when jev-b passes its fail fixture', async () => {
+  it('moves care_redirect to system 2 when s1p-b passes its fail fixture', async () => {
     const report = await scripted([
-      { judge: 'jev-b', criterion: 'care_redirect', item: 'fail', answer: 'pass' },
+      { judge: 's1p-b', criterion: 'care_redirect', item: 'fail', answer: 'pass' },
     ]);
-    expect(row(report, 'care_redirect', 'jev-b').misses).toEqual(['separates the fixture pair 0 of 3 times']);
+    expect(row(report, 'care_redirect', 's1p-b').misses).toEqual(['separates the fixture pair 0 of 3 times']);
     expect(assignmentOf(report, 'care_redirect')).toMatchObject({
       status: 'assigned',
       owner: 'google-chat',
       cls: 'system2',
-      rejudge: ['jev-a', 'openai-decisions', 'jev-b'],
+      rejudge: ['s1p-a', 'openai-decisions', 's1p-b'],
     });
   });
 
@@ -250,12 +250,12 @@ describe('calibrate with a cassette that makes one judge fail the bar', () => {
       { judge: 'openai-chat', criterion: 'care_redirect', item: 'care_redirect.1', answer: 'fail' },
     ]);
     expect(row(report, 'care_redirect', 'openai-chat').meetsBar).toBe(false);
-    expect(assignmentOf(report, 'care_redirect')).toMatchObject({ owner: 'jev-a', cls: 'system1' });
+    expect(assignmentOf(report, 'care_redirect')).toMatchObject({ owner: 's1p-a', cls: 'system1' });
   });
 
   it('leaves care_redirect unassigned when a judge of each class fails', async () => {
     const report = await scripted([
-      { judge: 'jev-b', criterion: 'care_redirect', item: 'fail', answer: 'pass' },
+      { judge: 's1p-b', criterion: 'care_redirect', item: 'fail', answer: 'pass' },
       { judge: 'anthropic-chat', criterion: 'care_redirect', item: 'pass', repeat: 2, answer: 'fail' },
     ]);
     expect(row(report, 'care_redirect', 'anthropic-chat').separation.separated).toBe(2);
@@ -265,11 +265,11 @@ describe('calibrate with a cassette that makes one judge fail the bar', () => {
   it('counts an answer that never parses as inconclusive, after asking again with the large budget', async () => {
     const { criteria, labels } = await acme();
     const cassette = scriptedCalibrationCassette(criteria, labels, {
-      misses: [{ judge: 'jev-a', criterion: 'care_redirect', item: 'care_redirect.2', answer: 'unparsed' }],
+      misses: [{ judge: 's1p-a', criterion: 'care_redirect', item: 'care_redirect.2', answer: 'unparsed' }],
     });
     const asked: string[] = [];
     const judges = cassettePlayers(cassette).map((player): JudgeClient => {
-      if (player.id !== 'jev-a') return player;
+      if (player.id !== 's1p-a') return player;
       return {
         ...player,
         judge: (request) => {
@@ -279,10 +279,10 @@ describe('calibrate with a cassette that makes one judge fail the bar', () => {
       };
     });
     const report = await calibrate({ judges, criteria, labels });
-    const blocks = row(report, 'care_redirect', 'jev-a').labels.blocks;
+    const blocks = row(report, 'care_redirect', 's1p-a').labels.blocks;
     expect(blocks.find((b) => b.id === 'care_redirect.2')?.judged).toBe('inconclusive');
     expect(asked.filter((line) => line === 'care_redirect large')).toHaveLength(1);
-    expect(row(report, 'care_redirect', 'jev-a').meetsBar).toBe(false);
+    expect(row(report, 'care_redirect', 's1p-a').meetsBar).toBe(false);
   });
 
   it('counts a judge with no answer as an error and an inconclusive answer, never a pass', async () => {
@@ -294,12 +294,12 @@ describe('calibrate with a cassette that makes one judge fail the bar', () => {
     // Only the recording of a block labelled pass goes: a missing answer read as pass would agree with it.
     const key = requestKey(
       labelRequest(criterion, block),
-      cassette.judges.find((j) => j.id === 'jev-a'),
+      cassette.judges.find((j) => j.id === 's1p-a'),
     );
-    cassette.entries = cassette.entries.filter((entry) => !(entry.judge === 'jev-a' && entry.key === key));
+    cassette.entries = cassette.entries.filter((entry) => !(entry.judge === 's1p-a' && entry.key === key));
     const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels });
     expect(report.errors).toBe(1);
-    const jev = row(report, 'care_redirect', 'jev-a');
+    const jev = row(report, 'care_redirect', 's1p-a');
     expect(jev.labels.blocks.find((b) => b.id === 'care_redirect.1')?.judged).toBe('inconclusive');
     expect(jev.misses.join(' ')).toMatch(/1 call\(s\) gave no answer/);
     expect(assignmentOf(report, 'care_redirect')).toMatchObject({ owner: 'google-chat' });

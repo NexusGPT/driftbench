@@ -4,6 +4,7 @@ import { CriterionDef } from '@agent-nexus/driftbench-core';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { type JudgeRequest, TranscriptEntry } from './contract';
+import { withCriterionSettings } from './criterion-settings';
 
 /**
  * A criteria folder: one YAML file per criterion, named after it, holding the criterion and its fixture
@@ -98,7 +99,8 @@ export async function loadCriteria(dir: string): Promise<CriteriaLoad> {
         }
       }
     }
-    if (!loaded.def.fail || !loaded.def.pass) {
+    // Conformance reads the rubric alone: its conditions are in the rubric, never in pictures.
+    if ((!loaded.def.fail || !loaded.def.pass) && loaded.def.assessment !== 'conformance') {
       own.push({ path, message: 'the criterion needs both a FAIL and a PASS picture' });
     }
     issues.push(...own);
@@ -134,19 +136,22 @@ export function parseCriterionFile(
 export function fixtureRequest(criterion: LoadedCriterion, which: 'pass' | 'fail'): JudgeRequest {
   const fixture = criterion.fixtures[which];
   const def = criterion.def;
-  return {
-    criterion: {
-      name: def.name,
-      rubric: def.rubric,
-      ...(def.pass === undefined ? {} : { pass: def.pass }),
-      ...(def.fail === undefined ? {} : { fail: def.fail }),
-      scope: def.scope ?? 'block',
+  return withCriterionSettings(
+    {
+      criterion: {
+        name: def.name,
+        rubric: def.rubric,
+        ...(def.pass === undefined ? {} : { pass: def.pass }),
+        ...(def.fail === undefined ? {} : { fail: def.fail }),
+        scope: def.scope ?? 'block',
+      },
+      transcript: fixture.transcript,
+      ...(fixture.artifact === undefined ? {} : { artifact: fixture.artifact }),
+      ...(fixture.given === undefined ? {} : { given: fixture.given }),
+      ...fixtureInputs(def.inputs, fixture.inputs),
     },
-    transcript: fixture.transcript,
-    ...(fixture.artifact === undefined ? {} : { artifact: fixture.artifact }),
-    ...(fixture.given === undefined ? {} : { given: fixture.given }),
-    ...fixtureInputs(def.inputs, fixture.inputs),
-  };
+    def,
+  );
 }
 
 /** The inputs a criterion names, in its order, from a fixture or a labelled block. */

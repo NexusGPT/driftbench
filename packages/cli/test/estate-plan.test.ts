@@ -131,6 +131,13 @@ describe('driftbench estate plan approve', () => {
     expect(all.out).toContain('Approved 1567 rows in plan.yaml');
     const after = await run(['estate', 'plan', 'approve', 'plan.yaml'], root);
     expect(after.out).toContain('1568 rows, 0 proposed, 1567 approved, 1 struck.');
+    const before = await readFile(join(root, 'plan.yaml'), 'utf8');
+    const again = await run(['estate', 'plan', 'approve', 'plan.yaml', '--out', 'plan2.yaml', '--all'], root);
+    expect(again.code).toBe(0);
+    expect(again.err).toBe('');
+    expect(again.out).toBe('Approved 0 rows in plan2.yaml; 1567 were already approved.\n');
+    expect(await readFile(join(root, 'plan2.yaml'), 'utf8')).toBe(before);
+    expect(await readFile(join(root, 'plan.yaml'), 'utf8')).toBe(before);
     const unknown = await run(['estate', 'plan', 'approve', 'plan.yaml', '--row', 'no.such.row'], root);
     expect(unknown.code).toBe(1);
     expect(unknown.err).toContain('PLAN_UNKNOWN_ROW');

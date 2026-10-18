@@ -71,7 +71,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - name: Put the license in every package
-        run: for dir in packages/*/; do cp LICENSE "$dir"; done
+        run: for dir in packages/*/; do cp LICENSE NOTICE THIRD_PARTY_LICENSES.md "$dir"; done
       # pnpm publish rewrites workspace:* to the release version and hands each tarball to npm, which
       # signs the provenance statement. Private packages are skipped.
       - name: Publish

@@ -355,6 +355,7 @@ function unknownInRelation(draft: Draft, relation: ProposalRelation): string | u
     case 'route':
       return value(relation.subject.dimension, relation.subject.value);
     case 'tool_order':
+    case 'reply_count':
       return undefined;
     case 'recovery': {
       const deviation = draft.dimensions.find((dimension) => dimension.kind === 'deviation');

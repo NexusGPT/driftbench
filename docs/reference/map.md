@@ -209,7 +209,7 @@ One phrasing of a value, for the phrase bank.
 
 ## Proposal relations
 
-A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language.
+A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language, the replies per turn.
 
 Write one of these forms.
 
@@ -223,6 +223,7 @@ Write one of these forms.
 * a mapping with `kind: tool_order`, with the fields below
 * a mapping with `kind: route`, with the fields below
 * a mapping with `kind: reply_text`, with the fields below
+* a mapping with `kind: reply_count`, with the fields below
 
 With `kind: path`:
 
@@ -248,7 +249,7 @@ A tool a flow or a behaviour calls, the stage it is called at, and what feeds it
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `kind` | `uses_tool` | yes |  | Marks the relation as a tool call a flow or a behaviour makes. |
-| `subject` | [Proposal relations uses_tool subject](#proposal-relations-uses_tool-subject) | yes |  | The flow or behaviour value that calls the tool. |
+| `subject` | [Proposal relations uses_tool subject](#proposal-relations-uses_tool-subject) | yes |  | The flow or behaviour value that calls the tool. A flow's call is made on a move; a behaviour's call is made in the turn that asks for the behaviour, never on a move. |
 | `tool` | string, not empty | yes |  | The tool label. |
 | `stage` | string matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$` | yes |  | The stage the call is made at: the turn that leaves this stage. |
 | `to` | string matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$` | no |  | Only on the turn that reaches this stage. |
@@ -378,6 +379,18 @@ A rule that fixes the exact words of a reply.
 | `produced_by` | [Origin](#origin) | yes |  | Who proposed the entry: code (the pre-pass) or a model (a section answer). |
 | `approved` | boolean | yes |  | False until a person approves the entry. |
 
+With `kind: reply_count`:
+
+How many replies the agent sends to one user turn. A map without it means one reply per user turn.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `kind` | `reply_count` | yes |  | Marks the relation as how many replies the agent sends to one user turn. |
+| `per_turn` | `one` or `any` | yes |  | one: a single reply to every user turn. any: the agent may send several replies to one turn. Without this relation a map means one. |
+| `evidence` | [Evidence](#evidence) | yes |  | Where the entry comes from: a source path and a quote from it. |
+| `produced_by` | [Origin](#origin) | yes |  | Who proposed the entry: code (the pre-pass) or a model (a section answer). |
+| `approved` | boolean | yes |  | False until a person approves the entry. |
+
 ## Proposal relations path end_state
 
 What the side-effect store must hold when the path ends, by slot values.
@@ -412,7 +425,7 @@ Write one of these forms.
 
 ## Proposal relations uses_tool subject
 
-The flow or behaviour value that calls the tool.
+The flow or behaviour value that calls the tool. A flow's call is made on a move; a behaviour's call is made in the turn that asks for the behaviour, never on a move.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|

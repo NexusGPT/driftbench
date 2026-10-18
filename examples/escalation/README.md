@@ -105,7 +105,7 @@ This is a development-set reproduction, not an unseen test, new model evaluation
 guaranteed accuracy. The research compared multiple designs on these same rows. This example does not
 include the harm gate or the larger 91.58 stack, and does not recompute bootstrap intervals.
 
-The repository's Apache-2.0 license covers its code. This extraction retains recorded results and
+The repository's MIT license covers its code. This extraction retains recorded results and
 minimal benchmark metadata, not the source dataset or prompts. It makes no claim that third-party
 dataset content or model-output quotations are relicensed; their upstream terms still apply.
 

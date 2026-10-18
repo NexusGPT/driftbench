@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-14",
+  "commit": "359a709173e76c4073b542560cdfc02a6eb5508e",
+  "label": "driftbench, long-structured setting",
+  "split": "fresh",
+  "seal": "examples/writing-heldout/seal.json",
+  "model": "claude-haiku-5-5 through the claude command, every contestant",
+  "contestants": {
+    "driftbench, long-structured setting": "run.ts --contestant driftbench-long-structured",
+    "promptfoo": "run.ts --contestant promptfoo",
+    "peers": "peers_heldout.py deepeval,langwatch then inspect,langfuse (all-peers-public, unchanged)"
+  },
+  "analysis": "Games correct (ties and missing wrong). Exact two-sided McNemar on games against each of the five peers, Holm over those five. Run once; missing-only passes for transport failures only.",
+  "capUsd": 10,
+  "files": {
+    "packages/judges/src/long-structured.ts": "7237006384786dd8dd837133c64bbbfcb99236fdfd7eaf9e54f0c2f444983954",
+    "packages/judges/src/pair-ledger.ts": "70b989c2be14dc356e1d0b2709b7a2bfaa2db4a468caffb21e34926846ed0e0e",
+    "packages/judges/src/writing-requirements.ts": "89f01421086ccca46075a4d49f0370ca9cae0dfcd73ab40951ef07a73e2f21aa",
+    "packages/judges/src/reader-first-features.ts": "74dbcc5c83da17ad2d8abce21be637cc93a85645cafdc7e52a366fe5588df23f",
+    "packages/judges/src/reader-first.ts": "5ea5d4c3d30fe6a12b20c67f215d048d5170a036c621d5d27b5acf90e46181d5",
+    "packages/judges/src/prompt.ts": "1acd39f250017b49c7aa7309e2f50e3a35453986a670183785eb623a6bc39fb3",
+    "examples/writing-heldout/run.ts": "7ef5176936d442aee7a75c732fa25ce3e69efb3dec8b79fdbbf4163cc0070ca6",
+    "examples/writing-heldout/contestants.ts": "675b2de9f08d87ce453f966974c64e4ffdb08cbddf5662b97269a80fade4ee7a",
+    "examples/writing-heldout/peers_heldout.py": "d1cff150d860e3e457983f0a3cb264ae6eecd761afc493e7bf188a37f4963038",
+    "examples/writing-heldout/compare.py": "ea65eaf9051b87f72f2976788fe9261a2286cb01defa30ae697e6de70e36291c",
+    "examples/writing-heldout/vendor/select-best.njk": "1eb5db398b36270da1561afdc1557cf884e7efc5bea5f894834d72c533f76e7f",
+    "examples/all-peers-public/peers.py": "6aff93e6e19a3a70c9eb01af62cc1fb87238fecdfc8125bcac2ceaa7af02409d",
+    "examples/all-peers-public/transport.py": "061b99ae8a1ca28c8c00c6bf3f2146c1ec9709f0f66406b5773d7275f1b5a34a"
+  }
+}

@@ -5,6 +5,12 @@ import type { JudgeClient } from './client';
 import type { CriterionText, JudgeRequest, JudgeResult, TranscriptEntry } from './contract';
 import { lintCriterion } from './lint';
 import {
+  applyLongStructured,
+  PAIR_PREFERENCES,
+  type PairPreference,
+  type PreferenceResult,
+} from './long-structured';
+import {
   type LedgerParseStep,
   PairLedger,
   pairLedgerSchema,
@@ -168,6 +174,8 @@ export type PairLedgerResult = {
   readonly verdict?: LedgerVerdict;
   /** Original ledger verdict stays above; this read supplies the final choice when enabled. */
   readonly tieFollowup?: PairLedgerTieFollowupRead;
+  /** Present only when the caller declared a preference; it supplies the final choice. */
+  readonly preference?: PreferenceResult;
   readonly metadata?: { readonly graderError: boolean };
   readonly lint: readonly { readonly name: string; readonly codes: readonly string[] }[];
 };
@@ -178,6 +186,8 @@ export type PairLedgerOptions = {
   readonly tiePolicy?: 'tie' | 'canonical';
   /** One same-client forced choice after a final ledger tie. Off by default; stage0 ties are unchanged. */
   readonly tieFollowup?: false | PairLedgerTieFollowup;
+  /** A caller-declared preference applied after the ledger verdict. Off by default. */
+  readonly preference?: PairPreference;
 };
 
 /** Public package entrypoint: machine checks, both orders, bounded parser repair/re-ask, canonical quorum. */
@@ -188,6 +198,8 @@ export async function judgePairLedger(
 ): Promise<PairLedgerResult> {
   if (options.tieFollowup && !['direct', 'reasoning'].includes(options.tieFollowup))
     throw new RangeError('tieFollowup must be false, direct or reasoning');
+  if (options.preference !== undefined && !PAIR_PREFERENCES.includes(options.preference))
+    throw new RangeError(`preference must be one of ${PAIR_PREFERENCES.join(', ')}`);
   if (!input.candidates) throw new RangeError('a pair ledger needs both candidates');
   if (client.cls !== 'system2' || (options.escalationClient && options.escalationClient.cls !== 'system2'))
     throw new RangeError('pair ledger readers must support the system2 ledger contract');
@@ -290,6 +302,24 @@ export async function judgePairLedger(
       { ledger, firstIsOriginalFirst: canonical.firstIsOriginalFirst },
       options,
     );
+  }
+  if (options.preference) {
+    const language =
+      options.stage0?.language === 'zh' || options.stage0?.language === 'en'
+        ? options.stage0.language
+        : undefined;
+    const preference = applyLongStructured(first, second, verdict, language);
+    if (preference.choice !== 'tie')
+      return {
+        status: 'decided',
+        choice: preference.choice,
+        calls,
+        reads,
+        stage0,
+        verdict,
+        preference,
+        lint,
+      };
   }
   if (verdict.status === 'tie' && options.tieFollowup) {
     const followup = pairLedgerFollowupRequest(request, options.tieFollowup, reads);

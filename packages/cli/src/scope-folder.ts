@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -12,8 +12,12 @@ export const SCOPE_PREFIX = 'driftbench-sandboxes-';
  * catch (SIGKILL) is the case it exists for.
  */
 const WATCHER = `
-const { existsSync, rmSync } = require('node:fs');
-const [pid, folder] = process.argv.slice(1);
+const { existsSync, mkdtempSync, rmSync } = require('node:fs');
+const [pid, prefix] = process.argv.slice(1);
+const folder = mkdtempSync(prefix);
+// The owner may die before it reads the folder. Keep watching even if its pipe is gone.
+process.stdout.on('error', () => {});
+process.stdout.end(folder);
 const alive = () => { try { process.kill(Number(pid), 0); return true; } catch (e) { return e.code === 'EPERM'; } };
 const tick = () => {
   if (!existsSync(folder)) return process.exit(0);
@@ -50,20 +54,28 @@ export async function sweepDeadScopes(parent: string = tmpdir()): Promise<void> 
 }
 
 /**
- * Makes a scope folder owned by this process. Two things remove it when the process dies without a
- * `finally`: a detached watcher that outlives the owner by at most a moment, and the sweep of the
- * next run.
+ * The watcher creates the folder, then reports its path. Creating it in the owner first leaves a gap
+ * where an interrupt can kill the owner before the watcher starts, stranding an empty folder.
  */
 export async function makeScopeFolder(): Promise<string> {
   await sweepDeadScopes();
-  const folder = await mkdtemp(join(tmpdir(), `${SCOPE_PREFIX}${process.pid}-`));
-  try {
-    spawn(process.execPath, ['-e', WATCHER, String(process.pid), folder], {
-      detached: true,
-      stdio: 'ignore',
-    }).unref();
-  } catch {
-    // The sweep still removes the folder.
-  }
-  return folder;
+  const prefix = join(tmpdir(), `${SCOPE_PREFIX}${process.pid}-`);
+  const child = spawn(process.execPath, ['-e', WATCHER, String(process.pid), prefix], {
+    detached: true,
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
+  child.unref();
+  return new Promise((resolve, reject) => {
+    let folder = '';
+    child.once('error', reject);
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', (text: string) => {
+      folder += text;
+    });
+    child.stdout.once('error', reject);
+    child.stdout.once('end', () => {
+      if (folder.startsWith(prefix)) resolve(folder);
+      else reject(new Error('Cannot start the campaign sandbox cleanup watcher.'));
+    });
+  });
 }

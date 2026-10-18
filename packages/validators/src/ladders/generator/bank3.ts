@@ -1,10 +1,10 @@
 import type { Spec } from '@agent-nexus/driftbench-core';
 import { coverage, type SpaceCoverage } from '@agent-nexus/driftbench-space';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
-import { isCodeTaskSpec, oracleThen } from './code-task';
 import { FAULT_CLASSES } from './faults';
-import { DEVIATION_POOL, type HiddenSpec, phrasePattern } from './hidden';
+import { DEVIATION_POOL, type HiddenSpec } from './hidden';
 import type { Generation } from './measure';
+import { matchesPhrase, phraseStimulus } from './phrase-stimulus';
 import { hiddenInventory } from './render';
 
 /**
@@ -23,6 +23,8 @@ import { hiddenInventory } from './render';
  */
 
 const verdict = (pass: boolean, detail: string): Verdict => ({ pass, detail });
+const obligation = (data: SeedData, id: string, holds: boolean): boolean =>
+  data.obligation?.(id, holds) ?? holds;
 
 // report --------------------------------------------------------------------------------------------------
 
@@ -151,11 +153,24 @@ function turns(generated: Generation): string[] {
 function phraseUse(
   generated: Generation,
   select: (phrase: HiddenSpec['phrases'][number]) => boolean,
+  data: SeedData,
 ): { used: number; total: number; missing: string[] } {
-  const said = turns(generated);
+  const stimuli = generated.complete.flatMap(({ spec }) => spec.blocks.map(phraseStimulus));
   const wanted = generated.hidden.phrases.filter(select);
   const missing = wanted
-    .filter((phrase) => !said.some((text) => phrasePattern(phrase.text).test(text.trim())))
+    .filter((phrase) => {
+      const used = stimuli.some((stimulus) =>
+        matchesPhrase(
+          stimulus.carrier === 'user' ? { ...stimulus, text: stimulus.text.trim() } : stimulus,
+          phrase,
+        ),
+      );
+      return !obligation(
+        data,
+        `phrase:${JSON.stringify([phrase.dimension, phrase.value, phrase.text, phrase.lang, phrase.intent])}`,
+        used,
+      );
+    })
     .map((phrase) => phrase.text);
   return { used: wanted.length - missing.length, total: wanted.length, missing };
 }
@@ -166,7 +181,7 @@ function phraseItems(): BankItem[] {
     id: string,
     tier: Tier,
     component: string,
-    check: (generated: Generation) => Verdict,
+    check: (generated: Generation, data: SeedData) => Verdict,
   ): BankItem => ({
     id,
     family: 'phrases',
@@ -174,7 +189,7 @@ function phraseItems(): BankItem[] {
     level: 'phrases',
     component,
     async check(data: SeedData) {
-      return check(await data.generated());
+      return check(await data.generated(), data);
     },
   });
   for (const cls of DEVIATION_POOL) {
@@ -184,14 +199,14 @@ function phraseItems(): BankItem[] {
           'phrases.D8_tool_failure.given',
           2,
           'packages/generate/src/seed/scenario.ts#toolFailure',
-          (generated) => {
+          (generated, data) => {
             const failing = generated.complete.some(({ spec }) =>
               spec.blocks.some((block) =>
                 Object.values(block.given?.world?.tools ?? {}).some((tool) => tool.error !== undefined),
               ),
             );
             return verdict(
-              failing,
+              obligation(data, 'phrase:tool-failure-given', failing),
               failing ? 'a complete spec fails a tool in the Given' : 'no complete spec makes a tool fail',
             );
           },
@@ -200,10 +215,11 @@ function phraseItems(): BankItem[] {
       continue;
     }
     items.push(
-      item(`phrases.${cls}`, 2, 'packages/generate/src/seed/scenario.ts#buildScenario', (generated) => {
+      item(`phrases.${cls}`, 2, 'packages/generate/src/seed/scenario.ts#buildScenario', (generated, data) => {
         const use = phraseUse(
           generated,
           (phrase) => phrase.intent.kind === 'deviation' && phrase.intent.class === cls,
+          data,
         );
         return verdict(
           use.total > 0 && use.missing.length === 0,
@@ -236,8 +252,8 @@ function phraseItems(): BankItem[] {
   ];
   for (const [name, tier, select] of kinds) {
     items.push(
-      item(`phrases.${name}`, tier, 'packages/generate/src/seed/seeders.ts', (generated) => {
-        const use = phraseUse(generated, (phrase) => select(phrase, generated.hidden));
+      item(`phrases.${name}`, tier, 'packages/generate/src/seed/seeders.ts', (generated, data) => {
+        const use = phraseUse(generated, (phrase) => select(phrase, generated.hidden), data);
         return verdict(
           use.total > 0 && use.missing.length === 0,
           `${use.used} of ${use.total} approved phrases reach a complete spec; unused: ${use.missing.slice(0, 4).join(' | ') || 'none'}`,
@@ -246,46 +262,58 @@ function phraseItems(): BankItem[] {
     );
   }
   items.push(
-    item('phrases.slot-values', 3, 'packages/generate/src/seed/relations.ts#fillText', (generated) => {
+    item('phrases.slot-values', 3, 'packages/generate/src/seed/relations.ts#fillText', (generated, data) => {
       const said = turns(generated).join('\n');
+      // The value as a word of a turn: not inside a longer word, and at the end of a sentence too ("set to east.").
+      const says = (value: unknown) =>
+        new RegExp(
+          `(?<![A-Za-z0-9_-])${String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9_-])`,
+        ).test(said);
       const missing = generated.hidden.data
         .filter((value) => value.binds !== undefined)
-        .filter((value) => !said.includes(` ${String(value.value)} `))
+        .filter((value) => !obligation(data, `slot-value:${value.id}`, says(value.value)))
         .map((value) => value.id);
       return verdict(
         missing.length === 0,
         `slot values no complete turn says: ${missing.join(', ') || 'none'}`,
       );
     }),
-    item('phrases.metamorphic', 3, 'packages/generate/src/seed/seeders.ts#metamorphicSeeder', (generated) => {
-      const multi = new Map<string, number>();
-      for (const phrase of generated.hidden.phrases)
-        multi.set(
-          `${phrase.dimension}=${phrase.value}`,
-          (multi.get(`${phrase.dimension}=${phrase.value}`) ?? 0) + 1,
+    item(
+      'phrases.metamorphic',
+      3,
+      'packages/generate/src/seed/seeders.ts#metamorphicSeeder',
+      (generated, data) => {
+        const multi = new Map<string, number>();
+        for (const phrase of generated.hidden.phrases)
+          multi.set(
+            `${phrase.dimension}=${phrase.value}`,
+            (multi.get(`${phrase.dimension}=${phrase.value}`) ?? 0) + 1,
+          );
+        const values = [...multi].filter(([, count]) => count >= 2).map(([key]) => key);
+        const families = new Set(
+          generated.complete.flatMap(({ spec }) => {
+            const meta = spec.metadata?.generated as
+              | {
+                  metamorphic?: unknown;
+                  blocks?: Array<{ phrase?: { dimension: string; value: string } | null }>;
+                }
+              | undefined;
+            return meta?.metamorphic
+              ? (meta.blocks ?? []).flatMap((entry) =>
+                  entry.phrase ? [`${entry.phrase.dimension}=${entry.phrase.value}`] : [],
+                )
+              : [];
+          }),
         );
-      const values = [...multi].filter(([, count]) => count >= 2).map(([key]) => key);
-      const families = new Set(
-        generated.complete.flatMap(({ spec }) => {
-          const meta = spec.metadata?.generated as
-            | {
-                metamorphic?: unknown;
-                blocks?: Array<{ phrase?: { dimension: string; value: string } | null }>;
-              }
-            | undefined;
-          return meta?.metamorphic
-            ? (meta.blocks ?? []).flatMap((entry) =>
-                entry.phrase ? [`${entry.phrase.dimension}=${entry.phrase.value}`] : [],
-              )
-            : [];
-        }),
-      );
-      const missing = values.filter((value) => !families.has(value));
-      return verdict(
-        missing.length === 0,
-        `values with two or more phrases and no complete metamorphic family: ${missing.join(', ') || 'none'}`,
-      );
-    }),
+        const missing = values.filter(
+          (value) => !obligation(data, `metamorphic:${value}`, families.has(value)),
+        );
+        return verdict(
+          missing.length === 0,
+          `values with two or more phrases and no complete metamorphic family: ${missing.join(', ') || 'none'}`,
+        );
+      },
+    ),
     item('phrases.no-repeat', 3, 'packages/generate/src/seed/scenario.ts#buildScenario', (generated) => {
       const repeated = generated.complete.filter(({ spec }) => {
         const said = spec.blocks.map((block) => JSON.stringify(block.when));
@@ -383,34 +411,41 @@ function injects(spec: Spec, cls: string): boolean {
 
 function behaviourItems(): BankItem[] {
   const items: BankItem[] = [];
-  const item = (id: string, tier: Tier, check: (generated: Generation) => Verdict): BankItem => ({
+  const item = (
+    id: string,
+    tier: Tier,
+    check: (generated: Generation, data: SeedData) => Verdict,
+  ): BankItem => ({
     id,
     family: 'behaviours',
     tier,
     level: 'behaviours',
     component: 'packages/generate/src/seed/seeders.ts#twiseSeeder',
     async check(data: SeedData) {
-      return check(await data.generated());
+      return check(await data.generated(), data);
     },
   });
   for (const behaviour of BEHAVIOURS) {
     const idOf = (hidden: HiddenSpec) =>
       hidden.behaviours.find((entry) => entry.title.startsWith(behaviour.title))?.id;
     items.push(
-      item(`behaviour.${behaviour.key}.covered`, 2, (generated) => {
+      item(`behaviour.${behaviour.key}.covered`, 2, (generated, data) => {
         const id = idOf(generated.hidden);
         if (!id) return verdict(true, 'the hidden specification has no such behaviour');
         const covering = generated.complete.filter(({ spec }) => (spec.covers ?? []).includes(id));
-        return verdict(covering.length > 0, `${covering.length} complete specs cover ${id}`);
+        return verdict(
+          obligation(data, `behaviour-covered:${id}`, covering.length > 0),
+          `${covering.length} complete specs cover ${id}`,
+        );
       }),
-      item(`behaviour.${behaviour.key}.exercised`, 4, (generated) => {
+      item(`behaviour.${behaviour.key}.exercised`, 4, (generated, data) => {
         const id = idOf(generated.hidden);
         if (!id) return verdict(true, 'the hidden specification has no such behaviour');
         const exercised = generated.complete.filter(
           ({ spec }) => (spec.covers ?? []).includes(id) && behaviour.exercise(spec, generated.hidden),
         );
         return verdict(
-          exercised.length > 0,
+          obligation(data, `behaviour-exercised:${id}`, exercised.length > 0),
           `${exercised.length} complete specs cover ${id} and hold the Then that exercises it`,
         );
       }),
@@ -430,10 +465,15 @@ function behaviourItems(): BankItem[] {
         `${wrong.length} complete specs cover a behaviour on a channel it does not apply on`,
       );
     }),
-    item('behaviour.all-covered', 2, (generated) => {
+    item('behaviour.all-covered', 2, (generated, data) => {
       const missing = generated.hidden.behaviours
         .filter(
-          (behaviour) => !generated.complete.some(({ spec }) => (spec.covers ?? []).includes(behaviour.id)),
+          (behaviour) =>
+            !obligation(
+              data,
+              `behaviour-covered:${behaviour.id}`,
+              generated.complete.some(({ spec }) => (spec.covers ?? []).includes(behaviour.id)),
+            ),
         )
         .map((behaviour) => behaviour.id);
       return verdict(
@@ -441,14 +481,18 @@ function behaviourItems(): BankItem[] {
         `behaviours no complete spec covers: ${missing.join(', ') || 'none'}`,
       );
     }),
-    item('behaviour.flows', 3, (generated) => {
+    item('behaviour.flows', 3, (generated, data) => {
       const missing = generated.hidden.flows.flatMap((flow) =>
         flow.behaviours
           .filter(
             (id) =>
-              !generated.complete.some(
-                ({ spec }) =>
-                  (spec.tags ?? []).includes(`flow:${flow.id}`) && (spec.covers ?? []).includes(id),
+              !obligation(
+                data,
+                `flow-behaviour:${flow.id}/${id}`,
+                generated.complete.some(
+                  ({ spec }) =>
+                    (spec.tags ?? []).includes(`flow:${flow.id}`) && (spec.covers ?? []).includes(id),
+                ),
               ),
           )
           .map((id) => `${flow.id}/${id}`),
@@ -458,16 +502,20 @@ function behaviourItems(): BankItem[] {
         `flow behaviours covered by no spec of that flow: ${missing.slice(0, 5).join(', ') || 'none'}`,
       );
     }),
-    item('behaviour.machine', 3, (generated) => {
-      const judgedOnly = generated.hidden.behaviours.filter(
-        (behaviour) =>
-          generated.complete.some(({ spec }) => (spec.covers ?? []).includes(behaviour.id)) &&
-          !generated.complete.some(
+    item('behaviour.machine', 3, (generated, data) => {
+      const judgedOnly = generated.hidden.behaviours.filter((behaviour) => {
+        const covered = generated.complete.some(({ spec }) => (spec.covers ?? []).includes(behaviour.id));
+        const machine = obligation(
+          data,
+          `behaviour-machine:${behaviour.id}`,
+          generated.complete.some(
             ({ spec }) =>
               (spec.covers ?? []).includes(behaviour.id) &&
               spec.blocks.some((block) => Object.keys(block.expect ?? {}).some((key) => key !== 'criteria')),
           ),
-      );
+        );
+        return covered && !machine;
+      });
       return verdict(
         judgedOnly.length === 0,
         `behaviours covered only by judged criteria: ${judgedOnly.map((behaviour) => behaviour.id).join(', ') || 'none'}`,
@@ -489,23 +537,9 @@ function adequacyItems(): BankItem[] {
       component: 'packages/generate/src/seed/scenario.ts#buildScenario',
       async check(data: SeedData) {
         const runs = await data.runs();
-        const generated = await data.generated();
-        // A task spec's Then is its family oracle's (docs/generating.md, task families): a block whose Then is
-        // exactly the oracle's has no check the generator may add, so a drift there is the oracle's to catch.
-        const oracleOwned = new Set(
-          generated.complete
-            .filter(({ spec }) => isCodeTaskSpec(spec))
-            .flatMap(({ spec }) =>
-              spec.blocks.flatMap((_, index) =>
-                oracleThen(generated.hidden, spec, index) ? [`${spec.id}#${index}`] : [],
-              ),
-            ),
-        );
         const record = runs.faults.find((entry) => entry.fault.def.id === `${cls.id}@any/r1`);
         if (!record) return verdict(false, 'the every-time instance was not planted');
-        const changed = Object.entries(record.firstChange).filter(
-          ([spec, index]) => !oracleOwned.has(`${spec}#${index}`),
-        );
+        const changed = Object.entries(record.firstChange);
         if (changed.length === 0)
           return verdict(false, `${cls.id} never changes what the agent does in a complete spec`);
         const late = changed.filter(([spec, index]) => {

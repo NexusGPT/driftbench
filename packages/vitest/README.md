@@ -30,4 +30,4 @@ The spec runs once, free-running, with the scripted driver and the default machi
 
 ## License
 
-Apache-2.0
+MIT

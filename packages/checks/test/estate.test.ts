@@ -256,6 +256,31 @@ describe('grounded_values: every value of the reply was seen during the run', ()
     expect(out).toEqual([expect.objectContaining({ id: 'grounded_values.values', outcome: 'pass' })]);
   });
 
+  it('reads the ask the agent received: a value only in the authored ask was never seen', async () => {
+    const authored = {
+      ...SPEC,
+      blocks: [{ id: 'ask', when: { user: 'Was INV-7491 paid?' }, expect: {} }],
+    } as Spec;
+    const sent = { user: 'Was INV-8625 paid?' };
+    const reply = 'INV-7491 was paid.';
+    const [unseen] = await verdicts(
+      groundedValues,
+      { ...context(authored, 0, observed(reply, [read('ledger.csv', LEDGER)])), stimulus: sent },
+      {},
+    );
+    expect(unseen?.outcome).toBe('fail');
+    expect(unseen?.evidence).toContain('INV-7491');
+    const [seen] = await verdicts(
+      groundedValues,
+      {
+        ...context(authored, 0, observed('INV-8625 was paid.', [read('ledger.csv', LEDGER)])),
+        stimulus: sent,
+      },
+      {},
+    );
+    expect(seen?.outcome).toBe('pass');
+  });
+
   it('fails a number, an identifier or a date the run never saw, and names each', async () => {
     const [verdict] = await verdicts(
       groundedValues,

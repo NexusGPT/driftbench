@@ -297,7 +297,9 @@ export type PathRelation = z.infer<typeof PathRelation>;
 export const UsesToolRelation = z
   .strictObject({
     kind: z.literal('uses_tool').describe('Marks the relation as a tool call a flow or a behaviour makes.'),
-    subject: ValueRef.describe('The flow or behaviour value that calls the tool.'),
+    subject: ValueRef.describe(
+      "The flow or behaviour value that calls the tool. A flow's call is made on a move; a behaviour's call is made in the turn that asks for the behaviour, never on a move.",
+    ),
     tool: z.string().min(1).describe('The tool label.'),
     stage: ValueId.describe('The stage the call is made at: the turn that leaves this stage.'),
     to: ValueId.optional().describe('Only on the turn that reaches this stage.'),
@@ -471,6 +473,25 @@ export const ReplyTextRelation = z
   .describe('A rule that fixes the exact words of a reply.');
 export type ReplyTextRelation = z.infer<typeof ReplyTextRelation>;
 
+export const REPLIES_PER_TURN = ['one', 'any'] as const;
+
+export const ReplyCountRelation = z
+  .strictObject({
+    kind: z
+      .literal('reply_count')
+      .describe('Marks the relation as how many replies the agent sends to one user turn.'),
+    per_turn: z
+      .enum(REPLIES_PER_TURN)
+      .describe(
+        'one: a single reply to every user turn. any: the agent may send several replies to one turn. Without this relation a map means one.',
+      ),
+    ...relationCommon,
+  })
+  .describe(
+    'How many replies the agent sends to one user turn. A map without it means one reply per user turn.',
+  );
+export type ReplyCountRelation = z.infer<typeof ReplyCountRelation>;
+
 export const ProposalRelation = z
   .discriminatedUnion('kind', [
     PathRelation,
@@ -483,9 +504,10 @@ export const ProposalRelation = z
     ToolOrderRelation,
     RouteRelation,
     ReplyTextRelation,
+    ReplyCountRelation,
   ])
   .describe(
-    'A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language.',
+    'A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language, the replies per turn.',
   );
 export type ProposalRelation = z.infer<typeof ProposalRelation>;
 export const RELATION_KINDS = [
@@ -499,6 +521,7 @@ export const RELATION_KINDS = [
   'tool_order',
   'route',
   'reply_text',
+  'reply_count',
 ] as const;
 export type RelationKind = (typeof RELATION_KINDS)[number];
 
@@ -706,6 +729,8 @@ export function relationLabel(relation: ProposalRelation): string {
       return `${relation.subject.dimension}=${relation.subject.value} fixes the reply text`;
     case 'route':
       return `${relation.subject.dimension}=${relation.subject.value} routes to ${relation.to}`;
+    case 'reply_count':
+      return relation.per_turn === 'one' ? 'one reply per user turn' : 'any number of replies per user turn';
   }
 }
 

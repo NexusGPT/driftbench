@@ -4,7 +4,7 @@ import { validateAssessment } from './assessment';
 import { CONFORMANCE_SYSTEM_PROMPT, conformanceUser } from './conformance';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import { requirementsFor } from './criterion-ledger';
-import { checkCriterionPromptVersion, criterionSystemPromptV2 } from './criterion-prompt-v2';
+import { checkCriterionPromptVersion, criterionSystemPromptV2 } from './criterion-prompt-version';
 import { auditData, FACT_LEDGER_POINTWISE, FACT_LEDGER_SYSTEM, pointwiseAuditData } from './fact-audit';
 import { buildPrompt as buildLegacyPrompt, LEGACY_COMPARE_SYSTEM_PROMPT } from './legacy-prompt';
 import { isPairLedgerRequest, pairRequirements } from './pair-ledger-contract';
@@ -45,8 +45,8 @@ export const DATA_RULE = [
   FRAME_RULE,
 ].join('\n');
 
-/** The system prompt: a strict judge with a binary verdict. */
-export const SYSTEM_PROMPT = [
+/** Version 1 of the criterion system prompt, selectable with `criterionPromptVersion: 1`. Its bytes are frozen. */
+export const SYSTEM_PROMPT_V1 = [
   'You inspect data against a criterion. Report a separate evidence check for each requirement; code computes the verdict.',
   '',
   'Rules:',
@@ -81,6 +81,9 @@ const NO_PASS = 'data where the answer to the QUESTION is yes, with nothing that
 /** The closing instruction of a system 1 question, after the rubric. */
 export const SYSTEM1_QUESTION = 'Answer yes when the data passes the criterion, no when it fails.';
 
+/** The system prompt of a criterion check: version 1 plus the version 2 rules. */
+export const SYSTEM_PROMPT = criterionSystemPromptV2(SYSTEM_PROMPT_V1);
+
 /** Every fixed text a judge prompt is built from. A change to any of them changes the fingerprint. */
 export const PROMPT_PARTS = {
   system: SYSTEM_PROMPT,
@@ -99,25 +102,41 @@ export function promptFingerprint(parts: { readonly [key: string]: unknown } = P
 /** The fingerprint of the prompt this build sends. */
 export const PROMPT_FINGERPRINT = promptFingerprint();
 
-/** The opt-in version 2 system prompt of an ordinary criterion check. */
-export const SYSTEM_PROMPT_V2 = criterionSystemPromptV2(SYSTEM_PROMPT);
+/** The version 2 system prompt, which is the default. The name stays from when version 2 was opt-in. */
+export const SYSTEM_PROMPT_V2 = SYSTEM_PROMPT;
 
-/** Its own fingerprint: a version 2 recording never replays under version 1, nor the reverse. */
-export const CRITERION_PROMPT_V2_FINGERPRINT = promptFingerprint({
+/** The version 2 fingerprint, which is the default fingerprint. The name stays from when version 2 was opt-in. */
+export const CRITERION_PROMPT_V2_FINGERPRINT = PROMPT_FINGERPRINT;
+
+/** The version 1 fingerprint, unchanged: a version 1 recording replays under version 1 and no other. */
+export const CRITERION_PROMPT_V1_FINGERPRINT = promptFingerprint({
   ...PROMPT_PARTS,
-  system: SYSTEM_PROMPT_V2,
-  criterionPromptVersion: 2,
+  system: SYSTEM_PROMPT_V1,
 });
 
-/** Version 2 applies to an ordinary criterion check that brings no system text of its own. */
-export function usesCriterionPromptV2(request: JudgeRequest): boolean {
+/**
+ * Whether a request is an ordinary criterion check under the default system prompt. Legacy requests,
+ * assessments and caller-supplied system texts never read that prompt, so its versions do not reach them.
+ */
+function readsCriterionPrompt(request: JudgeRequest): boolean {
   checkCriterionPromptVersion(request.criterionPromptVersion);
-  return (
-    request.criterionPromptVersion === 2 &&
-    request.answerContract !== 'legacy' &&
-    !request.assessment &&
-    request.system === undefined
-  );
+  return request.answerContract !== 'legacy' && !request.assessment && request.system === undefined;
+}
+
+/** Version 1 is selectable for an ordinary criterion check that brings no system text of its own. */
+export function usesCriterionPromptV1(request: JudgeRequest): boolean {
+  return readsCriterionPrompt(request) && request.criterionPromptVersion === 1;
+}
+
+/**
+ * The prompt fingerprint of a request outside the legacy, pair-ledger, conformance and relevance contracts.
+ * Only a request that reads the version 2 system prompt carries its fingerprint. Every other request keeps
+ * the version 1 fingerprint, because its prompt bytes did not change, and so keeps its recordings.
+ */
+export function criterionPromptFingerprint(request: JudgeRequest): string {
+  return readsCriterionPrompt(request) && request.criterionPromptVersion !== 1
+    ? PROMPT_FINGERPRINT
+    : CRITERION_PROMPT_V1_FINGERPRINT;
 }
 
 /** The rubric block of a request: the question with its FAIL and PASS pictures. */
@@ -265,7 +284,7 @@ export function buildPrompt(request: JudgeRequest): { system: string; user: stri
       ? FACT_LEDGER_SYSTEM
       : request.assessment?.kind === 'rubric'
         ? RUBRIC_SYSTEM_PROMPT(request.assessment.pairwise === true)
-        : (request.system ?? (usesCriterionPromptV2(request) ? SYSTEM_PROMPT_V2 : SYSTEM_PROMPT));
+        : (request.system ?? (usesCriterionPromptV1(request) ? SYSTEM_PROMPT_V1 : SYSTEM_PROMPT));
   const system =
     request.reference === undefined
       ? base

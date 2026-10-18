@@ -84,24 +84,29 @@ function failed(factor: number, budgetMs: number, error: string): ScaleReport {
   };
 }
 
-/** Runs the child for one factor and seed, kills it at the budget, and returns what it reported. */
+/**
+ * Runs the child for one factor and seed, kills it at the budget, and returns what it reported. A test may
+ * lower the heap and name a module overriding the package's `generateSuiteToDisk` or `loadApprovedMap`.
+ */
 export function scaleReport(
   factor: number,
   seed: number,
   budgetMs = SCALE_BUDGET_MS[factor] ?? 60_000,
+  options: { heapMb?: number; generator?: string } = {},
 ): Promise<ScaleReport> {
   const child = fileURLToPath(new URL('./scale-child.ts', import.meta.url));
   return new Promise((resolve) => {
     const proc = spawn(
       process.execPath,
       [
-        `--max-old-space-size=${SCALE_HEAP_MB}`,
+        `--max-old-space-size=${options.heapMb ?? SCALE_HEAP_MB}`,
         '--import',
         'tsx',
         child,
         String(factor),
         String(seed),
         String(budgetMs),
+        ...(options.generator ? [options.generator] : []),
       ],
       { stdio: ['ignore', 'pipe', 'pipe'] },
     );

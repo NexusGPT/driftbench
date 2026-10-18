@@ -11,7 +11,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SCOPE = '@agent-nexus/driftbench';
-const LICENSE = 'Apache-2.0';
+const LICENSE = 'MIT';
 const REPO_URL = 'git+https://github.com/achammah/driftbench.git';
 
 const JUNK = [

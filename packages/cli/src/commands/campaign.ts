@@ -11,6 +11,7 @@ import {
   auditSample,
   auditVerdict,
   type BlockReuse,
+  blockStatus,
   type Campaign,
   type CampaignPlan,
   type CellOutcome,
@@ -27,8 +28,8 @@ import {
   DEFAULT_MAX_AGE_DAYS,
   DEFAULT_MAX_CARRY,
   type DriftClass,
+  isScored,
   type LoadedSpec,
-  loadChangeManifest,
   loadSpecs,
   type MinimumDetectableEffect,
   mdeLine,
@@ -55,6 +56,7 @@ import {
   TargetRef,
   TokenPriceError,
   type TokenPrices,
+  type ToolRule,
   type UserDriver,
   withAgentVersion,
 } from '@agent-nexus/driftbench-core';
@@ -80,6 +82,16 @@ import type { Command } from 'commander';
 import { ACME_EXAMPLE_ABSENT, acmeExample, acmeExampleInstalled, requireAcmeExample } from '../acme-example';
 import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
+import {
+  addJudgeOptions,
+  addRunCheckOptions,
+  type JudgeFlags,
+  optionalJudgeFrom,
+  type RunCheckFlags,
+  type RunJudge,
+  runCheckSettingsFrom,
+  withRunChecks,
+} from '../judge-options';
 import { optionNumber } from '../number';
 import { pluginAdapter, pluginAdapterNames } from '../plugins';
 import { makeScopeFolder } from '../scope-folder';
@@ -89,7 +101,9 @@ import { pricesFromConfig } from '../token-prices';
 import { carriedBlocksAgree, planCellBlockReruns } from './campaign-blocks';
 import { campaignProvenance } from './campaign-provenance';
 import { registerCampaignRejudge } from './campaign-rejudge';
+import { gateExit } from './gate-exit';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
+import { loadRadiusChangeManifest } from './radius-change';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
 export type CampaignScope = {
@@ -305,6 +319,7 @@ type RunCommandOptions = {
   maxAge?: string;
   blockReruns?: boolean;
   recordEndStateSnapshots?: boolean;
+  recordRealizedText?: boolean;
   store?: string;
   cache: boolean;
   concurrency: string;
@@ -317,23 +332,27 @@ type RunCommandOptions = {
   model?: boolean;
   agentFamily?: string;
   judgeFamily?: string[];
-} & RetryFlags;
+} & RetryFlags &
+  JudgeFlags &
+  RunCheckFlags;
 
 /** The retry flags of `campaign run` and `campaign resume`: the run's settings over the spec target's. */
 type RetryFlags = { retryAttempts?: string; retryBaseMs?: string; retryMaxMs?: string };
 
-type StoredCommandOptions = RetryFlags & {
-  prices?: string;
-  config?: string;
-  store: string;
-  cache?: boolean;
-  cacheSuite?: string;
-  concurrency?: string;
-  budgetUsd?: string;
-  processCommand?: string;
-  json?: boolean;
-  detail?: boolean;
-};
+type StoredCommandOptions = RetryFlags &
+  JudgeFlags &
+  RunCheckFlags & {
+    prices?: string;
+    config?: string;
+    store: string;
+    cache?: boolean;
+    cacheSuite?: string;
+    concurrency?: string;
+    budgetUsd?: string;
+    processCommand?: string;
+    json?: boolean;
+    detail?: boolean;
+  };
 
 export function registerCampaignCommands(
   program: Command,
@@ -365,14 +384,16 @@ export function registerCampaignCommands(
       setExit(await campaignPlanCommand(paths, options, io, deps));
     });
 
-  campaign
+  const run = campaign
     .command('run')
-    .description('Run every cell and print pass or fail per cell. Exit 1 on any failed or failing cell.')
+    .description(
+      'Run every cell and print pass or fail per cell. Exit 1 on any failed or failing cell, 3 when none failed but a cell was not run.',
+    )
     .argument('[paths...]', 'spec files or folders; none when --dataset gives the specs')
     .option('--dataset <name[@version]>', 'run the specs of this dataset version of the store, and record it')
     .option(
       '--prompt <name[@version]>',
-      'record this prompt version of the store; repeat for several',
+      'run with and record one prompt version of the store; give it once',
       collect,
       [],
     )
@@ -409,6 +430,10 @@ export function registerCampaignCommands(
     .option(
       '--record-end-state-snapshots',
       'store the raw end-state values each mode T block reads, so a later --block-reruns can recompose them; they may hold sensitive data',
+    )
+    .option(
+      '--record-realized-text',
+      'store the text a driver sent where it differs from the spec (a simulated user, a red-team attacker), not only its hash; it may hold private data',
     )
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
@@ -449,7 +474,7 @@ export function registerCampaignCommands(
     .option('--judge-family <family>', 'a model family of the judges; repeat it', collect, [])
     .option(
       '--retry-attempts <n>',
-      'attempts per model call, the first included; over the spec target retry (default 4)',
+      'attempts per model call, from 1 to 20, the first included; over the spec target retry (default 4)',
     )
     .option(
       '--retry-base-ms <ms>',
@@ -457,17 +482,19 @@ export function registerCampaignCommands(
     )
     .option('--retry-max-ms <ms>', 'the longest wait between two attempts (default 30000)')
     .option('--json', 'print one JSON document')
-    .option('--config <file>', CONFIG_HELP)
-    .action(async (paths: string[], options: RunCommandOptions, command: Command) => {
+    .option('--config <file>', CONFIG_HELP);
+  addRunCheckOptions(addJudgeOptions(run, { agentFamily: false })).action(
+    async (paths: string[], options: RunCommandOptions, command: Command) => {
       const config = await applyCampaignConfig(command, options, io);
       if (config === false) return setExit(2);
       // What to run comes from one place: the command line when it names paths or --dataset, else the file.
       const named = paths.length > 0 || command.getOptionValueSource('dataset') === 'cli';
       if (named && command.getOptionValueSource('dataset') !== 'cli') options.dataset = undefined;
       setExit(await campaignRunCommand(named ? paths : (config?.specs ?? []), options, io, deps));
-    });
+    },
+  );
 
-  campaign
+  const resume = campaign
     .command('resume')
     .description(
       'Run the cells of a stored campaign that have no completed run; reuse the others. Each cell runs on the target the campaign pinned for it.',
@@ -475,23 +502,26 @@ export function registerCampaignCommands(
     .argument('[campaignId]', 'the campaign id; the latest campaign of the store without it')
     .requiredOption('--store <file>', 'the store that holds the campaign')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
+    .option('--cache-suite <name>', 'the cache suite to use for the unfinished cells')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', "a hard stop on the campaign's spend; default: the budget it was run with")
     .option('--prices <file>', 'dated USD token prices; default prices in driftbench.yaml')
     .option('--process-command <command>', PROCESS_COMMAND_HELP)
     .option(
       '--retry-attempts <n>',
-      'attempts per model call, the first included; over the spec target retry (default 4)',
+      'attempts per model call, from 1 to 20, the first included; over the spec target retry (default 4)',
     )
     .option(
       '--retry-base-ms <ms>',
       'the wait before the first retry, doubled for each later one (default 500)',
     )
     .option('--retry-max-ms <ms>', 'the longest wait between two attempts (default 30000)')
-    .option('--json', 'print one JSON document')
-    .action(async (campaignId: string | undefined, options: StoredCommandOptions) => {
+    .option('--json', 'print one JSON document');
+  addRunCheckOptions(addJudgeOptions(resume)).action(
+    async (campaignId: string | undefined, options: StoredCommandOptions) => {
       setExit(await campaignResumeCommand(campaignId, options, io, deps));
-    });
+    },
+  );
 
   campaign
     .command('status')
@@ -727,7 +757,9 @@ export async function campaignRunCommand(
     );
     return 2;
   }
-  deps = withCommand;
+  const judging = await judgingDeps(withCommand, options, io);
+  if (!judging) return 2;
+  deps = judging.deps;
   const scope = openScope();
   try {
     const registry = await registrySources(options, scope, io);
@@ -807,8 +839,11 @@ export async function campaignRunCommand(
           runs.flatMap((run) => run.targets),
           (target) => required(adapters.get(showTarget(target)), 'adapter'),
           snapshots,
+          options.recordRealizedText === true,
         ),
-        judge: { mode: 'system1', judges: [] },
+        judge: judging.judge
+          ? { mode: judging.judge.mode, judges: judging.judge.judges }
+          : { mode: 'system1', judges: [] },
         createdAt,
         ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
         ...(options.agentVersion === undefined ? {} : { agentVersion: options.agentVersion }),
@@ -834,6 +869,7 @@ export async function campaignRunCommand(
                   target: cell.target,
                   perturbationId: cell.perturbationId,
                   retry: pool.retry,
+                  ...(judging.toolPolicy ? { toolPolicy: judging.toolPolicy } : {}),
                   agentVersion: campaign.agentVersion,
                 });
               },
@@ -850,9 +886,11 @@ export async function campaignRunCommand(
                     target: cell.target,
                     perturbationId: cell.perturbationId,
                     retry: pool.retry,
+                    ...(judging.toolPolicy ? { toolPolicy: judging.toolPolicy } : {}),
                     agentVersion: campaign.agentVersion,
                     recordProvenance: true,
                     recordEndStateSnapshots: snapshots,
+                    ...(options.recordRealizedText ? { recordRealizedText: true } : {}),
                   },
                 };
               },
@@ -871,6 +909,7 @@ export async function campaignRunCommand(
                     cells,
                     recordProvenance: true,
                     ...(snapshots ? { recordEndStateSnapshots: true } : {}),
+                    ...(options.recordRealizedText ? { recordRealizedText: true } : {}),
                     recordEvents: true,
                     specFor: (cell) =>
                       required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
@@ -887,6 +926,7 @@ export async function campaignRunCommand(
                     ...(pool.budgetUsd === undefined ? {} : { budgetUsd: pool.budgetUsd }),
                     ...(prices ? { prices } : {}),
                     ...(pool.retry ? { retry: pool.retry } : {}),
+                    ...(judging.toolPolicy ? { toolPolicy: judging.toolPolicy } : {}),
                   });
                   return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
                 } finally {
@@ -922,6 +962,8 @@ export async function campaignRunCommand(
         ...(radius?.blockReuse ? { blockReuse: radius.blockReuse } : {}),
         ...pool,
         ...(prices ? { prices } : {}),
+        ...(judging.judge ? { judge: judging.judge } : {}),
+        ...(judging.toolPolicy ? { toolPolicy: judging.toolPolicy } : {}),
       });
       // A radius miss fails closed, whatever the cells say: the manifest left out part of the change.
       return (radius?.record.audit?.misses ?? 0) > 0 ? 1 : exit;
@@ -1044,7 +1086,9 @@ export async function campaignResumeCommand(
   if (!pool || !withCommand) return 2;
   const prices = await readPrices(options, io);
   if (prices === null) return 2;
-  deps = withCommand;
+  const judging = await judgingDeps(withCommand, options, io);
+  if (!judging) return 2;
+  deps = judging.deps;
   if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
@@ -1073,6 +1117,8 @@ export async function campaignResumeCommand(
       ...(budgetUsd === undefined ? {} : { budgetUsd }),
       ...(prices ? { prices } : {}),
       ...(pool.retry ? { retry: pool.retry } : {}),
+      ...(judging.judge ? { judge: judging.judge } : {}),
+      ...(judging.toolPolicy ? { toolPolicy: judging.toolPolicy } : {}),
     });
   } catch (cause) {
     if (!(cause instanceof TokenPriceError)) throw cause;
@@ -1139,6 +1185,10 @@ async function executeCampaign(
     radiusNote?: string;
     /** Mode T: the stored baseline run to rerun only the radius blocks from, by cell. */
     blockReuse?: (cell: PlannedCell) => BlockReuse | undefined;
+    /** The judge the flags gave, whose label and spend the summary prints. */
+    judge?: RunJudge;
+    /** The run-wide tool policy of --tool-policy: every run marks the calls it denies. */
+    toolPolicy?: readonly ToolRule[];
   },
 ): Promise<number> {
   const plan = planOf(campaign, loaded);
@@ -1159,6 +1209,7 @@ async function executeCampaign(
     cells: plan.cells,
     recordProvenance: campaign.provenance !== undefined,
     ...(campaign.provenance?.endStateSnapshots ? { recordEndStateSnapshots: true } : {}),
+    ...(campaign.provenance?.realizedText ? { recordRealizedText: true } : {}),
     ...(flags.blockReuse ? { blockReuse: flags.blockReuse } : {}),
     recordEvents: true,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
@@ -1177,19 +1228,25 @@ async function executeCampaign(
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
     ...(flags.prices ? { prices: flags.prices } : {}),
     ...(flags.retry ? { retry: flags.retry } : {}),
+    ...(flags.toolPolicy ? { toolPolicy: flags.toolPolicy } : {}),
     ...(flags.json ? {} : { onCell: (outcome: CellOutcome) => io.out(cellLine(outcome)) }),
   });
+  await flags.judge?.save();
   if (flags.json) {
-    const document = report(campaign.campaignId, outcomes, flags.kept, checks);
+    const reported = report(campaign.campaignId, outcomes, flags.kept, checks);
+    const document = flags.judge
+      ? { ...reported, judge: flags.judge.label, judgeCostUsd: flags.judge.spend.usd }
+      : reported;
     io.out(
       `${JSON.stringify(campaign.radius ? { ...document, radius: { ...campaign.radius, blocks: radiusBlocks(outcomes) } } : document, null, 2)}\n`,
     );
   } else {
     io.out(`${summaryLine(outcomes)}\n`);
+    if (flags.judge) io.out(`Judge ${flags.judge.label}, ${flags.judge.spend.usd.toFixed(4)} USD.\n`);
     if (campaign.radius) io.out(radiusSummary(campaign.radius, outcomes));
     if (!flags.kept) io.out('The runs are not kept: pass --store <file> to keep them.\n');
   }
-  return outcomes.every((outcome) => outcome.state === 'pass') ? 0 : 1;
+  return gateExit(outcomes.map((outcome) => outcome.state));
 }
 
 /**
@@ -1219,7 +1276,7 @@ async function radiusPlan(
     );
     return null;
   }
-  const manifest = await loadChangeManifest(resolve(io.cwd, options.change));
+  const manifest = await loadRadiusChangeManifest(resolve(io.cwd, options.change));
   if (!manifest.ok) {
     io.err(`✗ ${options.change}\n`);
     for (const error of manifest.errors) io.err(`    ${error}\n`);
@@ -1523,6 +1580,10 @@ function parseRetry(flags: RetryFlags, io: Io): RetryOptions | undefined | null 
     return null;
   };
   const maxAttempts = read(flags.retryAttempts, '--retry-attempts', 1);
+  if (maxAttempts !== null && maxAttempts !== undefined && maxAttempts > 20) {
+    io.err(`--retry-attempts takes a whole number from 1 to 20, not "${flags.retryAttempts}".\n`);
+    return null;
+  }
   const baseDelayMs = read(flags.retryBaseMs, '--retry-base-ms', 0);
   const maxDelayMs = read(flags.retryMaxMs, '--retry-max-ms', 0);
   if (maxAttempts === null || baseDelayMs === null || maxDelayMs === null) return null;
@@ -1857,6 +1918,8 @@ export async function loadValidSpecs(paths: string[], io: Io): Promise<LoadedSpe
 const MARK: Record<CellOutcome['state'], string> = {
   pass: '✓',
   fail: '✗',
+  not_run: '-',
+  blocked: '-',
   failed: '!',
   stopped: '!',
   pending: '·',
@@ -1881,7 +1944,7 @@ function cellLine(outcome: CellOutcome): string {
     ...(run?.cacheHit && !outcome.reused ? ['replayed from the cache'] : []),
   ];
   let detail = '';
-  if (outcome.state === 'fail') {
+  if (outcome.state === 'fail' || outcome.state === 'not_run' || outcome.state === 'blocked') {
     detail = `  ${outcome.failing.length > 0 ? outcome.failing.join(', ') : 'no block ran'}`;
   } else if (outcome.budgetStop) {
     const { budgetUsd, spentUsd } = outcome.budgetStop;
@@ -1900,6 +1963,8 @@ function summaryLine(outcomes: readonly CellOutcome[]): string {
   const parts = [
     `${states('pass')} pass`,
     `${states('fail')} fail`,
+    ...(states('not_run') > 0 ? [`${states('not_run')} not run`] : []),
+    ...(states('blocked') > 0 ? [`${states('blocked')} blocked`] : []),
     `${states('failed') + states('stopped') - budgetStops} failed`,
     ...(budgetStops > 0 ? [`${budgetStops} stopped by the budget`] : []),
     ...(states('pending') > 0 ? [`${states('pending')} pending`] : []),
@@ -1908,6 +1973,13 @@ function summaryLine(outcomes: readonly CellOutcome[]): string {
     .filter((outcome) => outcome.run && !outcome.reused && !outcome.run.cacheHit)
     .reduce((sum, outcome) => sum + (outcome.run?.cost ?? 0), 0);
   return `${count(outcomes.length, 'cell')}: ${parts.join(', ')}${reused > 0 ? `, ${reused} reused` : ''}${carried > 0 ? `, ${carried} carried` : ''}. Spent ${usd(spent)}.`;
+}
+
+/** The cells neither passed nor failed, by state, each count only when it is above 0. */
+function unscoredCells(outcomes: readonly CellOutcome[]): { notRun?: number; blocked?: number } {
+  const notRun = outcomes.filter((outcome) => outcome.state === 'not_run').length;
+  const blocked = outcomes.filter((outcome) => outcome.state === 'blocked').length;
+  return { ...(notRun > 0 ? { notRun } : {}), ...(blocked > 0 ? { blocked } : {}) };
 }
 
 /** Blocks a radius campaign sent to the agent, and blocks it carried without sending them. */
@@ -1963,7 +2035,10 @@ function report(campaignId: string, outcomes: readonly CellOutcome[], kept: bool
               index: block.index,
               ...(block.blockId === undefined ? {} : { blockId: block.blockId }),
               ...(block.injected ? { injected: true } : {}),
-              pass: block.pass,
+              pass: blockStatus(block) === 'pass',
+              ...(isScored(block) ? {} : { status: blockStatus(block) }),
+              ...(block.notRun === undefined ? {} : { notRun: block.notRun }),
+              ...(block.blocked === undefined ? {} : { blocked: block.blocked }),
               ...(block.stageObserved === undefined ? {} : { stage: block.stageObserved }),
               verdicts: block.verdicts.map(({ id, outcome, gating, evidence }) => ({
                 id,
@@ -1979,6 +2054,8 @@ function report(campaignId: string, outcomes: readonly CellOutcome[], kept: bool
       cells: outcomes.length,
       pass: outcomes.filter((outcome) => outcome.state === 'pass').length,
       fail: outcomes.filter((outcome) => outcome.state === 'fail').length,
+      // Present only when a cell holds one: a campaign with none prints the summary it always printed.
+      ...unscoredCells(outcomes),
       failed: outcomes.filter(
         (outcome) => (outcome.state === 'failed' || outcome.state === 'stopped') && !outcome.budgetStop,
       ).length,
@@ -2288,6 +2365,28 @@ export async function acmeOpsAgent(): Promise<string | undefined> {
  * with a fresh simulated user of that persona (under the perturbing driver in mode P). Every spec of the
  * campaign needs a persona, and every target a family other than the user's. Undefined, printed, on bad input.
  */
+/**
+ * The checks of a run with the judge and the run-wide check settings the flags give: the judge check last, the
+ * owner allowlist and the judge's personal-data hook in the pii check, the tool policy, the plugin embedder.
+ * With none of these flags the deps are returned as they are. Undefined on bad input, reported.
+ */
+async function judgingDeps(
+  deps: CampaignDeps,
+  options: JudgeFlags & RunCheckFlags,
+  io: Io,
+): Promise<{ deps: CampaignDeps; judge?: RunJudge; toolPolicy?: readonly ToolRule[] } | undefined> {
+  const settings = await runCheckSettingsFrom(options, io);
+  if (!settings) return undefined;
+  const judge = await optionalJudgeFrom(options, io);
+  if (judge === null) return undefined;
+  const checks = await withRunChecks(deps.checks, settings, judge);
+  return {
+    deps: checks === deps.checks ? deps : { ...deps, checks },
+    ...(judge ? { judge } : {}),
+    ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
+  };
+}
+
 async function driverDeps(
   options: RunCommandOptions,
   runs: readonly SpecRun[],

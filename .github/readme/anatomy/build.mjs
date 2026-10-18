@@ -686,7 +686,7 @@ const heroBody = `<div class="an an-hero" data-part="root" id="frame">
     <h1 class="hero-title">driftbench.<span class="hero-soft">Every exchange is a unit&nbsp;test.</span></h1>
     <p class="hero-intro">Every number carries an interval. Drift and recovery are measured, block by block.</p>
   </div>
-  <span class="hero-label">Open source · Apache 2.0</span>
+  <span class="hero-label">Open source · MIT</span>
   <div class="iso-stage an-stage hero-stage" tabindex="0" role="group" aria-label="driftbench drawn as one machine, with callouts on its parts.">${heroSvg}<span class="an-sr" role="status" aria-live="polite" data-status></span></div>
   <span class="hero-hidden" data-readout></span><button type="button" class="hero-hidden" data-theme-toggle>dark theme</button>
 </div>`;

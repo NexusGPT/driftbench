@@ -11,6 +11,8 @@ A criteria folder holds one file per criterion with its fixture pair, read by `d
 
 * [CriterionFile](#criterionfile)
 * [CriterionDef](#criteriondef)
+* [CriterionDef requirements](#criteriondef-requirements)
+* [CriterionDef items](#criteriondef-items)
 * [CriterionFile fixtures](#criterionfile-fixtures)
 * [CriterionFixture](#criterionfixture)
 * [TranscriptEntry](#transcriptentry)
@@ -42,6 +44,33 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 | `inputs` | list of strings, each not empty | no |  | Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace. |
 | `judge_class` | one of `system1`, `system2`, `auto` | no |  | system1, system2, or auto: calibration assigns the class, ties go to system1. |
 | `repeat_reducer` | string matching `^(mode\|median\|at_least:[1-9][0-9]*)$` | no |  | How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>. |
+| `prompt_version` | `1` or `2` | no |  | The criterion prompt rules the judge reads. 2, the default, adds the exact-identifier, stated-facts and stated-scope rules; 1 is the earlier rule set, to replay answers recorded with it. |
+| `decoder_version` | `1` or `2` | no |  | How a criterion ledger answer is read. Unset, the default reader drops an ungrounded quote and keeps the verdict; 1 rejects an ungrounded quote; 2 drops the quote and keeps the verdict. |
+| `answer_contract` | `ledger` or `legacy` | no |  | ledger, the default, or legacy: the earlier prompt and parser, to replay scores recorded with them. |
+| `assessment` | one of `response-relevance`, `conformance`, `answer-audit`, `fact-ledger` | no |  | An assessment kind in place of the criterion ledger: response-relevance (the reply answers the latest ask), conformance (to reference), answer-audit (the submitted answer, optionally against reference), or fact-ledger (every fact of reference in the reply). |
+| `reference` | string | no |  | The reference answer an assessment reads: needed by conformance (may be empty) and fact-ledger, optional for answer-audit. |
+| `grounding` | `strict` | no |  | fact-ledger only: strict refuses reference or reply text that is not a source quote. |
+| `requirements` | list of [CriterionDef requirements](#criteriondef-requirements), at least 1 item | no |  | The rubric split into requirements the judge checks one by one. Absent: one requirement, the whole rubric. |
+| `items` | list of [CriterionDef items](#criteriondef-items), at least 1 item | no |  | Rubric items, each scored 0 to 4 by the judge; the weighted score decides the verdict against threshold. |
+| `threshold` | number, 0 to 1 | no |  | With items: the weighted fraction a pass needs, from 0 to 1. Default 1. |
+| `repeat` | integer, 1 to 20 | no |  | How many times the judge answers the same request; the verdict holds only when every answer agrees, else inconclusive. Not the spec repeats (see repeat_reducer). |
+| `per_turn` | boolean | no |  | True judges the transcript one customer turn at a time; any failing turn fails the criterion. |
+
+## CriterionDef requirements
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | string, not empty | yes |  | The requirement id the judge answers under. |
+| `requirement` | string, not empty | yes |  | What the requirement asks. |
+
+## CriterionDef items
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | string, not empty | yes |  | The item name, unique in the criterion. |
+| `rubric` | string, not empty | yes |  | What the item requires. |
+| `weight` | number, greater than 0 | no |  | The item weight. Default 1. |
+| `hard` | boolean | no |  | True: the criterion fails when this item is not met. |
 
 ## CriterionFile fixtures
 
@@ -98,6 +127,7 @@ A summary of the block's Given, as the judge reads it.
 | `given` | [LabelledBlock given](#labelledblock-given) | no |  | A summary of the block's Given, as the judge reads it. |
 | `id` | string, not empty | yes |  | The id of the block; a new label for the same id replaces the old one. |
 | `label` | `pass` or `fail` | yes |  | The human's verdict on the criterion: pass or fail. |
+| `flags` | list of `sent text not stored` | no |  | Labels with unavailable sent text are excluded from calibration. |
 | `anchor` | [AnnotationAnchor](#annotationanchor) | no |  | The element of the block the label is about; absent: the whole block. |
 
 ## LabelledBlock given
