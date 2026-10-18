@@ -1,6 +1,21 @@
 # Stats validator: where the gate stands
 
-## Current gate review, 2026-10-18
+## Current gate review, 2026-10-18 evening
+
+The gate is **not met**. The bank has 1162 items: the 922 below, 117 new capabilities the package does not have (234 items, one cause each, defined in `docs/statistics/`), and the six earlier capability items. The 27 new capabilities that repeated roadmap methods were left out, so no cause counts twice. A domain item now also requires the function to accept its valid cases: a library that throws a `RangeError` on every call passes none of them. Each of the 117 functions has a values item that fails on a 0.2 percent nudge and on a throw, and a domain item that fails on a throw ([evidence](evidence/newcaps-sensitivity.md)).
+
+Pilot rounds 11 to 20 ran on this bank (bank hash `eff677df`), from the product of the earlier pilot's round 10 ([evidence](evidence/pilot-rounds-11-20.md)):
+
+| Measure | Rounds 11 to 20 | Section 12.4 contract | Provisional bar below |
+|---|---|---|---|
+| Forecast | 216 / 1.9 = 113.7 iterations | At least 100: **holds** | At least 70: **holds** |
+| Score after the pilot | 946 / 1162 = 0.8141 | At most 0.4: **fails** | At most 0.7: **fails** |
+| Distinct failing causes | 108 | At least 100: **holds** | At least 60: **holds** |
+| Independent audit | four checks pending | **Not met** | **Not met** |
+
+The score bar fails because 927 items already pass on the pilot's product. The journal is unchanged: its rows describe the historical 651-item bank, and the pilot's referee rows are in the evidence folder.
+
+## Earlier gate review, 2026-10-18 morning
 
 The gate is **not met**. The expanded bank has **no fresh pilot**. The journal still measures the historical 651-item bank, not the current bank. No historical row is relabelled or given a new fingerprint.
 
