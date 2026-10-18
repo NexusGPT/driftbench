@@ -12,6 +12,7 @@ export {
   type SourceTurn,
   type SpecBlock,
   turnOfSource,
+  type WriteOptions,
   type WrittenBlocks,
   writeBlocks,
 } from './blocks/writer';

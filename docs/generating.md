@@ -325,6 +325,14 @@ model; `expect.stage` continues to name the stage the reply must reach.
 
 Each link is `declared` by the `generator`, at the map hash. The links stay out of the spec hash.
 
+`writeBlocks(inputs, version, { reaches })` also links, for each rule a block names, the rules whose change
+reaches it. For a prompt with a section registry, `sectionsReaching(registry)` of `@agent-nexus/driftbench-core`
+gives them: the sections a section references, overrides or duplicates, transitively. A recap section that
+references `explicit_confirm` makes every recap block link `explicit_confirm` too, with
+`evidence: { declared: { through: recap } }`. On the H7 suite of the Acme prompt, the two references the prompt
+states (the recap asks for CONFIRM; an ineligible number may take a new Acme number) leave no mutant with a stable
+flipped block that no link reaches, for single sections and for pairs (`packages/generate/test/blocks/h7.test.ts`).
+
 ### Balance of stages, classes and behaviours
 
 Coverage counts events. An event is a block at the stage it expects, an injected block or a declared perturbation at the stage the conversation had reached when it arrived, and a deviation class where it arrives. A spec places the behaviours it covers. A suite can cover every pair and still place most events on the first stages every flow shares: a conversation starts at `opening` once, passes `intake` and `check` on every path, and reaches `done` through one flow.
