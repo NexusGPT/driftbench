@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateVariableStore } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
+import { INVARIANT_LIMITS } from '../../src/scan/invariants';
 import { estateToVariables, provenanceResolver } from '../../src/variables';
 import { atom, HALL, mapOf } from './support';
 
@@ -163,6 +164,88 @@ describe('the size ceiling of the standing instructions is a structured limit', 
     const ids = conditionsOf(result).map((variable) => variable.id);
     expect(new Set(ids).size).toBe(2);
     expect(validateVariableStore(result.store).ok).toBe(true);
+  });
+});
+
+describe('any invariant whose check declares a limit gives a condition, whatever the check', () => {
+  const invariant = (fields: Record<string, unknown>) =>
+    atom({
+      kind: 'invariant',
+      quote: '# Boat hall',
+      role: 'detail',
+      producedBy: 'code',
+      title: 'A hall rule',
+      fields,
+    });
+
+  it('declares the limits of the estate checks beside the checks: the check, the field of its atom that holds the limit, the comparison, the unit', () => {
+    expect(INVARIANT_LIMITS).toEqual([
+      { check: 'standing_size', limit: 'ceiling', comparison: 'le', unit: 'characters' },
+    ]);
+  });
+
+  it('reads the limit of a second, invented check from its declaration, with its own field, comparison and unit', () => {
+    const limits = [
+      ...INVARIANT_LIMITS,
+      { check: 'boat_capacity', limit: 'berths', comparison: 'le' as const, unit: 'boats' },
+      { check: 'crew_floor', limit: 'minimum', comparison: 'ge' as const },
+    ];
+    const result = estateToVariables(
+      mapOf([
+        invariant({ check: 'boat_capacity', berths: 12, boats: 9, holds: true }),
+        invariant({ check: 'crew_floor', minimum: 2, crew: 3, holds: true }),
+      ]),
+      resolver(),
+      { limits },
+    );
+    const [capacity, crew] = conditionsOf(result);
+    expect(capacity?.id).toBe('condition.boat_capacity');
+    expect(capacity?.boundaries?.[0]).toMatchObject({
+      holds: 'below_12',
+      fails: 'above_12',
+      edge: 'at_12',
+      limit: 12,
+      comparison: 'le',
+      unit: 'boats',
+    });
+    expect(crew?.id).toBe('condition.crew_floor');
+    expect(crew?.boundaries?.[0]).toMatchObject({
+      holds: 'above_2',
+      fails: 'below_2',
+      limit: 2,
+      comparison: 'ge',
+    });
+    expect(crew?.boundaries?.[0]).not.toHaveProperty('unit');
+    expect(validateVariableStore(result.store).ok).toBe(true);
+  });
+
+  it('reads nothing from a check no declaration names, even when its atom has a number and a plausible field name', () => {
+    const result = estateToVariables(
+      mapOf([invariant({ check: 'boat_capacity', berths: 12, ceiling: 12, holds: true })]),
+      resolver(),
+    );
+    expect(conditionsOf(result)).toEqual([]);
+  });
+
+  it('reads the field its declaration names and no other field of the atom', () => {
+    const limits = [{ check: 'boat_capacity', limit: 'berths', comparison: 'le' as const }];
+    const result = estateToVariables(
+      mapOf([invariant({ check: 'boat_capacity', berths: 12, ceiling: 99 })]),
+      resolver(),
+      { limits },
+    );
+    expect(conditionsOf(result)[0]?.boundaries?.[0]).toMatchObject({ limit: 12 });
+  });
+
+  it('names no check in the feed: the code of the feed holds no id of an estate check', async () => {
+    const dir = fileURLToPath(new URL('../../src/variables/', import.meta.url));
+    for (const name of (await readdir(dir)).filter((file) => file.endsWith('.ts'))) {
+      const code = (await readFile(join(dir, name), 'utf8'))
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/^\s*\/\/.*$/gm, '');
+      for (const rule of INVARIANT_LIMITS)
+        expect(code.includes(rule.check), `${name} names ${rule.check}`).toBe(false);
+    }
   });
 });
 
