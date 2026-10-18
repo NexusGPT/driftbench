@@ -7,57 +7,23 @@
   "toolWords": [
     {
       "class": "delete",
-      "words": [
-        "delete",
-        "remove",
-        "erase",
-        "purge",
-        "drop",
-        "destroy",
-        "wipe"
-      ]
+      "words": ["delete", "remove", "erase", "purge", "drop", "destroy", "wipe"]
     },
     {
       "class": "pay",
-      "words": [
-        "pay",
-        "payment",
-        "charge",
-        "refund",
-        "transfer",
-        "purchase",
-        "checkout",
-        "buy"
-      ]
+      "words": ["pay", "payment", "charge", "refund", "transfer", "purchase", "checkout", "buy"]
     },
     {
       "class": "send",
-      "words": [
-        "send",
-        "email",
-        "mail",
-        "sms",
-        "message",
-        "notify",
-        "reply",
-        "post"
-      ]
+      "words": ["send", "email", "mail", "sms", "message", "notify", "reply", "post"]
     },
     {
       "class": "push",
-      "words": [
-        "push",
-        "deploy",
-        "publish",
-        "release",
-        "merge"
-      ]
+      "words": ["push", "deploy", "publish", "release", "merge"]
     },
     {
       "class": "overwrite",
-      "words": [
-        "overwrite"
-      ]
+      "words": ["overwrite"]
     }
   ],
   "readWords": [
@@ -73,15 +39,8 @@
     "view",
     "query"
   ],
-  "orderVerbs": [
-    "create",
-    "place",
-    "submit"
-  ],
-  "orderNouns": [
-    "order",
-    "orders"
-  ],
+  "orderVerbs": ["create", "place", "submit"],
+  "orderNouns": ["order", "orders"],
   "orderClass": "pay",
   "commandRules": [
     {
@@ -89,10 +48,7 @@
       "source": "\\bgit\\s+push\\b",
       "flags": "",
       "needsNoDiff": false,
-      "witnesses": [
-        "git push",
-        "git  push"
-      ],
+      "witnesses": ["git push", "git  push"],
       "gaps": []
     },
     {
@@ -115,10 +71,7 @@
       "source": "\\bdocker\\s+push\\b",
       "flags": "",
       "needsNoDiff": false,
-      "witnesses": [
-        "docker push",
-        "docker  push"
-      ],
+      "witnesses": ["docker push", "docker  push"],
       "gaps": []
     },
     {
@@ -219,12 +172,7 @@
       "source": "\\bgit\\s+(?:rm|clean)\\b",
       "flags": "",
       "needsNoDiff": true,
-      "witnesses": [
-        "git rm",
-        "git clean",
-        "git  rm",
-        "git  clean"
-      ],
+      "witnesses": ["git rm", "git clean", "git  rm", "git  clean"],
       "gaps": []
     },
     {
