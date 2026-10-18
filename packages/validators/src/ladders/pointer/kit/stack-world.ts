@@ -119,13 +119,20 @@ export async function runStack(
   planted: Planted,
   extra: Partial<StackRequest> = {},
 ): Promise<StackResult> {
-  return stackOf(sut).run({
+  const windows = extra.windows ?? planted.windows;
+  const res = await stackOf(sut).run({
     labels: LABELS,
-    windows: planted.windows,
+    windows,
     system1: planted.system1,
     system2: planted.system2,
     ...extra,
   });
+  // A run that succeeds answers for every unit it was given: a stack that returns nothing proves nothing.
+  const given = windows.reduce((n, w) => n + w.units.length, 0);
+  if (res.ok && res.units.length !== given) {
+    throw new Problem(`the stack answered for ${res.units.length} of ${given} units`);
+  }
+  return res;
 }
 
 export function unitOf(res: StackResult, window: number, n: number): StackUnitResult {

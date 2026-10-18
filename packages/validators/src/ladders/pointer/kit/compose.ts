@@ -453,6 +453,14 @@ function emitBlock(w: Writer, block: Block, inTag = false): void {
   void inTag;
 }
 
+/** The truth of every text the composer wrote, by text: a scan of that text must produce these units (see `checkScan`). */
+const written = new Map<string, TruthUnit[]>();
+
+/** The composer's units for a text it wrote, or undefined for any other text. */
+export function truthOf(text: string): readonly TruthUnit[] | undefined {
+  return written.get(text);
+}
+
 /** Writes the blocks one after another, a blank line between top-level blocks (except after a front matter). */
 export function compose(blocks: readonly Block[], options: ComposeOptions = {}): Composed {
   const eol = options.eol ?? '\n';
@@ -472,6 +480,8 @@ export function compose(blocks: readonly Block[], options: ComposeOptions = {}):
       .filter(([a, b]) => b > a);
   }
   for (const unit of w.units) unit.text = text.slice(unit.start, unit.end);
+  if (written.size > 20_000) written.clear();
+  written.set(text, w.units);
   return { text, units: w.units, structure, eol, bom: options.bom === true };
 }
 

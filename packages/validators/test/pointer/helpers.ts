@@ -16,9 +16,14 @@ export const heavy = (item: PointerItem): boolean => item.family === 'scale' && 
 export type Tally = { pass: number; total: number; failed: Array<{ id: string; detail: string }> };
 
 /** Runs the items against a reader, with the reference module named for the child processes. */
-export async function tally(sut: PointerSut, pick: (item: PointerItem) => boolean, seed = 1): Promise<Tally> {
+export async function tally(
+  sut: PointerSut,
+  pick: (item: PointerItem) => boolean,
+  seed = 1,
+  children = REFERENCE_MODULE,
+): Promise<Tally> {
   const before = process.env.DRIFTBENCH_POINTER_SUT;
-  process.env.DRIFTBENCH_POINTER_SUT = REFERENCE_MODULE;
+  process.env.DRIFTBENCH_POINTER_SUT = children;
   clearSeedFreeCache();
   try {
     const out: Tally = { pass: 0, total: 0, failed: [] };

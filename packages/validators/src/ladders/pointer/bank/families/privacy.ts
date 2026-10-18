@@ -4,11 +4,12 @@ import { distinctSentences } from '../../kit/anchor-world';
 import type { Job, JobOutput } from '../../kit/child';
 import { type ChildRun, runChild } from '../../kit/child-run';
 import { compose } from '../../kit/compose';
-import { build, liveOf } from '../../kit/estate';
+import { build, liveOf, verifyScan } from '../../kit/estate';
 import { perfect } from '../../kit/labellers';
 import { PROBE_YAML, RULES_YAML } from '../../kit/sets';
 import { fakeTransport } from '../../kit/transport';
 import { headingText, Prose } from '../../kit/words';
+import { resolveSut } from '../../sut/adapter';
 import type { ModelArm, ScanResult, SourceFile } from '../../sut/port';
 import { fail, type ItemContext, pass, type Run } from '../types';
 
@@ -46,6 +47,23 @@ async function go(job: Job, options: Parameters<typeof runChild>[1] = {}): Promi
     throw new Error(out.error);
   }
   const result = out?.ok ? (out.result as ScanResult) : undefined;
+  if (job.kind === 'scan') {
+    // A run that did nothing leaks nothing: the scan must have succeeded and produced what the files hold,
+    // except where the item plants a crash or bad answers on purpose.
+    const planned = job.fake?.throwWithRequest === true || job.fake?.badAnswers === true;
+    if (!planned) {
+      try {
+        await verifyScan(
+          await resolveSut(),
+          job.files,
+          result ?? { ok: false, error: out && !out.ok ? out.error : run.stderr.slice(0, 200) },
+        );
+      } catch (cause) {
+        run.cleanup();
+        throw cause;
+      }
+    }
+  }
   const bodies = out?.ok ? (out.requests ?? []) : [];
   const files: string[] = [];
   const read = (dir: string) => {
@@ -245,11 +263,15 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
   'fingerprints-are-hashes': async (ctx) => {
     const p = prose(ctx);
     const texts = distinctSentences(p, 12);
-    const rec = await ctx.sut.scan({
-      files: build([{ path: 'a.md', blocks: texts.map(para) }]).files,
-      labeler: perfect(),
-    });
+    const fpFiles = build([
+      {
+        path: 'a.md',
+        blocks: [{ kind: 'paragraph', sentences: texts.slice(0, 3) }, ...texts.slice(3).map(para)],
+      },
+    ]).files;
+    const rec = await ctx.sut.scan({ files: fpFiles, labeler: perfect() });
     if (!rec.ok || !rec.ledger) return fail(`the scan failed: ${rec.error}`);
+    await verifyScan(ctx.sut, fpFiles, rec);
     const grams = new Set<string>();
     for (const t of texts) {
       const s = t.toLowerCase();
@@ -368,6 +390,8 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
   },
   'crash-leaves-no-secret': async (ctx) => {
     const { files, secrets } = privateEstate(ctx);
+    const control = await go(modelJob(files, 'haiku'));
+    await withClean(control, () => mustRun(control));
     const seen = await go(modelJob(files, 'haiku', { fake: { throwWithRequest: true } }));
     return withClean(seen, () => {
       const out = seen.run.output;
@@ -408,6 +432,7 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
       cassette: { mode: 'record' },
     });
     if (!rec.ok || !rec.ledger) return fail(`the record run failed: ${rec.error}`);
+    await verifyScan(ctx.sut, frozen, rec);
     const again = await ctx.sut.scan({
       files: frozen,
       previousLedger: rec.ledger.raw,

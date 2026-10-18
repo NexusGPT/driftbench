@@ -1,6 +1,7 @@
 import { distinctSentences } from '../../kit/anchor-world';
 import { runChild } from '../../kit/child-run';
 import { compose } from '../../kit/compose';
+import { verifyScan } from '../../kit/estate';
 import { loadFixture, perturb } from '../../kit/fixture';
 import { show } from '../../kit/oracle';
 import { PROBE_YAML, RULES_YAML, TWO_SETS_YAML } from '../../kit/sets';
@@ -33,12 +34,14 @@ async function record(
   extra: Partial<ScanRequest> = {},
   ctx?: ItemContext,
 ): Promise<ScanResult> {
-  return (ctx as ItemContext).sut.scan({
+  const res = await (ctx as ItemContext).sut.scan({
     files,
     model: { arm, transport: fake },
     ...extra,
     cassette: { mode: 'record' },
   });
+  if (res.ok) await verifyScan((ctx as ItemContext).sut, files, res);
+  return res;
 }
 
 async function replay(
@@ -56,6 +59,7 @@ async function replay(
     cassette: { mode: 'replay', text: cassette },
     ...extra,
   });
+  if (res.ok) await verifyScan(ctx.sut, files, res);
   return { res, fake };
 }
 
@@ -249,6 +253,10 @@ export const replayRuns: Record<string, Run> = {
   },
   'miss-fails-without-network': async (ctx) => {
     const { files } = threeFiles(ctx);
+    // Control: what was recorded replays, so a refusal of the empty cassette means something.
+    const recorded = await record(files, 'haiku', fakeTransport(), {}, ctx);
+    const good = await replay(ctx, files, 'haiku', must(recorded, 'record') && (recorded.cassette ?? ''));
+    if (!good.res.ok) return fail(`the recorded cassette did not replay: ${good.res.error}`);
     const { res, fake } = await replay(ctx, files, 'haiku', '');
     if (res.ok) return fail('a replay with an empty cassette succeeded');
     return fake.count === 0 ? pass('failed, no call') : fail(`${fake.count} transport calls on a miss`);

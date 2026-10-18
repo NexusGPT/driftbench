@@ -3,7 +3,7 @@ import { cloneWorld, distinctSentences, filesOf, longSentence, worldOf } from '.
 import { runChild } from '../../kit/child-run';
 import { type Block, compose } from '../../kit/compose';
 import { cutCase } from '../../kit/cut-case';
-import { build, byId, eventNow, liveOf, scanOk } from '../../kit/estate';
+import { build, byId, eventNow, liveOf, scanOk, verifyScan } from '../../kit/estate';
 import { perfect, recording } from '../../kit/labellers';
 import { rewordSim } from '../../kit/segments';
 import { keyOf, labelByText, type Pick, RULES_YAML } from '../../kit/sets';
@@ -128,28 +128,11 @@ export const adversarialRuns: Record<string, Run> = {
   },
   'bold-decoy': async (ctx) => {
     const p = prose(ctx);
-    const bold = p.many(6).map((t) => `**${t.split(' ').slice(0, 2).join(' ')}**`);
-    const boldFull = bold.map((b, _i) =>
-      `${b} ${p.next().replace(/^./, (c) => c.toLowerCase())}`.replace(
-        /^(\*\*[^*]+\*\*) (.)/,
-        (_m, a, c) => `${a} ${c.toUpperCase()}`,
-      ),
-    );
+    // A sentence that opens with bold words is one unit. The bold ones are labelled none, the plain ones rule.
+    const boldFull = p.many(6).map((t) => t.replace(/^(\S+ \S+)/, '**$1**'));
     const plain = p.many(6);
-    // a bold lead is cut as its own unit: the bold units are the leads
-    const blocks: Block[] = [
-      ...boldFull.map(
-        (t) =>
-          ({
-            kind: 'paragraph',
-            sentences: [bold[boldFull.indexOf(t)] as string, t.replace(/^\*\*[^*]+\*\*\s*/, '')],
-          }) as Block,
-      ),
-      ...plain.map(para),
-    ];
-    const picks: Pick[] = [...bold.map((text) => ({ text, label: 'none' })), ...rules(plain)];
-    const noneTexts = boldFull.map((t) => t.replace(/^\*\*[^*]+\*\*\s*/, ''));
-    return decoy(ctx, blocks, [...picks, ...rules(noneTexts, 'none')]);
+    const blocks: Block[] = [...boldFull, ...plain].map(para);
+    return decoy(ctx, blocks, [...rules(boldFull, 'none'), ...rules(plain)]);
   },
   'position-decoy': async (ctx) => {
     const p = prose(ctx);
@@ -263,6 +246,16 @@ export const adversarialRuns: Record<string, Run> = {
   'yaml-custom-tags': async (ctx) => {
     const sentenceText = prose(ctx).next();
     const text = `---\nname: !!js/function "function () { require('fs').writeFileSync('CANARY-js', 'x') }"\nrun: !!python/object/apply:os.system ["touch CANARY-py"]\nbin: !!binary aGVsbG8=\ndescription: Checks the shelf.\n---\n\n${sentenceText}\n`;
+    // Control: the same file with plain front matter is cut, so a refusal of the tags means something.
+    const plain = `---\ndescription: Checks the shelf.\n---\n\n${sentenceText}\n`;
+    const control = await childCut({ path: 'plain.md', text: plain }, 30_000);
+    if (
+      control.error ||
+      !control.cut?.units.some((u) => u.container === 'front_matter' && u.text === 'Checks the shelf.')
+    )
+      return fail(
+        `the control file with plain front matter was not cut: ${control.error ?? 'no front matter unit'}`,
+      );
     const c = await runChild({ kind: 'cut', file: { path: 'tags.md', text } }, { timeoutMs: 30_000 });
     try {
       const o = c.output;
@@ -271,7 +264,7 @@ export const adversarialRuns: Record<string, Run> = {
       if (!o.ok)
         return /not reachable/.test(o.error) ? fail(o.error) : pass(`refused: ${o.error.slice(0, 80)}`);
       const cut = o.result as CutResult;
-      return cut.units.some((u) => u.text === 'Checks the shelf.') &&
+      return cut.units.some((u) => u.container === 'front_matter' && u.text === 'Checks the shelf.') &&
         cut.units.some((u) => u.text === sentenceText)
         ? pass('plain values still units, no code run')
         : fail('the plain values are not units');
@@ -311,14 +304,15 @@ export const adversarialRuns: Record<string, Run> = {
     const p = prose(ctx);
     const good = ['a.md', 'b.md', 'c.md'].map((path) => ({
       path,
-      text: compose([para(p.next()), para(p.next())]).text,
+      text: compose([{ kind: 'paragraph', sentences: p.many(3) }, para(p.next())]).text,
     }));
     const bad = { path: 'bad.bin.md', text: `\u0000\u0001��${p.next()}\u0000\n\n�tail\u0000�` };
     const res = await ctx.sut.scan({ files: [...good, bad], labeler: perfect() });
     if (!res.ok || !res.ledger) return fail(`one bad file stopped the scan: ${res.error}`);
+    await verifyScan(ctx.sut, good, res);
     for (const f of good) {
       const n = liveOf(res.ledger).filter((e) => e.path === f.path).length;
-      if (n !== 2) return fail(`${f.path} has ${n} entries, expected 2`);
+      if (n !== 4) return fail(`${f.path} has ${n} entries, expected 4`);
     }
     for (const e of liveOf(res.ledger).filter((x) => x.path === bad.path)) {
       if (e.hint && bad.text.slice(e.hint.start, e.hint.end) !== e.quote)
@@ -333,6 +327,7 @@ export const adversarialRuns: Record<string, Run> = {
     return cutCase(
       ctx,
       [
+        { kind: 'paragraph', sentences: p.many(2) },
         { kind: 'paragraph', sentences: [a] },
         { kind: 'paragraph', sentences: [b] },
       ],
@@ -346,10 +341,10 @@ export const adversarialRuns: Record<string, Run> = {
   },
   'many-empty-headings': async (ctx) => {
     const p = prose(ctx);
-    const sentenceText = p.next();
+    const [sentenceText, second] = p.many(2) as [string, string];
     const doc = compose([
       { kind: 'raw', text: `${'#\n'.repeat(5000)}\n`, structure: true },
-      para(sentenceText),
+      { kind: 'paragraph', sentences: [sentenceText, second] },
     ]);
     const started = performance.now();
     const got = await ctx.sut.cut({ path: 'empty.md', text: doc.text });
@@ -357,6 +352,8 @@ export const adversarialRuns: Record<string, Run> = {
     if (ms > 5000) return fail(`the cut took ${Math.round(ms)} ms`);
     if (got.units.some((u) => u.path.includes(''))) return fail('a heading path holds an empty string');
     const hit = got.units.find((u) => u.text === sentenceText);
+    if (!got.units.some((u) => u.text === second))
+      return fail('the second sentence after the empty headings is not a unit');
     return hit
       ? pass(`${got.units.length} units, the sentence cut exactly`)
       : fail('the sentence after the empty headings is not a unit');

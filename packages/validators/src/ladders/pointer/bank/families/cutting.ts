@@ -1,10 +1,10 @@
-import { type Block, type Composed, type ComposeOptions, compose } from '../../kit/compose';
+import { type Block, type Composed, type ComposeOptions, compose, truthOf } from '../../kit/compose';
 import { cutCase, cutRun } from '../../kit/cut-case';
 import { compareCut, coverageGap, show } from '../../kit/oracle';
 import { headingText, Prose, type Rng, shortRule, word } from '../../kit/words';
 import { listOf, mixedBlocks, para } from '../../kit/world';
 import type { CutResult } from '../../sut/port';
-import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
+import { fail, type ItemContext, type Outcome, Problem, pass, type Run } from '../types';
 
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
 const cap = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
@@ -38,6 +38,12 @@ const timed = async <T>(work: () => Promise<T>): Promise<{ value: T; ms: number 
 
 async function digestOf(ctx: ItemContext, text: string): Promise<{ cut: CutResult; digest: string }> {
   const cut = await ctx.sut.cut({ path: 'doc.md', text });
+  // The digest is only worth comparing when the cut is the right one: a text the composer wrote must be cut exactly.
+  const truth = truthOf(text);
+  if (truth) {
+    const problem = compareCut(text, cut, truth);
+    if (problem) throw new Problem(problem);
+  }
   return { cut, digest: cut.cutDigest };
 }
 
@@ -176,7 +182,7 @@ export const cuttingRuns: Record<string, Run> = {
     const p = prose(ctx);
     const r = p.random;
     const joined = `${p.next()} ${pick(r, ['iOS', 'eBay', 'macOS', 'iPhone'])} ${word(r)} ${word(r)} ${word(r)}.`;
-    return [sentenceBlock([joined])];
+    return [sentenceBlock(p.many(2)), sentenceBlock([joined])];
   }),
   'sentences-decimal': cutRun((ctx) => {
     const p = prose(ctx);
@@ -579,9 +585,11 @@ export const cuttingRuns: Record<string, Run> = {
     const inner = `Inner ${word(p.random)} text.`;
     let blocks: Block[] = [sentenceBlock([inner])];
     for (const tag of ['e', 'd', 'c', 'b', 'a']) blocks = [{ kind: 'tag', tag, blocks }];
-    const doc = compose(blocks);
+    const doc = compose([sentenceBlock(p.many(2)), ...blocks]);
     const { value: got, ms } = await timed(() => ctx.sut.cut({ path: 'doc.md', text: doc.text }));
     if (ms > 2000) return fail(`the cut took ${Math.round(ms)} ms`);
+    const lead = compareCut(doc.text, { ...got, units: got.units.slice(0, 2) }, doc.units.slice(0, 2));
+    if (lead) return fail(`the two sentences before the nested tags: ${lead}`);
     const containing = got.units.filter((u) => doc.text.slice(u.start, u.end).includes(inner));
     if (containing.length !== 1) return fail(`the text ${show(inner)} is inside ${containing.length} units`);
     return pass(`the nested text is inside one unit, ${Math.round(ms)} ms`);
@@ -644,7 +652,12 @@ export const cuttingRuns: Record<string, Run> = {
       if (got.units.length !== 0) return fail(`${show(text)} gave ${got.units.length} units`);
       if (typeof got.cutDigest !== 'string') return fail(`${show(text)} gave no digest`);
     }
-    return pass('no unit, a digest each');
+    // Control: a real file next to them is cut exactly, so an empty answer for the blank ones means something.
+    const real = compose(mixedBlocks(prose(ctx), { blocks: 6 }));
+    const control = await ctx.sut.cut({ path: 'doc.md', text: real.text });
+    const problem = compareCut(real.text, control, real.units);
+    if (problem) return fail(`the control file: ${problem}`);
+    return pass('no unit, a digest each, and a control file cut exactly');
   },
   'coverage-every-prose-character': async (ctx) => {
     const p = prose(ctx);
@@ -691,9 +704,11 @@ export const cuttingRuns: Record<string, Run> = {
   'digest-reorder': async (ctx) => {
     const p = prose(ctx);
     const one = [...p.many(3)];
+    const lead = sentenceBlock(p.many(2));
     const a = await digestOf(
       ctx,
       compose([
+        lead,
         sentenceBlock([one[0] as string]),
         sentenceBlock([one[1] as string]),
         sentenceBlock([one[2] as string]),
@@ -702,6 +717,7 @@ export const cuttingRuns: Record<string, Run> = {
     const b = await digestOf(
       ctx,
       compose([
+        lead,
         sentenceBlock([one[1] as string]),
         sentenceBlock([one[0] as string]),
         sentenceBlock([one[2] as string]),
@@ -732,6 +748,8 @@ export const cuttingRuns: Record<string, Run> = {
     const a = compose(mixedBlocks(p, { blocks: 12, front: true })).text;
     const b = compose(mixedBlocks(p, { blocks: 12 })).text;
     const first = await ctx.sut.cut({ path: 'a.md', text: a });
+    const wrong = compareCut(a, first, truthOf(a) ?? []);
+    if (wrong) return fail(wrong);
     await ctx.sut.cut({ path: 'b.md', text: b });
     const again = await ctx.sut.cut({ path: 'a.md', text: a });
     return JSON.stringify(first) === JSON.stringify(again)

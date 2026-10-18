@@ -600,7 +600,7 @@ export const stackRuns: Record<string, Run> = {
       unitAt(p, rnd(p, 0.02, 0.99), i % 3 === 0 ? [a, b, a] : undefined),
     );
     const w = plant(p, { windows: [units.slice(0, 15), units.slice(15)] });
-    const x = await runStack(ctx.sut, w);
+    const x = must(await runStack(ctx.sut, w));
     const y = await runStack(
       ctx.sut,
       plant(new Prose(ctx.seed, ctx.id), { windows: [units.slice(0, 15), units.slice(15)] }),

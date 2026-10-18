@@ -1,6 +1,6 @@
 import { distinctSentences } from '../../kit/anchor-world';
 import { type Block, compose } from '../../kit/compose';
-import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
+import { build, byId, liveByText, liveOf, scanOk, verifyScan } from '../../kit/estate';
 import {
   constant,
   entriesFor,
@@ -95,6 +95,7 @@ async function modelScan(
     cassette: { mode: 'record' },
     ...extra,
   });
+  if (res.ok) await verifyScan(ctx.sut, files, res);
   return res;
 }
 const must = (res: ScanResult): ScanResult & { ledger: LedgerView } => {
@@ -1020,6 +1021,7 @@ labels:
       cassette: { mode: 'replay', text: res.cassette },
     });
     if (!replay.ok || !replay.ledger) return fail(`the replay at another threshold failed: ${replay.error}`);
+    await verifyScan(ctx.sut, docOf(texts), replay);
     if (closed.count !== 0) return fail(`${closed.count} transport calls on a replay`);
     for (const [i, t] of texts.entries()) {
       const want = i % 2 === 0 ? 'rule' : 'none';
