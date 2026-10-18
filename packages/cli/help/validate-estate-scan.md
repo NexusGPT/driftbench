@@ -102,7 +102,10 @@ No word list and no grammar rule decides what is a rule.
   An optional `condition: true` (needs `target: required`, takes no `atom`) marks a label whose unit states
   when its target unit applies: the unit's text becomes the `situation` of the atom built from the target,
   and a condition whose target holds no atom is listed as refused.
-  The shipped set `agent-rules` is data in this format. `none` is reserved.
+  An `atom` mapping may also give `situation` (what the atom is about, in words), `fields` (fields put on every
+  atom of the label) and `evidence` (checks put after the review check). The shipped set `agent-rules` is data
+  in this format; it has one label per hazard of a long-running agent (compaction, restart, rate limit, new
+  session, helper notification, repeated nudge). `none` is reserved.
 * Each unit has a ledger id: ten characters, derived once from the file, the unit's fingerprint and its
   occurrence, then kept in the ledger file as the text changes. The ledger follows a unit through an edit
   (unchanged, moved, changed, split, merged, deleted). It writes no times, so equal ledgers are equal bytes.

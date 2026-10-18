@@ -396,4 +396,52 @@ describe('atoms from labels', () => {
       expect(atom?.fields?.labelSpans).toEqual([{ kind: 'act', from: 0, to: 13 }]);
     });
   });
+
+  describe('what the label set puts on an atom', () => {
+    const MAPPED = `labels:
+  - set: events
+    description: Events the harbour notes tell a reader to get through.
+    labels:
+      - name: fog
+        description: A unit that says what to do when fog comes in.
+        atom:
+          kind: hazard
+          situation: Fog comes in
+          fields: { hazard: fog, severity: 2 }
+          evidence:
+            - { type: custom, name: hazard_recovery, options: { hazard: fog } }
+`;
+
+    it('gives an atom the situation, the fields and the checks that the set declares for its label', async () => {
+      const { result } = await scan(
+        { 'CLAUDE.md': [{ units: '3', label: 'fog' }] },
+        { sets: setsOf(MAPPED) },
+      );
+      const atom = result.map.atoms.find((candidate) => candidate.fields?.extraction === 'pointer');
+      expect(atom?.kind).toBe('hazard');
+      expect(atom?.situation).toBe('Fog comes in');
+      expect(atom?.fields).toMatchObject({ hazard: 'fog', severity: 2, extraction: 'pointer', label: 'fog' });
+      // The review check stays first; the set's checks follow.
+      expect(atom?.evidence.map((check) => (check.type === 'custom' ? check.name : check.type))).toEqual([
+        'prose_pointer',
+        'hazard_recovery',
+      ]);
+      expect(atom?.evidence[1]).toMatchObject({ options: { hazard: 'fog' } });
+      expect(atom?.approved).toBe(false);
+    });
+
+    it('does not let a set override the fields the scan owns', async () => {
+      const text = MAPPED.replace(
+        'fields: { hazard: fog, severity: 2 }',
+        'fields: { hazard: fog, extraction: forged }',
+      );
+      const { result } = await scan({ 'CLAUDE.md': [{ units: '3', label: 'fog' }] }, { sets: setsOf(text) });
+      const atom = result.map.atoms.find((candidate) => candidate.fields?.label === 'fog');
+      expect(atom?.fields?.extraction).toBe('pointer');
+    });
+
+    it('refuses a set whose evidence is no check', () => {
+      expect(pointer.parseLabelSets(MAPPED.replace('type: custom', 'type: nosuch')).ok).toBe(false);
+    });
+  });
 });

@@ -1,5 +1,6 @@
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
+import { EvidencePredicate } from '../schema';
 import { sha } from './cut';
 
 /**
@@ -45,7 +46,16 @@ export const Label = z.strictObject({
   /** The link kinds a unit with this label may carry. */
   links: z.array(z.string().min(1)).min(1).optional(),
   atom: z
-    .strictObject({ kind: z.string().min(1), polarity: z.enum(['obligation', 'prohibition']).optional() })
+    .strictObject({
+      kind: z.string().min(1),
+      polarity: z.enum(['obligation', 'prohibition']).optional(),
+      /** What the atom is about, in words: the set's own text, used when no condition unit gives one. */
+      situation: z.string().min(1).optional(),
+      /** Fields the set puts on every atom of this label, such as the id of a hazard. */
+      fields: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
+      /** Checks the set puts on every atom of this label, after the review check the scan adds. */
+      evidence: z.array(EvidencePredicate).optional(),
+    })
     .optional(),
 });
 export type Label = z.infer<typeof Label>;

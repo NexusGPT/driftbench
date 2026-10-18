@@ -17,6 +17,9 @@ import type { LabelledUnit } from './scan';
 
 export type PointerAtoms = { accepted: Atom[]; refusals: string[]; duplicates: string[] };
 
+/** The atom kinds a label may build: those of prose, and the hazards the prose names. */
+export const POINTER_KINDS = [...PROSE_KINDS, 'hazard'] as const;
+
 const TITLE_CHARACTERS = 90;
 
 function titleOf(text: string): string {
@@ -48,7 +51,7 @@ export function pointerAtoms(
     const mapping = item.set.labels.find((label) => label.name === item.label)?.atom;
     if (!mapping) continue;
     const named = `${item.path} unit ${item.id} (${item.label})`;
-    if (!(PROSE_KINDS as readonly string[]).includes(mapping.kind)) {
+    if (!(POINTER_KINDS as readonly string[]).includes(mapping.kind)) {
       refusals.push(
         `${named}: the label ${item.label} maps to the atom kind ${mapping.kind}, which a pointer cannot build`,
       );
@@ -117,12 +120,14 @@ export function pointerAtoms(
     }
     accepted.push(
       builder.add({
-        kind: mapping.kind as (typeof PROSE_KINDS)[number],
+        kind: mapping.kind as (typeof POINTER_KINDS)[number],
         title: titleOf(item.unit.text),
         at,
         ...(conditional.length > 0
           ? { situation: conditional.map((condition) => condition.unit.text.trim()).join(' ') }
-          : {}),
+          : mapping.situation
+            ? { situation: mapping.situation }
+            : {}),
         evidence: [
           {
             type: 'custom',
@@ -135,9 +140,11 @@ export function pointerAtoms(
               ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
             },
           },
+          ...(mapping.evidence ?? []),
         ],
         producedBy: 'model',
         fields: {
+          ...(mapping.fields ?? {}),
           extraction: 'pointer',
           unit: item.id,
           labelSet: item.set.set,

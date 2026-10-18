@@ -45,6 +45,12 @@ describe('label sets', () => {
       'prohibition',
       'gate',
       'reply-rule',
+      'hazard-compaction',
+      'hazard-restart',
+      'hazard-rate-limit',
+      'hazard-new-session',
+      'hazard-notification',
+      'hazard-nudge',
       'example',
       'description',
     ]);
@@ -118,6 +124,28 @@ describe('condition labels', () => {
     const cond = parseLabelSets(set('        target: required\n        condition: true\n'));
     if (!plain.ok || !cond.ok) throw new Error('the sets parse');
     expect(setHash(cond.sets[0] as LabelSet)).not.toBe(setHash(plain.sets[0] as LabelSet));
+  });
+});
+
+describe('the shipped set and the hazards it names', () => {
+  const set = load(AGENT_RULES_SET)[0] as LabelSet;
+  const hazards = set.labels.filter((label) => label.atom?.kind === 'hazard');
+
+  it('has one label per hazard the runtime can bring, each building a hazard atom with its recovery check', () => {
+    expect(hazards.map((label) => label.atom?.fields?.hazard)).toEqual([
+      'compaction',
+      'restart',
+      'rate_wave',
+      'session_boundary',
+      'notification',
+      'nudge_storm',
+    ]);
+    for (const label of hazards) {
+      expect(label.atom?.situation).toBeTruthy();
+      expect(label.atom?.evidence).toEqual([
+        { type: 'custom', name: 'hazard_recovery', options: { hazard: label.atom?.fields?.hazard } },
+      ]);
+    }
   });
 });
 
