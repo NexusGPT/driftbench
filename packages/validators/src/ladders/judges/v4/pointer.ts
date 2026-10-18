@@ -1487,7 +1487,7 @@ const SOURCE_GUARDS: Source[] = [
     id: 'reads-call-stack',
     what: 'the call stack',
     cause: 'the pointer module reads its call stack to see who is calling',
-    patterns: [/\.stack\b/, /\bcaptureStackTrace\b|\bprepareStackTrace\b/, /\bcallee\b|\bcaller\b/],
+    patterns: [/\.stack\b/, /\bcaptureStackTrace\b|\bprepareStackTrace\b/, /\.callee\b|\.caller\b/],
   },
   {
     id: 'runs-generated-code',
