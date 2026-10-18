@@ -168,6 +168,20 @@ describe('the isolation check', () => {
     expect(report.edges[0]?.reason).toContain('RETENTION_FACT_UNKNOWN');
   });
 
+  it('checks a child that has no id, naming it by its position', async () => {
+    const spec = specOf({
+      id: 'isolation-no-id',
+      blocks: [
+        parentBlocks[0],
+        { parent: 'stem', user: 'What is my reference?', expect: { must: ['ACME-7'] } },
+      ],
+    });
+    const report = await parentIsolation(spec, { adapter: acme(), driver, checks, mode: 'T', repeat: 0 });
+    expect(report.edges).toEqual([
+      { child: 'blocks.1', parent: 'stem', linked: 'pass', isolated: 'fail', manifest: true },
+    ]);
+  });
+
   it('gives no verdict for an edge whose linked child was blocked, and says why', async () => {
     const spec = specOf({
       id: 'isolation-blocked',

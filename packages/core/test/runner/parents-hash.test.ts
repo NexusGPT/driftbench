@@ -151,6 +151,7 @@ describe('a planted parent cycle', () => {
     if (result.ok) return;
     const cycles = result.errors.filter((issue) => issue.code === 'PARENT_CYCLE');
     expect(cycles).toHaveLength(1);
-    expect(cycles[0]?.message).toContain(path);
+    // The path is the cycle alone: a tail that leads into it is not printed.
+    expect(cycles[0]?.message).toBe(`parent links form a cycle: ${path}`);
   });
 });

@@ -48,15 +48,17 @@ export async function parentIsolation(spec: Spec, options: RunOptions): Promise<
     ...alone
   } = options;
   const edges: IsolationEdge[] = [];
-  for (const block of spec.blocks) {
-    if (block.parent === undefined || block.id === undefined) continue;
-    const result = linked.blocks.find((entry) => entry.blockId === block.id);
+  for (const [index, block] of spec.blocks.entries()) {
+    if (block.parent === undefined) continue;
+    // A child needs no id of its own (only a parent does): it is then named by its position.
+    const child = block.id ?? `blocks.${index}`;
+    const result = linked.blocks.find((entry) => entry.specIndex === index);
     const status: BlockStatus = result ? blockStatus(result) : 'not_run';
     const bare = isolatedSpec(spec, block);
     const errors = checkSemantics(bare);
     if (errors.length > 0) {
       edges.push({
-        child: block.id,
+        child,
         parent: block.parent,
         linked: status,
         isolated: 'spec_error',
@@ -65,12 +67,13 @@ export async function parentIsolation(spec: Spec, options: RunOptions): Promise<
       });
       continue;
     }
-    const run = await runSpec(bare, { ...alone, runId: `${linked.runId}#isolated:${block.id}` });
-    const own = run.blocks.find((entry) => entry.blockId === block.id);
+    const run = await runSpec(bare, { ...alone, runId: `${linked.runId}#isolated:${child}` });
+    // The isolated spec holds the child alone: its only block.
+    const own = run.blocks[0];
     const isolated: BlockStatus = own ? blockStatus(own) : 'not_run';
     const decided = scored(status) && scored(isolated);
     edges.push({
-      child: block.id,
+      child,
       parent: block.parent,
       linked: status,
       isolated,
