@@ -5,11 +5,14 @@ import type { ClientOptions } from '../src/client';
 import { createAnthropicJudge, createGoogleJudge, createOpenAiJudge } from '../src/clients/chat';
 import { createHttpJudge } from '../src/clients/http-json';
 import { createJevJudge, createOpenAiDecisionsJudge } from '../src/clients/system1';
-import type { JudgeRequest } from '../src/contract';
+import { type JudgeRequest, MAX_TOKENS, REASONING_TOKENS } from '../src/contract';
 
+// The baselines below were captured under prompt version 1 and decoder version 1, which stay selectable.
 const REQUEST: JudgeRequest = {
   criterion: { name: 'c', rubric: 'The reply is polite.' },
   transcript: [{ role: 'agent', text: 'Good morning.' }],
+  criterionPromptVersion: 1,
+  criterionDecoderVersion: 1,
 };
 const env = {
   OPENAI_API_KEY: 'k',
@@ -100,6 +103,32 @@ describe('explicit reasoning on chat clients', () => {
         }
       });
     }
+  }
+  for (const [name, make] of clients.slice(0, 2)) {
+    it(`${name} adds the reasoning room of its level to the token limit, for both budgets`, async () => {
+      const limit = (body: string) => {
+        const parsed = JSON.parse(body);
+        return name === 'openai' ? parsed.max_completion_tokens : parsed.generationConfig.maxOutputTokens;
+      };
+      expect(limit((await capture(make)).body)).toBe(MAX_TOKENS.normal);
+      for (const reasoning of ['low', 'medium', 'high'] as const) {
+        const { client, body } = await capture(make, { reasoning });
+        expect(limit(body)).toBe(MAX_TOKENS.normal + REASONING_TOKENS[reasoning]);
+        expect(JSON.parse(client.settings as string).reasoningTokens).toEqual(REASONING_TOKENS);
+        const bodies: string[] = [];
+        const large = make({
+          env,
+          maxRetries: 0,
+          reasoning,
+          fetch: async (_url, init) => {
+            bodies.push(String(init.body));
+            return new Response('{}', { status: 200 });
+          },
+        });
+        await large.judge({ ...REQUEST, budget: 'large' });
+        expect(limit(bodies[0] as string)).toBe(MAX_TOKENS.large + REASONING_TOKENS[reasoning]);
+      }
+    });
   }
   it('rejects unsupported Anthropic reasoning before any request', () => {
     expect(() => createAnthropicJudge({ env, reasoning: 'high' })).toThrow(/reasoning.*not supported/i);

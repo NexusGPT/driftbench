@@ -9,6 +9,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 import type { PlacedBefore, PolicyView } from '../placement/apply';
+import { policyOf as valuePolicyOf } from '../value-check/ladder';
 import { diagnoseBlock } from './attribute';
 import { campaignDiagnoses } from './campaign';
 import {
@@ -169,12 +170,15 @@ function blockStep(
           }));
       }
       const placement = policyOf(ctx.objects, 'policy/placement');
+      const valueObject = ctx.objects.find((one) => one.object.kind === 'policy/value-check')?.object;
       const tools = (ctx.check.expect?.tools ?? [])
         .filter((tool) => tool.count !== 0)
         .map((tool) => tool.label);
       const result = diagnoseBlock({
         verdicts: ctx.verdicts,
-        evidenceFor: checkEvidenceInputs(ctx.check, ctx.verdicts),
+        evidenceFor: checkEvidenceInputs(ctx.check, ctx.verdicts, {
+          ...(valueObject === undefined ? {} : { valuePolicy: valuePolicyOf(valueObject) }),
+        }),
         tools,
         blame: policyOf(ctx.objects, 'policy/blame'),
         placement: state.stages.has('place') ? placement : fixedOnly(placement),

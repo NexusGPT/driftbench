@@ -53,7 +53,7 @@ export {
 } from './data';
 export { type Estimate, type IntervalMethod, type Rate, rate } from './estimate';
 export { carriedLines, effectiveNote, headlineNote, unscoredRuns } from './format';
-export { HEADLINE_POWER, type SuiteHeadline, suiteHeadline } from './headline';
+export { HEADLINE_POWER, type SuiteHeadline, type SuiteHeadlineOptions, suiteHeadline } from './headline';
 export { type RenderOptions, renderCompare, renderHtml, renderPage, renderRun, renderSpread } from './html';
 export { attributionZone, diagnosesTable, nonDefaultBadge } from './html-attribution';
 export { failures, renderJunit } from './junit';
