@@ -294,3 +294,21 @@ describe('atoms from labels', () => {
     });
   });
 });
+
+describe('the class that decided a pointer atom', () => {
+  it('is recorded on the atom, as docs/estate.md says the atom carries it', () => {
+    const text = 'Hang the lamp before dusk.\n';
+    const unit = pointer.cut(text).units[0];
+    const parsed = pointer.parseLabelSets(SETS);
+    if (!unit || !parsed.ok) throw new Error('fixture');
+    const set = parsed.sets[0];
+    if (!set) throw new Error('no set');
+    const built = pointer.pointerAtoms(
+      [{ path: 'CLAUDE.md', index: 0, unit, id: 'u1', set, label: 'order', source: 'abc', by: 'system2' }],
+      new Map([['CLAUDE.md', text]]),
+      new AtomBuilder(new Map([['CLAUDE.md', { path: 'CLAUDE.md', text } as never]])),
+      'planted',
+    );
+    expect(built.accepted[0]?.fields?.by).toBe('system2');
+  });
+});

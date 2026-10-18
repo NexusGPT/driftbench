@@ -117,6 +117,8 @@ export function pointerAtoms(
           label: item.label,
           cassette: item.source,
           labeler,
+          // The class of labeler that decided the label (docs/estate.md, "The atoms").
+          ...(item.by ? { by: item.by } : {}),
           ...(conditionIds.length > 0 ? { condition: conditionIds } : {}),
           ...(mapping.polarity ? { polarity: mapping.polarity } : {}),
         },
