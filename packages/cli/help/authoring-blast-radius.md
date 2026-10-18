@@ -54,7 +54,7 @@ Unknown means in. The radius is conservative:
 * A block with unknown dependencies is in every radius (reason `unknown-deps`). A block is unknown when its spec has no `metadata.generated`, no `metadata.estate.atoms` and no `metadata.depends`.
 * A change the radius cannot map makes the radius the whole suite. These changes cannot be mapped: an unknown kind, `model`, `agent`, `global: true`, the rule `reply_language`, a change with no `id`, a `map` id without `=`.
 * A change no block declares makes the radius the whole suite (`no block declares a dependency on it`), for example a new tool. A `criterion` change is the exception: a criterion no block names selects nothing.
-* A manifest with no change between two different versions is the whole suite. With `from` equal to `to` and no change, the radius is empty.
+* A manifest with no change between two different versions is the whole suite, except a revalidated estate prompt no-op from `radius auto` (see below). With `from` equal to `to` and no change, the radius is empty.
 
 When the radius is the whole suite, nothing can be carried, and `radius` exits 1.
 
@@ -137,11 +137,11 @@ unapproved, the change is whole suite. Stale or ambiguous evidence also selects 
 
 How the diff maps to changes:
 
-* Both texts are normalized first: CRLF and CR become LF, Unicode becomes NFC. Offsets count UTF-16 code units in the normalized text. Other whitespace is kept. A quote matches across any run of whitespace.
+* Both texts are normalized first: CRLF and CR become LF, Unicode becomes NFC. Offsets count UTF-16 code units in the normalized text. Other whitespace is kept for semantic edits and proposal maps. Estate no-op comparisons use the unit ledger's whitespace identity (see below). A quote matches across any run of whitespace.
 * The diff is a character edit distance alignment. It admits at most 64 single-character edits and 8,000,000 band cells; beyond that the result is the whole suite.
 * Every changed region must lie strictly inside exactly one anchor in both the old and the new text. Each anchor quote must occur exactly once in the old text. It must be located in the new text through its unchanged first and last characters. It must occur exactly once there too. Anchors must not overlap.
 * Otherwise the manifest holds one change `kind: prompt, global: true` (the whole suite). Its `note` names each region and the rule that failed: `stale quote in old text`, `ambiguous quote in old text`, `ambiguous quote in new text`, `anchor cannot be located unambiguously in new text`, `overlapping anchors`, `empty quote`, `ambiguous optimal diff alignment`, `diff exceeds the exact alignment bound`, `no quote matched on both sides`, `unmapped anchor`.
-* Identical texts (after normalization) give `changes: []` when the versions are equal, and the whole suite when they differ (`region none: no normalized change explains the version transition`).
+* With proposal maps, identical texts (after normalization) give `changes: []` when the versions are equal, and the whole suite when they differ (`region none: no normalized change explains the version transition`). Estate maps can prove an empty transition across different versions (see below).
 
 Exit codes:
 
@@ -271,8 +271,17 @@ A proposal with many repeated or overlapping quotes over one source makes most e
 An estate map is the complete file from `estate scan` and `estate approve`; do not trim its atoms
 or edit its provenance. `radius auto --prompt old.md new.md --map approved-estate.yaml --source CLAUDE.md`
 uses the atom provenance described above. Unquoted text, boundary edits and ambiguous diffs still
-select everything. A CRLF-only edit with identical version labels identifies no changes; a
-different version label still selects everything, even when the normalized text is identical.
+select everything for semantic edits. Estate no-op comparison uses the unit ledger's text identity:
+Unicode NFC, whitespace runs collapsed to one space, and leading/trailing whitespace trimmed.
+Double spaces inside a rule, trailing spaces, tabs and CRLF-only edits identify no changes.
+
+For an estate no-op, `radius auto` adds `promptProvenance` with the source, map and prompt paths,
+full SHA-256 hashes, and both version labels. `radius` and `campaign run --change --from` reread
+and validate that evidence, including the complete map's internal hashes and old quote spans.
+Validated empty changes select zero tests even across different version labels. Unvalidated empty
+changes across different versions still select the whole suite. Keep all evidence files unchanged
+and available. Emitted paths are absolute; relative paths resolve from the manifest directory.
+Carry compatibility and age checks still apply. Other source files are assumed unchanged.
 
 ## Outputs and how to read them
 
@@ -670,4 +679,4 @@ Whole-suite reasons you can meet, each with exit 1:
 | `a map change is written dimension=value` | a `map` change with no `id`, or an id without `=` (or starting with `=`) |
 | `a recovery rule is written recovery:<class>`, `a uses_tool rule is written uses_tool:<tool>`, `a path rule is written path:<id>` | a rule id with nothing after the colon |
 | `no block declares a dependency on it` | a change no block or perturbation names (not for `criterion`) |
-| `the manifest lists no change between two different versions` | `changes: []` with `from` different from `to` |
+| `the manifest lists no change between two different versions` | `changes: []` with `from` different from `to`, without revalidated estate no-op evidence |

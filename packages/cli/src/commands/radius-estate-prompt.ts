@@ -1,5 +1,5 @@
 import { type ChangeManifest, type PromptAnchor, promptChangeManifest } from '@agent-nexus/driftbench-core';
-import { type EstateMap, quoteAtSpan } from '@agent-nexus/driftbench-estate';
+import { type EstateMap, normaliseQuote, quoteAtSpan } from '@agent-nexus/driftbench-estate';
 
 /** Estate provenance is checked before its exact, overlapping quotes become one conservative anchor. */
 export function estatePromptManifest(
@@ -29,6 +29,10 @@ export function estatePromptManifest(
     if (startLine < atom.provenance.startLine || endLine > atom.provenance.endLine)
       return whole(`stale exact quote at its source span: ${atom.id}`);
     located.push({ start, end: start + quote.length, id: atom.id, approved: atom.approved });
+  }
+  // Match the unit ledger's text identity, but only after validating every old quote and span.
+  if (normaliseQuote(before.normalize('NFC')) === normaliseQuote(after.normalize('NFC'))) {
+    return { ...versions, changes: [] };
   }
   located.sort((a, b) => a.start - b.start || a.end - b.end);
   const groups: { start: number; end: number; ids: string[]; approved: boolean }[] = [];
