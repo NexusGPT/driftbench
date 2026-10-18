@@ -17,7 +17,7 @@ export type MainOptions = {
   /**
    * What the commands run with, laid over the defaults (`defaultDeps` of the campaign commands): the
    * adapters, the checks, the driver, the store. Read by campaign, smoke, family, perturb, simulate, attack,
-   * ci and monitor.
+   * ci, monitor and radius mutate run.
    */
   deps?: Partial<CampaignDeps>;
   /** Plugins given in code; they run before the plugins of the project config and of `--plugin`. */
@@ -117,6 +117,7 @@ const DEPS_COMMANDS = new Set([
   'redteam',
   'ci',
   'monitor',
+  'radius',
 ]);
 type RegisterWithDeps = (
   program: Command,
