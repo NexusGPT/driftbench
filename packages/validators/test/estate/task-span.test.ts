@@ -150,8 +150,8 @@ describe('the subject of a file is a clause the generator derives from its path'
     ).toBe(piece === 'glaze recipes'),
   );
 
-  it('derives nothing from a generic file name', () => {
-    const generic = atom({ kind: 'reference', title: 'x', fields: { path: 'references/README.md' } });
-    expect(isClauseOf('readme', fieldsOf(generic))).toBe(false);
+  it('reads the stem of any file the same way, with no list of names', () => {
+    const readme = atom({ kind: 'reference', title: 'x', fields: { path: 'references/README.md' } });
+    expect(isClauseOf('readme', fieldsOf(readme))).toBe(true);
   });
 });
