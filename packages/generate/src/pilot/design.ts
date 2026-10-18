@@ -1,4 +1,4 @@
-import { type LoadedSpec, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import { type LoadedSpec, type Spec, stemOf, validateSpec } from '@agent-nexus/driftbench-core';
 import type { Slots, When } from '../extract/proposal';
 import { TRANSITION_DIMENSION } from '../seed/map';
 import { fillText, matches } from '../seed/relations';
@@ -156,6 +156,8 @@ export function designPilot(
   const byCell = new Map<string, { values: Record<string, string>; specs: LoadedSpec[] }>();
   const sorted = [...suite].sort((a, b) => compare(a.spec.id, b.spec.id));
   for (const entry of sorted) {
+    // A stem is the opening of other specs, no conversation of the map: the specs it opens carry their cells.
+    if (stemOf(entry.spec)) continue;
     const generated = generatedOf(entry.spec);
     if (entry.spec.kind === 'task') {
       // The pilot measures the spread of conversations over wordings; a task family has its own knobs.

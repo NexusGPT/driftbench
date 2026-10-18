@@ -577,7 +577,7 @@ A proposal that does not load reports `PROPOSAL_PARSE`, `PROPOSAL_NOT_OBJECT`, `
 ## `driftbench generate`
 
 ```
-driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--json]
+driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--no-stems] [--json]
                     [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
@@ -596,6 +596,7 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 | `--tasks <n>` | instances built per `task_family` relation the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
 | `--force` | replace the output of an earlier run in the folder |
+| `--no-stems` | write every complete spec whole; by default the openings two or more complete specs share are written once under `specs/stems/`, each spec starts from its stem with `parent: <stem id>#<block id>`, and `stems-map.csv` maps every block as generated to its new spec and block. See [stems](../generating.md#stems-shared-openings-written-once) |
 | `--json` | print the report as JSON |
 | `--model` | also ask the model port for specs, gated before they count; needs `--reference` and `--faults` |
 | `--proposals <n>` | with `--model`: how many specs to ask for; default 3 |

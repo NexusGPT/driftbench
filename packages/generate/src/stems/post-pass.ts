@@ -93,7 +93,9 @@ export function stemPass(specs: readonly Spec[]): StemPassResult {
         ...(index === 0 && parentHome ? { parent: `${parentHome.stem}#${parentHome.block}` } : {}),
       };
     });
-    blocks.forEach((block, index) => home.set((chain[index] as StemNode).key, { stem: id, block: block.id }));
+    blocks.forEach((block, index) => {
+      home.set((chain[index] as StemNode).key, { stem: id, block: block.id });
+    });
     const criteria = namedCriteria(
       owner,
       chain.map((entry) => entry.block),

@@ -12,7 +12,7 @@ import { error, type Issue } from './issues';
 import { lintSpec } from './lint';
 import { normalizeSpec } from './normalize';
 import { checkSemantics } from './semantics';
-import { resolveSpecParents } from './spec-parents';
+import { resolveSpecParents, specParentRef } from './spec-parents';
 
 // The callback reader avoids FileHandle wrapper overhead for the many small spec files.
 const readFile = promisify(readFileCallback);
@@ -151,8 +151,53 @@ export async function findSpecFiles(paths: string[]): Promise<string[]> {
 /** Loads every spec found under the given files and folders. */
 export async function loadSpecs(paths: string[]): Promise<LoadResult[]> {
   const files = await findSpecFiles(paths);
-  // A block 0 that starts from another spec's block is written out over the specs loaded together.
-  return resolveSpecParents(await Promise.all(files.map((file) => loadSpecFile(file))), validateSpec);
+  const results = await Promise.all(files.map((file) => loadSpecFile(file)));
+  // A block 0 that starts from another spec's block is written out over the specs loaded together, and the
+  // stems that `generate` writes beside its seeder folders: only the specs asked for come back.
+  const helpers = await stemsBeside(results);
+  return resolveSpecParents([...results, ...helpers], validateSpec).slice(0, results.length);
+}
+
+/** How many folders above a child's own the loader looks for a `stems/` folder holding its parent spec. */
+const STEM_SEARCH_DEPTH = 4;
+
+/**
+ * The parent specs the loaded children name and the loaded set lacks, read from the `stems/` folder beside the
+ * child's folder or beside a folder above it, as `generate` writes them (`specs/stems/` beside
+ * `specs/<seeder>/`). A stem that starts from another stem is looked for the same way.
+ */
+async function stemsBeside(results: readonly LoadResult[]): Promise<LoadResult[]> {
+  const known = new Set(results.flatMap((result) => (result.ok ? [result.spec.id] : [])));
+  const read = new Set<string>();
+  const helpers: LoadResult[] = [];
+  let pending = results;
+  while (pending.length > 0) {
+    const wanted = pending.flatMap((result) => {
+      const ref = result.ok ? specParentRef(result.spec.blocks[0]?.parent) : undefined;
+      return ref && !known.has(ref.spec) ? [result.path] : [];
+    });
+    const found: LoadResult[] = [];
+    for (const path of wanted) {
+      let dir = dirname(resolve(path));
+      for (let level = 0; level <= STEM_SEARCH_DEPTH; level++, dir = dirname(dir)) {
+        const stems = join(dir, 'stems');
+        if (read.has(stems)) continue;
+        read.add(stems);
+        const info = await stat(stems).catch(() => undefined);
+        if (!info?.isDirectory()) continue;
+        for (const file of await walk(stems)) {
+          if (results.some((result) => resolve(result.path) === resolve(file))) continue;
+          const loaded = await loadSpecFile(file);
+          if (loaded.ok && known.has(loaded.spec.id)) continue;
+          if (loaded.ok) known.add(loaded.spec.id);
+          found.push(loaded);
+        }
+      }
+    }
+    helpers.push(...found);
+    pending = found;
+  }
+  return helpers;
 }
 
 const SKIP = new Set(['node_modules', 'dist']);

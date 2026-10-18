@@ -101,8 +101,8 @@ export type GenerateOptions = {
   tasks?: TaskInput[];
   /**
    * The stem post-pass: openings that complete specs share are written once under `specs/stems/`, each spec
-   * starting from its stem on block 0, with the old-to-new table in `stems-map.csv`. Default on; false writes
-   * every spec whole.
+   * starting from its stem on block 0, with the old-to-new table in `stems-map.csv`. Default off here, so the
+   * eager and the streaming writers write the same files; `driftbench generate` turns it on (`--no-stems` off).
    */
   stems?: boolean;
 };
@@ -545,7 +545,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     (seeders[seeder] as SeederTotals).measures = seederMeasures(prepared, completeBy[seeder] ?? []);
   }
   const totals = Object.values(seeders);
-  const stems = options.stems === false ? undefined : stemFiles(files, options.mapPath, seed, prepared.hash);
+  const stems = options.stems === true ? stemFiles(files, options.mapPath, seed, prepared.hash) : undefined;
   const report: GenerateReport = {
     generator: 'driftbench generate',
     ...(stems ? { stems } : {}),

@@ -14,6 +14,7 @@ import {
   REPORT_FILE,
   renderSummary,
   type SpecProposal,
+  STEM_MAP_FILE,
   seedFolderName,
 } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
@@ -195,7 +196,7 @@ export async function generateCommand(
       );
       return 2;
     }
-    for (const entry of [COMPLETE_DIR, INCOMPLETE_DIR, REPORT_FILE]) {
+    for (const entry of [COMPLETE_DIR, INCOMPLETE_DIR, REPORT_FILE, STEM_MAP_FILE]) {
       await rm(join(outPath, entry), { recursive: true, force: true });
     }
   }
@@ -223,7 +224,7 @@ export async function generateCommand(
         : {}),
       mapPath: portable(relative(outPath, mapPath)),
       ...(baseline ? { baseline } : {}),
-      ...(options.stems === false ? { stems: false } : {}),
+      stems: options.stems !== false,
     });
   } catch (cause) {
     io.err(`Cannot generate: ${cause instanceof Error ? cause.message : String(cause)}\n`);

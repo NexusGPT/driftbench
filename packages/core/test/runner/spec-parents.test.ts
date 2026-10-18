@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
@@ -179,6 +179,21 @@ describe('a parent in another spec', () => {
     expect(hash(after, 'child')).not.toBe(hash(before, 'child'));
     const childEdit = await load({ 'stem.yaml': STEM, 'child.yaml': CHILD.replace('Thanks', 'Thank you') });
     expect(hash(childEdit, 'stem')).toBe(hash(before, 'stem'));
+  });
+
+  it('finds a parent spec in the stems folder beside the child folder, and returns only the specs asked for', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-spec-parents-'));
+    dirs.push(dir);
+    await mkdir(join(dir, 'specs', 'stems'), { recursive: true });
+    await mkdir(join(dir, 'specs', 'graph'), { recursive: true });
+    await writeFile(join(dir, 'specs', 'stems', 'stem.yaml'), STEM);
+    await writeFile(join(dir, 'specs', 'graph', 'child.yaml'), CHILD);
+    const results = await loadSpecs([join(dir, 'specs', 'graph')]);
+    expect(results).toHaveLength(1);
+    expect(okSpec(results, 'child').metadata?.parent).toEqual({ from: 'stem#pick', replayed: 2 });
+    // Elsewhere, with no stems folder above, the parent is missing.
+    const alone = await load({ 'child.yaml': CHILD });
+    expect(errorsOf(alone, 'child.yaml').map((issue) => issue.code)).toEqual(['PARENT_MISSING']);
   });
 
   it('chains through a parent that itself starts from another spec', async () => {

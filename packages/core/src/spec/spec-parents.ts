@@ -78,7 +78,7 @@ export function resolveSpecParents(
     if (!parentLoaded)
       return fail(
         'PARENT_MISSING',
-        `parent spec "${ref.spec}" is not among the loaded specs: load its file with this one`,
+        `parent spec "${ref.spec}" is not among the loaded specs, nor in a stems/ folder beside the child's folder: load its file with this one`,
       );
     for (const key of SHARED_KEYS) {
       if (canonicalJson(spec[key] ?? null) !== canonicalJson(parentLoaded.spec[key] ?? null))
