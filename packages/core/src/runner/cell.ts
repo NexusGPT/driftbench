@@ -22,3 +22,12 @@ export function cellId(cell: CellKey): string {
   const key = canonicalJson({ specHash, target, mode, repeat, perturbationId });
   return createHash('sha256').update(key).digest('hex').slice(0, 16);
 }
+
+/**
+ * The id the cell had before the id left out the version label: made from `specHash` alone. Only a spec that
+ * carries a `version` has one that differs from its `cellId`; a run stored then keeps that id.
+ */
+export function legacyCellId(cell: CellKey): string | undefined {
+  if (cell.identityHash === undefined || cell.identityHash === cell.specHash) return undefined;
+  return cellId({ ...cell, identityHash: undefined });
+}

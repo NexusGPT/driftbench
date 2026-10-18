@@ -1,8 +1,10 @@
 import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
-import { specHash, specIdentityHash } from '../../src/index';
-import { cellIdOf, planCampaign, runCampaign, runSpec } from '../../src/runner';
+import { heldRun, specHash, specIdentityHash } from '../../src/index';
+import { prepareRejudge, rejudgeRun } from '../../src/radius/rejudge';
+import { cellIdOf, planCampaign, runCampaign, runSpec, runsByCell } from '../../src/runner';
+import { adapterProvenance, provenanceHash } from '../../src/runner/provenance';
 import { echoAdapter, putCampaign, specOf } from './support';
 
 // docs/reference/cli.md, "spec validate": "The hash, not the spec's `version`, is part of the runner's cache key and of
@@ -86,6 +88,110 @@ describe('the version label is no part of a cell id', () => {
       const opened = adapter.opened.length;
       const again = await go(loadedOf('v2'));
       expect(again.map((outcome) => outcome.state)).toEqual(['pass']);
+      expect(adapter.opened.length).toBe(opened);
+    } finally {
+      await store.close();
+    }
+  });
+
+  it('gives a rejudged run of a versioned spec the cell id the plan gives, and the version-free identity hash', async () => {
+    const versioned = (rubric: string) =>
+      specOf({
+        id: 'judged',
+        version: 'v7',
+        criteria: [{ name: 'price', rubric, gating: true }],
+        blocks: [{ when: { user: 'Quote.' }, expect: { criteria: ['price'] } }],
+      });
+    const old = versioned('A price is present.');
+    const next = versioned('The price must be 12.');
+    const pinned = { adapter: 'echo', variant: 'v1' };
+    const run = await runSpec(old, {
+      adapter: echoAdapter(),
+      driver: createScriptedDriver(),
+      checks: [],
+      mode: 'F',
+      repeat: 0,
+      target: pinned,
+      recordProvenance: true,
+      now: () => new Date('2026-10-13T00:00:00Z'),
+    });
+    const prepared = prepareRejudge(old, next, run, {
+      baselineProvenance: {
+        version: 2 as const,
+        adapters: [
+          {
+            ...adapterProvenance(echoAdapter(), pinned.adapter),
+            targetHash: provenanceHash(pinned),
+            agentVersionHash: provenanceHash('v1'),
+          },
+        ],
+      },
+      fromCampaign: 'base',
+      agentVersion: 'v1',
+      criteria: ['price'],
+      now: new Date('2026-10-13T01:00:00Z'),
+    });
+    const rejudged = await rejudgeRun(
+      prepared,
+      {
+        name: 'judge',
+        applies: () => true,
+        evaluate: () => [
+          {
+            id: 'judge.price',
+            kind: 'judge',
+            name: 'price',
+            gating: true,
+            outcome: 'fail',
+            evidence: 'no 12',
+          },
+        ],
+      },
+      () => 0,
+    );
+    expect(rejudged.specHash).toBe(specHash(next));
+    expect(rejudged.identityHash).toBe(specIdentityHash(next));
+    expect(rejudged.identityHash).not.toBe(rejudged.specHash);
+    const planned = planCampaign([{ spec: next, hash: specHash(next) }], [pinned], ['F'], 1).cells[0];
+    expect(rejudged.runId).toBe(planned?.cellId);
+    expect(cellIdOf(rejudged)).toBe(rejudged.runId);
+  });
+
+  it('resumes a run stored under the id it had before the label left the id, and reads it in the status', async () => {
+    const store = openMemoryStore();
+    try {
+      const adapter = echoAdapter();
+      const entry = loadedOf('v1');
+      const cell = planCampaign([entry], [target], ['F'], 1).cells[0];
+      if (cell?.legacyCellId === undefined) throw new Error('a versioned spec has a legacy id');
+      expect(cell.legacyCellId).not.toBe(cell.cellId);
+      await putCampaign(store, 'legacy', [entry]);
+      // The run as the earlier version stored it: no identity hash, its run id made from the spec hash.
+      const stored = await runSpec(entry.spec, {
+        adapter,
+        driver: createScriptedDriver(),
+        checks: [],
+        mode: 'F',
+        repeat: 0,
+        target,
+        runId: cell.legacyCellId,
+      });
+      const { identityHash: _identityHash, ...old } = stored;
+      await store.putRun('legacy', old);
+      expect(cellIdOf(old)).toBe(cell.legacyCellId);
+      expect(heldRun(await runsByCell(store, 'legacy'), cell)?.runId).toBe(cell.legacyCellId);
+      const opened = adapter.opened.length;
+      const outcomes = await runCampaign({
+        campaignId: 'legacy',
+        cells: [cell],
+        specFor: () => entry.spec,
+        adapterFor: () => adapter,
+        driver: () => createScriptedDriver(),
+        checks: [],
+        store,
+        concurrency: 1,
+      });
+      expect(outcomes.map((o) => [o.state, o.reused])).toEqual([['pass', true]]);
       expect(adapter.opened.length).toBe(opened);
     } finally {
       await store.close();

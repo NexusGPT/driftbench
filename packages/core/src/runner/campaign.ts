@@ -11,7 +11,7 @@ import type { RunMode, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import { specIdentityHash } from '../spec/identity';
 import type { ObservedCache } from './cache';
-import { cellId } from './cell';
+import { cellId, legacyCellId } from './cell';
 import { replacesBlock } from './inject';
 import { preflightTargetPrices, priceObserved, TokenPrices } from './pricing';
 import type { RetryOptions } from './retry';
@@ -21,6 +21,8 @@ import { blocksOutcome } from './verdicts';
 /** One run to make: one spec, on one target, in one mode, for one repeat (and one perturbation in P). */
 export type PlannedCell = {
   cellId: string;
+  /** The id a run stored before the id left out the version label has, for a spec that carries a version. */
+  legacyCellId?: string;
   specId: string;
   specHash: string;
   /** The spec hash without the version label, which the cell id is made from. */
@@ -157,8 +159,10 @@ export function planCampaign(
           const extra = perturbation === undefined || replacesBlock(perturbation) ? 0 : 1;
           for (let repeat = 0; repeat < repeatsOf(mode); repeat++) {
             const key = { specHash: hash, identityHash, target, mode, repeat, perturbationId };
+            const legacy = legacyCellId(key);
             cells.push({
               cellId: cellId(key),
+              ...(legacy === undefined ? {} : { legacyCellId: legacy }),
               specId: spec.id,
               ...key,
               ...(perturbationId === undefined ? {} : { perturbationId }),
@@ -283,6 +287,14 @@ export function outcomeOf(cell: PlannedCell, run: RunResult | undefined, reused 
     state: outcome === 'not_run' || outcome === 'blocked' ? outcome : 'fail',
     failing,
   };
+}
+
+/** The run a campaign holds for a planned cell: under its cell id, else under the id it had before the version label left it. */
+export function heldRun<T>(
+  held: ReadonlyMap<string, T>,
+  cell: Pick<PlannedCell, 'cellId' | 'legacyCellId'>,
+): T | undefined {
+  return held.get(cell.cellId) ?? (cell.legacyCellId === undefined ? undefined : held.get(cell.legacyCellId));
 }
 
 /** The run that stands for each cell of a campaign: its latest completed run, else its latest run. */
@@ -468,7 +480,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
   };
 
   const start = async (cell: PlannedCell): Promise<CellOutcome> => {
-    const previous = done.get(cell.cellId);
+    const previous = heldRun(done, cell);
     if (previous?.status === 'completed') return outcomeOf(cell, previous, true);
     if (await earlyStopped(cell)) {
       return { cell, reused: false, state: 'stopped', failing: [], earlyStop: { after: 2 } };

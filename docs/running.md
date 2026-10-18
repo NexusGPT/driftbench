@@ -615,7 +615,7 @@ A campaign pins the specs by id and content hash, the target of each spec run on
 
 `planCampaign` expands specs, targets, modes and repeats into cells. In mode P a spec gives one cell per perturbation and repeat. A cell sends the spec's blocks, plus the injected block in mode P, except for a perturbation that writes only a world: it runs under its own block, so the cell sends the spec's blocks alone (`order-service-down` and `sales-queue-down` above).
 
-A cell's id is also the run id of its run: the first 16 hex characters of the SHA-256 of the canonical JSON of the spec hash, the target, the mode, the repeat and the perturbation. The campaign plays no part, so the same cell in two campaigns has the same id: `acme-plan-upgrade` in mode F at repeat 0 on `function:acme` is `560ab11eeed24dd5` in every Acme campaign above.
+A cell's id is also the run id of its run: the first 16 hex characters of the SHA-256 of the canonical JSON of the spec's identity hash (its spec hash without the `version` label), the target, the mode, the repeat and the perturbation. The campaign plays no part, so the same cell in two campaigns has the same id: `acme-plan-upgrade` in mode F at repeat 0 on `function:acme` is `560ab11eeed24dd5` in every Acme campaign above.
 
 ### Outcomes
 

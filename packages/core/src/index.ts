@@ -235,6 +235,7 @@ export {
   eventLogSink,
   flowVerdicts,
   type GivenLayers,
+  heldRun,
   type IntervalEstimate,
   type IntervalFn,
   initialGiven,
