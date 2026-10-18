@@ -1,0 +1,14 @@
+B01 | ledger level: 70 of 70 pass on every seed; 0 failing | 
+B04 | ledger level: 70 of 70 pass on every seed; 0 failing | 
+B05 | ledger level: 70 of 70 pass on every seed; 0 failing | 
+B07 | ledger level: 70 of 70 pass on every seed; 0 failing | 
+B13 | ledger level: 69 of 70 pass on every seed; 1 failing | ledger-diff.rerun.new-heading
+B15 | ledger level: 68 of 70 pass on every seed; 2 failing | ledger-scan.condition.atoms-by-unit ; ledger-scan.condition.manifest
+B16 | ledger level: 67 of 70 pass on every seed; 3 failing | ledger-scan.condition.situation ; ledger-scan.condition.atoms-by-unit ; ledger-scan.condition.manifest
+B17 | ledger level: 70 of 70 pass on every seed; 0 failing | 
+B18 | ledger level: 69 of 70 pass on every seed; 1 failing | ledger-scan.replay.no-call-on-miss
+B19 | ledger level: 68 of 70 pass on every seed; 2 failing | ledger-scan.replay.miss-on-model ; ledger-scan.replay.miss-on-set
+B20 | ledger level: 70 of 70 pass on every seed; 0 failing | 
+C13 | ledger level: 70 of 70 pass on every seed; 0 failing | 
+C15 | ledger level: 67 of 70 pass on every seed; 3 failing | ledger-scan.replay.miss-on-model ; ledger-scan.replay.miss-on-labeler ; ledger-scan.replay.miss-on-set
+C17 | ledger level: 67 of 70 pass on every seed; 3 failing | ledger-scan.condition.situation ; ledger-scan.condition.atoms-by-unit ; ledger-scan.condition.manifest
