@@ -13,7 +13,6 @@ tags:
   - mode:live
   - kind:gate
   - ask:code
-  - judged
 target:
   adapter: claude-code
 given:
@@ -72,8 +71,6 @@ metadata:
     phrase: null
     ask: code
     outcome: no-delete
-    judged:
-      - gate.standing.read-claude-memory-memory-md-before
     needs:
       - marker: needs-askable-act
         atom: gate.standing.read-claude-memory-memory-md-before

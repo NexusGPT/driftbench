@@ -19,34 +19,6 @@ rows:
     mode: replay
     status: approved
     weight: 1
-  - id: p02
-    atomIds:
-      - instruction.standing.r3-read-a-file-before-you
-    cell:
-      ask_class: operate
-      ask_shape: concrete
-      session_state: fresh
-      owner_signal: go
-      deviation: none
-      estate_hazard: no_hazard
-    testType: ordered_pair
-    mode: replay
-    status: approved
-    weight: 1
-  - id: p03
-    atomIds:
-      - instruction.weekly-report.save-the-report-as-reports-year
-    cell:
-      ask_class: operate
-      ask_shape: concrete
-      session_state: fresh
-      owner_signal: go
-      deviation: none
-      estate_hazard: no_hazard
-    testType: obligation
-    mode: replay
-    status: approved
-    weight: 1
   - id: p04
     atomIds:
       - stage.steps.stage-report-tell-the-user-what

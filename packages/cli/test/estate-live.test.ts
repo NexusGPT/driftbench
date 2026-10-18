@@ -18,6 +18,7 @@ const FIXTURE = join(ROOT, 'examples/estates/fixture');
 const MAP = join(FIXTURE, 'approved.yaml');
 const R3 = 'instruction.standing.r3-read-a-file-before-you';
 const R7 = 'instruction.standing.r7-when-a-shipment-is-late';
+const GATE = 'gate.invoice-reconcile.read-references-matching-rules-md-before';
 
 async function run(argv: string[], cwd = ROOT) {
   const output = { out: '', err: '' };
@@ -154,21 +155,23 @@ const PROOF: Record<string, string> = {
   guard_positive: specNaming('guard_positive', 'guard.settings.pretooluse-bash-guard-block-force-push'),
   journey: 'journey/estate.journey.03.yaml',
   misroute: 'misroute/estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker.yaml',
-  obligation: 'obligation/estate.obligation.instruction.standing.tell-the-user-about-a-late.yaml',
-  ordered_pair: 'ordered_pair/estate.ordered_pair.gate.standing.never-report-done-before-verify-passed.yaml',
+  obligation: 'obligation/estate.obligation.instruction.standing.r7-when-a-shipment-is-late.yaml',
+  ordered_pair:
+    'ordered_pair/estate.ordered_pair.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml',
   outside_trigger:
-    'outside_trigger/estate.outside_trigger.instruction.standing.tell-the-user-about-a-late.yaml',
+    'outside_trigger/estate.outside_trigger.instruction.standing.r7-when-a-shipment-is-late.yaml',
   register_sample:
-    'register_sample/estate.register_sample.register.invoice-reconcile.one-closing-line-per-invoice.build.yaml',
+    'register_sample/estate.register_sample.register.invoice-reconcile.end-with-one-line-per-invoice.build.yaml',
   route_near_miss:
     'route_near_miss/estate.route_near_miss.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.yaml',
   route_positive:
     'route_positive/estate.route_positive.route.invoice-reconcile.an-ask-that-fits-invoice-reconcile.1.yaml',
-  skip_pressure: 'skip_pressure/estate.skip_pressure.gate.standing.read-a-file-before-editing-it.yaml',
+  skip_pressure:
+    'skip_pressure/estate.skip_pressure.gate.invoice-reconcile.read-references-matching-rules-md-before.yaml',
   stage_order: 'stage_order/estate.stage_order.stage.steps.stage-do-make-the-change.yaml',
   stage_skip: 'stage_skip/estate.stage_skip.stage.steps.stage-verify-run-the-check-that.yaml',
   tool_denied: 'tool_denied/estate.tool_denied.tool.settings.deny-webfetch.yaml',
-  twin: 'twin/estate.twin.instruction.standing.tell-the-user-about-a-late.yaml',
+  twin: 'twin/estate.twin.instruction.standing.r7-when-a-shipment-is-late.yaml',
 };
 
 const proofSpecs = () => Object.values(PROOF).map((path) => join(LIVE, path));
@@ -487,7 +490,10 @@ describe('a mutant run with its own map (bench defect D6)', () => {
   }, 120_000);
 });
 
-describe('the Northwind proof: 14 live specs on the fake command, and three estate mutants', () => {
+// The instructions carry no check of their own, so their specs are judged: the stand-in judge passes them.
+const JUDGE = () => ['--judge', 'claude:haiku', '--judge-command', FAKE_JUDGE, '--judge-budget', '1'];
+
+describe('the Northwind proof: 14 live specs on the fake command, and two estate mutants', () => {
   const FAULTS = [
     'estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker',
     'estate.tool_denied.tool.settings.deny-webfetch',
@@ -495,7 +501,7 @@ describe('the Northwind proof: 14 live specs on the fake command, and three esta
   let clean: Record<string, string>;
 
   it('runs the 14: the clean streams pass, the two planted faults fail on their own checks', async () => {
-    const result = await estateRun(FIXTURE, proofSpecs(), '--map', MAP);
+    const result = await estateRun(FIXTURE, proofSpecs(), '--map', MAP, ...JUDGE());
     expect(result.err).toBe('');
     expect(result.code).toBe(1);
     clean = outcomes(result.json);
@@ -513,22 +519,21 @@ describe('the Northwind proof: 14 live specs on the fake command, and three esta
   }, 120_000);
 
   it.each([
-    [R3, '--delete', ['estate.skip_pressure.gate.standing.read-a-file-before-editing-it'], []],
     [
-      R7,
-      '--invert',
+      GATE,
+      '--delete',
       [
-        'estate.obligation.instruction.standing.tell-the-user-about-a-late',
-        'estate.twin.instruction.standing.tell-the-user-about-a-late',
+        'estate.ordered_pair.gate.invoice-reconcile.read-references-matching-rules-md-before',
+        'estate.skip_pressure.gate.invoice-reconcile.read-references-matching-rules-md-before',
       ],
-      ['estate.outside_trigger.instruction.standing.tell-the-user-about-a-late'],
+      [],
     ],
   ])(
     'a mutant of %s (%s) turns its atom specs red, the rest as before',
     async (atom, op, red, green) => {
       const to = join(await folder(), 'mutant');
       expect((await run(['estate', 'mutate', MAP, '--atom', atom, op, '--to', to])).code).toBe(0);
-      const result = await estateRun(to, proofSpecs());
+      const result = await estateRun(to, proofSpecs(), ...JUDGE());
       expect(result.code).toBe(1);
       const mutant = outcomes(result.json);
       expect(await specsOfAtom(atom)).toEqual([...red, ...green].sort());
@@ -560,7 +565,7 @@ describe('the Northwind proof: 14 live specs on the fake command, and three esta
 const FAKE_JUDGE = join(FIXTURE, 'live/fake/judge.cjs');
 const HOLIDAY = join(
   LIVE,
-  'obligation/estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public.yaml',
+  'obligation/estate.obligation.instruction.route-planner.never-plan-a-delivery-on-a.yaml',
 );
 const OTHER = join(
   LIVE,
@@ -590,7 +595,7 @@ describe('judged criteria in estate run', () => {
     expect(json.judge).toBe('claude:haiku');
     const [holiday, other] = json.runs;
     expect(holiday?.judged).toEqual([
-      { criterion: 'instruction.route-planner.never-put-more-than-the-van', outcome: 'fail' },
+      { criterion: 'instruction.route-planner.never-plan-a-delivery-on-a', outcome: 'fail' },
     ]);
     expect(holiday?.pass).toBe(false);
     expect(holiday?.failing.some((entry) => entry.includes('judge.instruction.route-planner'))).toBe(true);

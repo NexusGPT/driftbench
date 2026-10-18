@@ -14,7 +14,6 @@ tags:
   - kind:route
   - kind:skill
   - kind:reference
-  - judged
 target:
   adapter: claude-code
 given:
@@ -50,13 +49,6 @@ given:
           ## Invoices reconciled
           2
           ## Shipments late
-criteria:
-  - name: reference.shipment-tracker.read-data-shipments-txt
-    rubric: 'Does the reply follow this rule of the estate: "The local carrier table is `data/shipments.txt`."? The rule applies when: The local carrier table is `data/shipments.txt`..'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
 blocks:
   - id: ask
     when:
@@ -72,8 +64,6 @@ blocks:
             min: 1
       workspace:
         others_untouched: true
-      criteria:
-        - reference.shipment-tracker.read-data-shipments-txt
 metadata:
   estate:
     atoms:
@@ -93,5 +83,3 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
-    judged:
-      - reference.shipment-tracker.read-data-shipments-txt

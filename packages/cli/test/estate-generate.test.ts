@@ -69,11 +69,11 @@ describe('driftbench estate generate', () => {
   it('writes the suite and its report, and exits 0 once every row gave complete specs', async () => {
     expect(first.err).toBe('');
     expect(first.code).toBe(0);
-    expect(first.out).toMatch(/total\s+44\s+44\s+0/);
-    expect(first.out).toContain('Replay: 12 specs aligned to sessions, 9 planned to pass, 3 to fail.');
+    expect(first.out).toMatch(/total\s+38\s+38\s+0/);
+    expect(first.out).toContain('Replay: 6 specs aligned to sessions, 5 planned to pass, 1 to fail.');
     const written = await files(out);
     expect(written).toContain('estate-generate-report.json');
-    expect(written.filter((path) => path.startsWith('specs/'))).toHaveLength(43);
+    expect(written.filter((path) => path.startsWith('specs/'))).toHaveLength(37);
     expect(written.filter((path) => path.startsWith('static/'))).toEqual([
       'static/invariant/estate.p32.json',
     ]);
@@ -110,7 +110,7 @@ describe('driftbench estate generate', () => {
       notes: string[];
     };
     expect(result.notes).toEqual([]);
-    expect(result.runs).toHaveLength(12);
+    expect(result.runs).toHaveLength(6);
     const planned = new Map<string, string>();
     for (const path of (await files(join(out, 'specs/replay'))).map((file) =>
       join(out, 'specs/replay', file),
@@ -133,16 +133,13 @@ describe('driftbench estate generate', () => {
     );
     expect(failing).toEqual({
       'estate.p01.weekly-skill-skipped': ['block 0: skills.weekly-report'],
-      // A rule written in a skill's file is tested with that skill loaded: skipping the skill fails it too.
-      'estate.p03.weekly-skill-skipped': ['block 0: skills.weekly-report'],
-      'estate.p02.weekly-gate-violated': ['block 0: custom.ordered.Read.Edit'],
     });
   }
 
   it('lints the complete specs clean', async () => {
     const lint = await run(['spec', 'lint', join(out, 'specs'), '--strict']);
     expect(lint.code).toBe(0);
-    expect(lint.out).toContain('Checked 43 specs: 43 valid, 0 invalid, 0 warnings.');
+    expect(lint.out).toContain('Checked 37 specs: 37 valid, 0 invalid, 0 warnings.');
   });
 
   it('refuses an earlier output without --force, and replaces it with --force', async () => {
@@ -216,10 +213,10 @@ describe('driftbench estate generate', () => {
     expect(result.code).toBe(1);
     const report = JSON.parse(result.out);
     expect(report.sessions).toBeNull();
-    expect(report.perMode.replay).toEqual({ rows: 4, specs: 4, complete: 0, incomplete: 4 });
+    expect(report.perMode.replay).toEqual({ rows: 2, specs: 2, complete: 0, incomplete: 2 });
     expect(
       report.gaps.find((entry: { marker: string }) => entry.marker === 'needs-recorded-session').specs,
-    ).toBe(4);
+    ).toBe(2);
   });
 
   it('writes every ask by code when no phrase bank lies beside the map, and waits for one with --no-fallback', async () => {

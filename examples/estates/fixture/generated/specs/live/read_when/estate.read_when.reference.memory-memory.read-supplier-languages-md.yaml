@@ -12,7 +12,6 @@ tags:
   - test:read_when
   - mode:live
   - kind:reference
-  - judged
 target:
   adapter: claude-code
 given:
@@ -48,13 +47,6 @@ given:
           ## Invoices reconciled
           2
           ## Shipments late
-criteria:
-  - name: reference.memory-memory.read-supplier-languages-md
-    rubric: 'Does the reply follow this rule of the estate: "[Supplier languages](supplier-languages.md): which language each supplier reads."? The rule applies when: [Supplier languages](supplier-languages.md): which language each supplier reads..'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
 blocks:
   - id: ask
     when:
@@ -66,8 +58,6 @@ blocks:
             min: 1
       workspace:
         others_untouched: true
-      criteria:
-        - reference.memory-memory.read-supplier-languages-md
 metadata:
   estate:
     atoms:
@@ -85,5 +75,3 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
-    judged:
-      - reference.memory-memory.read-supplier-languages-md

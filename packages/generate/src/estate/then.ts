@@ -186,6 +186,10 @@ export function thenOf(atoms: readonly EstateAtom[], polarity: Polarity, ctx: Th
   const then = emptyThen();
   for (const atom of atoms) {
     for (const evidence of atom.evidence) {
+      // The pointer reader's mark says a person must review the atom; it asserts nothing. An atom that carries
+      // other evidence is checked by that evidence. An atom that carries only the mark has no check of its own,
+      // so it is judged from its words or left as a gap, as any rule no code checks.
+      if (isPointerMark(evidence) && atom.evidence.some((other) => !isPointerMark(other))) continue;
       if (!Object.hasOwn(EVIDENCE_TYPES, evidence.type)) {
         throw new Error(`Unknown estate evidence predicate "${evidence.type}" in atom ${atom.id}`);
       }
@@ -195,6 +199,10 @@ export function thenOf(atoms: readonly EstateAtom[], polarity: Polarity, ctx: Th
     if (polarity === 'positive' && atom.kind === 'script') then.ranCode = true;
   }
   return then;
+}
+
+function isPointerMark(evidence: EstateEvidence): boolean {
+  return evidence.type === 'custom' && evidence.name === 'prose_pointer';
 }
 
 function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, ctx: ThenContext): void {

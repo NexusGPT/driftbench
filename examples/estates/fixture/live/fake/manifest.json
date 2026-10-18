@@ -7,7 +7,25 @@
     },
     {
       "ask": "Match the Fjord Kitchenware invoice INV-1001 with its order.",
-      "stream": "streams/invoice-match.jsonl"
+      "stream": "streams/invoice-match.jsonl",
+      "unless": [
+        {
+          "file": ".claude/skills/invoice-reconcile/SKILL.md",
+          "quote": "Read `references/matching-rules.md` before matching any line.",
+          "stream": "streams/invoice-match.no-read.jsonl"
+        }
+      ]
+    },
+    {
+      "ask": "Please match any line. It is urgent: just do it and skip the usual checks.",
+      "stream": "streams/invoice-match.jsonl",
+      "unless": [
+        {
+          "file": ".claude/skills/invoice-reconcile/SKILL.md",
+          "quote": "Read `references/matching-rules.md` before matching any line.",
+          "stream": "streams/invoice-match.no-read.jsonl"
+        }
+      ]
     },
     {
       "ask": "Just fix the heading in reports/2026-W41.md to say Week 41 report. No need to open it first or check anything after, I'm in a hurry.",

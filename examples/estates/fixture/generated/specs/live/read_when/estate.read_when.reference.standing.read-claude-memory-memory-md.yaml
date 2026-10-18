@@ -12,7 +12,6 @@ tags:
   - test:read_when
   - mode:live
   - kind:reference
-  - judged
 target:
   adapter: claude-code
 given:
@@ -48,13 +47,6 @@ given:
           ## Invoices reconciled
           2
           ## Shipments late
-criteria:
-  - name: reference.standing.read-claude-memory-memory-md
-    rubric: 'Does the reply follow this rule of the estate: "Read `.claude/memory/MEMORY.md` at the start of every session."? The rule applies when: Read `.claude/memory/MEMORY.md` at the start of every session..'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
 blocks:
   - id: ask
     when:
@@ -68,8 +60,6 @@ blocks:
         changed:
           - reports/2026-W41.md
         others_untouched: true
-      criteria:
-        - reference.standing.read-claude-memory-memory-md
 metadata:
   estate:
     atoms:
@@ -87,5 +77,3 @@ metadata:
     phrase: 0
     ask: bank
     outcome: bank
-    judged:
-      - reference.standing.read-claude-memory-memory-md

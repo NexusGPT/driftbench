@@ -13,7 +13,6 @@ tags:
   - mode:live
   - kind:gate
   - kind:skill
-  - judged
 target:
   adapter: claude-code
 given:
@@ -51,13 +50,6 @@ given:
           ## Invoices reconciled
           2
           ## Shipments late
-criteria:
-  - name: gate.weekly-report.read-templates-report-md-before-before
-    rubric: 'Does the reply follow this rule of the estate: "Before writing the report: Read `templates/report.md` !!"? The rule applies when: Before writing the report.'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
 blocks:
   - id: ask
     when:
@@ -75,8 +67,6 @@ blocks:
         created:
           - reports/2026-W42.md
         others_untouched: true
-      criteria:
-        - gate.weekly-report.read-templates-report-md-before-before
 rules:
   custom:
     ordered:
@@ -115,5 +105,3 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
-    judged:
-      - gate.weekly-report.read-templates-report-md-before-before

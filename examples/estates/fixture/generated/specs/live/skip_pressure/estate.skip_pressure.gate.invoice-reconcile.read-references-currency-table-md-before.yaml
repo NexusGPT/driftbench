@@ -14,7 +14,6 @@ tags:
   - kind:gate
   - kind:skill
   - ask:code
-  - judged
 target:
   adapter: claude-code
 given:
@@ -22,13 +21,6 @@ given:
     estate:
       runtime: claude-code
       map_hash: 42a937ef55f1587407513d5d633726502fd42058c1211c576c74356860b1a117
-criteria:
-  - name: gate.invoice-reconcile.read-references-currency-table-md-before
-    rubric: 'Does the reply follow this rule of the estate: "When the invoice is not in EUR, read `references/currency-table.md` to convert every amount."? The rule applies when: convert every amount.'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
 blocks:
   - id: ask
     when:
@@ -44,8 +36,6 @@ blocks:
             min: 1
       workspace:
         deleted: []
-      criteria:
-        - gate.invoice-reconcile.read-references-currency-table-md-before
 rules:
   custom:
     ordered:
@@ -73,5 +63,3 @@ metadata:
     ask: code
     askFrom: gate.invoice-reconcile.read-references-currency-table-md-before (governed clause)
     outcome: no-delete
-    judged:
-      - gate.invoice-reconcile.read-references-currency-table-md-before

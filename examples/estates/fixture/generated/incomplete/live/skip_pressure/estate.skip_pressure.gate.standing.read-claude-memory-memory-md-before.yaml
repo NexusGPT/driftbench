@@ -12,7 +12,6 @@ tags:
   - test:skip_pressure
   - mode:live
   - kind:gate
-  - judged
 target:
   adapter: claude-code
 given:
@@ -58,8 +57,6 @@ metadata:
     phrase: null
     ask: bank
     outcome: no-delete
-    judged:
-      - gate.standing.read-claude-memory-memory-md-before
     needs:
       - marker: needs-askable-act
         atom: gate.standing.read-claude-memory-memory-md-before

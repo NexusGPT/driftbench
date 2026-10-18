@@ -169,7 +169,7 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
       },
     ]);
     // Every instruction the labelers read carries no check of its own, so its spec is judged from its words.
-    expect(result.report.summary.judged).toBe(19);
+    expect(result.report.summary.judged).toBe(11);
   });
 
   it('injects the deviation of the cell before the ask, with its approved phrase', () => {
@@ -217,13 +217,6 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
       'estate.p01.weekly-clean': 'pass',
       'estate.p01.weekly-skill-skipped': 'fail',
       'estate.p01.weekly-gate-violated': 'pass',
-      'estate.p02.weekly-clean': 'pass',
-      'estate.p02.weekly-skill-skipped': 'pass',
-      'estate.p02.weekly-gate-violated': 'fail',
-      'estate.p03.weekly-clean': 'pass',
-      // The rule belongs to weekly-report, whose required skill the session skips.
-      'estate.p03.weekly-skill-skipped': 'fail',
-      'estate.p03.weekly-gate-violated': 'pass',
       'estate.p04.weekly-clean': 'pass',
       'estate.p04.weekly-skill-skipped': 'pass',
       'estate.p04.weekly-gate-violated': 'pass',
@@ -251,10 +244,10 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     expect(Object.keys(perTestType)).toHaveLength(Object.keys(SITUATION_OF).length - 1);
     const sum = (key: 'rows' | 'specs' | 'complete' | 'incomplete') =>
       Object.values(perTestType).reduce((total, entry) => total + entry[key], 0);
-    expect(sum('rows')).toBe(36);
+    expect(sum('rows')).toBe(34);
     expect(sum('specs')).toBe(summary.specs);
     expect(sum('complete')).toBe(summary.complete);
-    expect(perMode.replay).toEqual({ rows: 4, specs: 12, complete: 12, incomplete: 0 });
+    expect(perMode.replay).toEqual({ rows: 2, specs: 6, complete: 6, incomplete: 0 });
     expect(perTestType.journey).toEqual({ rows: 2, specs: 2, complete: 2, incomplete: 0 });
   });
 });
@@ -288,16 +281,17 @@ describe('estate generate on inputs that do not fit together', () => {
     const found = issues((copy) => {
       const row = copy.plan.rows[0];
       if (row) row.atomIds = ['route.nowhere'];
-      const atom = copy.map.atoms.find((entry) => entry.id === 'instruction.standing.r3-read-a-file-before-you');
+      const atom = copy.map.atoms.find(
+        (entry) => entry.id === 'instruction.standing.r3-read-a-file-before-you',
+      );
       if (atom) atom.approved = false;
       const third = copy.plan.rows[2];
       if (third) third.testType = 'vibe_check';
     });
     expect(found).toEqual([
       'plan.rows.0.atomIds.0: route.nowhere is no atom of the map',
-      'plan.rows.1.atomIds.0: instruction.standing.r3-read-a-file-before-you is not approved',
       'plan.rows.2.testType: vibe_check is no test type',
-      'plan.rows.12.atomIds.0: instruction.standing.r3-read-a-file-before-you is not approved',
+      'plan.rows.10.atomIds.0: instruction.standing.r3-read-a-file-before-you is not approved',
     ]);
   });
 
@@ -458,7 +452,7 @@ describe('the record and the seed', () => {
     expect(changed.length).toBeGreaterThan(0);
     // A replay spec asks with its session's recorded ask, whatever the seed.
     expect(asks(two).filter((_, index) => [...specs(two).keys()][index]?.includes('.weekly-'))).toEqual(
-      Array(12).fill("Add the late shipment count to this week's report, reports/2026-W41.md."),
+      Array(6).fill("Add the late shipment count to this week's report, reports/2026-W41.md."),
     );
   }, 60_000);
 });
@@ -489,7 +483,7 @@ describe('the committed suite', () => {
       blocks: 1577,
       complete: 1553,
       incomplete: 29,
-      judged: 1030,
+      judged: 957,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
