@@ -84,6 +84,7 @@ Every page says what exists today and what is not built yet, with the phase that
 ## Research
 
 * [Budget-bounded test generation for AI agent evaluation](research/budget-bounded-tests.md): a research draft describing the budget selector and its evaluation.
+* [Simulated human experiments for blocks](research/block-simulated-users.md): three pre-registered experiments on simulated users, an agenda engine and uncovered production clusters.
 
 ## What exists today
 
