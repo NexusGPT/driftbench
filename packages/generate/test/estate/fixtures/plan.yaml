@@ -161,7 +161,7 @@ rows:
     weight: 1
   - id: p12
     atomIds:
-      - instruction.standing.never-send-a-supplier-email-without
+      - instruction.supplier-email.show-the-full-draft-and-wait
     cell:
       ask_class: compose
       ask_shape: concrete

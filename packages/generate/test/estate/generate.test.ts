@@ -128,11 +128,6 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
       { name: 'block-force-push.sh', verdict: 'deny', count: { min: 1 } },
     ]);
     expect(only(byId, 'estate.p24').blocks[0]?.expect?.tools).toEqual([{ label: 'WebFetch', count: 0 }]);
-    expect(only(byId, 'estate.p09').blocks[0]?.expect?.must).toEqual(['late']);
-    // "Read a file before you edit it": the file read is the file edited.
-    expect(only(byId, 'estate.p13').rules?.custom).toEqual({
-      ordered: { pairs: [{ before: 'Read', after: 'Edit', key: 'file_path' }] },
-    });
     const stageSkip = only(byId, 'estate.p27');
     expect(stageSkip.blocks[0]?.expect?.stage).toBe('report');
     expect(stageSkip.stages).toEqual(['plan', 'do', 'verify', 'report', 'note']);
@@ -157,11 +152,6 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     expect(only(byId, 'estate.p20').blocks[0]?.expect?.guards).toEqual([
       { name: 'block-force-push.sh', verdict: 'deny', count: 0 },
     ]);
-    expect(only(byId, 'estate.p10').blocks[0]?.expect?.must_not).toEqual(['late']);
-    expect(only(byId, 'estate.p17').blocks[0]?.expect?.tools).toEqual([
-      { label: 'Edit', count: 0 },
-      { label: 'Write', count: 0 },
-    ]);
     // The misroute still loads the right skill.
     expect(only(byId, 'estate.p07').blocks[0]?.expect?.skills).toEqual([
       { name: 'shipment-tracker', count: { min: 1 } },
@@ -173,13 +163,13 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     expect(spec.criteria).toEqual([
       {
         name: 'register.standing.keep-every-reply-under-1-200',
-        rubric: 'Replies under 1,200 characters',
+        rubric: 'Keep every reply under 1,200 characters unless the user asks for detail.',
         gating: false,
         scope: 'block',
       },
     ]);
-    // Two criteria as before, plus the one of p31: a re-read of the open tracker note, which names no file.
-    expect(result.report.summary.judged).toBe(3);
+    // Every instruction the labelers read carries no check of its own, so its spec is judged from its words.
+    expect(result.report.summary.judged).toBe(19);
   });
 
   it('injects the deviation of the cell before the ask, with its approved phrase', () => {
@@ -483,7 +473,7 @@ describe('the committed suite', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1569);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1589);
     expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
       [],
     );
@@ -495,11 +485,11 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
-      specs: 1562,
-      blocks: 1557,
-      complete: 1544,
-      incomplete: 18,
-      judged: 465,
+      specs: 1582,
+      blocks: 1577,
+      complete: 1553,
+      incomplete: 29,
+      judged: 1030,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
@@ -524,11 +514,11 @@ describe('domain predicates judged from the rule own words', () => {
       expect(names.length, record.id).toBeGreaterThan(0);
       for (const name of names) expect(spec.blocks[0]?.expect?.criteria, record.id).toContain(name);
     }
-    const holiday = judged.find((record) =>
+    const capacity = judged.find((record) =>
       record.judged.includes('instruction.route-planner.never-put-more-than-the-van'),
     );
-    const rubric = only(all, holiday?.id ?? '').criteria?.[0]?.rubric;
-    expect(rubric).toContain('"Never plan a delivery on a public holiday in the receiving country."');
+    const rubric = only(all, capacity?.id ?? '').criteria?.[0]?.rubric;
+    expect(rubric).toContain('"Never put more than the van capacity on one route."');
 
     const strict = generateEstateSuite(input, { paths: PLANNER_PATHS, judge: false });
     expect(strict.report.sources.judged).toBe(0);
@@ -554,7 +544,8 @@ describe('a live guard_positive row forces the act', () => {
     expect(live.length).toBeGreaterThan(0);
     for (const record of live.filter((entry) => entry.complete && entry.ask === 'bank')) {
       const meta = estate(only(byId, record.id));
-      expect(['forced-push', 'forced-long-reply'], record.id).toContain(meta.situation);
+      // The stop-word guard watches the prompt: the situation whose phrase is the stop word is its forced act.
+      expect(['forced-push', 'forced-long-reply', 'stop-word'], record.id).toContain(meta.situation);
       const when = only(byId, record.id).blocks[0]?.when as { user?: string };
       if (meta.situation === 'forced-push') expect(when.user, record.id).toContain('git push --force');
     }
@@ -565,7 +556,7 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of specRecords(result)) {
       const meta = estate(only(byId, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (meta.situation === 'forced-push' || meta.situation === 'forced-long-reply') continue;
+      if (['forced-push', 'forced-long-reply', 'stop-word'].includes(String(meta.situation))) continue;
       expect(meta.situation, record.id).toBeNull();
       // The ask is the act of the tool the guard watches. A guard that watches no tool (a prompt guard) has no
       // act an owner asks for: its row waits for an approved phrase, under its own gap.
@@ -596,7 +587,7 @@ describe('a live guard_positive row forces the act', () => {
     for (const record of specRecords(strict)) {
       const meta = estate(only(all, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
-      if (meta.situation !== 'forced-push' && meta.situation !== 'forced-long-reply') {
+      if (!['forced-push', 'forced-long-reply', 'stop-word'].includes(String(meta.situation))) {
         expect(record.complete, record.id).toBe(false);
         const needs = (meta.needs as Array<{ marker: string }>).map((need) => need.marker);
         expect(needs, record.id).toContain(MARKERS.phrase);
