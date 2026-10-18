@@ -72,6 +72,30 @@ describe('driftbench estate mutate', () => {
     expect(record.after).toContain('Do not follow this rule: When a shipment is late');
   });
 
+  it('inverts a prohibition with its own sentence, as the help page shows, and the map hash moves', async () => {
+    const to = join(await folder(), 'mutant');
+    const result = await run([
+      'estate',
+      'mutate',
+      MAP,
+      '--atom',
+      'instruction.standing.never-force-push',
+      '--invert',
+      '--to',
+      to,
+      '--json',
+    ]);
+    expect(result.code).toBe(0);
+    const record = JSON.parse(result.out);
+    expect(record.before).toBe('- **R6.** Never run `git push --force` on any branch.');
+    expect(record.after).toBe(
+      '- **R6.** This prohibition is lifted: Never run `git push --force` on any branch.',
+    );
+    // The two hashes the help page of `estate mutate` prints for this atom.
+    expect(String(record.originalMapHash).slice(0, 12)).toBe('be2e7a0919cb');
+    expect(String(record.mapHash).slice(0, 12)).toBe('9910ca696dba');
+  });
+
   it('refuses a missing or double mutation, an unknown atom, a quote it cannot invert, and an occupied folder', async () => {
     const base = await folder();
     const to = join(base, 'mutant');

@@ -130,6 +130,55 @@ describe('mutateEstate', () => {
   });
 });
 
+describe('mutateEstate --invert chooses its sentence by the polarity the atom declares', () => {
+  const R6 = 'instruction.standing.never-force-push';
+  const LIFTED = 'This prohibition is lifted: ';
+  const FOLLOW = 'Do not follow this rule: ';
+
+  it('inverts a prohibition of the fixture with the sentence of a prohibition, the quote whole after it', async () => {
+    const root = await copy();
+    const result = await mutateEstate({ root, map }, { invert: R6 });
+    expect(result.after).toBe(
+      '- **R6.** This prohibition is lifted: Never run `git push --force` on any branch.',
+    );
+    const atom = result.map.atoms.find((candidate) => candidate.id === R6);
+    expect(atom?.provenance.quote).toBe(`${LIFTED}Never run \`git push --force\` on any branch.`);
+    expect(await readFile(join(root, 'CLAUDE.md'), 'utf8')).toContain(result.after);
+    await consistent(root, result.map);
+  });
+
+  it('decides by the declared polarity, not by the words: a prohibition with no negative word, an obligation that opens with one', async () => {
+    const prohibition = 'instruction.standing.report-only-numbers-read-during-the';
+    expect(map.atoms.find((candidate) => candidate.id === prohibition)?.fields?.polarity).toBe('prohibition');
+    const first = await mutateEstate({ root: await copy(), map }, { invert: prohibition });
+    expect(first.after).toContain(LIFTED);
+    expect(first.after).not.toContain(FOLLOW);
+    // The same quote with the polarity declared the other way takes the other sentence.
+    const flipped = structuredClone(map);
+    const atom = flipped.atoms.find((candidate) => candidate.id === prohibition);
+    if (atom?.fields) atom.fields.polarity = 'obligation';
+    const second = await mutateEstate({ root: await copy(), map: flipped }, { invert: prohibition });
+    expect(second.after).toContain(FOLLOW);
+    expect(second.after).not.toContain(LIFTED);
+  });
+
+  it('gives every standing instruction of the fixture the sentence of its declared polarity', async () => {
+    const standing = map.atoms.filter(
+      (candidate) => candidate.kind === 'instruction' && candidate.id.startsWith('instruction.standing.'),
+    );
+    expect(standing.length).toBeGreaterThan(10);
+    const seen = new Set<string>();
+    for (const candidate of standing) {
+      const result = await mutateEstate({ root: await copy(), map }, { invert: candidate.id });
+      const wanted = candidate.fields?.polarity === 'prohibition' ? LIFTED : FOLLOW;
+      expect(result.after, candidate.id).toContain(wanted);
+      expect(result.after, candidate.id).not.toContain(wanted === LIFTED ? FOLLOW : LIFTED);
+      seen.add(wanted);
+    }
+    expect([...seen].sort()).toEqual([FOLLOW, LIFTED]);
+  });
+});
+
 describe('invertText', () => {
   const CLAUSE = 'Never run `git push --force` on any branch.';
 
