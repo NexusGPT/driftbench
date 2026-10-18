@@ -151,6 +151,17 @@ What the store keeps is what the format allows. Each fitted value gets its `weig
 
 The report (`FeedReport`) holds counts, shares, intervals and settings. `privateCountsOf` / `writePrivateCounts` keep the numbers beside the private set, by default in `~/.driftbench/private/` (`DRIFTBENCH_PRIVATE_DIR` moves it). The counts file is numbers and fixed keys: a variable and a value are named by their position in the store, and the only strings are two SHA-256 digests, of the agent name and of the set, so no string the caller wrote is stored. The file is named by the first 12 characters of each digest. The writer checks its input at run time and refuses any other key or string. It resolves symlinks before it checks that the folder is outside every git repository, refuses a counts file that is a symlink, and writes a new file with mode 0600 and renames it over the old one, so every write is owner-only. No line of text, no file name and no person is in the store, the report or the counts file.
 
+### From intake logs
+
+`feedFromLogs` feeds `feedVariables` from the output of `intakeLogs` (the `kept` list), so the reader sees the anonymised text of a log and never the raw one. It reads a variable at the scope you declare for it, in `scopes` (a variable id to `conversation` or `turn`):
+
+| Scope | The reader is asked | The reader sees | `total` and `count` in the store |
+|---|---|---|---|
+| `conversation` (the default for a variable you do not name) | once per conversation | the whole conversation, one line per turn, `role: text` | conversations |
+| `turn` | once per turn of the roles in `turnRoles` (default: the user) | that turn's text alone | turns |
+
+Use `turn` for a variable that can change inside one conversation, such as the mood of the person. The store format has no field for the scope, so it is a setting of the call, not part of the store. The result holds one store and one report per scope that had a variable to read (`reports.conversation`, `reports.turn`); each report has its own count and set hash, so write the counts of each with `privateCountsOf` and `writePrivateCounts`. A calibration set is given per scope (`calibration.conversation`, `calibration.turn`): whole conversations for the first, single turns for the second. The privacy rules are those of `feedVariables`: the store and the reports hold counts and digests, no id and no line of text.
+
 Advice. The loader reports `VARIABLES_UNSOURCED` for each value, boundary and constraint that has no provenance. It never makes a store invalid: a store converted from a space map names no source at all.
 
 ## Impossible combinations

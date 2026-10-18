@@ -99,7 +99,9 @@ describe('feedFromLogs: the scope of a variable', () => {
     const asked = seen.filter((entry) => entry.question === 'customer_mood');
     // Two user turns in each of 40 conversations; the agent turns are not asked.
     expect(asked).toHaveLength(80);
-    expect(asked.every((entry) => !entry.text.includes('agent:') && !entry.text.includes('Hello'))).toBe(true);
+    expect(asked.every((entry) => !entry.text.includes('agent:') && !entry.text.includes('Hello'))).toBe(
+      true,
+    );
     expect(asked.some((entry) => entry.text === 'This is unacceptable, I am furious.')).toBe(true);
     expect(result.reports.turn?.read).toBe(80);
   });
@@ -141,8 +143,9 @@ describe('feedFromLogs: the scope of a variable', () => {
     const state = variableOf(result.store, 'session_state');
     const mood = variableOf(result.store, 'customer_mood');
     expect(state.values.map((v) => v.weight)).toEqual([0.5, 0.5]);
-    // 80 user turns: 10 furious (every 4th conversation's second turn), 70 calm.
-    expect(mood.values.map((v) => v.weight)).toEqual([0.875, 0.125]);
+    // 80 user turns are read; only the second turn of a conversation names a mood: 30 calm, 10 furious.
+    // The first turns are unsure and count in no share.
+    expect(mood.values.map((v) => v.weight)).toEqual([0.75, 0.25]);
     const totals = (id: string) =>
       variableOf(result.store, id)
         .values.flatMap((v) => v.provenance ?? [])
@@ -193,7 +196,10 @@ describe('feedFromLogs: the calibration of each group', () => {
   it('corrects a turn-scoped variable with turn calibration items and a conversation-scoped one with conversation items', async () => {
     const calibration = {
       turn: [
-        ...Array.from({ length: 12 }, () => ({ text: 'Thank you, no rush.', truth: { customer_mood: 'calm' } })),
+        ...Array.from({ length: 12 }, () => ({
+          text: 'Thank you, no rush.',
+          truth: { customer_mood: 'calm' },
+        })),
         ...Array.from({ length: 12 }, () => ({ text: 'I am furious.', truth: { customer_mood: 'upset' } })),
       ],
     };
@@ -224,7 +230,10 @@ describe('feedFromLogs: what the reader sees and what is kept', () => {
       JSON.stringify({
         id: `c${i}`,
         turns: [
-          { role: 'user', text: i % 2 === 0 ? 'I am a regular, so no rush.' : 'I am furious, never used this.' },
+          {
+            role: 'user',
+            text: i % 2 === 0 ? 'I am a regular, so no rush.' : 'I am furious, never used this.',
+          },
           { role: 'agent', text: 'Noted.' },
         ],
       }),
