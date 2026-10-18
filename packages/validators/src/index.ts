@@ -9,6 +9,7 @@ export {
   blindReport,
   type FailingItem,
   formatAllFailing,
+  stripCauseTag,
   stripHint,
 } from './audit';
 export {
