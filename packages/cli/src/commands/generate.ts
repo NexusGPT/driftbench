@@ -20,6 +20,7 @@ import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { defaultGateDeps, type GateDeps, gateCommand } from './gate';
+import { readBlockSections, SECTIONS_OPTION } from './sections-option';
 
 /** What generate runs with. Tests pass a fake model port. */
 export type GenerateDeps = {
@@ -37,6 +38,8 @@ export const PROPOSALS_FILE = 'proposals.json';
 
 export type GenerateCommandOptions = {
   map: string;
+  /** Section registries of prompts the map is read from, `--sections`. */
+  sections?: string[];
   out: string;
   t?: string;
   seed?: string;
@@ -88,6 +91,7 @@ export function registerGenerateCommand(
     )
     .option('--tasks <n>', `instances built per task family the map names (default ${DEFAULT_TASKS})`)
     .option('--baseline <path>', 'specs to measure on the same map for comparison; repeat it', collect)
+    .option('--sections <registry>', SECTIONS_OPTION, collect)
     .option('--force', 'replace the output of an earlier run in the folder')
     .option('--json', 'print the report as JSON')
     .option('--model', 'also ask the model port for specs; each counts only once the gate accepts it (paid)')
@@ -198,6 +202,13 @@ export async function generateCommand(
     }
   }
 
+  // The prompts with a section registry, named as the map's evidence names its sources: from the map's folder.
+  const sections =
+    (options.sections ?? []).length > 0
+      ? await readBlockSections(options.sections ?? [], dirname(mapPath), io)
+      : undefined;
+  if ((options.sections ?? []).length > 0 && !sections) return 2;
+
   // The task families the map names build their instances first: their oracles run asynchronously.
   const built = await buildTaskInputs(loaded.prepared, dirname(mapPath), {
     n: typeof tasks === 'number' ? tasks : DEFAULT_TASKS,
@@ -221,6 +232,7 @@ export async function generateCommand(
         : {}),
       mapPath: portable(relative(outPath, mapPath)),
       ...(baseline ? { baseline } : {}),
+      ...(sections ? { sections } : {}),
     });
   } catch (cause) {
     io.err(`Cannot generate: ${cause instanceof Error ? cause.message : String(cause)}\n`);

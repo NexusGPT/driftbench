@@ -283,16 +283,26 @@ export function build(
     ...(polarity === 'negative' ? { relation: 'exercises' as const } : {}),
   }));
   const planRow = row.variantOf ?? row.id;
+  // The prompt sections that hold the atoms' quotes, when the estate has prompts with a section registry.
+  const sections = atoms.flatMap((atom) =>
+    atom.provenance?.file !== undefined && ctx.sections
+      ? ctx.sections
+          .locate(atom.provenance.file, atom.provenance.quote)
+          .map((ref) => ({ ...ref, ...(polarity === 'negative' ? { relation: 'exercises' as const } : {}) }))
+      : [],
+  );
   const written = writeBlocks(
     blocks.map((block, index) => {
       const origin: BlockOrigin = {
         rules,
+        ...(sections.length > 0 ? { sections } : {}),
         row: { id: planRow, values: row.cell },
         ...(session && index === 0 ? { turn: { conversation: session.name, turn: session.from_block } } : {}),
       };
       return { block, origin };
     }),
     version,
+    ctx.sections ? { sectionReach: ctx.sections.reaching } : {},
   );
 
   const usesStages = blocks.some((block) => (block.expect as Record<string, unknown>).stage !== undefined);

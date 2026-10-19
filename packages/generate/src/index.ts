@@ -5,6 +5,12 @@
 export const packageName = '@agent-nexus/driftbench-generate';
 
 export {
+  type BlockSections,
+  blockSections,
+  type PromptSections,
+  type SectionRef,
+} from './blocks/sections';
+export {
   type BlockInput,
   type BlockOrigin,
   linksOf,

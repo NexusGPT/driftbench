@@ -544,7 +544,7 @@ A proposal that does not load reports `PROPOSAL_PARSE`, `PROPOSAL_NOT_OBJECT`, `
 ## `driftbench generate`
 
 ```
-driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--json]
+driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--sections <registry>]... [--force] [--json]
                     [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
@@ -562,6 +562,7 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 | `--spec-cap-mode <mode>` | `tuples` by default; `pairs` explicitly permits reported triple losses. Requires `--spec-cap` |
 | `--tasks <n>` | instances built per `task_family` relation the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
+| `--sections <registry>` | a section registry of a prompt the map's evidence quotes (beside it as `<name>.sections.yaml`, or `<registry>=<prompt>`): each block links the prompt sections that hold the quotes of its values and the sections that reach them; repeat it |
 | `--force` | replace the output of an earlier run in the folder |
 | `--json` | print the report as JSON |
 | `--model` | also ask the model port for specs, gated before they count; needs `--reference` and `--faults` |
@@ -1042,7 +1043,7 @@ driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [
 driftbench estate plan approve <plan> [--all] [--row <id>]... [--strike] [--out <file>]
 driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>] [--new-guards <file>]
 driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] [--replay <sessions>] [--suite <dir>] [--store <db>]
-driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--no-judge] [--force] [--json]
+driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--sections <registry>]... [--no-fallback] [--no-judge] [--force] [--json]
 driftbench estate static <tests...> --estate <root> [--runtime <name>] [--ceiling <characters>] [--json]
 driftbench estate unit <tests...> --estate <root> [--runtime claude-code] [--record] [--no-sandbox] [--jobs <n>] [--json]
 driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json

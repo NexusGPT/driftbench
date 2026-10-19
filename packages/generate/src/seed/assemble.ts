@@ -10,6 +10,7 @@ import type {
 } from '@agent-nexus/driftbench-core';
 import { isPlainObject } from '@agent-nexus/driftbench-core';
 import { NONE } from '@agent-nexus/driftbench-space';
+import type { BlockSections } from '../blocks/sections';
 import { type BlockOrigin, turnOfSource, writeBlocks } from '../blocks/writer';
 import type { ProposalPhrase } from '../extract/proposal';
 import { supplying, usedPaths, worldCarried } from './data-carrier';
@@ -166,7 +167,12 @@ export function bankLanguage(prepared: PreparedMap): string | undefined {
   return best;
 }
 
-export type RunIdentity = { seed: number; mapPath: string };
+export type RunIdentity = {
+  seed: number;
+  mapPath: string;
+  /** The prompts with a section registry the map is read from: blocks then link the sections they test. */
+  sections?: BlockSections;
+};
 
 export type Rendered = {
   id: string;
@@ -291,9 +297,13 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
       ...(given ? { given } : {}),
       expect,
     };
-    return { block: body, origin: originOf(prepared, draft, block, specCell, covers) };
+    return { block: body, origin: originOf(prepared, draft, block, specCell, covers, run.sections) };
   });
-  const written = writeBlocks(inputs, prepared.hash);
+  const written = writeBlocks(
+    inputs,
+    prepared.hash,
+    run.sections ? { sectionReach: run.sections.reaching } : {},
+  );
   const blocks = written.blocks;
 
   const reasons = [...(draft.reasons ?? [])];
@@ -486,6 +496,7 @@ function originOf(
   block: BlockDraft,
   specCell: Readonly<Record<string, string>>,
   covers: readonly string[],
+  sections?: BlockSections,
 ): BlockOrigin {
   const values: Record<string, string> = { ...specCell };
   const rules: Array<{ rule: string }> = [];
@@ -508,7 +519,31 @@ function originOf(
     block.stimulus.kind === 'phrase' ? turnOfSource(block.stimulus.phrase.evidence?.source) : undefined;
   // The members of a metamorphic family are phrasings (or values) of one row: the family.
   const row = draft.metamorphic?.family ?? draft.id;
-  return { rules, row: { id: row, values }, ...(turn ? { turn } : {}) };
+  const located = sectionsOfRules(prepared, rules, sections);
+  return {
+    rules,
+    ...(located.length > 0 ? { sections: located } : {}),
+    row: { id: row, values },
+    ...(turn ? { turn } : {}),
+  };
+}
+
+/** The prompt sections that hold the quotes of the rules, in rule order, each once. */
+export function sectionsOfRules(
+  prepared: PreparedMap,
+  rules: ReadonlyArray<{ rule: string }>,
+  sections: BlockSections | undefined,
+): Array<{ prompt: string; section: string; version: string }> {
+  if (!sections) return [];
+  const out: Array<{ prompt: string; section: string; version: string }> = [];
+  for (const { rule } of rules) {
+    const quote = prepared.quotes?.get(rule);
+    if (!quote) continue;
+    for (const ref of sections.locate(quote.source, quote.quote)) {
+      if (!out.some((each) => each.prompt === ref.prompt && each.section === ref.section)) out.push(ref);
+    }
+  }
+  return out;
 }
 
 /** A partial map assertion cannot establish that other schema-declared arguments are forbidden. */
