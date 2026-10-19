@@ -90,7 +90,8 @@ export function neutralName(seed: number, tag: string): string {
  * section (planted-bug audit round 2: a product that counts only `declared` passed every item).
  */
 function covering(seed: number, tag: string): string {
-  return (['declared', 'attributed', 'verified'] as const)[between(rngFor(seed, `status:${tag}`), 0, 2)];
+  const statuses = ['declared', 'attributed', 'verified'] as const;
+  return statuses[between(rngFor(seed, `status:${tag}`), 0, 2)] ?? 'declared';
 }
 
 /** A spec count and a block count drawn from the seed: the inputs carry no fixed shape (cheater round 2). */
@@ -604,12 +605,16 @@ function chainItems(): BankItem[] {
               if (draws[0]) draws[0][0] = true;
               const lastDraw = draws[repeats - 1];
               if (lastDraw) lastDraw[1] = true;
-              const fails = (cs: number, cb: number, r: number) => {
+              const fails = (cs: number, cb: number, r: number): boolean => {
                 if (cs !== s) return false;
                 if (shape === 'passing-after-failing') return cb === first;
                 if (shape === 'failing-after-failing') return cb === first || cb === later;
                 const draw = draws[r] ?? [false, false, false];
-                return (cb === first && draw[0]) || (cb === later && draw[1]) || (cb === third && draw[2]);
+                return (
+                  (cb === first && draw[0] === true) ||
+                  (cb === later && draw[1] === true) ||
+                  (cb === third && draw[2] === true)
+                );
               };
               const { loaded, runs } = runsOf(product, w, repeats, fails, mode);
               const got = localize(product, loaded, runs, w.registry, mode);
