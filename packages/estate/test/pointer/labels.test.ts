@@ -53,6 +53,8 @@ describe('label sets', () => {
       'hazard-new-session',
       'hazard-notification',
       'hazard-nudge',
+      'route-skill',
+      'route-helper',
       'condition',
       'example',
       'description',

@@ -61,7 +61,7 @@ describe('driftbench estate static', () => {
     expect(mapped.code).toBe(1);
     const named = JSON.parse(mapped.out) as { results: Array<{ detail: string }> };
     expect(named.results[0]?.detail).toContain(
-      'does not hold: {"orphans":[".claude/skills/invoice-reconcile/references/old-tolerances.md"]}',
+      'does not hold: {"orphans":[".claude/skills/invoice-reconcile/references/currency-table.md",".claude/skills/invoice-reconcile/references/old-tolerances.md"]}',
     );
     const bad = await run([
       'estate',

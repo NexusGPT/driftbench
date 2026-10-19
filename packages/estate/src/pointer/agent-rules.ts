@@ -24,8 +24,14 @@ export const AGENT_RULES_SET = `labels:
         description: The act that the rule governs or that waits for something, as a user would put it, without the words that order it.
     links:
       - name: act-tool
-        description: The tool the reader uses for that act.
+        description: The tool the reader uses for the act in the governed-action span, not the tool the read uses. Looking up a file is Read, changing a file is Edit or Write, running a command is Bash, handing work to a helper is Agent. Always one of the listed values, the one the act most likely uses, even when the unit names no tool.
         values: [Read, Edit, Write, Bash, Agent]
+      - name: route-skill
+        description: The skill that the request loads.
+        to: [skill]
+      - name: route-helper
+        description: The helper agent that the request dispatches.
+        to: [subagent]
     labels:
       - name: rule
         description: A unit that tells the reader what to do. A unit about an event the agent must get through has its own label instead.
@@ -39,7 +45,7 @@ ${ALSO_REFERENCE}      - name: prohibition
           polarity: prohibition
 ${ALSO_REFERENCE}
       - name: gate
-        description: A unit that tells the reader to read a file first, before an act. Its file is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
+        description: A unit that tells the reader to read a file first, before an act, and names that file in a code span or a link. A unit that says to read a file without naming it is a rule. Its file is the first code span of the unit. Give the act as the governed-action span and the tool that act uses as the act-tool link.
         spans: [governed-action]
         links: [act-tool]
         atom:
@@ -133,8 +139,30 @@ ${ALSO_REFERENCE}      - name: hazard-nudge
           fields: { hazard: nudge_storm }
           evidence:
             - { type: custom, name: hazard_recovery, options: { hazard: nudge_storm } }
-${ALSO_REFERENCE}      - name: condition
-        description: A unit that only says when another unit applies, such as a circumstance, a state of the world or a kind of request, and tells the reader nothing to do by itself. Give the unit it scopes as the target.
+${ALSO_REFERENCE}      - name: route-skill
+        description: A unit that is the request itself, in the words of a user, for which the reader loads a skill, such as the request cell of a routing table. Label the unit that holds the request, never the unit that names the skill. Give the unit that names the skill as the target, and that skill as the link. Not a unit that only says what a skill can do, and not a request for which the reader loads nothing.
+        target: required
+        links: [route-skill]
+        atom:
+          kind: route
+          title: "An ask to \${unit} loads \${link.route-skill.name}"
+          situation: $unit
+          fields: { target: $link.route-skill.name, targetKind: skill, via: pointer, ask: $unit }
+          evidence:
+            - { type: skill_loaded, name: $link.route-skill.name }
+      - name: route-helper
+        description: A unit that is the request itself, in the words of a user, for which the reader dispatches a helper agent, such as the request cell of a routing table. Label the unit that holds the request, never the unit that names the helper. Give the unit that names the helper as the target, and that helper as the link. Not a unit that only says what a helper can do, and not a request for which the reader dispatches nothing.
+        target: required
+        links: [route-helper]
+        atom:
+          kind: route
+          title: "An ask to \${unit} dispatches \${link.route-helper.name}"
+          situation: $unit
+          fields: { target: $link.route-helper.name, targetKind: subagent, via: pointer, ask: $unit }
+          evidence:
+            - { type: tool_called, label: Agent, input: { subagent_type: $link.route-helper.name } }
+      - name: condition
+        description: A unit that only says when another unit applies, such as a circumstance, a state of the world or a kind of request, and tells the reader nothing to do by itself. A unit that starts with a circumstance but also tells the reader to do something is not a condition. Give the unit it scopes as the target.
         target: required
         condition: true
       - name: example

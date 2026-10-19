@@ -1102,9 +1102,9 @@ On the fixture estate:
 
 ```
 $ pnpm -s driftbench estate scan examples/estates/fixture --no-model --out _captures/docs3/cli/estate-map.yaml
-Wrote _captures/docs3/cli/estate-map.yaml: 53 atoms (53 read by code and approved, 0 split from prose by the model and waiting for approval), 41 edges.
+Wrote _captures/docs3/cli/estate-map.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 35 edges.
   Atoms per kind:
-    route       13
+    route        7
     skill        4
     script       2
     subagent     3
@@ -1123,27 +1123,29 @@ Wrote _captures/docs3/cli/estate-map.yaml: 53 atoms (53 read by code and approve
   Refused: none.
   Ignored: none.
   Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/matching-rules.md, .claude/skills/invoice-reconcile/references/old-tolerances.md, .claude/skills/shipment-tracker/data/shipments.txt, .claude/skills/weekly-report/templates/report.md, .claude/steps.json.
-  Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
+  Unreachable from the standing instructions: .claude/agents/inbox-triager.md, .claude/agents/ledger-auditor.md, .claude/agents/route-planner.md, .claude/skills/invoice-reconcile/SKILL.md, .claude/skills/invoice-reconcile/scripts/reconcile.py, .claude/skills/shipment-tracker/SKILL.md, .claude/skills/shipment-tracker/scripts/check-carrier.sh, .claude/skills/shipment-tracker/scripts/track.sh, .claude/skills/supplier-email/SKILL.md, .claude/skills/weekly-report/SKILL.md.
   Unenforced: 0 of 0 rules have no guard.
 Next: driftbench estate lint _captures/docs3/cli/estate-map.yaml; driftbench estate approve _captures/docs3/cli/estate-map.yaml --kind instruction
 ```
 
 ```
 $ pnpm -s driftbench estate lint examples/estates/fixture/approved.yaml
-examples/estates/fixture/approved.yaml: estate at examples/estates/fixture, 122 atoms.
+examples/estates/fixture/approved.yaml: estate at examples/estates/fixture, 125 atoms.
+  ORPHAN             .claude/skills/invoice-reconcile/references/currency-table.md: nothing in the estate names this file
   ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
   UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
-  MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:13 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
+  MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:12 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
   UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
   REGISTRY_ROW       the guard reply-length.py has no row in the check registry
   REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
-  UNENFORCED  51 rules no guard enforces (trusted; listed by estate scan).
-6 findings.
+  UNENFORCED  57 rules no guard enforces (trusted; listed by estate scan).
+  EXTERNAL    0 named paths outside the estate (information).
+7 findings.
 ```
 
 ```
 $ pnpm -s driftbench estate plan approve examples/estates/fixture/plan.yaml
-examples/estates/fixture/plan.yaml: 1338 rows, 1338 proposed, 0 approved, 0 struck.
+examples/estates/fixture/plan.yaml: 1597 rows, 1597 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 ```
 

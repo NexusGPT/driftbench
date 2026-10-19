@@ -33,15 +33,15 @@ describe('the estate map file', () => {
   it('refuses a map whose quote was edited, and accepts one whose approval was', async () => {
     const text = renderEstateMap((await scanFixture()).map);
     const quoteEdited = text.replace(
-      'quote: "**R9.** Ask at most one question per reply."',
-      'quote: "**R9.** Ask at most two questions per reply."',
+      'quote: "**R1.** Always answer in the language of the user\'s latest message."',
+      'quote: "**R1.** Always answer in the language of the user\'s first message."',
     );
     expect(quoteEdited).not.toBe(text);
     const refused = parseEstateMapText(quoteEdited);
     expect(refused.ok ? [] : refused.errors.map((error) => [error.code, error.path])).toEqual([
       [
         'MAP_HASH',
-        `atoms.${(await scanFixture()).map.atoms.findIndex((atom) => atom.id === 'instruction.standing.r9-ask-at-most-one-question')}.provenance`,
+        `atoms.${(await scanFixture()).map.atoms.findIndex((atom) => atom.id === 'register.standing.r1-always-answer-in-the-language')}.provenance`,
       ],
     ]);
     const flagged = text.replace(/approved: false/, 'approved: true');
@@ -69,17 +69,21 @@ describe('the estate map file', () => {
     expect(quoteDrift(map.atoms, texts)).toEqual([]);
     texts.set(
       'CLAUDE.md',
-      (texts.get('CLAUDE.md') ?? '').replace('Ask at most one question per reply.', 'Ask freely.'),
+      (texts.get('CLAUDE.md') ?? '').replace(
+        "Always answer in the language of the user's latest message.",
+        'Answer freely.',
+      ),
     );
     texts.delete('.claude/agents/inbox-triager.md');
     const drift = quoteDrift(map.atoms, texts);
     expect(drift.map((issue) => issue.message.split(':')[0])).toEqual([
       'subagent.inbox-triager.helper-inbox-triager',
       'route.inbox-triager.an-ask-that-fits-inbox-triager',
+      'register.inbox-triager.haiku',
       'instruction.inbox-triager.you-sort-messages-into-three-folders',
       'instruction.inbox-triager.a-message-that-fits-none-goes',
       'instruction.inbox-triager.never-answer-a-message-yourself-and',
-      'instruction.standing.r9-ask-at-most-one-question',
+      'register.standing.r1-always-answer-in-the-language',
     ]);
   });
 });
@@ -89,16 +93,16 @@ describe('approval', () => {
     const text = renderEstateMap((await scanFixture()).map);
     const result = approveAtoms(text, { kinds: ['register'] });
     if (!result.ok) throw new Error(JSON.stringify(result.errors));
-    expect(result.approved).toHaveLength(11);
+    expect(result.approved).toHaveLength(13);
     expect(result.already).toBe(0);
     expect(result.text.split('\n').slice(0, 6)).toEqual(text.split('\n').slice(0, 6));
     const parsed = parseEstateMapText(result.text);
     if (!parsed.ok) throw new Error('invalid');
     const pending = parsed.map.atoms.filter((atom) => !atom.approved);
     expect(new Set(pending.map((atom) => atom.kind))).toEqual(
-      new Set(['instruction', 'gate', 'reference', 'hazard']),
+      new Set(['instruction', 'gate', 'reference', 'hazard', 'route']),
     );
-    expect(pending).toHaveLength(61);
+    expect(pending).toHaveLength(65);
   });
 
   it('approves named atoms, or all, and counts what was already approved', async () => {
@@ -106,7 +110,7 @@ describe('approval', () => {
     const one = approveAtoms(text, { ids: ['instruction.standing.r3-read-a-file-before-you'] });
     expect(one.ok ? one.approved : []).toEqual(['instruction.standing.r3-read-a-file-before-you']);
     const all = approveAtoms(one.ok ? one.text : text, { all: true });
-    expect(all.ok ? [all.approved.length, all.already] : []).toEqual([71, 54]);
+    expect(all.ok ? [all.approved.length, all.already] : []).toEqual([77, 48]);
   });
 
   it('refuses an unknown kind or atom, and approves nothing', async () => {
@@ -152,14 +156,14 @@ describe('the space map of an estate', () => {
       all.dimensions.slice(ESTATE_AXES.length).map((d) => [d.id, d.values.length]),
     );
     expect(sizes).toEqual({
-      'atoms.instruction': 46,
-      'atoms.gate': 5,
+      'atoms.instruction': 45,
+      'atoms.gate': 4,
       'atoms.route': 13,
       'atoms.skill': 4,
       'atoms.subagent': 3,
       'atoms.guard': 6,
       'atoms.stage': 5,
-      'atoms.register': 11,
+      'atoms.register': 13,
     });
   });
 

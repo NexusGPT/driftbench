@@ -46,12 +46,9 @@ describe('the committed reader-cases outputs', () => {
       result.findings
         .filter((finding) => !INFORMATION.has(finding.code))
         .map((finding) => [finding.code, finding.subject]),
-      // The labelers left two sentences that name a file unlabeled (no label had two runs out of three), so the
-      // two files stay unnamed: the one finding is the one an unread file gives.
-    ).toEqual([
-      ['ORPHAN', '.claude/skills/parcel-claims/references/notes.md'],
-      ['ORPHAN', '.claude/skills/parcel-claims/references/supplier-languages.md'],
-    ]);
+      // The recorded labelers gave the sentence that names processes.json no reference, so the file is unnamed:
+      // the one finding is the one an unread file gives.
+    ).toEqual([['ORPHAN', '.claude/processes.json']]);
     expect(
       map.atoms.find((atom) => atom.id === 'reference.shipment-tracker.read-notes-md')?.fields,
     ).toMatchObject({

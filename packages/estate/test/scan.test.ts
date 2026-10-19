@@ -178,7 +178,7 @@ describe('code atoms', () => {
     for (const atom of result.map.atoms) counts[atom.kind] = (counts[atom.kind] ?? 0) + 1;
     expect(counts).toEqual({
       skill: 4,
-      route: 13,
+      route: 7,
       subagent: 3,
       guard: 6,
       tool: 12,
@@ -187,7 +187,8 @@ describe('code atoms', () => {
       script: 2,
       invariant: 4,
     });
-    // Without a model or a pointer reader no prose atom exists: every atom is read by code and approved.
+    // Without a model or a pointer reader no prose atom exists: every atom is read by code and approved. The
+    // seven routes are the descriptions of the skills and helpers; the routing table of CLAUDE.md gives none.
     expect(result.map.atoms.every((atom) => atom.producedBy === 'code' && atom.approved)).toBe(true);
     expect(result.map.atoms.some((atom) => atom.kind === 'instruction' || atom.kind === 'register')).toBe(
       false,
@@ -202,7 +203,6 @@ describe('code atoms', () => {
     expect(references.map((atom) => [atom.fields?.path, atom.fields?.exists])).toEqual([
       ['.claude/memory/supplier-languages.md', true],
       ['.claude/skills/invoice-reconcile/references/matching-rules.md', true],
-      ['.claude/skills/invoice-reconcile/references/currency-table.md', true],
       ['.claude/skills/shipment-tracker/data/shipments.txt', true],
       ['.claude/memory/supplier-languages.md', true],
       ['.claude/skills/weekly-report/templates/report.md', true],
@@ -223,10 +223,16 @@ describe('code atoms', () => {
     ]);
   });
 
-  it('reads routes from descriptions and from a routing table', async () => {
-    const { map } = await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW });
-    const table = map.atoms.filter((atom) => atom.kind === 'route' && atom.fields?.via === 'table');
-    expect(table.map((atom) => [atom.fields?.target, atom.evidence[0]])).toEqual([
+  it('reads routes from descriptions by code, and from the routing table by the pointer reader', async () => {
+    const coded = await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW });
+    const inCode = coded.map.atoms.filter((atom) => atom.kind === 'route');
+    expect(inCode.every((atom) => atom.fields?.via === 'description')).toBe(true);
+    expect(inCode).toHaveLength(7);
+    const { map } = await scanFixture();
+    const table = map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md');
+    expect(
+      table.map((atom) => [atom.fields?.target, atom.evidence.find((item) => item.type !== 'custom')]),
+    ).toEqual([
       ['invoice-reconcile', { type: 'skill_loaded', name: 'invoice-reconcile' }],
       ['shipment-tracker', { type: 'skill_loaded', name: 'shipment-tracker' }],
       ['supplier-email', { type: 'skill_loaded', name: 'supplier-email' }],
@@ -234,9 +240,7 @@ describe('code atoms', () => {
       ['ledger-auditor', { type: 'tool_called', label: 'Agent', input: { subagent_type: 'ledger-auditor' } }],
       ['route-planner', { type: 'tool_called', label: 'Agent', input: { subagent_type: 'route-planner' } }],
     ]);
-    expect(
-      map.atoms.filter((atom) => atom.kind === 'route' && atom.fields?.via === 'description'),
-    ).toHaveLength(7);
+    expect(table.every((atom) => atom.producedBy === 'model' && atom.fields?.via === 'pointer')).toBe(true);
   });
 
   it('gives each atom a stable id usable as a space value, and a quote that is in its file at its span', async () => {

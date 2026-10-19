@@ -70,7 +70,11 @@ it('does not replay reads or commands absent from the current skill body', async
 });
 
 it('replays an unchanged recording only through an explicit manifest', async () => {
-  const work = await estate('invoice-audit', 'Report what can be checked.');
+  // The manifest plays the read-first recording while the estate still holds the rule the recording follows.
+  const work = await estate(
+    'invoice-reconcile',
+    'Read `references/matching-rules.md` before matching any line.',
+  );
   const manifest = join(ESTATE, 'live/fake/manifest.json');
   const recorded = (await readFile(join(ESTATE, 'live/fake/streams/invoice-match.jsonl'), 'utf8'))
     .trim()

@@ -132,8 +132,12 @@ export type PointerResult = {
   recorded: number;
 };
 
-/** Heading-bounded runs of units (a window ends where the next top-level heading starts), capped by unit count. */
-export function windowsOf(path: string, units: readonly Unit[], size: number): Window[] {
+/**
+ * Heading-bounded runs of units (a window ends where the next top-level heading starts), capped by unit count.
+ * With the source text, the cap never ends a window inside a table row: a label that points from one cell to
+ * the next needs both in the window.
+ */
+export function windowsOf(path: string, units: readonly Unit[], size: number, source?: string): Window[] {
   const windows: Window[] = [];
   let current: Window['units'] = [];
   let first: Unit | undefined;
@@ -154,7 +158,13 @@ export function windowsOf(path: string, units: readonly Unit[], size: number): W
     if (unit.container === 'heading' && unit.path.length === 0 && current.length > 0) flush();
     first ??= unit;
     current.push({ n: current.length + 1, text: unit.text, index });
-    if (current.length >= size) flush();
+    const next = units[index + 1];
+    const sameRow =
+      source !== undefined &&
+      unit.container === 'table_cell' &&
+      next?.container === 'table_cell' &&
+      !source.slice(unit.end, next.start).includes('\n');
+    if (current.length >= size && !sameRow) flush();
   }
   flush();
   return windows;
@@ -289,7 +299,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
       const want = needed.get(`${file.path}\0${set.set}`) as Set<number>;
       if (want.size === 0) continue;
       for (const [memberAt, member] of labelling.members.entries()) {
-        for (const window of windowsOf(file.path, fileCut.units, member.maxUnits(set, size))) {
+        for (const window of windowsOf(file.path, fileCut.units, member.maxUnits(set, size), file.text)) {
           if (!window.units.some((unit) => want.has(unit.index))) continue;
           for (let run = 1; run <= (member.runs ?? 1); run++) {
             tasks.push({
@@ -498,7 +508,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     const unanimous = present.length === given.length && tally.size === 1;
     const majority = [...tally.values()].find((group) => group.length * 2 > given.length);
     const winners = unanimous ? present : majority;
-    if (!winners || !winners[0]) {
+    if (!winners?.[0]) {
       if (present.length === given.length) split++;
       return undefined;
     }

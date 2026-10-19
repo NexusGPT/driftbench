@@ -3,13 +3,13 @@
   "map": {
     "path": "../approved.yaml",
     "runtime": "claude-code",
-    "hash": "42a937ef55f1587407513d5d633726502fd42058c1211c576c74356860b1a117",
+    "hash": "b8d6f2e92049c019eaa2b9e631958c28a38d6453d5b6c01fa8476f5c94a6f727",
     "atoms": 125
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1589,
-    "approved": 1589,
+    "rows": 1597,
+    "approved": 1597,
     "proposed": 0,
     "struck": 0
   },
@@ -42,37 +42,13 @@
     "judge": true
   },
   "summary": {
-    "specs": 1582,
-    "blocks": 1577,
-    "complete": 1553,
-    "incomplete": 29,
-    "judged": 957
+    "specs": 1590,
+    "blocks": 1585,
+    "complete": 1576,
+    "incomplete": 14,
+    "judged": 981
   },
   "incomplete": [
-    {
-      "spec": "estate.ordered_pair.gate.standing.read-claude-memory-memory-md-before",
-      "path": "incomplete/live/ordered_pair/estate.ordered_pair.gate.standing.read-claude-memory-memory-md-before.yaml",
-      "row": "ordered_pair.gate.standing.read-claude-memory-memory-md-before",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.skip_pressure.gate.standing.read-claude-memory-memory-md-before",
-      "path": "incomplete/live/skip_pressure/estate.skip_pressure.gate.standing.read-claude-memory-memory-md-before.yaml",
-      "row": "skip_pressure.gate.standing.read-claude-memory-memory-md-before",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
     {
       "spec": "estate.guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh",
       "path": "incomplete/unit/guard_negative/estate.guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml",
@@ -98,302 +74,146 @@
       ]
     },
     {
-      "spec": "estate.pairwise.0013",
-      "path": "incomplete/live/guard_positive/estate.pairwise.0013.yaml",
-      "row": "pairwise.0013",
+      "spec": "estate.pairwise.0085",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0085.yaml",
+      "row": "pairwise.0085",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     },
     {
-      "spec": "estate.pairwise.0080",
-      "path": "incomplete/live/guard_positive/estate.pairwise.0080.yaml",
-      "row": "pairwise.0080",
+      "spec": "estate.pairwise.0234",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0234.yaml",
+      "row": "pairwise.0234",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     },
     {
-      "spec": "estate.pairwise.0137",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0137.yaml",
-      "row": "pairwise.0137",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0158",
-      "path": "incomplete/live/guard_positive/estate.pairwise.0158.yaml",
-      "row": "pairwise.0158",
+      "spec": "estate.pairwise.0317",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0317.yaml",
+      "row": "pairwise.0317",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     },
     {
-      "spec": "estate.pairwise.0215",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0215.yaml",
-      "row": "pairwise.0215",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0299",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0299.yaml",
-      "row": "pairwise.0299",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0380",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0380.yaml",
-      "row": "pairwise.0380",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0400",
-      "path": "incomplete/live/guard_positive/estate.pairwise.0400.yaml",
-      "row": "pairwise.0400",
+      "spec": "estate.pairwise.0399",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0399.yaml",
+      "row": "pairwise.0399",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     },
     {
-      "spec": "estate.pairwise.0458",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0458.yaml",
-      "row": "pairwise.0458",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0537",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0537.yaml",
-      "row": "pairwise.0537",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0557",
-      "path": "incomplete/live/guard_positive/estate.pairwise.0557.yaml",
-      "row": "pairwise.0557",
+      "spec": "estate.pairwise.0477",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0477.yaml",
+      "row": "pairwise.0477",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     },
     {
-      "spec": "estate.pairwise.0613",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0613.yaml",
-      "row": "pairwise.0613",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0636",
-      "path": "incomplete/live/guard_positive/estate.pairwise.0636.yaml",
-      "row": "pairwise.0636",
+      "spec": "estate.pairwise.0634",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0634.yaml",
+      "row": "pairwise.0634",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     },
     {
-      "spec": "estate.pairwise.0660",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0660.yaml",
-      "row": "pairwise.0660",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0663",
-      "path": "incomplete/live/guard_positive/estate.pairwise.0663.yaml",
-      "row": "pairwise.0663",
+      "spec": "estate.pairwise.0671",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0671.yaml",
+      "row": "pairwise.0671",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     },
     {
-      "spec": "estate.pairwise.0908",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0908.yaml",
-      "row": "pairwise.0908",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0943",
-      "path": "incomplete/live/guard_positive/estate.pairwise.0943.yaml",
-      "row": "pairwise.0943",
+      "spec": "estate.pairwise.0810",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0810.yaml",
+      "row": "pairwise.0810",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     },
     {
-      "spec": "estate.pairwise.0976",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.0976.yaml",
-      "row": "pairwise.0976",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.0988",
-      "path": "incomplete/live/guard_positive/estate.pairwise.0988.yaml",
-      "row": "pairwise.0988",
+      "spec": "estate.pairwise.0847",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0847.yaml",
+      "row": "pairwise.0847",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     },
     {
-      "spec": "estate.pairwise.1017",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.1017.yaml",
-      "row": "pairwise.1017",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.1029",
-      "path": "incomplete/live/guard_positive/estate.pairwise.1029.yaml",
-      "row": "pairwise.1029",
+      "spec": "estate.pairwise.0915",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0915.yaml",
+      "row": "pairwise.0915",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     },
     {
-      "spec": "estate.pairwise.1050",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.1050.yaml",
-      "row": "pairwise.1050",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.1060",
-      "path": "incomplete/live/guard_positive/estate.pairwise.1060.yaml",
-      "row": "pairwise.1060",
+      "spec": "estate.pairwise.0987",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0987.yaml",
+      "row": "pairwise.0987",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     },
     {
-      "spec": "estate.pairwise.1091",
-      "path": "incomplete/live/guard_positive/estate.pairwise.1091.yaml",
-      "row": "pairwise.1091",
+      "spec": "estate.pairwise.1058",
+      "path": "incomplete/live/guard_positive/estate.pairwise.1058.yaml",
+      "row": "pairwise.1058",
       "reasons": [
         {
           "marker": "needs-askable-act",
           "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
-          "detail": "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
-        }
-      ]
-    },
-    {
-      "spec": "estate.pairwise.1119",
-      "path": "incomplete/live/ordered_pair/estate.pairwise.1119.yaml",
-      "row": "pairwise.1119",
-      "reasons": [
-        {
-          "marker": "needs-askable-act",
-          "atom": "gate.standing.read-claude-memory-memory-md-before",
-          "detail": "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
+          "detail": "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\""
         }
       ]
     }
@@ -482,17 +302,17 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9816687737041719,
-    "askedTests": 1545,
-    "distinctAsks": 114,
-    "distinctAsksPer100": 7.378640776699029
+    "completeShare": 0.9911949685534591,
+    "askedTests": 1568,
+    "distinctAsks": 111,
+    "distinctAsksPer100": 7.079081632653061
   },
   "unit": {
-    "tests": 26,
+    "tests": 23,
     "guards": 6,
     "scripts": 2,
     "helpers": 3,
-    "cases": 50,
+    "cases": 45,
     "checks": {
       "tested": 0,
       "needsTrigger": 0,
@@ -501,57 +321,60 @@
     "skipped": [
       "unit.guard_positive.guard.settings.pretooluse-edit-write-guard-read-before: guard.settings.pretooluse-edit-write-guard-read-before enforces no rule whose quote gives material for a payload",
       "unit.guard_hostile.guard.settings.pretooluse-edit-write-guard-read-before: guard.settings.pretooluse-edit-write-guard-read-before enforces no rule whose quote gives material for a payload",
-      "unit.guard_speed.guard.settings.pretooluse-edit-write-guard-read-before: guard.settings.pretooluse-edit-write-guard-read-before enforces no rule whose quote gives material for a payload"
+      "unit.guard_speed.guard.settings.pretooluse-edit-write-guard-read-before: guard.settings.pretooluse-edit-write-guard-read-before enforces no rule whose quote gives material for a payload",
+      "unit.guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh: guard.settings.userpromptsubmit-guard-stop-word-sh enforces no rule whose quote gives material for a payload",
+      "unit.guard_hostile.guard.settings.userpromptsubmit-guard-stop-word-sh: guard.settings.userpromptsubmit-guard-stop-word-sh enforces no rule whose quote gives material for a payload",
+      "unit.guard_speed.guard.settings.userpromptsubmit-guard-stop-word-sh: guard.settings.userpromptsubmit-guard-stop-word-sh enforces no rule whose quote gives material for a payload"
     ]
   },
   "sources": {
     "asks": {
-      "bank": 429,
-      "code": 1110,
+      "bank": 430,
+      "code": 1132,
       "session": 6,
       "none": 8
     },
     "outcomes": {
       "bank": 954,
       "no-change:guard": 26,
-      "no-change:negative": 59,
-      "no-change:read-only": 147,
-      "no-delete": 359,
+      "no-change:negative": 58,
+      "no-change:read-only": 137,
+      "no-delete": 393,
       "static": 8
     },
-    "judged": 736
+    "judged": 720
   },
   "focus": null,
   "perTestType": {
     "obligation": {
-      "rows": 644,
-      "specs": 644,
-      "complete": 644,
+      "rows": 630,
+      "specs": 630,
+      "complete": 630,
       "incomplete": 0
     },
     "outside_trigger": {
-      "rows": 46,
-      "specs": 46,
-      "complete": 46,
+      "rows": 45,
+      "specs": 45,
+      "complete": 45,
       "incomplete": 0
     },
     "twin": {
-      "rows": 46,
-      "specs": 46,
-      "complete": 46,
+      "rows": 45,
+      "specs": 45,
+      "complete": 45,
       "incomplete": 0
     },
     "ordered_pair": {
-      "rows": 70,
-      "specs": 70,
+      "rows": 56,
+      "specs": 56,
       "complete": 56,
-      "incomplete": 14
+      "incomplete": 0
     },
     "skip_pressure": {
-      "rows": 5,
-      "specs": 5,
+      "rows": 4,
+      "specs": 4,
       "complete": 4,
-      "incomplete": 1
+      "incomplete": 0
     },
     "route_positive": {
       "rows": 260,
@@ -572,9 +395,9 @@
       "incomplete": 0
     },
     "read_when": {
-      "rows": 8,
-      "specs": 8,
-      "complete": 8,
+      "rows": 7,
+      "specs": 7,
+      "complete": 7,
       "incomplete": 0
     },
     "script_fixture": {
@@ -662,15 +485,15 @@
       "incomplete": 0
     },
     "register_sample": {
-      "rows": 220,
-      "specs": 220,
-      "complete": 220,
+      "rows": 260,
+      "specs": 260,
+      "complete": 260,
       "incomplete": 0
     },
     "hazard_recovery": {
-      "rows": 1,
-      "specs": 1,
-      "complete": 1,
+      "rows": 2,
+      "specs": 2,
+      "complete": 2,
       "incomplete": 0
     },
     "invariant": {
@@ -686,9 +509,9 @@
       "incomplete": 0
     },
     "journey": {
-      "rows": 11,
-      "specs": 11,
-      "complete": 11,
+      "rows": 10,
+      "specs": 10,
+      "complete": 10,
       "incomplete": 0
     }
   },
@@ -706,26 +529,24 @@
       "incomplete": 2
     },
     "live": {
-      "rows": 1546,
-      "specs": 1539,
-      "complete": 1512,
-      "incomplete": 27
+      "rows": 1554,
+      "specs": 1547,
+      "complete": 1535,
+      "incomplete": 12
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 29,
+      "specs": 14,
       "atoms": [
-        "gate.standing.read-claude-memory-memory-md-before",
         "guard.settings.stop-guard-reply-length-py",
         "guard.settings.userpromptsubmit-guard-stop-word-sh"
       ],
       "details": [
-        "no task in the atom's words (gate.standing.read-claude-memory-memory-md-before (title)): the atom's words: it describes the unit, and names no task the user wants done",
         "no task in the atom's words (guard.settings.stop-guard-reply-length-py (rule)): the guard documents no rule or watched act to come near",
-        "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the guard documents no rule or watched act to come near",
-        "no task in the atom's words (instruction.standing.r10-when-the-user-says-stop (enforced by guard.settings.userpromptsubmit-guard-stop-word-sh)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+        "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the guard documents no rule or watched act to come near"
       ]
     }
   ],

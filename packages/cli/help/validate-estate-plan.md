@@ -128,34 +128,34 @@ driftbench estate plan examples/estates/fixture/approved.yaml --out plan-t3.yaml
 ```
 
 ```text
-Wrote plan.yaml: 1051 rows (369 from the contract, 11 journeys, 671 pairwise), all proposed. Summary in plan.summary.json.
-  Cells: 906 (a cell is the atoms of a row crossed with its situation values).
-  Covering array: 671 rows, t = 2, 3577 of 3577 allowed 2-tuples covered; the full grid of 1861879219200 cells is never enumerated.
+Wrote plan.yaml: 1058 rows (378 from the contract, 10 journeys, 670 pairwise), all proposed. Summary in plan.summary.json.
+  Cells: 915 (a cell is the atoms of a row crossed with its situation values).
+  Covering array: 670 rows, t = 2, 3571 of 3571 allowed 2-tuples covered; the full grid of 1722054297600 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
-    instruction   138
+    instruction   135
     gate           10
     route          65
-    skill         135
-    reference       8
+    skill         127
+    reference       7
     script          2
-    subagent       78
+    subagent       88
     guard          30
     tool           12
     setting         4
     stage           9
-    register       77
-    hazard          1
+    register       91
+    hazard          2
     invariant       4
   Rows per test type (contract, journeys and pairwise together):
-    obligation        385
-    outside_trigger    46
-    twin               46
-    ordered_pair       40
-    skip_pressure       5
+    obligation        373
+    outside_trigger    45
+    twin               45
+    ordered_pair       32
+    skip_pressure       4
     route_positive    160
     route_near_miss    13
     misroute           13
-    read_when           8
+    read_when           7
     script_fixture      2
     dispatch           24
     contract_alone      3
@@ -167,16 +167,16 @@ Wrote plan.yaml: 1051 rows (369 from the contract, 11 journeys, 671 pairwise), a
     guard_register      6
     tool_boundary       9
     tool_denied         3
-    stage_order        40
+    stage_order        41
     stage_skip          4
     stage_anytime       1
-    register_sample   154
-    hazard_recovery     1
+    register_sample   184
+    hazard_recovery     2
     invariant           4
     setting             4
-    journey            11
-  Unenforced: 56 approved rules no guard enforces.
-  Cells with no approved phrase: 906 of 906.
+    journey            10
+  Unenforced: 57 approved rules no guard enforces.
+  Cells with no approved phrase: 915 of 915.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
@@ -197,10 +197,10 @@ Wrote plan.yaml: 1051 rows (369 from the contract, 11 journeys, 671 pairwise), a
   estate_hazard=process_restart: no relevant target identified in the estate's declared text or evidence; relevance is unresolved, so the declared combinations are retained.
     and 2 more, all in plan.summary.json under "notes".
 Next: driftbench estate plan approve plan.yaml --all, or strike rows with --row <id> --strike
-plan.yaml: 1051 rows, 1051 proposed, 0 approved, 0 struck.
+plan.yaml: 1058 rows, 1058 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 Struck 1 row in plan.yaml; 0 were already struck.
-Approved 1050 rows in plan.yaml; 0 were already approved.
+Approved 1057 rows in plan.yaml; 0 were already approved.
 ✗ plan.yaml
   (file)  PLAN_UNKNOWN_ROW  row "nosuch" is not in the plan
 plan.yaml already exists: pass --force to replace it (the approvals in it are lost).

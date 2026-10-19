@@ -54,12 +54,17 @@ describe('the fixture through its committed cassettes', () => {
     const { result, cassette } = await replay();
     expect(result.pointer?.calls).toBe(0);
     expect(result.pointer?.failed).toEqual([]);
-    // The recorded labeller gave three answers the checks refuse (a span no unit holds, a condition with no
-    // usable target): each is counted.
-    expect(result.pointer?.refusals.length).toBe(3);
+    // The recorded labeller gave answers the checks refuse (a span no unit holds, a condition or a route with
+    // no usable target, a gate that names no file): each run's refusal is counted, and the vote of the other
+    // runs still decides the unit.
+    expect(result.pointer?.refusals.length).toBe(5);
+    expect(
+      result.pointer?.refusals.filter((line) => line.includes('needs a target unit inside the window'))
+        .length,
+    ).toBeGreaterThan(0);
     // A unit is decided, or left unlabeled because no label had two runs out of three.
     expect(result.pointer?.unlabeled).toBeGreaterThan(0);
-    expect(result.pointer?.split).toBeGreaterThan(0);
+    expect(result.pointer?.voted).toBeGreaterThan(0);
     expect((result.pointer?.decided ?? 0) + (result.pointer?.unlabeled ?? 0)).toBe(
       result.pointer?.plan.units,
     );

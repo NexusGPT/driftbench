@@ -33,12 +33,12 @@ describe('driftbench estate unit on the Northwind suite', () => {
 
     const unrecorded = await run(['estate', 'unit', tests, '--estate', FIXTURE]);
     expect(unrecorded.code).toBe(2);
-    expect(unrecorded.out).toContain('2 of 26 unit tests pass, 0 fail, 0 inert, 24 unrecorded');
+    expect(unrecorded.out).toContain('2 of 23 unit tests pass, 0 fail, 0 inert, 21 unrecorded');
 
     const recorded = await run(['estate', 'unit', tests, '--estate', FIXTURE, '--record']);
     expect(recorded.err).toBe('');
     expect(recorded.code).toBe(0);
-    expect(recorded.out).toContain('Recorded 26 unit tests');
+    expect(recorded.out).toContain('Recorded 23 unit tests');
     const file = join(
       tests,
       'guard_positive/unit.guard_positive.guard.settings.pretooluse-bash-guard-block-force-push.json',
@@ -51,7 +51,7 @@ describe('driftbench estate unit on the Northwind suite', () => {
     expect(again.code).toBe(0);
     const contract = JSON.parse(again.out);
     expect(Object.keys(contract)).toEqual(['runs', 'guards', 'scripts']);
-    expect(contract.runs).toHaveLength(26);
+    expect(contract.runs).toHaveLength(23);
     for (const entry of contract.runs) {
       expect(Object.keys(entry)).toEqual(['spec', 'pass', 'failing']);
       expect([entry.pass, entry.failing]).toEqual([true, []]);

@@ -153,38 +153,38 @@ The waiting run, the end of the `suite` run, the refusal, the gaps of the `--no-
 tests and the last line of the lint:
 
 ```text
-Plan ../plan.yaml: 1051 rows, 0 approved, 1051 waiting, 0 struck.
-Waiting for approval: 1051 rows.
+Plan ../plan.yaml: 1058 rows, 0 approved, 1058 waiting, 0 struck.
+Waiting for approval: 1058 rows.
 Wrote 2 files to waiting.
-register_sample      154    154       154           0
-hazard_recovery        1      1         1           0
+register_sample      184    184       184           0
+hazard_recovery        2      2         2           0
 invariant              4      4         4           0
 setting                4      4         4           0
-journey               11     11        11           0
-total                      1044      1026          18
+journey               10     10        10           0
+total                      1051      1042           9
 
-Asks of the complete specs: 306 approved phrases, 706 written by code, 6 recorded sessions, 8 with no ask.
-Judged by a criterion from the rule's own words (no code checks it): 477 complete specs.
-Outcomes of the complete specs: 626 bank, 14 no-change:guard, 59 no-change:negative, 95 no-change:read-only, 224 no-delete, 8 static.
+Asks of the complete specs: 312 approved phrases, 716 written by code, 6 recorded sessions, 8 with no ask.
+Judged by a criterion from the rule's own words (no code checks it): 463 complete specs.
+Outcomes of the complete specs: 627 bank, 14 no-change:guard, 58 no-change:negative, 90 no-change:read-only, 245 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
-Unit tests: 26 in unit/ (6 guards, 2 scripts, 3 helpers, 50 cases), run by driftbench estate unit: --record on the original first, then on any copy.
+Unit tests: 23 in unit/ (6 guards, 2 scripts, 3 helpers, 45 cases), run by driftbench estate unit: --record on the original first, then on any copy.
 Catalogue checks: 0 tested through their host hook, 0 need a trigger, 0 need a host hook.
-Complete share: 98.28%; distinct asks: 114 in 1018 complete asked tests (11.20 per 100).
+Complete share: 99.14%; distinct asks: 110 in 1034 complete asked tests (10.64 per 100).
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
-Missing pieces: 18 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
+Missing pieces: 9 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
-  needs-askable-act          18 specs
+  needs-askable-act          9 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
-Wrote 1072 files to suite.
+Wrote 1076 files to suite.
 suite/estate-generate-report.json already exists: an earlier run wrote this folder. Pass --force to replace its output.
 Gaps (what keeps a spec incomplete):
-  needs-approved-phrase      412 specs
-  needs-deviation-phrase     496 specs
+  needs-approved-phrase      418 specs
+  needs-deviation-phrase     489 specs
   needs-second-phrase        2 specs
-  needs-workspace-outcome    410 specs
+  needs-workspace-outcome    416 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
-Wrote 1072 files to strict.
+Wrote 1076 files to strict.
 ✗ estate.invariant.invariant.registry.the-check-registry-lists-every-guard  registry_complete does not hold: {"guardsWithoutRow":["reply-length.py"],"rowsWithoutGuard":["G6"]}
 ✗ estate.invariant.invariant.settings.every-guard-finds-its-script-from  guard_paths_anchored does not hold: {"unanchored":["python3 .claude/guards/ledger-guard.py"]}
 ✗ estate.invariant.invariant.standing.no-file-of-the-estate-is  no_orphans does not hold: {"orphans":[".claude/skills/invoice-reconcile/references/old-tolerances.md"]}
@@ -194,7 +194,7 @@ Wrote 1072 files to strict.
 ✓ estate.setting.setting.settings.setting-model-is-opus  model is opus
 ✓ estate.setting.setting.settings.setting-permissions-defaultmode-is-default  permissions.defaultMode is default
 5 of 8 static tests pass.
-Checked 1018 specs: 1018 valid, 0 invalid, 0 warnings.
+Checked 1034 specs: 1034 valid, 0 invalid, 0 warnings.
 ```
 
 Three static tests fail by design: the Northwind estate carries the planted defects that `estate lint` also
