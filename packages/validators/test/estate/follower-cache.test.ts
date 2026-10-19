@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
 import { genCompleteFamily } from '../../src/ladders/estate/bank/loop';
@@ -8,6 +8,9 @@ import * as pipeline from '../../src/ladders/estate/pipeline';
 import { referenceChecks, referenceRun, required, SUFFIXES, suffix } from './ruling-reference';
 
 const SEEDS = [1, 2, 3, 1_000_000 + (0x88920017 % 1_000_000_000)];
+const PARITY = fileURLToPath(
+  new URL('../../../../validators/estate/FOLLOWER-CACHE-PARITY.json', import.meta.url),
+);
 const cold = (run: pipeline.EstateRun): pipeline.EstateRun => ({
   ...run,
   estate: structuredClone(run.estate),
@@ -53,10 +56,12 @@ describe('estate follower cache dependencies', { timeout: 600_000 }, () => {
         reusedHash: digest(reused),
       });
     }
-    writeFileSync(
-      fileURLToPath(new URL('../../../../validators/estate/FOLLOWER-CACHE-PARITY.json', import.meta.url)),
-      `${JSON.stringify({ seeds: SEEDS, rows }, null, 2)}\n`,
-    );
+    const measured = { seeds: SEEDS, rows };
+    // The committed record is evidence: the test reads it and never rewrites it, so a run leaves the tree clean.
+    // To record a new measurement run with FOLLOWER_PARITY_WRITE=1, then `pnpm exec biome format --write` the file.
+    if (process.env.FOLLOWER_PARITY_WRITE === '1')
+      writeFileSync(PARITY, `${JSON.stringify(measured, null, 2)}\n`);
+    else expect(measured).toEqual(JSON.parse(readFileSync(PARITY, 'utf8')));
   });
 
   it('invalidates every input dependency and never shares a writable observation', async () => {

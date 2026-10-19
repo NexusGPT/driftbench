@@ -154,6 +154,7 @@ export type RunDetail = {
   cacheHit: boolean;
   /** Set on a run carried from an earlier campaign: where it comes from and its age. Absent on a fresh run. */
   carried?: NonNullable<RunResult['carried']>;
+  rejudged?: NonNullable<RunResult['rejudged']>;
   endState?: RunResult['endState'];
   succession: RunResult['succession'];
   recovery?: RunResult['recovery'];
@@ -384,6 +385,7 @@ export function runDetailOf(
     cost: run.cost,
     cacheHit: run.cacheHit,
     ...optional('carried', run.carried),
+    ...optional('rejudged', run.rejudged),
     ...optional('endState', run.endState),
     succession: run.succession,
     ...optional('recovery', measuredRecovery(run)),
