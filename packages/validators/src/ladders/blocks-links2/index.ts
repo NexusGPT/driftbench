@@ -172,13 +172,13 @@ function reference(
   ranked: (section: string) => boolean,
 ): Map<string, number> {
   const weights: Array<{ w: number; sections: string[] }> = [];
-  w.specs.forEach((spec, s) =>
+  w.specs.forEach((spec, s) => {
     spec.blocks.forEach((_, b) => {
       let failed = 0;
       for (let r = 0; r < repeats; r += 1) if (fails(s, b, r)) failed += 1;
       weights.push({ w: failed / repeats, sections: covers(s, b) });
-    }),
-  );
+    });
+  });
   const total = weights.reduce((sum, row) => sum + row.w, 0);
   const out = new Map<string, number>();
   for (const section of (w.registry.sections as Array<{ id: string }>).map((each) => each.id)) {
