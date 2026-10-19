@@ -75,6 +75,25 @@ describe('the frame', () => {
     });
   });
 
+  describe.each(['nestedFrame', 'entrySource', 'childShape', 'uptimePatched'] as const)(
+    'the bypass %s of the review of PR 892',
+    (name) => {
+      it('fails the item under the frame, on every seed', () => {
+        for (const seed of [1, 2, 3]) expect(framed(name, seed).pass).toBe(false);
+      });
+    },
+  );
+
+  describe.each(['shallowStack', 'bareArgv'] as const)('the %s cheat, right in run A only', (name) => {
+    it('is caught as a divergence, so the difference of run B it keys on is pinned', () => {
+      for (const seed of [1, 2, 3]) {
+        const result = framed(name, seed);
+        expect(result.pass).toBe(false);
+        expect(result.divergence).toMatch(/run B/);
+      }
+    });
+  });
+
   it('names the call whose answers differ between the two runs', () => {
     const { divergence } = framed('env', 1);
     expect(divergence).toMatch(/^env\(/);

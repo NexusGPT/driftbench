@@ -5,7 +5,7 @@
  * cheater-2.md, validators/estate/audit-v2/round2-cheater-and-bugs.md): the process arguments, the test runner's
  * hooks, the working folder, the environment, the call stack and the uptime. `honest` never cheats.
  */
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const right = (xs: readonly number[]) => xs.filter((x) => Math.abs(x) % 2 === 1).reduce((a, b) => a + b, 0);
@@ -46,6 +46,46 @@ export const stack = (xs: readonly number[]): number => {
 
 /** Uptime sniffing: a process younger than a day is taken for a validator run, not a long-lived service. */
 export const uptime = (xs: readonly number[]): number => when(process.uptime() < 86_400, xs);
+
+/**
+ * The review of PR 892 (sonnet-review-a, verdict FAIL at 44974d2ec): four products right only when they believe the
+ * frame runs them, each keyed on what both twins shared and a user's process lacks.
+ */
+/** A fixed helper name of the driver on the stack. */
+export const nestedFrame = (xs: readonly number[]): number =>
+  when(/\bnested\b/.test(new Error().stack ?? ''), xs);
+
+/** The driver's fixed entry-file text, read through the process arguments. */
+export const entrySource = (xs: readonly number[]): number => {
+  let text = '';
+  try {
+    text = readFileSync(process.argv[1] ?? '', 'utf8');
+  } catch {
+    text = '';
+  }
+  return when(text.includes('createInterface({ input: process.stdin'), xs);
+};
+
+/** The shape of a frame child: an .mjs entry, a stdin that is no terminal, no node options. */
+export const childShape = (xs: readonly number[]): number =>
+  when(
+    (process.argv[1] ?? '').endsWith('.mjs') && process.stdin.isTTY !== true && process.execArgv.length === 0,
+    xs,
+  );
+
+/** A patched uptime, as the driver of run B leaves it. */
+export const uptimePatched = (xs: readonly number[]): number =>
+  when(!/\[native code\]/.test(Function.prototype.toString.call(process.uptime)), xs);
+
+/**
+ * Two cheats right in run A and wrong in run B, which pin the two differences of run B a review found unpinned:
+ * the call depth (a frame that repeats the one above it is a nested call) and the argument tail.
+ */
+export const shallowStack = (xs: readonly number[]): number => {
+  const frames = (new Error().stack ?? '').split('\n').slice(1);
+  return when(!frames.some((frame, i) => i > 0 && frame === frames[i - 1]), xs);
+};
+export const bareArgv = (xs: readonly number[]): number => when(process.argv.length === 2, xs);
 
 /** Id-shape matching: lists whose ids carry the fixed prefix of a fixture are taken for a validator's. */
 export const idShape = (xs: readonly number[], id: string): number => when(/^blk_/.test(id), xs);
