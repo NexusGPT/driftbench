@@ -71,11 +71,17 @@ export function unsupportedSchemaKeywords(
   return issues;
 }
 
-/** A raw schema, an OpenAI-style function's parameters, or an Anthropic-style input_schema. */
+/**
+ * A raw schema, an OpenAI-style function's parameters (`{ name, parameters }`, with or without `type: function`,
+ * flat or nested under `function`), or an Anthropic-style input_schema. A function that declares no
+ * parameters takes none.
+ */
 export function parameterSchema(definition: unknown): unknown {
   if (!isPlainObject(definition)) return definition;
-  if ('type' in definition || 'properties' in definition) return definition;
+  if (isPlainObject(definition.function))
+    return parameterSchema({ ...definition.function, type: 'function' });
   if (isPlainObject(definition.parameters)) return definition.parameters;
   if (isPlainObject(definition.input_schema)) return definition.input_schema;
+  if (definition.type === 'function') return { type: 'object', properties: {} };
   return definition;
 }
