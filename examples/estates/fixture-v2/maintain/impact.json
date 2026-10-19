@@ -1,8 +1,8 @@
 {
   "version": 1,
   "diff": {
-    "old": "1a4e0056ecdc35cfa4a091481a23d4ecc6c2bedaf52fb24c407dbb7e685be405",
-    "new": "28115ad81376f72a46a9311ddacc1d28b11aa364292290393e53103f20ff878d"
+    "old": "7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845",
+    "new": "413ac5407563cd4d7b1680d03643cf668d4947e1e7a54767a19f6415b8c0e3ef"
   },
   "tests": {
     "live": 8,
@@ -78,13 +78,6 @@
   ],
   "new": [
     {
-      "atom": "gate.standing.read-git-status-before-commit-to",
-      "kind": "gate",
-      "title": "Read git status before commit to git",
-      "file": "CLAUDE.md",
-      "line": 22
-    },
-    {
       "atom": "instruction.standing.r18-never-approve-a-credit-note",
       "kind": "instruction",
       "title": "R18. Never approve a credit note above 500.00 EUR without naming the finance lead who agr…",
@@ -110,13 +103,12 @@
     }
   ],
   "unaffected": {
-    "moved": 25,
+    "moved": 23,
     "tests": 3
   },
   "needsPerson": [
     "re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits",
     "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",
-    "approve the tests of the new atom gate.standing.read-git-status-before-commit-to: no test covers it yet",
     "approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet",
     "approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet"
   ]

@@ -388,7 +388,7 @@ describe('estate generate on inputs that do not fit together', () => {
 
   it('finds no situation whose pinned cell value disagrees with the row', () => {
     const stop = {
-      atomIds: ['hazard.standing.r10-when-the-user-says-stop'],
+      atomIds: ['instruction.standing.r10-when-the-user-says-stop'],
       cell: { owner_signal: 'go' },
     };
     expect(findSituation(input.bank, 'trigger', stop)).toBeUndefined();
@@ -467,7 +467,7 @@ describe('the committed suite', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1599);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1631);
     expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
       [],
     );
@@ -479,11 +479,11 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
-      specs: 1592,
-      blocks: 1587,
-      complete: 1578,
-      incomplete: 14,
-      judged: 965,
+      specs: 1624,
+      blocks: 1619,
+      complete: 1595,
+      incomplete: 29,
+      judged: 1000,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);

@@ -4,7 +4,7 @@
 # stay untouched. Northwind Traders, its suppliers, orders and shipments are invented. Fictional data only.
 version: 1
 estate: northwind
-mapHash: 1a4e0056ecdc35cfa4a091481a23d4ecc6c2bedaf52fb24c407dbb7e685be405
+mapHash: 7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845
 
 workspaces:
   - id: northwind-ops
@@ -148,7 +148,7 @@ situations:
       - route.invoice-reconcile.an-ask-that-fits-invoice-reconcile
       - skill.invoice-reconcile.skill-invoice-reconcile
       - script.invoice-reconcile.script-scripts-reconcile-py
-      - gate.invoice-reconcile.read-python3-scripts-reconcile-py-invoice
+      - instruction.invoice-reconcile.run-python3-scripts-reconcile-py-invoice
       - gate.invoice-reconcile.read-references-matching-rules-md-before
       - register.invoice-reconcile.end-with-one-line-per-invoice
     workspace: northwind-ops
@@ -343,7 +343,7 @@ situations:
     cell: { owner_signal: stop }
     atoms:
       - guard.settings.userpromptsubmit-guard-stop-word-sh
-      - hazard.standing.r10-when-the-user-says-stop
+      - instruction.standing.r10-when-the-user-says-stop
     workspace: northwind-ops
     touches: {}
     phrases:
@@ -391,7 +391,7 @@ situations:
     use: trigger
     atoms:
       - register.standing.r1-always-answer-in-the-language
-      - instruction.standing.r9-ask-at-most-one-question
+      - register.standing.r9-ask-at-most-one-question
       - register.standing.keep-every-reply-under-1-200
       - register.standing.lead-with-the-result-in-the
       - register.standing.use-a-bullet-list-for-three

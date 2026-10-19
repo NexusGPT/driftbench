@@ -154,18 +154,18 @@ tests and the last line of the lint:
 
 ```text
 Plan ../plan.yaml: 1060 rows, 0 approved, 1060 waiting, 0 struck.
-Waiting for approval: 1060 rows.
+Waiting for approval: 1076 rows.
 Wrote 2 files to waiting.
-register_sample      183    183       183           0
+register_sample      197    197       197           0
 hazard_recovery        2      2         2           0
 invariant              4      4         4           0
 setting                4      4         4           0
-journey               11     11        11           0
+journey               10     10        10           0
 total                      1053      1044           9
 
 Asks of the complete specs: 299 approved phrases, 731 written by code, 6 recorded sessions, 8 with no ask.
 Judged by a criterion from the rule's own words (no code checks it): 454 complete specs.
-Outcomes of the complete specs: 622 bank, 14 no-change:guard, 57 no-change:negative, 90 no-change:read-only, 253 no-delete, 8 static.
+Outcomes of the complete specs: 627 bank, 14 no-change:guard, 58 no-change:negative, 91 no-change:read-only, 252 no-delete, 8 static.
 Run order: run-order.txt lists the complete specs, focus atoms first, then guards, gates and invariants.
 Static tests: 8 in static/ (invariants and settings), run by driftbench estate static on an estate root.
 Unit tests: 26 in unit/ (6 guards, 2 scripts, 3 helpers, 55 cases), run by driftbench estate unit: --record on the original first, then on any copy.
@@ -174,17 +174,17 @@ Complete share: 99.15%; distinct asks: 114 in 1036 complete asked tests (11.00 p
 Equivalent tests: 7 duplicates grouped; representative specs retain every atom and source plan row with the class count.
 Missing pieces: 9 per-spec reason records in estate-generate-report.json (incomplete[].reasons).
 Gaps (what keeps a spec incomplete):
-  needs-askable-act          9 specs
+  needs-askable-act          19 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
 Wrote 1081 files to suite.
 suite/estate-generate-report.json already exists: an earlier run wrote this folder. Pass --force to replace its output.
 Gaps (what keeps a spec incomplete):
-  needs-approved-phrase      425 specs
-  needs-deviation-phrase     495 specs
+  needs-approved-phrase      435 specs
+  needs-deviation-phrase     496 specs
   needs-second-phrase        2 specs
-  needs-workspace-outcome    423 specs
+  needs-workspace-outcome    433 specs
 Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.
-Wrote 1081 files to strict.
+Wrote 1097 files to strict.
 ✗ estate.invariant.invariant.registry.the-check-registry-lists-every-guard  registry_complete does not hold: {"guardsWithoutRow":["reply-length.py"],"rowsWithoutGuard":["G6"]}
 ✗ estate.invariant.invariant.settings.every-guard-finds-its-script-from  guard_paths_anchored does not hold: {"unanchored":["python3 .claude/guards/ledger-guard.py"]}
 ✗ estate.invariant.invariant.standing.no-file-of-the-estate-is  no_orphans does not hold: {"orphans":[".claude/skills/invoice-reconcile/references/old-tolerances.md"]}
@@ -194,7 +194,7 @@ Wrote 1081 files to strict.
 ✓ estate.setting.setting.settings.setting-model-is-opus  model is opus
 ✓ estate.setting.setting.settings.setting-permissions-defaultmode-is-default  permissions.defaultMode is default
 5 of 8 static tests pass.
-Checked 1036 specs: 1036 valid, 0 invalid, 0 warnings.
+Checked 1042 specs: 1042 valid, 0 invalid, 0 warnings.
 ```
 
 Three static tests fail by design: the Northwind estate carries the planted defects that `estate lint` also

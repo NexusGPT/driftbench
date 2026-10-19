@@ -3,35 +3,21 @@
   "old": {
     "path": "examples/estates/fixture/approved.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-19T06:56:28.540Z",
-    "hash": "1a4e0056ecdc35cfa4a091481a23d4ecc6c2bedaf52fb24c407dbb7e685be405",
-    "atoms": 127,
-    "edges": 53
+    "readAt": "2026-10-19T09:23:40.404Z",
+    "hash": "7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845",
+    "atoms": 126,
+    "edges": 52
   },
   "new": {
     "path": "examples/estates/fixture-v2/map.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-19T06:57:12.712Z",
-    "hash": "28115ad81376f72a46a9311ddacc1d28b11aa364292290393e53103f20ff878d",
-    "atoms": 129,
-    "edges": 54
+    "readAt": "2026-10-19T09:23:59.531Z",
+    "hash": "413ac5407563cd4d7b1680d03643cf668d4947e1e7a54767a19f6415b8c0e3ef",
+    "atoms": 127,
+    "edges": 53
   },
   "atoms": {
     "added": [
-      {
-        "id": "gate.standing.read-git-status-before-commit-to",
-        "kind": "gate",
-        "title": "Read git status before commit to git",
-        "producedBy": "model",
-        "approved": false,
-        "at": {
-          "file": "CLAUDE.md",
-          "startLine": 22,
-          "endLine": 22,
-          "quote": "**R14.** Do not commit to git until you have read the output of `git status`.",
-          "hash": "97b1a2429bd0fbbbc598c96370f0c0acad05c8cd06f89165a881152ff626b0c4"
-        }
-      },
       {
         "id": "instruction.standing.r18-never-approve-a-credit-note",
         "kind": "instruction",
@@ -153,36 +139,6 @@
         }
       },
       {
-        "id": "instruction.standing.r5-before-editing-any-invoice-file",
-        "kind": "instruction",
-        "title": "R5. Before editing any invoice file: Read .claude/skills/invoice-reconcile/references/mat…",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 13,
-          "endLine": 13
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 14,
-          "endLine": 14
-        }
-      },
-      {
-        "id": "reference.standing.read-claude-skills-invoice-reconcile-references",
-        "kind": "reference",
-        "title": "Read .claude/skills/invoice-reconcile/references/matching-rules.md",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 13,
-          "endLine": 13
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 14,
-          "endLine": 14
-        }
-      },
-      {
         "id": "instruction.standing.r6-never-run-git-push-force",
         "kind": "instruction",
         "title": "R6. Never run git push --force on any branch.",
@@ -213,8 +169,8 @@
         }
       },
       {
-        "id": "instruction.standing.r9-ask-at-most-one-question",
-        "kind": "instruction",
+        "id": "register.standing.r9-ask-at-most-one-question",
+        "kind": "register",
         "title": "R9. Ask at most one question per reply.",
         "from": {
           "file": "CLAUDE.md",
@@ -228,8 +184,8 @@
         }
       },
       {
-        "id": "hazard.standing.r10-when-the-user-says-stop",
-        "kind": "hazard",
+        "id": "instruction.standing.r10-when-the-user-says-stop",
+        "kind": "instruction",
         "title": "R10. When the user says \"stop\", stop all work and confirm in one line.",
         "from": {
           "file": "CLAUDE.md",
@@ -470,7 +426,7 @@
       {
         "id": "gate.standing.read-claude-memory-memory-md-before",
         "kind": "gate",
-        "title": "Read .claude/memory/MEMORY.md before start of every session",
+        "title": "Read .claude/memory/MEMORY.md before at the start of every session",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 50,
@@ -503,12 +459,6 @@
         "id": "instruction.standing.r11-never-paste-the-contents-of",
         "kind": "instruction",
         "title": "R11. Never paste the contents of .env or any credential into a reply.",
-        "fields": ["evidence", "fields"]
-      },
-      {
-        "id": "instruction.standing.r13-before-you-dispatch-a-helper",
-        "kind": "instruction",
-        "title": "R13. Before you dispatch a helper agent, write its brief with the task, the files it may…",
         "fields": ["evidence", "fields"]
       },
       {
@@ -589,13 +539,13 @@
     }
   ],
   "summary": {
-    "added": 3,
+    "added": 2,
     "removed": 1,
     "whitespace": 0,
     "semantic": 2,
-    "moved": 25,
-    "restated": 3,
-    "unchanged": 97,
+    "moved": 23,
+    "restated": 2,
+    "unchanged": 99,
     "edgesAdded": 1,
     "edgesRemoved": 0
   }

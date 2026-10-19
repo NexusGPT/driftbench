@@ -4,7 +4,7 @@
   "testType": "guard_negative",
   "atom": "guard.settings.pretooluse-bash-guard-block-force-push",
   "title": "PreToolUse Bash guard block-force-push.sh",
-  "mapHash": "1a4e0056ecdc35cfa4a091481a23d4ecc6c2bedaf52fb24c407dbb7e685be405",
+  "mapHash": "7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845",
   "target": {
     "kind": "guard",
     "name": "block-force-push.sh",

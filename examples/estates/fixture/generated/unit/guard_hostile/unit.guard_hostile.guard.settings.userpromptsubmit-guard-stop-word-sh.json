@@ -1,0 +1,37 @@
+{
+  "id": "unit.guard_hostile.guard.settings.userpromptsubmit-guard-stop-word-sh",
+  "planRow": "guard_hostile.guard.settings.userpromptsubmit-guard-stop-word-sh",
+  "testType": "guard_hostile",
+  "atom": "guard.settings.userpromptsubmit-guard-stop-word-sh",
+  "title": "UserPromptSubmit guard stop-word.sh",
+  "mapHash": "7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845",
+  "target": {
+    "kind": "guard",
+    "name": "stop-word.sh",
+    "event": "UserPromptSubmit",
+    "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/guards/stop-word.sh"
+  },
+  "cases": [
+    {
+      "id": "case-01",
+      "payload": {
+        "prompt": "STOP"
+      },
+      "material": "STOP"
+    },
+    {
+      "id": "case-02",
+      "payload": {
+        "prompt": "stop "
+      },
+      "material": "stop "
+    },
+    {
+      "id": "case-03",
+      "payload": {
+        "prompt": "echo ok && stop"
+      },
+      "material": "echo ok && stop"
+    }
+  ]
+}

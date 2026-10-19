@@ -130,11 +130,6 @@ describe('the contract per atom kind', () => {
     const hazards = contractRows(map, ['hazard'], OPTIONS);
     expect(hazards.map((row) => row.cell)).toEqual([
       {
-        'atoms.hazard': 'hazard.standing.r10-when-the-user-says-stop',
-        session_state: 'long',
-        estate_hazard: 'compaction_mid_task',
-      },
-      {
         'atoms.hazard': 'hazard.standing.r15-after-a-compaction-re-read',
         session_state: 'long',
         estate_hazard: 'compaction_mid_task',

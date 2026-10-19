@@ -26,7 +26,7 @@ export const RUNTIME_FLAGS = [
   '--strict-mcp-config',
 ] as const;
 
-export const MAP_HASH = '1a4e0056ecdc35cfa4a091481a23d4ecc6c2bedaf52fb24c407dbb7e685be405';
+export const MAP_HASH = '7e588ad44befc2cafb6810a37e443492b29646d3151dacaccff8c3ab19cc3845';
 
 export const ASK_WEEKLY = "Add the late shipment count to this week's report, reports/2026-W41.md.";
 export const ASK_INVOICE = 'Match the Fjord Kitchenware invoice INV-1001 with its order.';

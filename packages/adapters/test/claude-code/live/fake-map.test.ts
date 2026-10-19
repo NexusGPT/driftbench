@@ -169,7 +169,7 @@ describe('after a compaction the fake reads again what the hazard atoms of the m
     const dir = await copyOfEstate();
     await compacted(dir, 'aaaa1111-0000-4000-8000-000000000003');
     const map = parse(await readFile(MAP, 'utf8')) as { atoms: Array<Record<string, any>> };
-    const hazard = map.atoms.find((atom) => atom.id === 'hazard.standing.recover-from-a-compaction-of-the');
+    const hazard = map.atoms.find((atom) => atom.id === 'hazard.standing.r15-after-a-compaction-re-read');
     hazard!.fields.reread = ['tracker/open.md'];
     const own = join(dir, 'fake-map.json');
     await writeFile(own, JSON.stringify(map));
@@ -187,7 +187,7 @@ describe('after a compaction the fake reads again what the hazard atoms of the m
 
 describe('what the copy says still decides', () => {
   /** The hazard atom of a compaction, and the quote it holds in the standing file. */
-  const HAZARD = 'hazard.standing.recover-from-a-compaction-of-the';
+  const HAZARD = 'hazard.standing.r15-after-a-compaction-re-read';
   const QUOTE = 'After a compaction, re-read this file';
   async function compactedCopy(id: string) {
     const dir = await copyOfEstate();

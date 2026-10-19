@@ -296,14 +296,14 @@ Wrote structure.yaml: 47 atoms (47 read by code and approved, 0 split from prose
     stage        5
     invariant    4
   No model call: structured atoms only (--no-model).
-Wrote map.yaml: 127 atoms (47 read by code and approved, 80 split from prose by the model and waiting for approval), 53 edges.
+Wrote map.yaml: 126 atoms (47 read by code and approved, 79 split from prose by the model and waiting for approval), 52 edges.
   Atoms per kind:
-    instruction   44  (44 by the model)
+    instruction   45  (45 by the model)
     gate           5  (5 by the model)
     route         13  (6 by the model)
     reference     10  (10 by the model)
-    register      13  (13 by the model)
-    hazard         2  (2 by the model)
+    register      14  (14 by the model)
+    hazard         1  (1 by the model)
   Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
   Units: 151 in 14 files; 0 kept from the ledger, 150 labelled by this run (50 by system 1, 100 by system 2), 1 unlabeled.
   Requests: 73 answered, 0 sent, 0 recorded.
@@ -321,21 +321,21 @@ map.yaml: estate at examples/estates/fixture, 127 atoms.
   UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
   REGISTRY_ROW       the guard reply-length.py has no row in the check registry
   REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
-  UNENFORCED  56 rules no guard enforces (trusted; listed by estate scan).
+  UNENFORCED  58 rules no guard enforces (trusted; listed by estate scan).
   EXTERNAL    0 named paths outside the estate (information).
-6 findings.
+7 findings.
 map.yaml: 80 of 127 atoms wait for approval.
-  instruction: 44
+  instruction: 45
     instruction.inbox-triager.you-sort-messages-into-three-folders  .claude/agents/inbox-triager.md:8  "You sort messages into three folders: invoices, shipments..."
     instruction.inbox-triager.a-message-that-fits-none-goes  .claude/agents/inbox-triager.md:8  "A message that fits none goes to "other"."
 Approve a kind with --kind <kind>, an atom with --atom <id>, or every atom with --all.
-Approved 13 atoms in map.yaml; 0 were already approved.
+Approved 79 atoms in map.yaml; 47 were already approved.
 Approved 67 atoms in approved.yaml; 60 were already approved.
 approved.yaml: all 127 atoms are approved.
 ✗ map.yaml
   (file)  MAP_UNKNOWN_KIND  "nosuch" is not an atom kind: instruction, gate, route, skill, reference, script, subagent, guard, tool, setting, stage, register, hazard, invariant
 Wrote space.yaml: 6 situation axes, 8 target dimensions (instruction 44, gate 5, route 13, skill 4, subagent 3, guard 6, stage 5, register 13), 3 constraints.
-  The full grid holds 2104733030400 cells: plan on t-wise coverage, not the full grid.
+  The full grid holds 2318150016000 cells: plan on t-wise coverage, not the full grid.
 Wrote ignored.yaml: 127 atoms (47 read by code and approved, 80 split from prose by the model and waiting for approval), 53 edges.
   Ignored: 1 file no runtime loads.
     **/references/old-*  1

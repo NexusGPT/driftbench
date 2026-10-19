@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-19T06:57:36.453Z
+readAt: 2026-10-19T09:24:09.954Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -870,8 +870,30 @@ atoms:
       label: prohibition
       labeler: jev+anthropic
       polarity: prohibition
-  - id: register.memory-supplier-languages.write-to-each-supplier-in-the
-    kind: register
+  - id: instruction.memory-supplier-languages.supplier-languages
+    kind: instruction
+    title: Supplier languages
+    provenance:
+      file: .claude/memory/supplier-languages.md
+      startLine: 1
+      endLine: 1
+      quote: "# Supplier languages"
+      hash: 3e0b7219bcb531f0d26fde3d81f8dd7ed10c839fe2e501bf11e42d2b17ad9db2
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: nsge5hvn4d, set: agent-rules, label: rule } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: nsge5hvn4d
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
+      polarity: obligation
+  - id: instruction.memory-supplier-languages.write-to-each-supplier-in-the
+    kind: instruction
     title: Write to each supplier in the language it reads.
     provenance:
       file: .claude/memory/supplier-languages.md
@@ -883,14 +905,15 @@ atoms:
     role: axis
     approved: false
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: klbhgsbv5o, set: agent-rules, label: reply-rule } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: klbhgsbv5o, set: agent-rules, label: rule } }
     enforcement: []
     fields:
       extraction: pointer
       unit: klbhgsbv5o
       labelSet: agent-rules
-      label: reply-rule
+      label: rule
       labeler: jev+anthropic
+      polarity: obligation
   - id: instruction.memory-supplier-languages.when-a-supplier-is-not-in
     kind: instruction
     title: When a supplier is not in this table, write in English and tell the user.
@@ -947,9 +970,8 @@ atoms:
     producedBy: model
     role: axis
     approved: false
-    situation: A missing parcel is claimed only after 10 days without a delivery scan.
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: eppoqn4q54, set: agent-rules, label: rule, condition: [ rhb3gjoz4g ] } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: eppoqn4q54, set: agent-rules, label: rule } }
     enforcement: []
     fields:
       extraction: pointer
@@ -957,8 +979,28 @@ atoms:
       labelSet: agent-rules
       label: rule
       labeler: jev+anthropic
-      condition:
-        - rhb3gjoz4g
+      polarity: obligation
+  - id: instruction.parcel-claims.a-missing-parcel-is-claimed-only
+    kind: instruction
+    title: A missing parcel is claimed only after 10 days without a delivery scan.
+    provenance:
+      file: .claude/skills/parcel-claims/references/claim-rules.md
+      startLine: 11
+      endLine: 11
+      quote: A missing parcel is claimed only after 10 days without a delivery scan.
+      hash: 0eab60464eed3f59df643da0ccab8694856b0f74b83ac31532dd674a5e6100cd
+    producedBy: model
+    role: axis
+    approved: false
+    evidence:
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: rhb3gjoz4g, set: agent-rules, label: rule } }
+    enforcement: []
+    fields:
+      extraction: pointer
+      unit: rhb3gjoz4g
+      labelSet: agent-rules
+      label: rule
+      labeler: jev+anthropic
       polarity: obligation
   - id: register.parcel-claims.write-to-each-supplier-in-the
     kind: register
@@ -1038,57 +1080,6 @@ atoms:
           value: Write
       spans:
         - ./scripts/track.sh <carrier> <number>
-  - id: instruction.parcel-claims.write-the-claim-in-the-supplier
-    kind: instruction
-    title: Write the claim in the supplier's language, from references/supplier-languages.md.
-    provenance:
-      file: .claude/skills/parcel-claims/SKILL.md
-      startLine: 10
-      endLine: 10
-      quote: Write the claim in the supplier's language, from `references/supplier-languages.md`.
-      hash: 4727baa75b94f1c2eb83008524e58bd2ceb861bd608b6bb1315b3f473daa6aea
-    producedBy: model
-    role: axis
-    approved: false
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ylqfmr6ppi, set: agent-rules, label: rule } }
-    enforcement: []
-    fields:
-      extraction: pointer
-      unit: ylqfmr6ppi
-      labelSet: agent-rules
-      label: rule
-      labeler: jev+anthropic
-      polarity: obligation
-      spans:
-        - references/supplier-languages.md
-  - id: reference.parcel-claims.read-references-supplier-languages-md
-    kind: reference
-    title: Read references/supplier-languages.md
-    provenance:
-      file: .claude/skills/parcel-claims/SKILL.md
-      startLine: 10
-      endLine: 10
-      quote: Write the claim in the supplier's language, from `references/supplier-languages.md`.
-      hash: 4727baa75b94f1c2eb83008524e58bd2ceb861bd608b6bb1315b3f473daa6aea
-    producedBy: model
-    role: detail
-    approved: false
-    situation: Write the claim in the supplier's language, from `references/supplier-languages.md`.
-    evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: ylqfmr6ppi, set: agent-rules, label: rule } }
-      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/supplier-languages.md } } }
-    enforcement: []
-    fields:
-      path: .claude/skills/parcel-claims/references/supplier-languages.md
-      exists: true
-      readWhen: Write the claim in the supplier's language, from `references/supplier-languages.md`.
-      from: .claude/skills/parcel-claims/SKILL.md
-      extraction: pointer
-      unit: ylqfmr6ppi
-      labelSet: agent-rules
-      label: rule
-      labeler: jev+anthropic
   - id: reference.parcel-claims.read-references-claim-rules-md
     kind: reference
     title: Read references/claim-rules.md
@@ -1248,7 +1239,7 @@ atoms:
     approved: false
     situation: For a damaged parcel, the claim follows `claim-rules.md`.
     evidence:
-      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: evvnctdqe4, set: agent-rules, label: gate } }
+      - { type: custom, name: prose_pointer, options: { reviewRequired: true, unit: evvnctdqe4, set: agent-rules, label: reference } }
       - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/parcel-claims/references/claim-rules.md } } }
     enforcement: []
     fields:
@@ -1260,7 +1251,7 @@ atoms:
       extraction: pointer
       unit: evvnctdqe4
       labelSet: agent-rules
-      label: gate
+      label: reference
       labeler: jev+anthropic
   - id: reference.shipment-tracker.read-notes-md
     kind: reference
@@ -1641,8 +1632,9 @@ atoms:
     enforcement: []
     fields:
       check: no_orphans
-      orphans: []
-      holds: true
+      orphans:
+        - .claude/skills/parcel-claims/references/supplier-languages.md
+      holds: false
   - id: invariant.settings.every-guard-finds-its-script-from
     kind: invariant
     title: Every guard finds its script from an anchor
@@ -1778,7 +1770,6 @@ edges:
   - { from: skill.parcel-claims.skill-parcel-claims, to: tool.settings.allow-read, kind: allows }
   - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-ref-notes-md, kind: reference }
   - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-references-claim-rules-md, kind: reference }
-  - { from: skill.parcel-claims.skill-parcel-claims, to: reference.parcel-claims.read-references-supplier-languages-md, kind: reference }
   - { from: skill.parcel-claims.skill-parcel-claims, to: script.parcel-claims.script-scripts-track-sh, kind: script }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: tool.parcel-claims.declared-bash, kind: allows }
   - { from: skill.shipment-tracker.skill-shipment-tracker, to: tool.settings.allow-read, kind: allows }
@@ -1794,5 +1785,5 @@ ignore:
 producedBy:
   family: jev+anthropic
   model: jev-latest+claude-haiku-5-5
-  at: 2026-10-19T06:57:36.453Z
-hash: a3253344a071b48409515476b6e1772d4e6a702b36e9167d4f63ce6d5d4d2aad
+  at: 2026-10-19T09:24:09.954Z
+hash: d1d0fad94293ff592a886eda359c1ebcdd434ba98b6a35740237aec3b8f4d7d3

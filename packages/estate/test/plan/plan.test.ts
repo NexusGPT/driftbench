@@ -51,7 +51,7 @@ describe('the estate plan', () => {
     expect(Object.values(summary.perTestType).reduce((sum, n) => sum + n, 0)).toBe(plan.rows.length);
     expect(details.rows.total).toBe(details.rows.contract + details.rows.journey + details.rows.pairwise);
     expect(summary.coveringArraySize).toBe(details.rows.pairwise);
-    expect(summary.perKind.instruction).toBe(132);
+    expect(summary.perKind.instruction).toBe(135);
     expect(summary.perKind.setting).toBe(4);
     expect(summary.perTestType.setting).toBe(4);
     expect(details.noContract).toEqual([]);
@@ -62,9 +62,9 @@ describe('the estate plan', () => {
         )
         .map((atom) => atom.id),
     );
-    expect(summary.unenforcedAtoms).toHaveLength(56);
+    expect(summary.unenforcedAtoms).toHaveLength(58);
     expect(summary.edgesWithoutJourney).toBe(7);
-    expect(details.gridCells).toBe(2_104_733_030_400);
+    expect(details.gridCells).toBe(2_318_150_016_000);
     expect(details.tuples.covered).toBe(details.tuples.allowed);
   }, 60_000);
 
