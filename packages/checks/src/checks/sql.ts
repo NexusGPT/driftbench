@@ -136,20 +136,32 @@ export const sqlEquivalence: Check = {
       return [machineVerdict('sql', '0', 'fail', `not a read-only query: ${JSON.stringify(agent)}`)];
     }
     if (goldenSql === undefined) {
-      return [machineVerdict('sql', '0', 'inconclusive', 'the golden query is not one read statement')];
+      return [
+        machineVerdict('sql', '0', 'inconclusive', 'the golden query is not one read statement', {
+          gating: false,
+        }),
+      ];
     }
     let handle: Handle;
     try {
       handle = new (sqliteModule().DatabaseSync)(entry.database, { readOnly: true });
     } catch (cause) {
-      return [machineVerdict('sql', '0', 'inconclusive', `the database cannot be opened: ${message(cause)}`)];
+      return [
+        machineVerdict('sql', '0', 'inconclusive', `the database cannot be opened: ${message(cause)}`, {
+          gating: false,
+        }),
+      ];
     }
     try {
       let expected: string[];
       try {
         expected = rowsOf(handle, goldenSql);
       } catch (cause) {
-        return [machineVerdict('sql', '0', 'inconclusive', `the golden query fails: ${message(cause)}`)];
+        return [
+          machineVerdict('sql', '0', 'inconclusive', `the golden query fails: ${message(cause)}`, {
+            gating: false,
+          }),
+        ];
       }
       let found: string[];
       try {
