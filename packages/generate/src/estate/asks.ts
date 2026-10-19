@@ -259,10 +259,10 @@ export function actOf(
   // The title of a rule is the rule: asking for it word for word tests whether the agent repeats the rule,
   // never whether it follows it while working. A rule is set off by the work it applies to, so its ask is the
   // work: what the trigger of a gate names, else what the unit that carries the rule is for, else the work
-  // of the route whose words the rule shares, since a standing rule holds over any work.
+  // of the first route of the estate, since a standing rule holds over any work.
   if (head && RULE_KINDS.has(head.kind)) {
     const trigger = typeof head.fields?.trigger === 'string' ? clauseOf(plain(head.fields.trigger)) : '';
-    const gated = head.kind === 'gate' ? imperativeOf(trigger) : undefined;
+    const gated = head.kind === 'gate' && verbLed(trigger) ? trigger : undefined;
     if (gated !== undefined) return { act: taskOf(gated), source: `${head.id} (gate trigger)` };
     const owner = owningUnit(estate, head);
     const description = typeof owner?.fields?.description === 'string' ? owner.fields.description : undefined;
@@ -271,9 +271,8 @@ export function actOf(
       if (asked) return withContext(asked, `${owner?.id} (asks it names)`);
     }
     // A gate holds over the act it names: with no trigger and no unit that carries it, no route is its work.
-    const route =
-      head.kind === 'gate' ? undefined : routeFor(estate, `${head.title} ${head.situation ?? ''} ${trigger}`);
-    if (route) return withContext(route.act, `${route.id} (route nearest the rule)`);
+    const route = head.kind === 'gate' ? undefined : routeFor(estate);
+    if (route) return withContext(route.act, `${route.id} (first route of the estate)`);
     return { act: '', source: `${head.id} (title)`, describes: true };
   }
   if (verbLed(task)) return { act: taskOf(task), source: `${head?.id ?? 'row'} (title)` };
@@ -284,61 +283,20 @@ export function actOf(
   };
 }
 
-/**
- * A phrase that names an act as the request to do it: "commit to git" as it is, "editing any invoice file" as "edit
- * any invoice file" (the gerund of a known verb, with its doubled consonant or lost final e restored). Undefined when
- * the phrase opens with no act.
- */
-function imperativeOf(phrase: string): string | undefined {
-  if (verbLed(phrase)) return phrase;
-  const [first = '', ...rest] = phrase.trim().split(/\s+/);
-  const word = first.toLowerCase();
-  if (!/^[a-z]{4,}ing$/.test(word)) return undefined;
-  const stem = word.slice(0, -3);
-  const doubled = /([^aeiou])\1$/.test(stem) ? stem.slice(0, -1) : undefined;
-  const base = [stem, `${stem}e`, doubled].find(
-    (candidate) => candidate !== undefined && VERBS.has(candidate),
-  );
-  return base === undefined ? undefined : [base, ...rest].join(' ');
-}
-
 /** The kinds whose title is a rule the agent follows, never a task a user asks for. */
 const RULE_KINDS: ReadonlySet<string> = new Set(['instruction', 'gate', 'register']);
 
-/** Words that say little about what a text is for. */
-const COMMON = new Set(
-  'the and for with that this from into your you are can when where which who how not any each every after before only once then than also its it his her their our they them there here have has had will would could should shall may might must does did being been was were is a an of in on at to by or as if be do so up out all'.split(
-    ' ',
-  ),
-);
-
-const stemOf = (word: string): string => (word.length > 4 ? word.replace(/(?:ing|ed|es|s)$/, '') : word);
-
-function significant(text: string): Set<string> {
-  return new Set(
-    (text.toLowerCase().match(/[a-z]{3,}/g) ?? []).filter((word) => !COMMON.has(word)).map(stemOf),
-  );
-}
-
 /**
- * The work of the route that shares most words with a rule, the first route when it shares none: a rule of the
- * standing instructions holds over any work, and a route names work a user asks for.
+ * The work of the first route of the estate that names an askable act: a rule of the standing instructions holds
+ * over any work, and a route names work a user asks for. Which route is nearest a rule is not judged by shared words.
  */
-function routeFor(estate: readonly EstateAtom[], ruleText: string): { act: string; id: string } | undefined {
-  const own = significant(ruleText);
-  let best: { act: string; id: string } | undefined;
-  let score = -1;
+function routeFor(estate: readonly EstateAtom[]): { act: string; id: string } | undefined {
   for (const route of estate) {
     if (route.kind !== 'route' || !route.situation) continue;
     const task = taskOf(firstSentence(route.situation));
-    if (!verbLed(task) || askable(task) !== undefined) continue;
-    const shared = [...significant(route.situation)].filter((word) => own.has(word)).length;
-    if (shared > score) {
-      best = { act: task, id: route.id };
-      score = shared;
-    }
+    if (verbLed(task) && askable(task) === undefined) return { act: task, id: route.id };
   }
-  return best;
+  return undefined;
 }
 
 /**
@@ -488,14 +446,14 @@ export function taskOf(text: string): string {
 /** Verbs a task description starts with, in their imperative form. */
 const VERBS: ReadonlySet<string> = new Set(
   (
-    'add analyse analyze answer apply approve archive ask assess attach audit book build bump calculate call cancel change chase check ' +
+    'add analyse analyze answer apply approve archive ask assess attach audit build bump calculate call change chase check ' +
     'connect flag integrate request resolve wire ' +
     'close commit confirm give invent keep make mark note notify paste pull push quote recover reply restate retry return tell use ' +
     'clean collect compare compile compose configure connect convert copy count create debug deploy discover operate decide define ' +
     'delete deploy design diagnose dispatch document draft edit estimate evaluate execute explain export ' +
     'extract fetch file fill find fix format generate import inspect install integrate list load log manage ' +
     'map match measure merge migrate monitor move open operate optimise optimize order organise organize ' +
-    'pay pick plan post prepare process publish read rebuild reconcile record refactor refund register reject release reschedule ' +
+    'pick plan post prepare process publish read rebuild reconcile record refactor register reject release ' +
     'remove rename render repair replace replay report research resolve restore retrieve review rewrite run ' +
     'save scan schedule score search send set ship show sort split start stop stream summarise summarize ' +
     'sync tag test trace track train transcribe translate triage update upload validate verify view watch write'

@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { EstateAtom } from '../../src/estate/inputs';
 import {
-  brokenForms,
-  clausesOf,
   helperUnitTestOf,
   hostileForms,
   matcherTools,
@@ -313,8 +311,10 @@ describe('minimal fixtures of a script with none declared', () => {
   });
 });
 
-describe('material by what each clause of a cited rule does', () => {
-  // A plant nursery's rules, cited by its guards: nothing here comes from a bank or a fixture.
+describe('material of a cited rule is read without its words', () => {
+  // A plant nursery's rules, cited by its guards: nothing here comes from a bank or a fixture. The words around
+  // a span (never, move, always, as in) decide nothing: a word reader that turned "remove" into `rm` or "as in" into
+  // an obligation would change these payloads.
   const nursery = new Map([
     ['n1', rule('n1', 'Never remove a tray under `greenhouse/`; move it to `greenhouse/spare/` instead.')],
     ['n2', rule('n2', 'Always name the bed when you water, as in `./bin/water.sh B4 20`.')],
@@ -322,30 +322,19 @@ describe('material by what each clause of a cited rule does', () => {
   const cites = (atom: string, fields: Record<string, unknown> = {}) =>
     guard({ event: 'PreToolUse', matcher: 'Bash', enforces: [{ atom, by: 'registry' }], ...fields });
 
-  it('reads which clause forbids, which shows the right form, and the act verb of each', () => {
-    expect(
-      clausesOf('Never remove a tray under `greenhouse/`; move it to `greenhouse/spare/` instead.'),
-    ).toEqual([
-      { forbids: true, obliges: false, act: 'remove', spans: ['greenhouse/'] },
-      { forbids: false, obliges: false, act: 'move', spans: ['greenhouse/spare/'] },
-    ]);
-    expect(brokenForms('./bin/water.sh B4 20')).toEqual(['./bin/water.sh 20', './bin/water.sh B4']);
-    expect(brokenForms('ls')).toEqual([]);
-  });
-
-  it('sends a Bash guard the act a rule forbids on a path, never the path alone nor the allowed alternative', () => {
+  it('sends every span of the rule source as it is, with no act verb turned into a command', () => {
     const positive = unitTestOf(row('guard_positive'), cites('n1'), nursery, 'h', 'x');
     if (typeof positive === 'string') throw new Error(positive);
-    expect(positive.cases.map((entry) => entry.material)).toEqual(['rm greenhouse/']);
+    expect(positive.cases.map((entry) => entry.material)).toEqual(['greenhouse/', 'greenhouse/spare/']);
   });
 
-  it('breaks an obligation by leaving out each argument of its example, and lets the example through', () => {
+  it('reads no obligation from the words around an example: the example is the material, the neutral act stays alone', () => {
     const positive = unitTestOf(row('guard_positive'), cites('n2'), nursery, 'h', 'x');
     if (typeof positive === 'string') throw new Error(positive);
-    expect(positive.cases.map((entry) => entry.material)).toEqual(['./bin/water.sh 20', './bin/water.sh B4']);
+    expect(positive.cases.map((entry) => entry.material)).toEqual(['./bin/water.sh B4 20']);
     const negative = unitTestOf(row('guard_negative'), cites('n2'), nursery, 'h', 'x');
     if (typeof negative === 'string') throw new Error(negative);
-    expect(negative.cases.map((entry) => entry.material)).toEqual(['ls', './bin/water.sh B4 20']);
+    expect(negative.cases.map((entry) => entry.material)).toEqual(['ls']);
   });
 });
 

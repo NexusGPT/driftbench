@@ -609,7 +609,7 @@ describe('ordered pairs between two calls of one tool, and a step allowed at any
     expect(then.ordered).toEqual([{ before: 'Bash~git status', after: 'Bash~commit' }]);
   });
 
-  it('anchors the Read of a gate on the file it names, or on the changed file when it names none', () => {
+  it('anchors the Read of a gate on the file it names, and on no file the words of the gate point at', () => {
     const named = atom('gate.depot.read-count-rules', [{ type: 'ordered', before: 'Read', after: 'Edit' }], {
       kind: 'gate',
       provenance: { quote: 'Read `references/count-rules.md` before you change any sheet.' },
@@ -629,13 +629,14 @@ describe('ordered pairs between two calls of one tool, and a step allowed at any
         'positive',
         runner,
       ).ordered;
+    // "read it before you change it" ties nothing: which file a change acts on is not read from the words of
+    // the gate, so a gate that names no path gives a bare pair (a word reader would add key: file_path).
     expect(same('Always open a sheet and read it before you change it.')).toEqual([
-      { before: 'Read', after: 'Edit', key: 'file_path' },
+      { before: 'Read', after: 'Edit' },
     ]);
     expect(same('Read the file first, then overwrite it.', 'Write')).toEqual([
-      { before: 'Read', after: 'Write', key: 'file_path' },
+      { before: 'Read', after: 'Write' },
     ]);
-    // Nothing ties the read to the change: any read before it.
     expect(same('Read the briefing before you edit anything.')).toEqual([{ before: 'Read', after: 'Edit' }]);
   });
 
@@ -687,7 +688,8 @@ describe('ordered pairs between two calls of one tool, and a step allowed at any
         ],
       ),
     ).toEqual(['pass']);
-    const keyed = thenOf(
+    // A gate that names no file gives a bare pair whatever its words: any read before the change passes.
+    const bare = thenOf(
       [
         atom('gate.depot.read-first', [{ type: 'ordered', before: 'Read', after: 'Edit' }], {
           kind: 'gate',
@@ -697,20 +699,14 @@ describe('ordered pairs between two calls of one tool, and a step allowed at any
       'positive',
       runner,
     ).ordered;
+    expect(bare).toEqual([{ before: 'Read', after: 'Edit' }]);
     expect(
-      verdict(keyed, [
+      verdict(bare, [
         ['Read', rules],
-        ['Read', sheet],
         ['Edit', sheet],
+        ['Read', sheet],
       ]),
     ).toEqual(['pass']);
-    expect(
-      verdict(keyed, [
-        ['Read', rules],
-        ['Edit', sheet],
-        ['Read', sheet],
-      ]),
-    ).toEqual(['fail']);
   });
 
   it('still names a gap for an end that is no act, such as matching any line', () => {

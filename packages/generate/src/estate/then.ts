@@ -17,7 +17,6 @@ import {
   compileToolAbsence,
   isCompiledPredicate,
 } from './predicates';
-import { recoveryAction } from './recovery';
 
 export { literal };
 
@@ -254,7 +253,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       }
       return;
     case 'ordered': {
-      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields, atom.provenance?.quote);
+      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
       if (typeof pair === 'string') {
         if (ctx.judge) judgeRule(then, atom, 'positive');
         else gap(then, MARKERS.anchor, atom, pair);
@@ -327,8 +326,10 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         }
       }
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
-        const recovery = recoveryAction(atom);
+        // The recovery a hazard demands comes from the options the estate declares and the files its passage names
+        // that the estate holds; no word of the passage decides an action.
         const declared = evidence.options ?? {};
+        const held = heldPaths(atom, ctx);
         const reread = [
           ...new Set([
             ...(Array.isArray(declared.reread)
@@ -336,18 +337,17 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
                   (path): path is string => typeof path === 'string' && path.trim() !== '',
                 )
               : []),
-            ...recovery.reread,
+            ...held,
           ]),
         ];
-        const calls = [...(Array.isArray(declared.calls) ? declared.calls : []), ...recovery.calls];
-        const retry = declared.retry === true || recovery.retry;
+        const calls = Array.isArray(declared.calls) ? declared.calls : [];
         // Only the actions the estate states stay: an empty path or a call counted zero demands nothing.
         const { reread: _reread, calls: _calls, retry: _retry, ...rest } = declared;
         then.custom.hazard_recovery = {
           ...rest,
           ...(reread.length > 0 ? { reread } : {}),
           ...(calls.length > 0 ? { calls } : {}),
-          ...(retry ? { retry: true } : {}),
+          ...(declared.retry === true ? { retry: true } : {}),
           block: 0,
         };
         return;
@@ -504,25 +504,17 @@ function declaringUnit(then: ThenParts, atom: EstateAtom, ctx: ThenContext): voi
   }
 }
 
-/** Tools that change a file named by `file_path`. */
-const FILE_EDITS = new Set(['Edit', 'MultiEdit', 'Write']);
-/** A gate whose change acts on what it read: "read a file before you edit it". */
-const SAME_OBJECT =
-  /\b(?:edit|change|modify|update|overwrite|rewrite|write)\w*\s+(?:it|them|that file|this file|the same file)\b/i;
-
 /**
  * An ordered pair in the names the ordered check reads: a tool label as is, `skill:<name>`, `stage:<name>`.
  * A string says why the pair cannot be anchored. A Read end is what the gate reads: the file it names
- * (`Read~<path>`, from the gate's `path` field), or, when it names none and its change acts on what it read
- * ("read a file before you edit it"), the file of the change itself (`key: file_path`). Any Read before the
- * change would let a gate whose own read went missing pass on another read.
+ * (`Read~<path>`, from the gate's `path` field). A gate that names no path gives a bare Read: which file the
+ * change acts on is not decided from the words of the gate.
  */
 export function anchorPair(
   before: string,
   after: string,
   ctx: ThenContext,
   fields?: Record<string, unknown>,
-  quote?: string,
 ): OrderedPair | string {
   const a = anchor(before, ctx);
   const b = anchor(after, ctx);
@@ -544,7 +536,6 @@ export function anchorPair(
   if (a === 'Read') {
     const path = typeof fields?.path === 'string' ? fields.path.trim().replace(/^\.?\/+/, '') : '';
     if (path !== '') return { before: `Read~${path}`, after: b };
-    if (FILE_EDITS.has(b) && SAME_OBJECT.test(quote ?? '')) return { before: a, after: b, key: 'file_path' };
   }
   return { before: a, after: b };
 }
@@ -691,6 +682,17 @@ function addCriterion(then: ThenParts, atom: EstateAtom): void {
 
 function addSomeCall(then: ThenParts, call: SomeCall): void {
   if (!then.someCalls.some((known) => same(known, call))) then.someCalls.push(call);
+}
+
+/** The paths an atom's passage names that the estate holds (every named path when the files are unknown). */
+function heldPaths(atom: EstateAtom, ctx: ThenContext): string[] {
+  const files = ctx.files;
+  if (!files) return pathsOf(atom);
+  return pathsOf(atom).filter((path) => {
+    const clean = path.replace(/^\.?\/+/, '');
+    for (const file of files) if (file === clean || file.endsWith(`/${clean}`)) return true;
+    return false;
+  });
 }
 
 /** Paths an atom's passage names: in backticks, or a word with a slash or a file extension. */
