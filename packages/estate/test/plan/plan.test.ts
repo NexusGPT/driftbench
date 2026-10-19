@@ -51,7 +51,7 @@ describe('the estate plan', () => {
     expect(Object.values(summary.perTestType).reduce((sum, n) => sum + n, 0)).toBe(plan.rows.length);
     expect(details.rows.total).toBe(details.rows.contract + details.rows.journey + details.rows.pairwise);
     expect(summary.coveringArraySize).toBe(details.rows.pairwise);
-    expect(summary.perKind.instruction).toBe(138);
+    expect(summary.perKind.instruction).toBe(135);
     expect(summary.perKind.setting).toBe(4);
     expect(summary.perTestType.setting).toBe(4);
     expect(details.noContract).toEqual([]);
@@ -62,9 +62,9 @@ describe('the estate plan', () => {
         )
         .map((atom) => atom.id),
     );
-    expect(summary.unenforcedAtoms).toHaveLength(56);
+    expect(summary.unenforcedAtoms).toHaveLength(57);
     expect(summary.edgesWithoutJourney).toBe(7);
-    expect(details.gridCells).toBe(1_861_879_219_200);
+    expect(details.gridCells).toBe(1_722_054_297_600);
     expect(details.tuples.covered).toBe(details.tuples.allowed);
   }, 60_000);
 
@@ -119,7 +119,7 @@ describe('the estate plan', () => {
     expect(() => buildPlan(map, { space })).toThrow(PlanInputError);
     const unapproved = edited(map, (copy) => {
       const atom = copy.atoms.find(
-        (candidate) => candidate.id === 'instruction.standing.r14-do-not-commit-to-git',
+        (candidate) => candidate.id === 'gate.standing.read-claude-memory-memory-md-before',
       );
       if (atom) atom.approved = false;
     });

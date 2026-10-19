@@ -3,35 +3,21 @@
   "old": {
     "path": "examples/estates/fixture/approved.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-18T17:22:01.316Z",
-    "hash": "42a937ef55f1587407513d5d633726502fd42058c1211c576c74356860b1a117",
+    "readAt": "2026-10-19T05:31:38.110Z",
+    "hash": "b8d6f2e92049c019eaa2b9e631958c28a38d6453d5b6c01fa8476f5c94a6f727",
     "atoms": 125,
-    "edges": 53
+    "edges": 52
   },
   "new": {
     "path": "examples/estates/fixture-v2/map.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-18T17:22:10.985Z",
-    "hash": "29539c63e4b22d4c845213184793a8c7c400f3b7a032dcd8c1f31a7d29366d4b",
-    "atoms": 127,
-    "edges": 54
+    "readAt": "2026-10-19T05:31:46.370Z",
+    "hash": "d98a0b0afda444e6e32d2200b8b06da99d67f191705cfd10c7668b7e630e4c32",
+    "atoms": 126,
+    "edges": 52
   },
   "atoms": {
     "added": [
-      {
-        "id": "register.memory-supplier-languages.write-to-each-supplier-in-the",
-        "kind": "register",
-        "title": "Write to each supplier in the language it reads.",
-        "producedBy": "model",
-        "approved": false,
-        "at": {
-          "file": ".claude/memory/supplier-languages.md",
-          "startLine": 3,
-          "endLine": 3,
-          "quote": "Write to each supplier in the language it reads.",
-          "hash": "3a46c3399d6fdf6662b370edb8070d04e23a8330c1e452ce7025ce3412af9878"
-        }
-      },
       {
         "id": "instruction.standing.r18-never-approve-a-credit-note",
         "kind": "instruction",
@@ -79,25 +65,25 @@
     ],
     "changed": [
       {
-        "id": "route.standing.an-ask-to-plan-the-delivery",
-        "kind": "route",
-        "title": "An ask to plan the delivery routes for the next two days dispatches route-planner",
-        "change": "semantic",
+        "id": "instruction.standing.r2-never-send-an-email-to",
+        "kind": "instruction",
+        "title": "R2. Never send an email to a supplier without showing the full draft to the user first an…",
+        "change": "whitespace",
         "before": {
           "file": "CLAUDE.md",
-          "startLine": 36,
-          "endLine": 36,
-          "quote": "| plan the delivery routes for tomorrow | the `route-planner` agent |",
-          "hash": "45a66aac1af73dbdd0935638e401d5f53eb85559d6bd1d5f2954dc33c35e8b78"
+          "startLine": 10,
+          "endLine": 10,
+          "quote": "**R2.** Never send an email to a supplier without showing the full draft to the user first and getting an explicit yes.",
+          "hash": "dd78e07844cd89628113e2071183835b0fd127be4b22e68732ce3c08e49213c0"
         },
         "after": {
           "file": "CLAUDE.md",
-          "startLine": 38,
-          "endLine": 38,
-          "quote": "| plan the delivery routes for the next two days | the `route-planner` agent |",
-          "hash": "0fff9bcf2983f477f13612fe047897a7c40fd633f14eb0b2f09f1a8f4bf9954e"
+          "startLine": 10,
+          "endLine": 11,
+          "quote": "**R2.** Never send an email to a supplier without showing the full draft to the user first\n  and getting an explicit yes.",
+          "hash": "658e9a6d13b491f3ec47b46acd3edfcfa0a6631dbc3eac1f92ef83d6eb922bfe"
         },
-        "fields": ["title", "situation", "fields"]
+        "fields": []
       },
       {
         "id": "instruction.standing.r7-when-a-shipment-is-late",
@@ -119,9 +105,135 @@
           "hash": "5fa8802392a3db052ad13c9b57fe6c99db95cb602c4c1d1f3c545bba4a1ba76e"
         },
         "fields": ["title"]
+      },
+      {
+        "id": "route.standing.an-ask-to-plan-the-delivery",
+        "kind": "route",
+        "title": "An ask to plan the delivery routes for the next two days dispatches route-planner",
+        "change": "semantic",
+        "before": {
+          "file": "CLAUDE.md",
+          "startLine": 36,
+          "endLine": 36,
+          "quote": "plan the delivery routes for tomorrow | the `route-planner` agent",
+          "hash": "dec4e987418237aaba9d8ec41553dfcca70a91fb9b6a4fdfdd4a2dcc96dfe9b1"
+        },
+        "after": {
+          "file": "CLAUDE.md",
+          "startLine": 38,
+          "endLine": 38,
+          "quote": "plan the delivery routes for the next two days | the `route-planner` agent",
+          "hash": "1badb6cce16da9f43f0bb898ca94ca9aade1d7061e0eb533285b852ede3c1126"
+        },
+        "fields": ["title", "situation", "fields"]
       }
     ],
     "moved": [
+      {
+        "id": "instruction.standing.r3-read-a-file-before-you",
+        "kind": "instruction",
+        "title": "R3. Read a file before you edit it.",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 11,
+          "endLine": 11
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 12,
+          "endLine": 12
+        }
+      },
+      {
+        "id": "instruction.standing.r4-never-delete-a-file-under",
+        "kind": "instruction",
+        "title": "R4. Never delete a file under ledger/; move it to ledger/archive/ instead.",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 12,
+          "endLine": 12
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 13,
+          "endLine": 13
+        }
+      },
+      {
+        "id": "instruction.standing.r6-never-run-git-push-force",
+        "kind": "instruction",
+        "title": "R6. Never run git push --force on any branch.",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 14,
+          "endLine": 14
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 15,
+          "endLine": 15
+        }
+      },
+      {
+        "id": "instruction.standing.r8-do-not-invent-order-numbers",
+        "kind": "instruction",
+        "title": "R8. Do not invent order numbers, prices or dates; when a value is missing, ask the user f…",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 16,
+          "endLine": 16
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 17,
+          "endLine": 17
+        }
+      },
+      {
+        "id": "register.standing.r9-ask-at-most-one-question",
+        "kind": "register",
+        "title": "R9. Ask at most one question per reply.",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 17,
+          "endLine": 17
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 18,
+          "endLine": 18
+        }
+      },
+      {
+        "id": "hazard.standing.r10-when-the-user-says-stop",
+        "kind": "hazard",
+        "title": "R10. When the user says \"stop\", stop all work and confirm in one line.",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 18,
+          "endLine": 18
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 19,
+          "endLine": 19
+        }
+      },
+      {
+        "id": "instruction.standing.r11-never-paste-the-contents-of",
+        "kind": "instruction",
+        "title": "R11. Never paste the contents of .env or any credential into a reply.",
+        "from": {
+          "file": "CLAUDE.md",
+          "startLine": 19,
+          "endLine": 19
+        },
+        "to": {
+          "file": "CLAUDE.md",
+          "startLine": 20,
+          "endLine": 20
+        }
+      },
       {
         "id": "route.standing.an-ask-to-reconcile-an-invoice",
         "kind": "route",
@@ -195,111 +307,6 @@
           "file": "CLAUDE.md",
           "startLine": 37,
           "endLine": 37
-        }
-      },
-      {
-        "id": "instruction.standing.r3-read-a-file-before-you",
-        "kind": "instruction",
-        "title": "R3. Read a file before you edit it.",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 11,
-          "endLine": 11
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 12,
-          "endLine": 12
-        }
-      },
-      {
-        "id": "instruction.standing.r4-never-delete-a-file-under",
-        "kind": "instruction",
-        "title": "R4. Never delete a file under ledger/; move it to ledger/archive/ instead.",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 12,
-          "endLine": 12
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 13,
-          "endLine": 13
-        }
-      },
-      {
-        "id": "instruction.standing.r6-never-run-git-push-force",
-        "kind": "instruction",
-        "title": "R6. Never run git push --force on any branch.",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 14,
-          "endLine": 14
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 15,
-          "endLine": 15
-        }
-      },
-      {
-        "id": "instruction.standing.r8-do-not-invent-order-numbers",
-        "kind": "instruction",
-        "title": "R8. Do not invent order numbers, prices or dates; when a value is missing, ask the user f…",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 16,
-          "endLine": 16
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 17,
-          "endLine": 17
-        }
-      },
-      {
-        "id": "instruction.standing.r9-ask-at-most-one-question",
-        "kind": "instruction",
-        "title": "R9. Ask at most one question per reply.",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 17,
-          "endLine": 17
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 18,
-          "endLine": 18
-        }
-      },
-      {
-        "id": "instruction.standing.r10-when-the-user-says-stop",
-        "kind": "instruction",
-        "title": "R10. When the user says \"stop\", stop all work and confirm in one line.",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 18,
-          "endLine": 18
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 19,
-          "endLine": 19
-        }
-      },
-      {
-        "id": "instruction.standing.r11-never-paste-the-contents-of",
-        "kind": "instruction",
-        "title": "R11. Never paste the contents of .env or any credential into a reply.",
-        "from": {
-          "file": "CLAUDE.md",
-          "startLine": 19,
-          "endLine": 19
-        },
-        "to": {
-          "file": "CLAUDE.md",
-          "startLine": 20,
-          "endLine": 20
         }
       },
       {
@@ -440,7 +447,7 @@
       {
         "id": "gate.standing.read-claude-memory-memory-md-before",
         "kind": "gate",
-        "title": "Read .claude/memory/MEMORY.md before at the start of every session",
+        "title": "Read .claude/memory/MEMORY.md before start of every session",
         "from": {
           "file": "CLAUDE.md",
           "startLine": 50,
@@ -470,18 +477,6 @@
     ],
     "restated": [
       {
-        "id": "instruction.standing.r8-do-not-invent-order-numbers",
-        "kind": "instruction",
-        "title": "R8. Do not invent order numbers, prices or dates; when a value is missing, ask the user f…",
-        "fields": ["evidence", "fields"]
-      },
-      {
-        "id": "instruction.standing.r11-never-paste-the-contents-of",
-        "kind": "instruction",
-        "title": "R11. Never paste the contents of .env or any credential into a reply.",
-        "fields": ["evidence", "fields"]
-      },
-      {
         "id": "invariant.standing.the-standing-instructions-stay-under-40000",
         "kind": "invariant",
         "title": "The standing instructions stay under 40000 characters",
@@ -497,7 +492,13 @@
         "kind": "cites"
       }
     ],
-    "removed": []
+    "removed": [
+      {
+        "from": "instruction.standing.r12-when-r2-applies-and-the",
+        "to": "instruction.standing.r2-never-send-an-email-to",
+        "kind": "cites"
+      }
+    ]
   },
   "guards": [
     {
@@ -559,14 +560,14 @@
     }
   ],
   "summary": {
-    "added": 3,
+    "added": 2,
     "removed": 1,
-    "whitespace": 0,
+    "whitespace": 1,
     "semantic": 2,
     "moved": 23,
-    "restated": 3,
-    "unchanged": 98,
+    "restated": 1,
+    "unchanged": 97,
     "edgesAdded": 1,
-    "edgesRemoved": 0
+    "edgesRemoved": 1
   }
 }

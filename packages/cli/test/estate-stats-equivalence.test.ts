@@ -9,7 +9,7 @@ import {
 } from '@agent-nexus/driftbench-estate';
 import { generateEstateSuite, PhraseBank } from '@agent-nexus/driftbench-generate';
 import { expect, it } from 'vitest';
-import { estate, NOW } from '../../estate/test/support';
+import { approvedAll, estate, NOW, structurePointer } from '../../estate/test/support';
 import { main } from '../src/index';
 
 it('one generated group covers every source cell, without counting struck rows', async () => {
@@ -29,7 +29,13 @@ it('one generated group covers every source cell, without counting struck rows',
     ].join('\n'),
     '.claude/skills/editorial/policy.md': '# Publication policy',
   });
-  const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+  const scanned = await scanEstate({
+    root,
+    reader: new ClaudeCodeReader(),
+    now: NOW,
+    pointer: structurePointer([{ contains: 'Read policy.md', act: 'editing the interview', tool: 'Edit' }]),
+  });
+  const map = approvedAll(scanned.map);
   const plan = buildPlan(map).plan;
   plan.rows = plan.rows.filter(
     (row) => row.testType === 'ordered_pair' && row.id.startsWith('ordered_pair.'),

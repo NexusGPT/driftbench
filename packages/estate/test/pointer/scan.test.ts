@@ -85,6 +85,17 @@ describe('the windows', () => {
     expect(windowsOf('a.md', units, 2).map((window) => window.units.length)).toEqual([2, 1, 2]);
     expect(windows[1]?.id).toBe('a.md#2');
   });
+
+  it('do not cut a table row: the cells of a row stay in one window, so a label can point from one to the next', () => {
+    const text = '| ask | load |\n|---|---|\n| one | a |\n| two | b |\n| three | c |\n';
+    const units = cut(text).units;
+    // Eight units; a cap of 3 would end a window after the first cell of a row.
+    const sizes = windowsOf('a.md', units, 3, text).map((window) => window.units.length);
+    expect(sizes.every((size) => size % 2 === 0)).toBe(true);
+    expect(sizes.reduce((sum, size) => sum + size, 0)).toBe(units.length);
+    // Without the text the cap is the cap.
+    expect(windowsOf('a.md', units, 3).map((window) => window.units.length)).toEqual([3, 3, 2]);
+  });
 });
 
 describe('the pointer scan', () => {

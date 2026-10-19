@@ -48,11 +48,10 @@ describe('explicitly loaded document prose', () => {
     }
   });
 
-  it('does not follow ignored, forbidden, commented, fenced, or oversized references', async () => {
+  it('does not follow ignored, commented, fenced, or oversized references', async () => {
     const root = await estate({
       'CLAUDE.md': [
         '@private/policy.md',
-        'Do not read `forbidden/guide.md`.',
         '<!-- @commented/guide.md -->',
         '```markdown',
         '@example/guide.md',
@@ -60,7 +59,6 @@ describe('explicitly loaded document prose', () => {
         'Read `large/guide.md`.',
       ].join('\n'),
       'private/policy.md': '# Private\n',
-      'forbidden/guide.md': '# Forbidden\n',
       'commented/guide.md': '# Comment\n',
       'example/guide.md': '# Example\n',
       'large/guide.md': 'x'.repeat(1024 * 1024 + 1),

@@ -1,26 +1,24 @@
-Impact of the estate diff 42a937ef55f1 to 29539c63e4b2 on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 4, re-approve 2, retire 1, new 3; 3 tests untouched, 23 atoms moved with the same quote.
+Impact of the estate diff b8d6f2e92049 to d98a0b0afda4 on 8 live estate tests (0 retired before, 0 other specs).
+  Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 23 atoms moved with the same quote.
 Regenerate:
   northwind-draft-pair (draft-pair.yaml): instruction.standing.r12-when-r2-applies-and-the removed
   northwind-late-shipment (late-shipment.yaml): instruction.standing.r7-when-a-shipment-is-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
 Re-approve, the meaning changed:
-  route.standing.an-ask-to-plan-the-delivery (route): | plan the delivery routes for the next two days | the `route-planner` agent |
-      tests: northwind-route-planner
   instruction.standing.r7-when-a-shipment-is-late (instruction): **R7.** When a shipment is late by more than one day, tell the user and propose a supplier email.
       tests: northwind-late-shipment
+  route.standing.an-ask-to-plan-the-delivery (route): plan the delivery routes for the next two days | the `route-planner` agent
+      tests: northwind-route-planner
 Retire:
   northwind-unsent-draft (unsent-draft.yaml): retired: atom instruction.standing.r12-when-r2-applies-and-the removed [to write with --write]
 New atoms with no test:
-  register.memory-supplier-languages.write-to-each-supplier-in-the (register) .claude/memory/supplier-languages.md:3
   instruction.standing.r18-never-approve-a-credit-note (instruction) CLAUDE.md:26
   instruction.standing.r19-when-r18-applies-and-the (instruction) CLAUDE.md:27
 Guards whose enforcement state changed:
   promoted guard.settings.posttooluse-bash-guard-ledger-guard-py: warn to enforce; tests: northwind-ledger-archive
-Needs a person: 5.
-  - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
+Needs a person: 4.
   - re-approve instruction.standing.r7-when-a-shipment-is-late: its meaning changed; 1 test waits
-  - approve the tests of the new atom register.memory-supplier-languages.write-to-each-supplier-in-the: no test covers it yet
+  - re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits
   - approve the tests of the new atom instruction.standing.r18-never-approve-a-credit-note: no test covers it yet
   - approve the tests of the new atom instruction.standing.r19-when-r18-applies-and-the: no test covers it yet

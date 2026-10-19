@@ -37,7 +37,10 @@ describe('the fake runtime as the kill.fake family runs it', { timeout: 120_000 
   });
 
   it('decides a judged criterion with the stand-in judge instead of leaving it inconclusive', async () => {
-    const spec = await specNaming('obligation', 'instruction.inbox-triager.you-sort-messages-into-three-folders');
+    const spec = await specNaming(
+      'obligation',
+      'instruction.inbox-triager.you-sort-messages-into-three-folders',
+    );
     const run = [...runOnFakeDetailed(FIXTURE, [spec], join(await scratch(), 'runs.db'), MAP).values()][0];
     expect(run?.failing.join('\n')).not.toContain('inconclusive');
     expect(run).toMatchObject({ completed: true, pass: true });

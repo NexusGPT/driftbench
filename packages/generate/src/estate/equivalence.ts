@@ -36,8 +36,10 @@ export function equivalenceKey(built: Built, row: EstatePlanRow, head: EstateAto
         title: head.title,
         quote: head.provenance?.quote.replace(/\s+/g, ' ').trim(),
         situation: head.situation,
-        evidence: head.evidence,
-        fields: head.fields,
+        // The pointer mark records which unit the atom came from: two units that say the same thing are the
+        // same rule, so the mark is no part of its meaning.
+        evidence: head.evidence.filter((item) => !(item.type === 'custom' && item.name === 'prose_pointer')),
+        fields: head.fields?.extraction === 'pointer' ? withoutUnit(head.fields) : head.fields,
       },
       execution,
       // A journey is the ordered walk of its atoms: a different path never merges, even when each step
@@ -48,6 +50,11 @@ export function equivalenceKey(built: Built, row: EstatePlanRow, head: EstateAto
       unit: (built.spec.metadata as { estate?: { unit?: unknown } })?.estate?.unit,
     }),
   );
+}
+
+function withoutUnit(fields: Record<string, unknown>): Record<string, unknown> {
+  const { unit: _unit, ...rest } = fields;
+  return rest;
 }
 
 function stable(value: unknown): unknown {

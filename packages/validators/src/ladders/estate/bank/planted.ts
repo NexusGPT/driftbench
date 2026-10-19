@@ -15,6 +15,7 @@ import type { ModelPort, ModelRequest } from '@agent-nexus/driftbench-generate';
 import { RUNTIME } from '../layout';
 import { matchAtoms } from '../pipeline';
 import type { ExpectedAtom, ProseEntry } from '../render';
+import { truthPointer } from '../truth-pointer';
 import type { ItemResult } from './frame';
 
 /**
@@ -195,14 +196,18 @@ export class PlantedEstate {
         await mkdir(dirname(at), { recursive: true });
         await symlink(link.absolute ? target : relative(dirname(at), target) || '.', at);
       }
-      const port = truthPort(this.answers);
+      const truth = truthPointer({
+        files: Object.fromEntries(this.texts()),
+        atoms: this.expected,
+        answers: this.answers,
+      });
       const reader = readerFor(RUNTIME);
       if (!reader) throw new Error(`no reader for ${RUNTIME}`);
       const started = Date.now();
       const result = await scanEstate({
         root,
         reader,
-        port,
+        pointer: truth,
         now: () => new Date('2026-10-11T00:00:00.000Z'),
       });
       const scanMs = Date.now() - started;
@@ -219,7 +224,12 @@ export class PlantedEstate {
         idOf: match.idOf,
         atomOf: new Map(map.atoms.map((atom) => [atom.id, atom])),
         notes: result.raw.notes.map((note) => `${note.file}: ${note.message}`),
-        requests: port.requests,
+        requests: truth.windows.map((window) => ({
+          file: window.file,
+          from: 1,
+          to: window.units,
+          characters: window.characters,
+        })),
       };
     } finally {
       await rm(top, { recursive: true, force: true });

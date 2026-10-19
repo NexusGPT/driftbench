@@ -3,7 +3,7 @@ import { homedir } from 'node:os';
 import { basename, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { EstatePathError, estatePath } from '../paths';
-import { chunkLines, fileNames, guardName, locateNamed, namedPaths, positiveMention } from './code';
+import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
 import { type IgnoreRule, ignoreRule } from './ignore';
 import { pathReference } from './reference-role';
@@ -381,7 +381,6 @@ async function readRootReferences(
       const names = imported ? [imported] : namedPaths(line.text, true);
       for (const name of names) {
         if (/^(?:\/|~\/|[a-z]+:)/i.test(name) || (!pathReference(name) && unitNames.has(name))) continue;
-        if (!imported && !positiveMention(line.text, name, ['read', 'open', 'load'])) continue;
         // An unindexed root guide is a candidate only after the naming file's own subtree.
         const local = posix.normalize(posix.join(posix.dirname(chunk.file), name));
         const localPlaceholder =

@@ -284,9 +284,9 @@ they print, in order (the scans and the approve listing are cut to their main li
 is longer):
 
 ```text
-Wrote structure.yaml: 53 atoms (53 read by code and approved, 0 split from prose by the model and waiting for approval), 41 edges.
+Wrote structure.yaml: 47 atoms (47 read by code and approved, 0 split from prose by the model and waiting for approval), 35 edges.
   Atoms per kind:
-    route       13
+    route        7
     skill        4
     script       2
     subagent     3
@@ -296,53 +296,55 @@ Wrote structure.yaml: 53 atoms (53 read by code and approved, 0 split from prose
     stage        5
     invariant    4
   No model call: structured atoms only (--no-model).
-Wrote map.yaml: 125 atoms (53 read by code and approved, 72 split from prose by the model and waiting for approval), 53 edges.
+Wrote map.yaml: 125 atoms (47 read by code and approved, 78 split from prose by the model and waiting for approval), 52 edges.
   Atoms per kind:
-    instruction   46  (46 by the model)
-    gate           5  (5 by the model)
-    reference      9  (9 by the model)
-    register      11  (11 by the model)
-    hazard         1  (1 by the model)
+    instruction   45  (45 by the model)
+    gate           4  (4 by the model)
+    route         13  (6 by the model)
+    reference      8  (8 by the model)
+    register      13  (13 by the model)
+    hazard         2  (2 by the model)
   Pointer reader: system 1 jev jev-latest then system 2 anthropic claude-haiku-5-5 (margin cut 0.65).
-  Units: 151 in 14 files; 0 kept from the ledger, 148 labelled by this run (52 by system 1, 96 by system 2), 3 unlabeled.
+  Units: 151 in 14 files; 0 kept from the ledger, 142 labelled by this run (56 by system 1, 86 by system 2), 9 unlabeled.
   Requests: 73 answered, 0 sent, 0 recorded.
     refused: CLAUDE.md#1: unit [10] span {"from":-1,"kind":"governed-action","to":-1}: offsets leave the unit (length 110) or are empty
-    refused: CLAUDE.md unit cku6elyza2 (condition): the condition points at a unit that holds no atom
-  Orphans: .claude/skills/invoice-reconcile/references/old-tolerances.md.
+    refused: .claude/skills/invoice-reconcile/SKILL.md unit gfz5utnqh3 (condition): the condition points at a unit that holds no atom
+  Orphans: .claude/skills/invoice-reconcile/references/currency-table.md, .claude/skills/invoice-reconcile/references/old-tolerances.md.
   Unreachable from the standing instructions: .claude/agents/inbox-triager.md.
-  Unenforced: 56 of 62 rules have no guard.
+  Unenforced: 57 of 62 rules have no guard.
 Next: driftbench estate lint map.yaml; driftbench estate approve map.yaml --kind instruction
 map.yaml already exists: pass --force to replace it (the approvals in it are lost).
 map.yaml: estate at examples/estates/fixture, 125 atoms.
+  ORPHAN             .claude/skills/invoice-reconcile/references/currency-table.md: nothing in the estate names this file
   ORPHAN             .claude/skills/invoice-reconcile/references/old-tolerances.md: nothing in the estate names this file
   UNREACHABLE        .claude/agents/inbox-triager.md: no route, reference or dispatch from the standing instructions leads here
   MISSING_REFERENCE  .claude/skills/weekly-report/SKILL.md:12 names .claude/skills/weekly-report/references/kpi-definitions.md, which does not exist
   UNANCHORED_GUARD   the guard command "python3 .claude/guards/ledger-guard.py" finds its script from the working folder; anchor it on the project folder
   REGISTRY_ROW       the guard reply-length.py has no row in the check registry
   REGISTRY_GUARD     registry row G6 names supplier-send-guard.py, which no guard of the estate runs
-  UNENFORCED  56 rules no guard enforces (trusted; listed by estate scan).
+  UNENFORCED  57 rules no guard enforces (trusted; listed by estate scan).
   EXTERNAL    0 named paths outside the estate (information).
-6 findings.
-map.yaml: 72 of 125 atoms wait for approval.
-  instruction: 46
+7 findings.
+map.yaml: 78 of 125 atoms wait for approval.
+  instruction: 45
     instruction.inbox-triager.you-sort-messages-into-three-folders  .claude/agents/inbox-triager.md:8  "You sort messages into three folders: invoices, shipments..."
     instruction.inbox-triager.a-message-that-fits-none-goes  .claude/agents/inbox-triager.md:8  "A message that fits none goes to "other"."
 Approve a kind with --kind <kind>, an atom with --atom <id>, or every atom with --all.
-Approved 11 atoms in map.yaml; 0 were already approved.
-Approved 61 atoms in approved.yaml; 64 were already approved.
+Approved 13 atoms in map.yaml; 0 were already approved.
+Approved 65 atoms in approved.yaml; 60 were already approved.
 approved.yaml: all 125 atoms are approved.
 ✗ map.yaml
   (file)  MAP_UNKNOWN_KIND  "nosuch" is not an atom kind: instruction, gate, route, skill, reference, script, subagent, guard, tool, setting, stage, register, hazard, invariant
-Wrote space.yaml: 6 situation axes, 8 target dimensions (instruction 46, gate 5, route 13, skill 4, subagent 3, guard 6, stage 5, register 11), 3 constraints.
-  The full grid holds 1861879219200 cells: plan on t-wise coverage, not the full grid.
-Wrote ignored.yaml: 125 atoms (53 read by code and approved, 72 split from prose by the model and waiting for approval), 53 edges.
+Wrote space.yaml: 6 situation axes, 8 target dimensions (instruction 45, gate 4, route 13, skill 4, subagent 3, guard 6, stage 5, register 13), 3 constraints.
+  The full grid holds 1722054297600 cells: plan on t-wise coverage, not the full grid.
+Wrote ignored.yaml: 125 atoms (47 read by code and approved, 78 split from prose by the model and waiting for approval), 52 edges.
   Ignored: 1 file no runtime loads.
     **/references/old-*  1
-  Orphans: none.
+  Orphans: .claude/skills/invoice-reconcile/references/currency-table.md.
 ```
 
-The lint fails on purpose: the Northwind estate carries planted defects. The last scan ignores the orphan
-file, so its map reports no orphan.
+The lint fails on purpose: the Northwind estate carries planted defects. The last scan ignores one orphan
+file, so its map reports one orphan less.
 
 ## Common errors
 
