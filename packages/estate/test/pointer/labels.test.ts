@@ -416,6 +416,22 @@ describe('spans and links in a label set', () => {
     expect(past.refusals[0]).toMatch(/offsets leave the unit/);
   });
 
+  it('finds the words of a clause on the text the labeler reads, across a line break, and keeps raw offsets', () => {
+    const lines = {
+      ...window,
+      units: [{ n: 1, text: 'Close the lower gate\n    before dusk, and log it.', index: 0 }],
+    };
+    const checked = checkAnswer(
+      set,
+      lines,
+      [{ units: '1', label: 'rule', spans: [{ kind: 'act', text: 'gate before dusk' }] }],
+      context,
+    );
+    expect(checked.refusals).toEqual([]);
+    const kept = checked.accepted.get(1)?.spans?.[0];
+    expect(lines.units[0]?.text.slice(kept?.from, kept?.to)).toBe('gate\n    before dusk');
+  });
+
   it('refuses a span kind the set declares but the label does not list', () => {
     const only = load(SPANS.replace('spans: [act, mechanics]', 'spans: [act]'))[0] as LabelSet;
     const checked = checkAnswer(
