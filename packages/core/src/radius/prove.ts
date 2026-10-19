@@ -1,3 +1,4 @@
+import { blockStatus } from '../runner/verdicts';
 import type { BlockLink } from '../schema/links';
 import type { RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
@@ -91,9 +92,10 @@ export function blockOutcomes(spec: Spec, runs: readonly RunResult[]): ProofOutc
       ),
     );
     if (seen.length === 0) return 'missing';
-    if (seen.some((result) => result.status === 'not_run' || result.status === 'blocked')) return 'not_run';
-    if (seen.every((result) => result.pass)) return 'pass';
-    if (seen.every((result) => !result.pass)) return 'fail';
+    const statuses = seen.map(blockStatus);
+    if (statuses.some((status) => status === 'not_run' || status === 'blocked')) return 'not_run';
+    if (statuses.every((status) => status === 'pass')) return 'pass';
+    if (statuses.every((status) => status === 'fail')) return 'fail';
     return 'mixed';
   });
 }
