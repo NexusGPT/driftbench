@@ -21,7 +21,9 @@ Everything here is fictional and written by hand. Nothing calls a model and noth
   atom gives the reply act it declares (`replyAct`, with the part it names); a guard is provoked, when
   the ask instructs the act it guards (a declared ask of the guard, or a `forced` situation), by the
   event its settings name, so that the script in the copy decides (an edit of a file not read, a reply
-  longer than the length limit). An atom whose quote the copy no longer holds sets nothing off.
+  longer than the length limit, a command a typed delete predicate or a typed command form of the
+  rule names). A guard a skill declares in its frontmatter is in force once the skill is loaded. An atom
+  whose quote the copy no longer holds sets nothing off.
 - Set `FAKE_MANIFEST` to opt into recorded playback for protocol tests. `fake/manifest.json`
   maps asks to streams under `fake/streams/`; stream paths are relative to the manifest.
   Besides stream records, a stream holds directives the fake performs: a guard row, a step row,

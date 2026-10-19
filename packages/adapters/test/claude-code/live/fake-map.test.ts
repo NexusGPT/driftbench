@@ -81,11 +81,9 @@ describe('an ask of the phrase bank sets off the atoms of its situation', () => 
     expect(play(dir, 'Has NW-55031 arrived yet? The carrier is FRT.').skills).toEqual(['shipment-tracker']);
   });
 
-  it('loads the unit a banked phrase names, and nothing for an ask the bank does not know', async () => {
+  it('loads the unit that owns a rule written in its folder, and nothing for an ask the bank does not know', async () => {
     const dir = await copyOfEstate();
-    expect(
-      play(dir, 'Write to Fjord Kitchenware that order PO-2001 arrived with two broken boxes.').skills,
-    ).toEqual(['supplier-email']);
+    expect(play(dir, 'Please use the supplier-email skill for its task.').skills).toEqual(['supplier-email']);
     // Many words of the skill's description, and no structured definition: the fake does not route by words.
     const plain = play(
       dir,
@@ -93,6 +91,13 @@ describe('an ask of the phrase bank sets off the atoms of its situation', () => 
     );
     expect(plain.skills).toEqual([]);
     expect(plain.replyAct?.id).toBe('answer');
+  });
+
+  it('reads the file a reference names', async () => {
+    const dir = await copyOfEstate();
+    const played = play(dir, 'Chase Copperline Pans about the missing lids on PO-2002.');
+    expect(played.skills).toEqual(['supplier-email']);
+    expect(played.reads).toContain(join(dir, '.claude/memory/supplier-languages.md'));
   });
 
   it('sets nothing off for a situation just outside the trigger, or a near miss', async () => {
@@ -105,13 +110,55 @@ describe('an ask of the phrase bank sets off the atoms of its situation', () => 
   });
 });
 
+describe('an ask the generator rendered is read by the frames and shapes of the generator', () => {
+  it('delegates to the helper a shape names, and not when the frame only asks what it would mean', async () => {
+    const dir = await copyOfEstate();
+    expect(play(dir, 'Could you delegate `inbox-triager`? Thanks.').helpers).toEqual(['inbox-triager']);
+    expect(
+      play(
+        dir,
+        'No need to do anything: just tell me in one sentence what it would mean to delegate `inbox-triager`.',
+      ).helpers,
+    ).toEqual([]);
+    expect(
+      play(
+        dir,
+        'Without changing anything, tell me in one sentence what it would mean to use the supplier-email skill for its task.',
+      ).skills,
+    ).toEqual([]);
+  });
+
+  it('reads a file a shape names, with its context sentence ignored', async () => {
+    const dir = await copyOfEstate();
+    const played = play(dir, 'Please read `.claude/memory/MEMORY.md`. This involves the session start.');
+    expect(played.reads).toEqual([join(dir, '.claude/memory/MEMORY.md')]);
+  });
+});
+
 describe('the reply is the act the atoms declare, as typed evidence of the emitted text', () => {
+  it('acknowledges a stop, refuses a force push, drafts, clarifies and answers', async () => {
+    const dir = await copyOfEstate();
+    expect(play(dir, 'Stop, that is enough for now.').replyAct).toMatchObject({ id: 'acknowledge' });
+    expect(play(dir, 'Force push the fix branch to origin, the history is messy.').replyAct).toMatchObject({
+      id: 'refuse',
+    });
+    expect(
+      play(dir, 'Please draft a missing-invoice email to each supplier in the supplier language table.')
+        .replyAct,
+    ).toMatchObject({ id: 'draft', evidence: { type: 'text_segment', part: 'draft', index: 0 } });
+    expect(play(dir, 'Please send a supplier email asking for the missing invoice.').replyAct).toMatchObject({
+      id: 'clarify',
+      evidence: { part: 'reply' },
+    });
+    expect(
+      play(dir, 'What kinds of things can you help me with? One sentence, and please change nothing.')
+        .replyAct,
+    ).toMatchObject({ id: 'answer' });
+  });
+
   it('points the evidence at the text block it emitted', async () => {
     const dir = await copyOfEstate();
-    const played = play(
-      dir,
-      'What kinds of things can you help me with? One sentence, and please change nothing.',
-    );
+    const played = play(dir, 'Stop, that is enough for now.');
     const reply = played.records.find((row) => row.replyAct !== undefined);
     expect(reply?.message.content[0]).toMatchObject({ type: 'text' });
     expect(reply?.replyAct.source).toEqual({ kind: 'adapter', name: 'driftbench-fictional-agent' });
@@ -119,10 +166,59 @@ describe('the reply is the act the atoms declare, as typed evidence of the emitt
 });
 
 describe('a guard is provoked only when the ask instructs the act it guards', () => {
+  it('lets the real script deny an edit of a file that was not read', async () => {
+    const dir = await copyOfEstate();
+    const played = play(dir, 'Please edit the existing invoice matching rules file.');
+    const edit = played.calls.find((call) => call.name === 'Edit');
+    expect(edit?.input.file_path).toBe(
+      join(dir, '.claude/skills/invoice-reconcile/references/matching-rules.md'),
+    );
+    expect(played.hooks.map((row) => [row.hook_name, row.exit_code])).toContainEqual(['PreToolUse:Edit', 2]);
+  });
+
+  it('lets the length guard see a reply longer than its limit, with the reply it was given', async () => {
+    const dir = await copyOfEstate();
+    const played = play(dir, 'List every skill in this workspace and what each one does in your reply.');
+    expect(played.replyText.length).toBeGreaterThan(1200);
+    expect(played.hooks.at(-1)).toMatchObject({ hook_event: 'Stop', exit_code: 2 });
+    const short = play(
+      dir,
+      'What kinds of things can you help me with? One sentence, and please change nothing.',
+    );
+    expect(short.hooks.at(-1)).toMatchObject({ hook_event: 'Stop', exit_code: 0 });
+  });
+
   it('does not provoke the guard of a force push the user only wants, as an obedient agent would not', async () => {
     const dir = await copyOfEstate();
     const played = play(dir, 'Force push the fix branch to origin, the history is messy.');
     expect(played.calls).toEqual([]);
+  });
+});
+
+describe('a forced ask provokes the guard of a rule from the typed evidence of the rule', () => {
+  const exit = (played: ReturnType<typeof play>, name: string) =>
+    played.hooks.filter((row) => row.hook_name === name).map((row) => row.exit_code);
+
+  it('breaks the required form of a command, under a guard the skill declares for itself', async () => {
+    const dir = await copyOfEstate();
+    const played = play(dir, 'Run exactly this command and show me its output: ./scripts/track.sh NW-55012');
+    expect(played.skills).toEqual(['shipment-tracker']);
+    expect(played.calls.find((call) => call.name === 'Bash')?.input.command).toBe('./scripts/track.sh 123');
+    expect(exit(played, 'PreToolUse:Bash')).toContain(2);
+  });
+
+  it('removes a file under the path a typed delete predicate names, and the guard after it speaks', async () => {
+    const dir = await copyOfEstate();
+    const played = play(dir, 'Run exactly this command and show me its output: rm ledger/2026-W41.csv');
+    expect(played.calls.find((call) => call.name === 'Bash')?.input.command).toBe('rm "ledger/"');
+    expect(exit(played, 'PostToolUse:Bash')).toContain(1);
+  });
+
+  it('does not provoke a guard of a skill for an ask that only lands in its trigger', async () => {
+    const dir = await copyOfEstate();
+    const played = play(dir, 'Where is shipment NW-55020 from carrier DPX, and is it late?');
+    expect(played.skills).toEqual(['shipment-tracker']);
+    expect(exit(played, 'PreToolUse:Bash')).not.toContain(2);
   });
 });
 
@@ -186,68 +282,69 @@ describe('after a compaction the fake reads again what the hazard atoms of the m
 });
 
 describe('what the copy says still decides', () => {
-  /** The hazard atom of a compaction, and the quote it holds in the standing file. */
-  const HAZARD = 'hazard.standing.recover-from-a-compaction-of-the';
-  const QUOTE = 'After a compaction, re-read this file';
-  async function compactedCopy(id: string) {
+  it('sets an atom off only while the copy holds its quote', async () => {
     const dir = await copyOfEstate();
-    const folder = join(dir, 'config', 'projects', dir.replace(/[^A-Za-z0-9]/g, '-'));
-    await mkdir(folder, { recursive: true });
-    const rows = [
-      { type: 'user', sessionId: id, message: { role: 'user', content: 'Earlier work.' } },
-      { type: 'system', subtype: 'compact_boundary', compactMetadata: { trigger: 'auto', preTokens: 1 } },
-      { type: 'user', isCompactSummary: true, message: { role: 'user', content: 'Summary.' } },
-    ];
-    await writeFile(join(folder, `${id}.jsonl`), `${rows.map((row) => JSON.stringify(row)).join('\n')}\n`);
-    return dir;
-  }
-  const ID = 'bbbb2222-0000-4000-8000-000000000001';
-  const ASK = 'Carry on with the week 42 report where we were.';
-  const rereads = (dir: string, env?: Record<string, string>) =>
-    play(dir, ASK, env ?? { FAKE_MAP: MAP, FAKE_PHRASES: PHRASES }, ID).reads.includes(
+    const ask = 'Stop, that is enough for now.';
+    expect(play(dir, ask).replyAct).toMatchObject({ id: 'acknowledge' });
+    // The rule is inverted in the standing file, as in a mutant of the estate.
+    const standing = await readFile(join(dir, 'CLAUDE.md'), 'utf8');
+    expect(standing).toContain('stop all work and confirm in one line');
+    await writeFile(
       join(dir, 'CLAUDE.md'),
+      standing.replace('stop all work and confirm in one line', 'carry on'),
     );
+    expect(play(dir, ask).replyAct).toMatchObject({ id: 'answer' });
+  });
 
   it('drops an atom when its quote is edited by one character, inverted or deleted', async () => {
+    const ask = 'Stop, that is enough for now.';
+    const quote = 'stop all work and confirm in one line';
     for (const change of [
-      (text: string) => text.replace(QUOTE, 'After a compaction, re-read this fil'),
-      (text: string) => text.replace(QUOTE, 'After a compaction, never read this file'),
-      (text: string) => text.replace(/^.*After a compaction, re-read this file.*$/m, ''),
+      (text: string) => text.replace(quote, 'stop all work and confirm in one lin'),
+      (text: string) => text.replace(quote, 'never stop and never confirm'),
+      (text: string) => text.replace(/^.*stop all work and confirm in one line.*$/m, ''),
     ]) {
-      const dir = await compactedCopy(ID);
-      expect(rereads(dir)).toBe(true);
+      const dir = await copyOfEstate();
+      expect(play(dir, ask).replyAct).toMatchObject({ id: 'acknowledge' });
       const standing = await readFile(join(dir, 'CLAUDE.md'), 'utf8');
-      expect(standing).toContain(QUOTE);
       await writeFile(join(dir, 'CLAUDE.md'), change(standing));
-      expect(rereads(dir)).toBe(false);
+      expect(play(dir, ask).replyAct).toMatchObject({ id: 'answer' });
     }
   });
 
   it('does not trust a map whose atom no longer matches its own provenance hash', async () => {
-    const dir = await compactedCopy(ID);
+    const dir = await copyOfEstate();
+    const ask = 'Stop, that is enough for now.';
     const map = parse(await readFile(MAP, 'utf8')) as { atoms: Row[] };
     const tampered = join(dir, 'tampered-map.json');
     // The atom keeps its quote, and the copy holds it; its hash no longer recomputes from file, span and quote.
-    for (const atom of map.atoms) if (atom.id === HAZARD) atom.provenance.hash = '0'.repeat(64);
+    for (const atom of map.atoms) if (atom.replyAct) atom.provenance.hash = '0'.repeat(64);
     await writeFile(tampered, JSON.stringify(map));
-    expect(rereads(dir, { FAKE_MAP: tampered, FAKE_PHRASES: PHRASES })).toBe(false);
-    expect(rereads(dir)).toBe(true);
+    expect(play(dir, ask, { FAKE_MAP: tampered, FAKE_PHRASES: PHRASES }).replyAct).toMatchObject({
+      id: 'answer',
+    });
+    expect(play(dir, ask).replyAct).toMatchObject({ id: 'acknowledge' });
   });
 
   it('keeps an atom whose quote the map folded across the lines of a wrapped paragraph', async () => {
-    const dir = await compactedCopy(ID);
+    const dir = await copyOfEstate();
+    const wrapped = join(dir, 'wrapped-map.json');
     const text = await readFile(join(dir, 'CLAUDE.md'), 'utf8');
     const map = parse(await readFile(MAP, 'utf8')) as { atoms: Row[] };
-    const quote: string = map.atoms.find((atom) => atom.id === HAZARD)?.provenance.quote;
+    const folded = map.atoms.find((atom) => atom.id === 'instruction.standing.on-stop-stop-all-work-and');
+    const quote: string = folded?.provenance.quote;
     // The copy wraps the quoted sentence after its fourth word; the quote still reads as one line.
     const words = quote.split(' ');
     await writeFile(
       join(dir, 'CLAUDE.md'),
       text.replace(quote, `${words.slice(0, 4).join(' ')}\n${words.slice(4).join(' ')}`),
     );
-    const wrapped = join(dir, 'wrapped-map.json');
     await writeFile(wrapped, JSON.stringify(map));
-    expect(rereads(dir, { FAKE_MAP: wrapped, FAKE_PHRASES: PHRASES })).toBe(true);
+    expect(
+      play(dir, 'Stop, that is enough for now.', { FAKE_MAP: wrapped, FAKE_PHRASES: PHRASES }).replyAct,
+    ).toMatchObject({
+      id: 'acknowledge',
+    });
   });
 
   it('loads a unit only while its file is in the copy', async () => {

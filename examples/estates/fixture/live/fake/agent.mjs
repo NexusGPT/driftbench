@@ -16,7 +16,15 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { isAbsolute, join, matchesGlob, relative, resolve } from 'node:path';
-import { intentsOf, loadDispatch, provocation, recoveryReads, replyActOf, setOff } from './dispatch.mjs';
+import {
+  intentsOf,
+  loadDispatch,
+  parseYaml,
+  provocation,
+  recoveryReads,
+  replyActOf,
+  setOff,
+} from './dispatch.mjs';
 
 // The body grammar below matches a described part of a skill's ordering clause to an action by the words they
 // share. That is the one place words remain; the ask is never routed by them.
@@ -53,6 +61,16 @@ function frontmatter(text) {
   return { fields, body: lines.slice(end + 1).join('\n') };
 }
 
+/** The hooks a skill declares in its frontmatter, by event; they are in force while the skill is loaded. */
+function skillHooks(text) {
+  const lines = text.split('\n');
+  const end =
+    lines[0]?.trim() === '---' ? lines.findIndex((line, index) => index > 0 && line.trim() === '---') : -1;
+  if (end < 0 || !lines.slice(1, end).some((line) => /^hooks:/.test(line))) return {};
+  const parsed = parseYaml(lines.slice(1, end).join('\n'));
+  return parsed && typeof parsed.hooks === 'object' && parsed.hooks !== null ? parsed.hooks : {};
+}
+
 function readEstate(cwd) {
   const standing = ['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md']
     .map((path) => read(join(cwd, path)) ?? '')
@@ -70,6 +88,7 @@ function readEstate(cwd) {
         folder: `.claude/skills/${folder}`,
         description: fields.description ?? '',
         body,
+        hooks: skillHooks(text),
       });
     }
   }
@@ -501,6 +520,8 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   const prohibited = prohibitions(estate, unit, cwd, ask);
   const out = [];
   let id = 0;
+  /** The skills loaded so far: the hooks they declare are in force from then on. */
+  const loadedSkills = new Set();
   let blocked = false;
   let lastReply = '';
   const text = (value, act, part = 'reply') => {
@@ -527,7 +548,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   /** Runs the hooks of an event for a tool call; true when one blocks it (exit 2 on a PreToolUse). */
   const hooks = (event, tool, payload) => {
     let block = false;
-    for (const group of estate.settings?.hooks?.[event] ?? []) {
+    for (const group of hookGroups(estate, loadedSkills, event)) {
       if (!group || (tool !== undefined && !covers(group.matcher, tool))) continue;
       for (const hook of group.hooks ?? []) {
         if (hook?.type !== 'command' || typeof hook.command !== 'string') continue;
@@ -721,6 +742,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
     acted = true;
     if (entry.kind === 'skill') {
       call('Skill', { skill: entry.name }, () => ({ content: `Launching skill: ${entry.name}` }));
+      loadedSkills.add(entry.name);
     } else {
       call(
         'Agent',
@@ -753,7 +775,7 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   // A guard is provoked by the event its settings name, so that its real script decides.
   let longerThan = 0;
   for (const guard of intent.guards) {
-    const matcher = matcherOf(estate.settings, guard);
+    const matcher = matcherOf(hookGroups(estate, loadedSkills, guard.fields?.event), guard);
     const provoked = provocation(dispatch, guard, matcher, covers);
     if (provoked === undefined) continue;
     if (provoked.longerThan !== undefined) {
@@ -843,10 +865,18 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
 }
 
 /** The matcher the settings put on the hook that runs a guard's command: how the runtime scopes the guard. */
-function matcherOf(settings, guard) {
-  for (const group of settings?.hooks?.[guard.fields?.event] ?? [])
+function matcherOf(groups, guard) {
+  for (const group of groups)
     for (const hook of group?.hooks ?? []) if (hook?.command === guard.fields?.command) return group.matcher;
   return undefined;
+}
+
+/** The hook groups of an event in force: those of the settings, and those of the skills loaded so far. */
+function hookGroups(estate, loaded, event) {
+  return [
+    ...(estate.settings?.hooks?.[event] ?? []),
+    ...estate.skills.filter((skill) => loaded.has(skill.name)).flatMap((skill) => skill.hooks?.[event] ?? []),
+  ];
 }
 
 function isFile(path) {

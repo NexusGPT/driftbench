@@ -124,6 +124,7 @@ Each block of a run holds `observed` (what the agent did) and `verdicts` (what t
 |---|---|
 | `segments` | What the agent produced, in order. A segment has a `type`: `text` (`text`), `tool_call` (`id`, `label`, `input`), `tool_result` (`id`, `label`, `output`, `error`) or `card` (`name`, `data`). Each may carry `latencyMs` and a `cost`. |
 | `text` | The reply text. |
+| `replyAct` | The semantic act of a reply, recorded by an adapter or a judge: `id` (`answer`, `clarify`, `refuse`, `report`, `draft` or `acknowledge`), `evidence` (`type` `text_segment`, `part` `reply` or `draft`, and `index`, the position of the text segment it labels) and `source` (`kind` `adapter` or `judge`, and `name`). Optional. A label counts only when its `index` names a nonblank text segment. |
 | `toolCalls` | One record per call: `id`, `spanId` (the trace span the call ran in, an OpenTelemetry span id, when the adapter has one), `label`, `input`, `output`, `error`, `startedAt`, `latencyMs`. |
 | `runtime` | What the runtime did around the model, below. Optional. |
 | `artifacts` | Files the agent left in its workspace: `path`, `kind`, `sha256`, `bytes`. |
