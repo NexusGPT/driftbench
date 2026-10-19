@@ -70,9 +70,11 @@ describe('the declarations the shipped set reads from the labels', () => {
     });
     const atom = find(ASK);
     expect(atom?.replyAct).toEqual({ id: 'report', evidence: { type: 'text_segment', part: 'reply' } });
+    // The ask names the reply act of its atom: the generator takes an ask only for that exact act.
     expect(atom?.fields?.ask).toEqual({
       text: 'Summarize the tide report for the harbour master',
       context: 'when the harbour master asks',
+      act: { kind: 'reply', name: 'report' },
     });
     const bare = (await scan({ [ASK]: { label: 'rule' } }))(ASK);
     expect(bare).toBeDefined();
