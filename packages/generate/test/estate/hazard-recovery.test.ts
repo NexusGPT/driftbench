@@ -162,7 +162,8 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
       {},
       ['POLICY.md', 'notes/archive.index.CFG'],
     );
-    expect((named.spec.rules?.custom?.hazard_recovery as Record<string, unknown>).reread).toBeUndefined();
+    const options = named.spec.rules?.custom?.hazard_recovery as Record<string, unknown> | undefined;
+    expect(options?.reread).toBeUndefined();
     const declared = generate('session_boundary', 'Resume the session.', 1, {
       reread: ['notes/archive.index.CFG'],
     });
