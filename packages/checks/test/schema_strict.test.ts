@@ -69,7 +69,17 @@ describe('schema_strict', () => {
     ]);
   });
 
-  it('compiles a pattern as a JavaScript regular expression without the unicode flag', () => {
+  it('keeps a Unicode-aware pattern Unicode-aware: \\p{L} and an astral character with the unicode flag', () => {
+    const letters = { type: 'object', properties: { n: { type: 'string', pattern: '^\\p{L}+$' } } };
+    expect(validateStrict({ n: '\u00e9t\u00e9' }, letters)).toEqual([]);
+    expect(validateStrict({ n: 'abc' }, letters)).toEqual([]);
+    expect(validateStrict({ n: 'a1' }, letters)).toHaveLength(1);
+    const one = { type: 'object', properties: { n: { type: 'string', pattern: '^.{1}$' } } };
+    expect(validateStrict({ n: '\u{1F600}' }, one)).toEqual([]);
+    expect(validateStrict({ n: 'ab' }, one)).toHaveLength(1);
+  });
+
+  it('compiles a pattern the unicode flag refuses, such as \\- or \\_, without the flag', () => {
     const phone = { type: 'object', properties: { n: { type: 'string', pattern: '^\\d{3}\\-\\d{4}$' } } };
     expect(validateStrict({ n: '555-0131' }, phone)).toEqual([]);
     expect(validateStrict({ n: '5550131' }, phone)).toHaveLength(1);

@@ -112,11 +112,9 @@ function stringIssues(value: string, schema: Record<string, unknown>, path: stri
   }
   if (typeof schema.pattern === 'string') {
     let matches = true;
-    try {
-      matches = new RegExp(schema.pattern).test(value);
-    } catch {
-      issues.push(issue(path, `has a schema pattern that does not compile: /${schema.pattern}/`));
-    }
+    const compiled = compilePattern(schema.pattern);
+    if (compiled) matches = compiled.test(value);
+    else issues.push(issue(path, `has a schema pattern that does not compile: /${schema.pattern}/`));
     if (!matches) issues.push(issue(path, `is ${show(value)}, expected to match /${schema.pattern}/`));
   }
   return issues;
@@ -188,4 +186,20 @@ function kindOf(value: unknown): string {
 
 function issue(path: string, message: string): SchemaIssue {
   return { path, message, invented: false };
+}
+
+/**
+ * A schema pattern compiles with the unicode flag, so \p{L} is a class and an astral character is one
+ * character. A pattern that flag refuses, such as \- or \_ (an escaped mark that matches itself), compiles
+ * without it. Undefined when neither compiles.
+ */
+function compilePattern(source: string): RegExp | undefined {
+  for (const flags of ['u', '']) {
+    try {
+      return new RegExp(source, flags);
+    } catch {
+      // try the next reading
+    }
+  }
+  return undefined;
 }
