@@ -33,11 +33,15 @@ async function measure(run: pipeline.EstateRun, checks: CheckSet = referenceChec
 }
 
 describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
-  it('records the real product result: every one of the fourteen items holds on seed 1', async () => {
+  it('records the real product result: every item holds on seed 1 but the one whose recovery nothing declares', async () => {
     const result = await genCompleteFamily().evaluate(1);
-    // The product now writes the structure these items demand (a journey that ran a script, a hazard that rereads,
-    // a permission test with a covered call, a guard message), so no item fails on the real output of seed 1.
-    expect([...result].filter(([, r]) => !r.pass).map(([id]) => id)).toEqual([]);
+    // The product writes the structure these items demand (a journey that ran a script, a permission test with a
+    // covered call, a guard message). The one that fails is the hazard that rereads: its recovery is a typed
+    // declaration on the hazard atom, the estate of seed 1 declares none, and the product reads no word of the
+    // passage to make one up. The reference run fills the declaration in and holds (next tests).
+    expect([...result].filter(([, r]) => !r.pass).map(([id]) => id)).toEqual([
+      'gen.complete.hazard_recovery-hazard-after-compaction',
+    ]);
   });
 
   it('enumerates components, kills structural check deletions, and restores the reference', async () => {
