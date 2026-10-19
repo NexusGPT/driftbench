@@ -410,6 +410,41 @@ const FAULTS: Fault[] = [
     to: 'return { ...meta, labeler: wire.labeler };',
     fails: ids('recording/key-value', 'recording/key-body-and-labeler'),
   },
+  {
+    name: 'single: sources dropped',
+    file: STACK,
+    from: 'sources: sourcesOf(opinion),',
+    to: 'sources: [],',
+    fails: ids('stack/single'),
+  },
+  {
+    name: 'cascade: the second key dropped from a sure decision',
+    file: STACK,
+    from: 'sources: sourcesOf(first, second),\n          ...(second',
+    to: 'sources: sourcesOf(first),\n          ...(second',
+    fails: ids('stack/cascade-sure'),
+  },
+  {
+    name: 'cascade: a tie takes the last label',
+    file: STACK,
+    from: 'if (!top || p > top.p) top = { label: name, p };',
+    to: 'if (!top || p >= top.p) top = { label: name, p };',
+    fails: ids('stack/cascade-sure'),
+  },
+  {
+    name: 'choice: the refusal rounds the sum',
+    file: YESNO,
+    from: 'Number(total.toFixed(4))',
+    to: 'Number(total.toFixed(2))',
+    fails: ids('choice/vector-refused'),
+  },
+  {
+    name: 'choice: one figure above 1',
+    file: YESNO,
+    from: 'values.some((p) => !Number.isFinite(p) || p < 0 || p > 1)',
+    to: 'values.some((p) => !Number.isFinite(p) || p < 0)',
+    fails: ids('choice/vector-refused'),
+  },
 ];
 
 const MUTANTS = join(ROOT, 'packages/estate/.mutants');

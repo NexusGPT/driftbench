@@ -56,7 +56,12 @@ export function canonicalRef(value: unknown): string {
 }
 const hash16 = (value: unknown): string => sha(canonicalRef(value)).slice(0, 16);
 
-const show = (v: unknown): string => JSON.stringify(v);
+const show = (v: unknown): string =>
+  JSON.stringify(v, (_k, x) =>
+    x !== null && typeof x === 'object' && !Array.isArray(x)
+      ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      : x,
+  );
 const guard = <T>(label: string, fn: () => T): { ok: true; value: T } | { ok: false; error: string } => {
   try {
     return { ok: true, value: fn() };
@@ -697,17 +702,25 @@ export function seededChoice(impl: PointerImpl, r: Rng): string[] {
 export type Rule =
   | { rule: 'cascade'; passAt: number; failAt: number }
   | { rule: 'margin'; marginCut: number };
-type Op = { label: string; probabilities: Record<string, number>; target?: number };
+type Op = { label: string; probabilities: Record<string, number>; target?: number; source?: string };
+type Src = { source?: string };
+const srcs = (...ops: Array<Src | undefined>): string[] => ops.flatMap((o) => (o?.source ? [o.source] : []));
 export function decideRef(
-  first: Op | undefined,
-  second: { label: string } | undefined,
+  first: (Op & Src) | undefined,
+  second: ({ label: string } & Src) | undefined,
   askedNames: Set<string>,
   rule: Rule,
 ) {
   if (!first && !second) return undefined;
-  if (!first) return { label: (second as { label: string }).label, by: 'system2', fallback: true };
+  if (!first)
+    return {
+      label: (second as { label: string }).label,
+      by: 'system2',
+      fallback: true,
+      sources: srcs(second),
+    };
   if (second && second.label !== 'none' && !askedNames.has(second.label))
-    return { label: second.label, by: 'system2' };
+    return { label: second.label, by: 'system2', sources: srcs(first, second) };
   let sure: string | undefined;
   if (rule.rule === 'cascade') {
     let top: [string, number] | undefined;
@@ -719,8 +732,14 @@ export function decideRef(
     if ((s[0] as [string, number])[1] - ((s[1] as [string, number] | undefined)?.[1] ?? 0) >= rule.marginCut)
       sure = (s[0] as [string, number])[0];
   }
-  if (sure !== undefined) return { label: sure, by: 'system1', ...(second ? {} : { fallback: true }) };
-  return second ? { label: second.label, by: 'system2' } : undefined;
+  if (sure !== undefined)
+    return {
+      label: sure,
+      by: 'system1',
+      sources: srcs(first, second),
+      ...(second ? {} : { fallback: true }),
+    };
+  return second ? { label: second.label, by: 'system2', sources: srcs(first, second) } : undefined;
 }
 
 function plantedLabeler(cls: 'system1' | 'system2') {
@@ -778,12 +797,17 @@ export function seededStack(
         : {
             label: Object.entries(probabilities).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'none',
             probabilities,
+            source: `k${int(r, 10, 99)}`,
           };
     const secondLabel = part === 'targets' ? pick(r, allLabels) : pick(r, names);
     const second =
       part === 'cascade-fallback' && r() < 0.4
         ? undefined
-        : { label: secondLabel, ...(secondLabel !== 'none' && !asked.has(secondLabel) ? { target: 1 } : {}) };
+        : {
+            label: secondLabel,
+            source: `m${int(r, 10, 99)}`,
+            ...(secondLabel !== 'none' && !asked.has(secondLabel) ? { target: 1 } : {}),
+          };
     const want = decideRef(first, second, asked, rule);
     const a = plantedLabeler('system1');
     const b = plantedLabeler('system2');
@@ -804,7 +828,9 @@ export function seededStack(
       continue;
     }
     const d = got.value;
-    const have = d ? { label: d.label, by: d.by, ...(d.fallback ? { fallback: true } : {}) } : undefined;
+    const have = d
+      ? { label: d.label, by: d.by, sources: d.sources, ...(d.fallback ? { fallback: true } : {}) }
+      : undefined;
     if (show(have) !== show(want))
       misses.push(
         `decide (${show(rule)}) on ${show(first?.probabilities)} and system 2 ${show(second?.label)}: ${show(have)}, expected ${show(want)}`,

@@ -77,7 +77,13 @@ export async function loadPointerImpl(): Promise<PointerImpl> {
 
 const show = (value: unknown): string =>
   JSON.stringify(value, (_k, v) =>
-    v instanceof Map ? Object.fromEntries(v) : v instanceof Set ? [...v] : v,
+    v instanceof Map
+      ? Object.fromEntries(v)
+      : v instanceof Set
+        ? [...v]
+        : v !== null && typeof v === 'object' && !Array.isArray(v)
+          ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+          : v,
   );
 const same = (a: unknown, b: unknown): boolean => show(a) === show(b);
 const near = (a: number, b: number, tol = 1e-12): boolean =>
@@ -314,6 +320,12 @@ function choiceCheck(names: readonly string[]): Check {
         if (byUnit[index]?.label !== want.label)
           misses.push(`${c.name}: unit ${index} took ${show(byUnit[index]?.label)}, expected ${want.label}`);
       }
+      for (const sum of c.expect.sums as number[]) {
+        if (!got.value.refusals.some((r: string) => r.includes(`sum to ${sum})`)))
+          misses.push(
+            `${c.name}: no refusal says the probabilities sum to ${sum}: ${show(got.value.refusals)}`,
+          );
+      }
       if (got.value.refusals.length !== c.expect.refusals)
         misses.push(`${c.name}: ${got.value.refusals.length} refusals, expected ${c.expect.refusals}`);
     }
@@ -388,6 +400,7 @@ function stackCheck(names: readonly string[]): Check {
       const got3 = {
         label: d.label,
         by: d.by,
+        sources: d.sources,
         ...(d.target !== undefined ? { target: d.target } : {}),
         ...(d.fallback ? { fallback: true } : {}),
       };
@@ -411,7 +424,8 @@ const singleCheck: Check = (impl, cases) => {
       !got.value ||
       got.value.label !== c.expect.label ||
       got.value.by !== c.expect.by ||
-      got.value.target !== c.expect.target
+      got.value.target !== c.expect.target ||
+      show(got.value.sources) !== show(c.expect.sources)
     )
       misses.push(`${c.name}: decided ${show(got.value)}, expected ${show(c.expect)}`);
   }
@@ -980,7 +994,7 @@ export function pointerBank(): PointerItem[] {
       Y,
       'a choice answer that is no vector is refused with a reason and never normalised',
       'choiceOpinions.vector',
-      choiceCheck(['sum-too-high', 'negative', 'above-one']),
+      choiceCheck(['sum-too-high', 'negative', 'above-one', 'one-figure-over-one', 'refusal-names-the-sum']),
     ),
   );
   out.push(
@@ -1017,6 +1031,8 @@ export function pointerBank(): PointerItem[] {
       cascade([
         'sure-yes',
         'sure-yes-boundary',
+        'sure-tie-first-label',
+        'sure-tie-with-second',
         'sure-none-option',
         'sure-none-option-boundary',
         'just-under-pass',
@@ -1245,9 +1261,9 @@ export const GROUP_SIZES: Record<string, number> = {
   'askedLabels.cases': 5,
   'yesNoOpinions.threshold': 7,
   'yesNoOpinions.unanswered': 7,
-  'choiceOpinions.vector': 11,
+  'choiceOpinions.vector': 13,
   'margin.cases': 13,
-  'stack.cascade': 22,
+  'stack.cascade': 24,
   'stack.margin': 12,
   'stack.single': 4,
   'labelling.hash': 4,

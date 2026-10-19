@@ -311,7 +311,7 @@ def is_vector(p):
 
 def choice(asked, win, probs):
     names = asked + ["none"]
-    by, refusals = {}, 0
+    by, refusals, sums = {}, 0, []
     for u in win["units"]:
         got, best = {}, None
         for n in names:
@@ -325,9 +325,10 @@ def choice(asked, win, probs):
             continue
         if not is_vector(got):
             refusals += 1
+            sums.append(round(sum(got.values()), 4))
             continue
         by[str(u["index"])] = {"label": best[0], "probabilities": got}
-    return {"byUnit": by, "refusals": refusals}
+    return {"byUnit": by, "refusals": refusals, "sums": sums}
 
 
 def chc(name, asked, probs):
@@ -340,6 +341,8 @@ def vec(u, g, p, a, n):
 
 put("choiceOpinions.vector", "a unit takes the likeliest option, none among them; probabilities that are no vector are refused, never repaired", [
     chc("clean", A3, {**vec(1, 0.7, 0.1, 0.1, 0.1), **vec(2, 0.05, 0.05, 0.05, 0.85), **vec(3, 0.2, 0.5, 0.2, 0.1)}),
+    chc("one-figure-over-one", A3, {**vec(1, 1.005, 0.0, 0.0, 0.0), **vec(2, 0.25, 0.25, 0.25, 0.25), **vec(3, 0.0, 0.0, 0.0, 1.0)}),
+    chc("refusal-names-the-sum", A3, {**vec(1, 0.5123, 0.5, 0.0, 0.0123), **vec(2, 0.25, 0.25, 0.25, 0.25), **vec(3, 0.9, 0.9, 0.9, 0.9)}),
     chc("tolerance-upper", A3, {**vec(1, 0.7, 0.2, 0.1, 0.01), **vec(2, 0.25, 0.25, 0.25, 0.25), **vec(3, 0.0, 0.0, 0.0, 1.0)}),
     chc("tolerance-over", A3, {**vec(1, 0.7, 0.2, 0.1, 0.0101), **vec(2, 0.25, 0.25, 0.25, 0.25), **vec(3, 0.0, 0.0, 0.0, 1.0)}),
     chc("tolerance-under", A3, {**vec(1, 0.7, 0.2, 0.09, 0.0), **vec(2, 0.25, 0.25, 0.25, 0.2399), **vec(3, 0.0, 0.0, 0.0, 1.0)}),
@@ -399,28 +402,32 @@ def asked_names(sset):
     return {l["name"] for l in sset["labels"] if l.get("target") != "required"}
 
 
+def srcs(*ops):
+    return [o["source"] for o in ops if o is not None and "source" in o]
+
+
 def decide_stack(first, second, sset, rule):
     if first is None and second is None:
         return None
     if first is None:
-        d = {"label": second["label"], "by": "system2", "fallback": True}
+        d = {"label": second["label"], "by": "system2", "fallback": True, "sources": srcs(second)}
         if "target" in second:
             d["target"] = second["target"]
         return d
     if second is not None:
         if second["label"] != "none" and second["label"] not in asked_names(sset):
-            d = {"label": second["label"], "by": "system2"}
+            d = {"label": second["label"], "by": "system2", "sources": srcs(first, second)}
             if "target" in second:
                 d["target"] = second["target"]
             return d
     sure = sure_cascade(first, rule["passAt"], rule["failAt"]) if rule["rule"] == "cascade" else sure_margin(first, rule["marginCut"])
     if sure is not None:
-        d = {"label": sure, "by": "system1"}
+        d = {"label": sure, "by": "system1", "sources": srcs(first, second)}
         if second is None:
             d["fallback"] = True
         return d
     if second is not None:
-        d = {"label": second["label"], "by": "system2"}
+        d = {"label": second["label"], "by": "system2", "sources": srcs(first, second)}
         if "target" in second:
             d["target"] = second["target"]
         return d
@@ -434,16 +441,18 @@ def stk(name, first, second, sset=S1, rule=None):
 
 def o1(**p):
     top = max(p.items(), key=lambda kv: kv[1])[0] if p else "none"
-    return {"label": top, "probabilities": p}
+    return {"label": top, "probabilities": p, "source": "k1"}
 
 
 def o2(label, **kw):
-    return {"label": label, **kw}
+    return {"label": label, "source": "k2", **kw}
 
 
 put("stack.cascade", "system 1 decides alone at pass-at or above and under fail-at for every label; between, system 2 decides; with no system 2 opinion an unsure unit is left unlabeled", [
     stk("sure-yes", o1(greeting=0.95, **{"price-claim": 0.1}), o2("price-claim")),
     stk("sure-yes-boundary", o1(greeting=0.9, **{"price-claim": 0.1}), o2("none")),
+    stk("sure-tie-first-label", o1(greeting=0.95, **{"price-claim": 0.95}), None),
+    stk("sure-tie-with-second", o1(**{"price-claim": 0.92, "greeting": 0.92}), o2("greeting")),
     stk("sure-none-option", o1(greeting=0.04, **{"price-claim": 0.03, "none": 0.93}), o2("greeting")),
     stk("sure-none-option-boundary", o1(greeting=0.05, **{"price-claim": 0.05, "none": 0.9}), o2("price-claim")),
     stk("just-under-pass", o1(greeting=0.899, **{"price-claim": 0.1}), o2("price-claim")),
@@ -481,9 +490,9 @@ put("stack.margin", "with a margin cut system 1 decides when its likeliest optio
     stk("cut-zero", o1(greeting=0.34, **{"price-claim": 0.33, "none": 0.33}), o2("none"), S1, {"rule": "margin", "marginCut": 0.0}),
 ])
 put("stack.single", "a lone labeler's opinion is the decision; no opinion is no decision", [
-    {"name": "label", "opinion": {"label": "greeting"}, "expect": {"label": "greeting", "by": "system1"}, "cls": "system1"},
-    {"name": "label-with-target", "opinion": {"label": "when", "target": 4}, "expect": {"label": "when", "target": 4, "by": "system2"}, "cls": "system2"},
-    {"name": "none", "opinion": {"label": "none"}, "expect": {"label": "none", "by": "system2"}, "cls": "system2"},
+    {"name": "label", "opinion": {"label": "greeting", "source": "k1"}, "expect": {"label": "greeting", "by": "system1", "sources": ["k1"]}, "cls": "system1"},
+    {"name": "label-with-target", "opinion": {"label": "when", "target": 4, "source": "k9"}, "expect": {"label": "when", "target": 4, "by": "system2", "sources": ["k9"]}, "cls": "system2"},
+    {"name": "none", "opinion": {"label": "none"}, "expect": {"label": "none", "by": "system2", "sources": []}, "cls": "system2"},
     {"name": "absent", "opinion": None, "expect": None, "cls": "system1"},
 ])
 

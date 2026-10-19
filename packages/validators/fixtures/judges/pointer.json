@@ -3943,7 +3943,127 @@
             }
           }
         },
-        "refusals": 0
+        "refusals": 0,
+        "sums": []
+      }
+    },
+    {
+      "name": "one-figure-over-one",
+      "asked": ["greeting", "price-claim", "allergen-line"],
+      "window": {
+        "id": "notes.md#1",
+        "path": "notes.md",
+        "headingPath": ["Shop"],
+        "units": [
+          {
+            "n": 1,
+            "text": "Line 1",
+            "index": 10
+          },
+          {
+            "n": 2,
+            "text": "Line 2",
+            "index": 11
+          },
+          {
+            "n": 3,
+            "text": "Line 3",
+            "index": 12
+          }
+        ]
+      },
+      "probabilities": {
+        "u1__greeting": 1.005,
+        "u1__price-claim": 0.0,
+        "u1__allergen-line": 0.0,
+        "u1__none": 0.0,
+        "u2__greeting": 0.25,
+        "u2__price-claim": 0.25,
+        "u2__allergen-line": 0.25,
+        "u2__none": 0.25,
+        "u3__greeting": 0.0,
+        "u3__price-claim": 0.0,
+        "u3__allergen-line": 0.0,
+        "u3__none": 1.0
+      },
+      "expect": {
+        "byUnit": {
+          "11": {
+            "label": "greeting",
+            "probabilities": {
+              "greeting": 0.25,
+              "price-claim": 0.25,
+              "allergen-line": 0.25,
+              "none": 0.25
+            }
+          },
+          "12": {
+            "label": "none",
+            "probabilities": {
+              "greeting": 0.0,
+              "price-claim": 0.0,
+              "allergen-line": 0.0,
+              "none": 1.0
+            }
+          }
+        },
+        "refusals": 1,
+        "sums": [1.005]
+      }
+    },
+    {
+      "name": "refusal-names-the-sum",
+      "asked": ["greeting", "price-claim", "allergen-line"],
+      "window": {
+        "id": "notes.md#1",
+        "path": "notes.md",
+        "headingPath": ["Shop"],
+        "units": [
+          {
+            "n": 1,
+            "text": "Line 1",
+            "index": 10
+          },
+          {
+            "n": 2,
+            "text": "Line 2",
+            "index": 11
+          },
+          {
+            "n": 3,
+            "text": "Line 3",
+            "index": 12
+          }
+        ]
+      },
+      "probabilities": {
+        "u1__greeting": 0.5123,
+        "u1__price-claim": 0.5,
+        "u1__allergen-line": 0.0,
+        "u1__none": 0.0123,
+        "u2__greeting": 0.25,
+        "u2__price-claim": 0.25,
+        "u2__allergen-line": 0.25,
+        "u2__none": 0.25,
+        "u3__greeting": 0.9,
+        "u3__price-claim": 0.9,
+        "u3__allergen-line": 0.9,
+        "u3__none": 0.9
+      },
+      "expect": {
+        "byUnit": {
+          "11": {
+            "label": "greeting",
+            "probabilities": {
+              "greeting": 0.25,
+              "price-claim": 0.25,
+              "allergen-line": 0.25,
+              "none": 0.25
+            }
+          }
+        },
+        "refusals": 2,
+        "sums": [1.0246, 3.6]
       }
     },
     {
@@ -4015,7 +4135,8 @@
             }
           }
         },
-        "refusals": 0
+        "refusals": 0,
+        "sums": []
       }
     },
     {
@@ -4078,7 +4199,8 @@
             }
           }
         },
-        "refusals": 1
+        "refusals": 1,
+        "sums": [1.0101]
       }
     },
     {
@@ -4141,7 +4263,8 @@
             }
           }
         },
-        "refusals": 1
+        "refusals": 1,
+        "sums": [0.9899]
       }
     },
     {
@@ -4204,7 +4327,8 @@
             }
           }
         },
-        "refusals": 1
+        "refusals": 1,
+        "sums": [3.6]
       }
     },
     {
@@ -4267,7 +4391,8 @@
             }
           }
         },
-        "refusals": 1
+        "refusals": 1,
+        "sums": [1.0]
       }
     },
     {
@@ -4330,7 +4455,8 @@
             }
           }
         },
-        "refusals": 1
+        "refusals": 1,
+        "sums": [1.0]
       }
     },
     {
@@ -4402,7 +4528,8 @@
             }
           }
         },
-        "refusals": 0
+        "refusals": 0,
+        "sums": []
       }
     },
     {
@@ -4464,7 +4591,8 @@
             }
           }
         },
-        "refusals": 0
+        "refusals": 0,
+        "sums": []
       }
     },
     {
@@ -4526,7 +4654,8 @@
             }
           }
         },
-        "refusals": 0
+        "refusals": 0,
+        "sums": []
       }
     },
     {
@@ -4589,7 +4718,8 @@
             }
           }
         },
-        "refusals": 0
+        "refusals": 0,
+        "sums": []
       }
     }
   ],
@@ -4748,10 +4878,12 @@
         "probabilities": {
           "greeting": 0.95,
           "price-claim": 0.1
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "price-claim"
+        "label": "price-claim",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -4760,7 +4892,8 @@
       },
       "expect": {
         "label": "greeting",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -4790,10 +4923,12 @@
         "probabilities": {
           "greeting": 0.9,
           "price-claim": 0.1
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "none"
+        "label": "none",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -4802,7 +4937,96 @@
       },
       "expect": {
         "label": "greeting",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
+      }
+    },
+    {
+      "name": "sure-tie-first-label",
+      "set": {
+        "set": "orchard-voice",
+        "description": "How the notes of an orchard shop are worded.",
+        "labels": [
+          {
+            "name": "greeting",
+            "description": "A unit that fixes how a visitor is welcomed."
+          },
+          {
+            "name": "price-claim",
+            "description": "A unit that states what a crate costs.",
+            "examples": ["A crate of pears costs six euros."]
+          },
+          {
+            "name": "allergen-line",
+            "description": "A unit that must appear word for word.",
+            "examples": ["Nut traces are listed on the crate.", "Ask for the list."]
+          }
+        ]
+      },
+      "first": {
+        "label": "greeting",
+        "probabilities": {
+          "greeting": 0.95,
+          "price-claim": 0.95
+        },
+        "source": "k1"
+      },
+      "second": null,
+      "rule": {
+        "rule": "cascade",
+        "passAt": 0.9,
+        "failAt": 0.1
+      },
+      "expect": {
+        "label": "greeting",
+        "by": "system1",
+        "sources": ["k1"],
+        "fallback": true
+      }
+    },
+    {
+      "name": "sure-tie-with-second",
+      "set": {
+        "set": "orchard-voice",
+        "description": "How the notes of an orchard shop are worded.",
+        "labels": [
+          {
+            "name": "greeting",
+            "description": "A unit that fixes how a visitor is welcomed."
+          },
+          {
+            "name": "price-claim",
+            "description": "A unit that states what a crate costs.",
+            "examples": ["A crate of pears costs six euros."]
+          },
+          {
+            "name": "allergen-line",
+            "description": "A unit that must appear word for word.",
+            "examples": ["Nut traces are listed on the crate.", "Ask for the list."]
+          }
+        ]
+      },
+      "first": {
+        "label": "price-claim",
+        "probabilities": {
+          "price-claim": 0.92,
+          "greeting": 0.92
+        },
+        "source": "k1"
+      },
+      "second": {
+        "label": "greeting",
+        "source": "k2"
+      },
+      "rule": {
+        "rule": "cascade",
+        "passAt": 0.9,
+        "failAt": 0.1
+      },
+      "expect": {
+        "label": "price-claim",
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -4833,10 +5057,12 @@
           "greeting": 0.04,
           "price-claim": 0.03,
           "none": 0.93
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "greeting"
+        "label": "greeting",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -4845,7 +5071,8 @@
       },
       "expect": {
         "label": "none",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -4876,10 +5103,12 @@
           "greeting": 0.05,
           "price-claim": 0.05,
           "none": 0.9
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "price-claim"
+        "label": "price-claim",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -4888,7 +5117,8 @@
       },
       "expect": {
         "label": "none",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -4918,10 +5148,12 @@
         "probabilities": {
           "greeting": 0.899,
           "price-claim": 0.1
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "price-claim"
+        "label": "price-claim",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -4930,7 +5162,8 @@
       },
       "expect": {
         "label": "price-claim",
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -4960,10 +5193,12 @@
         "probabilities": {
           "greeting": 0.05,
           "price-claim": 0.09
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "greeting"
+        "label": "greeting",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -4972,7 +5207,8 @@
       },
       "expect": {
         "label": "none",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5002,10 +5238,12 @@
         "probabilities": {
           "greeting": 0.1,
           "price-claim": 0.05
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "greeting"
+        "label": "greeting",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -5014,7 +5252,8 @@
       },
       "expect": {
         "label": "greeting",
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5044,10 +5283,12 @@
         "probabilities": {
           "greeting": 0.5,
           "price-claim": 0.2
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "allergen-line"
+        "label": "allergen-line",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -5056,7 +5297,8 @@
       },
       "expect": {
         "label": "allergen-line",
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5086,7 +5328,8 @@
         "probabilities": {
           "greeting": 0.5,
           "price-claim": 0.2
-        }
+        },
+        "source": "k1"
       },
       "second": null,
       "rule": {
@@ -5122,7 +5365,8 @@
         "label": "greeting",
         "probabilities": {
           "greeting": 0.97
-        }
+        },
+        "source": "k1"
       },
       "second": null,
       "rule": {
@@ -5133,6 +5377,7 @@
       "expect": {
         "label": "greeting",
         "by": "system1",
+        "sources": ["k1"],
         "fallback": true
       }
     },
@@ -5162,7 +5407,8 @@
         "label": "greeting",
         "probabilities": {
           "greeting": 0.02
-        }
+        },
+        "source": "k1"
       },
       "second": null,
       "rule": {
@@ -5173,6 +5419,7 @@
       "expect": {
         "label": "none",
         "by": "system1",
+        "sources": ["k1"],
         "fallback": true
       }
     },
@@ -5200,7 +5447,8 @@
       },
       "first": null,
       "second": {
-        "label": "greeting"
+        "label": "greeting",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -5210,7 +5458,8 @@
       "expect": {
         "label": "greeting",
         "by": "system2",
-        "fallback": true
+        "fallback": true,
+        "sources": ["k2"]
       }
     },
     {
@@ -5270,10 +5519,12 @@
         "label": "greeting",
         "probabilities": {
           "greeting": 0.5
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "none"
+        "label": "none",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -5282,7 +5533,8 @@
       },
       "expect": {
         "label": "none",
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5311,10 +5563,12 @@
         "label": "greeting",
         "probabilities": {
           "greeting": 0.95
-        }
+        },
+        "source": "k1"
       },
       "second": {
         "label": "when",
+        "source": "k2",
         "target": 3
       },
       "rule": {
@@ -5325,6 +5579,7 @@
       "expect": {
         "label": "when",
         "by": "system2",
+        "sources": ["k1", "k2"],
         "target": 3
       }
     },
@@ -5354,10 +5609,12 @@
         "label": "rule",
         "probabilities": {
           "rule": 0.02
-        }
+        },
+        "source": "k1"
       },
       "second": {
         "label": "when",
+        "source": "k2",
         "target": 2
       },
       "rule": {
@@ -5368,6 +5625,7 @@
       "expect": {
         "label": "when",
         "by": "system2",
+        "sources": ["k1", "k2"],
         "target": 2
       }
     },
@@ -5397,10 +5655,12 @@
         "label": "rule",
         "probabilities": {
           "rule": 0.97
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "rule"
+        "label": "rule",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -5409,7 +5669,8 @@
       },
       "expect": {
         "label": "rule",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5438,10 +5699,12 @@
         "label": "rule",
         "probabilities": {
           "rule": 0.5
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "rule"
+        "label": "rule",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -5450,7 +5713,8 @@
       },
       "expect": {
         "label": "rule",
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5479,10 +5743,12 @@
         "label": "greeting",
         "probabilities": {
           "greeting": 0.95
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "shouting"
+        "label": "shouting",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -5491,7 +5757,8 @@
       },
       "expect": {
         "label": "shouting",
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5520,10 +5787,12 @@
         "label": "greeting",
         "probabilities": {
           "greeting": 0.75
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "price-claim"
+        "label": "price-claim",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -5532,7 +5801,8 @@
       },
       "expect": {
         "label": "greeting",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5561,10 +5831,12 @@
         "label": "greeting",
         "probabilities": {
           "greeting": 0.25
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "price-claim"
+        "label": "price-claim",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -5573,7 +5845,8 @@
       },
       "expect": {
         "label": "none",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5602,10 +5875,12 @@
         "label": "greeting",
         "probabilities": {
           "greeting": 0.5
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "price-claim"
+        "label": "price-claim",
+        "source": "k2"
       },
       "rule": {
         "rule": "cascade",
@@ -5614,7 +5889,8 @@
       },
       "expect": {
         "label": "price-claim",
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k1", "k2"]
       }
     }
   ],
@@ -5647,10 +5923,12 @@
           "greeting": 0.9,
           "price-claim": 0.05,
           "none": 0.05
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "price-claim"
+        "label": "price-claim",
+        "source": "k2"
       },
       "rule": {
         "rule": "margin",
@@ -5658,7 +5936,8 @@
       },
       "expect": {
         "label": "greeting",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5689,10 +5968,12 @@
           "greeting": 0.75,
           "price-claim": 0.0,
           "none": 0.25
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "price-claim"
+        "label": "price-claim",
+        "source": "k2"
       },
       "rule": {
         "rule": "margin",
@@ -5700,7 +5981,8 @@
       },
       "expect": {
         "label": "greeting",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5731,10 +6013,12 @@
           "greeting": 0.7,
           "price-claim": 0.1,
           "none": 0.2
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "price-claim"
+        "label": "price-claim",
+        "source": "k2"
       },
       "rule": {
         "rule": "margin",
@@ -5742,7 +6026,8 @@
       },
       "expect": {
         "label": "price-claim",
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5773,10 +6058,12 @@
           "greeting": 0.05,
           "price-claim": 0.05,
           "none": 0.9
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "greeting"
+        "label": "greeting",
+        "source": "k2"
       },
       "rule": {
         "rule": "margin",
@@ -5784,7 +6071,8 @@
       },
       "expect": {
         "label": "none",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5815,10 +6103,12 @@
           "greeting": 0.4,
           "price-claim": 0.4,
           "none": 0.2
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "greeting"
+        "label": "greeting",
+        "source": "k2"
       },
       "rule": {
         "rule": "margin",
@@ -5826,7 +6116,8 @@
       },
       "expect": {
         "label": "greeting",
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5857,10 +6148,12 @@
           "greeting": 0.9,
           "price-claim": 0.9,
           "none": 0.9
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "price-claim"
+        "label": "price-claim",
+        "source": "k2"
       },
       "rule": {
         "rule": "margin",
@@ -5868,7 +6161,8 @@
       },
       "expect": {
         "label": "price-claim",
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5898,10 +6192,12 @@
         "probabilities": {
           "greeting": 0.95,
           "price-claim": 0.05
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "price-claim"
+        "label": "price-claim",
+        "source": "k2"
       },
       "rule": {
         "rule": "margin",
@@ -5909,7 +6205,8 @@
       },
       "expect": {
         "label": "price-claim",
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k1", "k2"]
       }
     },
     {
@@ -5940,7 +6237,8 @@
           "greeting": 0.9,
           "price-claim": 0.05,
           "none": 0.05
-        }
+        },
+        "source": "k1"
       },
       "second": null,
       "rule": {
@@ -5950,6 +6248,7 @@
       "expect": {
         "label": "greeting",
         "by": "system1",
+        "sources": ["k1"],
         "fallback": true
       }
     },
@@ -5981,7 +6280,8 @@
           "greeting": 0.5,
           "price-claim": 0.3,
           "none": 0.2
-        }
+        },
+        "source": "k1"
       },
       "second": null,
       "rule": {
@@ -6014,7 +6314,8 @@
       },
       "first": null,
       "second": {
-        "label": "greeting"
+        "label": "greeting",
+        "source": "k2"
       },
       "rule": {
         "rule": "margin",
@@ -6023,7 +6324,8 @@
       "expect": {
         "label": "greeting",
         "by": "system2",
-        "fallback": true
+        "fallback": true,
+        "sources": ["k2"]
       }
     },
     {
@@ -6053,10 +6355,12 @@
         "probabilities": {
           "rule": 0.9,
           "none": 0.1
-        }
+        },
+        "source": "k1"
       },
       "second": {
         "label": "when",
+        "source": "k2",
         "target": 1
       },
       "rule": {
@@ -6066,6 +6370,7 @@
       "expect": {
         "label": "when",
         "by": "system2",
+        "sources": ["k1", "k2"],
         "target": 1
       }
     },
@@ -6097,10 +6402,12 @@
           "greeting": 0.34,
           "price-claim": 0.33,
           "none": 0.33
-        }
+        },
+        "source": "k1"
       },
       "second": {
-        "label": "none"
+        "label": "none",
+        "source": "k2"
       },
       "rule": {
         "rule": "margin",
@@ -6108,7 +6415,8 @@
       },
       "expect": {
         "label": "greeting",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1", "k2"]
       }
     }
   ],
@@ -6116,11 +6424,13 @@
     {
       "name": "label",
       "opinion": {
-        "label": "greeting"
+        "label": "greeting",
+        "source": "k1"
       },
       "expect": {
         "label": "greeting",
-        "by": "system1"
+        "by": "system1",
+        "sources": ["k1"]
       },
       "cls": "system1"
     },
@@ -6128,12 +6438,14 @@
       "name": "label-with-target",
       "opinion": {
         "label": "when",
-        "target": 4
+        "target": 4,
+        "source": "k9"
       },
       "expect": {
         "label": "when",
         "target": 4,
-        "by": "system2"
+        "by": "system2",
+        "sources": ["k9"]
       },
       "cls": "system2"
     },
@@ -6144,7 +6456,8 @@
       },
       "expect": {
         "label": "none",
-        "by": "system2"
+        "by": "system2",
+        "sources": []
       },
       "cls": "system2"
     },
