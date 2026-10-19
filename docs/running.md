@@ -510,7 +510,7 @@ Successful replies are content and are stored. Redaction is **best effort**, not
 
 These targets do not follow redirects, as the judge calls do not ([retries](retries.md)). A redirect to another origin is always refused: neither the request nor a key header goes to a host the spec did not name. A 307 or a 308 on the same origin is followed only when the `http` target says `redirects: same-origin`. A refused redirect fails the block with the reason. A `litellm` target takes its system prompt from `campaign run --prompt` when one is given, else from `system`. One adapter is made per target name in a campaign, so two specs that name `http:my-bot` share the options of the first.
 
-A target with a missing setting is refused with exit 2 and the setting to give: `No adapter is set up for http:my-bot. An http target needs its URL: set target.options.url in the spec, or DRIFTBENCH_HTTP_URL.` A [plugin](plugins.md) that registers `http`, `litellm` or `nexus` replaces the built-in target of that name. [`examples/http-target`](https://github.com/achammah/driftbench/tree/main/examples/http-target) runs an `http` target against a stand-in server.
+A target with a missing setting is refused with exit 2 and the setting to give: `No adapter is set up for http:my-bot. An http target needs its URL: set target.options.url in the spec, or DRIFTBENCH_HTTP_URL.` A [plugin](plugins.md) that registers `http`, `litellm` or `nexus` replaces the built-in target of that name. [`examples/http-target`](https://github.com/NexusGPT/driftbench/tree/main/examples/http-target) runs an `http` target against a stand-in server.
 
 ## Project config and the pull-request gate
 

@@ -2,7 +2,7 @@
 
 The `driftbench` command line: validate and run specs, campaigns in teacher-forced, free-running and perturbed modes, reports, generation and validators.
 
-Part of [driftbench](https://github.com/achammah/driftbench), block-level evaluation for AI agents: every exchange is a unit test with a Given, a When and a Then.
+Part of [driftbench](https://github.com/NexusGPT/driftbench), block-level evaluation for AI agents: every exchange is a unit test with a Given, a When and a Then.
 
 ## Install
 
@@ -26,7 +26,7 @@ driftbench ci --specs specs/ --target function:my-agent --baseline <store>  # ex
 
 ## Documentation
 
-[CLI reference](https://github.com/achammah/driftbench/blob/main/docs/reference/cli.md), [Running](https://github.com/achammah/driftbench/blob/main/docs/running.md), and the [docs index](https://github.com/achammah/driftbench/blob/main/docs/index.md).
+[CLI reference](https://github.com/NexusGPT/driftbench/blob/main/docs/reference/cli.md), [Running](https://github.com/NexusGPT/driftbench/blob/main/docs/running.md), and the [docs index](https://github.com/NexusGPT/driftbench/blob/main/docs/index.md).
 
 ## License
 
