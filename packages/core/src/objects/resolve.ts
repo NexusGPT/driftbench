@@ -45,12 +45,19 @@ export class ObjectRegistry {
   readonly #kinds = new Map<string, KindDef>();
   readonly #impls = new Map<string, ImplDef>();
   readonly #shipped = new Map<string, { raw: unknown; path: string }>();
+  #revision = 0;
+
+  /** Changes each time a kind, an implementation or a shipped object is registered, or a snapshot is restored. */
+  get revision(): number {
+    return this.#revision;
+  }
 
   registerKind(def: KindDef): this {
     if (this.#kinds.has(def.kind)) throw new Error(`the object kind ${def.kind} is already registered`);
     const parsed = Envelope.shape.kind.safeParse(def.kind);
     if (!parsed.success) throw new Error(`${def.kind}: ${parsed.error.issues[0]?.message ?? 'invalid kind'}`);
     this.#kinds.set(def.kind, def);
+    this.#revision += 1;
     return this;
   }
 
@@ -59,6 +66,7 @@ export class ObjectRegistry {
       throw new Error(`an implementation is named builtin:<name> or plugin:<name>: ${name}`);
     if (this.#impls.has(name)) throw new Error(`the implementation ${name} is already registered`);
     this.#impls.set(name, def);
+    this.#revision += 1;
     return this;
   }
 
@@ -71,6 +79,7 @@ export class ObjectRegistry {
     const key = `${head.data.kind}:${head.data.id}`;
     if (this.#shipped.has(key)) throw new Error(`the shipped object ${key} is already registered`);
     this.#shipped.set(key, { raw, path });
+    this.#revision += 1;
     return this;
   }
 
@@ -90,6 +99,7 @@ export class ObjectRegistry {
     for (const [key, value] of snapshot.impls) this.#impls.set(key, value);
     this.#shipped.clear();
     for (const [key, value] of snapshot.shipped) this.#shipped.set(key, value);
+    this.#revision += 1;
   }
 
   kind(name: string): KindDef | undefined {
@@ -259,9 +269,19 @@ export class ObjectStore {
   readonly #entries = new Map<string, Entry[]>();
   #resolved = new WeakMap<Entry, ResolvedObject>();
 
-  constructor(registry: ObjectRegistry = objectRegistry) {
+  /**
+   * With `base`, a store of the same registry that starts from what `base` holds, with its resolutions, without
+   * reading the shipped objects again. Adding to either store never reaches the other: an add starts a memo of its own.
+   */
+  constructor(registry: ObjectRegistry = objectRegistry, base?: ObjectStore) {
     if (registry === objectRegistry) initializeShippedObjects();
     this.registry = registry;
+    if (base !== undefined) {
+      if (base.registry !== registry) throw new Error('a store starts from a store of the same registry');
+      for (const [key, known] of base.#entries) this.#entries.set(key, [...known]);
+      this.#resolved = base.#resolved;
+      return;
+    }
     for (const { raw, path } of registry.shipped()) this.add(raw, 'shipped', { path });
   }
 
