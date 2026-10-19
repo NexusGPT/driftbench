@@ -126,6 +126,7 @@ function writeSuite(
       {
         specs: 0,
         blocks: 0,
+        cut_blocks: 0,
         complete: 0,
         needs_phrase: 0,
         needs_then: 0,
@@ -179,6 +180,7 @@ function writeSuite(
     const totals = seeders[seeder];
     totals.specs += 1;
     totals.blocks += rendered.blocks;
+    totals.cut_blocks += draft.reducedEnds?.duplicates.length ?? 0;
     if (needsThen) {
       totals.needs_then += 1;
       noThen.push({ spec: rendered.id, blocks: rendered.noThen, reasons: rendered.reasons });

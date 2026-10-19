@@ -95,6 +95,53 @@ describe('generate on the approved Acme map', () => {
     }
   });
 
+  it('counts every recorded cut per seeder and names the retained family of duplicate ends', () => {
+    let cuts = 0;
+    for (const [seeder, totals] of Object.entries(result.report.seeders)) {
+      const recorded = result.all.reduce((sum, spec) => {
+        const generated = (
+          spec.metadata as {
+            generated: {
+              seeder: string;
+              reduced_ends?: {
+                duplicates: Array<{ duplicate_of: { spec: string; block: string; family?: string } }>;
+              };
+            };
+          }
+        ).generated;
+        for (const duplicate of generated.reduced_ends?.duplicates ?? []) {
+          const witness = result.all.find((entry) => entry.id === duplicate.duplicate_of.spec);
+          expect(witness?.blocks.some((block) => block.id === duplicate.duplicate_of.block)).toBe(true);
+          if (duplicate.duplicate_of.family !== undefined)
+            expect(witness?.metadata).toMatchObject({
+              generated: {
+                metamorphic: { family: duplicate.duplicate_of.family },
+              },
+            });
+        }
+        return sum + (generated.seeder === seeder ? (generated.reduced_ends?.duplicates.length ?? 0) : 0);
+      }, 0);
+      expect(totals.cut_blocks, seeder).toBe(recorded);
+      cuts += recorded;
+    }
+    for (const variant of [1, 2]) {
+      const shortened = result.all.find((spec) => spec.id === `gen-metamorphic-010-${variant}`);
+      expect(shortened?.metadata).toMatchObject({
+        generated: {
+          reduced_ends: {
+            duplicates: [
+              {
+                duplicate_family: 'gen-metamorphic-004',
+                duplicate_of: { spec: 'gen-graph-003', block: 'b2-identify-to-closing' },
+              },
+            ],
+          },
+        },
+      });
+    }
+    expect(cuts).toBeGreaterThan(0);
+  });
+
   it('walks the stage graph along the approved paths, and names the edges no path takes', () => {
     // 13 stages: the 11 of the conversations and the 2 of the price-sheet task, which no move reaches.
     expect(result.report.graph).toMatchObject({
@@ -139,7 +186,7 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 436, incomplete: 75 });
+    expect(result.report.summary).toMatchObject({ complete: 435, incomplete: 75 });
   });
 
   it('never walks a spec on a path of a flow its behaviours do not belong to', () => {
@@ -272,7 +319,7 @@ describe('generate on the approved Acme map', () => {
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
-    expect(result.complete).toHaveLength(436);
+    expect(result.complete).toHaveLength(435);
     // A task spec's Then comes from its family's oracle, not from a path: the task seeder is checked apart.
     for (const spec of result.complete.filter((entry) => entry.kind !== 'task')) {
       const generated = (spec.metadata as { generated: { path?: string } }).generated;

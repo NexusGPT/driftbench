@@ -9,7 +9,7 @@ import {
 } from '@agent-nexus/driftbench-space';
 import { createPerturbingDriver } from '@agent-nexus/driftbench-users';
 import type { Allocation } from './allocation';
-import { type RunIdentity, renderDraft, type SpecDraft } from './assemble';
+import { type ReducedEnds, type RunIdentity, renderDraft, type SpecDraft } from './assemble';
 import type { PreparedMap } from './map';
 
 /** A tool failure is followed by the turn that gets the tool answering again: the walk never ends on it. */
@@ -21,13 +21,14 @@ function failsAtEnd(spec: Spec): boolean {
 /**
  * A repeated test at the end of a walk is not written again. A terminal block is dropped when another
  * block already written says the same turn, expects the same and is said from the same stage in the same
- * context, and when the suite keeps every obligation without it: each coverage tuple the walk placed is
+ * language and under the same rules, and when the suite keeps every obligation without it: each coverage tuple the walk placed is
  * placed by a spec already written, each ordered pair of consecutive moves it walked is walked by one, the
- * stage and class allocation is no further from balance, and the walk still reaches every position its
- * declared perturbations name or precede. The first block written stays; later repeats go. A cut that would leave
- * the walk ending, with more than one block, on a block another walk already says is undone. A block that injects
+ * stage and class allocation is no further from balance. A block a perturbation declaration names, and the ones before it, stay. The first block written stays; later repeats go. Exactly one walk
+ * ends on a given block: a cut that would leave a walk ending, with more than one block, on the block another written
+ * walk ends on is taken back to the deepest cut that ends elsewhere. A block is the same
+ * test on any channel and for any persona; the first twin of a written walk, per path and context axis, stays whole. A block that injects
  * a class stays. A walk with an end state,
- * a metamorphic variant, a task and a spec that is not complete are never reduced.
+ * a task and a spec that is not complete are never reduced. Metamorphic variants follow their first variant.
  *
  * This is subsumption by what has been written, not a proof of a smallest suite, and it reads no agent.
  * Memory is bounded by the coverage grid and the distinct blocks and move pairs of the suite.
@@ -38,7 +39,17 @@ export class TerminalSubsumption {
   /** The tuples the written specs place. */
   private readonly held: Uint8Array[];
   /** Blocks written so far, by what makes two blocks the same test. */
-  private readonly blocks = new Set<string>();
+  private readonly blocks = new Map<string, ReducedEnds['duplicates'][number]['duplicate_of']>();
+  /** The key of the last block of every walk written: one walk ends on each. */
+  private readonly ends = new Set<string>();
+  /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
+  private readonly walks = new Map<string, Set<string>>();
+  /** The length each metamorphic family was cut to by its first variant: every variant follows it. */
+  private readonly families = new Map<string, { length: number; reduction?: ReducedEnds }>();
+  /** The first family that drafted a block, including a suffix whose retained witness is another seeder. */
+  private readonly familyBlocks = new Map<string, string>();
+  /** The context axes a pair of whole twins is kept for, per path: the Then must hold across them. */
+  private readonly paired = new Map<string, Set<string>>();
   /** Ordered pairs of consecutive moves some written spec walks. */
   private readonly pairs = new Set<string>();
   private readonly processed = new WeakSet<SpecDraft>();
@@ -69,16 +80,34 @@ export class TerminalSubsumption {
     const parsed = validateSpec(rendered.spec);
     if (!parsed.ok) return;
     let spec = parsed.spec;
-    // A metamorphic family keeps its variants identical but for the phrasing: its walks are never cut.
-    if (spec.kind === 'conversation' && spec.end_state === undefined && draft.seeder !== 'metamorphic') {
-      const whole = { draft: draft.blocks, spec };
-      while (spec.blocks.length > 1) {
+    const original = spec;
+    const originalBlocks = draft.blocks;
+    // A metamorphic family keeps its variants identical but for the phrasing, so its first variant decides how
+    // far the family is cut and the others follow it to the same length (their wording is not part of a test, so
+    // a variant judged alone would be a repeat of the first).
+    const family = draft.seeder === 'metamorphic' ? draft.metamorphic : undefined;
+    const followed = family && family.variant > 1 ? this.families.get(family.family) : undefined;
+    if (followed !== undefined && followed.length < draft.blocks.length) {
+      draft.blocks = draft.blocks.slice(0, followed.length);
+      const shorter = renderDraft(this.prepared, draft, this.run);
+      const again = validateSpec(shorter.spec);
+      if (again.ok) spec = again.spec;
+    } else if (followed === undefined && spec.kind === 'conversation' && spec.end_state === undefined) {
+      const states = [{ blocks: draft.blocks, spec }];
+      // The Then must hold across channels and across personas, and that is read off a pair of whole walks that
+      // differ only there (a twin). Each path keeps one such pair per axis; a twin beyond it is a repeat.
+      const twin = this.keepsPair(spec);
+      while (!twin && spec.blocks.length > 1) {
         const last = spec.blocks.length - 1;
         if (!this.blocks.has(this.key(spec, last))) break;
         // A block that injects a class is that class's test, and the deviation of its row: it stays.
         if ('injection' in (spec.blocks[last]?.when ?? {})) break;
-        // A perturbed run injects a declaration at its position and checks its recovery there: a block that a
-        // declaration names, or that comes before one, is part of that test and stays.
+        // The move right after a restated request is the test of the latest value: a walk is never cut to end on
+        // the request alone, which asks for a value and checks none of the slot's later states.
+        if (spec.blocks[last - 1]?.id?.endsWith('-restated')) break;
+        // A perturbed run injects a declaration at its position and checks its recovery there, with the blocks after
+        // it: the block a declaration names, and the ones before it, are part of that test and stay. (Dropping the
+        // declaration with the block was measured: it loses 50 perturbed-mode kills on the hidden seed.)
         if (spec.perturbations?.some((entry) => entry.inject_at >= last)) break;
         const reduced = validateSpec({ ...spec, blocks: spec.blocks.slice(0, last) });
         if (!reduced.ok || !this.recoveriesHold(reduced.spec) || failsAtEnd(reduced.spec)) break;
@@ -86,17 +115,50 @@ export class TerminalSubsumption {
         if (!this.allocationHolds(draft, last)) break;
         draft.blocks = draft.blocks.slice(0, last);
         spec = reduced.spec;
+        states.push({ blocks: draft.blocks, spec });
       }
-      // A cut that stops, with more than one block left, on a block another walk already says leaves the two walks
-      // ending on the same test: the walk keeps its tail, which tells it apart.
-      if (
-        spec !== whole.spec &&
-        spec.blocks.length > 1 &&
-        this.blocks.has(this.key(spec, spec.blocks.length - 1))
-      ) {
-        draft.blocks = whole.draft;
-        spec = whole.spec;
-      }
+      // Exactly one walk ends on a given block: a cut that stops, with more than one block left, on the block
+      // another written walk ends on is taken back to the deepest cut that ends elsewhere, or to the whole walk.
+      const settled = [...states]
+        .reverse()
+        .find(
+          (state) =>
+            state.spec.blocks.length === 1 ||
+            !this.ends.has(this.key(state.spec, state.spec.blocks.length - 1)),
+        );
+      const chosen = settled ?? (states[0] as (typeof states)[number]);
+      draft.blocks = chosen.blocks;
+      spec = chosen.spec;
+    }
+    if (spec.blocks.length < original.blocks.length) {
+      draft.reducedEnds = {
+        from_blocks: original.blocks.length,
+        to_blocks: spec.blocks.length,
+        duplicates: originalBlocks.slice(spec.blocks.length).map((block, offset) => {
+          // A follower's wording differs: its first variant supplies the witnesses for the shared suffix.
+          const key = this.key(original, spec.blocks.length + offset);
+          const inherited = followed?.reduction?.duplicates[offset];
+          const duplicate = inherited?.duplicate_of ?? this.blocks.get(key);
+          const duplicateFamily = family
+            ? (inherited?.duplicate_family ?? this.familyBlocks.get(key))
+            : undefined;
+          if (!duplicate) throw new Error(`No written duplicate for ${draft.id}#${block.id}`);
+          return {
+            block: block.id,
+            duplicate_of: duplicate,
+            ...(duplicateFamily !== undefined && duplicateFamily !== family?.family
+              ? { duplicate_family: duplicateFamily }
+              : {}),
+          };
+        }),
+      };
+    }
+    if (family?.variant === 1) {
+      this.families.set(family.family, { length: spec.blocks.length, reduction: draft.reducedEnds });
+      original.blocks.forEach((_, index) => {
+        const key = this.key(original, index);
+        if (!this.familyBlocks.has(key)) this.familyBlocks.set(key, family.family);
+      });
     }
     this.observeSpec(spec);
   }
@@ -104,8 +166,24 @@ export class TerminalSubsumption {
   /** What a spec written by other code places: tasks are never reduced but their obligations are met. */
   observeSpec(spec: Spec): void {
     spec.blocks.forEach((_, index) => {
-      this.blocks.add(this.key(spec, index));
+      const key = this.key(spec, index);
+      const family = (spec.metadata?.generated as { metamorphic?: { family: string } } | undefined)
+        ?.metamorphic?.family;
+      if (family !== undefined && !this.familyBlocks.has(key)) this.familyBlocks.set(key, family);
+      // Name the first retained family when one exists, even if an ordinary walk wrote the block first.
+      const previous = this.blocks.get(key);
+      if (!previous || (family !== undefined && previous.family === undefined))
+        this.blocks.set(key, {
+          spec: spec.id,
+          block: spec.blocks[index]?.id ?? '',
+          ...(family === undefined ? {} : { family }),
+        });
     });
+    this.ends.add(this.key(spec, spec.blocks.length - 1));
+    const walk = this.walkKey(spec);
+    const contexts = this.walks.get(walk) ?? new Set<string>();
+    contexts.add(this.contextOf(spec));
+    this.walks.set(walk, contexts);
     for (const pair of this.pairsOf(spec)) this.pairs.add(pair);
     const placement = placeSpec(this.space, spec);
     this.projections.forEach((projection, index) => {
@@ -117,15 +195,41 @@ export class TerminalSubsumption {
     });
   }
 
-  /** The turn, the stage it is said from, what it expects and the context it is said in. */
+  /** The channel and the persona a spec is written for: no agent receives them, a suite varies them. */
+  private contextOf(spec: Spec): string {
+    return JSON.stringify([spec.channel, spec.tags?.filter((tag) => tag.startsWith('persona:'))]);
+  }
+
+  /** True when the walk is the first twin of a written walk on an axis its path has no pair for yet. */
+  private keepsPair(spec: Spec): boolean {
+    const written = this.walks.get(this.walkKey(spec));
+    if (written === undefined) return false;
+    const path = (spec.metadata?.generated as { path?: string } | undefined)?.path ?? '';
+    const secured = this.paired.get(path) ?? new Set<string>();
+    const [channel, persona] = JSON.parse(this.contextOf(spec)) as [unknown, unknown];
+    const axes = new Set<string>();
+    for (const other of written) {
+      const [otherChannel, otherPersona] = JSON.parse(other) as [unknown, unknown];
+      if (JSON.stringify(otherChannel) !== JSON.stringify(channel)) axes.add('channel');
+      if (JSON.stringify(otherPersona) !== JSON.stringify(persona)) axes.add('persona');
+    }
+    const needed = [...axes].filter((axis) => !secured.has(axis));
+    for (const axis of needed) secured.add(axis);
+    this.paired.set(path, secured);
+    return needed.length > 0;
+  }
+
+  private walkKey(spec: Spec): string {
+    return contentHash(spec.blocks.map((_, index) => this.key(spec, index)));
+  }
+
+  /** The turn, the stage it is said from and what it expects, in the language and under the rules it is said in. */
   private key(spec: Spec, index: number): string {
     const block = spec.blocks[index];
     const { criteria: _criteria, ...machine } = block?.expect ?? {};
     const from = index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage;
     return contentHash({
       kind: spec.kind,
-      channel: spec.channel,
-      persona: spec.tags?.filter((tag) => tag.startsWith('persona:')),
       lang: spec.lang,
       rules: spec.rules,
       state: canonicalGiven(spec, index).state,
@@ -133,10 +237,6 @@ export class TerminalSubsumption {
       when: block?.when,
       given: block?.given,
       expect: machine,
-      // A perturbed run injects these before the block, so the same block under another plan is another test.
-      perturbations: spec.perturbations
-        ?.filter((entry) => entry.inject_at <= index)
-        .map(({ id: _id, ...plan }) => plan),
     });
   }
 
