@@ -255,7 +255,10 @@ const askedCheck: Check = (impl, cases) => {
     const got = guard(`askedLabels ${c.name}`, () => impl.askedLabels(c.set, c.skip).map((l) => l.name));
     if (c.expect === 'error') {
       if (got.ok) misses.push(`${c.name}: asked ${show(got.value)}, expected a refusal`);
-      else if (!/LabelerConfigError/.test(got.error))
+      else if (
+        !/LabelerConfigError/.test(got.error) ||
+        !(c.mentions as string[]).every((m) => got.error.includes(m))
+      )
         misses.push(`${c.name}: ${got.error}, expected a LabelerConfigError`);
     } else if (!got.ok) misses.push(got.error);
     else if (!same(got.value, c.expect))
@@ -327,6 +330,13 @@ function choiceCheck(names: readonly string[]): Check {
         if (byUnit[index]?.label !== want.label)
           misses.push(`${c.name}: unit ${index} took ${show(byUnit[index]?.label)}, expected ${want.label}`);
       }
+      (c.expect.units as number[]).forEach((n, i) => {
+        const message = got.value.refusals[i] ?? '';
+        if (!message.startsWith(`${c.expect.windowId}:`) || !message.includes(`unit [${n}]`))
+          misses.push(
+            `${c.name}: the refusal ${show(message)} must start with the window id ${show(c.expect.windowId)} and name unit [${n}]`,
+          );
+      });
       for (const sum of c.expect.sums as number[]) {
         if (!got.value.refusals.some((r: string) => r.includes(`sum to ${sum})`)))
           misses.push(

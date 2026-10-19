@@ -466,6 +466,20 @@ const FAULTS: Fault[] = [
     to: "member.cls === 'system1' ? 'system 2' : 'system 1'",
     fails: ids('recording/labelling-hash'),
   },
+  {
+    name: 'choice: the refusal drops the window id',
+    file: YESNO,
+    from: '`${window.id}: unit [${unit.n}] has probabilities',
+    to: '`unit [${unit.n}] has probabilities',
+    fails: ids('choice/vector-refused'),
+  },
+  {
+    name: 'asked: the advice names the wrong class',
+    file: YESNO,
+    from: 'add a system 2 labeler',
+    to: 'add a system 1 labeler',
+    fails: ids('yes-no/asked-labels'),
+  },
 ];
 
 const MUTANTS = join(ROOT, 'packages/estate/.mutants');

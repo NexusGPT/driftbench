@@ -249,8 +249,8 @@ put("askedLabels.cases", "a label that asks for a target is not asked of a yes o
     {"name": "plain", "set": S1, "skip": False, "expect": ["greeting", "price-claim", "allergen-line"]},
     {"name": "plain-skip", "set": S1, "skip": True, "expect": ["greeting", "price-claim", "allergen-line"]},
     {"name": "target-skipped", "set": S2, "skip": True, "expect": ["rule"]},
-    {"name": "target-alone", "set": S2, "skip": False, "expect": "error"},
-    {"name": "only-target", "set": lset("cold-rules", "x.", [lab("when", "x.", target="required", condition=True)]), "skip": True, "expect": "error"},
+    {"name": "target-alone", "set": S2, "skip": False, "expect": "error", "mentions": ["store-rules", "add a system 2 labeler"]},
+    {"name": "only-target", "set": lset("cold-rules", "x.", [lab("when", "x.", target="required", condition=True)]), "skip": True, "expect": "error", "mentions": ["cold-rules"]},
 ])
 
 # --------------------------------------------------------------------------------------- yesNoOpinions
@@ -311,7 +311,7 @@ def is_vector(p):
 
 def choice(asked, win, probs):
     names = asked + ["none"]
-    by, refusals, sums = {}, 0, []
+    by, refusals, sums, units = {}, 0, [], []
     for u in win["units"]:
         got, best = {}, None
         for n in names:
@@ -326,9 +326,10 @@ def choice(asked, win, probs):
         if not is_vector(got):
             refusals += 1
             sums.append(round(sum(got.values()), 4))
+            units.append(u["n"])
             continue
         by[str(u["index"])] = {"label": best[0], "probabilities": got}
-    return {"byUnit": by, "refusals": refusals, "sums": sums}
+    return {"byUnit": by, "refusals": refusals, "sums": sums, "units": units, "windowId": win["id"]}
 
 
 def chc(name, asked, probs):
