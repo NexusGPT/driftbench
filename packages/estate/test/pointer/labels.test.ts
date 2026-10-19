@@ -388,6 +388,46 @@ describe('spans and links in a label set', () => {
     }
   });
 
+  it('measures offsets on the text the labeler reads, and keeps them as offsets of the raw unit', () => {
+    // The labeler is shown each unit with its runs of white space made one space: offsets are counted there.
+    const lines = {
+      ...window,
+      units: [{ n: 1, text: 'When the tide is out,\n    close the lower gate before dusk.', index: 0 }],
+    };
+    const shown = 'When the tide is out, close the lower gate before dusk.';
+    const from = shown.indexOf('close');
+    const to = from + 'close the lower gate'.length;
+    const checked = checkAnswer(
+      set,
+      lines,
+      [{ units: '1', label: 'rule', spans: [{ kind: 'act', from, to }] }],
+      context,
+    );
+    expect(checked.refusals).toEqual([]);
+    const kept = checked.accepted.get(1)?.spans?.[0];
+    expect(lines.units[0]?.text.slice(kept?.from, kept?.to)).toBe('close the lower gate');
+    // The raw text is longer than the text shown: an end past what was shown is outside the unit.
+    const past = checkAnswer(
+      set,
+      lines,
+      [{ units: '1', label: 'rule', spans: [{ kind: 'act', from, to: lines.units[0]?.text.length ?? 0 }] }],
+      context,
+    );
+    expect(past.refusals[0]).toMatch(/offsets leave the unit/);
+  });
+
+  it('refuses a span kind the set declares but the label does not list', () => {
+    const only = load(SPANS.replace('spans: [act, mechanics]', 'spans: [act]'))[0] as LabelSet;
+    const checked = checkAnswer(
+      only,
+      window,
+      [{ units: '1', label: 'rule', spans: [{ kind: 'mechanics', from: 0, to: 3 }] }],
+      context,
+    );
+    expect(checked.accepted.size).toBe(0);
+    expect(checked.refusals[0]).toMatch(/the kind "mechanics" is not one the label rule may carry/);
+  });
+
   it('allows a link to none, and refuses spans or links on a label that carries none', () => {
     expect(check({ links: [{ kind: 'topic', to: 'none' }] }).accepted.get(1)?.links).toEqual([
       { kind: 'topic', to: 'none' },
