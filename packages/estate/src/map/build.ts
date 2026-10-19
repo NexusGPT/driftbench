@@ -6,6 +6,7 @@ import { codeNames } from '../scan/code-names';
 import { documentInfo, normativeEstate, unloadedByDesign } from '../scan/document-roles';
 import { DEFAULT_STANDING_CEILING, invariantAtoms, measureInvariants, scanAtoms } from '../scan/invariants';
 import type { ChunkRun, ProseRefusal } from '../scan/prose';
+import type { ProseCache, ProseEstimate } from '../scan/prose-cache';
 import type { EstateReader, RawEstate } from '../scan/reader';
 import { quoteAtSpan, sha256 } from '../scan/text';
 import type { Atom, Edge, EstateMap } from '../schema';
@@ -29,6 +30,8 @@ export type ScanEstateInput = {
   ceiling?: number;
   now?: () => Date;
   maxTokens?: number;
+  cache?: ProseCache;
+  beforeModel?: (estimate: ProseEstimate) => void | Promise<void>;
 };
 
 export type ScanEstateResult = {
@@ -45,6 +48,8 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
   const raw = normativeEstate(await input.reader.read(input.root));
   const scanned = await scanAtoms(raw, {
     ...(input.port ? { port: input.port } : {}),
+    ...(input.cache ? { cache: input.cache } : {}),
+    ...(input.beforeModel ? { beforeModel: input.beforeModel } : {}),
     ...(input.maxTokens !== undefined ? { maxTokens: input.maxTokens } : {}),
   });
   const { builder } = scanned;
@@ -113,6 +118,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     documents: raw.files.map(documentInfo),
     edges: graph.edges,
     ...(raw.ignored?.chosen && raw.ignored.chosen.length > 0 ? { ignore: raw.ignored.chosen } : {}),
+    ...(raw.userLayer ? { userSkills: true as const } : {}),
     ...(raw.followedLinks && raw.followedLinks.length > 0 ? { followedLinks: raw.followedLinks } : {}),
     ...(input.port
       ? { producedBy: { family: input.port.family, model: input.port.model ?? 'unknown', at } }

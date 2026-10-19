@@ -1,10 +1,12 @@
 import { posix } from 'node:path';
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import type { Atom } from '../schema';
+import { proseCandidates } from './candidates';
 import { AtomBuilder, codeAtoms, guardName } from './code';
 import { codeNames, longLived } from './code-names';
 import { isNormative, normativeEstate, unloadedByDesign } from './document-roles';
 import { type ChunkRun, type ProseRefusal, runChunk } from './prose';
+import { type ProseCache, type ProseEstimate, proseCacheKey } from './prose-cache';
 import type { EstateFile, GuardDecl, RawEstate } from './reader';
 import { type Located, linesOf } from './text';
 
@@ -37,7 +39,12 @@ export function characters(text: string): number {
 /** The default ceiling on the standing instructions (standing files and memory), in characters. */
 export const DEFAULT_STANDING_CEILING = 40_000;
 
-export type ScanAtomsOptions = { port?: ModelPort; maxTokens?: number };
+export type ScanAtomsOptions = {
+  port?: ModelPort;
+  maxTokens?: number;
+  cache?: ProseCache;
+  beforeModel?: (estimate: ProseEstimate) => void | Promise<void>;
+};
 
 export type ScanAtoms = {
   builder: AtomBuilder;
@@ -57,14 +64,37 @@ export async function scanAtoms(raw: RawEstate, options: ScanAtomsOptions = {}):
   const refusals: ProseRefusal[] = [];
   const duplicates: string[] = [];
   if (options.port) {
+    let cachedChunks = 0;
+    let cachedCharacters = 0;
+    for (const chunk of raw.prose) {
+      if (await options.cache?.get(proseCacheKey(chunk, options.port, options.maxTokens))) {
+        cachedChunks++;
+        cachedCharacters += chunk.text.length;
+      }
+    }
+    const characters = raw.prose.reduce((sum, chunk) => sum + chunk.text.length, 0);
+    await options.beforeModel?.({
+      chunks: raw.prose.length,
+      characters,
+      cachedChunks,
+      cachedCharacters,
+      pendingChunks: raw.prose.length - cachedChunks,
+      pendingCharacters: characters - cachedCharacters,
+    });
     for (const chunk of raw.prose) {
       const text = files.get(chunk.file)?.text ?? '';
-      const result = await runChunk(chunk, text, options.port, builder, options.maxTokens);
+      const result = await runChunk(chunk, text, options.port, builder, options.maxTokens, options.cache);
       chunks.push(result.run);
       refusals.push(...result.refusals);
       duplicates.push(...result.duplicates);
     }
   }
+  const resolved = new Set(chunks.filter((run) => run.status === 'done').map((run) => run.chunk));
+  proseCandidates(
+    raw,
+    builder,
+    raw.prose.filter((chunk) => resolved.has(chunk.id)),
+  );
   return { builder, chunks, refusals, duplicates, calls: chunks.reduce((sum, run) => sum + run.calls, 0) };
 }
 
