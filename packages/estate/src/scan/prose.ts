@@ -40,8 +40,9 @@ Rules:
 2. One atom per rule. A line that holds two rules gives two atoms, each quoting its own words.
 3. Skip what code reads: frontmatter, decided tables, lists of links, and a line that only names a file to read. Review only the explicitly flagged ambiguous routing tables; never infer a route from an unflagged table.
 4. "evidence" lists what a trace shows when the rule is obeyed, as typed predicates: {"type": "tool_called", "label": "<tool>", "input": {...}}, {"type": "tool_not_called", "label": "<tool>"}, {"type": "skill_loaded", "name": "<skill>"}, {"type": "ordered", "before": "<tool, skill or stage>", "after": "<tool, skill or stage>"}, {"type": "stage_reached", "name": "<stage>"}, {"type": "workspace", "changed": ["<path>"], "othersUntouched": true}, {"type": "text", "must": ["..."], "mustNot": ["..."], "lang": "<tag>"}, {"type": "custom", "name": "<check>", "options": {...}}. At least one per atom.
-5. For an instruction, register rule, gate, stage or hazard whose task requires a reply, supply "replyAct": {"id": "answer|clarify|refuse|report|draft|acknowledge", "evidence": {"type": "text_segment", "part": "reply|draft"}} with one exact ID and part, not the alternatives shown here. Choose the act from the quoted requirement: answer supplies requested information; clarify asks for missing information; refuse declines the requested act; report states a result or status; draft composes material for review; acknowledge confirms receipt or an instruction. Do not infer semantics from a word dictionary. Do not invent an act when the source does not support one. Supply "ask": {"text": "<complete task request>", "context": "<optional complete condition>"} with replyAct; the request exercises the quoted requirement without replacing it. Omit context when unnecessary. Missing declarations and requests stay missing; code never fills them from a title or quote. These declarations are proposals requiring owner approval, not observed proof. A reporting adapter or declared judge separately records the actual act bound to its text segment.
-6. Answer with one JSON object and nothing else: no prose, no code fence. Use only these keys:
+5. For a gate whose two acts use the same tool or whose read names no file, supply "order": {"before": "<what the first act holds>", "after": "<what the second act holds>"} for two calls of one tool, or {"key": "<the input both acts share, such as file_path>"} when the read and the change act on the same object. Leave it out when the gate names a file or two different tools.
+6. For an instruction, register rule, gate, stage or hazard whose task requires a reply, supply "replyAct": {"id": "answer|clarify|refuse|report|draft|acknowledge", "evidence": {"type": "text_segment", "part": "reply|draft"}} with one exact ID and part, not the alternatives shown here. Choose the act from the quoted requirement: answer supplies requested information; clarify asks for missing information; refuse declines the requested act; report states a result or status; draft composes material for review; acknowledge confirms receipt or an instruction. Do not infer semantics from a word dictionary. Do not invent an act when the source does not support one. Supply "ask": {"text": "<complete task request>", "context": "<optional complete condition>"} with replyAct; the request exercises the quoted requirement without replacing it. Omit context when unnecessary. Missing declarations and requests stay missing; code never fills them from a title or quote. These declarations are proposals requiring owner approval, not observed proof. A reporting adapter or declared judge separately records the actual act bound to its text segment.
+7. Answer with one JSON object and nothing else: no prose, no code fence. Use only these keys:
 {"chunk": "<the chunk id you were given>", "atoms": [{"kind": "instruction", "title": "<the rule in plain words>", "quote": "<verbatim text>", "situation": "<when it applies; leave out when always>", "polarity": "obligation", "evidence": [ ... ], "replyAct": {"id": "clarify", "evidence": {"type": "text_segment", "part": "reply"}}, "ask": {"text": "<complete task request>"}}]}
 "replyAct" and "ask" are optional when unsupported; if ask is supplied, replyAct is required. "polarity" is obligation or prohibition, for instructions only. For route atoms also include "target": "<declared name>" and "targetKind": "skill" or "subagent". Other kinds do not need these fields.`;
 
@@ -86,6 +87,13 @@ const AnswerAtom = z.strictObject({
   situation: z.string().min(1).optional(),
   polarity: z.enum(['obligation', 'prohibition']).optional(),
   replyAct: ReplyActDeclaration.optional(),
+  order: z
+    .strictObject({
+      before: z.string().trim().min(1).optional(),
+      after: z.string().trim().min(1).optional(),
+      key: z.string().trim().min(1).optional(),
+    })
+    .optional(),
   ask: z
     .strictObject({ text: z.string().trim().min(1), context: z.string().trim().min(1).optional() })
     .optional(),
@@ -299,8 +307,14 @@ export function acceptProse(
                 via: 'model-table',
               },
             }
-          : atom.polarity || ask
-            ? { fields: { ...(atom.polarity ? { polarity: atom.polarity } : {}), ...(ask ? { ask } : {}) } }
+          : atom.polarity || ask || atom.order
+            ? {
+                fields: {
+                  ...(atom.polarity ? { polarity: atom.polarity } : {}),
+                  ...(ask ? { ask } : {}),
+                  ...(atom.order && atom.kind === 'gate' ? { order: atom.order } : {}),
+                },
+              }
             : {}),
       }),
     );
