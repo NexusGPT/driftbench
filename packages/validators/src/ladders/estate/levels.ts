@@ -6,6 +6,7 @@ import {
   type EstateTest,
   estateImpact,
   type PlanRow,
+  situationSpace,
   toEstateSpaceMap,
 } from '@agent-nexus/driftbench-estate';
 import type { Item, Measure } from '../../ladder';
@@ -208,18 +209,34 @@ export function allowedPairs(
   dimensions: readonly Dimension[],
   constraints: ReadonlyArray<Record<string, string>>,
 ): Array<[string, string, string, string]> {
+  // Each forbid is indexed under every one of its literals, so a check reads only the forbids that name a value the
+  // cell holds. The answer is the one a scan of the whole list gives.
+  const byLiteral = new Map<string, Array<Record<string, string>>>();
+  for (const forbid of constraints)
+    for (const [dimension, value] of Object.entries(forbid)) {
+      const key = `${dimension}=${value}`;
+      byLiteral.set(key, [...(byLiteral.get(key) ?? []), forbid]);
+    }
   const forbids = (cell: Record<string, string>) =>
-    constraints.some((forbid) =>
-      Object.entries(forbid).every(([dimension, value]) => cell[dimension] === value),
+    Object.entries(cell).some(([dimension, value]) =>
+      (byLiteral.get(`${dimension}=${value}`) ?? []).some((forbid) =>
+        Object.entries(forbid).every(([name, wanted]) => cell[name] === wanted),
+      ),
     );
-  const extends_ = (cell: Record<string, string>, from: number): boolean => {
+  // A search that fills the open axis with the fewest values left first, and drops a value a forbid already rules
+  // out, finds a cell as the plain search does, in far fewer steps.
+  const extends_ = (cell: Record<string, string>): boolean => {
     if (forbids(cell)) return false;
-    const next = dimensions.findIndex(
-      (dimension, index) => index >= from && cell[dimension.id] === undefined,
-    );
-    if (next < 0) return true;
-    const dimension = dimensions[next] as Dimension;
-    return dimension.values.some((value) => extends_({ ...cell, [dimension.id]: value }, next + 1));
+    let best: { dimension: Dimension; values: string[] } | undefined;
+    for (const dimension of dimensions) {
+      if (cell[dimension.id] !== undefined) continue;
+      const values = dimension.values.filter((value) => !forbids({ ...cell, [dimension.id]: value }));
+      if (values.length === 0) return false;
+      if (!best || values.length < best.values.length) best = { dimension, values };
+    }
+    if (!best) return true;
+    const open = best;
+    return open.values.some((value) => extends_({ ...cell, [open.dimension.id]: value }));
   };
   const out: Array<[string, string, string, string]> = [];
   for (let a = 0; a < dimensions.length; a += 1) {
@@ -228,7 +245,7 @@ export function allowedPairs(
       const db = dimensions[b] as Dimension;
       for (const va of da.values) {
         for (const vb of db.values) {
-          if (extends_({ [da.id]: va, [db.id]: vb }, 0)) out.push([da.id, va, db.id, vb]);
+          if (extends_({ [da.id]: va, [db.id]: vb })) out.push([da.id, va, db.id, vb]);
         }
       }
     }
@@ -236,10 +253,19 @@ export function allowedPairs(
   return out;
 }
 
+/**
+ * The space the plan is built over: the declared one, narrowed by the relevance of each event to the targets whose
+ * contract it concerns (packages/estate/src/plan/relevance.ts). A pair the plan leaves out for lack of relevance is
+ * not an allowed pair of the plan.
+ */
+export function planSpace(map: EstateMap) {
+  return situationSpace(map, toEstateSpaceMap(map)).space;
+}
+
 /** Level 3: every allowed pair is in a row of the plan, and every approved atom has its mandatory rows. */
 export function planLevel(run: EstateRun): Measure {
   const map = run.scanned.map;
-  const space = toEstateSpaceMap(map);
+  const space = planSpace(map);
   const situations = space.dimensions.filter((dimension) => !dimension.id.startsWith('atoms.'));
   const targets = space.dimensions.filter((dimension) => dimension.id.startsWith('atoms.'));
   const dimensions: Dimension[] = [
@@ -474,6 +500,12 @@ export type MutantVerdict = {
    * its situations and on the asks of the tests that name the atom: no test of any product can tell the two apart. Not counted alive.
    */
   equivalent?: true;
+  /**
+   * The contract gives the atom no complete test: a reference to a file the hidden estate does not hold. A Read of a missing
+   * file waits on `needs-existing-file` (docs/estate.md section 5), so there is no test to kill the mutant with. The
+   * atom is judged by that marker; its mutant is named, not counted alive.
+   */
+  untestable?: true;
   /** Why it lived: no complete test, or the tests that ran and passed. */
   reason?: string;
 };
@@ -514,6 +546,7 @@ export async function agentMutants(run: EstateRun): Promise<MutantVerdict[]> {
     ...phrases.flatMap((first) => phrases.map((second) => [first, second])),
   ];
   const base = new Map<string, string>();
+  const truthOf = new Map(run.rendered.atoms.map((truth) => [truth.hid, truth]));
   for (const atom of run.scanned.map.atoms.filter((candidate) => AGENT_KINDS.includes(candidate.kind))) {
     const hid = run.scanned.match.hidOf.get(atom.id);
     const named = all.filter((verdict) => (estateMeta(verdict.spec).atoms ?? []).includes(atom.id));
@@ -535,6 +568,30 @@ export async function agentMutants(run: EstateRun): Promise<MutantVerdict[]> {
         });
         continue;
       }
+    }
+    // The validator holds the hidden estate: a reference is absent when its path is no file of the rendered estate,
+    // whatever the product's scan says of it. The product's marker is the second condition.
+    const truth = hid === undefined ? undefined : truthOf.get(hid);
+    if (
+      truth?.kind === 'reference' &&
+      !(truth.key in run.rendered.files) &&
+      named.length > 0 &&
+      named.every(
+        (verdict) =>
+          !verdict.spec.record.complete &&
+          (estateMeta(verdict.spec).needs ?? []).some((need) => need.marker === 'needs-existing-file'),
+      )
+    ) {
+      out.push({
+        atom: atom.id,
+        kind: atom.kind,
+        tests: named.map((verdict) => verdict.spec.record.id),
+        killed: false,
+        untestable: true,
+        reason:
+          'the estate holds no such file, and a Read of a missing file waits on needs-existing-file: every test naming the atom is incomplete by that marker',
+      });
+      continue;
     }
     if (hid === undefined || green.length === 0) {
       const markers = [
@@ -582,7 +639,7 @@ export async function agentMutants(run: EstateRun): Promise<MutantVerdict[]> {
 /** Level 5: every atom deleted from the agent fails one of its tests; the lowest kind score is the value. */
 export async function agentMutantLevel(run: EstateRun): Promise<Measure> {
   // An equivalent mutant is the follower itself: it is neither killed nor alive.
-  const mutants = (await agentMutants(run)).filter((mutant) => !mutant.equivalent);
+  const mutants = (await agentMutants(run)).filter((mutant) => !mutant.equivalent && !mutant.untestable);
   const items: Item[] = [];
   let lowest = 1;
   const kinds = [...new Set(mutants.map((mutant) => mutant.kind))];

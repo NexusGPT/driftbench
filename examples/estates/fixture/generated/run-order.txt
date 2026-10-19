@@ -416,7 +416,7 @@ specs/live/read_when/estate.read_when.reference.invoice-reconcile.read-reference
 specs/live/read_when/estate.read_when.reference.invoice-reconcile.read-references-currency-table-md.yaml
 specs/live/read_when/estate.read_when.reference.shipment-tracker.read-data-shipments-txt.yaml
 specs/live/read_when/estate.read_when.reference.supplier-email.read-claude-memory-supplier-languages-md.yaml
-specs/live/read_when/estate.read_when.reference.weekly-report.read-references-kpi-definitions-md.yaml
+specs/live/read_when/estate.read_when.reference.weekly-report.read-templates-report-md.yaml
 specs/unit/script_fixture/estate.script_fixture.script.invoice-reconcile.script-scripts-reconcile-py.yaml
 specs/unit/script_fixture/estate.script_fixture.script.shipment-tracker.script-scripts-track-sh.yaml
 specs/live/dispatch/estate.dispatch.subagent.inbox-triager.helper-inbox-triager.yaml
