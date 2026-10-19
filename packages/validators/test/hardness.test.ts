@@ -159,6 +159,6 @@ describe('the bar a validator records in GATE.md', () => {
       parseGate(readFileSync(join(ROOT, 'validators', component, 'GATE.md'), 'utf8'));
     expect(bar('estate')).toEqual({ maxScore: 0.75, minForecast: 30, minCauses: null });
     expect(bar('map')).toEqual({ maxScore: 0.42, minForecast: null, minCauses: null });
-    expect(bar('stats')).toEqual({ maxScore: 0.7, minForecast: 70, minCauses: 60 });
+    expect(bar('stats')).toEqual({ maxScore: 0.85, minForecast: 9, minCauses: 80 });
   });
 });
