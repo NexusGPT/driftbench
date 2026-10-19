@@ -13,7 +13,7 @@ export type RecoveryAction = {
 };
 
 /** Recovery comes from the map's typed declaration, never inferred from source wording. */
-export function recoveryAction(atom: EstateAtom, atoms?: ReadonlyMap<string, EstateAtom>): RecoveryAction {
+export function declaredRecovery(atom: EstateAtom, atoms?: ReadonlyMap<string, EstateAtom>): RecoveryAction {
   const reread: string[] = [];
   const calls: RecoveryCall[] = [];
   const unpathed: string[] = [];

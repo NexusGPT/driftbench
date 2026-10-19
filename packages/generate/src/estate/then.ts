@@ -8,6 +8,7 @@ import {
   type SubagentExpect,
   type ToolExpect,
 } from '@agent-nexus/driftbench-core';
+import { declaredRecovery } from './declared-recovery';
 import { type EstateAtom, type EstateEvidence, EVIDENCE_TYPES } from './inputs';
 import { literal } from './literal';
 import {
@@ -17,7 +18,6 @@ import {
   compileToolAbsence,
   isCompiledPredicate,
 } from './predicates';
-import { recoveryAction } from './recovery';
 
 export { literal };
 
@@ -335,7 +335,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         }
       }
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
-        const recovery = recoveryAction(atom, ctx.atoms);
+        const recovery = declaredRecovery(atom, ctx.atoms);
         const declared = evidence.options ?? {};
         const { reread, calls, retry } = recovery;
         for (const detail of recovery.invalid ?? [])
