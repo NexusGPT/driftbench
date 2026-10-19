@@ -58,6 +58,8 @@ export type StandingRule = {
   replyAct?: Atom['replyAct'];
   /** A hazard the line names: the scanner adds a hazard atom on the same line. */
   hazard?: HazardId;
+  /** The structured order a gate declares when its acts share an input (`fields.order`). */
+  order?: { key: string };
   /** Authored recovery inputs for the positive reference map, independent of prose parsing. */
   recovery?: { reread: string[] };
   /** A fixed-form gate code reads (a gate atom and a reference atom on the line): the skill and reference. */
@@ -677,6 +679,7 @@ export function drawEstate(seed: number, profile: Profile = 'visible'): HiddenEs
     title: 'Read a file before you edit it',
     text: 'Read a file before you edit it.',
     evidence: [{ type: 'ordered', before: 'Read', after: 'Edit' }],
+    order: { key: 'file_path' },
     behaviour: { type: 'read_before_edit' },
     scope: 'always',
   });

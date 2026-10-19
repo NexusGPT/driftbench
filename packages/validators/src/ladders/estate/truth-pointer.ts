@@ -41,11 +41,18 @@ const HAZARDS: Readonly<Record<string, { situation: string }>> = {
   nudge_storm: { situation: 'Repeated guard nudges' },
 };
 
-const hazardMapping = (hazard: string): AlsoMapping => ({
+const hazardMapping = (hazard: string, recovery?: { reread: string[] }): AlsoMapping => ({
   kind: 'hazard',
   situation: HAZARDS[hazard]?.situation ?? hazard,
   fields: { hazard },
-  evidence: [{ type: 'custom', name: 'hazard_recovery', options: { hazard } }],
+  // The recovery the planted rule declares: the files it orders read again.
+  evidence: [
+    {
+      type: 'custom',
+      name: 'hazard_recovery',
+      options: { hazard, ...(recovery ? { reread: recovery.reread } : {}) },
+    },
+  ],
 });
 
 /** The line (from 1) of a text in a file, by where the text first sits. */
@@ -118,7 +125,9 @@ export function truthPointer(truth: Truth): TruthPointer {
       const here = planted.get(`${file}:${entry.line}`) ?? [];
       const also: AlsoMapping[] = [
         ...(here.some((atom) => atom.kind === 'reference') ? [REFERENCE] : []),
-        ...here.filter((atom) => atom.kind === 'hazard').map((atom) => hazardMapping(atom.key)),
+        ...here
+          .filter((atom) => atom.kind === 'hazard')
+          .map((atom) => hazardMapping(atom.key, entry.recovery)),
       ];
       count += 1;
       const name = `planted-${count}`;
@@ -132,6 +141,9 @@ export function truthPointer(truth: Truth): TruthPointer {
           ...(entry.situation ? { situation: entry.situation } : {}),
           ...(entry.polarity ? { polarity: entry.polarity } : {}),
           evidence: entry.evidence as NonNullable<Mapping['evidence']>,
+          // The reply act and the order the planted rule declares, as the labels write them.
+          ...(entry.replyAct ? { replyAct: entry.replyAct } : {}),
+          ...(entry.order ? { fields: { order: entry.order } } : {}),
           ...(also.length > 0 ? { also } : {}),
         },
       });
@@ -144,6 +156,13 @@ export function truthPointer(truth: Truth): TruthPointer {
   const parsed = pointer.parseLabelSets(text);
   if (!parsed.ok) throw new Error(`the planted label set is invalid: ${parsed.message}`);
 
+  const orderKeyAt = new Map<string, string>(
+    [...entries].flatMap(([file, list]) =>
+      list.flatMap((entry) =>
+        entry.order?.key ? [[`${file}:${entry.line}`, entry.order.key] as const] : [],
+      ),
+    ),
+  );
   const gateAt = new Map((truth.gates ?? []).map((gate) => [`${gate.file}:${gate.line}`, gate]));
   const referenceLines = new Set(
     truth.atoms.filter((atom) => atom.kind === 'reference').map((atom) => `${atom.file}:${atom.line}`),
@@ -215,7 +234,10 @@ export function truthPointer(truth: Truth): TruthPointer {
               units: String(unit.n),
               label: 'gate',
               spans: [{ kind: 'governed-action', from, to: from + gate.act.length }],
-              links: [{ kind: 'act-tool', to: gate.tool }],
+              links: [
+                { kind: 'act-tool', to: gate.tool },
+                ...(orderKeyAt.has(key) ? [{ kind: 'order-key', to: orderKeyAt.get(key) as string }] : []),
+              ],
             };
           }
           const own = byLine.get(key);
