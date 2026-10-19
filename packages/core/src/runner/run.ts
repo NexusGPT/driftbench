@@ -928,7 +928,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       for (let r = 0; r < (observed.retries?.length ?? 0); r += 1) {
         run.onEvent?.({ type: 'retry', index: position, at: new Date().toISOString() });
       }
-      history = freezeHistory(history, [...user, cloneJson(assistantMessage(observed))]);
+      history = freezeHistory(history, [...user, replyMessage(observed)]);
       lastKey = key;
 
       const facts = addFacts(state.ledger, planned.expect.ledger_add);
@@ -1383,12 +1383,12 @@ function liveChannel(run: RunContext): Channel {
           `the adapter's Observed for block ${turn.index} does not match the schema as JSON: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim(),
         );
       }
-      current.history = extendHistory(current.history, [
-        freezeMessage(cloneJson(assistantMessage(parsed.data))),
-      ]) as Message[];
+      const message = freezeMessage(cloneJson(assistantMessage(parsed.data)));
+      current.history = extendHistory(current.history, [message]) as Message[];
       // The cache keeps the block without its retries: a replay retries nothing.
       const { retries: _spent, ...kept } = parsed.data;
       await remember(key, kept);
+      validatedReplies.set(parsed.data.toolCalls, { text: parsed.data.text, message });
       return gateObserved(parsed.data, run.toolPolicy);
     },
     async endState(sources, key) {
@@ -1414,6 +1414,21 @@ function liveChannel(run: RunContext): Channel {
       return notes.length > 0 ? notes.join('; ') : undefined;
     },
   };
+}
+
+/**
+ * The assistant message the live channel built, validated and froze for the session, by the tool-call list of the
+ * Observed it returned. The run's own history takes that same message for the block when the text and the list
+ * are still the ones it was made from; each entry is read once.
+ */
+const validatedReplies = new WeakMap<object, { text: string; message: Message }>();
+
+/** The block's assistant message for the run's history: the session's own when it holds, else a new copy. */
+function replyMessage(observed: Observed): Message {
+  const known = validatedReplies.get(observed.toolCalls);
+  validatedReplies.delete(observed.toolCalls);
+  if (known && known.text === observed.text) return known.message;
+  return cloneJson(assistantMessage(observed));
 }
 
 /** A value written as JSON and read back. */
