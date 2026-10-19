@@ -649,7 +649,7 @@ A declared tool can use the owning helper's own situation when its permission is
 The task in a source prerequisite clause is used even when the extracted trigger field is absent.
 A bare read-prerequisite title is never converted into a self-answering user ask.
 
-A guard may carry optional `fields.ruleText` and `fields.ruleSources`. Hook prose describes mechanics far
+A guard may carry optional `fields.ruleText` and `fields.ruleSources`. Guard prose describes mechanics far
 more often than it names an act, so the ask that sets a guard off is the act of the tool the guard watches
 ("edit a file here" for Edit and Write, "run a command in the shell here" for Bash, "open a file here" for
 Read; a guard on the end of a turn has no tool and so no ask), with the strict situation of the rule text
@@ -660,10 +660,10 @@ as context ("This involves ..."). A phrase of the prose replaces the tool act on
   the end. It comes from the opening gerund ("Deploying to production without a tag"), the gerund after a
   connective (when, while, if, before, after, until, unless, without, upon), or a rule the guard enforces;
 * a situation: a noun phrase that opens with a determiner or a number, ends on a content word (no adverb of
-  time, no participle), holds no pronoun, relative word or parenthesis, names no hook machinery (guard, hook,
+  time, no participle), holds no pronoun, relative word or parenthesis, names no guard machinery (guard,
   check, script, handler, registry), and has no clause cut off inside it.
 
-Sentences about how the hook works (stdin, JSON, exit codes) are skipped, and a verb in the third person
+Sentences about how the guard works (stdin, JSON, exit codes) are skipped, and a verb in the third person
 followed by of, on or about is a plural noun ("Calls of any tool"), never a verb. A guard rule written as an imperative to the agent ("End every reply with ...") is a rule, never an ask, and an act
 with a condition inside it ("ask before an Edit of a policy file", "add a reminder when the owner types stop") is
 a rule too: both fall back to the tool act. The subject of a gate trigger ("you discharge a patient") is dropped
