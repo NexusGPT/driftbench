@@ -1,0 +1,48 @@
+name: fleet probe (hetzner-driftbench)
+
+# PROBE ONLY. Never merged: the PR carrying it is closed once a run has been read.
+# Proves the hetzner-driftbench scale set picks up a driftbench job and runs `pr fast`'s steps.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pr-fast-on-fleet:
+    name: pr fast (on hetzner-driftbench)
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: hetzner-driftbench
+    timeout-minutes: 15
+    steps:
+      - name: Which runner took this job
+        run: |
+          echo "runner.name=${{ runner.name }}"
+          echo "hostname=$(hostname)"
+          echo "node=$(node --version 2>/dev/null || echo none) zstd=$(zstd --version 2>/dev/null | head -1 || echo none)"
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - name: Cache package builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/*/dist
+            examples/*/dist
+            .cache/api-surface-build.json
+          key: build-v1-${{ runner.os }}-node24-${{ hashFiles('pnpm-lock.yaml', 'pnpm-workspace.yaml', 'package.json', 'tsconfig*.json', 'packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig*.json', 'packages/**/tsup.config.*', 'examples/**/src/**', 'examples/**/package.json', 'examples/**/tsconfig*.json', 'tools/structure/**') }}
+      - run: node tools/structure/api-surface.mjs --build --check
+      - name: CLI smoke
+        run: node packages/cli/dist/bin.js --version
+      - name: Docs reference is current
+        run: pnpm docs:reference --check
+      - name: Docs reachability and examples
+        run: pnpm exec vitest run tools/docs --maxWorkers=2
