@@ -21,13 +21,18 @@ concurrency:
   group: ci-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/') }}
 
+# Runner pool. `vars.RUNNER_LABEL` moves the jobs below onto a self-hosted pool; with it unset every job runs on
+# `ubuntu-latest`. A pull request whose head repository is not this repository (a fork) always runs on
+# `ubuntu-latest`, because this repository is public and a fork's code must never run on a self-hosted machine.
+# A push to main and a dispatch carry no pull request, so they follow the variable. The `leak guard` job keeps
+# `ubuntu-latest` on purpose: it holds the denylist secret and stays on GitHub-hosted machines.
 jobs:
   pr-fast:
     name: pr fast
     # A pull request runs it. A merge train also dispatches it alone on a pre-flight branch (train/pre-<pr>,
     # main plus one PR) to catch a defect in that PR before the train is built; the heavy jobs ignore it.
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',fast,'))
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     # The merge-train entry gate and the required check: it runs in about 3 minutes. The affected tests of a
     # large diff run in `pr affected` instead, because they overran any limit here and blocked the PR.
     timeout-minutes: 10
@@ -67,7 +72,7 @@ jobs:
     # merge train runs the full suite in its build jobs, so the subset is skipped on a train PR. It runs on a
     # pull request only; a pre-flight dispatch runs `pr fast` alone.
     if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'train/')
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
@@ -99,7 +104,7 @@ jobs:
     name: train gate
     if: always()
     needs: [bench, research-replay, build, python, comparison-replay, viewer-journey, guard]
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - name: Require the full merge train
         env:
@@ -152,7 +157,7 @@ jobs:
   bench:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',bench,'))
     name: benchmark replay and floors
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -167,7 +172,7 @@ jobs:
   research-replay:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',research-replay,'))
     name: research replays
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -183,7 +188,7 @@ jobs:
   build:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',build,'))
     name: build (node ${{ matrix.node }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -210,7 +215,7 @@ jobs:
   python:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',python,'))
     name: python (${{ matrix.python }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -234,7 +239,7 @@ jobs:
   comparison-replay:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',comparison-replay,'))
     name: offline comparison replay
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -252,7 +257,7 @@ jobs:
   viewer-journey:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',viewer-journey,'))
     name: viewer journey (chromium)
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -270,7 +275,14 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ steps.playwright.outputs.version }}
       - name: Install Chromium and its system libraries
-        run: pnpm exec playwright-core install --with-deps chromium
+        # --with-deps runs sudo apt-get, which GitHub-hosted machines allow. A self-hosted machine ships the
+        # libraries in its image and has no sudo, so it installs the browser alone, as NexusGPT/nexus does.
+        run: |
+          if [ "$RUNNER_ENVIRONMENT" = github-hosted ]; then
+            pnpm exec playwright-core install --with-deps chromium
+          else
+            pnpm exec playwright-core install chromium
+          fi
       - name: Drive the viewer at 1280 and 390 px
         run: pnpm exec tsx tools/browser/viewer-journey.ts --out viewer-journey
       - name: Keep the screenshots
@@ -284,6 +296,7 @@ jobs:
   guard:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',guard,'))
     name: leak guard
+    # Pinned to a GitHub-hosted machine: this job holds the GUARD_DENYLIST secret.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
