@@ -16,7 +16,15 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { isAbsolute, join, matchesGlob, relative, resolve } from 'node:path';
-import { intentsOf, loadDispatch, parseYaml, provocation, replyActOf, setOff } from './dispatch.mjs';
+import {
+  intentsOf,
+  loadDispatch,
+  parseYaml,
+  provocation,
+  recoveryReads,
+  replyActOf,
+  setOff,
+} from './dispatch.mjs';
 
 // The body grammar below matches a described part of a skill's ordering clause to an action by the words they
 // share. That is the one place words remain; the ask is never routed by them.
@@ -495,7 +503,7 @@ function skillActions(unit, estate, requested, cwd) {
     : { actions: ordered };
 }
 
-export function planStream({ ask, cwd, sessionId, env }) {
+export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
   const estate = readEstate(cwd);
   // The atoms the ask sets off, and what they define; a unit whose file the copy lacks is not loaded.
   const dispatch = loadDispatch(env);
@@ -682,6 +690,14 @@ export function planStream({ ask, cwd, sessionId, env }) {
   };
 
   hooks('UserPromptSubmit', undefined, { prompt: ask });
+  // After a compaction the agent reads again what the hazard atoms of the map name, whatever it is asked next.
+  if (compacted && dispatch) {
+    for (const path of recoveryReads(dispatch, cwd)) {
+      const target = fileTarget(path, cwd, '');
+      acted = true;
+      call('Read', { file_path: target }, () => ({ content: read(target) ?? '' }), path);
+    }
+  }
   // An ask that sets nothing off is answered plainly.
   // A request names something real: a file the copy holds, a helper it defines, or a command.
   // An act the generator wrote as a shape names a file to read or a command to run.

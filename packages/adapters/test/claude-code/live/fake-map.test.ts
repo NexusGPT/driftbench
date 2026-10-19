@@ -42,8 +42,9 @@ function play(
   dir: string,
   ask: string,
   env: Record<string, string> = { FAKE_MAP: MAP, FAKE_PHRASES: PHRASES },
+  resume?: string,
 ) {
-  const output = execFileSync(process.execPath, [FAKE, '-p', ask], {
+  const output = execFileSync(process.execPath, [FAKE, '-p', ask, ...(resume ? ['--resume', resume] : [])], {
     cwd: dir,
     env: { PATH: process.env.PATH, ...env, CLAUDE_CONFIG_DIR: join(dir, 'config') },
     encoding: 'utf8',
@@ -221,6 +222,65 @@ describe('a forced ask provokes the guard of a rule from the typed evidence of t
   });
 });
 
+describe('after a compaction the fake reads again what the hazard atoms of the map name', () => {
+  /** A session file whose last records are a compaction boundary and its summary, as the runner plants them. */
+  async function compacted(dir: string, id: string) {
+    const folder = join(dir, 'config', 'projects', dir.replace(/[^A-Za-z0-9]/g, '-'));
+    await mkdir(folder, { recursive: true });
+    const rows = [
+      { type: 'user', sessionId: id, message: { role: 'user', content: 'Earlier work.' } },
+      {
+        type: 'system',
+        subtype: 'compact_boundary',
+        compactMetadata: { trigger: 'auto', preTokens: 150000 },
+      },
+      { type: 'user', isCompactSummary: true, message: { role: 'user', content: 'Summary of the work.' } },
+    ];
+    await writeFile(join(folder, `${id}.jsonl`), `${rows.map((row) => JSON.stringify(row)).join('\n')}\n`);
+  }
+  const ASK = 'Carry on with the week 42 report where we were.';
+
+  it('reads the file the hazard is written in, from the map, when the session holds a compaction', async () => {
+    const dir = await copyOfEstate();
+    await compacted(dir, 'aaaa1111-0000-4000-8000-000000000001');
+    const played = play(dir, ASK, undefined, 'aaaa1111-0000-4000-8000-000000000001');
+    expect(played.reads).toContain(join(dir, 'CLAUDE.md'));
+  });
+
+  it('reads nothing of the kind in a session with no compaction', async () => {
+    const dir = await copyOfEstate();
+    expect(play(dir, ASK).reads).not.toContain(join(dir, 'CLAUDE.md'));
+  });
+
+  it('reads no file once the copy no longer holds the quote of the hazard', async () => {
+    const dir = await copyOfEstate();
+    await compacted(dir, 'aaaa1111-0000-4000-8000-000000000002');
+    const file = join(dir, 'CLAUDE.md');
+    await writeFile(file, (await readFile(file, 'utf8')).replace('After a compaction', 'After a holiday'));
+    const played = play(dir, ASK, undefined, 'aaaa1111-0000-4000-8000-000000000002');
+    expect(played.reads).not.toContain(file);
+  });
+
+  it('reads the files a hazard atom declares to read again, besides its own file', async () => {
+    const dir = await copyOfEstate();
+    await compacted(dir, 'aaaa1111-0000-4000-8000-000000000003');
+    const map = parse(await readFile(MAP, 'utf8')) as { atoms: Array<Record<string, any>> };
+    const hazard = map.atoms.find((atom) => atom.id === 'hazard.standing.recover-from-a-compaction-of-the');
+    hazard!.fields.reread = ['tracker/open.md'];
+    const own = join(dir, 'fake-map.json');
+    await writeFile(own, JSON.stringify(map));
+    const played = play(
+      dir,
+      ASK,
+      { FAKE_MAP: own, FAKE_PHRASES: PHRASES },
+      'aaaa1111-0000-4000-8000-000000000003',
+    );
+    expect(played.reads).toEqual(
+      expect.arrayContaining([join(dir, 'CLAUDE.md'), join(dir, 'tracker/open.md')]),
+    );
+  });
+});
+
 describe('what the copy says still decides', () => {
   it('sets an atom off only while the copy holds its quote', async () => {
     const dir = await copyOfEstate();
@@ -297,7 +357,9 @@ describe('what the copy says still decides', () => {
 
   it('answers plainly when it is given no map', async () => {
     const dir = await copyOfEstate();
-    const played = play(dir, 'Where is shipment NW-55012? It was promised for 2 October.', {});
+    const played = play(dir, 'Where is shipment NW-55012? It was promised for 2 October.', {
+      FAKE_MAP: 'none',
+    });
     expect(played.skills).toEqual([]);
     expect(played.replyAct?.id).toBe('answer');
   });

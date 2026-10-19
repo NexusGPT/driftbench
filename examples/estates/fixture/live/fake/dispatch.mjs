@@ -70,9 +70,14 @@ const cache = new Map();
 
 /** The index of the map, the phrase bank and the grammar, or undefined when no map is given. */
 export function loadDispatch(env) {
-  const mapPath = env.FAKE_MAP;
-  if (!mapPath) return undefined;
-  const phrasesPath = env.FAKE_PHRASES;
+  // Without FAKE_MAP the fake reads the map and the bank of the fixture it ships in; FAKE_MAP=none gives it none.
+  const own = (name) => {
+    const path = join(here, '../..', name);
+    return existsSync(path) ? path : undefined;
+  };
+  const mapPath = env.FAKE_MAP === undefined ? own('approved.yaml') : env.FAKE_MAP;
+  if (!mapPath || mapPath === 'none') return undefined;
+  const phrasesPath = env.FAKE_PHRASES ?? (env.FAKE_MAP === undefined ? own('phrases.yaml') : undefined);
   const grammarPath = env.FAKE_GRAMMAR ?? join(here, 'grammar.json');
   const key = `${mapPath}\n${phrasesPath ?? ''}\n${grammarPath}`;
   if (cache.has(key)) return cache.get(key);
@@ -275,6 +280,28 @@ export function replyActOf(replies) {
   const most = Math.max(0, ...[...counts.values()].map((entry) => entry.count));
   const tied = [...counts.values()].filter((entry) => entry.count === most).map((entry) => entry.act);
   return tied.find((act) => act.id === 'report') ?? tied[0];
+}
+
+/**
+ * The files an agent reads again after a compaction, from the hazard atoms of the map whose `fields.hazard` is
+ * `compaction` and that are in force in the copy: the files a hazard declares to read again (`fields.reread`, or
+ * `reread` in the options of its `hazard_recovery` evidence), and the file the passage is written in, which is the
+ * standing instruction the hazard orders to be read again. Taken from structure only: no prose is read.
+ */
+export function recoveryReads(index, cwd) {
+  const paths = [];
+  for (const atom of index.atoms.values()) {
+    if (atom.kind !== 'hazard' || atom.fields?.hazard !== 'compaction' || !inForce(atom, cwd)) continue;
+    const declared = [
+      ...(Array.isArray(atom.fields?.reread) ? atom.fields.reread : []),
+      ...(atom.evidence ?? []).flatMap((entry) =>
+        entry.name === 'hazard_recovery' && Array.isArray(entry.options?.reread) ? entry.options.reread : [],
+      ),
+    ];
+    for (const path of [...declared, atom.provenance?.file])
+      if (typeof path === 'string' && path.trim() !== '' && !paths.includes(path)) paths.push(path);
+  }
+  return paths;
 }
 
 /**
