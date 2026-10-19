@@ -14,7 +14,10 @@ import { FAKE, FIXTURE, JUDGE, STATES } from './fixture-suite';
  */
 const BATCH = 20;
 
-export async function observeOnFake(paths: readonly string[]): Promise<Map<string, Observed>> {
+export async function observeOnFake(
+  paths: readonly string[],
+  options: { phrases?: string } = {},
+): Promise<Map<string, Observed>> {
   const out = new Map<string, Observed>();
   if (paths.length === 0) return out;
   const work = await mkdtemp(join(tmpdir(), 'astra-askwords-observe-'));
@@ -45,9 +48,16 @@ export async function observeOnFake(paths: readonly string[]): Promise<Map<strin
           JUDGE,
           '--map',
           join(FIXTURE, 'approved.yaml'),
+          // The phrase bank the fake tells an ask by: the fixture's own, unless the caller brings another.
+          ...(options.phrases ? ['--set-env', `FAKE_PHRASES=${options.phrases}`] : []),
           '--json',
         ],
-        { cwd: REPO, encoding: 'utf8', timeout: 900_000, maxBuffer: 200_000_000 },
+        {
+          cwd: REPO,
+          encoding: 'utf8',
+          timeout: 900_000,
+          maxBuffer: 200_000_000,
+        },
       );
       if (ran.error) throw ran.error;
       if (ran.status !== 0 && ran.status !== 1)

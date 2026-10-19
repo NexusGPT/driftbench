@@ -10,7 +10,7 @@ import { actOfAtom } from '../../src/ladders/estate/bank/task-act';
 import { checkAsk, checkTrace, envOf } from '../../src/ladders/estate/bank/task-check';
 import { observeOnFake } from '../../src/ladders/estate/bank/task-trace';
 
-it('uses actual fake traces for an unlisted helper verb, a wrong act, and the retained guard recording gap', async () => {
+it('uses actual fake traces for an unlisted helper verb, a wrong act, and the guard decision the fake now records', async () => {
   const map = await loadEstateMap(join(FIXTURE, 'approved.yaml'));
   if (!map.ok) throw new Error('fixture map does not load');
   const guard = map.map.atoms.find(
@@ -25,7 +25,8 @@ it('uses actual fake traces for an unlisted helper verb, a wrong act, and the re
   const cases = [
     { id: 'unlisted', ask: 'Delegate `inbox-triager`.', unit: helper, pass: true },
     { id: 'wrong', ask: 'Please report the inventory.', unit: helper, pass: false },
-    { id: 'guard-recording-gap', ask: 'stop', unit: guard, pass: false },
+    // The fake runs the real stop-word guard and records its decision (nudge), which the map requires: the act shows.
+    { id: 'guard-nudge-recorded', ask: 'stop', unit: guard, pass: true },
     { id: 'unlisted-reply', ask: 'Berthify the vessel.', unit: report, pass: true },
     { id: 'wrong-reply', ask: 'Please report the inventory.', unit: clarify, pass: false },
   ];
@@ -34,6 +35,7 @@ it('uses actual fake traces for an unlisted helper verb, a wrong act, and the re
     {
       situations: cases.map((entry) => ({
         id: entry.id,
+        use: 'trigger',
         atoms: [entry.unit.id],
         phrases: [{ text: entry.ask, approved: true }],
       })),
@@ -89,7 +91,20 @@ it('uses actual fake traces for an unlisted helper verb, a wrong act, and the re
         spec: loaded.spec,
       });
     }
-    const traces = await observeOnFake(specs.map((spec) => spec.path));
+    // The fake tells an ask from the phrase bank it is given. A wrong act is an approved phrase of the unit that
+    // sets nothing off in the fake (the fake answers it plainly), so only the cases that must show their act are
+    // in the bank the fake reads; checkAsk reads them all.
+    const phrases = join(scratch, 'phrases.yaml');
+    await writeFile(
+      phrases,
+      stringify({
+        situations: env.bank.situations.filter((_, at) => cases[at]?.pass === true).map((s) => ({ ...s })),
+      }),
+    );
+    const traces = await observeOnFake(
+      specs.map((spec) => spec.path),
+      { phrases },
+    );
     for (const [index, spec] of specs.entries()) {
       const verdict = checkAsk(spec, env);
       expect(verdict.reasons, spec.id).toEqual([]);
@@ -97,13 +112,14 @@ it('uses actual fake traces for an unlisted helper verb, a wrong act, and the re
       expect(traces.get(spec.id), spec.id).toBeDefined();
       if (cases[index]?.id === 'unlisted-reply' || cases[index]?.id === 'wrong-reply') {
         const trace = traces.get(spec.id);
-        expect(trace?.replyAct?.id).toBe('report');
+        // The stage declares `report` and the fake performs it; the clarify rule is not set off, so it is answered.
+        expect(trace?.replyAct?.id).toBe(cases[index]?.id === 'unlisted-reply' ? 'report' : 'answer');
         const segment = trace?.segments[trace?.replyAct?.evidence.index ?? -1];
         expect(segment?.type).toBe('text');
       }
-      if (cases[index]?.id === 'guard-recording-gap') {
+      if (cases[index]?.id === 'guard-nudge-recorded') {
         expect(traces.get(spec.id)?.runtime?.guards).toContainEqual(
-          expect.objectContaining({ name: 'stop-word.sh', verdict: 'allow' }),
+          expect.objectContaining({ name: 'stop-word.sh', verdict: 'nudge' }),
         );
       }
       if (verdict.trace)
