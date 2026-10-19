@@ -182,15 +182,16 @@ jobs:
 
   build:
     if: github.event_name == 'push' || startsWith(github.head_ref, 'train/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',build,'))
-    # The tests run in 4 shards (`vitest run --shard=i/4`: each test file runs in exactly one shard). Shard 1
-    # also runs lint, typecheck, the docs checks and the CLI smoke; the other shards run the tests only.
-    name: build (node ${{ matrix.node }}, shard ${{ matrix.shard }}/4)
+    # The tests run in 8 shards (`vitest run --shard=i/8`: each test file runs in exactly one shard), with 4
+    # vitest workers per shard on the 4 vCPUs of a standard runner. Shard 1 also runs lint, typecheck, the docs
+    # checks and the CLI smoke; the other shards run the tests only.
+    name: build (node ${{ matrix.node }}, shard ${{ matrix.shard }}/8)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         node: [22, 24]
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -205,7 +206,7 @@ jobs:
         run: pnpm typecheck
       # The API gate builds first and stamps source + emitted bytes. Tests verify that stamp, so every shard runs it.
       - run: node tools/structure/api-surface.mjs --build --check
-      - run: pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/4
+      - run: pnpm test --maxWorkers=4 --shard=${{ matrix.shard }}/8
       - if: matrix.shard == 1
         run: pnpm docs:reference --check
       - if: matrix.shard == 1
