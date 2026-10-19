@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { cp, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -34,6 +34,25 @@ describe('the fake runtime as the kill.fake family runs it', { timeout: 120_000 
     const run = [...runOnFakeDetailed(FIXTURE, [spec], join(await scratch(), 'runs.db'), MAP).values()][0];
     expect(run?.failing.join('\n')).not.toContain('no operation in the state library');
     expect(run).toMatchObject({ completed: true, pass: true, failing: [] });
+  });
+
+  it('turns the same spec red on a stand-in agent that skips the re-read after a compaction', async () => {
+    const spec = await specNaming('hazard_recovery', 'hazard.standing.r15-after-a-compaction-re-read');
+    const dir = await scratch();
+    // The same agent with the re-read switched off: the check must still be able to fail.
+    const variant = join(dir, 'fake');
+    await cp(join(FIXTURE, 'live/fake'), variant, { recursive: true });
+    const source = await readFile(join(variant, 'agent.mjs'), 'utf8');
+    expect(source).toContain('if (compacted && dispatch) {');
+    await writeFile(
+      join(variant, 'agent.mjs'),
+      source.replace('if (compacted && dispatch) {', 'if (false && compacted && dispatch) {'),
+    );
+    const run = [
+      ...runOnFakeDetailed(FIXTURE, [spec], join(dir, 'runs.db'), MAP, join(variant, 'claude.mjs')).values(),
+    ][0];
+    expect(run).toMatchObject({ completed: true, pass: false });
+    expect(run?.failing.some((failing) => failing.includes('hazard_recovery.reread'))).toBe(true);
   });
 
   it('decides a judged criterion with the stand-in judge instead of leaving it inconclusive', async () => {
