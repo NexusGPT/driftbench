@@ -405,7 +405,7 @@ One expected tool call.
 | `count` | [Count](#count) | no |  | How many calls are expected. 0 means the tool must not be called. |
 | `input` | map of string to [Assertion](#assertion) | no |  | Assertions on the arguments, by argument name. |
 | `input_closed` | boolean | no |  | True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed. |
-| `normalise` | map of string to [NormaliseRule](#normaliserule) | no |  | Rules by argument path, such as phone or customer.phone: the argument and its expected value are normalised before they are compared. Without a rule the comparison is exact. |
+| `normalise` | map of string to [NormaliseRule](#normaliserule) | no |  | Rules by argument path, such as phone or customer.phone: the argument and its expected value are normalised before they are compared. Without a rule the values compare as written. A value that still differs goes to the value-check ladder, as compare says. |
 | `compare` | [CompareMode](#comparemode) or map of string to [CompareMode](#comparemode) | no |  | How the input values are compared: one mode for every argument, or a mode by argument name. Absent means auto: the value-check rungs decide whether a value that differs from the gold names the same thing. |
 
 ## Count
@@ -480,6 +480,7 @@ Another way of writing the expected value. It matches only when approved.
 |---|---|---|---|---|
 | `form` | string, not empty | yes |  | The text as the agent may write it, such as an address without its town. |
 | `approved` | boolean | yes |  | True once a person has signed the form off. A form not approved is listed and never matches. |
+
 ## CompareMode
 
 How one value is compared: auto, a rung name, or exact with its reason.
