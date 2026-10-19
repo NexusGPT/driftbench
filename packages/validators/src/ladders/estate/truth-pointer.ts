@@ -11,6 +11,9 @@ import type { ExpectedAtom, ProseEntry } from './render';
  * - A line with a prose rule of the record (`ProseEntry`) gets a label of its own that builds that rule: the
  *   kind, polarity, title, situation and evidence the record holds. The hazard and the references planted on the
  *   same line are built by the same label (`also`).
+ * - A prose rule whose evidence is a call of a helper also links that helper, so the map holds the dispatch.
+ * - The request cell of a planted routing table row gets `route-skill` or `route-helper`, targets the cell that
+ *   follows it and links the skill or helper the planted route leads to.
  * - A line with only a planted reference gets the shipped `reference` label.
  * - Every other unit is `none`.
  */
@@ -54,6 +57,30 @@ function lineOf(file: string, text: string): number | undefined {
   return line;
 }
 
+/** The name of the helper a rule's evidence calls, from the tool call it lists. */
+function dispatchedHelper(entry: ProseEntry): string | undefined {
+  for (const evidence of entry.evidence) {
+    const call = evidence as { type?: string; label?: string; input?: { subagent_type?: unknown } };
+    if (
+      call.type === 'tool_called' &&
+      call.label === 'Agent' &&
+      typeof call.input?.subagent_type === 'string'
+    )
+      return call.input.subagent_type;
+  }
+  return undefined;
+}
+
+/** The id of the candidate atom of a kind that carries a name: the pointer lists the atoms a link may name. */
+function candidateOf(
+  context: pointer.LabelContext | undefined,
+  link: string,
+  kind: string,
+  name: string,
+): string | undefined {
+  return context?.candidates?.[link]?.find((candidate) => candidate.id.startsWith(`${kind}.${name}.`))?.id;
+}
+
 /** What the generator planted: the files it wrote, the atoms it expects, and the prose rules by file. */
 export type Truth = {
   files: Readonly<Record<string, string>>;
@@ -84,6 +111,7 @@ export function truthPointer(truth: Truth): TruthPointer {
 
   const labels: pointer.LabelSet['labels'] = [...base.labels];
   const byLine = new Map<string, string>();
+  const helperAt = new Map<string, string>();
   let count = 0;
   for (const [file, list] of entries) {
     for (const entry of list) {
@@ -97,6 +125,7 @@ export function truthPointer(truth: Truth): TruthPointer {
       labels.push({
         name,
         description: `The rule planted at line ${entry.line} of ${file}.`,
+        links: ['dispatches'],
         atom: {
           kind: entry.kind,
           title: entry.title,
@@ -107,6 +136,8 @@ export function truthPointer(truth: Truth): TruthPointer {
         },
       });
       byLine.set(`${file}:${entry.line}`, name);
+      const helper = dispatchedHelper(entry);
+      if (helper) helperAt.set(`${file}:${entry.line}`, helper);
     }
   }
   const text = JSON.stringify({ labels: [{ ...base, set: SET_NAME, labels }] });
@@ -117,6 +148,22 @@ export function truthPointer(truth: Truth): TruthPointer {
   const referenceLines = new Set(
     truth.atoms.filter((atom) => atom.kind === 'reference').map((atom) => `${atom.file}:${atom.line}`),
   );
+  // The planted rows of a routing table: the request cell is the first cell of the row, and the route leads to
+  // the skill or the helper of that name.
+  const named = (kind: string, name: string) =>
+    truth.atoms.some((atom) => atom.kind === kind && atom.key === name);
+  const routesIn = new Map<string, Array<{ ask: string; label: string; kind: string; name: string }>>();
+  for (const atom of truth.atoms) {
+    if (atom.kind !== 'route') continue;
+    const row = (truth.files[atom.file] ?? '').split('\n')[atom.line - 1] ?? '';
+    if (!row.trimStart().startsWith('|')) continue;
+    const ask = row.split('|')[1]?.trim() ?? '';
+    const kind = named('subagent', atom.key) ? 'subagent' : 'skill';
+    const list = routesIn.get(atom.file) ?? [];
+    list.push({ ask, label: kind === 'skill' ? 'route-skill' : 'route-helper', kind, name: atom.key });
+    routesIn.set(atom.file, list);
+  }
+  const contexts = new Map<string, pointer.LabelContext | undefined>();
   const windows: WindowLog = [];
   const labeler: pointer.Labeler = {
     id: 'planted-truth',
@@ -125,10 +172,13 @@ export function truthPointer(truth: Truth): TruthPointer {
     model: 'planted-truth-1',
     settings: {},
     maxUnits: (_set, wanted) => wanted,
-    render: (set, window) => ({
-      labeler: 'planted-truth',
-      body: { set: set.set, window: window.id, units: window.units.map((unit) => unit.text) },
-    }),
+    render: (set, window, context) => {
+      contexts.set(window.id, context);
+      return {
+        labeler: 'planted-truth',
+        body: { set: set.set, window: window.id, units: window.units.map((unit) => unit.text) },
+      };
+    },
     opinions: pointer.denseOpinions,
     async call(_wire, _set, window) {
       const file = truth.files[window.path] ?? '';
@@ -138,8 +188,22 @@ export function truthPointer(truth: Truth): TruthPointer {
         characters: window.units.reduce((sum, unit) => sum + unit.text.length, 0),
       });
       const used = new Set<string>();
+      const context = contexts.get(window.id);
+      const routed = new Set<unknown>();
       return {
         labels: window.units.map((unit) => {
+          const route = routesIn.get(window.path)?.find((row) => row.ask === unit.text && !routed.has(row));
+          if (route) {
+            routed.add(route);
+            const to = candidateOf(context, route.label, route.kind, route.name);
+            if (to)
+              return {
+                units: String(unit.n),
+                label: route.label,
+                target: unit.n + 1,
+                links: [{ kind: route.label, to }],
+              };
+          }
           const line = lineOf(file, unit.text);
           const key = `${window.path}:${line}`;
           if (line === undefined || used.has(key)) return { units: String(unit.n), label: 'none' };
@@ -157,7 +221,11 @@ export function truthPointer(truth: Truth): TruthPointer {
           const own = byLine.get(key);
           if (own) {
             used.add(key);
-            return { units: String(unit.n), label: own };
+            const helper = helperAt.get(key);
+            const to = helper ? candidateOf(context, 'dispatches', 'subagent', helper) : undefined;
+            return to
+              ? { units: String(unit.n), label: own, links: [{ kind: 'dispatches', to }] }
+              : { units: String(unit.n), label: own };
           }
           if (referenceLines.has(key)) {
             used.add(key);

@@ -245,3 +245,32 @@ describe('reachability', () => {
     }
   });
 });
+
+describe('dispatch edges', () => {
+  const files = {
+    '.claude/skills/parcels/SKILL.md':
+      '---\nname: parcels\ndescription: Review parcels.\n---\n\nHand the batch to parcel-check.\n\nNever use parcel-check for weather.\n',
+    '.claude/agents/parcel-check.md': '---\nname: parcel-check\ndescription: Check parcels.\n---\n',
+  };
+  const helper = 'subagent.parcel-check.helper-parcel-check';
+  const dispatches = async (links: Record<string, [string, string]>) => {
+    const { map } = await scanEstate({
+      root: await estate(files),
+      reader: new ClaudeCodeReader(),
+      now: NOW,
+      pointer: plantedRoutes(links, '.claude/skills/parcels/SKILL.md'),
+    });
+    return map.edges.filter((edge) => edge.kind === 'dispatch');
+  };
+
+  it('has an edge from the unit that carries a dispatches link, and from nothing else', async () => {
+    expect(await dispatches({ 'Hand the batch': ['dispatch', helper] })).toEqual([
+      { from: 'skill.parcels.skill-parcels', to: helper, kind: 'dispatch' },
+    ]);
+    expect(await dispatches({})).toEqual([]);
+  });
+
+  it('drops a dispatches link to an atom the estate does not hold', async () => {
+    expect(await dispatches({ 'Hand the batch': ['dispatch', 'subagent.ghost.helper-ghost'] })).toEqual([]);
+  });
+});

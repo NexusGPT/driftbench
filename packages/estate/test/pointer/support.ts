@@ -155,16 +155,17 @@ export function fakeFetch(reply: unknown, calls: Call[] = [], status = 200) {
  * A planted system 2 labeler: the request cells of a table are routes, to the unit that follows them; any other
  * unit that names a path is a reference, and the rest are none.
  */
-export function plantedRoutes(links: Record<string, [string, string]>) {
+export function plantedRoutes(links: Record<string, [string, string]>, path = 'CLAUDE.md') {
   const labeler = plantedDense((window) =>
     window.units.map((unit) => {
       const found =
-        window.path === 'CLAUDE.md'
-          ? Object.entries(links).find(([ask]) => unit.text.includes(ask))
-          : undefined;
+        window.path === path ? Object.entries(links).find(([ask]) => unit.text.includes(ask)) : undefined;
       if (!found)
         return { units: String(unit.n), label: namedPaths(unit.text).length > 0 ? 'reference' : 'none' };
       const [label, atom] = found[1];
+      // A dispatch unit links the helper it hands work to; a route unit targets the unit that follows it.
+      if (label === 'dispatch')
+        return { units: String(unit.n), label, links: [{ kind: 'dispatches', to: atom }] };
       return {
         units: String(unit.n),
         label,
