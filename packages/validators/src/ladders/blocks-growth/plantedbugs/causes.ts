@@ -52,6 +52,31 @@ export const CAUSES = {
     text: 'Beside the suite headline, each share of runs that gave no verdict (did not complete, not run, blocked) is a share of every run of the suite, scored or not.',
     contract: 'docs/concepts/statistics.md#The suite headline',
   },
+  // Round 2: the rules the round-2 planted bugs broke unseen (scratchpad/blocks-audit-bugs/NOTES.md, "Round 2").
+  'workspace-one-form': {
+    text: 'The workspace check compares paths in one form, in its three lists and in all three sets of the diff alike: a backslash reads as a forward slash and leading ./ segments are dropped.',
+    contract: 'docs/reference/checks.md#Workspace',
+  },
+  'perturbation-world-wins': {
+    text: "A world-only perturbation runs under block inject_at with its own world: a key the block's given world also writes takes the perturbation's value, and the block's other keys stay.",
+    contract: 'docs/concepts/recovery.md#Writing a perturbation',
+  },
+  'count-range-invalid': {
+    text: 'A count whose min is greater than its max, by one or by more, is the error COUNT_RANGE_INVALID; a min equal to the max is a valid range.',
+    contract: 'docs/reference/cli.md#Issue codes',
+  },
+  'exact-strict-grouping': {
+    text: 'In `exact` a strict thousands grouping leads with one to three digits: a comma after a leading group of four digits counts.',
+    contract: 'docs/reference/checks.md#Text and language',
+  },
+  'snapshot-depth-bound': {
+    text: 'A snapshot stops only past 32 folder levels: a workspace exactly 32 levels deep is within the bounds.',
+    contract: 'docs/adapters/process.md#Sandboxes',
+  },
+  'export-at-the-bound': {
+    text: 'An export fails only when the files pass `exportMaxBytes`: a workspace of exactly that size exports.',
+    contract: 'docs/reference/block-contracts.md#The workspace of a child',
+  },
 } as const;
 
 export type PlantedCause = keyof typeof CAUSES;
