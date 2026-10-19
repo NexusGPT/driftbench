@@ -352,10 +352,35 @@ Source: `docs/concepts/blast-radius.md`, "Prompt sections and block links" (one 
 * A block weighs `failed rows / rows`. `n_cf` sums the weights of the blocks linked to the section. `n_cs` sums one minus the weight. `N_F` sums every weight.
 * Global sections and stale sections are not ranked.
 * The command exits 0 with a ranking, 1 when nothing failed outside inherited failures, and 2 on bad input.
+* A run of a spec that was not given is skipped, with the reason `the spec <id> was not given`.
+* A run of another mode is skipped, with the reason `mode <mode>, not <mode read>`.
+* A run of another spec version (another spec hash) is skipped, with the reason `another version of <id> (spec hash <hash>)`.
+* Each skipped run is printed as `Skipped run <run id>: <reason>.` and listed under `skipped` in `--json`.
+* The runs kept are grouped into suite runs by target, mode, repeat and perturbation.
+* An injected block is not a row.
+* A block whose status is `not_run` or `blocked` is not a row. Only a `pass` or a `fail` is a row.
+* A block whose index is at or past the number of blocks of its spec is ignored.
+* `--mode` defaults to the only mode of the campaign. Runs in several modes, or no run, exit 2 until `--mode` names one.
+* With several registries, `--prompt` names the prompt to rank. Without it, or when no registry describes that prompt, the command exits 2.
+* When two registries describe the prompt named by `--prompt`, the first one given is ranked.
+* A link to a section the ranked registry does not hold covers nothing.
+* Tied sections print in the order of the registry.
 
 Source: `deep_3_links_localisation.md`, headings "(b) Proposed link schema (YAML)" and "C1. The spectrum for prompts"; `links_real_scale.md`, heading "Recommended anchoring".
 Names from code, on `origin/main`: `packages/core/src/schema/links.ts`, `packages/core/src/radius/sections.ts` (`sectionsFromHeadings`, `reanchorRegistry`), `packages/core/src/radius/localize.ts`.
 Names from code, on `origin/main`: `packages/core/src/spec/semantics.ts` (`LINK_BLOCK_UNKNOWN`), `packages/cli/src/commands/radius-sections.ts` and `radius-localize.ts` (flags and exit codes).
+
+### Registry checks of spec lint
+
+* `spec lint <specs> --sections <registries>` checks the links of each spec against the registries.
+* Two registries for one prompt exit 2, with `two section registries describe the prompt <id>`.
+* A link to a section that the registry of its prompt does not hold is an error, `LINK_TARGET_UNKNOWN` at `metadata.links.<i>.to`.
+* A link to a prompt with no registry given is a warning, `LINK_TARGET_UNKNOWN` at `metadata.links.<i>.to`.
+* A link to a section the registry marks stale is a warning, `LINK_STALE` at `metadata.links.<i>.to`.
+* A link whose status is `stale` is a warning, `LINK_STALE` at `metadata.links.<i>.status`. This is the advisory report of a stale link.
+* `--strict` makes any warning exit 1.
+
+Names from code, on `origin/main`: `packages/core/src/radius/links.ts` (`registriesByPrompt`, `checkSpecLinks`), `packages/cli/src/commands/spec.ts` (`spec lint --sections`).
 
 ## Personas
 
